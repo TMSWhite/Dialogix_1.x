@@ -732,12 +732,17 @@ if (DEBUG) Logger.writeln("##SecurityException @ Triceps.deleteFile()" + e.getMe
 				if (comment == null)
 					comment = "";
 
-				out.write(n.toTSV() +
-					"\t" + n.getAnswerLanguageNum() +
-					"\t" + n.getQuestionAsAsked() +
-					"\t" + ans +
-					"\t" + comment +
-					"\t" + n.getTimeStampStr() + "\n");
+if (AUTHORABLE) {
+                out.write(n.toTSV() + "\t");
+}
+if (!AUTHORABLE) {
+                out.write(n.getLocalName() + "\t");
+}
+                out.write(n.getAnswerLanguageNum() + "\t");
+                out.write(n.getQuestionAsAsked() + "\t");
+                out.write(ans + "\t");
+                out.write(comment + "\t") ;
+                out.write(n.getTimeStampStr() + "\n");
 			}
 			out.flush();
 			return true;
