@@ -36,7 +36,7 @@ public class TricepsServlet extends HttpServlet implements VersionIF {
 			
 if (WEB_SERVER && DEBUG) {
 	/* standard Apache log format (after the #@# prefix for easier extraction) */
-	Logger.writeln("#@#" + req.getRemoteAddr() + " - " + req.getRemoteHost() + " - [" + new Date(System.currentTimeMillis()) + "] \"" +
+	Logger.writeln("#@#" + req.getRemoteAddr() + " -  [" + new Date(System.currentTimeMillis()) + "] \"" +
 		req.getMethod() + " " + req.getRequestURI() + " " + req.getProtocol() + "\" " + req.getParameter("DIRECTIVE"));
 }
 	
