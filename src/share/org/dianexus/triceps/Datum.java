@@ -9,27 +9,29 @@ public class Datum  {
 	public static final int REFUSED = 2;		// question asked, but subject refuses to answer
 	public static final int INVALID = 3;		// if an exception occurs - so propagated
 	public static final int UNKNOWN = 4;		// subject indicates that they don't know the answer
-	public static final int NUMBER = 5;
-	public static final int STRING = 6;
-	public static final int DATE = 7;
-	public static final int TIME = 8;
-	public static final int YEAR = 9;
-	public static final int MONTH = 10;
-	public static final int DAY = 11;
-	public static final int WEEKDAY = 12;
-	public static final int HOUR = 13;
-	public static final int MINUTE = 14;
-	public static final int SECOND = 15;
-	public static final int MONTH_NUM = 16;
+	public static final int NOT_UNDERSTOOD = 5;
+	public static final int NUMBER = 6;
+	public static final int STRING = 7;
+	public static final int DATE = 8;
+	public static final int TIME = 9;
+	public static final int YEAR = 10;
+	public static final int MONTH = 11;
+	public static final int DAY = 12;
+	public static final int WEEKDAY = 13;
+	public static final int HOUR = 14;
+	public static final int MINUTE = 15;
+	public static final int SECOND = 16;
+	public static final int MONTH_NUM = 17;
 	private static final Date SAMPLE_DATE = new Date(System.currentTimeMillis());
 	private static final Double SAMPLE_NUMBER = new Double(123.456);
-	public static final String TYPES[] = { "*UNASKED*", "*NOT APPLICABLE*", "*REFUSED*", "*INVALID*", "*UNKNOWN*", 
+	public static final String TYPES[] = { "*UNASKED*", "*NOT APPLICABLE*", "*REFUSED*", "*INVALID*", "*UNKNOWN*", "*NOT UNDERSTOOD*",
 		"Number", "String", "Date", "Time", "Year", "Month", "Day", "Weekday", "Hour", "Minute", "Second", "Month_Num" };
 	private static Datum NA_DATUM = null;
 	private static Datum UNKNOWN_DATUM = null;
 	private static Datum REFUSED_DATUM = null;
 	private static Datum INVALID_DATUM = null;
 	private static Datum UNASKED_DATUM = null;
+	private static Datum NOT_UNDERSTOOD_DATUM = null;
 		
 	private static final SimpleDateFormat defaultDateFormat = new SimpleDateFormat("MM/dd/yyyy");
 	private static final SimpleDateFormat defaultMonthFormat = new SimpleDateFormat("MMMM");
@@ -89,7 +91,12 @@ public class Datum  {
 				if (Datum.UNASKED_DATUM == null) {
 					Datum.UNASKED_DATUM = new Datum(UNASKED);
 				}
-				return Datum.UNASKED_DATUM;				
+				return Datum.UNASKED_DATUM;			
+			case NOT_UNDERSTOOD: 
+				if (Datum.NOT_UNDERSTOOD_DATUM == null) {
+					Datum.NOT_UNDERSTOOD_DATUM = new Datum(NOT_UNDERSTOOD);
+				}
+				return Datum.NOT_UNDERSTOOD_DATUM;						
 			default:
 			case INVALID: 
 				if (Datum.INVALID_DATUM == null) {
@@ -110,11 +117,10 @@ public class Datum  {
 			case NA:
 			case UNKNOWN:
 			case UNASKED:
+			case NOT_UNDERSTOOD:
 			case REFUSED:
 				break;
 			default:
-				error = "Internal error:  expected one of INVALID, UNKNOWN or NA";
-				/* fall through */
 			case INVALID:
 				type = INVALID;
 				break;
@@ -207,6 +213,7 @@ public class Datum  {
 			case INVALID:
 			case UNKNOWN:
 			case UNASKED:
+			case NOT_UNDERSTOOD
 			case REFUSED:
 			case NA:
 		}
@@ -412,6 +419,8 @@ public class Datum  {
 				return (type == REFUSED);
 			case UNASKED:
 				return (type == UNASKED);
+			case NOT_UNDERSTOOD:
+				return (type == NOT_UNDERSTOOD);
 			default:
 				return false;
 		}
@@ -460,6 +469,7 @@ public class Datum  {
 			case NA:
 			case UNKNOWN:
 			case UNASKED:
+			case NOT_UNDERSTOOD:
 			case REFUSED:
 				break;
 		}
@@ -495,6 +505,7 @@ public class Datum  {
 			case NA:
 			case UNKNOWN:
 			case UNASKED:
+			case NOT_UNDERSTOOD:
 			case STRING:
 			case REFUSED:
 				break;
@@ -545,6 +556,7 @@ public class Datum  {
 			case NA:
 			case REFUSED:
 			case UNKNOWN:
+			case NOT_UNDERSTOOD:
 				return TYPES[d.type()];
 			case UNASKED:
 				return "";	// empty string to indicate that has not been assessed yet.
@@ -593,6 +605,7 @@ public class Datum  {
 			case NA:
 			case REFUSED:
 			case UNKNOWN:
+			case NOT_UNDERSTOOD:
 				return TYPES[t];
 			case UNASKED:
 				return "";	// empty string to indicate that has not been assessed yet.
@@ -626,6 +639,7 @@ public class Datum  {
 			case INVALID:
 			case NA:
 			case UNKNOWN:
+			case NOT_UNDERSTOOD:
 			case UNASKED:
 			case STRING:
 			case REFUSED:
