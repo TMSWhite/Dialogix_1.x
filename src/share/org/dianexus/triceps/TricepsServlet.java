@@ -583,44 +583,86 @@ public class TricepsServlet extends HttpServlet {
 		else if (directive.equals("show Syntax Errors")) {
 			Vector pes = triceps.collectParseErrors();
 
-			if (pes.size() == 0) {
+			if (pes == null || pes.size() == 0) {
 				setError("No syntax errors were found");
 			}
 			else {
 				Vector errs;
-
+				Vector syntaxErrors = new Vector();
+				
+				int numToBeShown = 0;
+				
 				for (int i=0;i<pes.size();++i) {
 					ParseError pe = (ParseError) pes.elementAt(i);
+					
+					/* switch over available diplay options */
+				}
+				syntaxErrors = pes;
+				for (int i=0;i<syntaxErrors.size();++i) {
+					ParseError pe = (ParseError) syntaxErrors.elementAt(i);
 					Node n = pe.getNode();
 
 					if (i == 0) {
-						setError("<FONT color='red'>The following errors were found in file <I>" + (n.getSourceFile()) + "</I></FONT>");
+						setError("<FONT color='red'>The following <i>syntax errors</i> were found in file <I>" + (n.getSourceFile()) + "</I></FONT>");
 						setError("<TABLE CELLPADDING='2' CELLSPACING='1' WIDTH='100%' border='1'>");
-						setError("<TR><TD>line#</TD><TD>name</TD><TD>Dependencies</TD><TD><B>Dependency Errors</B></TD><TD>Action Type</TD><TD>Action</TD><TD><B>Action Errors</B></TD><TD><B>Other Errors</B></TD></TR>");
+						setError("<TR><TD>line#</TD><TD>name</TD><TD>Dependencies</TD><TD><B>Dependency Errors</B></TD><TD>Action Type</TD><TD>Action</TD><TD><B>Action Errors</B></TD><TD><B>Node Errors</B></TD><TD><B>Naming Errors</B></TD><TD><B>AnswerChoices Errors</B></TD><TD><B>Readback Errors</B></TD></TR>");
 					}
 
 					setError("<TR><TD>" + n.getSourceLine() + "</TD><TD>" + (n.getLocalName()) + "</TD>");
-					setError("<TD>" + (pe.getDependencies()) + "</TD><TD>");
+					setError("<TD>" + n.getDependencies() + "</TD><TD>");
 
-					setError(pe.getDependenciesErrors());
-					setError("</TD><TD>" + Node.ACTION_TYPES[n.getQuestionOrEvalType()] + "</TD><TD>" + (pe.getQuestionOrEval()) + "</TD><TD>");
+					setError(pe.hasDependenciesErrors() ? pe.getDependenciesErrors() : "&nbsp;");
+					setError("</TD><TD>" + Node.ACTION_TYPES[n.getQuestionOrEvalType()] + "</TD><TD>" + n.getQuestionOrEval() + "</TD><TD>");
 
-					setError(pe.getQuestionOrEvalErrors());
+					setError(pe.hasQuestionOrEvalErrors() ? pe.getQuestionOrEvalErrors() : "&nbsp;");
 					setError("</TD><TD>");
 
-					errs = pe.getNodeErrors();
-					if (errs.size() == 0) {
+					if (!pe.hasNodeParseErrors()) {
 						setError("&nbsp;");
 					}
 					else {
+						errs = pe.getNodeParseErrors();
 						for (int j=0;j<errs.size();++j) {
-							setError("" + (j+1) + ")&nbsp;" + (String) errs.elementAt(j));	// XXX: don't () these, since pre-processed within Node
+							setError("" + (j+1) + ")&nbsp;" + (String) errs.elementAt(j));	
 						}
 					}
-					setError("</TD></TR>");
+					setError("</TD><TD>");
+					
+					if (!pe.hasNodeNamingErrors()) {
+						setError("&nbsp;");
+					}
+					else {
+						errs = pe.getNodeNamingErrors();
+						for (int j=0;j<errs.size();++j) {
+							setError("" + (j+1) + ")&nbsp;" + (String) errs.elementAt(j));	
+						}
+					}
+					
+					setError("<TD>" + ((pe.hasAnswerChoicesErrors()) ? pe.getAnswerChoicesErrors() : "&nbsp;") + "</TD>");
+					setError("<TD>" + ((pe.hasReadbackErrors()) ? pe.getReadbackErrors() : "&nbsp;") + "</TD>");
+					 
+					setError("</TR>");					
 				}
 				setError("</TABLE><HR>");
 			}
+			Vector scheduleErrors = triceps.nodes.getErrors();
+			if (scheduleErrors.size() > 0) {
+				setError("<FONT color='red'>The following <i>flow errors</i> were found</FONT>");
+				setError("<TABLE CELLPADDING='2' CELLSPACING='1' WIDTH='100%' border='1'><TR><TD>");
+				for (int i=0;i<scheduleErrors.size();++i) {
+					setError((String) scheduleErrors.elementAt(i) + "<BR>");
+				}
+				setError("</TD></TR></TABLE>");
+			}
+			Vector evidenceErrors = triceps.evidence.getErrors();
+			if (evidenceErrors.size() > 0) {
+				setError("<FONT color='red'>The following <i>data access errors</i> were found</FONT>");
+				setError("<TABLE CELLPADDING='2' CELLSPACING='1' WIDTH='100%' border='1'><TR><TD>");
+				for (int i=0;i<evidenceErrors.size();++i) {
+					setError((String) evidenceErrors.elementAt(i) + "<BR>");
+				}
+				setError("</TD></TR></TABLE>");
+			}			
 		}
 		else if (directive.equals("next")) {
 			// store current answer(s)
