@@ -27,6 +27,7 @@ Review:</br>
  <a href="UserManual.php">User Manual</a><br>
  <a href="InstrumentSearch.php">Results</a><br>
  <a href="InstrumentDetails.php">Instruments</a><br>
+ <a href="LOINC.php">LOINC</a><br>
  <a href="WorkPlan.php">Work Plan</a><br>
  <a href="http://psychinformatics.nyspi.org/phpmyadmin/">phpMyAdmin</a><br>
  <br>
