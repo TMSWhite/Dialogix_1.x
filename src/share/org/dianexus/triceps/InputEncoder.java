@@ -1,3 +1,8 @@
+/* ******************************************************** 
+** Copyright (c) 2000-2001, Thomas Maxwell White, all rights reserved. 
+** $Header$
+******************************************************** */ 
+
 package org.dianexus.triceps;
 
 /** Encoder to ensure that an Input can be expressed without tabs and newlines - simply strip them out and replace with single space

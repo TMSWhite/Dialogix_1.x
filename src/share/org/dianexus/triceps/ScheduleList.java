@@ -1,3 +1,8 @@
+/* ******************************************************** 
+** Copyright (c) 2000-2001, Thomas Maxwell White, all rights reserved. 
+** $Header$
+******************************************************** */ 
+
 package org.dianexus.triceps;
 
 /*import java.io.*;*/

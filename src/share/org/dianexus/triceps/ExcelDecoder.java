@@ -1,3 +1,8 @@
+/* ******************************************************** 
+** Copyright (c) 2000-2001, Thomas Maxwell White, all rights reserved. 
+** $Header$
+******************************************************** */ 
+
 package org.dianexus.triceps;
 
 /** Microsoft Excel 97 systematically corrupts column data in a number of semi-defined ways.  This class fixes as much as possible.
