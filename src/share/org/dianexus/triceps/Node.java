@@ -24,8 +24,11 @@ public class Node implements Serializable {
 	public static final int EVAL = 2;
 	public static final int GROUP_OPEN = 3;
 	public static final int GROUP_CLOSE = 4;
-	public static final String ACTION_TYPE_NAMES[] = {"*unknown*","question", "expression", "group_open", "group_close" };
-	public static final String ACTION_TYPES[] = {"?","q","e","[","]"};
+	public static final int BRACE_OPEN = 5;
+	public static final int BRACE_CLOSE = 6;
+	public static final int CALL_SCHEDULE = 7;
+	public static final String ACTION_TYPE_NAMES[] = {"*unknown*","question", "expression", "group_open", "group_close", "brace_open", "brace_close", "call_schedule"};
+	public static final String ACTION_TYPES[] = {"?","q","e","[","]", "{", "}", "call" };
 
 	private static final int MAX_TEXT_LEN_FOR_COMBO = 60;
 
@@ -37,6 +40,7 @@ public class Node implements Serializable {
 	private String dependencies = "";
 	private String questionRef = ""; // name within DISC
 	private int actionType = UNKNOWN;
+	private String actionTypeField = "";	// actionType;datumType;min;max;mask
 	private String action = "";
 	private int answerType = UNKNOWN;
 	private int datumType = Datum.INVALID;
@@ -45,158 +49,235 @@ public class Node implements Serializable {
 	private Vector runtimeErrors = new Vector();
 	private Vector parseErrors = new Vector();
 
+	private String actionTypeStr = "";
+	private String datumTypeStr = "";
+	private String minStr = null;
+	private String maxStr = null;
+	private String maskStr = null;
+
+	private Datum minDatum = null;
+	private Datum maxDatum = null;
+	private String rangeStr = null;
+
+
 	// loading from extended Schedule with default answers
 	// XXX hack - Node shouldn't know values of evidence - Schedule should know how to load itself.
 	private transient String debugAnswer = null;
 	private transient String questionAsAsked = "";
 
-	/* N.B. need this obtuse way of checking for adjacent TABs from tokenizer - no other way seems to work */
-	/* XXX - there is no reliable way to tokenize tab delimited files - constantly dropped null values -
-	so must have dummy variables in empty columns */
-
 	public Node(int sourceLine, String sourceFile, String tsv) {
-		int	count=0;
 		String token;
+		int field = 0;
+		int count = 0;
 
-		try {
-			StringTokenizer st = new StringTokenizer(tsv, "\t");
-			this.sourceLine = sourceLine;
-			this.sourceFile = sourceFile;
-			count = st.countTokens();
+		this.sourceLine = sourceLine;
+		this.sourceFile = sourceFile;
 
-			concept = getNextToken(st);
-			description = getNextToken(st);
-			stepName = getNextToken(st);
+		StringTokenizer ans = new StringTokenizer(tsv,"\t",true);
 
+		while(ans.hasMoreTokens()) {
+			String s = null;
 			try {
-				if (Character.isDigit(stepName.charAt(0))) {
-					stepName = "_" + stepName;
-				}
+				s = ans.nextToken();
 			}
-			catch (IndexOutOfBoundsException e) {
-				/* Must have a null or zero-length value for stepName */
+			catch (Exception e) {
+				setParseError("nextToken: " + e.getMessage());
 			}
 
-			dependencies = getNextToken(st);
-			questionRef = getNextToken(st);
-
-			token = getNextToken(st);
-			for (int z=0;z<ACTION_TYPES.length;++z) {
-				if (token.equalsIgnoreCase(ACTION_TYPES[z])) {
-					actionType = z;
-					break;
-				}
-			}
-			if (actionType == UNKNOWN) {
-				setParseError("Unknown action type <B>" + Node.encodeHTML(token) + "</B> on line " + sourceLine + " in file <B>" + sourceFile + "</B>");
+			if (s.equals("\t")) {
+				++field;
+				continue;
 			}
 
-			action = getNextToken(st);
-			answerOptions = getNextToken(st);
-
-			int index = answerOptions.indexOf(";");
-
-			if (index != -1) {
-				token = answerOptions.substring(0, index);
-			}
-			else {
-				token = answerOptions;
-			}
-
-			for (int z=0;z<QUESTION_TYPES.length;++z) {
-				if (token.equalsIgnoreCase(QUESTION_TYPES[z])) {
-					answerType = z;
-					break;
-				}
-			}
-
-			if (actionType == EVAL) {
-				answerType = NOTHING;
-			}
-			else if (answerType == UNKNOWN) {
-				setParseError("Unknown data type for answer<B>" + Node.encodeHTML(token) + "</B> on line " + sourceLine + " in file <B>" + sourceFile + "</B>");
-				answerType = NOTHING;
-
-			}
-
-			datumType = DATA_TYPES[answerType];
-
-			parseTSV(answerOptions);
-
-			// XXX these next two lines are a hack - read in, but discard, the stored questions and answers
-			questionAsAsked = getNextToken(st);
-			debugAnswer = getNextToken(st);
-		}
-		catch(NoSuchElementException e) {
-			if (count < 8) {
-				setParseError("Error tokenizing line " + sourceLine + "in file <B>" + Node.encodeHTML(sourceFile) + "</B>: (" + count + "/8 tokens found)" + Node.encodeHTML(e.getMessage()));
+			switch(field) {
+				case 0: concept = fixExcelisms(s); ++count; break;
+				case 1: description = fixExcelisms(s); ++count; break;
+				case 2: stepName = fixExcelisms(s); ++count; break;
+				case 3: dependencies= fixExcelisms(s); ++count; break;
+				case 4: questionRef = fixExcelisms(s); ++count; break;
+				case 5: actionTypeField = fixExcelisms(s); ++count; break;
+				case 6: action = fixExcelisms(s); ++count; break;
+				case 7: answerOptions = fixExcelisms(s); ++count; break;
+				case 8: questionAsAsked = fixExcelisms(s); ++count; break;
+				case 9: debugAnswer = fixExcelisms(s); ++count; break;
 			}
 		}
-	}
+		if (count < 7 || count > 9) {
+			setParseError("Expected 8-10 tokens; found " + count);
+		}
 
-	private String getNextToken(StringTokenizer st) {
+		/* Fix step names */
 		try {
-			String s = st.nextToken();
-			if (s == null)
-				return "";
-
-			/* Fix Excel-isms, in which strings with internal quotes have all quotes replaced with double quotes (\"\"), and
-				whole string surrounded by quotes.
-				XXX - this requires assumption that if a field starts AND stops with a quote, then probably an excel-ism
-			*/
-
-			if (s.startsWith("\"") && s.endsWith("\"")) {
-				StringBuffer sb = new StringBuffer();
-
-				int start=1;
-				int stop=0;
-				while ((stop = s.indexOf("\"\"",start)) != -1) {
-					sb.append(s.substring(start,stop));
-					sb.append("\"");
-					start = stop+2;
-				}
-				sb.append(s.substring(start,s.length()-1));
-				return sb.toString();
+			if (Character.isDigit(stepName.charAt(0))) {
+				stepName = "_" + stepName;
 			}
-			else {
-				return s;
-			}
-		}
-		catch(NoSuchElementException e) {
-			return "";
 		}
 		catch (IndexOutOfBoundsException e) {
-			setParseError("Internal error: " + Node.encodeHTML(e.getMessage()));
-			return "";
+			/* Must have a null or zero-length value for stepName */
+		}
+
+		parseActionTypeField();
+		parseAnswerOptions();
+	}
+
+	private String fixExcelisms(String s) {
+		/* Fix Excel-isms, in which strings with internal quotes have all quotes replaced with double quotes (\"\"), and
+			whole string surrounded by quotes.
+			XXX - this requires assumption that if a field starts AND stops with a quote, then probably an excel-ism
+		*/
+
+		if (s.startsWith("\"") && s.endsWith("\"")) {
+			StringBuffer sb = new StringBuffer();
+
+			int start=1;
+			int stop=0;
+			while ((stop = s.indexOf("\"\"",start)) != -1) {
+				sb.append(s.substring(start,stop));
+				sb.append("\"");
+				start = stop+2;
+			}
+			sb.append(s.substring(start,s.length()-1));
+			return sb.toString();
+		}
+		else {
+			return s;
 		}
 	}
 
+	private void parseActionTypeField() {
+		StringTokenizer ans;
 
-	public boolean parseTSV(String src) {
+		ans = new StringTokenizer(actionTypeField,";",true);	// return ';' tokens too
+
+		for(int field=0;ans.hasMoreTokens();) {
+			String s = null;
+			try {
+				s = ans.nextToken();
+			}
+			catch (Exception e) {}
+
+			if (";".equals(s)) {
+				++field;
+				continue;
+			}
+			switch(field) {
+				case 0:	actionTypeStr = s; break;
+				case 1: datumTypeStr = s; break;
+				case 2: minStr = s; break;
+				case 3: maxStr = s; break;
+				case 4: maskStr = s; break;
+			}
+		}
+
+		for (int z=0;z<ACTION_TYPES.length;++z) {
+			if (actionTypeStr.equalsIgnoreCase(ACTION_TYPES[z])) {
+				actionType = z;
+				break;
+			}
+		}
+		if (actionType == UNKNOWN) {
+			setParseError("Unknown action type <B>" + Node.encodeHTML(actionTypeStr) + "</B>");
+		}
+
+		for (int z=0;z<Datum.TYPES.length;++z) {
+			if (datumTypeStr.equalsIgnoreCase(Datum.TYPES[z])) {
+				datumType = z;
+				break;
+			}
+		}
+
+		if (minStr != null)
+			minDatum = new Datum(minStr,datumType,maskStr);
+		if (maxStr != null)
+			maxDatum = new Datum(maxStr, datumType, maskStr);
+
+
+		if (minDatum == null && maxDatum == null) {
+			rangeStr = "";
+		}
+		else {
+			rangeStr = " (" +
+				((minDatum != null) ? minDatum.stringVal() : "") +
+				" - " +
+				((maxDatum != null) ? maxDatum.stringVal() : "") +
+				")";
+		}
+	}
+
+	private boolean parseAnswerOptions() {
+		StringTokenizer ans = new StringTokenizer(answerOptions,";",true);	// return ';' tokens too
+		String token = "";
+
+		try {
+			token = ans.nextToken();
+		}
+		catch (Exception e) {}
+
+		for (int z=0;z<QUESTION_TYPES.length;++z) {
+			if (token.equalsIgnoreCase(QUESTION_TYPES[z])) {
+				answerType = z;
+				break;
+			}
+		}
+
+		if (actionType == EVAL) {
+			answerType = NOTHING;
+		}
+		else if (answerType == UNKNOWN) {
+			setParseError("Unknown data type for answer<B>" + Node.encodeHTML(token) + "</B>");
+			answerType = NOTHING;
+
+		}
+
+		if (datumType == Datum.INVALID) {
+			/* so only if not set via datumTypeStr */
+			datumType = DATA_TYPES[answerType];
+		}
+
 		switch (answerType) {
 			case CHECK:
 			case COMBO:
 			case RADIO:
 			case RADIO2:
-				try {
-					StringTokenizer ans;
-					String val;
-					String msg;
+				String val=null;
+				String msg=null;
+				int field=0;
 
-					ans = new StringTokenizer(answerOptions,";");
-					ans.nextToken();	// discard the answerType
+				while(ans.hasMoreTokens()) {
+					String s = null;
+					try {
+						s = ans.nextToken();
+					}
+					catch (Exception e) {}
 
-					while (ans.hasMoreTokens()) { // for however many radio buttons there are
-						val = ans.nextToken();
-						msg = ans.nextToken();
-						answerChoices.addElement(new AnswerChoice(val,msg));
+					if (";".equals(s)) {
+						++field;
+						continue;
+					}
+					switch(field) {
+						case 0:
+							break;	// discard the first token - answerType
+						case 1:
+							val = s;
+							break;
+						case 2: msg = s;
+							field = 0;	// so that cycle between val & mag;
+							if (val == null || msg == null) {
+								setParseError("Answer choice has null value or message");
+							}
+							else {
+								answerChoices.addElement(new AnswerChoice(val,msg));
+							}
+							val = null;
+							msg = null;
+							break;
 					}
 				}
-				catch (NullPointerException e) {
-					setParseError("Error tokenizing answer options: " + Node.encodeHTML(e.getMessage()));
+				if (answerChoices.size() == 0) {
+					setParseError("No answer choices specified");
 				}
-				catch (NoSuchElementException e) {
-					setParseError("Error tokenizing answer options: " + Node.encodeHTML(e.getMessage()));
+				else if (field == 1) {
+					setParseError("Missing message for value " + val);
 				}
 				break;
 			default:
@@ -205,8 +286,10 @@ public class Node implements Serializable {
 			case TEXT:
 			case DOUBLE:
 			case NOTHING:
-			case PASSWORD:
 			case MEMO:
+				break;
+			case PASSWORD:
+				rangeStr = "";	// so not prompted with the password
 				break;
 		}
 
@@ -329,7 +412,7 @@ public class Node implements Serializable {
 			case MEMO:
 				if (datum != null && datum.exists())
 					defaultValue = datum.stringVal();
-				sb.append("<textarea rows='5' name='" + Node.encodeHTML(getName()) + ">" + Node.encodeHTML(defaultValue) + "</TEXTAREA>");
+				sb.append("<TEXTAREA rows='5' name='" + Node.encodeHTML(getName()) + "'>" + Node.encodeHTML(defaultValue) + "</TEXTAREA>");
 				break;
 			case PASSWORD:	// stores Text type
 				if (datum != null && datum.exists())
@@ -355,6 +438,26 @@ public class Node implements Serializable {
 		return sb.toString();
 	}
 
+	public boolean isWithinRange(Datum d) {
+		boolean err = false;
+
+		if (minDatum != null && !DatumMath.ge(d,minDatum).booleanVal()) {
+			err = true;
+		}
+		if (maxDatum != null && !DatumMath.le(d,maxDatum).booleanVal()) {
+			err = true;
+		}
+
+		if (err) {
+			if (answerType == PASSWORD) {
+				setError("Incorrect password.  Please try again.");
+			}
+			else {
+				setError("Please enter a " + Datum.TYPES[datumType] + " in the range:" + rangeStr);
+			}
+		}
+		return !(err);
+	}
 
 	public String getAction() { return action; }
 	public int getActionType() { return actionType; }
@@ -367,16 +470,20 @@ public class Node implements Serializable {
 	public String getName() { return stepName; }
 	public String getQuestionRef() { return questionRef; }
 	public String getDebugAnswer() { return debugAnswer; }
-	public String getQuestionMask() { return QUESTION_MASKS[answerType]; }
+	public String getQuestionMask() { return QUESTION_MASKS[answerType] + rangeStr; }
 	public int getSourceLine() { return sourceLine; }
 	public String getSourceFile() { return sourceFile; }
 	public String getQuestionAsAsked() { return questionAsAsked; }
 	public void setQuestionAsAsked(String s) { questionAsAsked = s; }
+	public Datum getRangeMin() { return minDatum; }
+	public Datum getRangeMax() { return maxDatum; }
 
 	public boolean focusable() { return (answerType != UNKNOWN && answerType != NOTHING); }
 
 	public void setParseError(String error) {
+//		parseErrors.addElement("[<B>" + sourceFile + "</B> line " + sourceLine + "] " + error);	// don't need to show line #
 		parseErrors.addElement(error);
+
 	}
 	public void setError(String error) {
 		runtimeErrors.addElement(error);
@@ -407,14 +514,14 @@ public class Node implements Serializable {
 	public String toString() {
 		return "Node (" + sourceLine + "): <B>" + Node.encodeHTML(stepName) + "</B><BR>\n" + "Concept: <B>" + Node.encodeHTML(concept) + "</B><BR>\n" +
 			"Description: <B>" + Node.encodeHTML(description) + "</B><BR>\n" + "Dependencies: <B>" + Node.encodeHTML(dependencies) + "</B><BR>\n" +
-			"Question Reference: <B>" + Node.encodeHTML(questionRef) + "</B><BR>\n" + "Action Type: <B>" + Node.encodeHTML(ACTION_TYPE_NAMES[actionType]) + "</B><BR>\n" +
+			"Question Reference: <B>" + Node.encodeHTML(questionRef) + "</B><BR>\n" + "Action Type: <B>" + Node.encodeHTML(actionTypeStr) + "</B><BR>\n" +
 			"Action: <B>" + Node.encodeHTML(action) + "</B><BR>\n" + "AnswerType: <B>" + Node.encodeHTML(QUESTION_TYPES[answerType]) + "</B><BR>\n" + "AnswerOptions: <B>" +
 			Node.encodeHTML(answerOptions) + "</B><BR>\n";
 	}
 
 	public String toTSV() {
 		return concept + "\t" + description + "\t" + stepName + "\t" + dependencies + "\t" + questionRef +
-			"\t" + ACTION_TYPES[actionType] + "\t" + action + "\t" + answerOptions;
+			"\t" + actionTypeStr + "\t" + action + "\t" + answerOptions;
 	}
 
 

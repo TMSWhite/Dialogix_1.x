@@ -393,6 +393,9 @@ public class Triceps implements Serializable {
 			q.setError("<- " + d.getError());
 			return false;
 		}
+		else if (!q.isWithinRange(d)) {
+			return false;	// shouldn't wording of error be done here, not in Node?
+		}
 		else {
 			evidence.set(q, d);
 			return true;

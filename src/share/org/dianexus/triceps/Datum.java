@@ -22,6 +22,7 @@ public class Datum implements Serializable {
 	private boolean bVal = false;
 	private Date timestamp = null;
 	private Date date = null;
+	private String mask = null;
 	private String error = null;
 
 	public Datum(double d) {
@@ -64,14 +65,25 @@ public class Datum implements Serializable {
 		sVal = val.stringVal();
 		date = val.date;
 		type = val.type();
+		mask = val.getMask();
 		timestamp = new Date(System.currentTimeMillis());
 	}
+
 	public Datum(String s, int t) {
+		init(s,t,null);
+	}
+
+	public Datum(String s, int t, String mask) {
+		init(s,t,mask);
+	}
+
+	private void init(String s, int t, String mask) {
 		dVal = Double.NaN;
 		bVal = false;
 		date = null;
 		sVal = null;
 		type = INVALID;	// default is to indicate failure to create new Datum object
+		this.mask = mask;	// what happens when convert data types?
 		if (s == null || s.trim().equals("")) {
 			t = INVALID;
 		}
@@ -159,6 +171,10 @@ public class Datum implements Serializable {
 	public boolean isUnknown() { return (type == UNKNOWN); }
 	public boolean isNA() { return (type == NA); }
 	public boolean exists() { return !(sVal == null || isInvalid() || isUnknown() || isNA()); }
+	public String getMask() { return mask; }
+	public boolean isString() { return exists(); }
+	public boolean isDate() { return (type == DATE); }
+	public boolean isNumber() { return (dVal != Double.NaN); }
 
 
 	public String getError() {
