@@ -510,9 +510,6 @@ public class TricepsServlet extends HttpServlet {
 
 			sb.append(selectFromInterviewsInDir("RestoreSuspended",workingFilesDir,true));
 
-			if (developerMode) {
-				sb.append("<input type='text' name='" + lingua.get("RESTORE") + "'>");
-			}
 			sb.append("</TD>");
 			sb.append("<TD><input type='SUBMIT' name='directive' value='" + lingua.get("RESTORE") + "'></TD>");
 			sb.append("</TR></TABLE>");
@@ -537,13 +534,10 @@ public class TricepsServlet extends HttpServlet {
 		else if (directive.equals(lingua.get("RESTORE"))) {
 			String restore;
 
-			restore = req.getParameter("RESTORE");
+			restore = req.getParameter("RestoreSuspended");
 			if (restore == null || restore.trim().equals("")) {
-				restore = req.getParameter("RestoreSuspended");
-				if (restore == null || restore.trim().equals("")) {
-					directive = null;
-					return processDirective();
-				}
+				directive = null;
+				return processDirective();
 			}
 
 
