@@ -75,7 +75,7 @@ public class Node implements Serializable {
 				}
 			}
 			if (!"e".equals(actionType) && answerType == UNKNOWN) {
-				System.out.println("Unknown data type (" + token + ") on line " + step);
+				System.out.println("Unknown data type (" + token + ") on line " + (step + 1));
 				answerType = NOTHING;
 				datumType = DATA_TYPES[answerType];
 			}
@@ -86,7 +86,7 @@ public class Node implements Serializable {
 		}
 		catch(Exception e) {
 			if (count < 8) {
-				System.out.println("Error tokenizing line " + step + " (" + count + "/8 tokens found)" + e.getMessage());
+				System.out.println("Error tokenizing line " + (step + 1) + " (" + count + "/8 tokens found)" + e.getMessage());
 			}			
 		}
 	}
@@ -170,7 +170,7 @@ public class Node implements Serializable {
 				break;
 			case COMBO:	// stores integers as value
 				sb.append("<select name='" + getName() + "'>");
-				sb.append("<option>");	// first choice is empty
+				sb.append("<option value=''>--please select one of these choices--");	// first choice is empty
 				while (ans.hasMoreElements()) { // for however many radio buttons there are
 					ac = (AnswerChoice) ans.nextElement();
 					sb.append("<option value='" + ac.getValue() + "'" + 

@@ -37,39 +37,7 @@ public class TricepsServlet extends HttpServlet {
 	 * invoke the POST method on further requests.
 	 */
 	public void doGet(HttpServletRequest req, HttpServletResponse res) throws ServletException, IOException {
-		HttpSession session = req.getSession(true);
-		res.setContentType("text/html");
-		out = res.getWriter();
-		
-		out.println("<html>");
-		out.println("<body bgcolor='white'>");
-		out.println("<head>");
-		out.println("<title>TRICEPS SYSTEM</title>");
-		out.println("</head>");
-		out.println("<body>");
-		out.println("<H2>TRICEPS SYSTEM</H2>");
-		out.println("<hr>Please provide the following information to proceed. <br>");
-		out.println("<form method='POST' action='" + HttpUtils.getRequestURL(req) + "'>");
-		out.println("Start a new interview:		<select name='schedule'>");
-		out.println("							  <option value='ADHD.txt' selected>ADHD");
-		out.println("							  <option value='EatDis.txt'>Eating Disorders");
-		out.println("                             <option value='MiHeart.txt'>MiHeart-combo");
-		out.println("                             <option value='MiHeart2.txt'>MiHeart-radio");
-		out.println("							</select>");
-		out.println("<BR><input type='SUBMIT' name='directive' value='START'>");
-		out.println("<BR>OR<BR>");
-/*
-		out.println("<input type='SUBMIT' name='directive' value='restore-from-object'>" + 
-			"<input type='text' name='restore-from-object'>");
-		out.println("<BR>");
-*/
-		out.println("<input type='SUBMIT' name='directive' value='restore from:'>" +
-			"<input type='text' name='restore from:'>");		
-//		out.println("<BR><input type='SUBMIT' name='directive' value='RESTORE'>");
-
-		out.println("<BR><input type='checkbox' name='DEBUG' value='1'>Show debugging information</input>");
-		out.println("</body>");
-		out.println("</html>");
+		doPost(req,res);
 	}
 
 	/**
@@ -88,9 +56,10 @@ public class TricepsServlet extends HttpServlet {
 		out.println("<html>");
 		out.println("<body bgcolor='white'>");
 		out.println("<head>");
-		out.println("<title>TRICEPS SYSTEM -- Diagnostic Interview Schedule for Children</title>");
+		out.println("<title>TRICEPS SYSTEM</title>");
 		out.println("</head>");
 		out.println("<body>");
+		out.println("<FORM method='POST' action='" + HttpUtils.getRequestURL(req) + "'>");
 		
 		/* This is the meat. */
 		try {
@@ -101,6 +70,7 @@ public class TricepsServlet extends HttpServlet {
 			e.printStackTrace();
 		}
 		
+		out.println("</FORM>");
 		out.println("</body>");
 		out.println("</html>");
 		
@@ -117,9 +87,24 @@ public class TricepsServlet extends HttpServlet {
 	private void processDirective(String directive) {
 		boolean ok = true;
 		
-		// get the POSTed directive (start, back, forward, help, suspend, etc.)
-		if (directive == null) {
-			out.println("Invalid directive");
+		// get the POSTed directive (start, back, forward, help, suspend, etc.)	- default is opening screen
+		if (directive == null || "select new interview".equals(directive)) {
+			out.println("<H2>Triceps Interview/Questionnaire System</H2><HR>");
+			out.println("<TABLE CELLPADDING='2' CELLSPACING='2' BORDER='1'>");
+			out.println("<TR><TD>Please select an interview/questionnaire from the pull-down list:  </TD>");
+			out.println("	<TD><select name='schedule'>");
+			out.println("		<option value='ADHD.txt' selected>ADHD");
+			out.println("		<option value='EatDis.txt'>Eating Disorders");
+			out.println("		<option value='MiHeart.txt'>MiHeart-combo");
+			out.println("		<option value='MiHeart2.txt'>MiHeart-radio");
+			out.println("	</select></TD>");
+			out.println("	<TD><input type='SUBMIT' name='directive' value='START'></TD>");
+			out.println("</TR>");
+			out.println("<TR><TD>OR, restore an interview/questionnaire in progress:  </TD>");
+			out.println("	<TD><input type='text' name='RESTORE'></TD>");
+			out.println("	<TD><input type='SUBMIT' name='directive' value='RESTORE'></TD>");
+			out.println("</TR><TR><TD>&nbsp;</TD><TD COLSPAN='2' ALIGN='center'><input type='checkbox' name='DEBUG' value='1'>Show debugging information</input></TD></TR>");			
+			out.println("</TABLE>");
 			return;
 		} 
 		else if (directive.equals("START")) {
@@ -169,8 +154,8 @@ public class TricepsServlet extends HttpServlet {
 			}
 		} 
 */
-		else if (directive.equals("restore from:")) {
-			String restore = req.getParameter("restore from:");
+		else if (directive.equals("RESTORE")) {
+			String restore = req.getParameter("RESTORE");
 			restore = restore + "." + req.getRemoteUser() + "." + req.getRemoteHost() + ".tsv";
 			
 			// load schedule
@@ -301,8 +286,6 @@ public class TricepsServlet extends HttpServlet {
 	 */
 	private void queryUser() {
 		// if parser internal to Schedule, should have method access it, not directly
-		out.println("<form method='POST' action='" + HttpUtils.getRequestURL(req) + "'>");
-		
 		boolean debug = false;
 		if ("1".equals(req.getParameter("DEBUG"))) {
 			debug = true;
@@ -328,6 +311,7 @@ public class TricepsServlet extends HttpServlet {
 		out.println("<input type='SUBMIT' name='directive' value='forward'>");
 		out.println("<input type='SUBMIT' name='directive' value='backward'>");
 		out.println("<input type='SUBMIT' name='directive' value='clear all and re-start'>");
+		out.println("<input type='SUBMIT' name='directive' value='select new interview'>");
 		out.println("	</TD></TR>");
 		
 		if (debug) {
@@ -346,8 +330,6 @@ public class TricepsServlet extends HttpServlet {
 		}
 		
 		out.println("</TABLE>");
-
-		out.println("</form>");
 
 /*
 		// Node info area

@@ -228,7 +228,7 @@ public class Triceps implements Serializable {
 				if (braceLevel < 0) 
 					errors.push("Missing " + braceLevel + " openining braces");
 					
-				errors.push("You can't back up any further.");
+				errors.push("You are already at the beginning.");
 				return false;	// XXX need better messaging system
 			}
 			if ((node = nodes.getNode(step)) == null)
@@ -320,7 +320,7 @@ public class Triceps implements Serializable {
 		}
 
 		if ((answer == null || answer.trim().equals("")) && currentStep >= 0) {
-			errors.push("<bold>You cannot proceed without answering.</bold>");
+			errors.push("<bold>Please enter a <i>" + Datum.TYPES[q.getDatumType()] + "</i> for question <i>" + q.getQuestionRef() + "</i>.");
 			return false;
 		}
 		else {	// got a proper answer -- handle it
