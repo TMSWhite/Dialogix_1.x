@@ -7,7 +7,7 @@ class Value {
 	private int reserved = -1;
 	private Schedule schedule = null;
 			
-	public Value() {
+	private Value() {
 	}
 		
 	public Value(Node n, Datum d, String time) {
@@ -15,18 +15,18 @@ class Value {
 		if (time != null && time.trim().length() > 0) {	// don't set to default if no time specified
 			n.setTimeStamp(time);
 		}
-		init(n.getLocalName(),d);
+		datum = new Datum(d,n.getLocalName());
 	}
 		
 	public Value(String s, Datum d) {
 		// no associated node - so a temporary variable
-		init(s,d);
+		datum = new Datum(d,s);
 	}
 		
 	public Value(String s, Datum d, int reserved, Schedule schedule) {
 		this.reserved = reserved;
 		this.schedule = schedule;
-		init(s,d);
+		datum = new Datum(d,s);
 	}
 		
 	public Node getNode() { return node; }
@@ -38,12 +38,7 @@ class Value {
 		if (reserved >= 0 && schedule != null) {
 			schedule.setReserved(reserved,d.stringVal());
 		}
-		init(datum.getName(),d);
+		datum = new Datum(d,datum.getName());
 	}
 	public Datum getDatum() { return datum; }
-	
-	private void init(String name, Datum d) {
-		datum = new Datum(d);
-		datum.setName(name);
-	}
 }
