@@ -9,7 +9,7 @@ import java.net.*;
 public class Triceps {
 	public static final boolean AUTHORABLE = true;
 	public static final String VERSION_MAJOR = "1.3";
-	public static final String VERSION_MINOR = "4";
+	public static final String VERSION_MINOR = "5";
 	
 	public static final int ERROR = 1;
 	public static final int OK = 2;
@@ -66,9 +66,9 @@ public class Triceps {
 		nodes = new Schedule(this, scheduleLoc);
 		setLanguage(null);	// the default until overidden
 		
-		nodes.setReserved(Schedule.WORKING_DIR,workingFilesDir);
-		nodes.setReserved(Schedule.COMPLETED_DIR,completedFilesDir);
-		nodes.setReserved(Schedule.FLOPPY_DIR,floppyDir);	
+		nodes.setReserved(Schedule.WORKING_DIR,workingFilesDir,true);
+		nodes.setReserved(Schedule.COMPLETED_DIR,completedFilesDir,true);
+		nodes.setReserved(Schedule.FLOPPY_DIR,floppyDir,true);	
 		
 		if (!nodes.init()) {
 			setError(nodes.getErrors());
@@ -422,7 +422,7 @@ if (Triceps.AUTHORABLE) {
 		startTime = time;
 		startTimeStr = formatDate(startTime,Datum.TIME_MASK);
 		stopTime = null;	// reset stopTime, since re-starting
-		nodes.setReserved(Schedule.START_TIME,startTimeStr);	// so that saved schedule knows when it was started
+		nodes.setReserved(Schedule.START_TIME,startTimeStr,true);	// so that saved schedule knows when it was started
 	}
 
 	private void stopTimer() {
@@ -705,7 +705,7 @@ Logger.writeln("##SecurityException @ Triceps.deleteFile()" + e.getMessage());
 		try {
 			/* Write header information */
 			/* set save file so can resume at same position */
-			nodes.setReserved(Schedule.STARTING_STEP,Integer.toString(currentStep));
+			nodes.setReserved(Schedule.STARTING_STEP,Integer.toString(currentStep),true);
 			nodes.toTSV(out);
 
 			/* Write comments saying when started and stopped.  If multiply resumed, will list these several times */
@@ -773,7 +773,7 @@ if (Triceps.AUTHORABLE) {
 	public String getFilename() { return nodes.getReserved(Schedule.FILENAME); }
 
 	public boolean setLanguage(String language) {
-		return nodes.setReserved(Schedule.CURRENT_LANGUAGE,language);
+		return nodes.setReserved(Schedule.CURRENT_LANGUAGE,language,true);
 	}
 	public int getLanguage() { return nodes.getLanguage(); }
 
