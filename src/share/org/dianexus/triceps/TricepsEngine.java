@@ -1524,8 +1524,11 @@ if (DEPLOYABLE) {
 		sb.append("	document.myForm.EVENT_TIMINGS.value += msg;\n");
 }
 		sb.append("	name = document.myForm.elements['DIRECTIVE_' + target.name].value;\n");
-		sb.append("	if (e.type == 'focus') { target.value='" + activePrefix + "' + name + '" + activeSuffix + "'; }\n");
-		sb.append("	else if (e.type == 'blur') { target.value='" + inactivePrefix + "' + name + '" + inactiveSuffix + "'; }\n");
+		sb.append("	if (e.type == 'focus') { \n");
+		sb.append("		if (target.name == 'next') { target.value='" + inactivePrefix + "' + name + '" + activeSuffix + "';}\n");
+		sb.append("		else if (target.name == 'previous') { target.value='" + activePrefix + "' + name + '" + inactiveSuffix + "';}\n");
+		sb.append("		else { target.value='" + activePrefix + "' + name + '" + activeSuffix + "'; }\n");
+		sb.append("	} else if (e.type == 'blur') { target.value='" + inactivePrefix + "' + name + '" + inactiveSuffix + "'; }\n");
 		sb.append("	document.myForm.DIRECTIVE.value = target.name;\n");
 		sb.append("	return true;\n");
 		sb.append("}\n");
