@@ -570,6 +570,9 @@ else setParseError("syntax error");
 				String messageStr = ac.getMessage();
 				String prefix = "<option value='" + ac.getValue() + "'";
 				boolean selected = isSelected(datum,ac);
+				if (selected) {
+					nothingSelected = false;
+				}
 				
 				v = AnswerChoice.subdivideMessage(messageStr,MAX_TEXT_LEN_FOR_COMBO);
 				
