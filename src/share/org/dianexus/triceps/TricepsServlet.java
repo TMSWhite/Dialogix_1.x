@@ -368,6 +368,7 @@ if (DEBUG) Logger.printStackTrace(e);
 	protected DataSource ds = null;	// this ok as global, since used on servlet-by-servlet basis
 	
 	boolean initDBLogging() {
+if (DB_FOR_LOGIN || DB_TRACK_LOGINS || DB_LOG_RESULTS) {
 		/* Load login info file from init param */
 	    try {
 	      ctx = new InitialContext();
@@ -381,35 +382,12 @@ if (DEBUG) Logger.printStackTrace(e);
 if (DEBUG) Logger.printStackTrace(e);
 	      return false;
 	    }
+}	    
 	    return true;
 	}	
 	
-	
-	boolean writeToDB(String command) {
-		try {
-			
-			if (ds == null) throw new Exception("Unable to access DataSource");
-			
-	        Connection conn = ds.getConnection();
-	        
-	        if (conn == null) throw new Exception("Unable to connect to database");	// really need a way to report that there are database problems!
-	        
-	        Statement stmt = conn.createStatement();
-			stmt.executeUpdate(command);
-			stmt.close();
-	
-	        conn.close();
-	        
-			return true;
-		}
-		catch (Exception t) {
-			Logger.writeln("SQL-ERROR on: " + command);
-			Logger.writeln(t.getMessage());
-			return false;
-		}
-	}
-	
 	boolean logPageHit(HttpServletRequest req, String msg) {
+if (DB_LOG_RESULTS) {
 		HttpSession session = req.getSession(false);
 		String sessionID = null;
 		TricepsEngine tricepsEngine = null;
@@ -577,5 +555,6 @@ if (DEBUG) Logger.printStackTrace(e);
 			Logger.writeln(t.getMessage());
 			return false;
 		}
+} else { return true; }		
 	}	
 }

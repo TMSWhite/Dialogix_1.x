@@ -55,6 +55,8 @@ import java.util.zip.ZipEntry;
 	private Schedule nodes = null;
 	private Evidence evidence = null;
 	private Parser parser = null;
+//	private LoginRecord loginRecord = null;
+//	private LoginTricepsServlet loginTricepsServlet = null;
 
 	private Logger errorLogger = null;
 	private int currentStep=0;
@@ -192,6 +194,28 @@ if (DEPLOYABLE) {
 			setError(nodes.getErrors());
 			return false;
 		}
+	}
+
+	void setLoginRecord(LoginTricepsServlet lts, LoginRecord lr) {
+		/*
+		this.loginTricepsServlet = lts;
+		this.loginRecord = lr;
+if (DEBUG) Logger.writeln("setLoginRecord(" + loginRecord + "," + loginTricepsServlet + ")");
+		*/
+	}
+	
+	boolean setStatusCompleted() {
+		return false;
+/*		
+		if (loginRecord != null && loginTricepsServlet != null) {
+			loginRecord.setStatusCompleted();
+			return loginTricepsServlet.updateRecord(loginRecord);
+		}
+		else {
+if (DEBUG) Logger.writeln("setStatusCompleted(" + loginRecord + "," + loginTricepsServlet + ")");
+			return false;
+		}
+*/		
 	}
 	
 	/** Some variables must not be modifiable from the datafile - detect tampering

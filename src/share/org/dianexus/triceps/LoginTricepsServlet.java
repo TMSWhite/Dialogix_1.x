@@ -318,6 +318,7 @@ if (DEBUG) Logger.printStackTrace(t);
 			}
 			
 			tricepsEngine = new TricepsEngine(this.getServletConfig());
+//			tricepsEngine.getTriceps().setLoginRecord(this,loginRecord);
 			session.setAttribute(TRICEPS_ENGINE, tricepsEngine);
 			
 			/* create new instance, or validate that old instance exists; then "resume" it via normal TricepsEngine mechanisms */
@@ -345,7 +346,7 @@ if (DEBUG) Logger.printStackTrace(t);
 				
 				loginRecord.setFilename(filename);
 				loginRecord.setStatusWorking();
-				updateRecord(loginRecord, req);
+				updateRecord(loginRecord);
 				
 				/* override whatever command was passed via req -- should be RESTORE */
 				restoreFile = filename;
@@ -378,7 +379,7 @@ if (DEBUG) Logger.printStackTrace(t);
 				try {
 					shutdown(req,LOGIN_ERRS_BRIEF[LOGIN_ERR_FINISHED],false);	// if don't remove the session, can login as someone new
 					loginRecord.setStatusCompleted();
-					updateRecord(loginRecord, req);
+					updateRecord(loginRecord);
 				}
 				catch (java.lang.IllegalStateException e) {
 					Logger.writeln(e.getMessage());
@@ -417,7 +418,8 @@ if (DEBUG) Logger.printStackTrace(t);
 	LoginRecord getRecord(String username) {
 		/* This assumes that each unique username is only assigned to a single instrument */
         LoginRecord lr = null;
-		
+        
+if (DB_FOR_LOGIN) {		
 		try {
 			StringBuffer sb = new StringBuffer();
 			sb.append("SELECT username, password, filename, instrument, status, startingStep,_clinpass, Dem1 FROM wave6users WHERE 1 AND username LIKE '");
@@ -451,13 +453,14 @@ if (DEBUG) Logger.printStackTrace(t);
 			Logger.writeln("Error updating database \"" + t.getMessage());
 if (DEBUG) Logger.printStackTrace(t);
 	    }
+}
         
 		return lr;
 	}
 	
-	boolean updateRecord(LoginRecord lr, HttpServletRequest req) {
+	boolean updateRecord(LoginRecord lr) {
 		/* This assumes that each unique username is only assigned to a single instrument */
-	
+if (DB_FOR_LOGIN) {		
 		StringBuffer sb = new StringBuffer();
 		sb.append("UPDATE wave6users SET ");
 		sb.append("	filename='").append(lr.getFilename());
@@ -465,9 +468,11 @@ if (DEBUG) Logger.printStackTrace(t);
 		sb.append("'	WHERE username='").append(lr.getUsername()).append("'");
 		
 		return writeToDB(sb.toString());
+} else { return true; }		
 	}
 	
 	boolean updateStatus(HttpServletRequest req, String msg) {
+if (DB_TRACK_LOGINS) {		
 		/* 2/5/03:  Explicitly ask for session info everywhere (vs passing it as needed) */
 		HttpSession session = req.getSession(false);
 		String sessionID = session.getId();
@@ -476,7 +481,7 @@ if (DEBUG) Logger.printStackTrace(t);
 		/* This assumes that each unique username is only assigned to a single instrument */
 		LoginRecord lr = (LoginRecord) session.getAttribute(LOGIN_RECORD);
 		if (lr == null || tricepsEngine == null) { return false; }
-		
+
 		StringBuffer sb = new StringBuffer();
 		sb.append("UPDATE wave6users SET ");
 		sb.append("	status='").append(lr.getStatus());
@@ -490,12 +495,39 @@ if (DEBUG) Logger.printStackTrace(t);
 		sb.append("'	WHERE username='").append(lr.getUsername()).append("'");
 		
 		return writeToDB(sb.toString());
+} else { return true; }		
 	}	
 	
 	void logAccess(HttpServletRequest req, String msg) {
 		super.logAccess(req,msg);
 		updateStatus(req,msg);
 	}
+	
+	boolean writeToDB(String command) {
+if (DB_FOR_LOGIN || DB_TRACK_LOGINS) {		
+		try {
+//if (DEBUG) Logger.writeln(command);			
+			if (ds == null) throw new Exception("Unable to access DataSource");
+			
+	        Connection conn = ds.getConnection();
+	        
+	        if (conn == null) throw new Exception("Unable to connect to database");	// really need a way to report that there are database problems!
+	        
+	        Statement stmt = conn.createStatement();
+			stmt.executeUpdate(command);
+			stmt.close();
+	
+	        conn.close();
+	        
+			return true;
+		}
+		catch (Exception t) {
+			Logger.writeln("SQL-ERROR on: " + command);
+			Logger.writeln(t.getMessage());
+			return false;
+		}
+} else { return true; }		
+	}	
 }
 
 

@@ -32,4 +32,8 @@ import java.lang.String;
 	/*public*/ final static boolean DISPLAY_SPLASH = true;	// controls whether see splash screen
 	/*public*/ final static boolean	SAVE_ERROR_LOG_WITH_DATA = false;	// (!WEB_SERVER);	// don't save error log file if running on server
 	/*public*/ final static int SESSION_TIMEOUT = ((WEB_SERVER) ? (60*30) : (60*60*12));	// 20 minutes for web server; 12 hours for laptop
+	
+	final static boolean DB_FOR_LOGIN = @@DIALOGIX.DB_FOR_LOGIN@@;
+	final static boolean DB_TRACK_LOGINS = @@DIALOGIX.DB_TRACK_LOGINS@@;
+	final static boolean DB_LOG_RESULTS = @@DIALOGIX.DB_LOG_RESULTS@@;
 }

@@ -117,6 +117,7 @@ import java.io.File;
 	private static final int CREATE_TEMP_FILE = 88;
 	private static final int SAVE_DATA = 89;
 	private static final int EXEC = 90;
+	private static final int SET_STATUS_COMPLETED = 91;
 
 	
 	private static final Object FUNCTION_ARRAY[][] = {
@@ -206,11 +207,12 @@ import java.io.File;
 		{ "gotoNext",			ZERO,		new Integer(GOTO_NEXT) },	
 		{ "mean",				UNLIMITED,	new Integer(MEAN) },
 		{ "stddev",				UNLIMITED,	new Integer(STDDEV) },
-		{ "suspendToFloppy",	ZERO,		new Integer(SUSPEND_TO_FLOPPY) },
+		{ "suspendToFloppy",	UNLIMITED,		new Integer(SUSPEND_TO_FLOPPY) },
 		{ "regexMatch",			TWO,		new Integer(REGEX_MATCH) },
 		{ "createTempFile",		ZERO,		new Integer(CREATE_TEMP_FILE) },
 		{ "saveData",			ONE,		new Integer(SAVE_DATA) },
 		{ "exec",				ONE,		new Integer(EXEC) },
+		{ "setStatusCompleted",		ZERO,		new Integer(SET_STATUS_COMPLETED) },
 	};
 
 	private static final Hashtable FUNCTIONS = new Hashtable();
@@ -1311,9 +1313,26 @@ if (DEBUG) Logger.writeln("##SecurityException @ Evidence.fileExists()" + e.getM
 						std = Math.sqrt(sumsqdiff / (count - 1));
 						return new Datum(triceps, std);
 					}		
-				case SUSPEND_TO_FLOPPY:
-					triceps.suspendToFloppy();
-					return new Datum(triceps, "", Datum.STRING);
+				case SUSPEND_TO_FLOPPY: {
+					/* revise this so can jump to next available question, if appropriate */
+					if (params.size() == 1) {
+						/* then set the starting step in the file to be saved (but not in the master file) */
+						String nodeName = datum.getName();
+						Node n = getNode(nodeName);
+						if (n == null) {
+							setError(triceps.get("unknown_node") + nodeName,null);
+						}
+						else {
+							int result = getStep(n);				
+							StringBuffer sb = new StringBuffer("RESERVED\t");
+							sb.append(Schedule.RESERVED_WORDS[Schedule.STARTING_STEP]).append("\t");
+							sb.append(result).append("\t").append(System.currentTimeMillis()).append("\t\t\t");
+							triceps.dataLogger.println(sb.toString());
+						}
+					}
+					String savedFile = triceps.suspendToFloppy();
+					return new Datum(triceps, (savedFile == null) ? "null" : savedFile, Datum.STRING);
+				}
 				case REGEX_MATCH: {
 					/** syntax:  regexMatch(text,pattern) */
 					InputValidator iv = InputValidator.getInstance(getParam(params.elementAt(1)).stringVal());
@@ -1344,6 +1363,11 @@ if (DEBUG) Logger.writeln("##SecurityException @ Evidence.fileExists()" + e.getM
 				}
 				case EXEC: {
 					return new Datum(triceps,EvidenceIO.exec(datum.stringVal()));
+				}
+				case SET_STATUS_COMPLETED: {
+					/* allow specification of a file as completed, even if it is mid-stream */
+					/* HUGE hack - requires refernce to LoginServlet! */
+					return new Datum(triceps,triceps.setStatusCompleted());
 				}
 			}
 		}
