@@ -52,7 +52,20 @@ if (DEBUG && WEB_SERVER) {
 // User-Agent = Mozilla/4.0 (compatible; MSIE 5.5; Windows 98)
 // Accept-Language = en-us
 }
+if (DEBUG) {
+	/* catch all sent parameters */
+	Logger.writeln("##########");
+	java.util.Enumeration params = req.getParameterNames();
 	
+	while(params.hasMoreElements()) {
+		String param = (String) params.nextElement();
+		String vals[] = req.getParameterValues(param);
+		for (int i=0;i<vals.length;++i) {
+			Logger.writeln(param + "=" + vals[i]);
+		}
+	}
+	Logger.writeln("##########");
+}
 
 			tricepsEngine = (TricepsEngine) session.getAttribute(sessionID);
 			if (tricepsEngine == null) {
