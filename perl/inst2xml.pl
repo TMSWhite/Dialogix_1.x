@@ -17,7 +17,11 @@ my $CREATETIDY = 0;
 my $VALIDATEXML = 0;
 my $RECURSEDIRS = 0;
 my $CALCDIFFS = 0;
+my $MAKELIST = 0;
+my $ONLY_JARS = 0;
+my $SHOW_LOGIC = 0;
 my @FILEGLOB = ('*');
+my $inst_dir;
 
 
 my $dataTypes = {
@@ -53,17 +57,23 @@ my $dataTypes = {
 &main;
 
 sub main {
-	if ($#ARGV != 4) {
-		die "usage\ninst2xml.pl <convert2xml> <createTidy> <validateXML> <calcDiffs> <recurseDirs>\n";
+	if ($#ARGV != 7) {
+		die "usage\ninst2xml.pl <convert2xml> <createTidy> <validateXML> <calcDiffs> <recurseDirs> <makeList> <only_jars> <show_logic>\n";
 	}
-	($CONVERT2XML, $CREATETIDY, $VALIDATEXML, $CALCDIFFS, $RECURSEDIRS) = @ARGV;
+	($CONVERT2XML, $CREATETIDY, $VALIDATEXML, $CALCDIFFS, $RECURSEDIRS, $MAKELIST, $ONLY_JARS, $SHOW_LOGIC) = @ARGV;
 	
 	my $srcdir = Cwd::cwd();
 	print "[$srcdir]\n";
+	$inst_dir = $srcdir;
+	
+	open (INST_LIST,">Dialogix_instrument_list.txt") or die "unable to dump to Dialogix_instrument_list.txt";
+	print INST_LIST "Group\tBase\tTitle\tVersion\tDate\tNumLanguages\tNumQs\tNumEs\tNumOptionalQs\tLaunchCommand\n";
 	
 	foreach (@FILEGLOB) {
 		&look($_);
 	}
+	
+	close (INST_LIST);
 }
 
 sub look {
@@ -86,11 +96,14 @@ sub processDir {
 		my $srcdir = Cwd::cwd();
 		if (chdir($file)) {
 			print "[$srcdir/$file]\n";
+			$inst_dir = "$srcdir/$file";
+			
 			foreach (@FILEGLOB) {
 				&look($_);
 			}
 			chdir($srcdir);
 			print "[$srcdir]\n";
+			$inst_dir = $srcdir;
 		}
 		else {
 			print "ERR - unable to chdir to $file";
@@ -211,6 +224,19 @@ sub show_problems {
 sub inst2xml {
 	my $filename = shift;
 	
+	my $meta_group = &groupname($inst_dir);
+	if ($meta_group eq '') {
+		return '';
+	}
+	
+	my $base = &basename($filename);
+	if ($ONLY_JARS) {
+		if (!((-f "$base.jar") && (-r "$base.jar"))) {
+			return '';
+		}
+	}
+	my $file_creation_date = &FileCreationDate($filename);
+	
 	# read data	
 	open(IN,$filename) or die "unable to read from $filename\n";
 	
@@ -218,8 +244,13 @@ sub inst2xml {
 	chomp(@src);
 	close (IN);
 	
-	my $base = &basename($filename);
-	
+	my $meta_instdir = $inst_dir;
+	if ($meta_instdir =~ /^C:(.*)$/) {
+		$meta_instdir = $1;
+	}
+	my ($num_qs, $num_es, $num_always_qs, $num_languages) = (0, 0, 0, 0);
+	my ($meta_title, $meta_version_major, $meta_version_minor) = ('*UNTITLED*', 0, 0);
+		
 	# want tidied an original versions -- cheat by using global variables and processing twice, rather than re-writing access to &parse_html and &parse_eqn;
 	if ($CONVERT2XML) {
 		foreach my $tidy (0 .. ($CREATETIDY == 1)) {
@@ -239,6 +270,16 @@ sub inst2xml {
 					if ($reserved->{'resname'} eq '__LANGUAGES__') {
 						@languages = &parse_languages($reserved->{'resval'});
 					}
+					elsif ($reserved->{'resname'} eq '__TITLE__') {
+						$meta_title = $reserved->{'resval'};
+					}
+					elsif ($reserved->{'resname'} eq '__SCHED_VERSION_MAJOR__') {
+						$meta_version_major = $reserved->{'resval'};
+					}					
+					elsif ($reserved->{'resname'} eq '__SCHED_VERSION_MINOR__') {
+						$meta_version_minor = $reserved->{'resval'};
+					}
+					
 					push @lines, $reserved;
 				}
 				elsif (/^\s*COMMENT/) {
@@ -249,9 +290,22 @@ sub inst2xml {
 						# then no reserveds found, so not a valid file
 						return '';
 					}
-					push @lines, &parse_node($_);
+					my $nodeval = &parse_node($_);
+					push @lines, $nodeval;
+					
+					if ($nodeval->{'qoreval'}->{'qoreval'} =~ /^\s*e\s*/i) {
+						++$num_es;
+					}
+					else {
+						++$num_qs;
+						if ($nodeval->{'relevance'}->{'rel_new'} =~ /^\s*1\s*$/) {
+							++$num_always_qs;
+						}						
+					}
 				}
 			}
+			
+			$num_languages = ($#languages + 1);
 			
 			# write them as XML (initially not taking advantage of Perl's XML / DOM features
 			my $xmlfile = $base;
@@ -264,6 +318,15 @@ sub inst2xml {
 		}
 	}
 	unlink("tmp.tmp");	# remove extraneous file used by tidy.
+	
+	# print instrument info to tab delimited file so can call from PHP 
+	print INST_LIST "$meta_group\t$base\t$meta_title\t$meta_version_major.$meta_version_minor\t$file_creation_date\t$num_languages\t$num_qs\t$num_es\t$num_always_qs" .
+		"\thttp://psychinformatics.nyspi.org:8080/$meta_group/servlet/Dialogix?schedule=$meta_group/WEB-INF/schedules/$base.jar&DIRECTIVE=START\n";
+		
+	if ($SHOW_LOGIC) {
+		&showLogic("$base.txt","$base.htm","$meta_title v. $meta_version_major.$meta_version_minor $file_creation_date");
+	}
+
 	return "$base.tidy.xml";
 }
 
@@ -390,6 +453,20 @@ sub write_xml {
 	
 	print OUT "</dialogix_instrument>\n";
 	close (OUT);
+}
+
+sub groupname {
+	my $arg = shift;
+	
+	if ($arg =~ /^C:\/cvs2\/Dialogix\/web(-test)*\/(.*)\/WEB-INF\/schedules$/) {
+		return $2;
+	}
+	elsif ($arg =~ /^C:\/usr\/local\/dialogix\/webapps\/(.*)\/WEB-INF\/schedules$/) {
+		return $1;
+	}
+	else {
+		return '';
+	}
 }
 
 sub basename {
@@ -746,3 +823,48 @@ sub tokenize_string {
 	return @newtoks;
 }
 
+
+sub FileCreationDate {
+	my $filename = shift;
+	
+	my ($dev,$ino,$mode,$nlink,$uid,$gid,$rdev,$size,$atime,$mtime,$ctime,$blksize,$blocks)
+           = stat($filename);
+           
+	my $arg = localtime($mtime);
+	if ($arg =~ /(\w+?)\s+(\w+?)\s+(\d+?)\s+(\d+?):(\d+?):(\d+?)\s+(\d\d\d\d)/) {
+		#Wed Jun 06 14:18:33 2001
+		return "$7-" . &month($2) . "-$3";
+	}
+}
+
+
+sub month {
+	$_ = shift;
+	return '01' if (/Jan/i);
+	return '02' if (/Feb/i);
+	return '03' if (/Mar/i);
+	return '04' if (/Apr/i);
+	return '05' if (/May/i);
+	return '06' if (/Jun/i);
+	return '07' if (/Jul/i);
+	return '08' if (/Aug/i);
+	return '09' if (/Sep/i);
+	return '10' if (/Oct/i);
+	return '11' if (/Nov/i);
+	return '12' if (/Dec/i);
+	return '00';
+}
+
+sub showLogic {
+	my $infile = shift;
+	my $outfile = shift;
+	my $title = shift;
+	my $command = "perl $PERLDIR/showlogic.pl $infile $outfile \"$title\"";
+	&doit($command);
+}
+
+sub doit {
+	my $cmd = shift;
+	print "$cmd\n";
+	(system($cmd) == 0)	or die "ERROR";
+}
