@@ -368,3 +368,36 @@ Reorganization & Documentation
 
 << changes from 2.9.3 to 2.9.4
   Enhancement - groups of nodes (surrounded by '[', ']') can now have variable # questions displayed if they have different relevance parameters
+
+<< changes from 2.9.4 to 2.9.5
+  Made compatible with JDK1.1.8
+    Evidence.java
+      -- replaced String.compareIgnoreCase() with custom version
+      -- removed Math.toRadians() and Math.toDegrees()
+    EvidenceIO.java
+      -- replaced File.createTempFile() with custom version
+      -- removed File.deleteOnExit()
+    JarWriter.java
+    ScheduleList.java
+    ScheduleSource.java
+      -- replaced all references of Jar to Zip (since Jar not supported until JDK1.2)
+    Triceps.java
+      -- replaced all references of Jar to Zip (since Jar not supported until JDK1.2)
+      -- using custom versions of createTempFile()
+      -- conditionally don't save err log files with data
+    TricepsEngine.java
+      -- replace TreeMap and Iterator with non-collections equivalents
+      -- add isActive flag, so know when finished, so can invalidate sessions
+      -- fix NullPointerException bug when userAgent is null
+  Bugfix
+    ExcelDecoder.java
+      -- fixed IndexOutOfBounds error when a column contains a single double-quote character
+  Enhancement
+    VersionIF.java
+      -- Changed SESSION_TIMEOUT from 12 hours for laptops to 20 minutes for servers
+      -- Don't jar error log files with data files.
+    XMLString.java
+      -- show bad XHTML formatting to log file even when not DEBUG mode (might want to reconsider this if there are many syntax errors in our posted apps)
+    TricepsServlet.java
+      -- Changed SESSION_TIMEOUT from 12 hours for laptops to 20 minutes for servers
+      -- invalidate session when user finishes instrument; update error messages to reflect this.
