@@ -1,10 +1,26 @@
 package org.dianexus.triceps;
 
-import java.util.*;
-import java.io.*;
-import javax.servlet.*;
-import javax.servlet.http.*;
-import java.net.*;
+/*import java.util.*;*/
+/*import java.io.*;*/
+/*import javax.servlet.*;*/
+/*import javax.servlet.http.*;*/
+/*import java.net.*;*/
+import javax.servlet.ServletConfig;
+import javax.servlet.ServletException;
+import javax.servlet.http.HttpServlet;
+import javax.servlet.http.HttpSession;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import javax.servlet.http.HttpUtils;
+import java.io.PrintWriter;
+import java.io.IOException;
+import java.util.TreeMap;
+import java.io.File;
+import java.io.Writer;
+import java.util.Vector;
+import java.util.Iterator;
+import java.util.Enumeration;
+
 
 /**
  *	 This is the central engine that iterates through the nodes
@@ -52,7 +68,7 @@ public class TricepsServlet extends HttpServlet implements VersionIF {
 
 	private String directive = null;	// the default
 	private Triceps triceps = Triceps.NULL;
-	private Schedule schedule = null;	// triceps.getSchedule()
+	private Schedule schedule = Schedule.NULL;	// triceps.getSchedule()
 	private boolean isloaded = false;
 
 
@@ -93,7 +109,7 @@ public class TricepsServlet extends HttpServlet implements VersionIF {
 		super.destroy();
 	}
 	
-	public String getIcon(int which) {
+	/*public*/ String getIcon(int which) {
 		return schedule.getReserved(Schedule.IMAGE_FILES_DIR) + schedule.getReserved(which);
 	}
 
@@ -133,7 +149,9 @@ public class TricepsServlet extends HttpServlet implements VersionIF {
 			if (directive != null && directive.trim().length() == 0) {
 				directive = null;
 			}
+if (DEPLOYABLE) {
 			triceps.processEventTimings(req.getParameter("EVENT_TIMINGS"));
+}			
 
 			setGlobalVariables();
 
@@ -178,7 +196,7 @@ if (AUTHORABLE)	new XmlString(triceps, "<b>" + form.getErrors() + "</b>",out);
 //					System.runFinalization();	// could offer to let subject confirm that done, at which point written to floppy, etc.?
 				}
 				else {
-					triceps.saveWorkingInfo();	// don't I want to catch potential errors?
+//					triceps.saveWorkingInfo();	// don't I want to catch potential errors?
 				}
 			}
 		}
@@ -503,7 +521,9 @@ if (DEBUG) Logger.writeln("##Throwable @ Servlet.selectFromInterviewsInDir" + t.
 		
 		sb.append("<input type='hidden' name='PASSWORD_FOR_ADMIN_MODE' value=''>");	// must manually bypass each time
 		sb.append("<input type='hidden' name='LANGUAGE' value=''>");
+if (DEPLOYABLE) {		
 		sb.append("<input type='hidden' name='EVENT_TIMINGS' value=''>");	// list of event timings
+}		
 		sb.append("<input type='hidden' name='DIRECTIVE' value=''>");
 
 		sb.append("</FORM>");
@@ -642,7 +662,7 @@ if (AUTHORABLE) {
 		else if (directive.equals("save_to")) {
 if (AUTHORABLE) {
 			String name = req.getParameter("save_to_data");
-			ok = triceps.saveWorkingInfo(name);
+//			ok = triceps.saveWorkingInfo(name);
 			if (ok) {
 				info.println(triceps.get("interview_saved_successfully_as") + (workingFilesDir + name));
 			}
@@ -824,16 +844,11 @@ if (AUTHORABLE) {
 	}
 
 	private boolean getNewTricepsInstance(String name) {
-		if (name == null) {
+		if (name == null || name.trim().length() == 0) {
 			triceps = Triceps.NULL;
 		}
 		else {
-//			if (triceps != Triceps.NULL) {
-//				triceps.setSchedule(name,workingFilesDir,completedFilesDir,floppyDir);
-//			}
-//			else {
-				triceps = new Triceps(name,workingFilesDir,completedFilesDir,floppyDir);
-//			}
+			triceps = new Triceps(name,workingFilesDir,completedFilesDir,floppyDir);
 		}
 		if (!AUTHORABLE && !triceps.getSchedule().isLoaded()) {
 			triceps = Triceps.NULL;
@@ -957,7 +972,9 @@ if (AUTHORABLE) {
 		}
 	
 		if (!triceps.isAtBeginning()) {
+if (DEPLOYABLE && !triceps.isAtEnd()) {
 			sb.append(buildSubmit("previous"));
+}			
 		}
 
 		if (allowEasyBypass || okToShowAdminModeIcons) {
@@ -1174,12 +1191,13 @@ if (AUTHORABLE) {
 		sb.append("var val = null;\n");
 		sb.append("var name = null;\n");
 		sb.append("var msg = null;\n");
-
+		
 		sb.append("var startTime = new Date();\n");
 		sb.append("var el = null;\n");
 		sb.append("var evH = null;\n");
 		sb.append("var ans = null;\n");
 
+if (DEPLOYABLE) {		
 		sb.append("function keyHandler(e) {\n");
 //		if (allowRecordEvents) {
 			sb.append("	now = new Date();\n");
@@ -1190,21 +1208,25 @@ if (AUTHORABLE) {
 //		}
 		sb.append("	return true;\n");
 		sb.append("}\n");
+}		
 
 		sb.append("function submitHandler(e) {\n");
+if (DEPLOYABLE) {		
 //		if (allowRecordEvents) {
 			sb.append("	now = new Date();\n");
 			sb.append("	val = ',';\n");
 			sb.append("	msg = e.target.name + ',' + e.target.type + ',' + e.type + ',' + now.getTime() + ',' + (now.getTime() - startTime.getTime()) + ',' + val + '|';\n");
 			sb.append("	document.myForm.EVENT_TIMINGS.value += msg;\n");
 //		}
+}
 		sb.append("	name = document.myForm.elements['DIRECTIVE_' + e.target.name].value;\n");
 		sb.append("	if (e.type == 'focus') { e.target.value='" + activePrefix + "' + name + '" + activeSuffix + "'; }\n");
 		sb.append("	else if (e.type == 'blur') { e.target.value='" + inactivePrefix + "' + name + '" + inactiveSuffix + "'; }\n");
 		sb.append("	document.myForm.elements['DIRECTIVE'].value = e.target.name;\n");
 		sb.append("	return true;\n");
 		sb.append("}\n");
-		
+
+if (DEPLOYABLE) {		
 		sb.append("function selectHandler(e) {\n");
 //		if (allowRecordEvents) {
 			sb.append("	now = new Date();\n");
@@ -1215,8 +1237,9 @@ if (AUTHORABLE) {
 //		}
 		sb.append("	return true;\n");
 		sb.append("}\n");
-		
+}		
 		sb.append("function evHandler(e) {\n");
+if (DEPLOYABLE) {		
 //		if (allowRecordEvents) {
 			sb.append("	now = new Date();\n");
 			sb.append("	val = ',' + e.target.value;\n");
@@ -1224,24 +1247,30 @@ if (AUTHORABLE) {
 			sb.append("	msg = name + ',' + e.target.type + ',' + e.type + ',' + now.getTime() + ',' + (now.getTime() - startTime.getTime()) + ',' + val + '|';\n");
 			sb.append("	document.myForm.EVENT_TIMINGS.value += msg;\n");
 //		}
+}
 		sb.append("	return true;\n");
 		sb.append("}\n");
-		
+	
+if (DEPLOYABLE) {	
 		sb.append("window.captureEvents(Event.Load);\n");
 		sb.append("window.onLoad = evHandler;\n");
+}		
 
 		sb.append("function init() {\n");
-
 		sb.append("	for (var i=0;i<document.myForm.elements.length;++i) {\n");
 		sb.append("		el = document.myForm.elements[i];\n");
+if (DEPLOYABLE) {		
 		sb.append("		evH = evHandler;\n");
-		sb.append("		if (el.type == 'select-multiple' || el.type == 'select-one') { evH = selectHandler; }\n");
-		sb.append("		else if (el.type == 'submit') { evH = submitHandler; }\n");
+		sb.append("		if (el.type == 'select-multiple' || el.type == 'select-one') { evH = selectHandler; } else \n");
+}
+		sb.append("		if (el.type == 'submit') { evH = submitHandler; }\n");
 		sb.append("		el.onBlur = evH;\n");
-		sb.append("		el.onChange = evH;\n");
 		sb.append("		el.onClick = evH;\n");
 		sb.append("		el.onFocus = evH;\n");
+if (DEPLOYABLE) {		
+		sb.append("		el.onChange = evH;\n");
 		sb.append("		el.onKeyPress = keyHandler;\n");
+}		
 		sb.append("	}\n");
 		sb.append("	for (var k=0;k<document.images.length;++k){\n");
 		sb.append("		el = document.images[k];\n");
