@@ -6,6 +6,8 @@
 package org.dianexus.triceps;
 
 import java.io.*;
+import java.util.Random;
+
 
 /*public*/ class EvidenceIO implements VersionIF  {
 	private EvidenceIO() {
@@ -13,8 +15,8 @@ import java.io.*;
 	
 	static String createTempFile() {
 		try {
-			File name = File.createTempFile("tmp",null);
-			name.deleteOnExit();	// to facilitate cleanup
+			File name = createTempFile("tmp",null);
+//			name.deleteOnExit();	// to facilitate cleanup
 			return name.toString();
 		} 
 		catch (Exception e) {
@@ -116,4 +118,74 @@ import java.io.*;
 		else
 		  return false;
 	}
+	
+/** Modified from JDK 1.3 createTempFile () */
+    private static final Object tmpFileLock = new Object();
+
+    private static int counter = -1; /* Protected by tmpFileLock */
+    
+    public static File createTempFile(String prefix, String suffix)
+	throws IOException
+    {
+	return createTempFile(prefix, suffix, null);
+	}
+
+	public static File createTempFile(String prefix, String suffix,
+				      File directory)
+        throws IOException
+    {
+	if (prefix == null) throw new NullPointerException();
+	if (prefix.length() < 3)
+	    throw new IllegalArgumentException("Prefix string too short");
+	String s = (suffix == null) ? ".tmp" : suffix;
+	synchronized (tmpFileLock) {
+	    if (directory == null) {
+		directory = new File(getTempDir());
+	    }
+	    SecurityManager sm = System.getSecurityManager();
+	    File f;
+	    do {
+		f = generateFile(prefix, s, directory);
+	    } while (!checkAndCreate(f.getPath(), sm));
+	    return f;
+	}
+	}
+
+    private static String tmpdir; /* Protected by tmpFileLock */
+
+    private static String getTempDir() {
+	if (tmpdir == null) {
+		tmpdir = "/tmp";	// this is cheating
+//	    GetPropertyAction a = new GetPropertyAction("java.io.tmpdir");
+//	    tmpdir = ((String) AccessController.doPrivileged(a));
+	}
+	return tmpdir;
+	}
+
+    private static File generateFile(String prefix, String suffix, File dir)
+	throws IOException
+    {
+	if (counter == -1) {
+	    counter = new Random().nextInt() & 0xffff;
+	}
+	counter++;
+	return new File(dir, prefix + Integer.toString(counter) + suffix);
+	}
+
+    private static boolean checkAndCreate(String filename, SecurityManager sm)
+	throws IOException
+    {
+	if (sm != null) {
+	    try {
+		sm.checkWrite(filename);
+	    } catch (Exception x) {
+		/* Throwing the original AccessControlException could disclose
+		   the location of the default temporary directory, so we
+		   re-throw a more innocuous SecurityException */
+		throw new SecurityException("Unable to create temporary file");
+	    }
+	}
+	return true;	// is this correct -- don't I need to create the actual file?
+//	return fs.createFileExclusively(filename);
+    }
 }
