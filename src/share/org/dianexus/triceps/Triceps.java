@@ -6,9 +6,6 @@ import java.net.*;
 /* Triceps
  */
 public class Triceps {
-	public static final int ENGLISH = 1;
-	public static final int SPANISH = 2;
-	
 	public static final int ERROR = 1;
 	public static final int OK = 2;
 	public static final int AT_END = 3;
@@ -21,7 +18,7 @@ public class Triceps {
 	private String scheduleUrlPrefix = null;
 	public Schedule nodes = new Schedule();	// XXX should this be allowed to be public?
 	private Evidence evidence = null;
-	static private Parser parser = new Parser();
+	private Parser parser = new Parser();
 
 	private Vector errors = new Vector();
 	private static String fileAccessError = null;
@@ -36,7 +33,6 @@ public class Triceps {
 	private String completedFilesDir = null;
 	private String scheduleSrcDir = null;
 	private String urlPrefix = null;
-	private int language = ENGLISH;	// default
 
 	public Triceps(String scheduleSrcDir, String workingFilesDir, String completedFilesDir) {
 		setScheduleSrcDir(scheduleSrcDir);
@@ -132,7 +128,7 @@ public class Triceps {
 				break;
 			}
 			node = nodes.getNode(step++);
-			actionType = node.getActionType();
+			actionType = node.getQuestionOrEvalType();
 			e.addElement(node);	// add regardless of type
 
 			if (actionType == Node.GROUP_OPEN) {
@@ -173,7 +169,7 @@ public class Triceps {
 		}
 		q.createParseRangeStr();
 
-		q.setQuestionAsAsked(parser.parseJSP(evidence, q.getAction()) + q.getQuestionMask());
+		q.setQuestionAsAsked(parser.parseJSP(evidence, q.getQuestionOrEval()) + q.getQuestionMask());
 //		if (parser.hasErrors()) { Vector v=parser.getErrors(); for (int c=0;c<v.size();++c) { errors.addElement(v.elementAt(c)); }  }
 		return q.getQuestionAsAsked();
 	}
@@ -222,7 +218,7 @@ public class Triceps {
 				return ERROR;
 			}
 
-			actionType = node.getActionType();
+			actionType = node.getQuestionOrEvalType();
 
 			if (actionType == Node.GROUP_OPEN) {
 				if (braceLevel == 0) {
@@ -254,7 +250,7 @@ public class Triceps {
 				}
 				else {
 					if (parser.booleanVal(evidence, node.getDependencies())) {
-						evidence.set(node, new Datum(parser.stringVal(evidence, node.getAction()),node.getDatumType(),node.getMask()));
+						evidence.set(node, new Datum(parser.stringVal(evidence, node.getQuestionOrEval()),node.getDatumType(),node.getMask()));
 					}
 					else {
 						evidence.set(node, Datum.getInstance(Datum.NA));	// if doesn't satisfy dependencies, store NA
@@ -327,7 +323,7 @@ public class Triceps {
 			if ((node = nodes.getNode(step)) == null)
 				return ERROR;
 
-			actionType = node.getActionType();
+			actionType = node.getQuestionOrEvalType();
 
 			if (actionType == Node.EVAL) {
 				;	// skip these going backwards, but don't reset values when going backwards
@@ -395,7 +391,7 @@ public class Triceps {
 			if (n == null)
 				continue;
 
-			init = n.getDefaultAnswer();
+			init = n.getAnswerGiven();
 
 //			if (init == null || init.length() == 0 || init.equals(NULL) || init.equals(Datum.TYPES[Datum.UNASKED])) {
 			if (init == null || init.length() == 0 || init.equals(Datum.TYPES[Datum.UNASKED])) {
@@ -417,7 +413,7 @@ public class Triceps {
 				d = new Datum(init,n.getDatumType(),n.getMask());
 			}
 			
-			evidence.set(n,d,n.getDefaultAnswerTimeStampStr());
+			evidence.set(n,d,n.getAnswerTimeStampStr());
 		}
 		
 		startTimer(new Date(System.currentTimeMillis()));	// use current time
@@ -425,7 +421,7 @@ public class Triceps {
 		return true;
 	}
 
-	public boolean storeValue(Node q, String answer, boolean okToRefuse, boolean okToUnknown) {
+	public boolean storeValue(Node q, String answer, String comment, String special, boolean okToRefuse, boolean okToUnknown, boolean okToNotUnderstood) {
 		if (q == null) {
 			errors.addElement("null node");
 			return false;
@@ -438,16 +434,26 @@ public class Triceps {
 		}
 		Datum d;
 		
-		if (okToRefuse && answer != null && answer.startsWith(Datum.TYPES[Datum.REFUSED])) {
-			evidence.set(q,Datum.getInstance(Datum.REFUSED));
-			return true;
-		}
-		if (okToUnknown && answer != null && answer.startsWith(Datum.TYPES[Datum.UNKNOWN])) {
-			evidence.set(q,Datum.getInstance(Datum.UNKNOWN));
-			return true;
+		if (comment != null) {
+			q.setComment(comment);
+		}			
+		
+		if (special != null) {
+			if (okToRefuse && special.equals(Datum.TYPES[Datum.REFUSED])) {
+				evidence.set(q,Datum.getInstance(Datum.REFUSED));
+				return true;
+			}
+			if (okToUnknown && special.equals(Datum.TYPES[Datum.UNKNOWN])) {
+				evidence.set(q,Datum.getInstance(Datum.UNKNOWN));
+				return true;
+			}
+			if (okToNotUnderstood && special.equals(Datum.TYPES[Datum.NOT_UNDERSTOOD])) {
+				evidence.set(q,Datum.getInstance(Datum.NOT_UNDERSTOOD));
+				return true;
+			}
 		}
 		
-		if (q.getAnswerType() == Node.NOTHING && q.getActionType() != Node.EVAL) {
+		if (q.getAnswerType() == Node.NOTHING && q.getQuestionOrEvalType() != Node.EVAL) {
 			d = Datum.getInstance(Datum.NA);
 		}
 		else {
@@ -522,7 +528,7 @@ public class Triceps {
 			if (d == null)
 				continue;
 
-			sb.append(" <datum name='" + n.getName() + "' value='" + d.stringVal(true) + "'/>\n");
+			sb.append(" <datum name='" + n.getLocalName() + "' value='" + d.stringVal(true) + "'/>\n");
 		}
 		sb.append("</Evidence>\n");
 		return sb.toString();
@@ -557,8 +563,8 @@ public class Triceps {
 				dependenciesErrors = parser.getErrors();
 			}
 
-			int actionType = n.getActionType();
-			String action = n.getAction();
+			int actionType = n.getQuestionOrEvalType();
+			String action = n.getQuestionOrEval();
 
 			if (action != null) {
 				if (actionType == Node.QUESTION) {
@@ -637,6 +643,16 @@ public class Triceps {
 			out.write("COMMENT " + "Schedule: " + scheduleURL + "\n");
 			out.write("COMMENT " + "Started: " + getStartTimeStr() + "\n");
 			out.write("COMMENT " + "Stopped: " + getStopTimeStr() + "\n");
+			
+			/* Show the names of the output columns */
+			out.write("COMMENT " + "concept\tinternalName\texternalName\tdependencies\tquestionOrEvalType");
+			for (int i=0;i<nodes.getLanguages().size();++i) {
+				out.write("\treadback[" + i + "]" +
+					"\tquestionOrEval[" + i + "]" +
+					"\tanswerChoices[" + i + "]" +
+					"\thelpURL[" + i + "]");
+			}
+			out.write("\tlanguageNum\tquestionAsAsked\tanswerGiven\tcomment\ttimeStamp\n");
 
 			for (int i=0;i<size();++i) {
 				n = nodes.getNode(i);
@@ -653,11 +669,13 @@ public class Triceps {
 				String comment = n.getComment();
 				if (comment == null)
 					comment = "";
-				String helpURL = n.getHelpURL();
-				if (helpURL == null)
-					helpURL = "";
 
-				out.write(n.toTSV() + "\t" + n.getQuestionAsAsked() + "\t" + ans + "\t" + n.getTimeStampStr() + "\t" + comment + "\t" + helpURL + "\n");
+				out.write(n.toTSV() + 
+					"\t" + n.getAnswerLanguageNum() + 
+					"\t" + n.getQuestionAsAsked() + 
+					"\t" + ans + 
+					"\t" + comment + 					
+					"\t" + n.getTimeStampStr() + "\n");
 			}
 			out.flush();
 			return true;
@@ -670,7 +688,7 @@ public class Triceps {
 		}
 	}
 
-	static BufferedReader getReader(String fname, String urlPrefix, String optionalFilePrefix) {
+	static synchronized BufferedReader getReader(String fname, String urlPrefix, String optionalFilePrefix) {
 		boolean ok = false;
 		BufferedReader br = null;
 		URL url = null;
@@ -818,6 +836,13 @@ public class Triceps {
 		else
 			return s;
 	}
+	public String getPasswordForNotUnderstood() { 
+		String s = nodes.getReserved(Schedule.PASSWORD_FOR_NOT_UNDERSTOOD);
+		if (s == null || s.trim().length() == 0)
+			return null;
+		else
+			return s;
+	}	
 	public String getIcon() { return nodes.getReserved(Schedule.ICON); }
 	public String getHeaderMsg() { return nodes.getReserved(Schedule.HEADER_MSG); }
 	
@@ -830,17 +855,9 @@ public class Triceps {
 	public String getFilename() { return nodes.getReserved(Schedule.FILENAME); }
 	public boolean setFilename(String name) { return nodes.setReserved(Schedule.FILENAME, name); }
 	
-	public boolean setLanguage(int lang) {
-		switch(lang) {
-			case ENGLISH:
-			case SPANISH:
-				language = lang;
-				return true;
-			default:
-				language = ENGLISH;
-				return false;
-		}
+	public boolean setLanguage(String language) {
+		return nodes.setLanguage(language);
 	}
 	
-	public int getLanguage() { return language; }
+	public int getLanguage() { return nodes.getLanguage(); }
 }
