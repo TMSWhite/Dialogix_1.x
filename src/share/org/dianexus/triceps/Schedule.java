@@ -40,6 +40,9 @@ public class Schedule implements Serializable {
 	}
 	
 	public boolean load(URL url) {
+		if (url == null)
+			return false;
+			
 		boolean err = false;
 		try {
 			InputStream is = url.openStream();

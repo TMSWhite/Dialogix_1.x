@@ -30,6 +30,8 @@ public class Triceps implements Serializable {
 	}
 
 	public boolean setSchedule(String src) {
+		if (src == null)
+			return false;
 		try {
 			URL url = new URL(src);
 			return setSchedule(url);
@@ -41,6 +43,9 @@ public class Triceps implements Serializable {
 	}
 	
 	public boolean setSchedule(URL url) {
+		if (url == null)
+			return false;
+			
 		scheduleURL = url;
 		return (reloadSchedule() && resetEvidence() && setDebugEvidence());
 	}
@@ -283,10 +288,18 @@ public class Triceps implements Serializable {
 			
 			init = n.getDebugAnswer();
 			
-			if (init == null || init.equals(NULL) || init.equals(Datum.TYPES[Datum.UNKNOWN]))
-				continue;
-			
-			evidence.set(n,new Datum(init,n.getDatumType()));	// set an initial value for the node
+			if (init == null || init.equals(NULL) || init.equals(Datum.TYPES[Datum.UNKNOWN])) {
+				evidence.set(n,new Datum(Datum.UNKNOWN));
+			}
+			else if (init.equals(Datum.TYPES[Datum.NA])) {
+				evidence.set(n,new Datum(Datum.NA));
+			}
+			else if (init.equals(Datum.TYPES[Datum.INVALID])) {
+				evidence.set(n,new Datum(Datum.INVALID));
+			}
+			else {	
+				evidence.set(n,new Datum(init,n.getDatumType()));	// set an initial value for the node
+			}
 		}
 		return true;
 	}

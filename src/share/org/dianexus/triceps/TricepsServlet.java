@@ -167,13 +167,7 @@ public class TricepsServlet extends HttpServlet {
 			}
 			
 			if (!ok) {
-				try {
-					this.doGet(req,res);
-				}
-				catch (ServletException e) {
-				}
-				catch (IOException e) {
-				}
+				processDirective(null);	// select new interview
 				return;
 			}
 				
