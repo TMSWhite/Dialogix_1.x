@@ -7,11 +7,15 @@ use Data::Dumper;
 use Cwd;
 
 my $PERLDIR = "c:/cvs2/dialogix/perl";
+my $TIDY_EXE = "$PERLDIR/tidy.exe";
+my $TIDY_CONF = "$PERLDIR/tidy.conf";
+my $DIFF_EXE = "$PERLDIR/diff.exe -bdiw";
 my $USETIDY = 0;
 my $CONVERT2XML = 0;
 my $CREATETIDY = 0;
 my $VALIDATEXML = 0;
 my $RECURSEDIRS = 0;
+my $CALCDIFFS = 0;
 my @FILEGLOB = ('*');
 
 
@@ -48,10 +52,10 @@ my $dataTypes = {
 &main;
 
 sub main {
-	if ($#ARGV != 3) {
-		die "usage\ninst2xml.pl <convert2xml> <createTidy> <validateXML> <recurseDirs>\n";
+	if ($#ARGV != 4) {
+		die "usage\ninst2xml.pl <convert2xml> <createTidy> <validateXML> <calcDiffs> <recurseDirs>\n";
 	}
-	($CONVERT2XML, $CREATETIDY, $VALIDATEXML, $RECURSEDIRS) = @ARGV;
+	($CONVERT2XML, $CREATETIDY, $VALIDATEXML, $CALCDIFFS, $RECURSEDIRS) = @ARGV;
 	
 	my $srcdir = Cwd::cwd();
 	print "[$srcdir]\n";
@@ -97,12 +101,36 @@ sub processDir {
 			$xmlfile = &inst2xml($file);
 			if ((-f $xmlfile) && (-r $xmlfile)) {
 				&validate_xml($xmlfile);
+				&calc_diffs($xmlfile);
 			}
 			else {
 				print "unable to find $xmlfile\n";
 			}			
 		}
 	}
+}
+
+sub calc_diffs {
+	my $dst = shift;
+	my $src = $dst;
+	$src =~ s/\.tidy\././;
+	
+	return unless ($CALCDIFFS);
+	
+	my $starttime = time;
+	my $cmd = "$DIFF_EXE $src $dst";
+	my @results = qx|$cmd|;
+	if (!open (DIFF, ">$src.diff")) {
+		print "unable to save diff to $src.diff\n";
+		return;
+	}
+	print DIFF $cmd, "\n";
+	foreach (@results) {
+		print DIFF $_;
+	}
+	close (DIFF);
+	my $stoptime = time;
+	print "Saved diff as \"$src.diff\" in " . ($stoptime - $starttime) . " seconds\n";
 }
 
 sub inst2xml {
@@ -117,7 +145,7 @@ sub inst2xml {
 	
 	my $base = &basename($filename);
 	
-	# want tidied an original versions -- cheat by using global variables and processing twice, rather than re-writing access to &parse_html and &parse_exp;
+	# want tidied an original versions -- cheat by using global variables and processing twice, rather than re-writing access to &parse_html and &parse_eqn;
 	if ($CONVERT2XML) {
 		foreach my $tidy (0 .. ($CREATETIDY == 1)) {
 			# parse the lines
@@ -428,8 +456,8 @@ sub parse_action {
 		my $parsed;
 		
 		while (1) {
-			if ($temp =~ /^(.*?)(`.*?`)(.*)$/) {
-				$parsed .= $1 . &parse_eqn($2);
+			if ($temp =~ /^(.*?)`(.*?)`(.*)$/) {
+				$parsed .= $1 . '`' . &parse_eqn($2) . '`';
 				$temp = $3;
 			}
 			else {
@@ -493,10 +521,26 @@ sub parse_relevance {
 }
 
 sub parse_eqn {
+	my @words = &parse_words(shift);
+	my $retval;
+	
+	foreach my $word (@words) {
+		if ($word =~ /^(['"])(.*?)(['"])$/) {
+			$retval .= $1 . &parse_html($2) . $3;
+		}
+		else {
+			$retval .= &fix_eqn($word);
+		}
+	}
+	return $retval;
+}
+
+
+sub fix_eqn {
 	my $arg = shift;
 	
 	# this gives the opportunity to convert a string to MathML, or to replace >= / ==, etc with less dangerous characters
-	
+
 	$arg =~ s/==/ eq /g;
 	$arg =~ s/>=/ ge /g;
 	$arg =~ s/>/ gt /g;
@@ -527,13 +571,16 @@ sub parse_html {
 			open (TEMP,">tmp.tmp") or die "unable to write to tmp.tmp";
 			print TEMP $exp;
 			close (TEMP);
-			my @results = qx|$PERLDIR/tidy.exe -config $PERLDIR/tidy.conf < tmp.tmp|;
+			my @results = qx|$TIDY_EXE -config $TIDY_CONF < tmp.tmp|;
 			chomp(@results);
 			$exp = '';
 			# trim the extra space that tidy includes
 			foreach my $result (@results) {
 				if ($result =~ /^\s*(.*?)\s*$/) {
 					$exp .= $1;
+					if ($exp =~ /([:.?!])$/) {
+						$exp .= " ";	# add a space after the end of a sentence, as needed
+					}
 				}
 			}
 #			$exp = join(' ',@results);
@@ -552,7 +599,8 @@ sub parse_html {
 	$exp =~ s/&nbsp;/&#160;/g;
 	$exp =~ s|<\s*br\s*/\s*>|<br />|gi;
 	$exp =~ s|<\s*br\s*>|<br />|gi;
-	$exp =~ s|([\.\?:])\s+|$1  |g;
+	$exp =~ s|([:.?!])\s+|$1 |g;
+	$exp =~ s|^\s*(.*?)\s*$|$1|;		# remove trailing space at the start and end of a string
 	
 	return $exp;
 }
@@ -569,4 +617,52 @@ sub deExcelize {
 		push @fixed, $arg;
 	}
 	return @fixed;
+}
+
+# creates list of words from text with embedded strings
+sub parse_words {
+	my @toks = &tokenize_string(shift);
+	my ($word, $tok, $subtok, @words);
+	
+	while (@toks) {
+		$tok = shift(@toks);
+		if ($tok eq "\"") {
+			$word = $tok;
+			while (@toks) {
+				$subtok = shift(@toks);
+				$word .= $subtok;
+				last if ($subtok eq "\"");
+			}
+			if (rindex($word,"\"") != (length($word)-1)) {
+				$word .= "\"";	# add terminating quote if missing?
+			}
+			push @words, $word;
+		}
+		elsif ($tok eq "\'") {
+			$word = $tok;
+			while (@toks) {
+				$subtok = shift(@toks);
+				$word .= $subtok;
+				last if ($subtok eq "\'");
+			}
+			if (rindex($word,"\'") != (length($word)-1)) {
+				$word .= "\'";	# add terminating quote if missing?
+			}
+			push @words, $word;			
+		}
+		else {
+			push @words, $tok;
+		}
+	}
+	return @words;
+}
+
+# creates list of tokens from text with embedded / nested strings
+sub tokenize_string {
+	my @toks = split(/(?<!\\)(['"])/,shift);
+	my @newtoks;
+	foreach (@toks) {
+		push @newtoks, $_ if ($_ ne '');
+	}
+	return @newtoks;
 }
