@@ -839,31 +839,49 @@ if (AUTHORABLE) {
 		return sb.toString();
 	}
 
-	/*public*/ String getTimeStampStr() { return timeStampStr; }
 	/*public*/ Date getTimeStamp() { return timeStamp; }
-
+	/*public*/ String getTimeStampStr() { return timeStampStr; }
 
 	/*public*/ void setTimeStamp() {
 		timeStamp = new Date(System.currentTimeMillis());
-		timeStampStr = triceps.formatDate(timeStamp,Datum.TIME_MASK);
+	}
+	
+	private void setTimeStampStr() {
+		if (timeStamp == null) 
+			timeStampStr = "";
+			
+		try {
+			timeStampStr = Long.toString(timeStamp.getTime());
+		}
+		catch (NumberFormatException e) {
+			timeStampStr = "";
+		}
 	}
 
 	/*public*/ void setTimeStamp(String timeStr) {
 		if (timeStr == null || timeStr.trim().length() == 0) {
 			setTimeStamp();
+			setTimeStampStr();
 			return;
 		}
 
 		Date time = null;
-		time = triceps.parseDate(timeStr,Datum.TIME_MASK);
-
+		try {
+			time = new Date(Long.parseLong(timeStr));
+		}
+		catch (NumberFormatException e) {
+if (DEBUG) Logger.writeln("##NumberFormatException @ Node.setTimeStamp()" + e.getMessage());
+if (AUTHORABLE) 		setParseError("error parsing timeStamp " + timeStr + " " + e.getMessage());
+else setParseError("syntax error");
+		}			
+		
 		if (time == null) {
 			setTimeStamp();
 		}
 		else {
 			timeStamp = time;
-			timeStampStr = timeStr;
 		}
+		setTimeStampStr();
 	}
 
 	/* These are the get functions for the language specific vectors */

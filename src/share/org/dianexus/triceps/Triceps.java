@@ -523,7 +523,7 @@ if (DEBUG) Logger.writeln("##Unable to reload schedule");
 		startTime = time;
 		startTimeStr = formatDate(startTime,Datum.TIME_MASK);
 		stopTime = null;	// reset stopTime, since re-starting
-		nodes.setReserved(Schedule.START_TIME,startTimeStr);	// so that saved schedule knows when it was started
+		nodes.setReserved(Schedule.START_TIME,Long.toString(time.getTime()));	// so that saved schedule knows when it was started
 	}
 
 	private void stopTimer() {

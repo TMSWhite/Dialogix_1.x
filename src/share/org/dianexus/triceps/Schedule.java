@@ -236,7 +236,7 @@ if (DEBUG) {
 			
 		isLoaded = true;
 		
-		setReserved(START_TIME,triceps.formatDate(new Date(System.currentTimeMillis()),Datum.TIME_MASK));
+		setReserved(START_TIME,Long.toString(System.currentTimeMillis()));
 		if (getReserved(FILENAME) == null) {
 			setReserved(FILENAME,getReserved(START_TIME));	// sets the default value
 		}
@@ -453,7 +453,7 @@ else {
 		String s = getReserved(TITLE_FOR_PICKLIST_WHEN_IN_PROGRESS);
 		if (s == null || s.trim().length() == 0) {
 			// set a reasonable default value
-			setReserved(TITLE_FOR_PICKLIST_WHEN_IN_PROGRESS,getReserved(TITLE) + " [" + getReserved(START_TIME) + "]");
+			setReserved(TITLE_FOR_PICKLIST_WHEN_IN_PROGRESS,getReserved(TITLE) + " [" + (new Date()) + "]");
 		}
 		setReserved(LOADED_FROM,source);	// keep LOADED_FROM up to date
 		
@@ -751,24 +751,24 @@ if (DEBUG) Logger.writeln("##NumberFormatException @ Schedule.setStartingStep('"
 	private String setStartTime(Date t) {
 		startTime = t;
 		String str = null;
-		if (triceps != null) {
-			str = triceps.formatDate(t,Datum.TIME_MASK);
+		if (t == null) {
+			str = Long.toString(System.currentTimeMillis());
 		}
 		else {
-			if (t == null) {
-				str = new Date(System.currentTimeMillis()).toString();
-			}
-			else {
-				str = t.toString();
-			}
+			str = Long.toString(t.getTime());
 		}
 		return str;
 	}
 
 	private String setStartTime(String t) {
 		Date time = null;
-		if (t == null || triceps == null || ((time = triceps.parseDate(t,Datum.TIME_MASK)) == null)) {
-			time = new Date(System.currentTimeMillis());
+		if (t != null && t.trim().length() > 0) {
+			try {
+				time = new Date(Long.parseLong(t));
+			}
+			catch (NumberFormatException e) {
+if (DEBUG) Logger.writeln("##NumberFormatException @ Schedule.setStartTime()" + e.getMessage());
+			}
 		}
 		return setStartTime(time);
 	}
