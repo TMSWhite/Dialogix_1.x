@@ -14,7 +14,7 @@ public class XmlString extends Object {
 		"em",
 		"fieldset","font","form",
 		"h1","h2","h3","h4","h5","h6",
-		"i","ins", 
+		"i","ins",
 		"kbd",
 		"label","legend","li","listing",
 		"map","menu",
@@ -27,10 +27,10 @@ public class XmlString extends Object {
 		"u","ul","var",
 	};
 	private static final String unaryHTMLtags[] = {
-		"area", 
+		"area",
 		"base","basefont","br","button",
 		"col","colgroup",
-		"hr", 
+		"hr",
 		"img","input",
 		"link",
 		"wbr",
@@ -47,11 +47,11 @@ public class XmlString extends Object {
 		"layer",
 		"marquee", "meta","multicol",
 		"noembed","noframes","noscript",
-		"object",		        
+		"object",
 		"param","plaintext",
 		"script", "server","spacer", "style",
 		"title",
-		"xmp",		 
+		"xmp",
 	};
 	private static final String standardHTMLentities[] = {
 		"&quot;","&amp;","&lt;","&gt;","&nbsp;","&iexcl;","&cent;","&pound;","&curren;",
@@ -75,14 +75,14 @@ public class XmlString extends Object {
 		"readonly",
 		"selected",
 	};
-	
+
 	private static final String QUOT = "&quot;";
 	private static final String LT = "&lt;";
 	private static final String GT = "&gt;";
 	private static final String AMP = "&amp;";
 	private static final String NBSP = "&nbsp;";
 
-	
+
 	static {
 		ENTITIES = new Hashtable();
 		BINARY_TAGS = new Hashtable();
@@ -106,20 +106,20 @@ public class XmlString extends Object {
 			SOLO_ATTRIBUTES.put(soloHTMLattributes[i],"soloHTMLattribute");
 		}
 	}
-	
+
 	private StringBuffer dst = new StringBuffer();	// in which output string is composed
 	private String value = null;
 	private Vector tagStack = new Vector();
 	private Vector errors = new Vector();
 	private int lineNum = 1;
 	private int column = 1;
-		
+
     public XmlString(String src) {
     	value = encodeHTML(src);
     }
-    
+
     public	String toString() { return value; }
-    
+
     private static final int TAG = 0;
     private static final int NMTOKEN = 1;
     private static final int EQUALS_SIGN = 2;
@@ -128,7 +128,7 @@ public class XmlString extends Object {
     private static final String[] parsingPosition = { "TAG", "NMTOKEN","EQUALS_SIGN","START_OF_STRING","END_OF_STRING" };
 	private static final int UNARY_TAG = 0;
 	private static final int BINARY_TAG = 1;
-    
+
 	private boolean isValidElement(String src) {
 		String tag = null;
 		String token = null;
@@ -136,25 +136,25 @@ public class XmlString extends Object {
 		boolean withinEscape = false;
 		int tagType;
 		int which = TAG;
-		
+
 		String element = src.substring(1,src.length()-1);	// remove open and close angle brackets
-		
+
 		++column;	// to account for the opening left angle bracket
-		
+
 		if (element == null)
 			element = "";
-		
+
 		try {
 			/* build a string stripped of the opening and closing angle brackets */
 			StringTokenizer st = new StringTokenizer(element," \t\n\r\f=\'\"\\",true);
-				
+
 			/* get and check tag name */
 			tag = st.nextToken().toLowerCase();
-			
+
 			if (tag.startsWith("/")) {
 				/* then an end tag */
 				String endTag = tag.substring(1,tag.length());
-				
+
 				if (st.hasMoreTokens()) {
 					error("ending tags may not have attribute values pairs " + src);
 					return false;
@@ -171,16 +171,16 @@ public class XmlString extends Object {
 					error("invalid end tag " + src);
 					return false;
 				}
-				
+
 				if (!tagStack.contains(endTag)) {
 					error("rejecting mismatched endTag " + src);
 					return false;
 				}
-				
+
 				insertMissingEndTags(endTag);
 				return true;
 			}
-			
+
 			if (BINARY_TAGS.containsKey(tag)) {
 				tagType = BINARY_TAG;
 			}
@@ -194,13 +194,13 @@ public class XmlString extends Object {
 			else {
 				return false;
 			}
-	
+
 			which = NMTOKEN;
 			for (column+=tag.length();st.hasMoreTokens();column+=token.length()) {
-				/* Loop over name = "attribute" pairs */				
+				/* Loop over name = "attribute" pairs */
 				token = st.nextToken();
 				char c = token.charAt(0);
-				
+
 				if (c == '\n' || c == '\r') {
 					prettyPrint("");
 					continue;
@@ -208,13 +208,13 @@ public class XmlString extends Object {
 				if (Character.isWhitespace(c)) {
 					continue;
 				}
-				
+
 				switch(which) {
 					case NMTOKEN: {
 						char[] chars = token.toCharArray();
 						for (int i=0;i<chars.length;++i) {
 							if (!(Character.isLetterOrDigit(chars[i]) || chars[i] == '_')) {
-								error("bad character " + chars[i] + " in NMTOKEN of " + src);								
+								error("bad character " + chars[i] + " in NMTOKEN of " + src);
 								return false;
 							}
 						}
@@ -228,15 +228,15 @@ public class XmlString extends Object {
 						break;
 					case EQUALS_SIGN:
 						if (!"=".equals(token)) {
-							error("expected equals sign in " + src);							
+							error("expected equals sign in " + src);
 							return false;
 						}
 						which = START_OF_STRING;
 						break;
-					case START_OF_STRING: 
+					case START_OF_STRING:
 						quoteChar = token;
 						if (!("\"".equals(quoteChar) || "\'".equals(quoteChar))) {
-							error("expected the start of a string in " + src);							
+							error("expected the start of a string in " + src);
 							return false;
 						}
 						withinEscape = false;
@@ -259,21 +259,21 @@ public class XmlString extends Object {
 				if (tagType == BINARY_TAG) {
 					tagStack.addElement(tag);
 				}
-				
+
 				prettyPrint(src);
 				return true;
 			}
 			else {
-				error("prematurely terminated element - expecting " + parsingPosition[which] + " " + src);		
+				error("prematurely terminated element - expecting " + parsingPosition[which] + " " + src);
 				return false;	// unterminated attribute-value pairs
 			}
 		}
 		catch (Throwable t) {
-			error("prematurely terminated element - expecting " + parsingPosition[which] + " " + src);		
-			return false;	
+			error("prematurely terminated element - expecting " + parsingPosition[which] + " " + src);
+			return false;
 		}
 	}
-	
+
 	private void prettyPrint(String s) {
 		/* pretty-print the output */
 		dst.append("\n");
@@ -286,11 +286,11 @@ public class XmlString extends Object {
 		dst.append(s);
 		column += s.length();
 	}
-	
+
 	private void insertMissingEndTags(String endTag) {
 		for (int i=tagStack.size()-1;i>=0;--i) {
 			String t = (String) tagStack.elementAt(i);
-			
+
 			if ("td".equals(t)) {
 				for (int j=dst.length()-1;j>=0;--j) {
 					if (Character.isWhitespace(dst.charAt(j)))
@@ -301,10 +301,10 @@ public class XmlString extends Object {
 					break;
 				}
 			}
-			
+
 			prettyPrint("</" + t + ">");
 			tagStack.removeElementAt(i);	// decrements its counter
-			
+
 			if (t.equals(endTag)) {
 				break;
 			}
@@ -321,22 +321,22 @@ public class XmlString extends Object {
 
 				for (int i=0;i<src.length;++i) {
 					switch (src[i]) {
-						case '\"': 
-							dst.append(QUOT); 
+						case '\"':
+							dst.append(QUOT);
 							column += QUOT.length();
 							break;
 						case '<': {
 							/* grab next complete element */
 							int elementEnd;
 							String element = null;
-							
+
 							elementEnd = s.indexOf('>',i);
 							if (elementEnd != -1) {
 								element = s.substring(i,elementEnd+1);
 								/* Now, get the element name (assuming that might have attribute value pairs */
 								int prevCol = column;	// since isValidElement() changes the column value internally
 								if (isValidElement(element)) {
-									i+= (element.length()-1);	// -1, since will be re-incremented in for loop	
+									i+= (element.length()-1);	// -1, since will be re-incremented in for loop
 								}
 								else {
 									dst.append(LT);
@@ -344,14 +344,14 @@ public class XmlString extends Object {
 								}
 							}
 							else {
-								error("no closing right angle bracket");
+//								error("no closing right angle bracket");
 								dst.append(LT);
 								column += LT.length();
 							}
 						}
 							break;
-						case '>': 
-							dst.append(GT); 
+						case '>':
+							dst.append(GT);
 							column += GT.length();
 							break;
 						case '&': {
@@ -364,13 +364,13 @@ public class XmlString extends Object {
 									i += (entity.length()-1);
 								}
 								else {
-									error("not a recognized Unicode entity:" + entity);
+//									error("not a recognized Unicode entity:" + entity);
 									dst.append(AMP);
 									column += AMP.length();
 								}
 							}
 							else {
-								error("not an entity - ampersand without matching semicolon");
+//								error("not an entity - ampersand without matching semicolon");
 								dst.append(AMP);
 								column += AMP.length();
 							}
@@ -381,8 +381,8 @@ public class XmlString extends Object {
 							break;
 						case '\t':
 							break;	// ignore tabs - will be pretty-printed automatically
-						default: 
-							dst.append(src[i]); 
+						default:
+							dst.append(src[i]);
 							++column;
 							break;
 					}
@@ -393,23 +393,23 @@ public class XmlString extends Object {
 			}
 		}
 		insertMissingEndTags(null);
-		
+
 		String ans = dst.toString();
-		
+
 for (int i=0;i<errors.size();++i) {
 	System.err.println((String) errors.elementAt(i));
 }
 
 		return ans;
 	}
-	
+
 	private void error(String s) {
 		errors.addElement("line " + lineNum + " column " + column + " - " + s);
 	}
-	
+
 	public boolean hasErrors() { return (errors.size() > 0); }
 	public Vector getErrors() { return errors; }
-	
+
 	public static synchronized boolean isEntity(String entity) {
 		if (ENTITIES.containsKey(entity)) {
 			return true;
@@ -429,6 +429,6 @@ for (int i=0;i<errors.size();++i) {
 			else {
 				return false;
 			}
-		}	
+		}
 	}
 }
