@@ -41,7 +41,7 @@ sub main {
 #		next if ($args[4] eq 'e');	# skip eval nodes
 		
 		if ($args[4] eq 'e') {
-			print OUT  qq|		<tr><td>$count</td><td>$args[1]</td><td>$args[3]</td><td><font color='blue'>[calculated value]</font></td><td>$args[6]</td></tr>|, "\n";
+			print OUT  qq|		<tr><td>$count</td><td>$args[1]</td><td>$args[3]</td><td><font color='blue'>[CALCULATED VALUE:]</font></br>$args[6]</td><td>&nbsp;</td></tr>|, "\n";
 		}
 		else {
 			print OUT  qq|		<tr><td>$count</td><td>$args[1]</td><td>$args[3]</td><td>$args[6]</td><td>| . &answers($args[7]) . qq|</td></tr>|, "\n";
