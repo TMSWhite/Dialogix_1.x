@@ -682,7 +682,7 @@ public class Triceps {
 		}
 		catch (Throwable t) {
 			/* not a valid URL, or unable to access it - so try reading from a file */
-			System.err.println("probalbly not a url: " + t.getMessage());
+			System.err.println("can't access as url: " + t.getMessage());
 		}
 		finally {
 			if (ok) {
@@ -707,7 +707,7 @@ public class Triceps {
 			}
 		}
 		catch (Throwable t) {
-			System.err.println("error accessing " + file.toString() + ": " + t.getMessage());
+			System.err.println("error accessing file: " + t.getMessage());
 		}
 		finally {
 			if (ok) {
@@ -735,9 +735,13 @@ public class Triceps {
 			}
 				
 			fileAccessError = "Error accessing or reading from " + sb.toString();
-		}		
-		
-		return null;
+			System.err.println(fileAccessError);
+			return null;
+		}
+		else {
+			System.err.println("Shouldn't get here");
+			return null;
+		}
 	}
 	
 	public static String getReaderError() {
