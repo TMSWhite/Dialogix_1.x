@@ -6,6 +6,7 @@ import java.text.Format;
 public class DatumMath {
 	private static final Format MONTH_AS_NUM_MASK = Datum.getDefaultMask(Datum.MONTH_NUM);
 	private static GregorianCalendar calendar = new GregorianCalendar();
+	private static GregorianCalendar gc_math = new GregorianCalendar();
 	
 	static Datum hasError(Datum a, Datum b) {
 		if (a.isType(Datum.INVALID) || (b != null && b.isType(Datum.INVALID))) {
@@ -54,12 +55,18 @@ public class DatumMath {
 			return d;
 			
 		switch (a.type()) {
+			default:
 			case Datum.NUMBER:
 			case Datum.STRING:
 				return new Datum(a.doubleVal() + b.doubleVal());
-			default:
-//			case Datum.DATE:
-//			case Datum.TIME:
+ 			case Datum.MONTH:
+ 				int val = Integer.parseInt(Datum.format(a.dateVal(),Datum.DATE,MONTH_AS_NUM_MASK));
+ 				val += (int) b.doubleVal();
+ 				Date newMonth = (new Datum("" + val, Datum.MONTH, MONTH_AS_NUM_MASK)).dateVal();
+ 				return (new Datum(newMonth, Datum.MONTH));				
+/*
+			case Datum.DATE:
+			case Datum.TIME:
 			{
 				int field = DatumMath.datumToCalendar(b.type());
 				GregorianCalendar gc = new GregorianCalendar();	// should happen infrequently (not a garbage collection problem?)
@@ -70,19 +77,13 @@ public class DatumMath {
 			}
 //			case Datum.WEEKDAY: 
 //			case Datum.MONTH:
-/*
- 			case Datum.MONTH:
- 				int val = Integer.parseInt(Datum.format(a.dateVal(),Datum.DATE,MONTH_AS_NUM_MASK));
- 				val += (int) b.doubleVal();
- 				Date newMonth = (new Datum("" + val, Datum.MONTH, MONTH_AS_NUM_MASK)).dateVal();
- 				return (new Datum(newMonth, Datum.MONTH));
-*/
 //			case Datum.YEAR:
 //			case Datum.DAY:
 //			case Datum.HOUR:
 //			case Datum.MINUTE:
 //			case Datum.SECOND:
 //			case Datum.MONTH_NUM:
+*/
 		}
 	}
 	
