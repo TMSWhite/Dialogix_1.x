@@ -17,10 +17,12 @@ public class TricepsServlet extends HttpServlet {
 	private PrintWriter out;
 	private String firstFocus = null;
 
-	private String scheduleList = "TricepsSchedules.txt";	// default value
-	private String scheduleFileRoot = "c:/cvs/triceps/docs/";	// default value
-	private String scheduleSaveDir = "c:/tmp/";		// default value
-
+//	private String scheduleList = "TricepsSchedules.txt";	// default value
+//	private String scheduleFileRoot = "c:/cvs/triceps/docs/";	// default value
+//	private String scheduleSaveDir = "c:/tmp/";		// default value
+	private String scheduleList = "";
+	private String scheduleFileRoot = "";
+	private String scheduleSaveDir = "";
 
 	/**
 	 * This method runs only when the servlet is first loaded by the
@@ -32,15 +34,15 @@ public class TricepsServlet extends HttpServlet {
 		super.init(config);
 		String s;
 
-		s = config.getInitParameter("scheduleList").trim();
-		if (s != null && !s.equals(""))
-			scheduleList = s;
-		s = config.getInitParameter("scheduleFileRoot").trim();
-		if (s != null && !s.equals(""))
-			scheduleFileRoot = s;
-		s = config.getInitParameter("scheduleSaveDir").trim();
-		if (s != null && !s.equals(""))
-			scheduleSaveDir = s;
+		s = config.getInitParameter("scheduleList");
+		if (s != null && !s.trim().equals(""))
+			scheduleList = s.trim();
+		s = config.getInitParameter("scheduleFileRoot");
+		if (s != null && !s.trim().equals(""))
+			scheduleFileRoot = s.trim();
+		s = config.getInitParameter("scheduleSaveDir");
+		if (s != null && !s.trim().equals(""))
+			scheduleSaveDir = s.trim();
 	}
 
 	public void destroy() {

@@ -6,22 +6,34 @@ import java.text.*;
 public class Datum implements Serializable {
 	public static final int UNKNOWN = 0;		// haven't asked
 	public static final int NA = 1;				// don't need to ask - not applicable
-	public static final int INVALID = 2;		// if an exception occurs - so propagated
-	public static final int DOUBLE = 3;
-	public static final int STRING = 4;
-	public static final int DATE = 5;
-	public static final int MONTH = 6;
+	public static final int REFUSED = 2;		// question asked, but subject refuses to answer
+	public static final int INVALID = 3;		// if an exception occurs - so propagated
+	public static final int NUMBER = 4;
+	public static final int STRING = 5;
+	public static final int DATE = 6;
 	public static final int TIME = 7;
+	public static final int YEAR = 8;
+	public static final int MONTH = 9;
+	public static final int DAY = 10;
+	public static final int WEEKDAY = 11;
+	public static final int HOUR = 12;
+	public static final int MINUTE = 13;
+	public static final int SECOND = 14;
 	private static final Date SAMPLE_DATE = new Date(System.currentTimeMillis());
 	private static final Double SAMPLE_NUMBER = new Double(123.456);
-	public static final String TYPES[] = { "*UNKNOWN*", "*NOT APPLICABLE*", "*INVALID*", "Double", "String", "Date", "Month", "Time"};
-//	public static final String TYPE_EG_STR[] = { null, null, null, null, null, "3/15/1991", "March", "16:32:49" };
+	public static final String TYPES[] = { "*UNKNOWN*", "*NOT APPLICABLE*", "*REFUSED*", "*INVALID*", 
+		"Number", "String", "Date", "Time", "Year", "Month", "Day", "Weekday", "Hour", "Minute", "Second" };
 
-	public static final SimpleDateFormat defaultDateFormat = new SimpleDateFormat("MM/dd/yyyy");
-	public static final SimpleDateFormat defaultMonthFormat = new SimpleDateFormat("MMMM");
-	public static final SimpleDateFormat defaultTimeFormat = new SimpleDateFormat("hh:mm:ss");
-	public static final DecimalFormat defaultNumberFormat = new DecimalFormat();
-
+	private static final SimpleDateFormat defaultDateFormat = new SimpleDateFormat("MM/dd/yyyy");
+	private static final SimpleDateFormat defaultMonthFormat = new SimpleDateFormat("MMMM");
+	private static final SimpleDateFormat defaultTimeFormat = new SimpleDateFormat("hh:mm:ss");
+	private static final SimpleDateFormat defaultYearFormat = new SimpleDateFormat("yyyy");
+	private static final SimpleDateFormat defaultDayFormat = new SimpleDateFormat("d");
+	private static final SimpleDateFormat defaultWeekdayFormat = new SimpleDateFormat("EE");
+	private static final SimpleDateFormat defaultHourFormat = new SimpleDateFormat("H");
+	private static final SimpleDateFormat defaultMinuteFormat = new SimpleDateFormat("m");
+	private static final SimpleDateFormat defaultSecondFormat = new SimpleDateFormat("s");
+	private static final DecimalFormat defaultNumberFormat = new DecimalFormat();
 
 	private int type = UNKNOWN;
 	private String sVal = TYPES[type];
@@ -33,7 +45,7 @@ public class Datum implements Serializable {
 	private String error = null;
 
 	public Datum(double d) {
-		type = DOUBLE;
+		type = NUMBER;
 		dVal = d;
 		bVal = (Double.isNaN(d) || (d == 0)) ? false : true;
 		sVal = (bVal) ? Double.toString(d) : "";
@@ -50,6 +62,7 @@ public class Datum implements Serializable {
 		switch (i) {
 			case NA:
 			case UNKNOWN:
+			case REFUSED:
 				break;
 			default:
 				error = "Internal error:  expected one of INVALID, UNKNOWN or NA";
@@ -60,7 +73,7 @@ public class Datum implements Serializable {
 		}
 	}
 	public Datum(long l) {
-		type = DOUBLE;
+		type = NUMBER;
 		dVal = (double)l;
 		bVal = (l == 0) ? false : true;
 		sVal = Long.toString(l);
@@ -106,12 +119,12 @@ public class Datum implements Serializable {
 		}
 
 		switch (t) {
-			case DOUBLE:
+			case NUMBER:
 				try {
 					if (mask != null && mask instanceof NumberFormat) {
 						dVal = ((NumberFormat) mask).parse(s).doubleValue();
 						sVal = ((NumberFormat) mask).format(dVal);
-						type = DOUBLE;	// only if successfully parsed
+						type = NUMBER;	// only if successfully parsed
 					}
 					else {
 						type = INVALID;
@@ -120,23 +133,11 @@ public class Datum implements Serializable {
 				catch (java.text.ParseException e) {
 					String ex = Datum.getExampleFormatStr(mask,t);
 					if (ex.length() > 0)
-						ex = "(e.g. " + ex + ")";
+						ex = " (e.g. " + ex + ")";
 					error = "Please enter a <B>" + TYPES[t] + "</B>" + ex;
 					sVal = "";
 					dVal = Double.NaN;
 				}
-/*
-				try {
-					dVal = Double.valueOf(s).doubleValue();
-					sVal = s;
-					type = DOUBLE;	// only if successful
-				}
-				catch(NumberFormatException e) {
-					error = "Please enter a <B>" + TYPES[t] + "</B>";
-					sVal = "";
-					dVal = Double.NaN;
-				}
-*/
 				bVal = (Double.isNaN(dVal) || (dVal == 0)) ? false : true;
 				break;
 			case STRING:
@@ -156,6 +157,12 @@ public class Datum implements Serializable {
 			case MONTH:
 			case DATE:
 			case TIME:
+			case YEAR:
+			case DAY:
+			case WEEKDAY:
+			case HOUR:
+			case MINUTE:
+			case SECOND:
 				try {
 					if (mask != null && mask instanceof DateFormat) {
 						date = ((DateFormat) mask).parse(s);
@@ -169,10 +176,14 @@ public class Datum implements Serializable {
 				catch (java.text.ParseException e) {
 					String ex = Datum.getExampleFormatStr(mask,t);
 					if (ex.length() > 0)
-						ex = "(e.g. " + ex + ")";
+						ex = " (e.g. " + ex + ")";
 					error = "Please enter a <B>" + TYPES[t] + "</B>" + ex;
 					date = null;
 				}
+				break;
+			case REFUSED:
+				type = REFUSED;
+				/* allow subject to skip over this question */
 				break;
 			case INVALID:
 				type = INVALID;
@@ -191,7 +202,7 @@ public class Datum implements Serializable {
 	}
 
 	public Datum(boolean b) {
-		type = DOUBLE;
+		type = NUMBER;
 		dVal = (b ? 1 : 0);
 		bVal = b;
 		sVal = (b ? "1" : "0");
@@ -238,8 +249,14 @@ public class Datum implements Serializable {
 			case TIME:
 			case MONTH:
 			case DATE:
+			case YEAR:
+			case DAY:
+			case WEEKDAY:
+			case HOUR:
+			case MINUTE:
+			case SECOND:
 				return (date != null);
-			case DOUBLE:
+			case NUMBER:
 				return (dVal != Double.NaN);
 			case STRING:
 				return (sVal != null);
@@ -249,6 +266,8 @@ public class Datum implements Serializable {
 				return (type == NA);
 			case UNKNOWN:
 				return (type == UNKNOWN);
+			case REFUSED:
+				return (type == REFUSED);
 			default:
 				return false;
 		}
@@ -271,6 +290,12 @@ public class Datum implements Serializable {
 			case TIME:
 			case MONTH:
 			case DATE:
+			case YEAR:
+			case DAY:
+			case WEEKDAY:
+			case HOUR:
+			case MINUTE:
+			case SECOND:
 				try {
 					return new SimpleDateFormat(maskStr);
 				}
@@ -278,7 +303,7 @@ public class Datum implements Serializable {
 					return null;
 				}
 			default:
-			case DOUBLE:
+			case NUMBER:
 				try {
 					return new DecimalFormat(maskStr);
 				}
@@ -289,6 +314,7 @@ public class Datum implements Serializable {
 			case STRING:
 			case NA:
 			case UNKNOWN:
+			case REFUSED:
 				break;
 		}
 		return null;
@@ -302,13 +328,26 @@ public class Datum implements Serializable {
 				return defaultDateFormat;
 			case TIME:
 				return defaultTimeFormat;
-			case DOUBLE:
+			case NUMBER:
 				return defaultNumberFormat;
+			case YEAR:
+				return defaultYearFormat;
+			case DAY:
+				return defaultDayFormat;
+			case WEEKDAY:
+				return defaultWeekdayFormat;
+			case HOUR:
+				return defaultHourFormat;
+			case MINUTE:
+				return defaultMinuteFormat;
+			case SECOND:
+				return defaultSecondFormat;
 			default:
 			case INVALID:
 			case NA:
 			case UNKNOWN:
 			case STRING:
+			case REFUSED:
 				break;
 		}
 		return null;
@@ -324,6 +363,12 @@ public class Datum implements Serializable {
 			case MONTH:
 			case DATE:
 			case TIME:
+			case YEAR:
+			case DAY:
+			case WEEKDAY:
+			case HOUR:
+			case MINUTE:
+			case SECOND:
 				try {
 					s = mask.format(d.dateVal());
 					if (s == null)
@@ -334,7 +379,7 @@ public class Datum implements Serializable {
 				catch (IllegalArgumentException e) {
 					return TYPES[INVALID];
 				}
-			case DOUBLE:
+			case NUMBER:
 				try {
 					s = mask.format(new Double(d.doubleVal()));
 					if (s == null)
@@ -348,6 +393,7 @@ public class Datum implements Serializable {
 			default:
 			case INVALID:
 			case NA:
+			case REFUSED:
 				return TYPES[d.type()];
 			case UNKNOWN:
 				return "";	// empty string to indicate that has not been assessed yet.
@@ -369,7 +415,13 @@ public class Datum implements Serializable {
 			case MONTH:
 			case DATE:
 			case TIME:
-			case DOUBLE:
+			case NUMBER:
+			case YEAR:
+			case DAY:
+			case WEEKDAY:
+			case HOUR:
+			case MINUTE:
+			case SECOND:
 				if (mask == null)
 					return o.toString();
 
@@ -387,6 +439,7 @@ public class Datum implements Serializable {
 			default:
 			case INVALID:
 			case NA:
+			case REFUSED:
 				return TYPES[t];
 			case UNKNOWN:
 				return "";	// empty string to indicate that has not been assessed yet.
@@ -403,8 +456,14 @@ public class Datum implements Serializable {
 			case MONTH:
 			case DATE:
 			case TIME:
+			case YEAR:
+			case DAY:
+			case WEEKDAY:
+			case HOUR:
+			case MINUTE:
+			case SECOND:
 				return format(SAMPLE_DATE, t, mask);
-			case DOUBLE:
+			case NUMBER:
 				if (mask == defaultNumberFormat)
 					return "";
 				else
@@ -414,6 +473,7 @@ public class Datum implements Serializable {
 			case NA:
 			case UNKNOWN:
 			case STRING:
+			case REFUSED:
 				return "";	// no formatting string to contrain input
 		}
 	}

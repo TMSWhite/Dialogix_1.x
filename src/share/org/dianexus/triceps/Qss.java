@@ -598,7 +598,7 @@ public class Qss implements QssConstants {
         jj_consume_token(-1);
         throw new ParseException();
       }
-                stack.push(new Datum(t.image,Datum.DOUBLE));
+                stack.push(new Datum(t.image,Datum.NUMBER));
       break;
     case CHARACTER_LITERAL:
     case STRING_LITERAL:

@@ -393,7 +393,7 @@ void Constant() : { Token t; }
 {
 	((t = <INTEGER_LITERAL>) | (t = <FLOATING_POINT_LITERAL>))
 	{
-		stack.push(new Datum(t.image,Datum.DOUBLE));
+		stack.push(new Datum(t.image,Datum.NUMBER));
 	}
 |	((t = <STRING_LITERAL>) | (t = <CHARACTER_LITERAL>))
 	{

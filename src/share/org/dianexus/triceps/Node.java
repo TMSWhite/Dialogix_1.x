@@ -19,7 +19,7 @@ public class Node implements Serializable {
 	public static final int MEMO=11;
 	public static final int TIME = 12;
 	private static final String QUESTION_TYPES[] = {"*unknown*","radio", "check", "combo", "date", "month", "text", "double", "nothing", "radio2", "password","memo","time" };
-	private static final int DATA_TYPES[] = { Datum.STRING, Datum.STRING, Datum.STRING, Datum.STRING, Datum.DATE, Datum.MONTH, Datum.STRING, Datum.DOUBLE, Datum.STRING, Datum.STRING, Datum.STRING, Datum.STRING, Datum.TIME};
+	private static final int DATA_TYPES[] = { Datum.STRING, Datum.STRING, Datum.STRING, Datum.STRING, Datum.DATE, Datum.MONTH, Datum.STRING, Datum.NUMBER, Datum.STRING, Datum.STRING, Datum.STRING, Datum.STRING, Datum.TIME};
 
 	public static final int QUESTION = 1;
 	public static final int EVAL = 2;
@@ -54,6 +54,7 @@ public class Node implements Serializable {
 	private int datumType = Datum.INVALID;
 	private String answerOptions = "";
 	private Vector answerChoices = new Vector();
+	private Hashtable answerChoicesHash = new Hashtable();
 	private Vector runtimeErrors = new Vector();
 	private Vector parseErrors = new Vector();
 
@@ -163,6 +164,7 @@ public class Node implements Serializable {
 
 	private void parseActionTypeField() {
 		StringTokenizer ans;
+		int z;
 
 		ans = new StringTokenizer(actionTypeField,";",true);	// return ';' tokens too
 
@@ -178,36 +180,51 @@ public class Node implements Serializable {
 				continue;
 			}
 			switch(field) {
-				case 0:	actionTypeStr = s; break;
-				case 1: datumTypeStr = s; break;
-				case 2: parseRangeTypeStr = s; break;
-				case 3: minStr = s; break;
-				case 4: maxStr = s; break;
-				case 5: maskStr = s; break;
-			}
-		}
-
-		for (int z=0;z<PARSE_RANGE_TYPES.length;++z) {
-			if (parseRangeTypeStr.equals(PARSE_RANGE_TYPES[z])) {
-				parseRangeType = z;
-				break;
-			}
-		}
-
-		for (int z=0;z<ACTION_TYPES.length;++z) {
-			if (actionTypeStr.equalsIgnoreCase(ACTION_TYPES[z])) {
-				actionType = z;
-				break;
-			}
-		}
-		if (actionType == UNKNOWN) {
-			setParseError("Unknown action type <B>" + Node.encodeHTML(actionTypeStr) + "</B>");
-		}
-
-		for (int z=0;z<Datum.TYPES.length;++z) {
-			if (datumTypeStr.equalsIgnoreCase(Datum.TYPES[z])) {
-				datumType = z;
-				break;
+				case 0:	
+					actionTypeStr = s; 
+					for (z=0;z<ACTION_TYPES.length;++z) {
+						if (actionTypeStr.equalsIgnoreCase(ACTION_TYPES[z])) {
+							actionType = z;
+							break;
+						}
+					}
+					if (z == ACTION_TYPES.length) {
+						setParseError("Unknown action type <B>" + Node.encodeHTML(actionTypeStr) + "</B>");
+					}
+					break;
+				case 1: 
+					datumTypeStr = s;
+					for (z=0;z<Datum.TYPES.length;++z) {
+						if (datumTypeStr.equalsIgnoreCase(Datum.TYPES[z])) {
+							datumType = z;
+							break;
+						}
+					}
+					if (z == Datum.TYPES.length) {
+						setParseError("Unknown datum type <B>" + Node.encodeHTML(datumTypeStr) + "</B>");
+					}		
+					break;
+				case 2: 
+					parseRangeTypeStr = s;
+					for (z=0;z<PARSE_RANGE_TYPES.length;++z) {
+						if (parseRangeTypeStr.equals(PARSE_RANGE_TYPES[z])) {
+							parseRangeType = z;
+							break;
+						}
+					}
+					if (z == PARSE_RANGE_TYPES.length) {
+						setParseError("Unknown parse range type <B>" + Node.encodeHTML(parseRangeTypeStr) + "</B>");
+					}		
+					break;
+				case 3: 
+					minStr = s; 
+					break;
+				case 4: 
+					maxStr = s; 
+					break;
+				case 5: 
+					maskStr = s; 
+					break;
 			}
 		}
 	}
@@ -271,7 +288,12 @@ public class Node implements Serializable {
 					maxDatum = null;
 				}
 			}
-		}		
+		}
+		if (minDatum != null && maxDatum != null) {
+			if (DatumMath.lt(maxDatum,minDatum).booleanVal()) {
+				setParseError("Max value <B>" + maxStr + "</B> less than Min value <B>" + minStr + "</B>");
+			}
+		}
 	}
 
 	public void createParseRangeStr() {
@@ -328,6 +350,11 @@ public class Node implements Serializable {
 				}
 			}
 		}
+		if (minDatum != null && maxDatum != null) {
+			if (DatumMath.lt(maxDatum,minDatum).booleanVal()) {
+				setError("Max value <B>" + max + "</B> less than Min value <B>" + min + "</B>");
+			}
+		}		
 
 		rangeStr = " (" +
 			((min != null) ? min : "") +
@@ -398,7 +425,13 @@ public class Node implements Serializable {
 								setParseError("Answer choice has null value or message");
 							}
 							else {
-								answerChoices.addElement(new AnswerChoice(val,msg));
+								AnswerChoice ac = new AnswerChoice(val,msg);
+								answerChoices.addElement(ac);
+								
+								/* check for duplicate answer choice values */
+								if (answerChoicesHash.put(val, ac) != null) {
+									setParseError("Answer value <B>" + val + "</B> already used");
+								}
 							}
 							val = null;
 							msg = null;
@@ -569,9 +602,11 @@ public class Node implements Serializable {
 	public boolean isWithinRange(Datum d) {
 		boolean err = false;
 		
+		/*
 		System.out.println("(" + minStr + "|" + ((minDatum != null) ? minDatum.stringVal() : "") +
 			"," + d.stringVal() +
 			"," + maxStr + "|" + ((maxDatum != null) ? maxDatum.stringVal() : "") + ")");
+		*/
 
 		if (minDatum != null) {
 			if (!DatumMath.ge(d,minDatum).booleanVal())
@@ -687,7 +722,7 @@ public class Node implements Serializable {
 				default: dst.append(src[i]); break;
 			}
 		}
-		String ans = dst.toString().trim();
+		String ans = dst.toString();
 		if (disallowEmpty && ans.length() == 0) {
 			return "&nbsp;";
 		}

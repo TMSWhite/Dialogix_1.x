@@ -76,13 +76,19 @@ public class DatumMath {
 				case Datum.DATE:
 				case Datum.TIME:
 				case Datum.MONTH:
+				case Datum.YEAR:
+				case Datum.DAY:
+				case Datum.WEEKDAY:
+				case Datum.HOUR:
+				case Datum.MINUTE:
+				case Datum.SECOND:
 					return new Datum(
 						(a.dateVal().after(b.dateVal())) ||
 						(a.dateVal().equals(b.dateVal()))
 						);
 				case Datum.STRING:
 					return new Datum(a.stringVal().compareTo(b.stringVal()) >= 0);
-				case Datum.DOUBLE:
+				case Datum.NUMBER:
 					return new Datum(a.doubleVal() >= b.doubleVal());
 				default:
 					return new Datum(false);
@@ -100,12 +106,18 @@ public class DatumMath {
 				case Datum.DATE:
 				case Datum.TIME:
 				case Datum.MONTH:
+				case Datum.YEAR:
+				case Datum.DAY:
+				case Datum.WEEKDAY:
+				case Datum.HOUR:
+				case Datum.MINUTE:
+				case Datum.SECOND:
 					return new Datum(
 						(a.dateVal().after(b.dateVal()))
 						);
 				case Datum.STRING:
 					return new Datum(a.stringVal().compareTo(b.stringVal()) > 0);
-				case Datum.DOUBLE:
+				case Datum.NUMBER:
 					return new Datum(a.doubleVal() > b.doubleVal());
 				default:
 					return new Datum(false);
@@ -124,13 +136,19 @@ public class DatumMath {
 				case Datum.DATE:
 				case Datum.TIME:
 				case Datum.MONTH:
+				case Datum.YEAR:
+				case Datum.DAY:
+				case Datum.WEEKDAY:
+				case Datum.HOUR:
+				case Datum.MINUTE:
+				case Datum.SECOND:
 					return new Datum(
 						(a.dateVal().before(b.dateVal())) ||
 						(a.dateVal().equals(b.dateVal()))
 						);
 				case Datum.STRING:
 					return new Datum(a.stringVal().compareTo(b.stringVal()) <= 0);
-				case Datum.DOUBLE:
+				case Datum.NUMBER:
 					return new Datum(a.doubleVal() <= b.doubleVal());
 				default:
 					return new Datum(false);
@@ -146,12 +164,18 @@ public class DatumMath {
 				case Datum.DATE:
 				case Datum.TIME:
 				case Datum.MONTH:
+				case Datum.YEAR:
+				case Datum.DAY:
+				case Datum.WEEKDAY:
+				case Datum.HOUR:
+				case Datum.MINUTE:
+				case Datum.SECOND:
 					return new Datum(
 						(a.dateVal().before(b.dateVal()))
 						);
 				case Datum.STRING:
 					return new Datum(a.stringVal().compareTo(b.stringVal()) < 0);
-				case Datum.DOUBLE:
+				case Datum.NUMBER:
 					return new Datum(a.doubleVal() < b.doubleVal());
 				default:
 					return new Datum(false);
@@ -187,12 +211,18 @@ public class DatumMath {
 				case Datum.DATE:
 				case Datum.TIME:
 				case Datum.MONTH:
+				case Datum.YEAR:
+				case Datum.DAY:
+				case Datum.WEEKDAY:
+				case Datum.HOUR:
+				case Datum.MINUTE:
+				case Datum.SECOND:
 					return new Datum(
 						(!a.dateVal().equals(b.dateVal()))
 						);
 				case Datum.STRING:
 					return new Datum(a.stringVal().compareTo(b.stringVal()) != 0);
-				case Datum.DOUBLE:
+				case Datum.NUMBER:
 					return new Datum(a.doubleVal() != b.doubleVal());
 				default:
 					return new Datum(false);
