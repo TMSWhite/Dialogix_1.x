@@ -151,6 +151,7 @@ public class TricepsServlet extends HttpServlet implements VersionIF {
 			}
 if (DEPLOYABLE) {
 			triceps.processEventTimings(req.getParameter("EVENT_TIMINGS"));
+			triceps.receivedResponseFromUser();
 }			
 
 			setGlobalVariables();
@@ -183,6 +184,8 @@ if (AUTHORABLE)	new XmlString(triceps, "<b>" + form.getErrors() + "</b>",out);
 			if (!isSplashScreen) {
 				new XmlString(triceps, generateDebugInfo(),out);
 			}
+			
+			triceps.sentRequestToUser();	// XXX when should this be set? before, during, or near end of writing to out buffer?
 
 			out.println(footer());	// should not be parsed
 			out.flush();
