@@ -6,8 +6,8 @@ chills15	Pain_chills_present	Chills
 
 brest21	Breathing_rest_present	Trouble breathing at rest
 bact22	Breathing_act_present	Trouble breathing with activity
-bcoug23	Breathing_cough_present	Trouble Coughing
-bwhez24	Breathing_wheeze_present	Trouble Wheezing
+bcoug23	Breathing_cough_present	Trouble coughing
+bwhez24	Breathing_wheeze_present	Trouble wheezing
 
 hchst31	Heart_pain_present	Chest pain
 hble32	Heart_bleeding_present	Bleeding tendency
@@ -55,12 +55,12 @@ mdif104	Memory_plan_present	Difficulty planning my day
 mfor102	Memory_forgetful_present	Felt forgetful
 mcfs103	Memory_confusion_present	Felt confused
 
-renj111	Relation_important_present	Maintaining and enjoying important relationships
+renj111	Relation_important_present	Maintaining and enjoy important relationships
 rmnt112	Relation_normal_present	Maintaining normal roles with family and others
 rsup113	Relation_support_present	Getting support from family/friends
 rnew114	Relation_new_present	Developing new relationships / meeting new people (friends,professionals, others)
 rcomm115	Relation_comm_present	Communicating to people important to me
-rdepen116	Relation_depend_present	Having to depend on others to help
+rdepen116	Relation_depend_present	Having to depend on others for help
 
 adl1214	Activities_medications_present	My medications
 adl121	Activities_eating_present	Eating 
@@ -84,16 +84,16 @@ mfer133	Mood_fear_present	Fearful
 man134	Mood_anger_present	Angry
 mirr135	Mood_irritability_present	Irritable
 msad136	Mood_sad_present	Sad
+mlon1315	Mood_lonely_present	Lonely
 mhop137	Mood_hopeless_present	Hopeless
 mgrf138	Mood_grief_present	Grief
 macce139	Mood_accep_present	Difficulty accepting my illness
 mswing1310	Mood_swings_present	Mood swings
+mhum1316	Mood_humor_present	Maintaining a sense of humor
 men1311	Mood_enjoying_present	Unable to enjoy things I usually enjoy
 mre1312	Mood_relaxing_present	Difficulty relaxing
 mca1313	Mood_calm_present	Difficulty feeling calm
 mpe1314	Mood_peace_present	Difficulty feeling at peace
-mlon1315	Mood_lone_present	Lonely
-mhum1316	Mood_humor_present	Maintaining a sense of humor
 mmot1317	Mood_motiv_present	Not always motivated to follow my doctors/nurse practitioners sugesstions / prescriptions
 
 clif141	Control_life_present	Adjusting my daily life / lifestyle to my illness
@@ -107,6 +107,7 @@ wphs151	Worries_physical_present	Physical suffering
 wwor152	Worries_worse_present	That my condition will get worse
 wlos153	Worries_losing_present	Losing my family and friends
 wbur154	Worries_burden_present	Being a burden
+wwh1516	Worries_whole_present	Feeling like a whole person
 waln159	Worries_alone_present	Being alone 
 wsde155	Worries_sideeffects_present	About side effects of treatment
 wadd156	Worries_addiction_present	Addiction
@@ -118,7 +119,6 @@ whr1512	Worries_whereConvalesce_present	Where will I be cared if my condition ge
 wfm1513	Worries_family_present	What will happen to my family
 wdt1514	Worries_death_present	About dying
 wdi1515	Worries_whereDie_present	Where I will die
-wwh1516	Worries_whole_present	Feeling like a whole person
 wfin1517	Worries_fin_present	Financial/legal issues
 wiss1518	Worries_issues_present	Unresolved issues/unfinished business (family,work)
 
@@ -126,7 +126,9 @@ swr161	Spiritual_worshipping_present	Worshipping as desired
 schp162	Spiritual_chaplain_present	Seeing chaplain / clergy person as desired
 smen163	Spiritual_meaning_present	Finding meaning in my life
 
-soth171	Other_comment1	Comment
-soth172	Other_comment2	Comment
-soth173	Other_comment3	Comment
-soth174	Other_comment4	Comment
+soth171	Other_other1_present	Other1
+soth172	Other_other2_present	Other2
+soth173	Other_other3_present	Other3
+soth174	Other_other4_present	Other4
+soth175	Other_other5_present	Other5
+soth176	Other_other6_present	Other6

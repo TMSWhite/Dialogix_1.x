@@ -401,3 +401,10 @@ Reorganization & Documentation
     TricepsServlet.java
       -- Changed SESSION_TIMEOUT from 12 hours for laptops to 20 minutes for servers
       -- invalidate session when user finishes instrument; update error messages to reflect this.
+
+<< changes since 2.9.5
+  BUGFIX
+    TricepsEngine.java
+      -- floppyDir of A:\ was having /usr/local/dialogix prepended
+    Node.java
+      -- added "radio3", with horizontal buttons, but the layout doesn't work for Netscape -- only IE renders nested tables accurately.
