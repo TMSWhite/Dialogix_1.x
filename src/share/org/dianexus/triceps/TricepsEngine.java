@@ -659,7 +659,7 @@ if (DEPLOYABLE) {
 
 			if (!ok) {
 				directive = null;
-
+				
 				errors.println(triceps.get("unable_to_find_or_access_schedule") + " '" + restore + "'");
 				return processDirective();
 			}
@@ -986,7 +986,10 @@ if (AUTHORABLE) {
 		else {
 			triceps = new Triceps(name,workingFilesDir,completedFilesDir,floppyDir);
 		}
-		if (!AUTHORABLE && !triceps.getSchedule().isLoaded()) {
+		if (triceps.hasErrors()) {
+			errors.println(triceps.getErrors());
+		}
+		if (!AUTHORABLE && !schedule.isLoaded()) {
 			triceps = Triceps.NULL;
 		}
 		schedule = triceps.getSchedule();
