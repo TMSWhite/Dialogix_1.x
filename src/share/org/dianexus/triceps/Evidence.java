@@ -104,6 +104,14 @@ import java.io.File;
 	private static final int GET_EXTERNAL_NAME = 75;
 	private static final int GET_DEPENDENCIES = 76;
 	private static final int GET_ACTION_TEXT = 77;
+	private static final int JUMP_TO = 78;
+	private static final int GOTO_FIRST = 79;
+	private static final int JUMP_TO_FIRST_UNASKED = 80;
+	private static final int GOTO_PREVIOUS = 81;
+	private static final int ERASE_DATA = 82;
+	private static final int GOTO_NEXT = 83;
+	private static final int MEAN = 84;
+	private static final int STDDEV = 85;
 
 	
 	private static final Object FUNCTION_ARRAY[][] = {
@@ -185,6 +193,14 @@ import java.io.File;
 		{ "getExternalName",	ONE,		new Integer(GET_EXTERNAL_NAME) },
 		{ "getDependencies",	ONE,		new Integer(GET_DEPENDENCIES) },
 		{ "getActionText",		ONE,		new Integer(GET_ACTION_TEXT) },
+		{ "jumpTo",				ONE,		new Integer(JUMP_TO) },
+		{ "gotoFirst",			ZERO,		new Integer(GOTO_FIRST) },
+		{ "jumpToFirstUnasked",	ZERO,		new Integer(JUMP_TO_FIRST_UNASKED) },
+		{ "gotoPrevious",		ZERO,		new Integer(GOTO_PREVIOUS) },
+		{ "eraseData",			ZERO,		new Integer(ERASE_DATA) },	
+		{ "gotoNext",			ZERO,		new Integer(GOTO_NEXT) },	
+		{ "mean",				UNLIMITED,	new Integer(MEAN) },
+		{ "stddev",				UNLIMITED,	new Integer(STDDEV) },
 	};
 
 	private static final Hashtable FUNCTIONS = new Hashtable();
@@ -1172,7 +1188,71 @@ if (DEBUG) Logger.writeln("##SecurityException @ Evidence.fileExists()" + e.getM
 						return Datum.getInstance(triceps,Datum.INVALID);
 					}
 					return new Datum(triceps, node.getQuestionOrEval(), Datum.STRING);
-				}													
+				}
+				case JUMP_TO:
+				{
+					String nodeName = datum.getName();
+					Node node = null;
+					if (nodeName == null || ((node = getNode(nodeName)) == null)) {
+						setError(triceps.get("unknown_node") + nodeName, line, column,null);
+						return Datum.getInstance(triceps,Datum.INVALID);
+					}
+					return new Datum(triceps, (double) triceps.gotoNode(node));
+				}		
+				case GOTO_FIRST:
+					return new Datum(triceps, (double) triceps.gotoFirst());
+				case JUMP_TO_FIRST_UNASKED:
+					return new Datum(triceps, (double) triceps.jumpToFirstUnasked());
+				case GOTO_PREVIOUS:
+					return new Datum(triceps, (double) triceps.gotoPrevious());
+				case ERASE_DATA:
+					triceps.resetEvidence();
+					return new Datum(triceps, true);
+				case GOTO_NEXT:
+					return new Datum(triceps, (double) triceps.gotoNext());
+				case MEAN:
+					if (params.size() == 0) {
+						return Datum.getInstance(triceps,Datum.INVALID);
+					}
+					else {
+						int count = 0;
+						double sum = 0;
+						double mean = 0;
+
+						for (int i=0;i<params.size();++i) {
+							Datum a = getParam(params.elementAt(i));
+							++count;
+							sum += a.doubleVal();
+						}
+						mean = sum / count;
+						return new Datum(triceps, mean);
+					}				
+				case STDDEV:
+					if (params.size() == 0) {
+						return Datum.getInstance(triceps,Datum.INVALID);
+					}
+					else {
+						int count = 0;
+						double sum = 0;
+						double mean = 0;
+						double sumsqdiff = 0;
+						double std = 0;
+						
+						for (int i=0;i<params.size();++i) {
+							Datum a = getParam(params.elementAt(i));
+							++count;
+							sum += a.doubleVal();
+						}
+						mean = sum / count;
+						
+						for (int i=0;i<params.size();++i) {
+							Datum a = getParam(params.elementAt(i));
+							double diff = (a.doubleVal() - mean);
+							sumsqdiff += (diff * diff);
+						}
+						std = Math.sqrt(sumsqdiff / (count - 1));
+						return new Datum(triceps, std);
+					}				
 			}
 		}
 		catch (Throwable t) {
