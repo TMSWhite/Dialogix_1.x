@@ -16,6 +16,7 @@ import java.util.Locale;
 import java.io.File;
 import java.io.FileReader;
 import java.net.URLDecoder;
+import java.io.ByteArrayInputStream;
 
 /*public*/ class Schedule implements VersionIF  {
 	/*public*/ static final int LANGUAGES = 0;
@@ -64,6 +65,7 @@ import java.net.URLDecoder;
 	/*public*/ static final int ACTIVE_BUTTON_SUFFIX = 43;
 	/*public*/ static final int TRICEPS_FILE_TYPE = 44;
 	/*public*/ static final int DISPLAY_COUNT = 45;
+	/*public*/ static final int SCHEDULE_DIR = 46;
 
 	private static final String DEFAULT_LANGUAGE = "en_US";
 	/*public*/ static final String TRICEPS_DATA_FILE = "DATA";
@@ -117,6 +119,7 @@ import java.net.URLDecoder;
 		"__ACTIVE_BUTTON_SUFFIX__",
 		"__TRICEPS_FILE_TYPE__",
 		"__DISPLAY_COUNT__",
+		"__SCHEDULE_DIR__",
 	};
 
 	private Date startTime = null;
@@ -211,6 +214,7 @@ import java.net.URLDecoder;
 		setReserved(ACTIVE_BUTTON_PREFIX,"««");
 		setReserved(ACTIVE_BUTTON_SUFFIX,"»»");
 		setReserved(DISPLAY_COUNT,"0");
+		setReserved(SCHEDULE_DIR,"");
 	}
 		
 	/*public*/ boolean init() {
@@ -689,6 +693,7 @@ if (DEPLOYABLE) {
 			case ACTIVE_BUTTON_SUFFIX: s = value; break;
 			case TRICEPS_FILE_TYPE: if (expert) s = setTricepsFileType(value); break;
 			case DISPLAY_COUNT: if (expert) s = setDisplayCount(value); break;
+			case SCHEDULE_DIR: if (expert) s = value; break;
 			default: return false;
 		}
 		
@@ -942,4 +947,38 @@ if (DEBUG) Logger.writeln("##Schedule.setError()" + s);
 	/*public*/ String getErrors() { return errorLogger.toString(); }
 	
 	/*public*/ Triceps getTriceps() { return triceps; }
+	
+	/*public*/ boolean saveAsJar() {
+if (DEPLOYABLE) {
+		JarFile jf = null;
+		
+		StringBuffer sb = null;
+		
+		jf = JarFile.getInstance(getReserved(Schedule.SCHEDULE_SOURCE) + ".jar");
+		
+		if (jf == null)
+			return false;
+			
+		boolean ok = false;
+				
+		ok = jf.addEntry("headers",vectorToIS(scheduleSource.getHeaders()));
+		ok = jf.addEntry("body",vectorToIS(scheduleSource.getBody())) && ok;
+		jf.close();
+		
+		return ok;
+}
+		return false;
+	}
+	
+	private ByteArrayInputStream vectorToIS(Vector v) {
+		if (v == null)
+			return null;
+			
+		StringBuffer sb = new StringBuffer();
+		for (int i=0;i<v.size();++i) {
+			sb.append((String) v.elementAt(i));
+			sb.append("\n");
+		}
+		return new ByteArrayInputStream(sb.toString().getBytes());
+	}
 }
