@@ -488,8 +488,18 @@ if (DEBUG) Logger.writeln("##Throwable @ Servlet.getSortedNames()" + t.getMessag
 					String title = (String) iterator.next();
 					String target = (String) names.get(title);
 					File file = new File(target);
+					String name = file.getName();
+					boolean local = name.startsWith("tri");
+					String message = null;
 					
-					Vector v = AnswerChoice.subdivideMessage(title + "<br>(from " + file.getName() + ")", Node.MAX_TEXT_LEN_FOR_COMBO);
+					if (isSuspended) {
+						message = title + "<br>(from " + ((local) ? "working file " : "suspended file ") + file.getName() + ")";
+					}
+					else {
+						message = title + "<br>(from " + file.getName() + ")";
+					}
+					
+					Vector v = AnswerChoice.subdivideMessage(message, Node.MAX_TEXT_LEN_FOR_COMBO);
 					for (int i=0;i<v.size();++i) {
 						sb.append("	<option value='" + target + "'>");
 						if (i > 0) {
@@ -610,7 +620,9 @@ if (DEPLOYABLE) {
 			sb.append("</td></tr>");
 			
 			if (!WEB_SERVER) {
-				sb.append("<tr><td colspan='3' align='center'>");
+				sb.append("<tr><td>");
+				sb.append(triceps.get("or_restore_from_floppy"));
+				sb.append("</td><td colspan='2' align='center'>");
 				sb.append(buildSubmit("RESTORE_FROM_FLOPPY"));
 				sb.append("</td></tr>");
 			}
