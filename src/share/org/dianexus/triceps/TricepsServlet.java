@@ -34,11 +34,13 @@ public class TricepsServlet extends HttpServlet {
 	private boolean developerMode = false;
 	private boolean okPasswordForRefused = false;
 	private boolean okPasswordForUnknown = false;
+	private boolean okPasswordForNotUnderstood = false;
 	private boolean showQuestionNum = false;
 
 	private String directive = null;	// the default
-	private String urlPrefix;
+	private String urlPrefix = null;
 	private StringBuffer errors = null;
+	private int currentLanguage = 0;
 	
 	/**
 	 * This method runs only when the servlet is first loaded by the
@@ -173,16 +175,18 @@ System.err.println("Closing writer\n----Cycle# " + ++TricepsServlet.cycle + "---
 
 		String settingAsRefused = null;
 		String settingAsUnknown = null;
+		String settingAsNotUnderstood = null;
 		String language = null;
 		okPasswordForRefused = false;	// the default value
 		okPasswordForUnknown = false;	// the default value
+		okPasswordForNotUnderstood = false;
 
 		if (triceps != null) {
-			/* Refusals only apply once Triceps has been initialized */
+			/* Refusals only aply once Triceps has been initialized */
 			settingAsRefused = req.getParameter("PASSWORD_FOR_REFUSED");
 			if (settingAsRefused != null && !settingAsRefused.equals("")) {
 				/* if try to enter a password, make sure that doesn't reset the form if password fails */
-				directive = "next";	// XXX - since JavaScript can't set a SUBMIT value in the answerRefused() function
+//				directive = "next";	// XXX - since JavaScript can't set a SUBMIT value in the answerRefused() function
 
 				if (triceps.getPasswordForRefused() == null) {
 					sb.append("You are not allowed to *REFUSE* to answer any questions<BR>");
@@ -196,11 +200,10 @@ System.err.println("Closing writer\n----Cycle# " + ++TricepsServlet.cycle + "---
 					}
 				}
 			}
-			/* Refusals only apply once Triceps has been initialized */
 			settingAsUnknown = req.getParameter("PASSWORD_FOR_UNKNOWN");
 			if (settingAsUnknown != null && !settingAsUnknown.equals("")) {
 				/* if try to enter a password, make sure that doesn't reset the form if password fails */
-				directive = "next";	// XXX - since JavaScript can't set a SUBMIT value in the answerRefused() function
+//				directive = "next";	// XXX - since JavaScript can't set a SUBMIT value in the answerRefused() function
 
 				if (triceps.getPasswordForUnknown() == null) {
 					sb.append("You are not allowed to set any answers as *UNKNOWN*<BR>");
@@ -214,23 +217,34 @@ System.err.println("Closing writer\n----Cycle# " + ++TricepsServlet.cycle + "---
 					}
 				}
 			}
+			settingAsNotUnderstood = req.getParameter("PASSWORD_FOR_NOT_UNDERSTOOD");
+			if (settingAsNotUnderstood != null && !settingAsNotUnderstood.equals("")) {
+				/* if try to enter a password, make sure that doesn't reset the form if password fails */
+//				directive = "next";	// XXX - since JavaScript can't set a SUBMIT value in the answerRefused() function
+
+				if (triceps.getPasswordForNotUnderstood() == null) {
+					sb.append("You are not allowed to set any answers as *NOT UNDERSTOOD*<BR>");
+				}
+				else {
+					if (triceps.getPasswordForNotUnderstood().equals(settingAsNotUnderstood)) {
+						okPasswordForNotUnderstood = true;
+					}
+					else {
+						sb.append("Incorrect password to set these answers as *NOT UNDERSTOOD*<BR>");
+					}
+				}
+			}			
 			language = req.getParameter("LANGUAGE");
-			if (language != null) {
-				if (language.equals("English")) {
-					System.err.println("Setting language to English");
-					triceps.setLanguage(Triceps.ENGLISH);
-					directive = "refresh current";
-				}
-				else if (language.equals("Spanish")) {
-					System.err.println("Setting language to Spanish");
-					triceps.setLanguage(Triceps.SPANISH);
-					directive = "refresh current";
-				}
+			if (language != null && language.trim().length() > 0) {
+				System.err.println("Setting language to " + language);
+				triceps.setLanguage(language.trim());
+				directive = "refresh current";
 			}
 		}
 
 		sb.append("<input type='HIDDEN' name='PASSWORD_FOR_REFUSED' value=''>\n");	// must manually bypass each time
 		sb.append("<input type='HIDDEN' name='PASSWORD_FOR_UNKNOWN' value=''>\n");	// must manually bypass each time
+		sb.append("<input type='HIDDEN' name='PASSWORD_FOR_NOT_UNDERSTOOD' value=''>\n");	// must manually bypass each time
 		sb.append("<input type='HIDDEN' name='LANGUAGE' value=''>\n");	// must manually bypass each time
 				
 		
@@ -438,13 +452,8 @@ System.err.println("Closing writer\n----Cycle# " + ++TricepsServlet.cycle + "---
 			ok = triceps.setSchedule(req.getParameter("schedule"),urlPrefix,scheduleSrcDir);
 
 			if (!ok) {
-				try {
-					this.doGet(req,res);
-				}
-				catch (Throwable t) {
-					System.err.println("Error recursively calling doGet(): " + t.getMessage());
-				}
-				return sb.toString();
+				directive = null;
+				return processDirective();
 			}
 
 			ok = ok && ((gotoMsg = triceps.gotoStarting()) == Triceps.OK);	// don't proceed if prior error
@@ -529,12 +538,12 @@ System.err.println("Closing writer\n----Cycle# " + ++TricepsServlet.cycle + "---
 			sb.append("<!--\n" + triceps.toXML() + "\n-->\n");
 			sb.append("<HR>\n");
 		}
-		else if (directive.equals("show Errors")) {
+		else if (directive.equals("show Syntax Errors")) {
 			errors = new StringBuffer();
 			Vector pes = triceps.collectParseErrors();
 
 			if (pes.size() == 0) {
-				errors.append("<B>No errors were found</B><HR>");
+				errors.append("<B>No fatal syntax errors were found</B><HR>");
 			}
 			else {
 				Vector errs;
@@ -549,7 +558,7 @@ System.err.println("Closing writer\n----Cycle# " + ++TricepsServlet.cycle + "---
 						errors.append("<TR><TD>line#</TD><TD>name</TD><TD>Dependencies</TD><TD><B>Dependency Errors</B></TD><TD>Action Type</TD><TD>Action</TD><TD><B>Action Errors</B></TD><TD><B>Other Errors</B></TD></TR>\n");
 					}
 
-					errors.append("\n<TR><TD>" + n.getSourceLine() + "</TD><TD>" + Node.encodeHTML(n.getQuestionRef(),true) + "</TD>");
+					errors.append("\n<TR><TD>" + n.getSourceLine() + "</TD><TD>" + Node.encodeHTML(n.getExternalName(),true) + "</TD>");
 					errors.append("\n<TD>" + Node.encodeHTML(pe.getDependencies(),true) + "</TD>\n<TD>");
 
 					errs = pe.getDependenciesErrors();
@@ -564,9 +573,9 @@ System.err.println("Closing writer\n----Cycle# " + ++TricepsServlet.cycle + "---
 						}
 					}
 
-					errors.append("</TD>\n<TD>" + Node.ACTION_TYPES[n.getActionType()] + "</TD><TD>" + Node.encodeHTML(pe.getAction(),true) + "</TD><TD>");
+					errors.append("</TD>\n<TD>" + Node.ACTION_TYPES[n.getQuestionOrEvalType()] + "</TD><TD>" + Node.encodeHTML(pe.getQuestionOrEval(),true) + "</TD><TD>");
 
-					errs = pe.getActionErrors();
+					errs = pe.getQuestionOrEvalErrors();
 					if (errs.size() == 0) {
 						errors.append("&nbsp;");
 					}
@@ -604,11 +613,11 @@ System.err.println("Closing writer\n----Cycle# " + ++TricepsServlet.cycle + "---
 				Node q = (Node) questionNames.nextElement();
 				boolean status;
 				
-				String answer = req.getParameter(q.getName());
-				String comment = req.getParameter(q.getName() + "_COMMENT");
+				String answer = req.getParameter(q.getLocalName());
+				String comment = req.getParameter(q.getLocalName() + "_COMMENT");
+				String special = req.getParameter(q.getLocalName() + "_SPECIAL");
 				
-				q.setComment(comment);
-				status = triceps.storeValue(q, answer ,okPasswordForRefused, okPasswordForUnknown);
+				status = triceps.storeValue(q, answer, comment, special, okPasswordForRefused, okPasswordForUnknown, okPasswordForNotUnderstood);
 				ok = status && ok;
 
 			}
@@ -667,11 +676,11 @@ System.err.println("Closing writer\n----Cycle# " + ++TricepsServlet.cycle + "---
 					sb.append("<B>Please answer the question(s) listed in <FONT color='red'>RED</FONT> before proceeding</B><BR>\n");
 				}
 				if (n.focusableArray()) {
-					firstFocus = Node.encodeHTML(n.getName()) + "[0]";
+					firstFocus = Node.encodeHTML(n.getLocalName()) + "[0]";
 					break;
 				}
 				else if (n.focusable()) {
-					firstFocus = Node.encodeHTML(n.getName());
+					firstFocus = Node.encodeHTML(n.getLocalName());
 					break;
 				}
 			}
@@ -686,11 +695,11 @@ System.err.println("Closing writer\n----Cycle# " + ++TricepsServlet.cycle + "---
 			while (nodes.hasMoreElements()) {
 				Node n = (Node) nodes.nextElement();
 				if (n.focusableArray()) {
-					firstFocus = Node.encodeHTML(n.getName()) + "[0]";
+					firstFocus = Node.encodeHTML(n.getLocalName()) + "[0]";
 					break;
 				}
 				else if (n.focusable()) {
-					firstFocus = Node.encodeHTML(n.getName());
+					firstFocus = Node.encodeHTML(n.getLocalName());
 					break;
 				}
 			}
@@ -723,6 +732,8 @@ System.err.println("Closing writer\n----Cycle# " + ++TricepsServlet.cycle + "---
 		for(int count=0;questionNames.hasMoreElements();++count) {
 			Node node = (Node) questionNames.nextElement();
 			Datum datum = triceps.getDatum(node);
+			
+			node.setAnswerLanguageNum(triceps.getLanguage());	// must do this first
 
 			if (node.hasRuntimeErrors()) {
 				color = " color='red'";
@@ -747,10 +758,10 @@ System.err.println("Closing writer\n----Cycle# " + ++TricepsServlet.cycle + "---
 			sb.append("	<TR>\n");
 
 			if (showQuestionNum) {
-				sb.append("<TD><FONT" + color + "><B>" + Node.encodeHTML(node.getQuestionRef()) + "</B></FONT></TD>\n");
+				sb.append("<TD><FONT" + color + "><B>" + Node.encodeHTML(node.getExternalName()) + "</B></FONT></TD>\n");
 			}
 			
-			String inputName = Node.encodeHTML(node.getName());
+			String inputName = Node.encodeHTML(node.getLocalName());
 
 			switch(node.getAnswerType()) {
 				case Node.NOTHING:
@@ -759,6 +770,9 @@ System.err.println("Closing writer\n----Cycle# " + ++TricepsServlet.cycle + "---
 				case Node.RADIO_HORIZONTAL:
 					sb.append("		<TD COLSPAN='3'>\n");
 					sb.append("			<input type='HIDDEN' name='" + Node.encodeHTML(inputName + "_COMMENT") + "' value='" + Node.encodeHTML(node.getComment()) + "'>\n");
+					sb.append("			<input type='HIDDEN' name='" + Node.encodeHTML(inputName + "_SPECIAL") + "' value='" + 
+						((!datum.isType(Datum.STRING)) ? Node.encodeHTML(triceps.toString(node,true),true) : "") + 
+						"'>\n");
 					sb.append("			<input type='HIDDEN' name='" + Node.encodeHTML(inputName + "_HELP") + "' value='" + Node.encodeHTML(node.getHelpURL()) + "'>\n");
 					sb.append("		<FONT" + color + ">" + Node.encodeHTML(triceps.getQuestionStr(node)) + "</FONT></TD>\n");
 					sb.append("</TR>\n<TR>\n");
@@ -766,15 +780,18 @@ System.err.println("Closing writer\n----Cycle# " + ++TricepsServlet.cycle + "---
 						sb.append("<TD>&nbsp;</TD>");
 					}
 					sb.append("	<TD WIDTH='1%'><IMG SRC='" + Node.encodeHTML(imageFilesDir + helpIcon) + "' ALIGN='top' BORDER='0' ALT='Help' onmousedown='showPopup(\"" + inputName + "\",event)'></TD>\n");
-					sb.append(node.prepareChoicesAsHTML(datum,errMsg,triceps.nodes.isAutoGenOptionNum(),triceps.getLanguage()));
+					sb.append(node.prepareChoicesAsHTML(datum,errMsg,triceps.nodes.isAutoGenOptionNum()));
 					break;
 				default:
 					sb.append("		<TD>\n");
 					sb.append("			<input type='HIDDEN' name='" + Node.encodeHTML(inputName + "_COMMENT") + "' value='" + Node.encodeHTML(node.getComment()) + "'>\n");
+					sb.append("			<input type='HIDDEN' name='" + Node.encodeHTML(inputName + "_SPECIAL") + "' value='" + 
+						((!datum.isType(Datum.STRING)) ? Node.encodeHTML(triceps.toString(node,true),true) : "") + 
+						"'>\n");
 					sb.append("			<input type='HIDDEN' name='" + Node.encodeHTML(inputName + "_HELP") + "' value='" + Node.encodeHTML(node.getHelpURL()) + "'>\n");
 					sb.append("		<FONT" + color + ">" + Node.encodeHTML(triceps.getQuestionStr(node)) + "</FONT></TD>\n");
 					sb.append("		<TD WIDTH='1%'><IMG SRC='" + Node.encodeHTML(imageFilesDir + helpIcon) + "' ALIGN='top' BORDER='0' ALT='Help' onmousedown='showPopup(\"" + inputName + "\",event)'></TD>\n");
-					sb.append("		<TD>" + node.prepareChoicesAsHTML(datum,triceps.nodes.isAutoGenOptionNum(),triceps.getLanguage()) + errMsg + "</TD>\n");
+					sb.append("		<TD>" + node.prepareChoicesAsHTML(datum,triceps.nodes.isAutoGenOptionNum()) + errMsg + "</TD>\n");
 					break;
 			}
 
@@ -797,7 +814,7 @@ System.err.println("Closing writer\n----Cycle# " + ++TricepsServlet.cycle + "---
 			sb.append("	</TD></TR>\n");
 			sb.append("	<TR><TD COLSPAN='" + ((showQuestionNum) ? 4 : 3 ) + "' ALIGN='center'>\n");
 			sb.append("<input type='SUBMIT' name='directive' value='reload questions'>\n");
-			sb.append("<input type='SUBMIT' name='directive' value='show Errors'>\n");
+			sb.append("<input type='SUBMIT' name='directive' value='show Syntax Errors'>\n");
 			sb.append("<input type='SUBMIT' name='directive' value='show XML'>\n");
 			sb.append("<input type='SUBMIT' name='directive' value='evaluate expr:'>\n");
 			sb.append("<input type='text' name='evaluate expr:'>\n");
@@ -824,14 +841,14 @@ System.err.println("Closing writer\n----Cycle# " + ++TricepsServlet.cycle + "---
 			while(questionNames.hasMoreElements()) {
 				Node n = (Node) questionNames.nextElement();
 				sb.append("<TR>");
-				sb.append("<TD>" + Node.encodeHTML(n.getQuestionRef(),true) + "</TD>");
+				sb.append("<TD>" + Node.encodeHTML(n.getExternalName(),true) + "</TD>");
 				sb.append("<TD><B>" + Node.encodeHTML(triceps.toString(n,true),true) + "</B></TD>");
 				sb.append("<TD>" + Node.encodeHTML(Datum.TYPES[n.getDatumType()]) + "</TD>");
-				sb.append("<TD>" + Node.encodeHTML(n.getName(),true) + "</TD>");
+				sb.append("<TD>" + Node.encodeHTML(n.getLocalName(),true) + "</TD>");
 				sb.append("<TD>" + Node.encodeHTML(n.getConcept(),true) + "</TD>");
 				sb.append("<TD>" + Node.encodeHTML(n.getDependencies(),true) + "</TD>");
-				sb.append("<TD>" + Node.encodeHTML(n.getActionTypeField(),true) + "</TD>");
-				sb.append("<TD>" + Node.encodeHTML(n.getAction(),true) + "</TD>");
+				sb.append("<TD>" + Node.encodeHTML(n.getQuestionOrEvalTypeField(),true) + "</TD>");
+				sb.append("<TD>" + Node.encodeHTML(n.getQuestionOrEval(),true) + "</TD>");
 				sb.append("</TR>\n");
 			}
 			sb.append("</TABLE>\n");
@@ -847,7 +864,7 @@ System.err.println("Closing writer\n----Cycle# " + ++TricepsServlet.cycle + "---
 					continue;
 				sb.append("<TR>");
 				sb.append("<TD>" + (i + 1) + "</TD>");
-				sb.append("<TD>" + Node.encodeHTML(n.getQuestionRef(),true) + "</TD>");
+				sb.append("<TD>" + Node.encodeHTML(n.getExternalName(),true) + "</TD>");
 				if (!d.isType(Datum.STRING)) {
 					sb.append("<TD><B><I>" + Node.encodeHTML(triceps.toString(n,true),true) + "</I></B></TD>");
 				}
@@ -855,11 +872,11 @@ System.err.println("Closing writer\n----Cycle# " + ++TricepsServlet.cycle + "---
 					sb.append("<TD><B>" + Node.encodeHTML(triceps.toString(n,true),true) + "</B></TD>");
 				}
 				sb.append("<TD>" +  Node.encodeHTML(Datum.TYPES[n.getDatumType()]) + "</TD>");
-				sb.append("<TD>" + Node.encodeHTML(n.getName(),true) + "</TD>");
+				sb.append("<TD>" + Node.encodeHTML(n.getLocalName(),true) + "</TD>");
 				sb.append("<TD>" + Node.encodeHTML(n.getConcept(),true) + "</TD>");
 				sb.append("<TD>" + Node.encodeHTML(n.getDependencies(),true) + "</TD>");
-				sb.append("<TD>" + Node.encodeHTML(n.getActionTypeField(),true) + "</TD>");
-				sb.append("<TD>" + Node.encodeHTML(n.getAction(),true) + "</TD>");
+				sb.append("<TD>" + Node.encodeHTML(n.getQuestionOrEvalTypeField(),true) + "</TD>");
+				sb.append("<TD>" + Node.encodeHTML(n.getQuestionOrEval(),true) + "</TD>");
 				sb.append("</TR>\n");
 			}
 			sb.append("</TABLE>\n");
@@ -914,6 +931,7 @@ System.err.println("Closing writer\n----Cycle# " + ++TricepsServlet.cycle + "---
 //		sb.append(" if (actionTarget.length && actionTarget.length > 0) { actionTarget = actionTarget[0]; }\n");
 		sb.append("	commentTarget = document.myForm.elements[name + '_COMMENT'];\n");
 		sb.append("	helpTarget = document.myForm.elements[name + '_HELP'];\n");
+		sb.append("	specialTarget = document.myForm.elements[name + '_SPECIAL'];\n");
 		sb.append("	if (n) {xNow=e.pageX; yNow=e.pageY}\n");
 		sb.append("	if (ie) {xNow=event.x; yNow=event.y}\n");
 		sb.append("	popup.left = xNow+3-popup.clip.width\n");
@@ -928,6 +946,8 @@ System.err.println("Closing writer\n----Cycle# " + ++TricepsServlet.cycle + "---
 		sb.append("}\n");
 		sb.append("function showMain(e) {\n");
 		sb.append("	actionTarget = null;\n");
+		sb.append("	helpTarget = null;\n");
+		sb.append("	specialTarget = null;\n");
 		sb.append("	if (n) {xNow=e.pageX; yNow=e.pageY}\n");
 		sb.append("	if (ie) {xNow=event.x; yNow=event.y}\n");
 		sb.append("	main.left = xNow-3;\n");
@@ -943,26 +963,19 @@ System.err.println("Closing writer\n----Cycle# " + ++TricepsServlet.cycle + "---
 		sb.append("	var ans = prompt('Enter password to *REFUSE* to answer this question','');\n");
 		sb.append("	if (ans == null || ans.length == 0) return;\n");
 		sb.append("	document.myForm.PASSWORD_FOR_REFUSED.value = ans;\n");
-		sb.append("	setValue('*REFUSED*');\n");
-		sb.append("}\n");
-		sb.append("function setValue(type) {\n");
-		sb.append("	if (!actionTarget)\n");
-		sb.append("		return;\n");
-		sb.append("	if (actionTarget.type == 'radio' || actionTarget.type == 'checkbox') {\n");
-		sb.append("		if (type != '') actionTarget.value = type;\n");
-		sb.append("		actionTarget.checked;\n");
-		sb.append("	} else if (actionTarget.type == 'select') {\n");
-		sb.append("		actionTarget.selectedIndex = 0;\n");
-		sb.append("		if (type != '') actionTarget.options[0].value = type;\n");
-		sb.append("	} else {\n");
-		sb.append("		if (type != '') actionTarget.value = type;\n");
-		sb.append("	}\n");
+		sb.append("	specialTarget.value = '*REFUSED*';\n");
 		sb.append("}\n");
 		sb.append("function answerUnknown() {\n");
 		sb.append("	var ans = prompt('Enter password to indicate that the answer is *UNKNOWN*','');\n");
 		sb.append("	if (ans == null || ans.length == 0) return;\n");
 		sb.append("	document.myForm.PASSWORD_FOR_UNKNOWN.value = ans;\n");
-		sb.append("	setValue('*UNKNOWN*');\n");
+		sb.append("	specialTarget.value = '*UNKNOWN*';\n");
+		sb.append("}\n");
+		sb.append("function answerNotUnderstood() {\n");
+		sb.append("	var ans = prompt('Enter password to indicate that the answer is *NOT UNDERSTOOD*','');\n");
+		sb.append("	if (ans == null || ans.length == 0) return;\n");
+		sb.append("	document.myForm.PASSWORD_FOR_NOT_UNDERSTOOD.value = ans;\n");
+		sb.append("	specialTarget.value = '*NOT UNDERSTOOD*';\n");
 		sb.append("}\n");
 		sb.append("function help(target) {\n");
 		sb.append("	if (target != null && target.length != 0) {	window.open(target,'__HELP__'); }\n");
@@ -986,13 +999,24 @@ System.err.println("Closing writer\n----Cycle# " + ++TricepsServlet.cycle + "---
 		sb.append("	<A HREF=\"javascript:help();hidePopup();\">Help</A><BR>\n");
 		sb.append("	<A HREF=\"javascript:comment();hidePopup();\">Add&nbsp;Comment</A><BR>\n");
 		sb.append("	<A HREF=\"javascript:answerUnknown();hidePopup();\">Mark&nbsp;as&nbsp;Unknown</A><BR>\n");
+		sb.append("	<A HREF=\"javascript:answerNotUnderstood();hidePopup();\">Mark&nbsp;as&nbsp;Not&nbsp;Understood</A><BR>\n");
 		sb.append("	<A HREF=\"javascript:answerRefused();hidePopup();\">Mark&nbsp;as&nbsp;Refused</A>\n");
 		sb.append("</DIV>\n");
+		
 		sb.append("<DIV NAME=\"MAINDIV\" STYLE=\"Layer-Background-Color : silver; position : absolute; visibility : hidden\">\n");
-		sb.append("	<A HREF=\"javascript:setLanguage('English');hideMain();\">Language:&nbsp;ENGLIGH</A><BR>\n");
-		sb.append("	<A HREF=\"javascript:setLanguage('Spanish');hideMain();\">Language:&nbsp;SPANISH</A><BR>\n");
-		sb.append("	<A HREF=\"javascript:answerUnknown();hideMain();\">Enter&nbsp;password&nbsp;for&nbsp;Unknown</A><BR>\n");
-		sb.append("	<A HREF=\"javascript:answerRefused();hideMain();\">Enter&nbsp;password&nbsp;for&nbsp;Refused</A>\n");
+		
+		if (triceps != null) {
+			
+			Vector languages = triceps.nodes.getLanguages();
+			for (int i=0;i<languages.size();++i) {
+				String language = (String) languages.elementAt(i);
+				sb.append("	<A HREF=\"javascript:setLanguage('" + language + "');hideMain();\">Language:&nbsp;" + language + "</A><BR>\n");
+			}
+			
+			sb.append("	<A HREF=\"javascript:answerUnknown();hideMain();\">Enter&nbsp;password&nbsp;for&nbsp;Unknown</A><BR>\n");
+			sb.append("	<A HREF=\"javascript:answerNotUnderstood();hideMain();\">Mark&nbsp;as&nbsp;Not&nbsp;Understood</A><BR>\n");
+			sb.append("	<A HREF=\"javascript:answerRefused();hideMain();\">Enter&nbsp;password&nbsp;for&nbsp;Refused</A>\n");
+		}
 		sb.append("</DIV>\n");
 
 		return sb.toString();

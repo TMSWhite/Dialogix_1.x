@@ -13,16 +13,20 @@ public class Schedule  {
 	public static final int STARTING_STEP = 3;
 	public static final int PASSWORD_FOR_REFUSED = 4;
 	public static final int PASSWORD_FOR_UNKNOWN = 5;
-	public static final int SHOW_QUESTION_REF = 6;
-	public static final int AUTOGEN_OPTION_NUM = 7;
-	public static final int DEVELOPER_MODE = 8;
-	public static final int DEBUG_MODE = 9;
-	public static final int START_TIME = 10;	
-	public static final int FILENAME = 11;
+	public static final int PASSWORD_FOR_NOT_UNDERSTOOD = 6;
+	public static final int LANGUAGES = 7;
+	public static final int SHOW_QUESTION_REF = 8;
+	public static final int AUTOGEN_OPTION_NUM = 9;
+	public static final int DEVELOPER_MODE = 10;
+	public static final int DEBUG_MODE = 11;
+	public static final int START_TIME = 12;	
+	public static final int FILENAME = 13;
 	
 	public static final String[] RESERVED_WORDS = {
 		"__TITLE__", "__ICON__", "__HEADER_MSG__", "__STARTING_STEP__", 
-		"__PASSWORD_FOR_REFUSED__", "__PASSWORD_FOR_UNKNOWN__", "__SHOW_QUESTION_REF__", "__AUTOGEN_OPTION_NUM__", 
+		"__PASSWORD_FOR_REFUSED__", "__PASSWORD_FOR_UNKNOWN__", "__PASSWORD_FOR_NOT_UNDERSTOOD__",
+		"__LANGUAGES__",
+		"__SHOW_QUESTION_REF__", "__AUTOGEN_OPTION_NUM__", 
 		"__DEVELOPER_MODE__", "__DEBUG_MODE__",
 		"__START_TIME__", "__FILENAME__"
 	};
@@ -33,12 +37,16 @@ public class Schedule  {
 	private String passwordForRefused = null;
 	private String filename = null;
 	private String passwordForUnknown = null;
+	private String passwordForNotUnderstood = null;
 	private String icon = null;
 	private String headerMsg = null;
 	private boolean developerMode = false;
 	private boolean showQuestionRef = false;
 	private boolean debugMode = false;
 	private boolean autoGenOptionNum = true;
+	private int languageCount = 0;
+	private Vector languages = null;
+	private int currentLanguage = 0;
 	
 	
 	private Vector nodes = new Vector();
@@ -57,11 +65,13 @@ public class Schedule  {
 		setReserved(AUTOGEN_OPTION_NUM,"true");
 		setReserved(FILENAME,getReserved(START_TIME));
 		setReserved(PASSWORD_FOR_UNKNOWN,"");
+		setReserved(PASSWORD_FOR_NOT_UNDERSTOOD,"");
 		setReserved(ICON,"");
 		setReserved(HEADER_MSG,"Triceps System");
 		setReserved(SHOW_QUESTION_REF,"false");
 		setReserved(DEVELOPER_MODE,"false");
 		setReserved(DEBUG_MODE,"false");
+		setReserved(LANGUAGES,"English");
 	}
 
 	public boolean load(BufferedReader br, String filename) {
@@ -89,7 +99,7 @@ public class Schedule  {
 					continue;
 				}
 
-				Node node = new Node(line, filename, fileLine);
+				Node node = new Node(line, filename, fileLine, languageCount);
 				++count;
 				nodes.addElement(node);
 			}
@@ -150,7 +160,7 @@ public class Schedule  {
 				default: break;
 			}
 		}
-		if (field != 2) {
+		if (field < 2) {
 			System.err.println("wrong number of tokens for RESERVED syntax (RESERVED\\tname\\tvalue\\n) on line " + line + " of file " + filename);
 		}
 		if (name == null || value == null)
@@ -179,11 +189,13 @@ public class Schedule  {
 			case AUTOGEN_OPTION_NUM: s = setAutoGenOptionNum(value); break;
 			case FILENAME: s = setFilename(value); break;
 			case PASSWORD_FOR_UNKNOWN: s = setPasswordForUnknown(value); break;
+			case PASSWORD_FOR_NOT_UNDERSTOOD: s = setPasswordForNotUnderstood(value); break;
 			case ICON: s = setIcon(value); break;
 			case HEADER_MSG: s = setHeaderMsg(value); break;
 			case SHOW_QUESTION_REF: s = setShowQuestionRef(value); break;
 			case DEVELOPER_MODE: s = setDeveloperMode(value); break;
 			case DEBUG_MODE: s = setDebugMode(value); break;
+			case LANGUAGES: s = setLanguages(value); break;
 			default: return false;
 		}
 		reserved.put(RESERVED_WORDS[resIdx], s);
@@ -213,7 +225,10 @@ public class Schedule  {
 		passwordForUnknown = s; 
 		return s;
 	}
-	
+	private String setPasswordForNotUnderstood(String s) { 
+		passwordForNotUnderstood = s; 
+		return s;
+	}	
 	private String setIcon(String s) {
 		icon = s;
 		return s;
@@ -291,6 +306,60 @@ public class Schedule  {
 		return filename;
 	}
 	
+	private String setLanguages(String value) {
+		StringBuffer sb = new StringBuffer();
+		if (value == null) {
+			return setLanguages("English");
+		}
+		
+		languageCount = 0;
+		languages = new Vector();
+		StringTokenizer ans = new StringTokenizer(value,"|");
+		while(ans.hasMoreTokens()) {
+			String s = null;
+			try {
+				s = ans.nextToken();
+				if (s == null || s.trim().length() == 0)
+					continue;
+				s = s.trim();
+			}
+			catch (NoSuchElementException e) {
+			}
+			/* regenerate the string, stipping excess pipe characters */
+			++languageCount;
+			if (sb.length() != 0) {
+				sb.append("|" + s);
+			}
+			else {
+				sb.append(s);
+			}
+			languages.addElement(s);
+		}
+		return sb.toString();
+	}
+	
+	public Vector getLanguages() {
+		return languages;
+	}
+	
+	public boolean setLanguage(String s) {
+		if (s == null) {
+			currentLanguage = 0;
+			System.err.println("Tried to set language to null");
+			return false;
+		}
+		for (int i=0;i<languages.size();++i) {
+			if (s.equals((String) languages.elementAt(i))) {
+				currentLanguage = i;
+				return true;
+			}
+		}
+		currentLanguage = 0;
+		System.err.println("Tried to switch to unsupported language " + s);
+		return false;
+	}
+	
+	public int getLanguage() { return currentLanguage; }
 	
 	public void toTSV(Writer out) {
 		Enumeration keys = reserved.keys();
