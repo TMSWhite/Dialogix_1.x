@@ -1403,7 +1403,7 @@ if (XML) {
 		if (schedule.getBooleanReserved(Schedule.JUMP_TO_FIRST_UNASKED)) {
 			sb.append(buildSubmit("jumpToFirstUnasked"));
 		}
-		if (schedule.getBooleanReserved(Schedule.SUSPEND_TO_FLOPPY)) {
+		if (schedule.getBooleanReserved(Schedule.SUSPEND_TO_FLOPPY) || okToShowAdminModeIcons) {
 			sb.append(buildSubmit("suspendToFloppy"));
 		}
 
