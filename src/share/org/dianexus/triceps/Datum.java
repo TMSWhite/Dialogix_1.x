@@ -2,13 +2,13 @@ import java.util.*;
 import java.lang.*;
 
 public class Datum {
-	static final int UNKNOWN = 0;	// haven't asked
+	static final int UNKNOWN = 0;		// haven't asked
 	static final int DOUBLE = 1;
 	static final int STRING = 2;
 	static final int UNCERTAIN = 3; 	// can ask, but answer not known
 	static final int REFUSED = 4; 	// can ask, but can't get answer
-	static final int NA = 5; 		// don't need to ask - not applicable
-	static final int INVALID = 6;       // if an exception occurs - so propagated
+	static final int NA = 5; 			// don't need to ask - not applicable
+	static final int INVALID = 6;		// if an exception occurs - so propagated
 	String sVal;
 	double dVal;
 	boolean bVal;
@@ -27,6 +27,11 @@ public class Datum {
 			case UNCERTAIN:
 			case REFUSED:
 			case NA:
+				type = i;
+				sVal = "Not applicable.";
+				bVal = false;
+				dVal = Double.NaN;
+				break;
 			case INVALID:
 				type = i;
 				sVal = "";

@@ -1,11 +1,12 @@
 import java.lang.*;
 import java.util.*;
+import java.io.*;
 
 /**
  * Contains data generated at each node.  Such data are produced either by the person running the interview in response to
  * questions, or by the system evaluating previously stored evidence
  */
-public class Evidence {
+public class Evidence implements Serializable {
 	Hashtable aliases;
 	Vector data;
 	Vector nodes;
@@ -21,6 +22,39 @@ public class Evidence {
 			nodes.addElement(null);
 		}
 	}
+
+	public Evidence (String filename) throws IOException,ClassNotFoundException {
+		ObjectInputStream in = null;
+		Evidence ev = null;
+		try {
+			FileInputStream fis = new FileInputStream(filename);
+			in = new ObjectInputStream(fis);
+			ev = (Evidence) in.readObject();
+			in.close();
+		}
+		catch (IOException e) {
+			System.out.println(e);
+		}
+		this.aliases = ev.aliases;
+		this.data = ev.data;
+		this.nodes = ev.nodes;
+		this.size = ev.size;
+	}
+
+	public void saveSuspended() throws IOException {
+		String filename = "/tmp/test-suspended";	// need a naming convention for these!!
+		try {
+			FileOutputStream fos = new FileOutputStream(filename);
+			ObjectOutputStream out = new ObjectOutputStream(fos);
+			out.writeObject(this);
+			out.flush();
+			out.close();
+		}
+		catch (IOException e) {
+			System.out.println(e);
+		}
+	}
+		
 	public boolean containsKey(Object val) {
 		if (val == null)
 			return false;
@@ -30,6 +64,7 @@ public class Evidence {
 			return aliases.containsKey(((Node)val).getName());
 		return false;
 	}
+	
 	public Datum getDatum(Object val) {
 		if (!containsKey(val))
 			return null;
@@ -42,6 +77,7 @@ public class Evidence {
 			return null;
 		return (Datum)data.elementAt(i.intValue());
 	}
+	
 	public Node getNode(Object val) {
 		if (!containsKey(val)) {
 			System.out.println("Node not found: " + val);
@@ -62,6 +98,7 @@ public class Evidence {
 		else
 			return null;
 	}
+	
 	public void set(Node node, Datum val) {
 		if (node == null || val == null) {
 			System.out.println("null value for node or val");
@@ -78,6 +115,7 @@ public class Evidence {
 		aliases.put(node.getName(), i);
 		aliases.put(node.getQuestionRef(), i);
 	}
+	
 	public void set(String name, Datum val) {
 		if (name == null || val == null) {
 			System.out.println("null value for name or val");
@@ -96,9 +134,11 @@ public class Evidence {
 		}
 		aliases.put(name, i);
 	}
+	
 	public int size() {
 		return data.size();
 	}
+	
 	public String toString() {
 		StringBuffer sb = new StringBuffer();
 		Enumeration e = aliases.keys();
@@ -108,6 +148,7 @@ public class Evidence {
 		}
 		return sb.toString();
 	}
+	
 	public String toString(Object val) {
 		Datum d = getDatum(val);
 		if (d == null)
@@ -115,6 +156,7 @@ public class Evidence {
 		else
 			return d.StringVal();
 	}
+	
 	public void unset(Node node) {
 		if (node == null)
 			return;
@@ -126,6 +168,7 @@ public class Evidence {
 			nodes.setElementAt(null, i.intValue());
 		}
 	}
+	
 	public void unset(String name) {
 		Integer i = (Integer)aliases.remove(name);
 		if (i != null) {

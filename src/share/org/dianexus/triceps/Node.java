@@ -96,6 +96,10 @@ public class Node {
 	public String getName() { return stepName; }
 	public String getQuestionRef() { return questionRef; }
 	public int getStep() { return step; }
+	
+	/**
+	 * Prints out the components of a node in the schedule.
+	 */
 	public String toString() {
 		return "Node (" + step + "): <B>" + stepName + "</B><BR>\n" + "Concept: <B>" + concept + "</B><BR>\n" +
 			"Description: <B>" + description + "</B><BR>\n" + "Dependencies: <B>" + dependencies + "</B><BR>\n" +
