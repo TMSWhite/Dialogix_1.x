@@ -10,6 +10,10 @@ select pageHitID, accessCount, sessionID, workingFile, javaObject, browser, inst
 ###################################
 update wave6users set filename='.', status='unstarted', lastAccess='', currentStep='', currentIP='', lastAction='', sessionID='', browser='', statusMsg='';
 
+update wave6users set filename='.', status='unstarted', lastAccess='', currentStep='', currentIP='', lastAction='', sessionID='', browser='', statusMsg='',
+	dem1=username where username like "test%";
+
+
 
 ######################################################################################
 === Possible problem files (using extract_values.pl to show comments from AutoMEQ ===
@@ -32,6 +36,7 @@ update wave6users set filename='.', status='unstarted', lastAccess='', currentSt
 *	2003-01-19_21_55-(1043031351624) It asked me the same questions two and three times and skipped some questions 
 ?	2003-01-25_13_12-(1043518359880) I do not understand how my natural bedtime is 11 pm. I am never up that late. 
 *	2003-02-05?	Runtime errors
+[No listed errors in the comment fields after this date]
 
 	So, problems at least from 12/16/2002; and possibly as early as 9/15/2002
 	
@@ -428,3 +433,44 @@ order by r.pageHitDetailsID;
 	should ensure that catch OutOfMemoryErrors, and run garbage collector!
 
 ############################################
+
+## Tests for AutoMEQ ##
+# show AutoMEQ files with comments from dialogix2991 structure
+select 
+	floor(timeStamp / 100), currentIP, value
+	from pageHitDetails
+	where param = "Feedback_us"  and value != "Type comments here." and value != ""
+	order by timeStamp;
+	
+# show comments in AutoMEQ - from dialogix2992, dialogix2993 versions of database structure.
+select 
+	l.timeStamp, l.currentIP, l.workingFile, l.browser, 
+	r.value
+	from pageHits l, pageHitDetails r
+	where l.pageHitID = r.pageHitID_FK and
+		r.param = "Feedback_us" and r.value != "Type comments here."
+	order by l.timeStamp;
+	
+####
+# Monitor Dialogix memory leaks
+###
+
+SELECT floor(timestamp / 1000000), max(totalMemory), min(freeMemory), count(*), (max(totalMemory) / count(*)) as ratio FROM pageHits group by floor(timestamp / 1000000) order by floor(timestamp / 1000000);
+
+select distinct username from pageHits where username != "null";
+
+select distinct username, workingFile from pageHits where instrumentName like "%wave6%" and workingFile != "null" order by username;
+
+select distinct sessionID, workingFile, instrumentName from pageHits where instrumentName like "%CET%" and workingFile != "null" order by workingFile;
+
+select distinct sessionID, workingFile, instrumentName from pageHits where instrumentName like "%CET%" and workingFile != "null" order by workingFile;
+
+select count(distinct workingFile) from pageHits group by sessionID;
+
+###
+# CET Status checks 
+###
+select distinct workingFile from pageHits where instrumentName like "%AutoMEQ-SA-irb%" and currentStep = 0;
+select distinct workingFile from pageHits where instrumentName like "%AutoMEQ-SA-irb%" and currentStep = 11;
+select distinct workingFile from pageHits where instrumentName like "%AutoMEQ-SA-irb%" and currentStep = 36;
+select distinct workingFile from pageHits where instrumentName like "%AutoMEQ-SA-irb%" and currentStep = 52;
