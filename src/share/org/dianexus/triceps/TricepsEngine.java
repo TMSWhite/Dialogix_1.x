@@ -106,7 +106,7 @@ public class TricepsEngine implements VersionIF {
 		}
 		s = s.trim();
 		s = s.replace('\\','/');	// so that uses unix file separators
-		if (s.charAt(0) == '/' || which.indexOf("Dir") == -1) {
+		if (s.charAt(0) == '/' || which.indexOf("Dir") == -1 || s.charAt(1) == ':') {
 			return s;
 		}
 		else {
