@@ -41,7 +41,7 @@
         </init-param>
         <init-param>
             <param-name>floppyDir</param-name>
-            <param-value>Wave6/WEB-INF/archive/</param-value>
+            <param-value>Wave6/WEB-INF/archive2/</param-value>
         </init-param>
         <init-param>
             <param-name>displayWorking</param-name>
