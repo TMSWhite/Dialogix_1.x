@@ -326,3 +326,8 @@ Reorganization & Documentation
   BUGFIX - Web.xml session timeout was 30 min - changed to 600
   BUGFIX - Reload questions was resetting everyting to UNASKED
   BUGFIX - Expired sessions generated messages like "already at beginning" or "already at end" - now generate proper info page
+
+<< changes from 2.8.8 to 2.8.9
+  BUGFIX - 'e' lines that include assign statments now have those new values saved to the data file
+  Enhancement - added "suspendToFloppy()" function
+  Enhancement - better expired session handling - shows link closing window and opening up new session
