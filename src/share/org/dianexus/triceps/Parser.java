@@ -10,6 +10,7 @@ package org.dianexus.triceps;
 /*import java.lang.*;*/
 /*import java.util.*;*/
 import java.io.StringReader;
+import java.util.Hashtable;
 
 /* Wrapper to make it easier to call Qss */
 /*public*/ class Parser implements VersionIF {
@@ -100,5 +101,9 @@ import java.io.StringReader;
 			qss.errorLogger = l;
 			l.reset();
 		}
+	}
+	
+	/*public*/ Hashtable getUndoInfo() {
+		return qss.getUndoInfo();
 	}
 }

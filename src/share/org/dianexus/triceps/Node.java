@@ -84,6 +84,7 @@ import java.text.DecimalFormat;
 	private String answerGiven = "";
 	private String answerTimeStampStr = "";
 	private String comment = "";
+	private Hashtable undoInfo = null;
 
 	private Hashtable answerChoicesHash = new Hashtable();
 
@@ -1022,4 +1023,13 @@ else setParseError("syntax error");
 		answerLanguageNum = langNum;
 	}
 	/*public*/ int getAnswerLanguageNum() { return answerLanguageNum; }
+	
+	/* Undo capability */
+	void setUndoInfo(Hashtable undoInfo) {
+		this.undoInfo = undoInfo;
+	}
+	
+	Hashtable getUndoInfo() {
+		return undoInfo;
+	}
 }

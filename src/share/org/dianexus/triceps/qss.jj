@@ -10,42 +10,66 @@ options {
 
 
 PARSER_BEGIN(Qss)
+package org.dianexus.triceps;
 
-import java.io.*;
-import java.util.*;
+/*import java.io.*;*/
+/*import java.util.*;*/
+import java.util.Stack;
+import java.util.EmptyStackException;
+import java.util.Hashtable;
 
-public class Qss {
+public class Qss implements VersionIF {
     private Stack stack;
     private Triceps triceps;
     Logger debugLogger = Logger.NULL;	// Parser directly assigns this value
     Logger errorLogger = Logger.NULL;	// Parser directly assigns this value
+    private Hashtable undoInfo = null;	// stores prior values of ASSIGNed variables
 
 	public Datum parse(Triceps tri) {
 		triceps = tri;
-    	Datum d = Datum.getInstance(triceps,Datum.INVALID);
+    	Datum d = null;
 
 		try {
+			init();
 			stack = new Stack();
 			Statement();
 			d = (Datum) stack.pop();
 		}
 		catch (EmptyStackException e) {
+if (DEBUG) Logger.writeln("##EmptyStackException @ Qss.parse()" + e.getMessage());
 			error(triceps.get("stack_underflow"),token.beginLine,token.beginColumn);
-		}
+   		}
 		catch (ParseException e) {
+if (DEBUG) Logger.writeln("##ParseException @ Qss.parse()" + e.getMessage());
 			error(e.getMessage());
 		}
 		catch (TokenMgrError e) {
+if (DEBUG) Logger.writeln("##TokenMgrError @ Qss.parse()" + e.getMessage());
 			error(e.getMessage());
 		}
 
-		if (debugLogger != Logger.NULL) {
+		if (DEBUG && debugLogger != Logger.NULL) {
 			debug(null,d);
 		}
 
-		return d;
+		return ((d != null) ? d : Datum.getInstance(triceps,Datum.INVALID));
 	}
-
+	
+	private void init() {
+		undoInfo = new Hashtable();
+	}
+	
+	public Hashtable getUndoInfo() {
+		return undoInfo;
+	}
+	
+	private void storeUndo(String tokenName) {
+		Object val = undoInfo.get(tokenName);
+		if (val == null) {
+			undoInfo.put(tokenName,triceps.getEvidence().getDatum(tokenName));	// store original value mapped to name
+		}
+	}
+	
 	public void resetErrorCount() {
 		errorLogger.reset();
 	}
@@ -61,14 +85,16 @@ public class Qss {
 
 	/* Prints stack trace in tab delimited format - operator, arguments, ->, answer */
 	private void debug(String s,Datum d) {
+if (DEBUG) {
 		String varName = d.getName();
 		
 		debugLogger.println(((s != null) ? (s + "\t") : "") + "->\t" +
 					"'" + d.stringVal(true) + "'\t" + 
 					d.doubleVal() + "\t" + 
 					d.dateVal() + "\t" + 
-					d.monthVal());
+					d.monthVal() + "\t" +
 					((varName != null) ? ("VAR_NAME='" + varName + "'") : ""));
+}
 	}
 
 	private String datumValue(Datum d) {
@@ -85,14 +111,15 @@ public class Qss {
 
 	private void unaryOp(int op, Object arg1) {
 		Datum a = getParam(arg1);
-		Datum ans = Datum.getInstance(triceps,Datum.INVALID);
+		Datum ans = null;
 		switch(op) {
 			case PLUS: ans = a; break;
 			case MINUS: ans = DatumMath.neg(a); break;
 			case NOT: ans = DatumMath.not(a); break;
+			default: ans = Datum.getInstance(triceps,Datum.INVALID); break;
 		}
 		stack.push(ans);
-		if (debugLogger != Logger.NULL) {
+		if (DEBUG && debugLogger != Logger.NULL) {
 			debug(opName(op) + "\t" + datumValue(a),ans);
 		}
 	}
@@ -106,7 +133,7 @@ public class Qss {
 	private void binaryOp(int op, Object arg2, Object arg1) {
 		Datum a = getParam(arg1);
 		Datum b = getParam(arg2);
-		Datum ans = Datum.getInstance(triceps,Datum.INVALID);
+		Datum ans = null;
 		switch(op) {
 			case PLUS: ans = DatumMath.add(a,b); break;
 			case MINUS: ans = DatumMath.subtract(a,b); break;
@@ -126,9 +153,10 @@ public class Qss {
 			case AND: ans = DatumMath.and(a,b); break;
 			case OR: ans = DatumMath.or(a,b); break;
 			case ASSIGN: triceps.getEvidence().set(a.stringVal(),b); ans = triceps.getEvidence().getDatum(a.stringVal()); break;
+			default: ans = Datum.getInstance(triceps,Datum.INVALID); break;
 		}
 		stack.push(ans);
-		if (debugLogger != Logger.NULL) {
+		if (DEBUG && debugLogger != Logger.NULL) {
 			debug(opName(op) + "\t" + datumValue(a) + "\t" + datumValue(b),ans);
 		}
 	}
@@ -137,21 +165,21 @@ public class Qss {
 		Datum a = getParam(arg1);
 		Datum b = getParam(arg2);
 		Datum c = getParam(arg3);
-		Datum ans = Datum.getInstance(triceps,Datum.INVALID);
+		Datum ans = null;
 		switch(op) {
 			case QUEST: ans = DatumMath.conditional(a,b,c); break;
+			default: ans = Datum.getInstance(triceps,Datum.INVALID); break;
 		}
 		stack.push(ans);
-		if (debugLogger != Logger.NULL) {
+		if (DEBUG && debugLogger != Logger.NULL) {
 			debug(opName(op) + "\t" + datumValue(a) + "\t" + datumValue(b) + "\t" + datumValue(c),ans);
 		}
 	}
 
 	private void functionOp(Token func, Stack params) {
-		Datum ans = Datum.getInstance(triceps,Datum.INVALID);
-		ans = triceps.getEvidence().function(func.image, params, func.beginLine, func.beginColumn);
+		Datum ans = triceps.getEvidence().function(func.image, params, func.beginLine, func.beginColumn);
 		stack.push(ans);
-		if (debugLogger != Logger.NULL) {
+		if (DEBUG && debugLogger != Logger.NULL) {
 			StringBuffer sb = new StringBuffer("function\t" + func.image);
 			for (int i=0;i<params.size();++i) {
 				Object o = params.elementAt(i);
@@ -300,6 +328,7 @@ void AssignmentExpression(): { Token t; }
 {
 	<NMTOKEN> { t = token; } <ASSIGN> ConditionalExpression()
     	{
+    		storeUndo(t.image);
     		binaryOp(ASSIGN,stack.pop(), new Datum(triceps, t.image,Datum.STRING));
     	}
 }
@@ -455,6 +484,7 @@ void Constant() : { }
 				}
 			}
 			catch (IndexOutOfBoundsException e) {
+if (DEBUG) Logger.writeln("##IndexOutOfBoundsException @ Qss.parseConstant()" + e.getMessage());
 				error(triceps.get("unterminated_escaped_character"), token.beginLine, token.beginColumn + i);
 			}
 

@@ -411,6 +411,7 @@ if (DEBUG) Logger.writeln("##Unable to reload schedule");
 				else {
 					if (parser.booleanVal(this, node.getDependencies())) {
 						Datum datum = parser.parse(this, node.getQuestionOrEval());
+						node.setUndoInfo(parser.getUndoInfo());
 //						node.setDatumType(datum.type());
 						int type = node.getDatumType();
 						if (type != Datum.STRING && type != datum.type()) {
@@ -499,6 +500,17 @@ if (DEBUG) Logger.writeln("##Unable to reload schedule");
 
 			if (actionType == Node.EVAL) {
 				;	// skip these going backwards, but don't reset values when going backwards
+				// FIXME - should reset values when going backwards
+				Hashtable undoInfo = node.getUndoInfo();
+				if (undoInfo != null) {
+					Enumeration keys = undoInfo.keys();
+					while (keys.hasMoreElements()) {
+						String key = (String) keys.nextElement();
+						Datum val = (Datum) undoInfo.get(key);
+						evidence.set(evidence.getNode(key),val);	// so that writes to log file
+if (DEBUG)	Logger.writeln("#*# " + key + "=>" + val.stringVal());
+					}
+				}
 			}
 			else if (actionType == Node.GROUP_CLOSE) {
 				--braceLevel;
