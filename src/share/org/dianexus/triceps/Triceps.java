@@ -782,6 +782,9 @@ if (AUTHORABLE) {
 
 	/*public*/ String saveCompletedInfo() {
 if (DEPLOYABLE) {
+		if (dataLogger == Logger.NULL || eventLogger == Logger.NULL) {
+			return null;	// indicates that info was already logged, or some more fundamental error occurred
+		}
 		String name = saveAsJar(nodes.getReserved(Schedule.FILENAME));
 		if (name != null) {
 			return name;
