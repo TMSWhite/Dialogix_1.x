@@ -8,6 +8,8 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpUtils;
 
+import java.util.Date;
+
 public class TricepsServlet extends HttpServlet implements VersionIF {
 	static final String TRICEPS_ENGINE = "TricepsEngine";
 	private ServletConfig config = null;
@@ -29,20 +31,28 @@ public class TricepsServlet extends HttpServlet implements VersionIF {
 		try {
 			HttpSession session = req.getSession(true);
 			TricepsEngine tricepsEngine = null;
+			
+			String sessionID = TRICEPS_ENGINE + "." + session.getId();
+			
+if (DEBUG) {
+	/* standard Apache log format (after the #@# prefix for easier extraction) */
+	Logger.writeln("#@#" + req.getRemoteAddr() + " - " + req.getRemoteHost() + " - [" + new Date(System.currentTimeMillis()) + "] \"" +
+		req.getMethod() + " " + req.getRequestURI() + " " + req.getProtocol() + "\" " + req.getParameter("DIRECTIVE"));
+}
+	
 
-			tricepsEngine = (TricepsEngine) session.getValue(TRICEPS_ENGINE);
+			tricepsEngine = (TricepsEngine) session.getAttribute(sessionID);
 			if (tricepsEngine == null) {
 				tricepsEngine = new TricepsEngine(config);
 			}
 			
 			tricepsEngine.doPost(req,res);
 			
-			session.putValue(TRICEPS_ENGINE, tricepsEngine);
+			session.setAttribute(sessionID, tricepsEngine);
 		}
 		catch (Throwable t) {
 if (DEBUG) Logger.writeln("##Throwable @ Servlet.doPost()" + t.getMessage());
-			Logger.writeln("##unexpected_error" + t.getMessage());
-			Logger.printStackTrace(t);
+if (DEBUG) Logger.printStackTrace(t);
 		}
 	}
 }
