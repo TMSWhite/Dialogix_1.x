@@ -79,15 +79,11 @@ public class TricepsServlet extends HttpServlet implements VersionIF {
 		"Please login again --  You will resume from where you left off.<br><br>(Your login session was invalidated because the login page was submitted twice)",
 	};	
 	
-	ServletConfig config = null;
-	TricepsEngine tricepsEngine = null;
-	String sessionID = null;
 	int accessCount = 0;
 
 	
 	public void init(ServletConfig config) throws ServletException {
 		super.init(config);
-		this.config = config;
 		Logger.init(config.getInitParameter("dialogix.dir"));
 		
 		if (!initDBLogging()) {
@@ -104,7 +100,8 @@ public class TricepsServlet extends HttpServlet implements VersionIF {
 	}
 
 	public void doPost(HttpServletRequest req, HttpServletResponse res)  {
-		tricepsEngine = null;	// reset it in case of error page
+		initSession(req,res);
+		
 		int result = LOGIN_ERR_OK;
 		try {
 			if (isSupportedBrowser(req)) {
@@ -113,13 +110,13 @@ public class TricepsServlet extends HttpServlet implements VersionIF {
 			else {
 				result = errorPage(req,res);
 			}
+			if (result >= 0) { logPageHit(req,LOGIN_ERRS_BRIEF[result]); }	// way to avoid re-logging post shutdown
 		}
 		catch (Throwable t) {
 if (DEBUG) Logger.writeln("##Throwable @ Servlet.doPost()" + t.getMessage());
 if (DEBUG) Logger.printStackTrace(t);
 			errorPage(req,res);
 		}
-		if (result >= 0) { logPageHit(req,LOGIN_ERRS_BRIEF[result]); }	// way to avoid re-logging post shutdown
 	}
 	
 	boolean isSupportedBrowser(HttpServletRequest req) {
@@ -152,19 +149,12 @@ if (DEBUG) Logger.printStackTrace(t);
 	}
 
 	private int okPage(HttpServletRequest req, HttpServletResponse res) {
-		HttpSession session = req.getSession();
+		HttpSession session = req.getSession(false);
+		String sessionID = session.getId();
 		
-		if ((session == null || session.isNew()) && "POST".equals(req.getMethod())) {
-			shutdown(req,LOGIN_ERRS_BRIEF[LOGIN_ERR_EXPIRED_SESSION],false);
-			expiredSessionErrorPage(req,res);
-			return -1;
-		}
-		
-		sessionID = session.getId();
-		
-		tricepsEngine = (TricepsEngine) session.getAttribute(TRICEPS_ENGINE);
+		TricepsEngine tricepsEngine = (TricepsEngine) session.getAttribute(TRICEPS_ENGINE);
 		if (tricepsEngine == null) {
-			tricepsEngine = new TricepsEngine(config);
+			tricepsEngine = new TricepsEngine(this.getServletConfig());
 		}
 		
 		logAccess(req, " OK");
@@ -194,7 +184,13 @@ if (DEBUG) Logger.printStackTrace(t);
 	}
 	
 	void logAccess(HttpServletRequest req, String msg) {
-if (DEBUG) {	
+if (DEBUG) {
+	/* 2/5/03:  Explicitly ask for session info everywhere (vs passing it as needed) */
+	HttpSession session = req.getSession(false);
+	String sessionID = session.getId();
+	TricepsEngine tricepsEngine = (TricepsEngine) session.getAttribute(TRICEPS_ENGINE);
+	
+	
 	/* standard Apache log format (after the #@# prefix for easier extraction) */
 	Logger.writeln("#@#(" + req.getParameter("DIRECTIVE") + ") [" + new Date(System.currentTimeMillis()) + "] " + 
 		sessionID + 
@@ -298,7 +294,11 @@ if (DEBUG) Logger.printStackTrace(t);
 	
 	void shutdown(HttpServletRequest req, String msg, boolean createNewSession) {
 		/* want to invalidate sessions -- even though this confuses the log issue on who is accessing from where, multiple sessions can indicate problems with user interface */
-		
+		/* 2/5/03:  Explicitly ask for session info everywhere (vs passing it as needed) */
+		HttpSession session = req.getSession(false);
+		String sessionID = session.getId();
+		TricepsEngine tricepsEngine = (TricepsEngine) session.getAttribute(TRICEPS_ENGINE);
+				
 		Logger.writeln("...discarding session: " + sessionID + ":  " + msg);
 		
 		logPageHit(req,msg);
@@ -309,7 +309,6 @@ if (DEBUG) Logger.printStackTrace(t);
 		tricepsEngine = null;
 		
 		try {
-			HttpSession session = req.getSession();
 			if (session != null) {
 				session.invalidate();	// so that retrying same session gives same message
 			}
@@ -320,7 +319,6 @@ if (DEBUG) Logger.printStackTrace(t);
 				/* Finally, create a new session so that session so that it is available, and so that session time-outs can be detected */
 				/* this cannot be done after the page is sent? */
 				session = req.getSession(true);	// the only place to create new sessions
-				session.setMaxInactiveInterval(SESSION_TIMEOUT);	// so expires after 12 hours
 			}
 		}
 		catch (java.lang.IllegalStateException e) {
@@ -328,11 +326,32 @@ if (DEBUG) Logger.printStackTrace(t);
 		}
 	}
 	
+	/** This part is to ensure that there is an active session available */
+	
+	boolean initSession(HttpServletRequest req, HttpServletResponse res) {
+		try {
+			HttpSession session = req.getSession(true);
+			
+			if (session == null || session.isNew()) {
+				if ("POST".equals(req.getMethod())) {
+					/* an expired session */
+					logAccess(req,LOGIN_ERRS_BRIEF[LOGIN_ERR_EXPIRED_SESSION]);
+					expiredSessionErrorPage(req,res);	// this should really be a redirect to a language neutral page
+					return false;				
+				}
+				/* otherwise this is a session that requires a login page? */
+			}
+			return true;
+		} catch (Throwable e) {
+if (DEBUG) Logger.printStackTrace(e);
+			return false;
+		}
+	}
+	
 	/** This part is for logging to a database **/
 	
-	protected Context ctx = null;
-	protected DataSource ds = null;	
-	protected boolean isLoaded = false;
+	protected Context ctx = null;	// this ok as global, since used on servlet-by-servlet basis
+	protected DataSource ds = null;	// this ok as global, since used on servlet-by-servlet basis
 	
 	boolean initDBLogging() {
 		/* Load login info file from init param */
@@ -348,7 +367,6 @@ if (DEBUG) Logger.printStackTrace(t);
 if (DEBUG) Logger.printStackTrace(e);
 	      return false;
 	    }
-	    isLoaded = true;
 	    return true;
 	}	
 	
@@ -362,9 +380,7 @@ if (DEBUG) Logger.printStackTrace(e);
 	        if (conn == null) throw new Exception("Unable to connect to database");	// really need a way to report that there are database problems!
 	        
 	        Statement stmt = conn.createStatement();
-//Logger.writeln("SQL:  " + command);	        
-//			stmt.executeUpdate(command);	// this violates the purpose from LoginTricepsServlet, but can test main logging for now.
-	        ResultSet rst =  stmt.executeQuery(command);
+			stmt.executeUpdate(command);
 	
 	        conn.close();
 	        
@@ -377,9 +393,12 @@ if (DEBUG) Logger.printStackTrace(e);
 		}
 	}
 	
-	int lastPageHitIndex=-1;	// this is the last value recorded in the pageHits table - and allows joining on the pageHitDetails and pageHitEvents tables
-	
 	boolean logPageHit(HttpServletRequest req, String msg) {
+		/* 2/5/03:  Explicitly ask for session info everywhere (vs passing it as needed) */
+		HttpSession session = req.getSession(false);
+		String sessionID = session.getId();
+		TricepsEngine tricepsEngine = (TricepsEngine) session.getAttribute(TRICEPS_ENGINE);
+		
 		StringBuffer pageHit = new StringBuffer("INSERT INTO pagehits VALUES ");
 		StringBuffer pageHitEvents = new StringBuffer("INSERT INTO pageHitEvents VALUES ");
 		int numPageHitEvents = 0;
@@ -388,6 +407,7 @@ if (DEBUG) Logger.printStackTrace(e);
 		String workingFile = null;
 		String displayCountStr = null;
 		++accessCount;
+		int lastPageHitIndex=-1;	
 
 		try {
 			workingFile = tricepsEngine.getTriceps().dataLogger.getFilename().replace('\\','/');
