@@ -93,7 +93,6 @@ sub whichInstrument($) {
 	my $varlist = '';
 	while (<IN>) {
 		++$count;
-#		last if ($count > 50);	# don't go beyond reasonable header section length
 		my @vals = split(/\t/);
 		if ($vals[0] eq 'RESERVED') {
 			if ($vals[1] eq '__TRICEPS_FILE_TYPE__') {
@@ -143,10 +142,18 @@ sub whichInstrument($) {
 			}
 		}
 		else {
-			# this is a variable declaration
-			if ($vals[5] eq '*UNASKED*') {
-				++$numvars;
-				$varlist .= '$vals[1]';
+			if ($type eq 'DATA') {
+				# this is a variable declaration
+				if ($vals[5] eq '*UNASKED*') {
+					++$numvars;
+					$varlist .= "$vals[1]";
+				}
+			}
+			elsif ($type eq 'SCHEDULE') {
+				if ($vals[0] !~ /^COMMENT/i and $vals[1] !~ /^\s*$/) {
+					++$numvars;
+					$varlist .= "$vals[1]";
+				}
 			}
 		}
 	}
@@ -181,11 +188,19 @@ sub whichInstrument($) {
 	}
 }
 
-sub readDialogixPrefs($) {
+sub readDialogixPrefs($$) {
 	#
 	# study specific variables
 	#
 	my $conf_file = shift;
+	my $unix_vs_dos = shift;
+	my $copy_style;
+	if ($unix_vs_dos =~ /dos/i) {
+		$copy_style = 'copy';
+	}
+	elsif ($unix_vs_dos =~ /unix/i) {
+		$copy_style = 'cp -fp';
+	}
 	
 	my $Defaults = {
 		JAR =>  '/jdk1.3/bin/jar',	# path to jar program (will be different on Unix)
@@ -224,8 +239,14 @@ sub readDialogixPrefs($) {
 		removeEvtFiles => 0,		
 		removeErrFiles => 0,		
 		removeDatFiles => 0,	
-		# COPY => 'cp -fp',	
-		COPY => 'copy',
+		COPY => $copy_style,
+		UNIX_DOS => lc($unix_vs_dos),
+		
+		# sched2sas params
+		MAKE_SPSS_VALUE_LABELS => 1,
+		MAKE_SPSS_VARIABLE_LABELS => 1,
+		MAKE_SPSS_FREQS => 1,
+		MAKE_SAS_FORMATS => 1,
 	};
 	
 	my $Prefs = &readPrefs($Defaults,$conf_file);
@@ -235,7 +256,8 @@ sub readDialogixPrefs($) {
 	$Prefs->{EVT2SAS} = "$Prefs->{PERL_SCRIPTS_PATH}/evt2sas.pl";
 	$Prefs->{UPDATE_DAT} = "$Prefs->{PERL_SCRIPTS_PATH}/update_dat.pl";
 	$Prefs->{SCHED2SAS} = "$Prefs->{PERL_SCRIPTS_PATH}/sched2sas.pl";
-	$Prefs->{INSTRUMENT_FILE} = "$Prefs->{INSTRUMENT_DIR}/$Prefs->{INSTRUMENT}.txt";	
+#	$Prefs->{INSTRUMENT_FILE} = "$Prefs->{INSTRUMENT_DIR}/$Prefs->{INSTRUMENT}.txt";	
+	$Prefs->{INSTRUMENT_FILE} = "$Prefs->{INSTRUMENT_DIR}/*.*";	
 	
 	return ($Prefs);
 }

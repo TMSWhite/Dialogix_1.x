@@ -16,19 +16,20 @@ use strict;
 
 use Dialogix::Utils;
 
-if ($#ARGV != 0) {
-	print "Usage:\nperl unjar.pl <config-file>\n";
+if ($#ARGV != 1 or ($ARGV[1] !~ /^unix|dos$/)) {
+	print "Usage:\nperl unjar.pl <config-file> [unix|dos]\n";
 	print "see sample.conf for an example of the config parameters\n";
 	exit(0);
 }
 
-my ($Prefs,$conf_file);
+my ($Prefs,$conf_file,$unix_dos);
     
 &main(@ARGV);
 
 sub main {
 	$conf_file = shift;
-	$Prefs = &Dialogix::Utils::readDialogixPrefs($conf_file);
+	$unix_dos = shift;
+	$Prefs = &Dialogix::Utils::readDialogixPrefs($conf_file,$unix_dos);
 	return 0 unless &prepare;
 	&doall;
 }
@@ -123,7 +124,7 @@ sub unjarall {
 
 		my $msg = "$Prefs->{COPY} \"$srcjar\" \"$dstdir\"";
 		# convert to dos format
-		if ($Prefs->{COPY} ne 'cp -fp') {
+		if ($Prefs->{UNIX_DOS} eq 'dos') {
 			$msg =~ s/\/+/\\/g;
 		}
 		&doit($msg);
@@ -155,7 +156,7 @@ sub moveWorkingFiles {
 			next if (-d $_);
 			my $msg = "$Prefs->{COPY} \"$file\" \"$dstdir\"";
 			# convert to dos format
-			if ($Prefs->{COPY} ne 'cp -fp') {
+			if ($Prefs->{UNIX_DOS} eq 'dos') {
 				$msg =~ s/\/+/\\/g;
 			}
 			&doit($msg);
@@ -187,12 +188,12 @@ sub moveDataFiles {
 		mkdir($dstdir, 0777) or die "unable to mkdir $dstdir";
 	}
 	# convert to dos format
-	if ($Prefs->{COPY} ne 'cp -fp') {
+	if ($Prefs->{UNIX_DOS} eq 'dos') {
 		$dstdir =~ s/\//\\/g;
 	}
 	
 	foreach (@files) {
-		if ($Prefs->{COPY} ne 'cp -fp') {		
+		if ($Prefs->{UNIX_DOS} eq 'dos') {
 			&doit("$Prefs->{COPY} \"$_\" \"$dstdir\\$when-($srcname)-$_\"");
 		}
 		else {

@@ -11,6 +11,8 @@
 # (1) create import files for timing data
 # 
 
+use Digest::MD5 qw(md5_hex);
+
 use strict;
 
 use File::Basename;
@@ -159,7 +161,6 @@ my $supportsMissing = {
 };
 
 my (@gargs,$Prefs,$conf_file);
-my (%modules);
 @gargs = @ARGV;
 $conf_file = shift(@gargs);
 
@@ -169,6 +170,8 @@ my $missingValLabelsForStrings='';
 my $missingValLabelsForNums='';
 my %uniqueNames = ();
 my %c8name2vars = ();
+my %modules = ();
+
 
 &main;
 
@@ -183,6 +186,9 @@ sub main {
 	foreach(@gargs) {
 		my @files = glob($_);
 		foreach my $filename (@files) {
+			%uniqueNames = ();
+			%c8name2vars = ();
+			%modules = ();			
 			&transform_schedule($filename);
 		}
 	}
@@ -300,10 +306,62 @@ sub getLongestValidSubName {
 
 sub transform_schedule {
 	my $file = shift;
+	my $newname;
+	my $basename;
+	
+	if ($file =~ /^(.*)\.txt$/i) {
+		$basename = $1;
+	}
+	elsif ($file =~ /^(.*)\.jar$/i) {
+		# first unjar the instrument and create new .txt filename for the instrument
+		$basename = $1;
+		
+		&doit("$Prefs->{JAR}  xvf $file");
+		
+		#will create header and body components
+		open (NEWINST, ">$basename.txt") or die "unable to write to $basename.txt";
+		open (HEADER, "<headers") or die "unable to open headers portion of instrument";
+		open (BODY, "<body") or die "unable to open body portion of instrument";
+		foreach (<HEADER>) {
+			print NEWINST $_;
+		}
+		foreach (<BODY>) {
+			print NEWINST $_;
+		}
+		close (HEADER);
+		close (BODY);
+		close (NEWINST);
+	}
+	else {
+		return;
+	}
+	$newname = &determine_full_instrument_name("$basename.txt");
+	# change name of file
+	open (NEWINST, ">$newname.src") or die "unable to write to $newname.src";
+	open (OLDINST, "<$basename.txt") or die "unable to read from $basename.txt";
+	foreach (<OLDINST>) {
+		print NEWINST $_;
+	}
+	close (OLDINST);
+	close (NEWINST);
+	
+	&transform_schedule_sub("$newname.src");
+}
+
+sub determine_full_instrument_name {
+	my $file = shift;
+	my ($filename,$inst,$timestamp,$when) = &Dialogix::Utils::whichInstrument($file);
+	return $inst;
+}
+
+sub transform_schedule_sub {
+	my $file = shift;
+	my $basename = basename($file,"\.src");
 	
 	open (SRC, $file) or die "unable to open $file";
 	my @lines = (<SRC>);
 	close (SRC);
+	print "Processing Instrument '$file'\n";
 	
 	my @nodes;
 	my @c8names;
@@ -311,8 +369,8 @@ sub transform_schedule {
 	my $module;
 	my @stepLabels;
 	
-	%uniqueNames = ();
-	%c8name2vars = ();
+	# %uniqueNames = ();
+	# %c8name2vars = ();
 	
 	my $varnameColumn = 1;
 	if ($Prefs->{VARNAME_FROM_COLUMN} =~ /^[012]$/) {
@@ -346,16 +404,16 @@ sub transform_schedule {
 		
 		
 		if ($Prefs->{discardVarsMatchingPattern} ne '*' && $vals[1] =~ /^$Prefs->{discardVarsMatchingPattern}$/) {
-			$module = "__DISCARD__";
+			$module = "${basename}_DISCARD";
 		}
 		elsif ($atype eq 'nothing' && $type !~ /^e/i) {
-			$module = "__NOTHING__";
+			$module = "${basename}_NOTHING";
 		}
 		elsif ($Prefs->{modularizeByPrefix} ne '*' && $vals[1] =~ /^($Prefs->{modularizeByPrefix})/) {
-			$module = $1;
+			$module = "${basename}_$1";
 		}
 		else {
-			$module = "__MAIN__";
+			$module = "${basename}_MAIN";
 		}
 		$modules{$module} = $module;
 		
@@ -378,12 +436,13 @@ sub transform_schedule {
 			SASformat => $SASformat,
 			module => $module,
 			c8name => $c8name,	# will be the "true" variable name
+			qa_md5 => 	md5_hex("$question|$ansOptions"),
 		}
 	}
 	
 	my $sched_root = dirname($file) ."/" .  basename($file,"\.txt");
 	open (NODES, ">$sched_root.nodes") or die "unable to open $sched_root.nodes";
-	print NODES "Step\tConcept\tName\tType\tQlen\tAlen\tAtype\tc8name\n";
+	print NODES "Step\tConcept\tName\tType\tQlen\tAlen\tAtype\tc8name\tqa_md5\n";
 	open (STEPS, ">$sched_root.steps") or die "unable to open $sched_root.steps";
 	print STEPS "Display\tFirstStep\tQlen\tAlen\tTlen\tNumSteps\tNames\n";
 	
@@ -403,7 +462,7 @@ sub transform_schedule {
 		my %n = %{ $_ };
 		
 #		print NODES "$sched_root\t$n{'step'}\t$n{'concept'}\t$n{'name'}\t$n{'type'}\t$n{'qlen'}\t$n{'alen'}\t$n{'qtext'}\t$n{'atext'}\n";
-		print NODES "$n{'step'}\t$n{'concept'}\t$n{'name'}\t$n{'type'}\t$n{'qlen'}\t$n{'alen'}\t$n{'atype'}\t$n{'c8name'}\n";
+		print NODES "$n{'step'}\t$n{'concept'}\t$n{'name'}\t$n{'type'}\t$n{'qlen'}\t$n{'alen'}\t$n{'atype'}\t$n{'c8name'}\t$n{'qa_md5'}\n";
 		
 		#calculate the membership and size of display screens
 		
@@ -445,13 +504,14 @@ sub transform_schedule {
 	&createSPSSdictionaries($sched_root,\@nodes);
 #	&createSPSSforValidModules;
 #	&createSPSSforPathStepTiming(\@stepLabels);
-	&createSPSSforPerScreen(\@stepLabels);
-	&createSPSSforPathStepSummary(\@stepLabels);
-	&createSPSSforPerVar;
+	&createSPSSforPerScreen($sched_root,\@stepLabels);
+	&createSPSSforPathStepSummary($sched_root,\@stepLabels);
+	&createSPSSforPerVar($sched_root);
 }
 
 sub createSPSSforPerVar {
-	my $file="$Prefs->{RESULTS_DIR}/__PerVar__";
+	my $sched_root = shift;
+	my $file="$Prefs->{RESULTS_DIR}/${sched_root}_PerVar";
 	$file =~ s/\//\\/g;	
 
 	open (SPSS, ">$file.sps") or die "uanble to open $file.sps";
@@ -534,10 +594,11 @@ sub createSPSSforPerVar {
 
 
 sub createSPSSforPathStepSummary {
+	my $sched_root = shift;
+	my $file="$Prefs->{RESULTS_DIR}/${sched_root}_PathStep";	
 	my $arg = shift;
 	my @stepLabels = @$arg;
 	
-	my $file="$Prefs->{RESULTS_DIR}/pathstep-summary";
 	$file =~ s/\//\\/g;	
 
 	open (SPSS, ">$file.sps") or die "uanble to open $file.sps";
@@ -605,10 +666,11 @@ sub createSPSSforPathStepSummary {
 
 
 sub createSPSSforPerScreen {
+	my $sched_root = shift;
+	my $file="$Prefs->{RESULTS_DIR}/${sched_root}_PerScreen";
 	my $arg = shift;
 	my @stepLabels = @$arg;
 	
-	my $file="$Prefs->{RESULTS_DIR}/__PerScreen__";
 	$file =~ s/\//\\/g;	
 
 	open (SPSS, ">$file.sps") or die "uanble to open $file.sps";
@@ -868,38 +930,42 @@ sub createSPSSdictionary {
  	print SPSS "VARIABLE LABELS FINISHED \"Whether instrument was finalized (last next button pressed)\".\n";
 	print SPSS "VARIABLE LABELS TITLE \"Instrument Title\".\n";
 	print SPSS "VARIABLE LABELS VERSION \"Instrument Version\".\n";	
-
 	
-	foreach (sort $sortfn @nodes) {
-		my %n = %{ $_ };
-		
-		next if ($n{'module'} ne $module);
-		
-		# want correct data types.  If pick list, unclear whether nominal or ordinal (but not likely to be scale).  Double and date are scale
-		
-		print SPSS "VARIABLE LABELS $n{'c8name'}\n\t" . &splitLongLabel("[$n{'name'}] $n{'qtext'}",255) . ".\n";
-		
-		if ($n{'alen'} > 0) {
-			# then has a data dictionary
-			print SPSS "VALUE LABELS $n{'c8name'}\n";
-			print SPSS &makeMissingList($missingValLabelsForStrings,"SPSS")	if $n{'isString'};
-			print SPSS &makeMissingList($missingValLabelsForNums,"SPSS")		if $n{'isNum'};
-
-			my %amap = %{ $n{'amap'} };
-			foreach my $key (sort(keys(%amap))) {
-				# determine data type first (so don't mix text and numbers?
-				print SPSS "\t$key " . &splitLongLabel("[$key] $amap{$key}",60) . "\n";
+	if ($Prefs->{MAKE_SPSS_VALUE_LABELS} eq '1' or $Prefs->{MAKE_SPSS_VARIABLE_LABELS} eq '1') {
+		foreach (sort $sortfn @nodes) {
+			my %n = %{ $_ };
+			
+			next if ($n{'module'} ne $module);
+			
+			# want correct data types.  If pick list, unclear whether nominal or ordinal (but not likely to be scale).  Double and date are scale
+			
+			if ($Prefs->{MAKE_SPSS_VARIABLE_LABELS} eq '1') {
+				print SPSS "VARIABLE LABELS $n{'c8name'}\n\t" . &splitLongLabel("[$n{'name'}] $n{'qtext'}",255) . ".\n";
 			}
-			print SPSS "\t.\n";	# line terminator
-
+			
+			if ($Prefs->{MAKE_SPSS_VALUE_LABELS} eq '1') {
+				if ($n{'alen'} > 0) {
+					# then has a data dictionary
+					print SPSS "VALUE LABELS $n{'c8name'}\n";
+					print SPSS &makeMissingList($missingValLabelsForStrings,"SPSS")	if $n{'isString'};
+					print SPSS &makeMissingList($missingValLabelsForNums,"SPSS")		if $n{'isNum'};
+		
+					my %amap = %{ $n{'amap'} };
+					foreach my $key (sort(keys(%amap))) {
+						# determine data type first (so don't mix text and numbers?
+						print SPSS "\t$key " . &splitLongLabel("[$key] $amap{$key}",60) . "\n";
+					}
+					print SPSS "\t.\n";	# line terminator
+		
+				}
+			
+				print SPSS "VARIABLE LEVEL $n{'c8name'} ($n{'level'}).\n";
+				print SPSS "FORMATS $n{'c8name'} ($n{'SPSSformat'}).\n";
+				print SPSS "MISSING VALUES $n{'c8name'} $missingListForNums.\n"		if ($n{'isNum'});
+				print SPSS "MISSING VALUES $n{'c8name'} $missingListForStrings.\n"	if ($n{'isString'});
+				print SPSS "\n";
+			}
 		}
-	
-		print SPSS "VARIABLE LEVEL $n{'c8name'} ($n{'level'}).\n";
-		print SPSS "FORMATS $n{'c8name'} ($n{'SPSSformat'}).\n";
-		print SPSS "MISSING VALUES $n{'c8name'} $missingListForNums.\n"		if ($n{'isNum'});
-		print SPSS "MISSING VALUES $n{'c8name'} $missingListForStrings.\n"	if ($n{'isString'});
-		print SPSS "\n";
-
 	}
 
 	print SPSS "FORMATS STARTDAT STOPDATE (ADATE10).\n";
@@ -909,25 +975,26 @@ sub createSPSSdictionary {
 	print SPSS "\nSAVE OUTFILE='$file-summary.sav' /COMPRESSED.\n";
 	
 	#calc SPSS frequencies
-	
-	my $freq_count = 0;
-	
-	do {
-		++$freq_count;
-		print SPSS "\nPROCEDURE OUTPUT OUTFILE='${file}_$freq_count'.\n";
-		print SPSS "FREQUENCIES VARIABLES=\n";
+	if ($Prefs->{MAKE_SPSS_FREQS} eq '1') {
+		my $freq_count = 0;
 		
-		for (my $i=0;$i<450;++$i) {
-			print SPSS "\t" . shift(@freqVars) . "\n";
-			last unless (@freqVars);
-		}
-		print SPSS "\t/BARCHART PERCENT\n";
-		print SPSS "\t/ORDER= VARIABLE .\n";
-	} while (@freqVars);	
-	
-	close (SPSS);
+		do {
+			++$freq_count;
+			print SPSS "\nPROCEDURE OUTPUT OUTFILE='${file}_$freq_count'.\n";
+			print SPSS "FREQUENCIES VARIABLES=\n";
+			
+			for (my $i=0;$i<450;++$i) {
+				print SPSS "\t" . shift(@freqVars) . "\n";
+				last unless (@freqVars);
+			}
+			print SPSS "\t/BARCHART PERCENT\n";
+			print SPSS "\t/ORDER= VARIABLE .\n";
+		} while (@freqVars);	
+		
+		close (SPSS);
+	}
 	print "... Done\n";
-	
+
 	
 	########################################
 	# Now create dictionaries for *-complete
@@ -1226,52 +1293,54 @@ sub createSASdictionary {
 	my $sasfmt_counter = 0;
 	
 	# Create proc format statements so can optionally display text of answer options
-	print SAS "proc format;\n";
-	foreach (sort $sortfn @nodes) {
-		my %n = %{ $_ };
-		
-		next if ($n{'module'} ne $module);
-		
-		# want correct data types.  If pick list, unclear whether nominal or ordinal (but not likely to be scale).  Double and date are scale
-		
-		if ($n{'alen'} > 0) {
-			# then has a data dictionary
-			++$sasfmt_counter;
-			my $fmtname = 	sprintf("%sDF%04df",($n{'isString'}?'$':''),$sasfmt_counter);
-
-			print SAS "\tvalue $fmtname\n";
+	if ($Prefs->{MAKE_SAS_FORMATS} eq '1') {
+		print SAS "proc format;\n";
+		foreach (sort $sortfn @nodes) {
+			my %n = %{ $_ };
 			
-			my %amap = %{ $n{'amap'} };
-			foreach my $key (sort(keys(%amap))) {
-				# determine data type first (so don't mix text and numbers?
-				print SAS "\t\t$key = " . &splitLongLabel("[$key]$amap{$key}",10000) . "\n";
+			next if ($n{'module'} ne $module);
+			
+			# want correct data types.  If pick list, unclear whether nominal or ordinal (but not likely to be scale).  Double and date are scale
+			
+			if ($n{'alen'} > 0) {
+				# then has a data dictionary
+				++$sasfmt_counter;
+				my $fmtname = 	sprintf("%sDF%04df",($n{'isString'}?'$':''),$sasfmt_counter);
+	
+				print SAS "\tvalue $fmtname\n";
+				
+				my %amap = %{ $n{'amap'} };
+				foreach my $key (sort(keys(%amap))) {
+					# determine data type first (so don't mix text and numbers?
+					print SAS "\t\t$key = " . &splitLongLabel("[$key]$amap{$key}",10000) . "\n";
+				}
+				print SAS &makeMissingList($missingValLabelsForStrings,"SAS")	if $n{'isString'};
+				print SAS &makeMissingList($missingValLabelsForNums,"SAS")		if $n{'isNum'};
+				print SAS "\t\t. = ' '\n";
+				print SAS "\t\tOTHER = '?'\n";
+				print SAS "\t;\n";	# line terminator
+	
+				push @sasformatted, { name=>$n{'name'}, fmt=>$fmtname };
 			}
-			print SAS &makeMissingList($missingValLabelsForStrings,"SAS")	if $n{'isString'};
-			print SAS &makeMissingList($missingValLabelsForNums,"SAS")		if $n{'isNum'};
-			print SAS "\t\t. = ' '\n";
-			print SAS "\t\tOTHER = '?'\n";
-			print SAS "\t;\n";	# line terminator
-
-			push @sasformatted, { name=>$n{'name'}, fmt=>$fmtname };
 		}
+		print SAS "run;\n";
+	
+		# Add the sas formatting to the data set
+		print SAS "data WORK.SUMMARY; set WORK.summary;\n";
+		
+		foreach (@sasformatted) {
+			my %n = %{ $_ };
+			print SAS "\tformat $n{'name'} $n{'fmt'}.;\n";
+		}
+		print SAS "run;\n";
+		
+		# Save it somewhere 
+		print SAS "options compress=BINARY;\n";
+		print SAS "data '${file}summary.sas7bdat'; set WORK.summary; run;\n";
+		print SAS "/*proc sql; drop table WORK.summary;*/\n";
+		
+		close (SAS);
 	}
-	print SAS "run;\n";
-	
-	# Add the sas formatting to the data set
-	print SAS "data WORK.SUMMARY; set WORK.summary;\n";
-	
-	foreach (@sasformatted) {
-		my %n = %{ $_ };
-		print SAS "\tformat $n{'name'} $n{'fmt'}.;\n";
-	}
-	print SAS "run;\n";
-	
-	# Save it somewhere 
-	print SAS "options compress=BINARY;\n";
-	print SAS "data '${file}summary.sas7bdat'; set WORK.summary; run;\n";
-	print SAS "/*proc sql; drop table WORK.summary;*/\n";
-	
-	close (SAS);
 	print "... Done\n";
 }
 
@@ -1286,4 +1355,10 @@ sub makeMissingList {
 		$txt =~ s/SAS_SPSS//g;
 	}
 	return $txt;
+}
+
+sub doit {
+	my $cmd = shift;
+	print "$cmd\n";
+	(system($cmd) == 0)	or die "ERROR";
 }
