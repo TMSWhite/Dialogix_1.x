@@ -381,7 +381,7 @@ public class Node  {
 			return false;
 		}
 
-		StringTokenizer ans = new StringTokenizer(src,";",true);	// return ';' tokens too
+		StringTokenizer ans = new StringTokenizer(src,"|",true);	// return '|' tokens too
 		String token = "";
 
 		// Determine the question type (first token)
@@ -454,7 +454,7 @@ public class Node  {
 						setParseError("tokenization error: " + t.getMessage());
 					}
 
-					if (";".equals(s)) {
+					if ("|".equals(s)) {
 						++field;
 						continue;
 					}
