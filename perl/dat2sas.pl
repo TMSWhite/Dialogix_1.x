@@ -86,8 +86,9 @@ foreach(@gargs) {
 		my $count = -1;
 		my $print_count = 0;
 		my $datum;
-		my $startTime = '';
-		my $stopTime = '';
+		my $firstStartTime = 0;
+		my $startTime = 0;
+		my $stopTime = 0;
 		my $lastSendTime = '';
 		my @path_info;
 		my $instrument;
@@ -132,7 +133,8 @@ foreach(@gargs) {
 			
 			if ($vals[0] eq 'RESERVED') {
 				if ($vals[1] eq '__START_TIME__') {
-					$startTime = $vals[2];
+					$firstStartTime = $vals[2] unless ($firstStartTime > 0);	# prevents it from being set twice
+					$startTime = $vals[2];	# needed for local processing (in case across several days)
 					$stopTime = $startTime;	# so that have something to compare against
 					$lastSendTime = $startTime;
 				}
@@ -268,7 +270,7 @@ foreach(@gargs) {
 #		next if (&IPtype($ip) > 0);		
 		
 		# now convert the time stamps to usable format
-		my $startDate = &fixTime($startTime);
+		my $startDate = &fixTime($firstStartTime);
 		my $stopDate = &fixTime($stopTime);
 		
 		# use default filename, if necessary
