@@ -116,7 +116,6 @@ if (DEBUG) Logger.printStackTrace(t);
 	
 	private void logAccess(HttpServletRequest req) {
 if (DEBUG) {	
-		
 	/* standard Apache log format (after the #@# prefix for easier extraction) */
 	Logger.writeln("#@#(" + req.getParameter("DIRECTIVE") + ") [" + new Date(System.currentTimeMillis()) + "] " + 
 		sessionID + 
@@ -201,7 +200,7 @@ if (DEBUG) Logger.printStackTrace(t);
 				out.print(" onclick=\"JavaScript:window.top.open('");
 				out.print(res.encodeURL(HttpUtils.getRequestURL(req).toString()));
 				out.print("','_blank','resizable=yes,scrollbars=yes');JavaScript:top.close();\">here</a>");
-				out.print("and selecting it from the RESTORE list.");
+				out.print(" and selecting it from the RESTORE list.");
 			}
 			out.println("</font></td>");
 			out.println("      </tr>");
