@@ -57,14 +57,19 @@ sub inst2xml {
 	
 	# parse the lines
 	my @lines;
+	my @languages = ( 'en_US' );	# default, if nothing specified, is to use English
 	
 	foreach (@src) {
 		next if (/^\s*$/);
 		if (/^RESERVED/) {
-			push @lines, &parse_reserved($_);	# this pre-supposes that all reserveds must be parsed first -- isnt' this true in headers vs. body?
+			my $reserved = &parse_reserved($_);	# this pre-supposes that all reserveds must be parsed first -- isnt' this true in headers vs. body?
+			if ($reserved->{'resname'} eq '__LANGUAGES__') {
+				@languages = &parse_languages($reserved->{'resval'});
+			}
+			push @lines, $reserved;
 		}
 		elsif (/^\s*COMMENT/) {
-			push @lines, &parse_comment($_);	# XXX this removes the order dependencies
+			push @lines, &parse_comment($_);
 		}
 		else {
 			push @lines, &parse_node($_);
@@ -72,12 +77,20 @@ sub inst2xml {
 	}
 	
 	# write them as XML (initially not taking advantage of Perl's XML / DOM features
-	&write_xml($filename,\@lines);
+	&write_xml($filename,\@languages,\@lines);
 }
 
+sub parse_languages {
+	my $arg = shift;
+	my @args = split(/\|/,$arg);
+	return @args;
+}
+
+
 sub write_xml {
-	my ($filename,$rlines) = @_;
+	my ($filename,$rlangs,$rlines) = @_;
 	my $base = &basename($filename);
+	my @langs = @$rlangs;
 	my @lines = @$rlines;
 	
 	open (OUT,">$filename.xml") or die "unable to write XML to $filename.xml\n";
@@ -105,7 +118,9 @@ sub write_xml {
 			print OUT "	<uniqueName>$line->{'uniqueName'}</uniqueName>\n";
 			print OUT "	<displayName>$line->{'displayName'}</displayName>\n";
 			print OUT "	<relevance>$line->{'relevance'}->{'rel_new'}</relevance>\n";
-			print OUT "	<actionType>$line->{'qoreval'}->{'qoreval'}</actionType>\n";
+			print OUT "	<actionSymbol>$line->{'qoreval'}->{'qoreval'}</actionSymbol>\n";
+			print OUT "	<actionType>$line->{'qoreval'}->{'actionType'}</actionType>\n";
+			print OUT "	<nesting>$line->{'qoreval'}->{'nesting'}</nesting>\n";
 			print OUT "	<dataType>$line->{'dataType'}</dataType>\n";
 			print OUT "	<displayType>$line->{'displayType'}</displayType>\n";
 			print OUT "	<validation>\n";
@@ -114,38 +129,46 @@ sub write_xml {
 			print OUT "		<max>$line->{'qoreval'}->{'max'}</max>\n";
 			print OUT "		<mask>$line->{'qoreval'}->{'mask'}</mask>\n";
 			print OUT "		<regex>$line->{'qoreval'}->{'regex'}</regex>\n";
-			print OUT "		<extras num=\"$line->{'qoreval'}->{'num_extras'}\">\n";
-			my $rextras = $line->{'qoreval'}->{'extras'};
-			my @extras = @$rextras;
-			foreach my $extra (@extras) {
-				print OUT "			<value>$extra</value>\n";
+			if ($line->{'qoreval'}->{'num_extras'} > 0) {
+				print OUT "		<extras count=\"$line->{'qoreval'}->{'num_extras'}\">\n";
+				my $rextras = $line->{'qoreval'}->{'extras'};
+				my @extras = @$rextras;
+				foreach my $extra (@extras) {
+					print OUT "			<value>$extra</value>\n";
+				}
+				print OUT "		</extras>\n";
 			}
-			print OUT "	</extras>\n";
+			else {
+				print OUT "		<extras count=\"0\"/>\n";
+			}
 			print OUT "	</validation>\n";
-			print OUT "	<num_hows>$line->{'num_hows'}</num_hows>\n";
-			print OUT "	<hows>\n";
+			print OUT "	<hows count=\"$line->{'num_hows'}\">\n";
 			my $rhows = $line->{'hows'};
 			my @hows = @$rhows;
+			my $hcount = 0;
 			foreach my $how (@hows) {
-				print OUT "		<readback>$how->{'readback'}</readback>\n";
-				print OUT "		<helpURL>$how->{'helpURL'}</helpURL>\n";
-#				print OUT "		<actionType>$how->{'action'}->{'action_type'}</actionType>\n";
-				print OUT "		<actionExp>$how->{'action'}->{'action_exp'}</actionExp>\n";
-#				print OUT "		<actionOrig>$how->{'action'}->{'action_orig'}</actionOrig>\n";
+				++$hcount;
+				print OUT "		<how index=\"$hcount\" lang=\"$langs[$hcount-1]\">\n";
+				print OUT "			<readback>$how->{'readback'}</readback>\n";
+				print OUT "			<helpURL>$how->{'helpURL'}</helpURL>\n";
+				print OUT "			<actionExp>$how->{'action'}->{'action_exp'}</actionExp>\n";
 				my $num_options = $how->{'answerChoices'}->{'num_options'};
-				print OUT "		<numOptions>$num_options</numOptions>\n";
 				if ($num_options > 0) {
 					my $roptions = $how->{'answerChoices'}->{'options'};
 					my @options = @$roptions;
 					
-					print OUT "		<options>\n";
+					print OUT "			<options count=\"$num_options\">\n";
 					foreach my $option (@options) {
-						print OUT "			<option count=\"$option->{'option_counter'}\">\n";
-						print OUT "				<msg>$option->{'option_msg'}</msg>\n";
-						print OUT "				<val>$option->{'option_val'}</val>\n";
+						print OUT "				<option index=\"$option->{'option_counter'}\">\n";
+						print OUT "					<msg>$option->{'option_msg'}</msg>\n";
+						print OUT "					<val>$option->{'option_val'}</val>\n";
 					}
-					print OUT "		</options>\n";
+					print OUT "			</options>\n";
 				}
+				else {
+					print OUT "			<options count=\"0\"/>\n";
+				}
+				print OUT "		</how>\n";
 			}
 			print OUT "	</hows>\n";
 		}
@@ -178,7 +201,7 @@ sub parse_reserved {
 	};
 }
 
-sub parse_comments {
+sub parse_comment {
 	my $line = shift;
 	$line =~ s/\s*COMMENT\s*//;
 	return {
@@ -291,14 +314,12 @@ sub parse_action {
 	
 	if ($type eq 'e') {
 		return {
-			action_type => 'eval',
 			action_orig => $line,
 			action_exp => &parse_eqn($line),
 		};
 	}
 	else {
 		return {
-			action_type => 'question',
 			action_orig => $line,
 			action_exp => &parse_html($line),
 		}
@@ -320,6 +341,13 @@ sub parse_qoreval {
 	my $extras = \@args;
 	my $num_extras = ($#args + 1);
 	
+	my $nesting;
+	$nesting = 'start_block' if ($qoreval eq '[');
+	$nesting = 'stop_block' if ($qoreval eq ']');
+	
+	my $actionType = 'question';
+	$actionType = 'eval' if ($qoreval eq 'e');
+	
 	return {
 		qoreval_full => $arg,
 		qoreval => $qoreval,
@@ -330,6 +358,8 @@ sub parse_qoreval {
 		regex => $regex,
 		num_extras => $num_extras,
 		extras => $extras,
+		nesting => $nesting,
+		actionType => $actionType,
 	};
 }
 
@@ -356,10 +386,10 @@ sub parse_eqn {
 	$arg =~ s/</ lt /g;	
 	$arg =~ s/!=/ ne /g;
 	$arg =~ s/\&\&/ and /g;
-	$arg =~ s/\&/ _and_ /g;
+	$arg =~ s/\&/ _binary_and_ /g;
 	$arg =~ s/\|\|/ or /g;
-	$arg =~ s/\|/ _or_ /g;
-	$arg =~ s/=/ _eq_ /g;
+	$arg =~ s/\|/ _binary_or_ /g;
+	$arg =~ s/=/ _assign_ /g;
 	
 	$arg =~ s/  / /g;
 	
