@@ -91,7 +91,7 @@ if (DEBUG) Logger.printStackTrace(t);
 		
 		if (session.isNew()) {
 //			Logger.writeln("session timeout (secs) = " + session.getMaxInactiveInterval());
-			session.setMaxInactiveInterval(43200);	// so expires after 12 hours
+			session.setMaxInactiveInterval(SESSION_TIMEOUT);	// so expires after 12 hours
 		}
 		
 		sessionID = session.getId();
@@ -110,13 +110,27 @@ if (DEBUG) Logger.printStackTrace(t);
 			try {
 				session.invalidate();	// so that retrying same session gives same message
 			}
-			catch (java.lang.IllegalStateException e) { }
+			catch (java.lang.IllegalStateException e) {
+				Logger.writeln(e.getMessage());
+ 			}
 			return;
 		}
 		
 		tricepsEngine.doPost(req,res);
 		
 		session.setAttribute(fullSessionID, tricepsEngine);
+		
+		/* disable session if completed */
+		if (tricepsEngine.isFinished()) {
+			logAccess(req);
+			Logger.writeln("...instrument finished.  Discarding session " + sessionID);
+			try {
+				session.invalidate();
+			}
+			catch (java.lang.IllegalStateException e) {
+				Logger.writeln(e.getMessage());
+			}
+		}
 	}
 	
 	private void logAccess(HttpServletRequest req) {
@@ -198,8 +212,8 @@ if (DEBUG) Logger.printStackTrace(t);
 			out.println("<body bgcolor='white'>");
 			out.println("   <table border='0' cellpadding='0' cellspacing='3' width='100%'>");
 			out.println("      <tr>");
-			out.println("         <td width='1%'><img name='icon' src='/images/trilogo.jpg' align='top' border='0' alt='Logo' /> </td>");
-			out.println("         <td align='left'><font SIZE='4'>Sorry for the inconvenience, but web session you were using is no longer valid.  Either it ran of of time, or the server was restarted.");
+			out.println("         <td width='1%'><img name='icon' src='/images/dialogo.jpg' align='top' border='0' alt='Logo' /> </td>");
+			out.println("         <td align='left'><font SIZE='4'>Sorry for the inconvenience, but web session you were using is no longer valid.  Either you finished an instrument, the session ran out of time, or the server was restarted.");
 			if (!WEB_SERVER) {
 				out.print("  You can resume the instrument from where you left off by clicking <a href=\"JavaScript:void;\"");
 				out.print(" onclick=\"JavaScript:window.top.open('");
