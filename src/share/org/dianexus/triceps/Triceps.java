@@ -24,7 +24,6 @@ import java.util.Enumeration;
 import java.util.Vector;
 import java.text.DateFormat;
 import java.text.DecimalFormat;
-import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.util.StringTokenizer;
@@ -34,7 +33,8 @@ import java.io.FileNotFoundException;
 import java.lang.SecurityException;
 import java.io.InputStream;
 import java.io.FileInputStream;
-
+import java.util.jar.JarFile;
+import java.util.jar.JarEntry;
 
 /*public*/ class Triceps implements VersionIF {
 	private static final String DATAFILE_PREFIX = "tri";
@@ -836,7 +836,7 @@ if (DEPLOYABLE) {
 	private String saveAsJar(String subdir, String fn) {
 if (DEPLOYABLE) {
 		/* create jar or zip file of data and events */
-		JarWriter jf = null;
+		JarWriter jw = null;
 		
 		String sourceDir = nodes.getReserved(Schedule.COMPLETED_DIR) + subdir;
 		String name = sourceDir + fn + ".jar";
@@ -845,21 +845,59 @@ if (DEPLOYABLE) {
 			return null;
 		}
 		
-		jf = JarWriter.getInstance(name);
+		jw = JarWriter.getInstance(name);
 		
-		if (jf == null)
+		if (jw == null)
 			return null;
 			
-		boolean ok = false;
-		ok = jf.addEntry(fn + DATAFILE_SUFFIX, dataLogger.getInputStream());
-		ok = jf.addEntry(fn + DATAFILE_SUFFIX + EVENTFILE_SUFFIX, eventLogger.getInputStream()) && ok;
-		jf.close();
+		boolean ok = true;
+		ok = jw.addEntry(fn + DATAFILE_SUFFIX, dataLogger.getInputStream());
+		ok = jw.addEntry(fn + DATAFILE_SUFFIX + EVENTFILE_SUFFIX, eventLogger.getInputStream()) && ok;
+		jw.close();
 		
 		File f = new File(name);
 		if (f.length() == 0L) {
 			setError("saveAsJar: file has 0 size");
 			ok = false;
-		}		
+		}
+		
+		/* integrity check - ensure that JarFile has two entries of proper size */
+		JarFile jf = null;
+		File srcFile = null;
+		
+		try {
+			jf = new JarFile(name);
+			JarEntry je = null;
+			String srcName = null;
+			String srcLogger = null;
+			
+			for (int i=0;i<2;++i) {
+				if (i == 0) {
+					srcName = fn + DATAFILE_SUFFIX;
+					srcLogger = dataLogger.getFilename();
+				}
+				else {
+					srcName = fn + DATAFILE_SUFFIX + EVENTFILE_SUFFIX;
+					srcLogger = eventLogger.getFilename();
+				}
+				je = jf.getJarEntry(srcName);
+				srcFile = new File(srcLogger);
+				
+				if (je.getSize() != srcFile.length()) {
+					setError("Error saving data:  " + srcName + "(" + srcFile.getName() + ") has size " + srcFile.length() + ", but copy stored in " + jf.getName() + " has size " + je.getSize());
+					ok = false;
+				}
+			}
+		}
+		catch (Throwable e) {
+			setError("##saveAsJar " + e.getMessage());
+			ok = false;
+		}
+		if (jf != null) try { jf.close(); } catch (Throwable t) { }
+		
+		if (!ok) {
+			setError("Please try again!");
+		}
 		
 		return ((ok) ? name : null);
 }
