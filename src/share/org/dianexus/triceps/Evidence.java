@@ -471,10 +471,17 @@ if (DEPLOYABLE) {
 		
 if (DEPLOYABLE) {			
 		if (value.isReserved()) {
-			triceps.getSchedule().writeReserved(value.getReservedNum());
+//			triceps.getSchedule().writeReserved(value.getReservedNum());	// duplicate - not needed
 		}
 		else {
-			writeValue(name,val);
+			Node node = getNode(name);
+			if (node != null) {
+				writeNode(node, val);
+			}
+			else {
+				Logger.writeln("%% transient val " + name + "=" + val.stringVal());
+				writeValue(name,val);
+			}			
 		}
 }			
 }
@@ -853,7 +860,8 @@ if (DEPLOYABLE) {
 							String s = datum.stringVal();
 							for (int i=0;i<choices.size();++i) {
 								AnswerChoice ac = (AnswerChoice) choices.elementAt(i);
-								if (ac.getValue().equals(s)) {
+								ac.parse(triceps);	// in case language has changed
+								if (ac.getValue().equals(s)) {	// what will parsing answerchoice do to stored datum value?
 									return new Datum(triceps, ac.getMessage(), Datum.STRING);
 								}
 							}
@@ -876,7 +884,9 @@ if (DEPLOYABLE) {
 							return Datum.getInstance(triceps,Datum.INVALID);
 						}
 						else {
-							return new Datum(triceps,((AnswerChoice) choices.elementAt(index)).getMessage(), Datum.STRING);
+							AnswerChoice ac = (AnswerChoice) choices.elementAt(index);
+							ac.parse(triceps);
+							return new Datum(triceps,ac.getMessage(), Datum.STRING);
 						}
 					}
 				}
