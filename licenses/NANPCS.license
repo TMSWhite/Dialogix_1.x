@@ -1,0 +1,13 @@
+LICENSE.PACKAGE_DIR=NANPCS
+LICENSE.STUDY_ALIAS=NANPCS
+LICENSE.STUDY_NAME=National Ambulatory NP Care Survey
+LICENSE.STUDY_ICON=/images/school_of_nursing_title.jpg
+LICENSE.PRINCIPAL_INVESTIGATOR=Melinda L. Jenkins, PhD, APRN, BC
+LICENSE.GRANT_NAME=<grant>
+LICENSE.GRANT_TITLE=<grant title>
+
+
+# This support personel information is hard-wired -- might want to make this more flexible
+SUPPORT.PHONE=
+SUPPORT.PERSON=Melinda L. Jenkins, PhD, APRN, BC
+SUPPORT.EMAIL=mlj2101@cxolumbia.edu
