@@ -7,6 +7,8 @@ import java.net.*;
 /* Triceps
  */
 public class Triceps {
+	public static final boolean AUTHORABLE = true;
+	
 	public static final int ERROR = 1;
 	public static final int OK = 2;
 	public static final int AT_END = 3;
@@ -67,6 +69,12 @@ public class Triceps {
 		nodes.setReserved(Schedule.FLOPPY_DIR,floppyDir);	
 		
 		if (!nodes.init()) {
+if (!Triceps.AUTHORABLE) {
+	/* disuade authoring by disabling the ability to see a schedule with even a single flaw */
+	nodes = new Schedule(this,null);
+	isValid = false;
+	return;
+}
 			setError(nodes.getErrors());
 		}
 		
@@ -82,6 +90,7 @@ public class Triceps {
 	}
 
 	public boolean loadDatafile(String name) {
+if (Triceps.AUTHORABLE) {		
 		Schedule oldNodes = nodes;
 		Evidence oldEvidence = evidence;
 
@@ -111,6 +120,7 @@ public class Triceps {
 
 		/* data/evidence is loaded from working file; but the nodes are from the schedule soruce directory */
 		nodes.overloadReserved(oldNodes);
+}		
 		return true;
 	}
 
@@ -419,15 +429,15 @@ public class Triceps {
 	}
 
 	private void stopTimer() {
-//		if (stopTime == null) {
-			stopTime = new Date(System.currentTimeMillis());
-			stopTimeStr = formatDate(stopTime,Datum.TIME_MASK);
-//		}
+		stopTime = new Date(System.currentTimeMillis());
+		stopTimeStr = formatDate(stopTime,Datum.TIME_MASK);
 	}
 
 	public void resetEvidence(boolean toUnasked) {
+if (Triceps.AUTHORABLE) {		
 		startTimer(new Date(System.currentTimeMillis()));	// use current time
 		evidence = new Evidence(this,toUnasked);
+}
 	}
 
 	public void resetEvidence() {
@@ -521,36 +531,13 @@ public class Triceps {
 			return true;
 	}
 
-	public String evidenceToXML() {
-		return evidence.toXML();
-	}
-
-	public String toXML() {
-		StringBuffer sb = new StringBuffer("<Evidence>\n");
-		Node n;
-		Datum d;
-
-		for (int i=0;i<size();++i) {
-			n = nodes.getNode(i);
-			if (n == null)
-				continue;
-
-			d = evidence.getDatum(n);
-			if (d == null)
-				continue;
-
-			sb.append(" <datum name='" + n.getLocalName() + "' value='" + d.stringVal(true) + "'/>\n");
-		}
-		sb.append("</Evidence>\n");
-		return sb.toString();
-	}
-
 	public Vector collectParseErrors() {
 		/* Simply cycle through nodes, processing dependencies & actions */
 
 		Node n = null;
 		Datum d = null;
 		Vector parseErrors = new Vector();
+if (Triceps.AUTHORABLE) {		
 		String dependenciesErrors = null;
 		String actionErrors = null;
 		String answerChoicesErrors = null;
@@ -645,6 +632,7 @@ public class Triceps {
 				parseErrors.addElement(new ParseError(n, dependenciesErrors, actionErrors, answerChoicesErrors, readbackErrors, nodeParseErrors, nodeNamingErrors));
 			}
 		}
+}
 		return parseErrors;
 	}
 	
@@ -670,10 +658,6 @@ public class Triceps {
 	public boolean saveToFloppy() {
 		return toTSV(nodes.getReserved(Schedule.FLOPPY_DIR),nodes.getReserved(Schedule.FILENAME));
 	}
-	
-//	private boolean toTSV(String dir) {
-//		return toTSV(dir,nodes.getReserved(Schedule.FILENAME));
-//	}
 	
 	private boolean deleteFile(String dir, String targetName) {
 		String filename = dir + targetName;
@@ -733,18 +717,6 @@ Logger.writeln("##SecurityException @ Triceps.deleteFile()" + e.getMessage());
 			out.write("COMMENT " + "Schedule: " + nodes.getReserved(Schedule.LOADED_FROM) + "\n");
 			out.write("COMMENT " + "Started: " + getStartTimeStr() + "\n");
 			out.write("COMMENT " + "Stopped: " + getStopTimeStr() + "\n");
-
-			/* Show the names of the output columns */
-/*
-			out.write("COMMENT " + "concept\tinternalName\texternalName\tdependencies\tquestionOrEvalType");
-			for (int i=0;i<nodes.getLanguages().size();++i) {
-				out.write("\treadback[" + i + "]" +
-					"\tquestionOrEval[" + i + "]" +
-					"\tanswerChoices[" + i + "]" +
-					"\thelpURL[" + i + "]");
-			}
-			out.write("\tlanguageNum\tquestionAsAsked\tanswerGiven\tcomment\ttimeStamp\n");
-*/			
 
 			for (int i=0;i<size();++i) {
 				n = nodes.getNode(i);
@@ -832,7 +804,9 @@ Logger.writeln("##IOException @ Triceps.toTSV()" + e.getMessage());
 	public void setPasswordForAdminMode(String s) { nodes.setReserved(Schedule.PASSWORD_FOR_ADMIN_MODE,s); }
 
 	public Datum evaluateExpr(String expr) {
+if (Triceps.AUTHORABLE) {		
 		return parser.parse(this,expr);
+} else { return null; }		
 	}
 
 	public String getFilename() { return nodes.getReserved(Schedule.FILENAME); }
