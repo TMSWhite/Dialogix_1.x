@@ -5,32 +5,33 @@
 	<META HTTP-EQUIV="Content-Type" CONTENT="text/html;CHARSET=iso-8859-1">
 <META NAME="VPSiteProject" CONTENT="file:///C|/cvs/Triceps/TricepsHTML.vpp">
 
+	<META NAME="GENERATOR" Content="Visual Page 2.0 for Windows">
 	<TITLE>untitled</TITLE>
 </HEAD>
 
 <BODY>
 
-<P ALIGN="CENTER"><B><FONT SIZE="4">Triceps System Instructions</FONT></B></P>
+<P ALIGN="CENTER"><B><FONT SIZE="4">Dialogix System Instructions</FONT></B></P>
 <P>
 <HR ALIGN="CENTER">
 </P>
 
 <P><B><FONT SIZE="4">Overview</FONT></B></P>
 
-<P>Triceps is a tool for authoring, validating, deploying, and analyzing human-computer dialogs.</P>
+<P>Dialogix is a tool for authoring, validating, deploying, and analyzing human-computer dialogs.</P>
 
 <P><A NAME="Authors"></A><B>The Role of the Author</B></P>
 
-<P>The author (who is an expert in a content domain) creates a <B><I><A HREF="#ScheduleFile">scheduleFile</A></I></B>
+<P>The author (who is an expert in a content domain) creates an <B><A HREF="#instrumentFile"><I>instrumentFile</I></A></B>
 (a tab-delimitted spreadsheet editable in any spreadsheet program) which encapsulates the content and flow of an
 dialog.</P>
 
-<P>Specifically a <B><I><A HREF="#ScheduleFile">scheduleFile</A></I></B> is implemented as a list of nodes, with
-one node for row in the spreadsheet.&nbsp; In a node the author encapsulates the logic and rationale for each possible
-action in the schedule and specifies the data type of the response (if any) to be stored.&nbsp; Triceps currently
-supports 2 basic kinds of actions -- displays and evaluations.&nbsp; The author defines display actions to send
-a new display with information or a question and answer options to the browser.&nbsp; The author defines evaluations
-that perform procedures on the data, e.g., count, list, logical and mathematical comparison.</P>
+<P>Specifically an <B><A HREF="#instrumentFile"><I>instrumentFile</I></A></B> is implemented as a list of nodes,
+with one node for row in the spreadsheet.&nbsp; In a node the author encapsulates the logic and rationale for each
+possible action in the schedule and specifies the data type of the response (if any) to be stored.&nbsp; Dialogix
+currently supports 2 basic kinds of actions -- displays and evaluations.&nbsp; The author defines display actions
+to send a new display with information or a question and answer options to the browser.&nbsp; The author defines
+evaluations that perform procedures on the data, e.g., count, list, logical and mathematical comparison.</P>
 
 <P>For example, a display action might be a question that asks a person's age.&nbsp; The author specifies the text
 of the question (&quot;What is your age?&quot;), the data type (double), and might specify a minimum value (e.g.,
@@ -43,53 +44,54 @@ take the form: <I>count(symptom1 == 'yes', symptom2 == 'yes', symptom3 == 'yes',
 then another node can be defined to test for that, e.g., <I>symptom_count &gt; 3</I>.&nbsp; If it is not necessary
 to store both facts separately, one could simply add the &quot;&gt; 3&quot; to the count expression.</P>
 
-<P>Before a node's action is performed its <B><I><A HREF="#dependencies">dependencies</A></I></B> are checked to
-determine if its action is applicable.&nbsp; The <B><I><A HREF="#dependencies">dependencies</A></I></B> are written
-as Boolean expressions.&nbsp; If the expression is TRUE the action is applicable and will be performed storing
-the appropriate data.&nbsp; If the expression is FALSE, the action is not applicable so the datum stored for that
-node is a special value of <B><I><A HREF="#NOT%20APPLICABLE">notApplicable</A></I></B> and the flow moves on to
-the next node.&nbsp; There are two important points to note about using dependencies like this.&nbsp; First, each
-node in its dependencies expressions explicitly specifies the exact circumstances in which it is applicable and
-its connections to other nodes.&nbsp; Second, one does not have to record a &quot;goto&quot; for each answer option
-at a given node which eliminates the difficulty of following the flow of a schedule through all the possible paths.</P>
+<P>Before a node's action is performed its <B><I><A HREF="#relevance">relevance</A></I></B> are checked to determine
+if its action is applicable.&nbsp; The <B><I><A HREF="#relevance">relevance</A></I></B> are written as Boolean
+expressions.&nbsp; If the expression is TRUE the action is applicable and will be performed storing the appropriate
+data.&nbsp; If the expression is FALSE, the action is not applicable so the datum stored for that node is a special
+value of <B><I><A HREF="#NOT%20APPLICABLE">notApplicable</A></I></B> and the flow moves on to the next node.&nbsp;
+There are two important points to note about using <A HREF="#relevance"><B><I>relevance</I></B></A> like this.&nbsp;
+First, each node in its <A HREF="#relevance"><B><I>relevance</I></B></A> expressions explicitly specifies the exact
+circumstances in which it is applicable and its connections to other nodes.&nbsp; Second, one does not have to
+record a &quot;goto&quot; for each answer option at a given node which eliminates the difficulty of following the
+flow of a schedule through all the possible paths.</P>
 
 <P>For example, consider an interview that asks for the subject's gender in one node, then asks whether the subject
 has ever been pregnant in the next.&nbsp; The first node will always be asked so its dependency expression is simply
 1 (Boolean TRUE).&nbsp; Let's say the response is &quot;female&quot;.&nbsp; The second node should be asked only
-if the subject is female, so its dependencies will be an expression like, <I>gender == &quot;female&quot;</I>.&nbsp;
-If this evaluates to TRUE, as it will in this case, the node's action, asking about pregnancy, will be performed
-and the response stored.&nbsp;&nbsp; Had the response been &quot;male&quot; the dependency expression would evaluate
-to FALSE and a notApplicable would be stored.</P>
+if the subject is female, so its <A HREF="#relevance"><B><I>relevance</I></B></A> will be an expression like, <I>gender
+== &quot;female&quot;</I>.&nbsp; If this evaluates to TRUE, as it will in this case, the node's action, asking
+about pregnancy, will be performed and the response stored.&nbsp;&nbsp; Had the response been &quot;male&quot;
+the dependency expression would evaluate to FALSE and a notApplicable would be stored.</P>
 
 <P>As a schedule proceeds, then, each node is considered in order from first to last without jumps.&nbsp; Whether
-or not the node's action is performed is determined by the evaluation of the node's dependencies.&nbsp; An important
-consideration in authoring dependencies is how to handle their evaluation in the event that one of the nodes was
-not answered.&nbsp; Triceps currently supports the distinction among and special treatment of such cases, including
-<B><I><A HREF="#UNASKED">notYetAsked</A>, <A HREF="#NOT%20APPLICABLE">notApplicable</A>, <A HREF="#NOT%20UNDERSTOOD">notUnderstood</A></I></B>
-(the user did not understand the question), <B><I><A HREF="#UNKNOWN">notKnown</A></I></B> (the user did not know
-the answer), and <B><I><A HREF="#REFUSED">refused</A></I></B> (the user refused to answer).</P>
+or not the node's action is performed is determined by the evaluation of the node's <B><A HREF="#relevance"><I>relevance</I></A></B>.&nbsp;
+An important consideration in authoring <B><A HREF="#relevance"><I>relevance</I></A></B> is how to handle their
+evaluation in the event that one of the nodes was not answered.&nbsp; Dialogix currently supports the distinction
+among and special treatment of such cases, including <B><I><A HREF="#UNASKED">notYetAsked</A>, <A HREF="#NOT%20APPLICABLE">notApplicable</A>,
+<A HREF="#NOT%20UNDERSTOOD">notUnderstood</A></I></B> (the user did not understand the question), <B><I><A HREF="#UNKNOWN">notKnown</A></I></B>
+(the user did not know the answer), and <B><I><A HREF="#REFUSED">refused</A></I></B> (the user refused to answer).</P>
 
-<P>Once authors have created a <B><I><A HREF="#ScheduleFile">scheduleFile</A></I></B>, they copy it to the <B><I><A
-HREF="#scheduleSrcDir">scheduleDirectory</A></I></B> to make it available to validators and users.</P>
+<P>Once authors have created an <B><A HREF="#instrumentFile"><I>instrumentFile</I></A></B>, they copy it to the
+<B><I><A HREF="#scheduleSrcDir">scheduleDirectory</A></I></B> to make it available to validators and users.</P>
 
 <P><A NAME="Users"></A><B>The Role of the User</B></P>
 
 <P>The user is anyone who navigates through an interview.&nbsp; The user may be an interviewer, interviewee, author,
 or validator.</P>
 
-<P>To start, the user launches a web browser and opens the URL of the Triceps servlet.&nbsp; The opening screen
+<P>To start, the user launches a web browser and opens the URL of the Dialogix servlet.&nbsp; The opening screen
 provides the means to select a new interview (from a drop-down list of available interviews) or restore an interview
 in progress (from a drop-down list of suspended interviews).</P>
 
 <P>After selecting an interview to start (using the <B>Start</B> button), or resume (using the <B>Resume</B> button),
 users will see a series of screens in which they will be presented with information and asked questions. The standard
 user-interface employed by HTML-based forms is used. After answering the questions on the screen, users must press
-the <B>Next</B> button to proceed to the next set of questions. At each stage, Triceps collects, processes, and
+the <B>Next</B> button to proceed to the next set of questions. At each stage, Dialogix collects, processes, and
 saves any information entered. If required questions are not answered, or if the answers do not conform to the
-required data type or value ranges (as specified by the author), Triceps will re-display the page with informative
-messages saying what went wrong, and what needs to be done to correct it. For each question on which Triceps detected
-a problem, Triceps will paint that question in red, and indicate what needs to be done (e..g <I>Please answer this
-question</I>, or <I>Please enter a number in the range (5 - 14)</I>)</P>
+required data type or value ranges (as specified by the author), Dialogix will re-display the page with informative
+messages saying what went wrong, and what needs to be done to correct it. For each question on which Dialogix detected
+a problem, Dialogix will paint that question in red, and indicate what needs to be done (e..g <I>Please answer
+this question</I>, or <I>Please enter a number in the range (5 - 14)</I>)</P>
 
 <P>At any time, the user can also press the <B>Previous</B> button to return to prior screens and review or change
 answers.</P>
@@ -104,14 +106,14 @@ users will have the opportunity to backup (via the <B>Previous</B> button) and r
 <P>
 <HR ALIGN="CENTER">
 <BR>
-<A NAME="ScheduleFile"></A><B><FONT SIZE="4">ScheduleFile Format</FONT></B></P>
+<A NAME="instrumentFile"></A><B><FONT SIZE="4">instrumentFile Format</FONT></B></P>
 
 <P><B>Overview</B></P>
 
-<P>This section applies to <B><I>scheduleFiles</I></B>. Columns in which the values are optional are marked with
-an asterix (*).</P>
+<P>This section applies to <B><I><A HREF="#instrumentFile">instrumentFiles</A></I></B>. Columns in which the values
+are optional are marked with an asterix (*).</P>
 
-<P>Each <B><I>scheduleFile</I></B> contains three sections
+<P>Each <B><I><A HREF="#instrumentFile">instrumentFile</A></I></B> contains three sections
 
 <UL>
 	<LI><B><I>ReservedVariables</I></B>
@@ -121,7 +123,6 @@ an asterix (*).</P>
 
 <P>In each case, there is only one <B><I>ReservedVariable</I></B>, <B><I>Node</I></B>, or <B><I>Comment</I></B>
 on a row. The differ in the number of columns required in each section.</P>
-
 <P><B><U>ReservedVariables</U></B> conform to the following syntax: 
 <TABLE BORDER="1" CELLPADDING="0" CELLSPACING="0" WIDTH="100%">
 	<TR>
@@ -131,25 +132,20 @@ on a row. The differ in the number of columns required in each section.</P>
 	</TR>
 </TABLE>
 </P>
-
 <P><B><U>Comments</U></B> conform to the following syntax:</P>
-
 <P>The line begins with the <I>string</I> <B>COMMENT</B>. Any content can follow this string, in zero or more columns.</P>
-
 <P><B><U>Nodes</U></B> conform to the following syntax:</P>
-
 <P>The first five columns contain this information: 
 <TABLE BORDER="1" CELLPADDING="0" CELLSPACING="0" WIDTH="100%">
 	<TR>
 		<TD WIDTH="20%"><B><I><A HREF="#concept">concept</A> (*)</I></B></TD>
 		<TD WIDTH="20%"><B><I><A HREF="#internalName">internalName</A></I></B></TD>
 		<TD WIDTH="20%"><B><I><A HREF="#externalName">externalName</A> (*)</I></B></TD>
-		<TD WIDTH="20%"><B><I><A HREF="#dependencies">dependencies</A></I></B></TD>
+		<TD WIDTH="20%"><B><I><A HREF="#relevance">relevance</A></I></B></TD>
 		<TD WIDTH="20%"><B><I><A HREF="#questionOrEvalTypeField">questionOrEvalTypeField</A></I></B></TD>
 	</TR>
 </TABLE>
 </P>
-
 <P>The next four columns are repeated, once for each language to be supported. Thus, if three languages are to
 be supported, there are three copies of these four columns, each with different, localized content. 
 <TABLE BORDER="1" CELLPADDING="0" CELLSPACING="0" WIDTH="100%">
@@ -161,9 +157,7 @@ be supported, there are three copies of these four columns, each with different,
 	</TR>
 </TABLE>
 </P>
-
 <P>These last four columns are only used for setting the default value for questions.</P>
-
 <P>
 <TABLE BORDER="1" CELLPADDING="0" CELLSPACING="0" WIDTH="100%">
 	<TR>
@@ -173,7 +167,7 @@ be supported, there are three copies of these four columns, each with different,
 		<TD WIDTH="25%"><B><I><A HREF="#comment">comment</A> (*)</I></B></TD>
 	</TR>
 </TABLE>
-<B></B></P>
+</P>
 
 <P><B>Detailed Descriptions of Columns / Fields</B></P>
 
@@ -208,7 +202,7 @@ as <I>subject.height.inches.</I></P>
 		<TD WIDTH="87%"><B><A HREF="#Variable%20Names">NMTOKEN</A></B></TD>
 	</TR>
 </TABLE>
-The internalName is the main name for a node.  Names are commonly the variable names which will be used for analysis;
+The internalName is the main name for a node. Names are commonly the variable names which will be used for analysis;
 or other names that will help make equations more meaningful.</P>
 
 <P><A NAME="externalName"></A><B><I>externalName</I></B> 
@@ -228,8 +222,8 @@ The externalName is another possible name for a node. It is meant to be a refere
 for questions. This is the value that is displayed when <I><A HREF="#__SHOW_QUESTION_REF__">__SHOW_QUESTION_REF__</A></I>
 equals <I>true</I>.</P>
 
-<P><A NAME="dependencies"></A><B><I>dependencies</I></B> (whether the node is applicable - whether the question
-should be asked)
+<P><A NAME="relevance"></A><B><I>relevance</I></B> (whether the node is applicable - whether the question should
+be asked) 
 <TABLE BORDER="1" CELLPADDING="0" CELLSPACING="0" WIDTH="100%">
 	<TR>
 		<TD WIDTH="7%">Required?</TD>
@@ -243,17 +237,18 @@ should be asked)
 	</TR>
 </TABLE>
 This field specifies whether a nodes is to be evaluated. If the equation evaluates to <I>false</I>, then the node
-is *NA* (e.g. men should not be asked questions about menstruation). Below is an abbreviated example of how dependencies
-work. The goal is to ask all subjects their gender, age, whether they have children, and whether they have a job.
-Additionally, women are asked if they menstruate; and if they do menstruate, they are also asked for the date of
-their last period and the age of Menarche. Furthermore, if a subject has children, they are asked how many children
-they have. Rather than using a procedural <I>if-then</I> approach to specifying which questions to ask, Triceps
-uses a declarative approach. Authors must explicitly specify the dependencies of each node. Thus, q3 is only applicable
-if the subject is female (q1 == 0). Moreover, q4 and q5 are only applicable for menstruating females. 
+is *NA* (e.g. men should not be asked questions about menstruation). Below is an abbreviated example of how <B><A
+HREF="#relevance"><I>relevance</I></A></B> work. The goal is to ask all subjects their gender, age, whether they
+have children, and whether they have a job. Additionally, women are asked if they menstruate; and if they do menstruate,
+they are also asked for the date of their last period and the age of Menarche. Furthermore, if a subject has children,
+they are asked how many children they have. Rather than using a procedural <I>if-then</I> approach to specifying
+which questions to ask, Dialogix uses a declarative approach. Authors must explicitly specify the <A HREF="#relevance"><B><I>relevance</I></B></A>
+of each node. Thus, q3 is only applicable if the subject is female (q1 == 0). Moreover, q4 and q5 are only applicable
+for menstruating females. 
 <TABLE BORDER="1" CELLPADDING="0" CELLSPACING="0" WIDTH="100%">
 	<TR>
 		<TD WIDTH="13%"><B><I>internalName</I></B></TD>
-		<TD WIDTH="12%"><B><I>dependencies</I></B></TD>
+		<TD WIDTH="12%"><B><I>relevance</I></B></TD>
 		<TD WIDTH="50%"><B><I>questionOrEval</I></B></TD>
 		<TD WIDTH="25%"><B><I>answerChoices</I></B></TD>
 	</TR>
@@ -319,7 +314,8 @@ if the subject is female (q1 == 0). Moreover, q4 and q5 are only applicable for 
 		<TD WIDTH="7%"><B>no</B></TD>
 		<TD WIDTH="6%"><B>no</B></TD>
 		<TD WIDTH="87%"><I><A HREF="#questionOrEvalType">questionOrEvalType</A></I><B>;</B><I><A HREF="#dataType">dataType</A></I><B>;</B><I><A
-			HREF="#min">min</A></I><B>;</B><I><A HREF="#max">max</A></I><B>;</B><I><A HREF="#formatMask">formatMask</A></I>;extraAllowableValues</TD>
+			HREF="#min">min</A></I><B>;</B><I><A HREF="#max">max</A></I><B>;</B><I><A HREF="#formatMask">formatMask</A></I>;<A
+			HREF="#extraAllowableValues">extraAllowableValues</A></TD>
 	</TR>
 </TABLE>
 
@@ -363,7 +359,6 @@ if the subject is female (q1 == 0). Moreover, q4 and q5 are only applicable for 
 		</TR>
 	</TABLE>
 </P>
-
 	<P><A NAME="dataType"></A><I>dataType</I> 
 	<TABLE BORDER="1" CELLPADDING="0" CELLSPACING="0" WIDTH="90%">
 		<TR>
@@ -457,7 +452,6 @@ if the subject is female (q1 == 0). Moreover, q4 and q5 are only applicable for 
 		</TR>
 	</TABLE>
 </P>
-
 	<P><A NAME="min"></A><I>min</I> 
 	<TABLE BORDER="1" CELLPADDING="0" CELLSPACING="0" WIDTH="90%">
 		<TR>
@@ -472,7 +466,6 @@ if the subject is female (q1 == 0). Moreover, q4 and q5 are only applicable for 
 		</TR>
 	</TABLE>
 </P>
-
 	<P><A NAME="max"></A><I>max</I> 
 	<TABLE BORDER="1" CELLPADDING="0" CELLSPACING="0" WIDTH="90%">
 		<TR>
@@ -487,7 +480,6 @@ if the subject is female (q1 == 0). Moreover, q4 and q5 are only applicable for 
 		</TR>
 	</TABLE>
 </P>
-
 	<P><A NAME="formatMask"></A><I>formatMask</I> 
 	<TABLE BORDER="1" CELLPADDING="0" CELLSPACING="0" WIDTH="90%">
 		<TR>
@@ -515,7 +507,7 @@ if the subject is female (q1 == 0). Moreover, q4 and q5 are only applicable for 
 		<TR>
 			<TD WIDTH="7%"><B>no</B></TD>
 			<TD WIDTH="6%"><B>no</B></TD>
-			<TD WIDTH="87%">value ; [value]  (e.g. 77;88;99)</TD>
+			<TD WIDTH="87%">value ; [value] (e.g. 77;88;99)</TD>
 		</TR>
 	</TABLE>
 
@@ -554,7 +546,6 @@ if the subject is female (q1 == 0). Moreover, q4 and q5 are only applicable for 
 
 <BLOCKQUOTE>
 	<P><A NAME="questionSyntax"></A><I>questionSyntax</I></P>
-
 	<P>
 	<TABLE BORDER="1" CELLPADDING="0" CELLSPACING="0" WIDTH="90%">
 		<TR>
@@ -567,13 +558,11 @@ if the subject is female (q1 == 0). Moreover, q4 and q5 are only applicable for 
 			<TD WIDTH="6%"><B>no</B></TD>
 			<TD WIDTH="87%"><I>Question</I>: a <I>string</I>, which can contain embedded HTML tags (&lt;b&gt;&lt;/b&gt;, &lt;i&gt;&lt;/i&gt;,
 				&lt;u&gt;&lt;/u&gt;, &lt;br&gt;, etc.), as well as embedded <I><A HREF="#Equation">equations</A></I>, surrounded
-				by back-ticks (e.g. `5 + 3`).  Substitution is performed on these questions.</TD>
+				by back-ticks (e.g. `5 + 3`). Substitution is performed on these questions.</TD>
 		</TR>
 	</TABLE>
 </P>
-
 	<P><A NAME="evalSyntax"></A><I>evalSyntax</I></P>
-
 	<P>
 	<TABLE BORDER="1" CELLPADDING="0" CELLSPACING="0" WIDTH="90%">
 		<TR>
@@ -760,9 +749,11 @@ if the subject is female (q1 == 0). Moreover, q4 and q5 are only applicable for 
 		<TR>
 			<TD WIDTH="7%"><B>yes</B></TD>
 			<TD WIDTH="6%"><B>yes</B></TD>
-			<TD WIDTH="87%"><I>string</I> (no two <I>values</I> for a given node can be the same).  If multiple languages are used, the system
-				will check to make sure that each language has the same number of value|msg pairs, and that the order of values
-				is the same.</TD>
+			<TD WIDTH="87%"><I><A HREF="#Equation">equation</A></I> (no two <I>values</I> for a given node can be the same). If multiple languages
+				are used, the system will check to make sure that each language has the same number of value|msg pairs, and that
+				the order of values is the same.  Since this is an <A HREF="#Equation">equation</A>, it can refer to other variables,
+				or be calculated; and it must not include back-ticks.  If you want the stored value to be a string, it needs to
+				be surrounded by double quotes.  Numerical values can be listed as-is.</TD>
 		</TR>
 	</TABLE>
 </P>
@@ -776,7 +767,7 @@ if the subject is female (q1 == 0). Moreover, q4 and q5 are only applicable for 
 		<TR>
 			<TD WIDTH="7%"><B>yes</B></TD>
 			<TD WIDTH="6%"><B>no</B></TD>
-			<TD WIDTH="87%"><I>string</I> - the msg <B>is</B> parsed to substitute&nbsp;equations</TD>
+			<TD WIDTH="87%"><I>string</I> - the msg is parsed to substitute&nbsp;equations (e.g. this can contain back-ticked <A HREF="#Equation">equations</A>)</TD>
 		</TR>
 	</TABLE>
 
@@ -792,11 +783,10 @@ if the subject is female (q1 == 0). Moreover, q4 and q5 are only applicable for 
 	<TR>
 		<TD WIDTH="7%"><B>no</B></TD>
 		<TD WIDTH="6%"><B>no</B></TD>
-		<TD WIDTH="87%">a valid URL. No substitution is performed</TD>
+		<TD WIDTH="87%">a valid URL. No substitution is performed.  If present, this will appear as a help-icon to the right of the question.</TD>
 	</TR>
 </TABLE>
 </P>
-
 <P><A NAME="languageNum"></A><B><I>languageNum</I></B> 
 <TABLE BORDER="1" CELLPADDING="0" CELLSPACING="0" WIDTH="100%">
 	<TR>
@@ -807,8 +797,9 @@ if the subject is female (q1 == 0). Moreover, q4 and q5 are only applicable for 
 	<TR>
 		<TD WIDTH="7%"><B>no</B></TD>
 		<TD WIDTH="6%"><B>no</B></TD>
-		<TD WIDTH="87%">Triceps sets this value when the node is processed. This <I>number</I> value is the language used when asking a
-			question. The valid range is 0 - (numLanguages-1).</TD>
+		<TD WIDTH="87%">Dialogix sets this value when the node is processed. This <I>number</I> value is the language used when asking
+			a question. The valid range is 0 - (numLanguages-1).  This refers to the <A HREF="#__LANGUAGES__">__LANGUAGES__</A>
+			option.</TD>
 	</TR>
 </TABLE>
 </P>
@@ -823,7 +814,7 @@ if the subject is female (q1 == 0). Moreover, q4 and q5 are only applicable for 
 	<TR>
 		<TD WIDTH="7%"><B>no</B></TD>
 		<TD WIDTH="6%"><B>no</B></TD>
-		<TD WIDTH="87%">Triceps sets this value when the node is processed. This <I>string</I> value is the question exactly as it appeared
+		<TD WIDTH="87%">Dialogix sets this value when the node is processed. This <I>string</I> value is the question exactly as it appeared
 			to the subject - in the selected language, and with the appropriate substitutions.</TD>
 	</TR>
 </TABLE>
@@ -839,7 +830,24 @@ if the subject is female (q1 == 0). Moreover, q4 and q5 are only applicable for 
 	<TR>
 		<TD WIDTH="7%"><B>no</B></TD>
 		<TD WIDTH="6%"><B>no</B></TD>
-		<TD WIDTH="87%">Triceps sets this value when the node is processed. This <I>string</I> value is the data entered by the subject.</TD>
+		<TD WIDTH="87%">Dialogix sets this value when the node is processed. This <I>string</I> value is the data entered by the subject.</TD>
+	</TR>
+</TABLE>
+</P>
+
+<P><A NAME="defaultAnswer"></A><B><I>defaultAnswer</I></B> 
+<TABLE BORDER="1" CELLPADDING="0" CELLSPACING="0" WIDTH="100%">
+	<TR>
+		<TD WIDTH="7%">Required?</TD>
+		<TD WIDTH="6%">Unique?</TD>
+		<TD WIDTH="87%">Syntax</TD>
+	</TR>
+	<TR>
+		<TD WIDTH="7%"><B>no</B></TD>
+		<TD WIDTH="6%"><B>no</B></TD>
+		<TD WIDTH="87%">If this value is present when the instrument is first loaded, it is stored as the default value for the node. 
+			However, if the &quot;startFresh&quot; option is pressed, this value is not re-loaded.  You would need to re-load
+			the instrument to reset </TD>
 	</TR>
 </TABLE>
 </P>
@@ -854,7 +862,7 @@ if the subject is female (q1 == 0). Moreover, q4 and q5 are only applicable for 
 	<TR>
 		<TD WIDTH="7%"><B>no</B></TD>
 		<TD WIDTH="6%"><B>no</B></TD>
-		<TD WIDTH="87%">Triceps sets this value when the node is processed. This <I>string</I> value is the optional comment entered by
+		<TD WIDTH="87%">Dialogix sets this value when the node is processed. This <I>string</I> value is the optional comment entered by
 			the interviewee via the Comment popup.</TD>
 	</TR>
 </TABLE>
@@ -870,7 +878,7 @@ if the subject is female (q1 == 0). Moreover, q4 and q5 are only applicable for 
 	<TR>
 		<TD WIDTH="7%"><B>no</B></TD>
 		<TD WIDTH="6%"><B>no</B></TD>
-		<TD WIDTH="87%">Triceps sets this value when the node is processed. This <I>string</I> value is a <I>date</I> in the format <I>yyyy.MM.dd..HH.mm.ss</I></TD>
+		<TD WIDTH="87%">Dialogix sets this value when the node is processed. This numbeical value is the number of milliseconds since 1/1/1970</TD>
 	</TR>
 </TABLE>
 </P>
@@ -878,7 +886,6 @@ if the subject is female (q1 == 0). Moreover, q4 and q5 are only applicable for 
 <P><B><I>dataType</I></B></P>
 
 <P><A NAME="ReservedVariableName"></A><B><I>ReservedVariableName</I></B></P>
-
 <P>All ReservedVariableNames are in upper case, and begin and end with two underscores ('__') 
 <TABLE BORDER="1" CELLPADDING="0" CELLSPACING="0" WIDTH="100%">
 	<TR>
@@ -927,11 +934,26 @@ if the subject is female (q1 == 0). Moreover, q4 and q5 are only applicable for 
 		<TD WIDTH="61%">if true, then the icon for *UNKNOWN* is available</TD>
 	</TR>
 	<TR>
+		<TD WIDTH="30%">__ALWAYS_SHOW_ADMIN_ICONS__</TD>
+		<TD WIDTH="9%"><I>true|false</I></TD>
+		<TD WIDTH="61%">if true, then the administrator icons (comment, refused, etc.) are always visible</TD>
+	</TR>
+	<TR>
+		<TD WIDTH="30%">__ANSWER_OPTION_FIELD_WIDTH__</TD>
+		<TD WIDTH="9%"><I>number</I></TD>
+		<TD WIDTH="61%">the default width of text and menu boxes</TD>
+	</TR>
+	<TR>
 		<TD WIDTH="30%">__AUTOGEN_OPTION_NUM__</TD>
 		<TD WIDTH="9%"><I>true|false</I></TD>
 		<TD WIDTH="61%">if true, then lists of of options (combo, list) will use sequential numbers (starting from 1), as their accelerator
 			keys. If false, then the internal values associated with the displayed choices will be used as the accelerator
 			keys</TD>
+	</TR>
+	<TR>
+		<TD WIDTH="30%">__BROWSER_TYPE__</TD>
+		<TD WIDTH="9%"><I>string</I></TD>
+		<TD WIDTH="61%">[this is writtent to the data file the first time an instrument is loaded]</TD>
 	</TR>
 	<TR>
 		<TD WIDTH="30%">__COMMENT_ICON_OFF__</TD>
@@ -946,7 +968,12 @@ if the subject is female (q1 == 0). Moreover, q4 and q5 are only applicable for 
 	<TR>
 		<TD WIDTH="30%">__COMPLETED_DIR__</TD>
 		<TD WIDTH="9%"><I>dir</I></TD>
-		<TD WIDTH="61%">[this is set internally by Triceps]</TD>
+		<TD WIDTH="61%">[this is set internally by Dialogix]</TD>
+	</TR>
+	<TR>
+		<TD WIDTH="30%">__CONNECTION_TYPE__</TD>
+		<TD WIDTH="9%"><I>string</I></TD>
+		<TD WIDTH="61%">HTTP or HTTPS</TD>
 	</TR>
 	<TR>
 		<TD WIDTH="30%">__CURRENT_LANGUAGE__</TD>
@@ -966,7 +993,12 @@ if the subject is female (q1 == 0). Moreover, q4 and q5 are only applicable for 
 	<TR>
 		<TD WIDTH="30%">__DISPLAY_COUNT__</TD>
 		<TD WIDTH="9%"><I>number</I></TD>
-		<TD WIDTH="61%">[this is set internally by Triceps - it reflects the number of screens the subject has seen]</TD>
+		<TD WIDTH="61%">[this is set internally by Dialogix - it reflects the number of screens the subject has seen]</TD>
+	</TR>
+	<TR>
+		<TD WIDTH="30%">__DISALLOW_COMMENTS__</TD>
+		<TD WIDTH="9%"><I>true|false</I></TD>
+		<TD WIDTH="61%">if true, then the comment icons are never visible, even if the other administrator icons are visible</TD>
 	</TR>
 	<TR>
 		<TD WIDTH="30%">__DONT_UNDERSTAND_ICON_OFF__</TD>
@@ -986,7 +1018,7 @@ if the subject is female (q1 == 0). Moreover, q4 and q5 are only applicable for 
 	<TR>
 		<TD WIDTH="30%">__FLOPPY_DIR__</TD>
 		<TD WIDTH="9%"><I>dir</I></TD>
-		<TD WIDTH="61%">the directory of an secondary drive to which the completed datafiles are written.  Alternatively, this can be a
+		<TD WIDTH="61%">the directory of an secondary drive to which the completed datafiles are written. Alternatively, this can be a
 			shared server drive, or nothing.</TD>
 	</TR>
 	<TR>
@@ -1007,10 +1039,20 @@ if the subject is female (q1 == 0). Moreover, q4 and q5 are only applicable for 
 	<TR>
 		<TD WIDTH="30%">__IMAGE_FILES_DIR__</TD>
 		<TD WIDTH="9%"><I>dir</I></TD>
-		<TD WIDTH="61%">[this is set internally by Triceps.  It is the directory for the icons (so that don't need full path name)]</TD>
+		<TD WIDTH="61%">[this is set internally by Dialogix. It is the directory for the icons (so that don't need full path name)]</TD>
 	</TR>
 	<TR>
-		<TD WIDTH="30%">__LANGUAGES__</TD>
+		<TD WIDTH="30%">__IP_ADDRESS__</TD>
+		<TD WIDTH="9%"><I>string</I></TD>
+		<TD WIDTH="61%">[this is written to the data file the when the instrument is first loaded]</TD>
+	</TR>
+	<TR>
+		<TD WIDTH="30%">__JUMP_TO_FIRST_UNASKED__</TD>
+		<TD WIDTH="9%"><I>true|false</I></TD>
+		<TD WIDTH="61%">if true, then the jump-to-first-unasked button is always available</TD>
+	</TR>
+	<TR>
+		<TD WIDTH="30%"><A NAME="__LANGUAGES__"></A>__LANGUAGES__</TD>
 		<TD WIDTH="9%"><I>string|string|...</I></TD>
 		<TD WIDTH="61%">a list of language names, separated by the pipe ('|') character. For example <B>en_US|es_PR</B></TD>
 	</TR>
@@ -1022,7 +1064,7 @@ if the subject is female (q1 == 0). Moreover, q4 and q5 are only applicable for 
 	<TR>
 		<TD WIDTH="30%">__PASSWORD_FOR_ADMIN_MODE__</TD>
 		<TD WIDTH="9%"><I>string</I></TD>
-		<TD WIDTH="61%">an optional password to enable access to the Developer mode </TD>
+		<TD WIDTH="61%">an optional password to enable access to the Developer mode</TD>
 	</TR>
 	<TR>
 		<TD WIDTH="30%">__REFUSED_ICON_OFF__</TD>
@@ -1035,10 +1077,26 @@ if the subject is female (q1 == 0). Moreover, q4 and q5 are only applicable for 
 		<TD WIDTH="61%">the icon to use to indicate that the subject <I>did</I> refuse to answer the question</TD>
 	</TR>
 	<TR>
+		<TD WIDTH="30%">__RECORD_EVENTS__</TD>
+		<TD WIDTH="9%"><I>true|false</I></TD>
+		<TD WIDTH="61%">if false, then events are not recorded.  Defaults to <I>true</I></TD>
+	</TR>
+	<TR>
+		<TD WIDTH="30%">__REDIRECT_ON_FINISH_MSG__</TD>
+		<TD WIDTH="9%"><I>string</I></TD>
+		<TD WIDTH="61%">If not empty, users will see this string after completing an interview to indicate that they will be re-directed
+			to another site</TD>
+	</TR>
+	<TR>
+		<TD WIDTH="30%">__REDIRECT_ON_FINISH_URL__</TD>
+		<TD WIDTH="9%"><I>URL</I></TD>
+		<TD WIDTH="61%">If not empty, users will be re-directed to this site 5 seconds after completing an interview</TD>
+	</TR>
+	<TR>
 		<TD WIDTH="30%">__SCHED_AUTHORS__</TD>
 		<TD WIDTH="9%"><I>string</I></TD>
 		<TD WIDTH="61%">an optional string to indicate who authored the schedule - a way to give appropriate credit the those who originally
-			created the instrument, and/or who transcribed it into Triceps form</TD>
+			created the instrument, and/or who transcribed it into Dialogix form</TD>
 	</TR>
 	<TR>
 		<TD WIDTH="30%">__SCHED_HELP_URL__</TD>
@@ -1058,12 +1116,19 @@ if the subject is female (q1 == 0). Moreover, q4 and q5 are only applicable for 
 	<TR>
 		<TD WIDTH="30%">__SCHEDULE_DIR__</TD>
 		<TD WIDTH="9%"><I>filename</I></TD>
-		<TD WIDTH="61%">[this is set internally by Triceps - it is the directory of where all of the schedules are located]</TD>
+		<TD WIDTH="61%">[this is set internally by Dialogix - it is the directory of where all of the schedules are located]</TD>
 	</TR>
 	<TR>
 		<TD WIDTH="30%">__SCHEDULE_SOURCE__</TD>
 		<TD WIDTH="9%"><I>filename</I></TD>
 		<TD WIDTH="61%">the name of the schedule file</TD>
+	</TR>
+	<TR>
+		<TD WIDTH="30%">__SET_DEFAULT_FOCUS__</TD>
+		<TD WIDTH="9%"><I>true|false</I></TD>
+		<TD WIDTH="61%">if true, then the focus will automatically be set to the first data entry element or button.  If there will be
+			many lengthly instructions screens, this can be set to false so that the browser does not scroll to the &quot;next&quot;
+			button at the bottom  of the screen.</TD>
 	</TR>
 	<TR>
 		<TD WIDTH="30%">__SHOW_ADMIN_ICONS__</TD>
@@ -1077,6 +1142,11 @@ if the subject is female (q1 == 0). Moreover, q4 and q5 are only applicable for 
 			of the table of questions asked.</TD>
 	</TR>
 	<TR>
+		<TD WIDTH="30%">__SHOW_SAVE_TO_FLOPPY_IN_ADMIN_MODE__</TD>
+		<TD WIDTH="9%"><I>true|false</I></TD>
+		<TD WIDTH="61%">if true, then the &quot;save-to-floppy&quot; button will be visible in admin mode</TD>
+	</TR>
+	<TR>
 		<TD WIDTH="30%">__START_TIME__</TD>
 		<TD WIDTH="9%"><I>string</I></TD>
 		<TD WIDTH="61%">the time that the interview was started, in milliseconds since Jan 1, 1900</TD>
@@ -1085,6 +1155,16 @@ if the subject is female (q1 == 0). Moreover, q4 and q5 are only applicable for 
 		<TD WIDTH="30%">__STARTING_STEP__</TD>
 		<TD WIDTH="9%"><I>number</I></TD>
 		<TD WIDTH="61%">the index of the first node (after the reserved variables and comments)</TD>
+	</TR>
+	<TR>
+		<TD WIDTH="30%">__SUSPEND_TO_FLOPPY__</TD>
+		<TD WIDTH="9%"><I>true|false</I></TD>
+		<TD WIDTH="61%">if true, then the &quot;save-to-floppy&quot; button will be visible all the time</TD>
+	</TR>
+	<TR>
+		<TD WIDTH="30%">__SWAP_NEXT_AND_PREVIOUS__</TD>
+		<TD WIDTH="9%"><I>true|false</I></TD>
+		<TD WIDTH="61%">if true, the then &quot;next&quot; button will be to the right of the &quot;previous&quot; button</TD>
 	</TR>
 	<TR>
 		<TD WIDTH="30%">__TITLE__</TD>
@@ -1106,12 +1186,12 @@ if the subject is female (q1 == 0). Moreover, q4 and q5 are only applicable for 
 	<TR>
 		<TD WIDTH="30%">__TRICEPS_VERSION_MAJOR__</TD>
 		<TD WIDTH="9%"><I>string</I></TD>
-		<TD WIDTH="61%">to track revisions of Triceps - e.g. 2.8</TD>
+		<TD WIDTH="61%">to track revisions of Dialogix - e.g. 2.8</TD>
 	</TR>
 	<TR>
 		<TD WIDTH="30%">__TRICEPS_VERSION_MINOR__</TD>
 		<TD WIDTH="9%"><I>string</I></TD>
-		<TD WIDTH="61%">to track the revisions of Triceps - e.g. 1</TD>
+		<TD WIDTH="61%">to track the revisions of Dialogix - e.g. 1</TD>
 	</TR>
 	<TR>
 		<TD WIDTH="30%">__UNKNOWN_ICON_OFF__</TD>
@@ -1126,14 +1206,19 @@ if the subject is female (q1 == 0). Moreover, q4 and q5 are only applicable for 
 	<TR>
 		<TD WIDTH="30%">__WORKING_DIR__</TD>
 		<TD WIDTH="9%"><I>filename</I></TD>
-		<TD WIDTH="61%">[this is set internally by Triceps - it is the directory where temporary data files are stored]</TD>
+		<TD WIDTH="61%">[this is set internally by Dialogix - it is the directory where temporary data files are stored]</TD>
+	</TR>
+	<TR>
+		<TD WIDTH="30%">__WRAP_ADMIN_ICONS__</TD>
+		<TD WIDTH="9%"><I>true|false</I></TD>
+		<TD WIDTH="61%">if true, then the admin icons that appear to the right of a question will be word-wrapped.  This is helpful when
+			the icons are large and textual.</TD>
 	</TR>
 </TABLE>
 </P>
-
 <P><A NAME="InitializationVariables"></A><B><I>InitializationVariables</I></B></P>
 
-<P>These variables are set once when Triceps loads. They are not available for change by the user. 
+<P>These variables are set once when Dialogix loads. They are not available for change by the user. 
 <TABLE BORDER="1" CELLPADDING="0" CELLSPACING="0">
 	<TR>
 		<TD WIDTH="30%">InitializationVariables</TD>
@@ -1141,24 +1226,24 @@ if the subject is female (q1 == 0). Moreover, q4 and q5 are only applicable for 
 		<TD WIDTH="49%">meaning</TD>
 	</TR>
 	<TR>
-		<TD WIDTH="30%"><A NAME="scheduleList"></A><B>scheduleList</B></TD>
-		<TD WIDTH="21%">filename</TD>
-		<TD WIDTH="49%">the file containing the tab delimitted list of <I>scheduleName</I> titles and associated filename</TD>
+		<TD WIDTH="30%"><B>dialogix.dir</B></TD>
+		<TD WIDTH="21%">directory</TD>
+		<TD WIDTH="49%">canonical directory that acts as prefix for relative directories listed below</TD>
 	</TR>
 	<TR>
 		<TD WIDTH="30%"><A NAME="scheduleSrcDir"></A><B>scheduleSrcDir</B></TD>
 		<TD WIDTH="21%">URL or filename prefix</TD>
-		<TD WIDTH="49%">prepended to <I>scheduleList</I> and <I>scheduleNames</I> in the <I>scheduleList</I> file</TD>
+		<TD WIDTH="49%">canonical or relative directory where instrument files are located</TD>
 	</TR>
 	<TR>
 		<TD WIDTH="30%"><A NAME="workingDir"></A><B>workingDir</B></TD>
 		<TD WIDTH="21%">directory</TD>
-		<TD WIDTH="49%">where working and suspended files are stored</TD>
+		<TD WIDTH="49%">canonical or relative directory where working files are to be stored</TD>
 	</TR>
 	<TR>
 		<TD WIDTH="30%"><A NAME="completedDir"></A><B>completedDir</B></TD>
 		<TD WIDTH="21%">directory</TD>
-		<TD WIDTH="49%">where completed files are stored.</TD>
+		<TD WIDTH="49%">canonical or relative directory where completed files are stored.</TD>
 	</TR>
 	<TR>
 		<TD WIDTH="30%"><A NAME="floppyDir"></A><B>floppyDir</B></TD>
@@ -1185,25 +1270,29 @@ if the subject is female (q1 == 0). Moreover, q4 and q5 are only applicable for 
 		<TD WIDTH="21%">URL</TD>
 		<TD WIDTH="49%">name of default help URL</TD>
 	</TR>
+	<TR>
+		<TD WIDTH="30%"><B>displayWorking</B></TD>
+		<TD WIDTH="21%"><I>true|false</I></TD>
+		<TD WIDTH="49%">whether the RESTORE option is visible.  Normally this is disabled in the web-server version; but there are rare
+			cases where this should be visible</TD>
+	</TR>
 </TABLE>
 </P>
 
 <P><A NAME="Equation"></A><B><FONT SIZE="4">Equation Syntax</FONT></B></P>
-
 <P><A NAME="Variable%20Names"></A><B>Variable Names</B></P>
-
 <P>Valid names must conform to the XML NMTOKEN specification. Briefly, names can be any combination of letters,
 digits, and underscores ('_'), periods ('.'), hyphens ('-'), and colons (':'), so long as the first character is
 either a letter or underscore.<B> </B>This restriction ensures portability to XML and into relational databases.</P>
 
 <P><B>Weak DataTyping</B></P>
 
-<P>Triceps tries to treat values as generically as possible. Variables can always be treated as <I>strings</I>.
+<P>Dialogix tries to treat values as generically as possible. Variables can always be treated as <I>strings</I>.
 They can also be treated as a <I>number</I>s if they can be successfully parsed as a <I>number</I>. Their Boolean
 value is <I>true</I> if they are <I>numbers</I> with a non-zero value, otherwise the Boolean value is <I>false</I>
 (e.g. if they are not <I>numbers</I>, if they have a numerical value of 0, or if they are one of the special datatypes).
 Variables can also be treated as <I>date</I> or <I>time</I> values, but only if explicitly declared as such (otherwise
-there is no way for Triceps to guess whether a value of 10 is supposed to be a year, month, day, hour, etc.).</P>
+there is no way for Dialogix to guess whether a value of 10 is supposed to be a year, month, day, hour, etc.).</P>
 
 <P><B>Operators</B></P>
 
@@ -1306,15 +1395,43 @@ there is no way for Triceps to guess whether a value of 10 is supposed to be a y
 	</TR>
 </TABLE>
 </P>
-
 <P><A NAME="Functions"></A><B>Functions</B></P>
-
 <P>
 <TABLE BORDER="1" CELLPADDING="0" CELLSPACING="0" WIDTH="100%">
 	<TR>
 		<TD WIDTH="15%"><B>Name</B></TD>
 		<TD WIDTH="15%"><B>Syntax</B></TD>
 		<TD WIDTH="60%"><B>Description</B></TD>
+	</TR>
+	<TR>
+		<TD WIDTH="15%">abs</TD>
+		<TD WIDTH="15%">abs(X)</TD>
+		<TD WIDTH="60%">returns the absolute value of X</TD>
+	</TR>
+	<TR>
+		<TD WIDTH="15%">acos</TD>
+		<TD WIDTH="15%">acos(X)</TD>
+		<TD WIDTH="60%">returns the arc cosine of X</TD>
+	</TR>
+	<TR>
+		<TD WIDTH="15%">asin</TD>
+		<TD WIDTH="15%">asin(X)</TD>
+		<TD WIDTH="60%">returns the arc sine of X</TD>
+	</TR>
+	<TR>
+		<TD WIDTH="15%">atan</TD>
+		<TD WIDTH="15%">atan(X)</TD>
+		<TD WIDTH="60%">returns the arc tangent of X</TD>
+	</TR>
+	<TR>
+		<TD WIDTH="15%">atan2</TD>
+		<TD WIDTH="15%">atan2(X,Y)</TD>
+		<TD WIDTH="60%">returns the arc tangent of (X,Y)</TD>
+	</TR>
+	<TR>
+		<TD WIDTH="15%">ceil</TD>
+		<TD WIDTH="15%">ceil(X)</TD>
+		<TD WIDTH="60%">returns the ceiling of X (round number to next larger integer)</TD>
 	</TR>
 	<TR>
 		<TD WIDTH="15%">charAt</TD>
@@ -1324,7 +1441,7 @@ there is no way for Triceps to guess whether a value of 10 is supposed to be a y
 	<TR>
 		<TD WIDTH="15%">compareTo</TD>
 		<TD WIDTH="15%">compareTo(X,Y)</TD>
-		<TD WIDTH="60%">lexically compares two strings.  If they are equal, returns 0.  If X is less than Y, returns -1.  If X is greater
+		<TD WIDTH="60%">lexically compares two strings. If they are equal, returns 0. If X is less than Y, returns -1. If X is greater
 			than Y, returns 1</TD>
 	</TR>
 	<TR>
@@ -1333,9 +1450,19 @@ there is no way for Triceps to guess whether a value of 10 is supposed to be a y
 		<TD WIDTH="60%">like compareTo(), but ignores case</TD>
 	</TR>
 	<TR>
+		<TD WIDTH="15%">cos</TD>
+		<TD WIDTH="15%">cos(X)</TD>
+		<TD WIDTH="60%">returns the cosine of X</TD>
+	</TR>
+	<TR>
 		<TD WIDTH="15%">count</TD>
 		<TD WIDTH="15%">count(X,...)</TD>
 		<TD WIDTH="60%">the number of positive values</TD>
+	</TR>
+	<TR>
+		<TD WIDTH="15%">createTempFile</TD>
+		<TD WIDTH="15%">createTempFile()</TD>
+		<TD WIDTH="60%">returns a new tempory, but unique, filename</TD>
 	</TR>
 	<TR>
 		<TD WIDTH="15%">desc</TD>
@@ -1343,9 +1470,55 @@ there is no way for Triceps to guess whether a value of 10 is supposed to be a y
 		<TD WIDTH="60%">the language-specific <A HREF="#readback">readback</A> string for a node.</TD>
 	</TR>
 	<TR>
+		<TD WIDTH="15%">e</TD>
+		<TD WIDTH="15%">e()</TD>
+		<TD WIDTH="60%">returns the value <I>e</I></TD>
+	</TR>
+	<TR>
 		<TD WIDTH="15%">endsWith</TD>
 		<TD WIDTH="15%">endsWith(X,Y)</TD>
 		<TD WIDTH="60%">returns true if string X ends with string Y</TD>
+	</TR>
+	<TR>
+		<TD WIDTH="15%">eraseData</TD>
+		<TD WIDTH="15%">eraseData()</TD>
+		<TD WIDTH="60%">reset all of the data to *unasked*</TD>
+	</TR>
+	<TR>
+		<TD WIDTH="15%">exec</TD>
+		<TD WIDTH="15%">exec(X)</TD>
+		<TD WIDTH="60%">runs the external function X -- this does not currently work properly on all platorms</TD>
+	</TR>
+	<TR>
+		<TD WIDTH="15%">exp</TD>
+		<TD WIDTH="15%">exp(X)</TD>
+		<TD WIDTH="60%">return the value of exp(X)</TD>
+	</TR>
+	<TR>
+		<TD WIDTH="15%">fileExists</TD>
+		<TD WIDTH="15%">fileExists(X)</TD>
+		<TD WIDTH="60%">returns true of the file X exists.  Canonical names can be used by adding `__WORKING_DIR__` or other prefixes</TD>
+	</TR>
+	<TR>
+		<TD WIDTH="15%">floor</TD>
+		<TD WIDTH="15%">floor(X)</TD>
+		<TD WIDTH="60%">returns the floor of X (round number to next smaller integer)</TD>
+	</TR>
+	<TR>
+		<TD WIDTH="15%">formatDate</TD>
+		<TD WIDTH="15%">formatDate(X,PAT)</TD>
+		<TD WIDTH="60%">return the string value of date X formatted according to Java data format pattern PAT</TD>
+	</TR>
+	<TR>
+		<TD WIDTH="15%">formatNumber</TD>
+		<TD WIDTH="15%">formatNumber(X,PAT)</TD>
+		<TD WIDTH="60%">return the string value of number X formatted according to Java number format pattern PAT</TD>
+	</TR>
+	<TR>
+		<TD WIDTH="15%">getActionText</TD>
+		<TD WIDTH="15%">getActionText(X)</TD>
+		<TD WIDTH="60%">return the actionText for node named X -- this lets one access the text of a previously asked question (e.g. for
+			generating a report)</TD>
 	</TR>
 	<TR>
 		<TD WIDTH="15%">getAnsOption</TD>
@@ -1358,6 +1531,26 @@ there is no way for Triceps to guess whether a value of 10 is supposed to be a y
 		<TD WIDTH="15%">getComment</TD>
 		<TD WIDTH="15%">getComment(X)</TD>
 		<TD WIDTH="60%">returns the comment for node X</TD>
+	</TR>
+	<TR>
+		<TD WIDTH="15%">getConcept</TD>
+		<TD WIDTH="15%">getConcept(X)</TD>
+		<TD WIDTH="60%">returns the concept field for node X</TD>
+	</TR>
+	<TR>
+		<TD WIDTH="15%">getDependencies</TD>
+		<TD WIDTH="15%">getDependencies(X)</TD>
+		<TD WIDTH="60%">returns the relevance field for node X (this field was formerly called &quot;dependencies&quot;)</TD>
+	</TR>
+	<TR>
+		<TD WIDTH="15%">getExternalName</TD>
+		<TD WIDTH="15%">getExternalName(X)</TD>
+		<TD WIDTH="60%">returns the external name field for node X -- this is usually the display name</TD>
+	</TR>
+	<TR>
+		<TD WIDTH="15%">getLocalName</TD>
+		<TD WIDTH="15%">getLocalName(X)</TD>
+		<TD WIDTH="60%">returns the internal, unique, variable name for node X</TD>
 	</TR>
 	<TR>
 		<TD WIDTH="15%">getNow</TD>
@@ -1375,6 +1568,21 @@ there is no way for Triceps to guess whether a value of 10 is supposed to be a y
 		<TD WIDTH="60%">returns the string name of the datatype - e.g. *NA* if isNA()</TD>
 	</TR>
 	<TR>
+		<TD WIDTH="15%">gotoFirst</TD>
+		<TD WIDTH="15%">gotoFirst()</TD>
+		<TD WIDTH="60%">jumps to the first node in the instrument -- this violates the normal flow of the system</TD>
+	</TR>
+	<TR>
+		<TD WIDTH="15%">gotoNext</TD>
+		<TD WIDTH="15%">gotoNext()</TD>
+		<TD WIDTH="60%">jumps to the next set of relevant nodes in the instrument -- this violates the normal flow of the system</TD>
+	</TR>
+	<TR>
+		<TD WIDTH="15%">gotoPrevious</TD>
+		<TD WIDTH="15%">gotoPrevious()</TD>
+		<TD WIDTH="60%">jumps to the previous set of relevant nodes to the instrumetn -- this violates the normal flow of the system</TD>
+	</TR>
+	<TR>
 		<TD WIDTH="15%">hasComment</TD>
 		<TD WIDTH="15%">hasComment(X)</TD>
 		<TD WIDTH="60%">returns true is node X has a comment</TD>
@@ -1382,7 +1590,7 @@ there is no way for Triceps to guess whether a value of 10 is supposed to be a y
 	<TR>
 		<TD WIDTH="15%">indexOf</TD>
 		<TD WIDTH="15%">indexOf(X,Y)</TD>
-		<TD WIDTH="60%">the first index (base 0) of string Y in string X.  Returns -1 if Y is not contained within X</TD>
+		<TD WIDTH="60%">the first index (base 0) of string Y in string X. Returns -1 if Y is not contained within X</TD>
 	</TR>
 	<TR>
 		<TD WIDTH="15%">isAnswered</TD>
@@ -1436,9 +1644,20 @@ there is no way for Triceps to guess whether a value of 10 is supposed to be a y
 		<TD WIDTH="60%">returns true if the answer is of type *UNKNOWN*</TD>
 	</TR>
 	<TR>
+		<TD WIDTH="15%">jumpTo</TD>
+		<TD WIDTH="15%">jumpTo(X)</TD>
+		<TD WIDTH="60%">jump to a named node -- this violates the normal flow of the system</TD>
+	</TR>
+	<TR>
+		<TD WIDTH="15%">jumpToFirstUnasked</TD>
+		<TD WIDTH="15%">jumpToFirstUnasked()</TD>
+		<TD WIDTH="60%">jump to the first unasked question -- thus bypassing previous answered questions -- this violates the norma flow
+			of the system</TD>
+	</TR>
+	<TR>
 		<TD WIDTH="15%">lastIndexOf</TD>
 		<TD WIDTH="15%">lastIndexOf(X,Y)</TD>
-		<TD WIDTH="60%">returns the last index (base 0) of string Y in string X.  Returns -1 if Y is not contained within X</TD>
+		<TD WIDTH="60%">returns the last index (base 0) of string Y in string X. Returns -1 if Y is not contained within X</TD>
 	</TR>
 	<TR>
 		<TD WIDTH="15%">length</TD>
@@ -1452,9 +1671,19 @@ there is no way for Triceps to guess whether a value of 10 is supposed to be a y
 			two</TD>
 	</TR>
 	<TR>
+		<TD WIDTH="15%">log</TD>
+		<TD WIDTH="15%">log(X)</TD>
+		<TD WIDTH="60%">returns the natural log of X</TD>
+	</TR>
+	<TR>
 		<TD WIDTH="15%">max</TD>
 		<TD WIDTH="15%">max(X,...)</TD>
 		<TD WIDTH="60%">returns the maxium value of the list of values passed to the function</TD>
+	</TR>
+	<TR>
+		<TD WIDTH="15%">mean</TD>
+		<TD WIDTH="15%">mean(X,...)</TD>
+		<TD WIDTH="60%">returns the mean of a list of values</TD>
 	</TR>
 	<TR>
 		<TD WIDTH="15%">min</TD>
@@ -1489,14 +1718,82 @@ there is no way for Triceps to guess whether a value of 10 is supposed to be a y
 			two</TD>
 	</TR>
 	<TR>
+		<TD WIDTH="15%">parseDate</TD>
+		<TD WIDTH="15%">parseDate(X,PAT)</TD>
+		<TD WIDTH="60%">returns the date value of string X parsed with Java date format pattern PAT</TD>
+	</TR>
+	<TR>
+		<TD WIDTH="15%">parseNumber</TD>
+		<TD WIDTH="15%">parseNumber(X,PAT)</TD>
+		<TD WIDTH="60%">returns the numerical value of string X parsed with Java number format pattern PAT</TD>
+	</TR>
+	<TR>
+		<TD WIDTH="15%">pi</TD>
+		<TD WIDTH="15%">pi()</TD>
+		<TD WIDTH="60%">returns the value of <I>pi</I></TD>
+	</TR>
+	<TR>
+		<TD WIDTH="15%">pow</TD>
+		<TD WIDTH="15%">pow(X,Y)</TD>
+		<TD WIDTH="60%">returns the value of X raised to the power of Y</TD>
+	</TR>
+	<TR>
+		<TD WIDTH="15%">random</TD>
+		<TD WIDTH="15%">random()</TD>
+		<TD WIDTH="60%">returns a random number -- the value is seeded based upon the starting time of the instrument</TD>
+	</TR>
+	<TR>
+		<TD WIDTH="15%">regexMatch</TD>
+		<TD WIDTH="15%">regexMatch(X,Y)</TD>
+		<TD WIDTH="60%">returns Boolean of whether string X matches the regular expression pattern Y</TD>
+	</TR>
+	<TR>
+		<TD WIDTH="15%">round</TD>
+		<TD WIDTH="15%">round(X)</TD>
+		<TD WIDTH="60%">returns the value of X rounded to the nearest whole integer</TD>
+	</TR>
+	<TR>
+		<TD WIDTH="15%">saveData</TD>
+		<TD WIDTH="15%">saveData(X)</TD>
+		<TD WIDTH="60%">saves all of the current Dialogix data for an instance to the file X, returning true if successful.  One commonly
+			uses a temp file for this.  The two column, tab delimited file format has the variable name in the first column
+			and the value in the second.  This does not work on all platforms.</TD>
+	</TR>
+	<TR>
+		<TD WIDTH="15%">sin</TD>
+		<TD WIDTH="15%">sin(X)</TD>
+		<TD WIDTH="60%">returns the sine of X</TD>
+	</TR>
+	<TR>
+		<TD WIDTH="15%">sqrt</TD>
+		<TD WIDTH="15%">sqrt(X)</TD>
+		<TD WIDTH="60%">returns the square root of X</TD>
+	</TR>
+	<TR>
 		<TD WIDTH="15%">startsWith</TD>
 		<TD WIDTH="15%">startsWith(X,Y)</TD>
 		<TD WIDTH="60%">returns true if the string X starts with string Y</TD>
 	</TR>
 	<TR>
+		<TD WIDTH="15%">stddev</TD>
+		<TD WIDTH="15%">stddev(X,...)</TD>
+		<TD WIDTH="60%">returns the standard deviation of a list of values</TD>
+	</TR>
+	<TR>
 		<TD WIDTH="15%">substring</TD>
 		<TD WIDTH="15%">substring(X,Y,Z)</TD>
 		<TD WIDTH="60%">returns the part of string X that lies between indices Y and Z</TD>
+	</TR>
+	<TR>
+		<TD WIDTH="15%">suspendToFloppy</TD>
+		<TD WIDTH="15%">suspendToFloppy()</TD>
+		<TD WIDTH="60%">saves the data and events files, as a jar file, to the floppy directory -- this is often used for archiving of
+			intermediate files</TD>
+	</TR>
+	<TR>
+		<TD WIDTH="15%">tan</TD>
+		<TD WIDTH="15%">tan(X)</TD>
+		<TD WIDTH="60%">returns the tangent of X</TD>
 	</TR>
 	<TR>
 		<TD WIDTH="15%">toDate</TD>
@@ -1511,7 +1808,7 @@ there is no way for Triceps to guess whether a value of 10 is supposed to be a y
 	<TR>
 		<TD WIDTH="15%">toDayNum</TD>
 		<TD WIDTH="15%">toDayNum(X)</TD>
-		<TD WIDTH="60%">returns the day number components of X (day of the year)  if possible, otherwise returns *INVALID*</TD>
+		<TD WIDTH="60%">returns the day number components of X (day of the year) if possible, otherwise returns *INVALID*</TD>
 	</TR>
 	<TR>
 		<TD WIDTH="15%">toHour</TD>
@@ -1564,24 +1861,33 @@ there is no way for Triceps to guess whether a value of 10 is supposed to be a y
 		<TD WIDTH="60%">returns the year component of X if possible, otherwise returns *INVALID*</TD>
 	</TR>
 	<TR>
+		<TD WIDTH="15%">todegrees</TD>
+		<TD WIDTH="15%">todegrees(X)</TD>
+		<TD WIDTH="60%">converts from radians to degrees</TD>
+	</TR>
+	<TR>
+		<TD WIDTH="15%">toradians</TD>
+		<TD WIDTH="15%">toradians(X)</TD>
+		<TD WIDTH="60%">converts from degrees to radians</TD>
+	</TR>
+	<TR>
 		<TD WIDTH="15%">trim</TD>
 		<TD WIDTH="15%">trim(X)</TD>
 		<TD WIDTH="60%">removes trailing whitespace from string X</TD>
 	</TR>
 </TABLE>
 </P>
-
 <P><A NAME="DataFile"></A><B><FONT SIZE="4">DataFile Format</FONT></B></P>
 
 <P>Each time the user interacts with the interview (e.g. when a user presses the <B>Next</B> button), the <B><I><A
 HREF="#DataFile">dataFile</A></I></B> and <B><I><A HREF="#eventFile">eventFile</A></I></B> are updated and written
 to the <B><I><A HREF="#workingDir">workingDirectory</A></I></B>. When the interview is completed, the finalized
 <B><I><A HREF="#DataFile">dataFile</A></I></B> is written to both the <B><I><A HREF="#completedDir">completedDirectory</A></I></B>
-and the <B><I><A HREF="#floppyDir">floppyDirectory</A></I></B> (e.g. to the floppy disk, if Triceps is being run
+and the <B><I><A HREF="#floppyDir">floppyDirectory</A></I></B> (e.g. to the floppy disk, if Dialogix is being run
 on a local machine). The <B><I><A HREF="#DataFile">dataFile</A></I></B> is a spreadsheet with 7 columns, as indicated
-below.  There are two interleaved syntaxes - one for reserved words, the other for regular data.  Each time new
-information is collected, it is appended to the dataFile.  Thus, if a node is answered multiple times, each answer
-will be recorded.  This makes it possible to check for changed answers.</P>
+below. There are two interleaved syntaxes - one for reserved words, the other for regular data. Each time new information
+is collected, it is appended to the dataFile. Thus, if a node is answered multiple times, each answer will be recorded.
+This makes it possible to check for changed answers.</P>
 
 <P>For each node, the following information is collected:
 
@@ -1619,7 +1925,116 @@ will be recorded.  This makes it possible to check for changed answers.</P>
 		<TD WIDTH="10%">&nbsp;</TD>
 	</TR>
 </TABLE>
+</P>
 
+<P><B><FONT SIZE="4">EventFile Format</FONT></B></P>
+
+<P>[XXX - documentation needed]</P>
+
+<P><B>MySQL Data Files</B></P>
+
+<P>Each time data is received by the server, the following data files are created  in Mysql<B>.</B></P>
+
+<P><BR>
+#<BR>
+# Table structure for table `pageHits`<BR>
+#<BR>
+<BR>
+DROP TABLE IF EXISTS pageHits;<BR>
+CREATE TABLE pageHits (<BR>
+  pageHitID int(11) NOT NULL auto_increment,<BR>
+  timeStamp timestamp(14) NOT NULL,<BR>
+  accessCount int(11) NOT NULL default '-1',<BR>
+  currentIP varchar(16) NOT NULL default '',<BR>
+  username varchar(15) NOT NULL default '',<BR>
+  sessionID varchar(35) NOT NULL default '',<BR>
+  workingFile varchar(100) NOT NULL default '',<BR>
+  javaObject varchar(40) NOT NULL default '',<BR>
+  browser varchar(200) NOT NULL default '',<BR>
+  instrumentName varchar(100) NOT NULL default '',<BR>
+  currentStep int(11) NOT NULL default '-1',<BR>
+  displayCount int(11) NOT NULL default '-1',<BR>
+  lastAction varchar(15) NOT NULL default '',<BR>
+  statusMsg varchar(35) NOT NULL default '',<BR>
+  totalMemory bigint(15) NOT NULL default '0',<BR>
+  freeMemory bigint(15) NOT NULL default '0',<BR>
+  PRIMARY KEY  (pageHitID)<BR>
+) TYPE=MyISAM;<BR>
+# --------------------------------------------------------<BR>
+<BR>
+#<BR>
+# Table structure for table `pageHitDetails`<BR>
+#<BR>
+<BR>
+DROP TABLE IF EXISTS pageHitDetails;<BR>
+CREATE TABLE pageHitDetails (<BR>
+  pageHitDetailsID int(11) NOT NULL auto_increment,<BR>
+  pageHitID_FK int(11) NOT NULL default '0',<BR>
+  param varchar(40) NOT NULL default '',<BR>
+  value varchar(254) NOT NULL default '',<BR>
+  PRIMARY KEY  (pageHitDetailsID)<BR>
+) TYPE=MyISAM;<BR>
+# --------------------------------------------------------<BR>
+<BR>
+#<BR>
+# Table structure for table `pageHitEvents`<BR>
+#<BR>
+<BR>
+DROP TABLE IF EXISTS pageHitEvents;<BR>
+CREATE TABLE pageHitEvents (<BR>
+  pageHitEventsID int(11) NOT NULL auto_increment,<BR>
+  pageHitID_FK int(11) NOT NULL default '0',<BR>
+  varName varchar(40) NOT NULL default '',<BR>
+  actionType varchar(18) NOT NULL default '',<BR>
+  eventType varchar(18) NOT NULL default '',<BR>
+  timestamp bigint(15) NOT NULL default '0',<BR>
+  duration int(11) NOT NULL default '0',<BR>
+  value1 varchar(10) NOT NULL default '',<BR>
+  value2 varchar(50) NOT NULL default '',<BR>
+  PRIMARY KEY  (pageHitEventsID)<BR>
+) TYPE=MyISAM;<BR>
+# --------------------------------------------------------<BR>
+</P>
+
+<P><B>XML Schema Format</B></P>
+
+<P>[XXX - more documentation needed]</P>
+
+<P>Here is a sample XML file fragment for a node</P>
+
+<P>&lt;node linenum=&quot;11&quot;&gt;<BR>
+	&lt;concept&gt;interview;date;month;position&lt;/concept&gt;<BR>
+	&lt;uniqueName&gt;intro_day_position&lt;/uniqueName&gt;<BR>
+	&lt;displayName&gt;intro_day_position&lt;/displayName&gt;<BR>
+	&lt;relevance&gt;1&lt;/relevance&gt;<BR>
+	&lt;actionSymbol&gt;e&lt;/actionSymbol&gt;<BR>
+	&lt;actionType&gt;eval&lt;/actionType&gt;<BR>
+	&lt;nesting&gt;&lt;/nesting&gt;<BR>
+	&lt;dataType&gt;string&lt;/dataType&gt;<BR>
+	&lt;displayType&gt;nothing&lt;/displayType&gt;<BR>
+	&lt;validation&gt;<BR>
+		&lt;castto&gt;&lt;/castto&gt;<BR>
+		&lt;min&gt;&lt;/min&gt;<BR>
+		&lt;max&gt;&lt;/max&gt;<BR>
+		&lt;mask&gt;&lt;/mask&gt;<BR>
+		&lt;regex&gt;&lt;/regex&gt;<BR>
+		&lt;extras count=&quot;0&quot;/&gt;<BR>
+	&lt;/validation&gt;<BR>
+	&lt;hows count=&quot;2&quot;&gt;<BR>
+		&lt;how index=&quot;1&quot; lang=&quot;en_US&quot;&gt;<BR>
+			&lt;readback&gt;&lt;/readback&gt;<BR>
+			&lt;helpURL&gt;&lt;/helpURL&gt;<BR>
+			&lt;actionExp&gt;toDay(getNow()) lt 10?'beginning':toDay(getNow()) gt 20?'end':'middle'&lt;/actionExp&gt;<BR>
+			&lt;options count=&quot;0&quot;/&gt;<BR>
+		&lt;/how&gt;<BR>
+		&lt;how index=&quot;2&quot; lang=&quot;es&quot;&gt;<BR>
+			&lt;readback&gt;&lt;/readback&gt;<BR>
+			&lt;helpURL&gt;&lt;/helpURL&gt;<BR>
+			&lt;actionExp&gt;toDay(getNow()) lt 10?'principios':toDay(getNow()) gt 20?'finales':'mediados'&lt;/actionExp&gt;<BR>
+			&lt;options count=&quot;0&quot;/&gt;<BR>
+		&lt;/how&gt;<BR>
+	&lt;/hows&gt;<BR>
+&lt;/node&gt;
 
 </BODY>
 
