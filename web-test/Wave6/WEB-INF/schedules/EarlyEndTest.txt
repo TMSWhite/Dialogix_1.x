@@ -1,0 +1,21 @@
+RESERVED	__TRICEPS_FILE_TYPE__	SCHEDULE
+RESERVED	__TITLE__	Early End Test
+RESERVED	__ICON__	cpmc_dmi.jpg
+RESERVED	__SHOW_QUESTION_REF__	TRUE
+RESERVED	__AUTOGEN_OPTION_NUM__	TRUE
+RESERVED	__DEVELOPER_MODE__	true
+RESERVED	__PASSWORD_FOR_ADMIN_MODE__	bypass
+RESERVED	__HEADER_MSG__	Early End Test
+	q1	q1	1	[		This interview tests whether the system can stop and save the interview in the middle.	nothing
+	q2	q2	1	q		In general, would you say your health is:	list|5|Excellent|4.4|Very good|3.4|Good|2|Fair|1|Poor
+	q3	q3	1	]		<u>Compared to one year ago</u>, how would you rate your health in general <u>now</u>?	list|1|Much better now than one year ago|2|Somewhat better now than one year ago|3|About the same as one year ago|4|Somewhat worse now than one year ago|5|Much worse now than one year ago
+	e1	e1	1	e		suspendToFloppy();	nothing
+	q4	q4	1	[		Thanks you -- you have completed this part of the interview, and can exit this window.  In the next few days, one of our clinicians will contact you and ask a few follow-up questions.	nothing
+	q5	q5	1	];;'wave6';'wave6'		Clinicians -- please enter the password to continue.	password
+	q6	q6	1	[		This is the clinical section of the interview	nothing
+	q11		1	q		How TRUE or FALSE is <u>each</u> of the following statements for you?	nothing
+	q11a	v33	1	q		I seem to get sick a little easier than other people.	list|1|Definitely True|2|Mostly True|3|Don't Know|4|Mostly False|5|Definitely False
+	q11b	v34	1	q		I am as healthy as anybody I know.	list|5|Definitely True|4|Mostly True|3|Don't Know|2|Mostly False|1|Definitely False
+	q11c	v35	1	q		I expect my health to get worse.	list|1|Definitely True|2|Mostly True|3|Don't Know|4|Mostly False|5|Definitely False
+	q11d	v36	1	]		My health is excellent.	list|5|Definitely True|4|Mostly True|3|Don't Know|2|Mostly False|1|Definitely False
+	end	end	1	q		You have finished this intervew.  Please press the "next" button one more time to save the data.	nothing
