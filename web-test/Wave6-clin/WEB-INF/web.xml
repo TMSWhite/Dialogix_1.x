@@ -9,7 +9,7 @@
             Dialogix
         </servlet-name>
         <servlet-class>
-            org.dianexus.triceps.LoginTricepsServlet
+            org.dianexus.triceps.TricepsServlet
         </servlet-class>
         <init-param>
             <param-name>dialogix.dir</param-name>
@@ -17,11 +17,11 @@
         </init-param>   
         <init-param>
             <param-name>scheduleSrcDir</param-name>
-            <param-value>Wave6/WEB-INF/schedules/</param-value>
+            <param-value>Wave6-clin/WEB-INF/schedules/</param-value>
         </init-param>
         <init-param>
             <param-name>workingFilesDir</param-name>
-            <param-value>Wave6/WEB-INF/working/</param-value>
+            <param-value>Wave6/WEB-INF/archive/suspended/</param-value>
         </init-param>
         <init-param>
             <param-name>completedFilesDir</param-name>
@@ -45,7 +45,7 @@
         </init-param>
         <init-param>
             <param-name>displayWorking</param-name>
-            <param-value>false</param-value>
+            <param-value>true</param-value>
         </init-param>        
         
     </servlet>
@@ -57,6 +57,23 @@
       <res-type>javax.sql.DataSource</res-type>
       <res-auth>Container</res-auth>
   </resource-ref>    
+  
+  <!-- Define a Security Constraint on this Application -->
+  <security-constraint>
+    <web-resource-collection>
+      <web-resource-name>Wave6 Clinical Followup</web-resource-name>
+      <url-pattern>/servlet/*</url-pattern>
+    </web-resource-collection>
+    <auth-constraint>
+       <role-name>Wave6clinician</role-name>
+    </auth-constraint>
+  </security-constraint>
+
+  <!-- Define the Login Configuration for this Application -->
+  <login-config>
+    <auth-method>BASIC</auth-method>
+    <realm-name>Wave6 Clinical Followup</realm-name>
+  </login-config>     
 </web-app>
 
 
