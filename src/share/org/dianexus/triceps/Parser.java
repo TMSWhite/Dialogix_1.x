@@ -7,8 +7,10 @@ public class Parser {
 	private Qss qss = new Qss(new StringReader(""));
 	private Writer debugWriter = null;
 	private String debugEol = null;
+	private StringWriter errorWriter = null;
 
 	public Parser() {
+		setErrorWriter(new StringWriter(), "<BR>");
 	}
 
 	public boolean booleanVal(Evidence ev, String exp) {
@@ -39,11 +41,19 @@ public class Parser {
 	}
 
 	public boolean hasErrors() {
+		if (errorWriter != null) {
+			return (errorWriter.getBuffer().length() > 0);
+		}
 		return false;
 	}
 
-	public Vector getErrors() {
-		return null;
+	public String getErrors() {
+		if (errorWriter != null) {
+			String s = errorWriter.toString();
+			setErrorWriter(new StringWriter(),"<BR>");
+			return s;
+		}
+		return "";
 	}
 
 	public String parseJSP(Evidence ev, String msg) {
@@ -84,11 +94,17 @@ public class Parser {
 	}
 
 	public boolean setErrorWriter(Writer err) { return setErrorWriter(err,null); }
-	public boolean setErrorWriter(Writer err, String eol) { return qss.setErrorWriter(err,eol); }
+	public boolean setErrorWriter(Writer err, String eol) { 
+		if (err instanceof StringWriter) {
+			errorWriter = (StringWriter) err;
+		}
+		return qss.setErrorWriter(err,eol);
+	}
+	
 	public boolean setDebugWriter(Writer debug) { return setDebugWriter(debug,"\n\r"); }
 	public boolean setDebugWriter(Writer debug, String eol) {
 		debugWriter = debug;
 		debugEol = eol;
-		return qss.setDebugWriter(debug);
+		return qss.setDebugWriter(debug,eol);
 	}
 }

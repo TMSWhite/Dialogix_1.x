@@ -549,8 +549,8 @@ public class Triceps {
 		Node n;
 		Datum d;
 		Vector parseErrors = new Vector();
-		Vector dependenciesErrors;
-		Vector actionErrors;
+		String dependenciesErrors;
+		String actionErrors;
 		Vector nodeErrors;
 		boolean hasErrors;
 
@@ -560,8 +560,8 @@ public class Triceps {
 				continue;
 
 			hasErrors = false;
-			dependenciesErrors = EMPTY_LIST;
-			actionErrors = EMPTY_LIST;
+			dependenciesErrors = "";
+			actionErrors = "";
 			nodeErrors = EMPTY_LIST;
 
 			parser.booleanVal(evidence, n.getDependencies());

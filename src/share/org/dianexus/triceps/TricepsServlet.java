@@ -200,12 +200,12 @@ public class TricepsServlet extends HttpServlet {
 			if (expr != null) {
 				Datum datum = triceps.evaluateExpr(expr);
 
-				errors.append("<TABLE WIDTH='100%' CELLPADDING='2' CELLSPACING='1' BORDER=1>");
-				errors.append("<TR><TD>Equation</TD><TD><B>" + expr + "</B></TD><TD>Type</TD><TD><B>" + Datum.TYPES[datum.type()] + "</B></TD></TR>");
-				errors.append("<TR><TD>String</TD><TD><B>" + datum.stringVal(true) + "</B></TD><TD>boolean</TD><TD><B>" + datum.booleanVal() + "</B></TD></TR>");
-				errors.append("<TR><TD>double</TD><TD><B>" + datum.doubleVal() + "</B></TD><TD>&nbsp;</TD>&nbsp;</TD></TR>");
-				errors.append("<TR><TD>date</TD><TD><B>" + datum.dateVal() + "</B></TD><TD>month</TD><TD><B>" + datum.monthVal() + "</B></TD></TR>");
-				errors.append("</TABLE>");
+				setError("<TABLE WIDTH='100%' CELLPADDING='2' CELLSPACING='1' BORDER='1'>");
+				setError("<TR><TD>Equation</TD><TD><B>" + expr + "</B></TD><TD>Type</TD><TD><B>" + Datum.TYPES[datum.type()] + "</B></TD></TR>");
+				setError("<TR><TD>String</TD><TD><B>" + datum.stringVal(true) + "</B></TD><TD>boolean</TD><TD><B>" + datum.booleanVal() + "</B></TD></TR>");
+				setError("<TR><TD>double</TD><TD><B>" + datum.doubleVal() + "</B></TD><TD>&nbsp;</TD><TD>&nbsp;</TD></TR>");
+				setError("<TR><TD>date</TD><TD><B>" + datum.dateVal() + "</B></TD><TD>month</TD><TD><B>" + datum.monthVal() + "</B></TD></TR>");
+				setError("</TABLE>");
 
 				Vector errs = triceps.getErrors();
 				for (int i=0;i<errs.size();++i) {
@@ -602,28 +602,10 @@ public class TricepsServlet extends HttpServlet {
 					setError("<TR><TD>" + n.getSourceLine() + "</TD><TD>" + (n.getLocalName()) + "</TD>");
 					setError("<TD>" + (pe.getDependencies()) + "</TD><TD>");
 
-					errs = pe.getDependenciesErrors();
-					if (errs.size() == 0) {
-						setError("&nbsp;");
-					}
-					else {
-						for (int j=0;j<errs.size();++j) {
-							setError("" + (j+1) + ")&nbsp;" + ((String) errs.elementAt(j)));
-						}
-					}
-
+					setError(pe.getDependenciesErrors());
 					setError("</TD><TD>" + Node.ACTION_TYPES[n.getQuestionOrEvalType()] + "</TD><TD>" + (pe.getQuestionOrEval()) + "</TD><TD>");
 
-					errs = pe.getQuestionOrEvalErrors();
-					if (errs.size() == 0) {
-						setError("&nbsp;");
-					}
-					else {
-						for (int j=0;j<errs.size();++j) {
-							setError("" + (j+1) + ")&nbsp;" + ((String) errs.elementAt(j)));
-						}
-					}
-
+					setError(pe.getQuestionOrEvalErrors());
 					setError("</TD><TD>");
 
 					errs = pe.getNodeErrors();
