@@ -331,3 +331,6 @@ Reorganization & Documentation
   BUGFIX - 'e' lines that include assign statments now have those new values saved to the data file
   Enhancement - added "suspendToFloppy()" function
   Enhancement - better expired session handling - shows link closing window and opening up new session
+
+<< changes from 2.8.9 to 2.8.9a
+  BUGFIX - now does ignoreCase() test for file extensions
