@@ -74,7 +74,7 @@
   
   <!-- Static properties - Do not change these -->
   <property name="dialogix.version_major" value="2.9"/>
-  <property name="dialogix.version_minor" value="9.3"/>
+  <property name="dialogix.version_minor" value="9.3.1"/>
   <property name="tomcat.home" value="/${zip.basedir}"/>
   <property name="dialogix.dir" value="${tomcat.home}/webapps/"/>
   <property name="win98.desktop" value="Windows/Desktop"/>
@@ -259,6 +259,9 @@
          <filter token="SUPPORT.PHONE" value="${SUPPORT.PHONE}"/>
          <filter token="SUPPORT.EMAIL" value="${SUPPORT.EMAIL}"/>
          <filter token="SUPPORT.PERSON" value="${SUPPORT.PERSON}"/>
+         <filter token="DIALOGIX.DB_FOR_LOGIN" value="${dialogix.db_for_login}"/>
+         <filter token="DIALOGIX.DB_TRACK_LOGINS" value="${dialogix.db_track_logins}"/>
+         <filter token="DIALOGIX.DB_LOG_RESULTS" value="${dialogix.db_log_results}"/>
        </filterset>
     </copy>
     
@@ -340,7 +343,9 @@
        <filterset begintoken="@@" endtoken="@@">
          <filter token="DIALOGIX.DIR" value="${dialogix.dir}"/>
          <filter token="FLOPPY.DIR" value="${floppy.dir}"/>
-		   <filter token="TOMCAT.HOME" value="${tomcat.home}"/>
+		 <filter token="TOMCAT.HOME" value="${tomcat.home}"/>
+         <filter token="DB.COMMENT_START" value="${DB.COMMENT_START}"/>
+         <filter token="DB.COMMENT_END" value="${DB.COMMENT_END}"/>		   
        </filterset>
      </copy>
      
@@ -392,6 +397,8 @@
          <filter token="SSL.KEYSTORE" value="${SSL.KEYSTORE}"/>
          <filter token="SSL.KEYPASS" value="${SSL.KEYPASS}"/>
          <filter token="TOMCAT.HOME" value="${tomcat.home}"/>
+         <filter token="DB.COMMENT_START" value="${DB.COMMENT_START}"/>
+         <filter token="DB.COMMENT_END" value="${DB.COMMENT_END}"/>
        </filterset>
      </copy>       
 
@@ -847,7 +854,32 @@
     
     <condition property="SSL.COMMENT_END" value="&lt;!-- --&gt;">
     	<equals arg1="${SSL.USE}" arg2="true" />
-    </condition>          
+    </condition>   
+    
+    
+    <!-- these are for DB needs -->
+    <condition property="dialogix.db_role" value="with_db">
+    	<equals arg1="${DB.USE}" arg2="true" />
+    </condition>
+    <condition property="dialogix.db_role" value="no_db">
+    	<equals arg1="${DB.USE}" arg2="false" />
+    </condition>  
+    
+    <condition property="DB.COMMENT_START" value="&lt;!--">
+    	<equals arg1="${DB.USE}" arg2="false" />
+    </condition>
+    
+    <condition property="DB.COMMENT_START" value="&lt;!-- --&gt;">
+    	<equals arg1="${DB.USE}" arg2="true" />
+    </condition>  
+    
+    <condition property="DB.COMMENT_END" value="--&gt;">
+    	<equals arg1="${DB.USE}" arg2="false" />
+    </condition>
+    
+    <condition property="DB.COMMENT_END" value="&lt;!-- --&gt;">
+    	<equals arg1="${DB.USE}" arg2="true" />
+    </condition>               
     
     <condition property="using.tomcat_3_2.ssl">
     	<and>
@@ -926,7 +958,7 @@
     </condition>  
     
     <property name="zip.name" 
-    	value="${app.name}_${app.version}_${deploy.os}_${dialogix.package_name}${dialogix.webbable}_${dialogix.user_role}_Tomcat_${tomcat.version}_${dialogix.ssl_role}" />
+    	value="${app.name}_${app.version}_${deploy.os}_${dialogix.package_name}${dialogix.webbable}_${dialogix.user_role}_Tomcat_${tomcat.version}_${dialogix.ssl_role}_${dialogix.db_role}" />
     	
     <pathconvert targetos="windows" property="DIALOGIX.HOME">
     	<path>
