@@ -62,7 +62,10 @@ import java.lang.SecurityException;
 	private String tempPassword = null;
 	Logger dataLogger = Logger.NULL;	
 	private Logger eventLogger = Logger.NULL;
-
+	private int displayCount = -1;	// count the number of times data has been sent 
+	private String displayCountStr = null;
+	private long timeSent = 0;
+	private long timeReceived = 0;
 
 	/** formerly from Lingua */
 	private static final Locale defaultLocale = Locale.getDefault();
@@ -85,13 +88,15 @@ import java.lang.SecurityException;
 
 	/*public*/ Triceps(String scheduleLoc, String workingFilesDir, String completedFilesDir, String floppyDir) {
 		/* initialize required variables */
-		parser = new Parser();
+		timeSent = timeReceived = System.currentTimeMillis();	// gets a sense of the class load time
+		parser = new Parser();	
 		setLocale(null);	// the default
 		errorLogger = new Logger();
 		if (scheduleLoc != null) {
 			createDataLogger(workingFilesDir,null);
 		}
 		isValid = init(scheduleLoc,workingFilesDir,completedFilesDir,floppyDir);
+		initDisplayCount();
 	}
 	
 	private boolean init(String scheduleLoc, String workingFilesDir, String completedFilesDir, String floppyDir) {
@@ -150,7 +155,10 @@ if (DEBUG) Logger.writeln("##Triceps.createDataLogger()->writer is null");
 		if (eventLogger == null) {
 			eventLogger = Logger.NULL;
 if (DEBUG) Logger.writeln("##Triceps.createEventLogger()->writer is null");			
-		}	
+		}
+if (DEPLOYABLE) {
+		eventLogger.println("**" + VERSION_NAME + " Log file started on " + new Date(System.currentTimeMillis()));
+}			
 	}
 
 	/*public*/ boolean setSchedule(String scheduleLoc, String workingFilesDir, String completedFilesDir, String floppyDir) {
@@ -939,13 +947,49 @@ if (DEPLOYABLE) {
 		}
 
 		StringTokenizer lines = new StringTokenizer(src,"|",false);
-
+		
 		while(lines.hasMoreTokens()) {
 			String s = lines.nextToken();
-			eventLogger.println(s);
+			eventLogger.println(displayCountStr + "," + s);
 		}
+		
 		eventLogger.flush();	// so that committed to disk
 }		
+	}
+
+	private void initDisplayCount() {
+		displayCountStr = nodes.getReserved(Schedule.DISPLAY_COUNT);
+		displayCount = 0;
+		try {
+			displayCount = Integer.parseInt(displayCountStr);
+		}
+		catch (NumberFormatException e) {
+if (DEBUG) Logger.writeln("##NumberFormatException @ Triceps.initDisplayCount()" + e.getMessage());
+			displayCount = 0;
+		}
+		nodes.setReserved(Schedule.DISPLAY_COUNT,Integer.toString(displayCount));
+	}
+
+	/*public*/ void sentRequestToUser() {
+		incrementDisplayCount();
+if (DEPLOYABLE) {		
+		timeSent = System.currentTimeMillis();
+		eventLogger.println(displayCountStr + ",,,sent_request," + timeSent + "," + (timeSent - timeReceived) + ",,");
+		eventLogger.flush();	// so that committed to disk
+}		
+	}
+	
+	/*public*/ void receivedResponseFromUser() {
+if (DEPLOYABLE) {		
+		timeReceived = System.currentTimeMillis();
+		eventLogger.println(displayCountStr + ",,,received_response," + timeReceived + "," + (timeReceived - timeSent) + ",,");
+		eventLogger.flush();	// so that committed to disk
+}
+	}
+	
+	private void incrementDisplayCount() {
+		displayCountStr = Integer.toString(++displayCount);
+		nodes.setReserved(Schedule.DISPLAY_COUNT,displayCountStr);	// so that can track the screen count over temporally disjointed sessions
 	}
 
 	/* Formerly from Lingua */
