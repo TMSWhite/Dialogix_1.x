@@ -218,7 +218,7 @@ public class TricepsServlet extends HttpServlet {
 		nodes = new Schedule("http://localhost/navigation.txt");
 	}
 	private void queryUser() {
-		out.println("<form method='POST' action='http://localhost/triceps/TricepsServlet'>");
+		out.println("<form method='POST' action='http://localhost/triceps/servlet/TricepsServlet'>");
 		out.println("<B>Question " + node.getQuestionRef() + "</B>: " + parser.parseJSP(evidence, node.getAction()) + "<br>");
 		// display the answer options
 		StringTokenizer ans;

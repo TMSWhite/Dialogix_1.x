@@ -22,10 +22,14 @@ public class Node {
 		boolean lastWasTab = true; // so that if first was tab, will recognize that a token is missing
 		int count = 0;
 		try {
-			StringTokenizer st = new StringTokenizer(tsv, "\t", true);
+			StringTokenizer st = new StringTokenizer(tsv, "\t", false);
 			this.step = step;
 			count = st.countTokens();
 			int j = 0;
+			
+			/* If there are no adjacent tabs in a line, then this fails to work.  It is not clear why.
+				Hack for now: no longer return tabs.  Since navigation.txt no longer has adjacent tabs, this
+				is working */
 			for (int i = 0; i < count; ++i) {
 				token = st.nextToken();
 				// this is the only way to tell whether the token returned is a TAB - TAB.equals(token) doesn't work!
