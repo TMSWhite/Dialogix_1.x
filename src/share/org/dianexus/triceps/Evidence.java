@@ -466,6 +466,7 @@ if (DEPLOYABLE) {
 			Value v = (Value) values.elementAt(i);
 			v.setDatum(val,null);
 		}
+if (DEBUG) Logger.writeln("@@Evidence.set(" + name + "," + val.stringVal() + ")");	// where is this function being used - does it explain missing RESERVED word logging?		
 	}
 	
 	private void writeNode(Node q, Datum d) {
