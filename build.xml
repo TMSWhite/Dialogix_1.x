@@ -151,17 +151,25 @@
   <path id="compile.classpath">
 
     <!-- Include all JAR files that will be included in /WEB-INF/lib -->
+    <!-- these are for Tomcat 4.0 -->
+    <fileset dir="src/tomcat_4_0_x/common/lib">
+      <include name="*.jar" if="using.tomcat_4_0"/>
+    </fileset>
+    <fileset dir="src/tomcat_3_3_x/lib">
+      <include name="*.jar" if="using.tomcat_4_0"/>
+    </fileset>      
+    
     <!-- these are for Tomcat 3.3 -->
     <fileset dir="src/tomcat_3_3_x/lib/common">
-      <include name="*.jar"/>
+      <include name="*.jar" if="using.tomcat_3_3"/>
     </fileset>
     <fileset dir="src/tomcat_3_3_x/lib/apps">
-      <include name="*.jar"/>
+      <include name="*.jar" if="using.tomcat_3_3"/>
     </fileset>    
 
     <!-- these are for Tomcat 3.2 -->
     <fileset dir="src/tomcat_3_2_x/lib">
-    	<include name="*.jar"/>
+    	<include name="*.jar" if="using.tomcat_3_2"/>
     </fileset>
     
   </path>  
@@ -356,7 +364,7 @@
     </jar>
     <delete includeEmptyDirs="true">
     	<fileset dir="${tomcat.home}/lib/apps">
-    		<include name="**" if="using.tomcat_3_3"/>
+    		<include name="**" if="using.tomcat_3_2"/>
     		<include name="**" if="using.tomcat_4_0"/>
     	</fileset>
     </delete>
@@ -443,6 +451,13 @@
 			<filter token="COMPLETED.DIR" value="${COMPLETED.DIR}"/>		 
        </filterset>
     </copy>	
+    
+    <copy todir="${tomcat.home}/bin">
+    	<fileset dir=".">
+    		<include name="jikes.exe" if="using.win98" />
+    		<include name="jikes.exe" if="using.win2000" />
+    	</fileset>
+    </copy>
     
   </target>
 
