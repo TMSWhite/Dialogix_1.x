@@ -113,6 +113,7 @@ import java.io.File;
 	private static final int MEAN = 84;
 	private static final int STDDEV = 85;
 	private static final int SUSPEND_TO_FLOPPY = 86;
+	private static final int REGEX_MATCH = 87;
 
 	
 	private static final Object FUNCTION_ARRAY[][] = {
@@ -203,6 +204,7 @@ import java.io.File;
 		{ "mean",				UNLIMITED,	new Integer(MEAN) },
 		{ "stddev",				UNLIMITED,	new Integer(STDDEV) },
 		{ "suspendToFloppy",	ZERO,		new Integer(SUSPEND_TO_FLOPPY) },
+		{ "regexMatch",			TWO,		new Integer(REGEX_MATCH) },
 	};
 
 	private static final Hashtable FUNCTIONS = new Hashtable();
@@ -1301,6 +1303,20 @@ if (DEBUG) Logger.writeln("##SecurityException @ Evidence.fileExists()" + e.getM
 				case SUSPEND_TO_FLOPPY:
 					triceps.suspendToFloppy();
 					return new Datum(triceps, "", Datum.STRING);
+				case REGEX_MATCH: {
+					/** syntax:  regexMatch(text,pattern) */
+					InputValidator iv = InputValidator.getInstance(getParam(params.elementAt(1)).stringVal());
+					if (!iv.isValid()) {
+						setError(iv.getErrors(),null);
+						return Datum.getInstance(triceps,Datum.INVALID);
+					}
+					if (iv.isMatch(getParam(params.elementAt(0)).stringVal())) {
+						return new Datum(triceps,true);
+					}
+					else {
+						return new Datum(triceps,false);
+					}
+				}
 			}
 		}
 		catch (Throwable t) {

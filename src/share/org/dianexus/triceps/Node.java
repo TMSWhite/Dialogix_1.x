@@ -110,6 +110,7 @@ import java.text.DecimalFormat;
 	private Datum maxDatum = null;
 
 	private String mask = null;
+	private InputValidator inputValidator = InputValidator.NULL;
 
 	private Date timeStamp = null;
 	private String timeStampStr = null;
@@ -275,7 +276,15 @@ else setParseError("syntax error");
 					maxStr = s;
 					break;
 				case 4:
-					mask = s;
+				/* FIXME:  HACK -- does double duty -- either a formatting mask, OR a regex input mask */
+					inputValidator = InputValidator.getInstance(s);
+					if (inputValidator.isNull()) {
+						mask = s;	// since null, or doesn't start with "PERL5"
+					}
+					if (inputValidator.hasErrors()) {
+						setParseError(inputValidator.getErrors());
+					}
+if (DEBUG)	Logger.writeln(s + " ->" + inputValidator.isNull() + "/" + inputValidator.isValid() + ": " + inputValidator.getErrors());	
 					break;
 				default:
 					/* extra parameters are additional allowable values, as Strings that will be parsed */
@@ -316,7 +325,7 @@ else setParseError("syntax error");
 		else
 			rangeStr = " (e.g. " + s + ")";
 
-		if ((minStr == null && maxStr == null && allowableValues == null) || answerType == PASSWORD) {
+		if ((minStr == null && maxStr == null && allowableValues == null && !inputValidator.isValid()) || answerType == PASSWORD) {
 			return rangeStr;
 		}
 
@@ -345,6 +354,9 @@ else setParseError("syntax error");
 			")";
 		if (other != null) {
 			rangeStr = " [" + rangeStr + other + "]";
+		}
+		if (inputValidator.isValid()) {
+			rangeStr = "(e.g. m/" + inputValidator.getPattern() + "/)";
 		}
 
 		return " " + rangeStr;
@@ -680,6 +692,11 @@ else setParseError("syntax error");
 					err = false;
 					break;
 				}
+			}
+		}
+		if (!inputValidator.isNull()) {
+			if (!inputValidator.isMatch(d.stringVal())) {
+				err = true;
 			}
 		}
 
