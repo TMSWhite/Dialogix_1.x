@@ -92,6 +92,9 @@ public class Qss {
 		}
 	}
 
+	private String datumValue(Datum d) {
+		return ("(" + d.getName() + "," + d.stringVal(true) + ")");
+	}
 
 	private String opName(int op) {
 		return tokenImage[op].substring(1,tokenImage[op].length()-1);
@@ -107,7 +110,7 @@ public class Qss {
 		}
 		stack.push(ans);
 		if (isDebug) {
-			debug(opName(op) + "\t" + a.stringVal(true),ans);
+			debug(opName(op) + "\t" + datumValue(a),ans);
 		}
 	}
 
@@ -139,11 +142,11 @@ public class Qss {
 			case XOR: ans = DatumMath.xor(a,b); break;
 			case AND: ans = DatumMath.and(a,b); break;
 			case OR: ans = DatumMath.or(a,b); break;
-			case ASSIGN: ans = b; evidence.set(a.stringVal(),b); break;
+			case ASSIGN: evidence.set(a.stringVal(),b); ans = evidence.getDatum(a.stringVal()); break;
 		}
 		stack.push(ans);
 		if (isDebug) {
-			debug(opName(op) + "\t" + a.stringVal(true) + "\t" + b.stringVal(true),ans);
+			debug(opName(op) + "\t" + datumValue(a) + "\t" + datumValue(b),ans);
 		}
 	}
 
@@ -157,7 +160,7 @@ public class Qss {
 		}
 		stack.push(ans);
 		if (isDebug) {
-			debug(opName(op) + "\t" + a.stringVal(true) + "\t" + b.stringVal(true) + "\t" + c.stringVal(true),ans);
+			debug(opName(op) + "\t" + datumValue(a) + "\t" + datumValue(b) + "\t" + datumValue(c),ans);
 		}
 	}
 
@@ -172,7 +175,7 @@ public class Qss {
 				if (o == null)
 					sb.append("\tnull");
 				else if (o instanceof Datum)
-					sb.append("\t" + ((Datum) o).stringVal(true));
+					sb.append("\t" + datumValue((Datum) o));
 				else if (o instanceof String)
 					sb.append("\t" + (String) o);
 				else
@@ -484,25 +487,15 @@ void Function() : { Token t; Stack params; }
 		}
 }
 
-Stack FunctionParameters() : { Object o; Stack params = new Stack(); }
+Stack FunctionParameters() : { Stack params = new Stack(); }
 {
-	( o = FunctionParameter() )
-		{ params.push(o); }
+	Expression()
+		{ params.push(stack.pop()); }
 	(
-		"," ( o = FunctionParameter() )
-			{ params.push(o); }
+		"," Expression()
+			{ params.push(stack.pop()); }
 	)*
 		{ return params; }
 |	/* empty */
 	{ return params; }
-}
-
-Object FunctionParameter() : { }
-{
-	LOOKAHEAD(3) Function()
-		{ return stack.pop(); }
-|	LOOKAHEAD(2) <NMTOKEN>
-		{ return token.image; }
-|	Expression()
-		{ return stack.pop(); }
 }
