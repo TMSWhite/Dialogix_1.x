@@ -829,6 +829,7 @@ if (XML) {
 		Enumeration ans = null;
 		int count=0;
 		boolean nothingSelected = true;
+		String msg = (new XmlString(triceps,triceps.getQuestionStr(this))).toString();
 		
 		ask.append("<node name=\"");
 		ask.append(getLocalName());
@@ -846,8 +847,8 @@ if (XML) {
 		ask.append("\" err=\"");
 		ask.append(XMLAttrEncoder.encode(getRuntimeErrors()));
 		ask.append("\">\n	<ask>");
-		ask.append((new XmlString(triceps,triceps.getQuestionStr(this))).toString());	// can have embedded markup
-		ask.append("	</ask>\n	<listen>\n");
+		ask.append(msg);	// can have embedded markup
+		ask.append("</ask>\n	<listen>\n");
 		
 		switch(answerType) {
 		case RADIO:
