@@ -88,21 +88,15 @@ if (DEBUG) Logger.printStackTrace(t);
 	}
 
 	private void okPage(HttpServletRequest req, HttpServletResponse res) {
-		HttpSession session = req.getSession(true);
+		HttpSession session = req.getSession();
 		
-		if (session.isNew()) {
-//			Logger.writeln("session timeout (secs) = " + session.getMaxInactiveInterval());
-			session.setMaxInactiveInterval(SESSION_TIMEOUT);	// so expires after 12 hours
+		if ((session == null || session.isNew()) && "POST".equals(req.getMethod())) {
+			shutdown(req,"post-expired session",false);
+			expiredSessionErrorPage(req,res);
+			return;
 		}
 		
 		sessionID = session.getId();
-		
-		/* is this an expired session? */
-		if (session.isNew() && "POST".equals(req.getMethod())) {
-			expiredSessionErrorPage(req,res);
-			shutdown(req,"post-expired session");
-			return;
-		}		
 		
 		tricepsEngine = (TricepsEngine) session.getAttribute(TRICEPS_ENGINE);
 		if (tricepsEngine == null) {
@@ -116,22 +110,21 @@ if (DEBUG) Logger.printStackTrace(t);
 			PrintWriter out = res.getWriter();
 			
 			tricepsEngine.doPost(req,res,out,null,null);
-			
+						
 			out.close();
 			out.flush();
+			
+			session.setAttribute(TRICEPS_ENGINE, tricepsEngine);
+			
+			/* disable session if completed */
+			if (tricepsEngine.isFinished()) {
+				logAccess(req, " FINISHED");
+				shutdown(req,"post-FINISHED",false);	// if don't remove the session, can't login as someone new
+			}			
 		}
 		catch (Throwable t) {
 if (DEBUG) Logger.printStackTrace(t);
 		}			
-		
-		session.setAttribute(TRICEPS_ENGINE, tricepsEngine);
-		
-		/* disable session if completed */
-		if (tricepsEngine.isFinished()) {
-			logAccess(req, " FINISHED");
-			Logger.writeln("...instrument finished.  Discarding session " + sessionID);
-			shutdown(req,"post-FINISHED");
-		}
 	}
 	
 	void logAccess(HttpServletRequest req, String msg) {
@@ -236,28 +229,33 @@ if (DEBUG) Logger.printStackTrace(t);
 		}		
 	}
 	
-	void shutdown(HttpServletRequest req, String msg) {
+	void shutdown(HttpServletRequest req, String msg, boolean createNewSession) {
 		/* want to invalidate sessions -- even though this confuses the log issue on who is accessing from where, multiple sessions can indicate problems with user interface */
 		
-		Logger.writeln("Shutdown session: " + msg);
+		Logger.writeln("...discarding session: " + sessionID + ":  " + msg);
 		
 		if (tricepsEngine != null) {
 			tricepsEngine.getTriceps().shutdown();
 		}
 		tricepsEngine = null;
 		
-		HttpSession session = req.getSession();
-		if (session != null) {
-			session.removeAttribute(TRICEPS_ENGINE);
-		}
 		try {
-			session.invalidate();	// so that retrying same session gives same message
+			HttpSession session = req.getSession();
+			if (session != null) {
+				session.invalidate();	// so that retrying same session gives same message
+			}
+			
+			sessionID = null;
+			
+			if (createNewSession) {
+				/* Finally, create a new session so that session so that it is available, and so that session time-outs can be detected */
+				/* this cannot be done after the page is sent? */
+				session = req.getSession(true);	// the only place to create new sessions
+				session.setMaxInactiveInterval(SESSION_TIMEOUT);	// so expires after 12 hours
+			}
 		}
 		catch (java.lang.IllegalStateException e) {
 			Logger.writeln(e.getMessage());
 		}
-		
-		/* Finally, create a new session so that session so that it is available, and so that session time-outs can be detected */
-		session = req.getSession(true);
 	}
 }

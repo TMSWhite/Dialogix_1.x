@@ -89,7 +89,7 @@ public class TricepsEngine implements VersionIF {
 
 	public TricepsEngine(ServletConfig config) {
 		init(config);
-		isloaded = getNewTricepsInstance(null);
+		isloaded = getNewTricepsInstance(null,null);
 	}
 		 
 	public void init(ServletConfig config) {
@@ -136,19 +136,21 @@ public class TricepsEngine implements VersionIF {
 			firstFocus = null; // reset it each time
 			
 			directive = req.getParameter("DIRECTIVE");	// XXX: directive must be set before calling processHidden
-//if (DEBUG) Logger.writeln("##directive='" + directive + "'");			
+			
 			if (directive != null && directive.trim().length() == 0) {
 				directive = null;
 			}
-if (DEPLOYABLE) {
-			triceps.processEventTimings(req.getParameter("EVENT_TIMINGS"));
-			triceps.receivedResponseFromUser();
-}			
-
+			
 			/* Hack to support authenticated access to instruments */
 			if (restoreFile != null) {
-				/* means that this is the name of the file to restore */
+				/* means that this is the name of the file to restore, but it has already been restored, so second hack below */
 				directive = "RESTORE";
+			}
+			else {
+if (DEPLOYABLE) {
+				triceps.processEventTimings(req.getParameter("EVENT_TIMINGS"));
+				triceps.receivedResponseFromUser();
+}			
 			}
 
 			setGlobalVariables();
@@ -721,7 +723,7 @@ if (DISPLAY_WORKING) {
 		}
 		else if (directive.equals("START")) {
 			// load schedule
-			ok = getNewTricepsInstance(getCanonicalPath(req.getParameter("schedule")));
+			ok = getNewTricepsInstance(getCanonicalPath(req.getParameter("schedule")),req);
 
 			if (!ok) {
 				directive = null;
@@ -748,15 +750,18 @@ if (DISPLAY_WORKING) {
 				return processDirective();
 			}
 
-			// load schedule
-			ok = getNewTricepsInstance(restore);
-
-			if (!ok) {
-				directive = null;
-				
-				errors.println(triceps.get("unable_to_find_or_access_schedule") + " @'" + restore + "'");
-				return processDirective();
+			// load schedule -- if restoreFile exists, then has already been restored -- just need to jump to proper question
+			if (restoreFile == null) {
+				/* else already loaded this instance */
+				ok = getNewTricepsInstance(restore,req);
+				if (!ok) {
+					directive = null;
+					
+					errors.println(triceps.get("unable_to_find_or_access_schedule") + " @'" + restore + "'");
+					return processDirective();
+				}				
 			}
+
 			// re-check developerMode options - they aren't set via the hidden options, since a new copy of Triceps created
 			setGlobalVariables();
 
@@ -1069,7 +1074,12 @@ if (AUTHORABLE) {
 		return sb.toString();
 	}
 
-	boolean getNewTricepsInstance(String name) {
+	boolean getNewTricepsInstance(String name, HttpServletRequest req) {
+		if (req != null) {
+			this.req = req;
+			whichBrowser();
+		}
+
 		if (triceps != null) {
 			triceps.closeDataLogger();
 		}

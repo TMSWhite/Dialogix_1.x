@@ -40,9 +40,12 @@ public class LoginTricepsServlet extends TricepsServlet {
 	static final String LOGIN_ERR_NEW_SESSION = "Please login";
 	static final String LOGIN_ERR_MISSING_UNAME_OR_PASS = "Please enter both your username and password";
 	static final String LOGIN_ERR_INVALID_UNAME_OR_PASS = "The username or password you entered was incorrect";	/* don't mix so many messages? */
-	static final String LOGIN_ERR_INVALID = "Please login again --  You will resume from where you left off.<br><br>(Your login session was invalidated either because you accidentally pressed the browser's back button instead of the 'previous' button, or you attempted to use a bookmarked page from the instrument)";
+	static final String LOGIN_ERR_INVALID = "Please login again --  You will resume from where you left off.<br><br>(Your login session was invalidated either because you accidentally pressed the browser's back button instead of the 'previous' button; or you attempted to use a bookmarked page from the instrument; or you triple-clicked an icon or button)";
 	static final String LOGIN_ERR_ALREADY_COMPLETED = "Thank you!  You have already completed this instrument.";
 	static final String LOGIN_ERR_UNABLE_TO_LOAD_FILE = "Please contact the administrator -- the program was unable to load the interview: ";
+	static final String LOGIN_ERR_EXPIRED_SESSION = "Please login again -- You will resume from where you left off.<br><br>(Your session expired, either because of prolonged inactivity, or because the server was restarted)";
+	static final String LOGIN_ERR_INVALID_RELOGON = "Please login again --  You will resume from where you left off.<br><br>(Your login session was invalidated because the login page was submitted twice)";
+
 	
 	LoginRecords loginRecords = LoginRecords.NULL;
 	static Random random = new Random();
@@ -75,14 +78,13 @@ if (DEBUG) Logger.printStackTrace(t);
 	
 	void processPost(HttpServletRequest req, HttpServletResponse res)  {
 		/* validate session */
-		/* Ensure that there is actually a session object  -- if not, create one */
-		HttpSession session = req.getSession(true);
+		/* Ensure that there is actually a session object  -- if not, will be created by loginPage */
+		HttpSession session = req.getSession();
 		
-		if (session.isNew()) {
+		if (session == null || session.isNew()) {
 			/* If session is expired, give appropriiate error page */
 			if ("POST".equals(req.getMethod())) {
-				expiredSessionErrorPage(req,res);
-				shutdown(req,"post-expired session");
+				loginPage(req,res,LOGIN_ERR_EXPIRED_SESSION);
 				return;
 			}
 			/* if new, require login */
@@ -98,6 +100,13 @@ if (DEBUG) Logger.printStackTrace(t);
 		LoginRecord loginRecord = (LoginRecord) session.getAttribute(LOGIN_RECORD);
 		
 		if (LOGIN_COMMAND_LOGON.equals(loginCommand)) {
+			/* check whether person has backed up and tried to re-login to an active session */
+			if ((storedLoginToken != null && !storedLoginToken.trim().equals("")) || loginRecord != null) {
+				/* the person is trying to login again -- don't let them continue, since have active session */
+				loginPage(req,res,LOGIN_ERR_INVALID_RELOGON);
+				return;
+			}
+			
 			/* then try to validate this person */
 			String uname = req.getParameter(LOGIN_USERNAME);
 			String pass = req.getParameter(LOGIN_PASSWORD);
@@ -181,10 +190,7 @@ if (DEBUG) Logger.printStackTrace(t);
 	void loginPage(HttpServletRequest req, HttpServletResponse res, String message) {
 		logAccess(req, " LOGIN - " + message);
 		
-		if (tricepsEngine != null) {
-			/* then this is an error condition -- must reset state and reload instrument from where left off */
-			shutdown(req,"at start of loginPage, when tricepsEngine = null");	// graceful exit;
-		}
+		shutdown(req,"now at loginPage",true);
 		
 		try {
 			res.setContentType("text/html");
@@ -313,13 +319,15 @@ if (DEBUG) Logger.printStackTrace(t);
 			if (loginRecord.isWorking()) {
 				/* then load the existing one, from where left off */
 				src = loginRecord.getFilename();
+				logAccess(req," RESTORE");
 			}
 			else {
 				/* hasn't been started yet -- load it from the instrument, and keep track of the location information (the tmp file) */
 				src = loginRecord.getInstrument();
+				logAccess(req," START");
 			}
 			
-			boolean ok = tricepsEngine.getNewTricepsInstance(tricepsEngine.getCanonicalPath(src));
+			boolean ok = tricepsEngine.getNewTricepsInstance(tricepsEngine.getCanonicalPath(src),req);
 			if (ok) {
 				String filename = tricepsEngine.getTriceps().dataLogger.getFilename();
 				
@@ -340,8 +348,10 @@ if (DEBUG) Logger.printStackTrace(t);
 				return;
 			}
 		}
-		
-		logAccess(req, " OK");
+		else {
+			/* an active TricepsEngine */
+			logAccess(req, " OK");
+		}
 		
 		try {
 			res.setContentType("text/html");
@@ -349,27 +359,26 @@ if (DEBUG) Logger.printStackTrace(t);
 			
 			tricepsEngine.doPost(req,res,out,hiddenLoginToken,restoreFile);
 			
+			/* process session before finalizing print writer */
+			session.setAttribute(TRICEPS_ENGINE, tricepsEngine);
+			
 			out.close();
 			out.flush();
-		}
+			
+			/* disable session if completed */
+			if (tricepsEngine.isFinished()) {
+				logAccess(req, " FINISHED");
+				try {
+					shutdown(req,"post-FINISHED",false);	// if don't remove the session, can't login as someone new
+					loginRecord.setStatusCompleted();
+					loginRecords.updateLoginInfo();
+				}
+				catch (java.lang.IllegalStateException e) {
+					Logger.writeln(e.getMessage());
+				}
+			}					}
 		catch (Throwable t) {
 if (DEBUG) Logger.printStackTrace(t);
-		}
-		
-		session.setAttribute(TRICEPS_ENGINE, tricepsEngine);
-		
-		/* disable session if completed */
-		if (tricepsEngine.isFinished()) {
-			logAccess(req, " FINISHED");
-			Logger.writeln("...instrument finished.  Discarding session " + sessionID);
-			try {
-				shutdown(req,"post-FINISHED");
-				loginRecord.setStatusCompleted();
-				loginRecords.updateLoginInfo();
-			}
-			catch (java.lang.IllegalStateException e) {
-				Logger.writeln(e.getMessage());
-			}
 		}
 	}	
 }
