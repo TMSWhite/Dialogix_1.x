@@ -1,35 +1,40 @@
 package org.dianexus.triceps;
 
-import java.lang.*;
-import java.util.*;
-import java.io.*;
+/*import java.lang.*;*/
+/*import java.util.*;*/
+/*import java.io.*;*/
+import java.util.Vector;
+import java.util.Hashtable;
+import java.util.Date;
+import java.util.StringTokenizer;
+import java.util.NoSuchElementException;
+import java.util.Enumeration;
 
+/*public*/ class Node implements VersionIF  {
+	/*public*/ static final Node EMPTY_NODE = new Node();
 
-public class Node implements VersionIF  {
-	public static final Node EMPTY_NODE = new Node();
-
-	public static final int BADTYPE = 0;
-	public static final int NOTHING=1;	// do nothing
-	public static final int RADIO = 2;
-	public static final int CHECK = 3;
-	public static final int COMBO = 4;
-	public static final int LIST = 5;	// combo of size=(min (6,#lines))
-	public static final int TEXT = 6;
-	public static final int DOUBLE = 7;
-	public static final int RADIO_HORIZONTAL = 8;	// different layout
-	public static final int PASSWORD = 9;
-	public static final int MEMO = 10;
-	public static final int DATE = 11;
-	public static final int TIME = 12;
-	public static final int YEAR = 13;
-	public static final int MONTH = 14;
-	public static final int DAY = 15;
-	public static final int WEEKDAY = 16;
-	public static final int HOUR = 17;
-	public static final int MINUTE = 18;
-	public static final int SECOND = 19;
-	public static final int MONTH_NUM = 20;
-	public static final int DAY_NUM = 21;
+	/*public*/ static final int BADTYPE = 0;
+	/*public*/ static final int NOTHING=1;	// do nothing
+	/*public*/ static final int RADIO = 2;
+	/*public*/ static final int CHECK = 3;
+	/*public*/ static final int COMBO = 4;
+	/*public*/ static final int LIST = 5;	// combo of size=(min (6,#lines))
+	/*public*/ static final int TEXT = 6;
+	/*public*/ static final int DOUBLE = 7;
+	/*public*/ static final int RADIO_HORIZONTAL = 8;	// different layout
+	/*public*/ static final int PASSWORD = 9;
+	/*public*/ static final int MEMO = 10;
+	/*public*/ static final int DATE = 11;
+	/*public*/ static final int TIME = 12;
+	/*public*/ static final int YEAR = 13;
+	/*public*/ static final int MONTH = 14;
+	/*public*/ static final int DAY = 15;
+	/*public*/ static final int WEEKDAY = 16;
+	/*public*/ static final int HOUR = 17;
+	/*public*/ static final int MINUTE = 18;
+	/*public*/ static final int SECOND = 19;
+	/*public*/ static final int MONTH_NUM = 20;
+	/*public*/ static final int DAY_NUM = 21;
 
 	private static final String QUESTION_TYPES[] = {
 		"*badtype*", "nothing", "radio", "check", "combo", "list",
@@ -40,15 +45,15 @@ public class Node implements VersionIF  {
 		Datum.STRING, Datum.NUMBER, Datum.STRING, Datum.STRING, Datum.STRING,
 		Datum.DATE, Datum.TIME, Datum.YEAR, Datum.MONTH, Datum.DAY, Datum.WEEKDAY, Datum.HOUR, Datum.MINUTE, Datum.SECOND, Datum.MONTH_NUM, Datum.DAY_NUM };
 
-	public static final int QUESTION = 1;
-	public static final int EVAL = 2;
-	public static final int GROUP_OPEN = 3;
-	public static final int GROUP_CLOSE = 4;
-	public static final int BRACE_OPEN = 5;
-	public static final int BRACE_CLOSE = 6;
-	public static final int CALL_SCHEDULE = 7;
-	public static final String ACTION_TYPE_NAMES[] = {"*unknown*","question", "expression", "group_open", "group_close", "brace_open", "brace_close", "call_schedule"};
-	public static final String ACTION_TYPES[] = {"?","q","e","[","]", "{", "}", "call" };
+	/*public*/ static final int QUESTION = 1;
+	/*public*/ static final int EVAL = 2;
+	/*public*/ static final int GROUP_OPEN = 3;
+	/*public*/ static final int GROUP_CLOSE = 4;
+	/*public*/ static final int BRACE_OPEN = 5;
+	/*public*/ static final int BRACE_CLOSE = 6;
+	/*public*/ static final int CALL_SCHEDULE = 7;
+	/*public*/ static final String ACTION_TYPE_NAMES[] = {"*unknown*","question", "expression", "group_open", "group_close", "brace_open", "brace_close", "call_schedule"};
+	/*public*/ static final String ACTION_TYPES[] = {"?","q","e","[","]", "{", "}", "call" };
 
 	private static final int MAX_TEXT_LEN_FOR_COMBO = 60;
 	private static final int MAX_ITEMS_IN_LIST = 20;
@@ -109,17 +114,16 @@ public class Node implements VersionIF  {
 	private Node() {
 	}
 
-	public Node(Triceps lang, int sourceLine, String sourceFile, String tsv, int numLanguages) {
+	/*public*/ Node(Triceps lang, int sourceLine, String sourceFile, String tsv, int numLanguages) {
     	triceps = (lang == null) ? Triceps.NULL : lang;
 		String token;
 		int field = 0;
 
-if (AUTHORABLE) {
 		if (numLanguages < 1) {
-			setParseError(triceps.get("numLanguages_must_be_greater_than_zero") + numLanguages);
+if (AUTHORABLE)	setParseError(triceps.get("numLanguages_must_be_greater_than_zero") + numLanguages);
+else setParseError("syntax error");
 			numLanguages = 1;	// the default
 		}
-}
 
 		this.sourceLine = sourceLine;
 		this.sourceFile = sourceFile;
@@ -166,10 +170,12 @@ if (AUTHORABLE) {
 					catch (NumberFormatException t) {
 if (DEBUG) Logger.writeln("##NumberFormatException @ Node.languageNum" + t.getMessage());
 if (AUTHORABLE) 		setParseError(triceps.get("languageNum_must_be_an_integer") + t.getMessage());
+else setParseError("syntax error");
 						i = 0; // default language
 					}
 					if (i < 0 || i >= numLanguages) {
 if (AUTHORABLE)			setParseError(triceps.get("languageNum_must_be_in_range_zero_to") + (numLanguages - 1) + "): " + i);
+else setParseError("syntax error");
 						i = 0;	// default language
 					}
 					answerLanguageNum = i;
@@ -182,45 +188,44 @@ if (AUTHORABLE)			setParseError(triceps.get("languageNum_must_be_in_range_zero_t
 				default: break;	// ignore extras
 			}
 		}
-if (AUTHORABLE) {
    		if (dependencies == null || dependencies.trim().length() == 0) {
-			setParseError(triceps.get("dependencies_column_is_missing"));
+if (AUTHORABLE)			setParseError(triceps.get("dependencies_column_is_missing"));
+else setParseError("syntax error");
 		}
 		if (localName != null && localName.trim().length() > 0) {
 			localName = localName.trim();
 			if (Character.isDigit(localName.charAt(0))) {
-				setNamingError(triceps.get("localName_may_not_begin_with_a_digit") + localName);
+if (AUTHORABLE)				setNamingError(triceps.get("localName_may_not_begin_with_a_digit") + localName);
+else setParseError("syntax error");
 				localName = "_" + localName;
 			}
 			if (!XmlString.NULL.isNMTOKEN(localName)) {
-				setNamingError(triceps.get("localName_should_only_contain_letters_digits_and_underscores") + localName);
+if (AUTHORABLE)				setNamingError(triceps.get("localName_should_only_contain_letters_digits_and_underscores") + localName);
+else setParseError("syntax error");
 			}
 		}
 		else {
 //			setNamingError(triceps.get("localName_must_be_specified"));
 	}
-}
 
 		parseQuestionOrEvalTypeField();
 
-if (AUTHORABLE) {
    		if (questionOrEvalType == BADTYPE) {
-			setParseError(triceps.get("invalid_questionOrEvalType") + questionOrEvalTypeField);
+if (AUTHORABLE)			setParseError(triceps.get("invalid_questionOrEvalType") + questionOrEvalTypeField);
+else setParseError("syntax error");
 		}
-}
 
 		for (int i=0;i<answerChoicesStr.size();++i) {
 			parseAnswerOptions(i,(String) answerChoicesStr.elementAt(i));
 		}
 
-if (AUTHORABLE) {
   		if (datumType == Datum.INVALID) {
-			setParseError(triceps.get("invalid_dataType"));
+if (AUTHORABLE)			setParseError(triceps.get("invalid_dataType"));
+		else setParseError("syntax error");
 		}
-}
 	}
 
-	public String fixExcelisms(String s) {
+	/*public*/ String fixExcelisms(String s) {
 		/* Fix Excel-isms, in which strings with internal quotes have all quotes replaced with double quotes (\"\"), and
 			whole string surrounded by quotes.
 			XXX - this requires assumption that if a field starts AND stops with a quote, then probably an excel-ism
@@ -248,12 +253,11 @@ if (AUTHORABLE) {
 		StringTokenizer ans;
 		int z;
 
-if (AUTHORABLE) {
    		if (questionOrEvalTypeField == null) {
-			setParseError(triceps.get("questionOrEvalTypeField_must_exist"));
+if (AUTHORABLE)			setParseError(triceps.get("questionOrEvalTypeField_must_exist"));
+else setParseError("syntax error");
 			return;
 		}
-}
 
 		ans = new StringTokenizer(questionOrEvalTypeField,";",true);	// return ';' tokens too
 
@@ -278,12 +282,11 @@ if (AUTHORABLE) {
 				case 1:
 					datumTypeStr = s;
 					datumType = Datum.parseDatumType(s);
-if (AUTHORABLE) {
    					if (datumType == -1) {
-						setParseError(triceps.get("invalid_dataType") + datumTypeStr);
+if (AUTHORABLE)						setParseError(triceps.get("invalid_dataType") + datumTypeStr);
+else setParseError("syntax error");
 						datumType = Datum.INVALID;
 					}
-}
 					break;
 				case 2:
 					minStr = s;
@@ -316,7 +319,7 @@ if (AUTHORABLE) {
 	}
 
 
-	public String getSampleInputString() {
+	/*public*/ String getSampleInputString() {
 		/* Create the help-string showing allowable range of input values.
 			Can be re-created (e.g. if range dynamically changes */
 
@@ -369,12 +372,11 @@ if (AUTHORABLE) {
 
 	private boolean parseAnswerOptions(int langNum, String src) {
 		/* Need to make sure that the answer type, order of answers, and internal values of answers are the same across all languages */
-if (AUTHORABLE) {
    		if (src == null) {
-			setParseError(triceps.get("answerOptions_column_missing"));
+if (AUTHORABLE)			setParseError(triceps.get("answerOptions_column_missing"));
+else setParseError("syntax error");
 			return false;
 		}
-}
 
 		StringTokenizer ans = new StringTokenizer(src,"|",true);	// return '|' tokens too
 		String token = "";
@@ -386,6 +388,7 @@ if (AUTHORABLE) {
 		catch (NoSuchElementException t) {
 if (DEBUG) Logger.writeln("##NoSuchElementException @ Node.parseAnswerOptions" + t.getMessage());
 if (AUTHORABLE)	setParseError(triceps.get("missing_display_type") + t.getMessage());
+else setParseError("syntax error");
 		}
 
 		if (langNum == 0) {
@@ -397,11 +400,10 @@ if (AUTHORABLE)	setParseError(triceps.get("missing_display_type") + t.getMessage
 			}
 		}
 		else {
-if (AUTHORABLE) {
    			if (!QUESTION_TYPES[answerType].equalsIgnoreCase(token)) {
-				setParseError(triceps.get("mismatch_across_languages_in_answerType"));
+if (AUTHORABLE)			setParseError(triceps.get("mismatch_across_languages_in_answerType"));
+else setParseError("syntax error");
 			}
-}
 			// don't change the known value for answerType
 		}
 
@@ -410,6 +412,7 @@ if (AUTHORABLE) {
 		}
 		else if (answerType == BADTYPE) {
 if (AUTHORABLE)	setParseError(triceps.get("invalid_answerType"));
+else setParseError("syntax error");
 			answerType = NOTHING;
 		}
 
@@ -462,6 +465,7 @@ if (AUTHORABLE)	setParseError(triceps.get("invalid_answerType"));
 								catch (ArrayIndexOutOfBoundsException t) { err = true; }
 								if (err) {
 if (AUTHORABLE)						setParseError(triceps.get("mismatch_across_languages_in_return_value_for_answerChoice_num") + (ansPos-1));
+else setParseError("syntax error");
 									val = s2;	// reset it to the previously known return value for consistency (?)
 								}
 							}
@@ -470,38 +474,39 @@ if (AUTHORABLE)						setParseError(triceps.get("mismatch_across_languages_in_ret
 							field = 0;	// so that cycle between val & msg;
 							if (val == null || msg == null) {
 if (AUTHORABLE)					setParseError(triceps.get("missing_value_or_message_for_answerChoice_num") + (ansPos-1));
+else setParseError("syntax error");
 							}
 							else {
 								AnswerChoice ac = new AnswerChoice(val,msg);
 								ansOptions.addElement(ac);
 
 				 				/* check for duplicate answer choice values */
-if (AUTHORABLE) {
 								if (langNum == 0) {	// only for first pass
 									if (answerChoicesHash.put(val, ac) != null) {
-            							setParseError(triceps.get("answerChoice_value_already_used") + val);
+if (AUTHORABLE)            							setParseError(triceps.get("answerChoice_value_already_used") + val);
+else setParseError("syntax error");
 									}
 								}
-}
 							}
 							val = null;
 							msg = null;
 							break;
 					}
 				}
-if (AUTHORABLE) {
    				if (ansOptions.size() == 0) {
-					setParseError(triceps.get("answerChoices_must_be_specified"));
+if (AUTHORABLE)					setParseError(triceps.get("answerChoices_must_be_specified"));
+else setParseError("syntax error");
 				}
 				if (field == 1) {
-					setParseError(triceps.get("missing_message_for_answerChoice_num") + (ansPos-1));
+if (AUTHORABLE)					setParseError(triceps.get("missing_message_for_answerChoice_num") + (ansPos-1));
+else setParseError("syntax error");
 				}
 				if (langNum > 0) {
 					if (prevAnsOptions.size() != ansOptions.size()) {
-						setParseError(triceps.get("mismatch_across_languages_in_number_of_answerChoices") + prevAnsOptions.size() + " != " + ansOptions.size());
+if (AUTHORABLE)						setParseError(triceps.get("mismatch_across_languages_in_number_of_answerChoices") + prevAnsOptions.size() + " != " + ansOptions.size());
+else setParseError("syntax error");
 					}
 				}
-}
 				answerChoicesVector.addElement(ansOptions);
 				break;
 			default:
@@ -511,16 +516,16 @@ if (AUTHORABLE) {
 		return true;
 	}
 
-	public String prepareChoicesAsHTML(Datum datum, boolean autogen) {
+	/*public*/ String prepareChoicesAsHTML(Datum datum, boolean autogen) {
 		return prepareChoicesAsHTML(datum,"",autogen);
 	}
 
-	public boolean isSelected(Datum datum, AnswerChoice ac) {
+	/*public*/ boolean isSelected(Datum datum, AnswerChoice ac) {
 		return DatumMath.eq(datum,new Datum(triceps, ac.getValue(),DATA_TYPES[answerType])).booleanVal();
 	}
 
 
-	public String prepareChoicesAsHTML(Datum datum, String errMsg, boolean autogen) {
+	/*public*/ String prepareChoicesAsHTML(Datum datum, String errMsg, boolean autogen) {
 		/* errMsg is a hack - only applies to RADIO_HORIZONTAL */
 		StringBuffer sb = new StringBuffer();
 		String defaultValue = "";
@@ -711,7 +716,7 @@ if (AUTHORABLE) {
 		return sb.toString();
 	}
 
-	public boolean isWithinRange(Datum d) {
+	/*public*/ boolean isWithinRange(Datum d) {
 		boolean err = false;
 
 		if (minDatum != null) {
@@ -743,9 +748,9 @@ if (AUTHORABLE) {
 		return !(err);
 	}
 
-	public int getAnswerType() { return answerType; }
-	public int getDatumType() { return datumType; }
-	public void setDatumType(int type) {
+	/*public*/ int getAnswerType() { return answerType; }
+	/*public*/ int getDatumType() { return datumType; }
+	/*public*/ void setDatumType(int type) {
 		if (Datum.isValidType(type)) {
 			datumType = type;
 		}
@@ -755,13 +760,13 @@ if (AUTHORABLE) {
 	}
 
 
-	public int getSourceLine() { return sourceLine; }
-	public String getSourceFile() { return sourceFile; }
-	public int getQuestionOrEvalType() { return questionOrEvalType; }
-	public String getQuestionOrEvalTypeField() { return questionOrEvalTypeField; }
-	public String getMask() { return mask; }
+	/*public*/ int getSourceLine() { return sourceLine; }
+	/*public*/ String getSourceFile() { return sourceFile; }
+	/*public*/ int getQuestionOrEvalType() { return questionOrEvalType; }
+	/*public*/ String getQuestionOrEvalTypeField() { return questionOrEvalTypeField; }
+	/*public*/ String getMask() { return mask; }
 
-	public void setMinDatum(Datum d) {
+	/*public*/ void setMinDatum(Datum d) {
 		if (d == null) {
 			minDatum = null;
 		}
@@ -770,7 +775,7 @@ if (AUTHORABLE) {
 		}
 	}
 
-	public void setMaxDatum(Datum d) {
+	/*public*/ void setMaxDatum(Datum d) {
 		if (d == null) {
 			maxDatum = null;
 		}
@@ -779,39 +784,39 @@ if (AUTHORABLE) {
 		}
 	}
 
-	public String getMinStr() { return minStr; }
-	public String getMaxStr() { return maxStr; }
-	public Vector getAllowableValues() { return allowableValues; }
-	public void setAllowableDatumValues(Vector v) { allowableDatumValues = v; }
+	/*public*/ String getMinStr() { return minStr; }
+	/*public*/ String getMaxStr() { return maxStr; }
+	/*public*/ Vector getAllowableValues() { return allowableValues; }
+	/*public*/ void setAllowableDatumValues(Vector v) { allowableDatumValues = v; }
 
-	public boolean focusable() { return (answerType != BADTYPE && answerType != NOTHING); }
-	public boolean focusableArray() { return (answerType == RADIO || answerType == RADIO_HORIZONTAL || answerType == CHECK); }
+	/*public*/ boolean focusable() { return (answerType != BADTYPE && answerType != NOTHING); }
+	/*public*/ boolean focusableArray() { return (answerType == RADIO || answerType == RADIO_HORIZONTAL || answerType == CHECK); }
 
-	public void setNamingError(String error) {
+	/*public*/ void setNamingError(String error) {
 		namingErrors.println(error);
 	}
 
-	public void setParseError(String error) {
+	/*public*/ void setParseError(String error) {
 		parseErrors.println(error);
 	}
-	public void setError(String error) {
+	/*public*/ void setError(String error) {
 		runtimeErrors.print(error);
 	}
 
-	public String getErrors() {
+	/*public*/ String getErrors() {
 		return getParseErrors() + getRuntimeErrors();
 	}
 
-	public boolean hasParseErrors() { return parseErrors.size() > 0; }
-	public boolean hasNamingErrors() { return namingErrors.size() > 0; }
-	public boolean hasRuntimeErrors() { return (runtimeErrors.size() > 0); }
+	/*public*/ boolean hasParseErrors() { return parseErrors.size() > 0; }
+	/*public*/ boolean hasNamingErrors() { return namingErrors.size() > 0; }
+	/*public*/ boolean hasRuntimeErrors() { return (runtimeErrors.size() > 0); }
 
-	public String getParseErrors() { return parseErrors.toString(false); }
-	public String getNamingErrors() { return namingErrors.toString(false); }
-	public String getRuntimeErrors() { return runtimeErrors.toString(); }
+	/*public*/ String getParseErrors() { return parseErrors.toString(false); }
+	/*public*/ String getNamingErrors() { return namingErrors.toString(false); }
+	/*public*/ String getRuntimeErrors() { return runtimeErrors.toString(); }
 
 
-	public String toTSV() {
+	/*public*/ String toTSV() {
 	    StringBuffer sb = new StringBuffer();
 if (AUTHORABLE) {
 		sb.append(conceptName);
@@ -834,16 +839,16 @@ if (AUTHORABLE) {
 		return sb.toString();
 	}
 
-	public String getTimeStampStr() { return timeStampStr; }
-	public Date getTimeStamp() { return timeStamp; }
+	/*public*/ String getTimeStampStr() { return timeStampStr; }
+	/*public*/ Date getTimeStamp() { return timeStamp; }
 
 
-	public void setTimeStamp() {
+	/*public*/ void setTimeStamp() {
 		timeStamp = new Date(System.currentTimeMillis());
 		timeStampStr = triceps.formatDate(timeStamp,Datum.TIME_MASK);
 	}
 
-	public void setTimeStamp(String timeStr) {
+	/*public*/ void setTimeStamp(String timeStr) {
 		if (timeStr == null || timeStr.trim().length() == 0) {
 			setTimeStamp();
 			return;
@@ -863,10 +868,10 @@ if (AUTHORABLE) {
 
 	/* These are the get functions for the language specific vectors */
 	// these only occur once
-	public String getConcept() { return conceptName; }
-	public String getLocalName() { return localName; }
-	public String getExternalName() { return externalName; }
-	public String getDependencies() { return dependencies; }
+	/*public*/ String getConcept() { return conceptName; }
+	/*public*/ String getLocalName() { return localName; }
+	/*public*/ String getExternalName() { return externalName; }
+	/*public*/ String getDependencies() { return dependencies; }
 
 	// these are a Vector of length #languages
 	private String getValueAt(Vector v, int langNum) {
@@ -903,39 +908,37 @@ if (AUTHORABLE) {
 			return ans;
 	}
 
-	public String getReadback(int lang) { return getValueAt(readback,lang); }
-	public String getQuestionOrEval() { return getQuestionOrEval(answerLanguageNum); }
+	/*public*/ String getReadback(int lang) { return getValueAt(readback,lang); }
+	/*public*/ String getQuestionOrEval() { return getQuestionOrEval(answerLanguageNum); }
 
-	public String getQuestionOrEval(int langNum) {
-if (AUTHORABLE) {
+	/*public*/ String getQuestionOrEval(int langNum) {
    		if (langNum < 0 || langNum >= numLanguages) {
-			setParseError("languageNum must be in range (0 - " + (numLanguages - 1) + "): " + langNum);
+if (AUTHORABLE)			setParseError("languageNum must be in range (0 - " + (numLanguages - 1) + "): " + langNum);
+else setParseError("syntax error");
 			return getValueAt(questionOrEval, answerLanguageNum);
 		}
-}
 		return getValueAt(questionOrEval, langNum);
 	}
 
-	public Vector getAnswerChoices(int langNum) { return getValuesAt(answerChoicesVector,langNum); }
-	public Vector getAnswerChoices() { return getValuesAt(answerChoicesVector,answerLanguageNum); }
-	public int numAnswerChoices() { return getValuesAt(answerChoicesVector,answerLanguageNum).size(); }
-	public String getHelpURL() { return getValueAt(helpURL,answerLanguageNum); }
+	/*public*/ Vector getAnswerChoices(int langNum) { return getValuesAt(answerChoicesVector,langNum); }
+	/*public*/ Vector getAnswerChoices() { return getValuesAt(answerChoicesVector,answerLanguageNum); }
+	/*public*/ int numAnswerChoices() { return getValuesAt(answerChoicesVector,answerLanguageNum).size(); }
+	/*public*/ String getHelpURL() { return getValueAt(helpURL,answerLanguageNum); }
 
-	public void setQuestionAsAsked(String s) { questionAsAsked = s; }
-	public String getQuestionAsAsked() { return questionAsAsked; }
-	public String getAnswerGiven() { return answerGiven; }
-	public String getAnswerTimeStampStr() { return answerTimeStampStr; }
-	public void setComment(String c) { comment = (c == null) ? "" : c; }
-	public String getComment() { return ((comment == null) ? "" : comment); }
+	/*public*/ void setQuestionAsAsked(String s) { questionAsAsked = s; }
+	/*public*/ String getQuestionAsAsked() { return questionAsAsked; }
+	/*public*/ String getAnswerGiven() { return answerGiven; }
+	/*public*/ String getAnswerTimeStampStr() { return answerTimeStampStr; }
+	/*public*/ void setComment(String c) { comment = (c == null) ? "" : c; }
+	/*public*/ String getComment() { return ((comment == null) ? "" : comment); }
 
-	public void setAnswerLanguageNum(int langNum) {
-if (AUTHORABLE) {
+	/*public*/ void setAnswerLanguageNum(int langNum) {
    		if (langNum < 0 || langNum >= numLanguages) {
-			setParseError("languageNum must be in range (0 - " + (numLanguages - 1) + "): " + langNum);
+if (AUTHORABLE)			setParseError("languageNum must be in range (0 - " + (numLanguages - 1) + "): " + langNum);
+else setParseError("syntax error");
 			return;
 		}
-}
 		answerLanguageNum = langNum;
 	}
-	public int getAnswerLanguageNum() { return answerLanguageNum; }
+	/*public*/ int getAnswerLanguageNum() { return answerLanguageNum; }
 }
