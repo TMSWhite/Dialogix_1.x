@@ -27,15 +27,16 @@ public class Node  {
 	public static final int MINUTE = 18;
 	public static final int SECOND = 19;
 	public static final int MONTH_NUM = 20;
+	public static final int DAY_NUM = 21;
 
 	private static final String QUESTION_TYPES[] = {
 		"*badtype*", "nothing", "radio", "check", "combo", "list",
 		"text", "double", "radio2", "password","memo",
-		"date", "time", "year", "month", "day", "weekday", "hour", "minute", "second", "month_num"};
+		"date", "time", "year", "month", "day", "weekday", "hour", "minute", "second", "month_num", "day_num"};
 	private static final int DATA_TYPES[] = {
 		Datum.STRING, Datum.STRING, Datum.STRING, Datum.STRING, Datum.STRING, Datum.STRING,
 		Datum.STRING, Datum.NUMBER, Datum.STRING, Datum.STRING, Datum.STRING,
-		Datum.DATE, Datum.TIME, Datum.YEAR, Datum.MONTH, Datum.DAY, Datum.WEEKDAY, Datum.HOUR, Datum.MINUTE, Datum.SECOND, Datum.MONTH_NUM};
+		Datum.DATE, Datum.TIME, Datum.YEAR, Datum.MONTH, Datum.DAY, Datum.WEEKDAY, Datum.HOUR, Datum.MINUTE, Datum.SECOND, Datum.MONTH_NUM, Datum.DAY_NUM };
 
 	public static final int QUESTION = 1;
 	public static final int EVAL = 2;
@@ -617,28 +618,28 @@ public class Node  {
 			if (datum != null && datum.exists())
 				defaultValue = datum.stringVal();
 			sb.append("<input type='text'" + 
-				" onfocus='select();'" +
+				" onfocus='evHandler(event);select();'" +
 				" name='" + getLocalName() + "' value='" + defaultValue + "'>");
 			break;
 		case MEMO:
 			if (datum != null && datum.exists())
 				defaultValue = datum.stringVal();
 			sb.append("<textarea rows='5'" +
-				" onfocus='select();'" +
+				" onfocus='evHandler(event);select();'" +
 				" name='" + getLocalName() + "'>" + defaultValue + "</textarea>");
 			break;
 		case PASSWORD:	// stores Text type
 			if (datum != null && datum.exists())
 				defaultValue = datum.stringVal();
 			sb.append("<input type='password'" + 
-				" onfocus='select();'" +
+				" onfocus='evHandler(event);select();'" +
 				" name='" + getLocalName() + "' value='" + defaultValue + "'>");
 			break;
 		case DOUBLE:	// stores Double type
 			if (datum != null && datum.exists())
 				defaultValue = datum.stringVal();
 			sb.append("<input type='text'" + 
-				" onfocus='select();'" +
+				" onfocus='evHandler(event);select();'" +
 				" name='" + getLocalName() + "' value='" + defaultValue + "'>");
 			break;
 		default:
@@ -653,11 +654,12 @@ public class Node  {
 		case MINUTE:
 		case SECOND:
 		case MONTH_NUM:
+		case DAY_NUM:
 */
 			if (datum != null && datum.exists())
 				defaultValue = datum.stringVal();
 			sb.append("<input type='text'" + 
-				" onfocus='select();'" +
+				" onfocus='evHandler(event);select();'" +
 				" name='" + getLocalName() + "' value='" + defaultValue + "'>");
 			break;
 		case NOTHING:
