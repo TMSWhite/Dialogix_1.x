@@ -29,7 +29,6 @@ public class Triceps {
 	private boolean isValid = false;
 	private Random random = new Random();
 	private String tempPassword = null;
-	private int currentLanguage = -1;
 	
 	
 	/** formerly from Lingua */
@@ -133,6 +132,7 @@ public class Triceps {
 		int actionType;
 		Node node;
 		int step = currentStep;
+		int currentLanguage = nodes.getLanguage();
 
 		// should loop over available questions
 		do {
@@ -222,6 +222,7 @@ public class Triceps {
 		int braceLevel = 0;
 		int actionType;
 		int step = currentStep + numQuestions;
+		int currentLanguage = nodes.getLanguage();
 
 		if (currentStep == size()) {
 			/* then already at end */
@@ -340,6 +341,7 @@ public class Triceps {
 		int braceLevel = 0;
 		int actionType;
 		int step = currentStep;
+		int currentLanguage = nodes.getLanguage();
 
 		while (true) {
 			if (--step < 0) {
@@ -501,10 +503,6 @@ Logger.writeln("null node at index " + i);
 
 	public int size() { return nodes.size(); }
 
-	public Node getNode(int i) {
-		return nodes.getNode(i);	// XXX should not allow direct access to this?
-	}
-
 	public String toString(Node n) {
 		return toString(n,false);
 	}
@@ -562,6 +560,7 @@ Logger.writeln("null node at index " + i);
 		String nodeParseErrors = null;
 		String nodeNamingErrors = null;
 		boolean hasErrors = false;
+		int currentLanguage = nodes.getLanguage();
 
 		parser.resetErrorCount();
 
@@ -650,16 +649,29 @@ Logger.writeln("null node at index " + i);
 		}
 		return parseErrors;
 	}
+	
+	public boolean saveWorkingInfo() {
+		return toTSV(nodes.getReserved(Schedule.WORKING_DIR),nodes.getReserved(Schedule.FILENAME));
+	}
+	
+	public boolean saveCompletedInfo() {
+		boolean ok = toTSV(nodes.getReserved(Schedule.COMPLETED_DIR),nodes.getReserved(Schedule.FILENAME));
+		if (ok) {
+			ok = deleteFile(nodes.getReserved(Schedule.WORKING_DIR),nodes.getReserved(Schedule.FILENAME));
+		}
+		return ok;
+	}
+	
 
-	public boolean toTSV(String dir) {
+	private boolean toTSV(String dir) {
 		return toTSV(dir,nodes.getReserved(Schedule.FILENAME));
 	}
 	
-	public boolean deleteFile(String dir) {
+	private boolean deleteFile(String dir) {
 		return deleteFile(dir,nodes.getReserved(Schedule.FILENAME));
 	}
 	
-	public boolean deleteFile(String dir, String targetName) {
+	private boolean deleteFile(String dir, String targetName) {
 		String filename = dir + targetName;
 		boolean ok = false;
 
@@ -701,7 +713,7 @@ Logger.writeln("null node at index " + i);
 		return ok;
 	}
 
-	public boolean writeTSV(Writer out) {
+	private boolean writeTSV(Writer out) {
 		Node n;
 		Datum d;
 		String ans;
@@ -722,6 +734,7 @@ Logger.writeln("null node at index " + i);
 			out.write("COMMENT " + "Stopped: " + getStopTimeStr() + "\n");
 
 			/* Show the names of the output columns */
+/*
 			out.write("COMMENT " + "concept\tinternalName\texternalName\tdependencies\tquestionOrEvalType");
 			for (int i=0;i<nodes.getLanguages().size();++i) {
 				out.write("\treadback[" + i + "]" +
@@ -730,6 +743,7 @@ Logger.writeln("null node at index " + i);
 					"\thelpURL[" + i + "]");
 			}
 			out.write("\tlanguageNum\tquestionAsAsked\tanswerGiven\tcomment\ttimeStamp\n");
+*/			
 
 			for (int i=0;i<size();++i) {
 				n = nodes.getNode(i);
@@ -823,39 +837,7 @@ Logger.writeln("null node at index " + i);
 	public boolean setFilename(String name) { return nodes.setReserved(Schedule.FILENAME, name); }
 
 	public boolean setLanguage(String language) {
-		boolean ok = false;
-
-		ok = nodes.setReserved(Schedule.CURRENT_LANGUAGE,language);
-		int lang = getLanguage();
-		
-		if (lang == currentLanguage) {
-			return ok;
-		}
-		currentLanguage = lang;
-		
-		if (!nodes.isLoaded())
-			return ok;
-		
-		/* re-calculate all eval nodes that meet dependencies, using the new language */
-		for (int i=0;i<=currentStep;++i) {	// XXX: <, or <=?
-			Node node = nodes.getNode(i);
-			if (node == null)
-				continue;
-				
-			if (node.getQuestionOrEvalType() == Node.EVAL) {
-				node.setAnswerLanguageNum(currentLanguage);	// don't change the language for non-EVAL nodes - want to know what was asked
-				if (parser.booleanVal(this, node.getDependencies())) {
-					Datum datum = parser.parse(this, node.getQuestionOrEval());
-					node.setDatumType(datum.type());
-					evidence.set(node, datum);
-				}
-				else {
-					evidence.set(node, Datum.getInstance(this,Datum.NA));	// if doesn't satisfy dependencies, store NA
-				}
-			}
-		}
-		
-		return ok;
+		return nodes.setReserved(Schedule.CURRENT_LANGUAGE,language);
 	}
 	public int getLanguage() { return nodes.getLanguage(); }
 
@@ -877,13 +859,13 @@ Logger.writeln("null node at index " + i);
 	public boolean hasErrors() { return (errorLogger.size() > 0); }
 	public String getErrors() { return errorLogger.toString(); }
 	
-	public int getCurrentLanguage() { return currentLanguage; }
 	public Schedule getSchedule() { return nodes; }
 	public Evidence getEvidence() { return evidence; }
 	public Parser getParser() { return parser; }
 	
 	public boolean isAtBeginning() { return (currentStep <= firstStep); }
 	public boolean isAtEnd() { return (currentStep >= size()); }
+	public int getCurrentStep() { return currentStep; }
 
 	/* Formerly from Lingua */
 
