@@ -171,6 +171,7 @@ import java.io.FileInputStream;
 			setError("copyFile(" + src + ")->(" + dst + "): " + err.getMessage());
 			return false;
 		}
+if (DEBUG) Logger.writeln("copyFile(" + src + ")->(" + dst + "): SUCCESS");
 		return true;
 	}
 	
