@@ -24,7 +24,8 @@ public class Schedule  {
 	public static final int ALLOW_COMMENTS = 14;
 	public static final int SCHEDULE_SOURCE = 15;
 	public static final int LOADED_FROM = 16;
-
+	public static final int CURRENT_LANGUAGE = 17;
+	public static final int ALLOW_LANGUAGE_SWITCHING = 18;
 
 	public static final String[] RESERVED_WORDS = {
 		"__LANGUAGES__",
@@ -44,6 +45,8 @@ public class Schedule  {
 		"__ALLOW_COMMENTS__",
 		"__SCHEDULE_SOURCE__",
 		"__LOADED_FROM__",
+		"__CURRENT_LANGUAGE__",
+		"__ALLOW_LANGUAGE_SWITCHING__",
 	};
 
 	private Date startTime = null;
@@ -52,7 +55,8 @@ public class Schedule  {
 	private int currentLanguage = 0;
 	private boolean isFound = false;
 	private boolean isLoaded = false;
-	private String error = null;
+	private String source = null;
+	private Vector errors = new Vector();
 	
 	private Vector nodes = null;
 	private Vector comments = null;
@@ -91,6 +95,8 @@ public class Schedule  {
 		setReserved(ALLOW_COMMENTS,"false");
 		setReserved(SCHEDULE_SOURCE,"");
 		setReserved(LOADED_FROM,"");
+		setReserved(CURRENT_LANGUAGE,"0");
+		setReserved(ALLOW_LANGUAGE_SWITCHING,"true");
 	}
 	
 	public boolean init() {
@@ -200,8 +206,8 @@ public class Schedule  {
 
 			switch(field) {
 				case 0: break;
-				case 1: name = Node.fixExcelisms(s); break;
-				case 2: value = Node.fixExcelisms(s); break;
+				case 1: name = Node.EMPTY_NODE.fixExcelisms(s); break;
+				case 2: value = Node.EMPTY_NODE.fixExcelisms(s); break;
 				default: break;
 			}
 		}
@@ -258,6 +264,8 @@ public class Schedule  {
 			case ALLOW_COMMENTS: s = Boolean.valueOf(value.trim()).toString(); break;
 			case SCHEDULE_SOURCE: s = value; break;
 			case LOADED_FROM: s = value; break;
+			case CURRENT_LANGUAGE: s = setLanguage(value.trim()); break;
+			case ALLOW_LANGUAGE_SWITCHING: s = Boolean.valueOf(value.trim()).toString(); break;
 			default: return false;
 		}
 		if (s != null) {
@@ -345,21 +353,17 @@ public class Schedule  {
 		return languages;
 	}
 
-	public boolean setLanguage(String s) {
-		if (s == null) {
-			currentLanguage = 0;
-			System.err.println("Tried to set language to null");
-			return false;
-		}
-		for (int i=0;i<languages.size();++i) {
-			if (s.equals((String) languages.elementAt(i))) {
-				currentLanguage = i;
-				return true;
+	public String setLanguage(String s) {
+		if (s != null) {
+			for (int i=0;i<languages.size();++i) {
+				if (s.equals((String) languages.elementAt(i))) {
+					currentLanguage = i;
+					return s;
+				}
 			}
 		}
-		currentLanguage = 0;
-		System.err.println("Tried to switch to unsupported language " + s);
-		return false;
+		setError("Tried to switch to unsupported language " + s);
+		return (String) languages.elementAt(currentLanguage);
 	}
 
 	public int getLanguage() { return currentLanguage; }
@@ -396,13 +400,13 @@ public class Schedule  {
 			if (source != null) {
 				File file = new File(source);
 				if (!file.exists()) {
-					error = "Error: file '" + source + "' doesn't exist";
+					setError("Error: file '" + source + "' doesn't exist");
 				}
 				else if (!file.isFile()) {
-					error = "Error: file '" + source + "' isn't a file";
+					setError("Error: file '" + source + "' isn't a file");
 				}
 				else if (!file.canRead()) {
-					error = "Error: file '" + source + "' is not accessible";
+					setError("Error: file '" + source + "' is not accessible");
 				}
 				else {
 					br = new BufferedReader(new FileReader(file));
@@ -410,11 +414,11 @@ public class Schedule  {
 				}
 			}
 			else {
-				error = "Error: null filename";
+				setError("Error: null filename");
 			}
 		}
 		catch (Throwable t) {
-			error = "error accessing file: " + t.getMessage();
+			setError("error accessing file: " + t.getMessage());
 		}
 		if (ok) {
 			return br;
@@ -422,10 +426,9 @@ public class Schedule  {
 		else {
 			if (br != null) {
 				try { br.close(); } catch (Throwable t) {
-					System.err.println("error closing reader: " + t.getMessage());
+					setError("error closing reader: " + t.getMessage());
 				}
 			}
-			System.err.println(error);
 		}
 
 /* Shows how URLs can be accessed.  No longer supported.
@@ -442,14 +445,14 @@ public class Schedule  {
 
 				// If this is an HTML page instead of a text file, then an error has occurred
 				if (fileLine.startsWith("<")) {
-					error = "unable to access " + url.toExternalForm();
+					setError("unable to access " + url.toExternalForm());
 					break;
 				}
 				else {
 					// Close, then re-open the stream (resetting a BufferedReader isn't supported on all platforms)
 					if (br != null) {
 						try { br.close(); } catch (Throwable t) {
-							System.err.println("error closing reader: " + t.getMessage());
+							setError("error closing reader: " + t.getMessage());
 						}
 					}
 					br = new BufferedReader(new InputStreamReader(url.openStream()));
@@ -461,7 +464,7 @@ public class Schedule  {
 		catch (MalformedURLException t) {
 		}
 		catch (Throwable t) {
-			error = "can't access as url: " + t.getMessage();
+			setError("can't access as url: " + t.getMessage());
 		}
 		if (ok) {
 			return br;
@@ -469,20 +472,21 @@ public class Schedule  {
 		else {
 			if (br != null) {
 				try { br.close(); } catch (Throwable t) {
-					System.err.println("error closing reader: " + t.getMessage());
+					setError("error closing reader: " + t.getMessage());
 				}
 			}
-			System.err.println(error);
 		}
 */
 		return null;
 	}
-
-	public String getErrors() {
-		String tmp = error;
-		error = null;
-		return tmp;
-	}
 	
-	public boolean hasErrors() { return (error != null); }
+	private void setError(String s) {
+		errors.addElement(s);
+	}
+	public boolean hasErrors() { return (errors.size() > 0); }
+	public Vector getErrors() {
+		Vector temp = errors;
+		errors = new Vector();
+		return temp;
+	}
 }
