@@ -97,8 +97,12 @@ public class Parser {
 	public boolean setErrorWriter(Writer err, String eol) { 
 		if (err instanceof StringWriter) {
 			errorWriter = (StringWriter) err;
+			boolean ans =  qss.setErrorWriter(err,eol);
+			return ans;
 		}
-		return qss.setErrorWriter(err,eol);
+		else {
+			return qss.setErrorWriter(err,eol);
+		}
 	}
 	
 	public boolean setDebugWriter(Writer debug) { return setDebugWriter(debug,"\n\r"); }
@@ -106,5 +110,10 @@ public class Parser {
 		debugWriter = debug;
 		debugEol = eol;
 		return qss.setDebugWriter(debug,eol);
+	}
+	
+	public void resetErrorCount() {
+		qss.resetErrorCount();
+		setErrorWriter(new StringWriter(),"<BR>");
 	}
 }
