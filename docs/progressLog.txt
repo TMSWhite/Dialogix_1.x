@@ -240,3 +240,9 @@ Reorganization & Documentation
   ALLOW_JUMP_TO
     - when true, lets jump-to button be visible and active
     - should only be used in reviewer mode
+    
+<< changes from version 2.7.8 to 2.8.0
+  XMLString
+    now XHTMLizes unary tags:  <br> becomes <br />
+  XML
+    added toXML() functions to represent entire contents of questions, answer options, and metadata passed via HTTP
