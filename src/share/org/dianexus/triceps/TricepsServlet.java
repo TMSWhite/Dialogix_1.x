@@ -18,8 +18,9 @@ public class TricepsServlet extends HttpServlet {
 	private String firstFocus = null;
 
 	private String scheduleList = "";
-	private String scheduleFileRoot = "";
-	private String scheduleSaveDir = "";
+	private String scheduleSrcDir = "";
+	private String workingFilesDir = "";
+	private String completedFilesDir = "";
 
 	/**
 	 * This method runs only when the servlet is first loaded by the
@@ -34,12 +35,15 @@ public class TricepsServlet extends HttpServlet {
 		s = config.getInitParameter("scheduleList");
 		if (s != null && !s.trim().equals(""))
 			scheduleList = s.trim();
-		s = config.getInitParameter("scheduleFileRoot");
+		s = config.getInitParameter("scheduleSrcDir");
 		if (s != null && !s.trim().equals(""))
-			scheduleFileRoot = s.trim();
-		s = config.getInitParameter("scheduleSaveDir");
+			scheduleSrcDir = s.trim();
+		s = config.getInitParameter("workingFilesDir");
 		if (s != null && !s.trim().equals(""))
-			scheduleSaveDir = s.trim();
+			workingFilesDir = s.trim();
+		s = config.getInitParameter("completedFilesDir");
+		if (s != null && !s.trim().equals(""))
+			completedFilesDir = s.trim();			
 			
 	}
 
@@ -142,7 +146,7 @@ public class TricepsServlet extends HttpServlet {
 		if (directive == null || "select new interview".equals(directive)) {
 			/* read list of available schedules from file */
 			
-			BufferedReader br = Triceps.getReader(scheduleList, scheduleFileRoot);
+			BufferedReader br = Triceps.getReader(scheduleList, scheduleSrcDir);
 			if (br == null) {
 				sb.append("<B>Unable to find '" + scheduleList + "'</B><HR>");
 			}			
@@ -167,7 +171,7 @@ public class TricepsServlet extends HttpServlet {
 								continue;
 
 							/* Test whether these files exist */
-							Reader target = Triceps.getReader(fileLoc,scheduleFileRoot);
+							Reader target = Triceps.getReader(fileLoc,scheduleSrcDir);
 							if (target == null) {
 								sb.append("Unable to access file '" + fileLoc + "'");
 							}
@@ -217,8 +221,8 @@ public class TricepsServlet extends HttpServlet {
 		}
 		else if (directive.equals("START")) {
 			// load schedule
-			triceps = new Triceps();
-			ok = triceps.setSchedule(req.getParameter("schedule"), scheduleFileRoot);
+			triceps = new Triceps(scheduleSrcDir, workingFilesDir, completedFilesDir);
+			ok = triceps.setSchedule(req.getParameter("schedule"),scheduleSrcDir);
 
 			if (!ok) {
 				try {
@@ -236,11 +240,10 @@ public class TricepsServlet extends HttpServlet {
 		}
 		else if (directive.equals("RESTORE")) {
 			String restore = req.getParameter("RESTORE");
-			restore = restore + "." + req.getRemoteUser() + "." + req.getRemoteHost() + ".tsv";
 
 			// load schedule
-			triceps = new Triceps();
-			ok = triceps.setSchedule(restore, scheduleSaveDir);
+			triceps = new Triceps(scheduleSrcDir, workingFilesDir, completedFilesDir);
+			ok = triceps.setSchedule(restore,workingFilesDir);
 
 			if (!ok) {
 				return "<B>Unable to find or access schedule '" + restore + "'</B><HR>" +
@@ -271,8 +274,7 @@ public class TricepsServlet extends HttpServlet {
 		}
 		else if (directive.equals("save to:")) {
 			String name = req.getParameter("save to:");
-			String file = scheduleSaveDir + name + "." + req.getRemoteUser() + "." + req.getRemoteHost() + ".tsv";
-
+			String file = workingFilesDir + name;
 			ok = triceps.toTSV(file);
 			if (ok) {
 				sb.append("<B>Interview saved successfully as " + Node.encodeHTML(name) + " (" + Node.encodeHTML(file) + ")</B><HR>\n");
@@ -397,7 +399,7 @@ public class TricepsServlet extends HttpServlet {
 				// save the file, but still give the option to go back and change answers
 				boolean savedOK;
 				String name = Datum.format(triceps.getStartTime(),Datum.DATE,Datum.TIME_MASK);
-				String file = scheduleSaveDir + name + "." + req.getRemoteUser() + "." + req.getRemoteHost() + ".tsv";
+				String file = completedFilesDir + name;
 
 				sb.append("<B>Thank you, the interview is completed</B><BR>\n");
 				savedOK = triceps.toTSV(file);

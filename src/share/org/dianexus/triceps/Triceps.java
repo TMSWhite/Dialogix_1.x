@@ -15,7 +15,7 @@ public class Triceps {
 	public static final String NULL = "not set";	// a default value to represent null in config files
 
 	private String scheduleURL = null;
-	private String scheduleFilePrefix = null;
+	private String scheduleUrlPrefix = null;
 	private Schedule nodes = null;
 	public Evidence evidence = null;	// XXX - should be private - made public for debugging from TricepsServlet
 	static public transient Parser parser = new Parser();	// XXX - should not be public - only making it so for debugging
@@ -30,8 +30,12 @@ public class Triceps {
 	
 	private String workingFilesDir = null;
 	private String completedFilesDir = null;
+	private String scheduleSrcDir = null;
 
-	public Triceps() {
+	public Triceps(String scheduleSrcDir, String workingFilesDir, String completedFilesDir) {
+		setScheduleSrcDir(scheduleSrcDir);
+		setWorkingFilesDir(workingFilesDir);
+		setCompletedFilesDir(completedFilesDir);
 	}
 
 	public boolean setSchedule(String filename, String optionalFilePrefix) {
@@ -43,7 +47,7 @@ public class Triceps {
 		}
 		else {
 			scheduleURL = filename;
-			scheduleFilePrefix = optionalFilePrefix;
+			scheduleUrlPrefix = optionalFilePrefix;
 			
 			nodes = new Schedule();
 			return (nodes.load(br,scheduleURL) && resetEvidence() && setDefaultEvidence());
@@ -52,7 +56,7 @@ public class Triceps {
 
 	public boolean reloadSchedule() {
 		nodes = new Schedule();
-		return nodes.load(Triceps.getReader(scheduleURL,scheduleFilePrefix),scheduleURL);
+		return nodes.load(Triceps.getReader(scheduleURL,scheduleUrlPrefix),scheduleURL);
 	}
 
 	public Datum getDatum(Node n) {
@@ -672,4 +676,11 @@ public class Triceps {
 		else
 			return nodes.getTitle();
 	}
+	
+	public void setWorkingFilesDir(String s) { workingFilesDir = ((s == null) ? "" : s); }
+	public String getWorkingFilesDir() { return workingFilesDir; }
+	public void setCompletedFilesDir(String s) { completedFilesDir = ((s == null) ? "" : s); }
+	public String getCompletedFilesDir() { return completedFilesDir; }
+	public void setScheduleSrcDir(String s) { scheduleSrcDir = ((s == null) ? "" : s); }
+	public String getScheduleSrcDir() { return scheduleSrcDir; }	
 }
