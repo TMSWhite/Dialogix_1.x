@@ -537,7 +537,7 @@
 		keystorePass=&quot;aka##triceps&quot;<BR>
 		clientAuth=&quot;false&quot; sslProtocol=&quot;TLS&quot; /&gt;
 	</UL>
-	<LI>[NO:  No added benefit unless load balance ] Link Tomcat behind Apache?
+	<LI>[NO: No added benefit unless load balance ] Link Tomcat behind Apache?
 	<UL>
 		<LI>(1) Use Proxies (e.g. so that all requests to www.dialogix.org:80 and :43 go to Tomcat, and protect its port
 		so that no external calls allowed
@@ -556,7 +556,7 @@
 	to manage?
 	<LI>[ ] Unit test to find memory leak
 	<LI>[ ] Write all to DB, perhaps one set of tables (or DB) per project?
-	<LI>[NO:  JSP and taglibs too cumbersome ] Play with JSP, esp. taglibs?
+	<LI>[NO: JSP and taglibs too cumbersome ] Play with JSP, esp. taglibs?
 	<LI>N.B. ${xxx.yy} expansion works within Ant properties files
 	<LI>N.B. &lt;input&gt; can let specify which license file to deploy on the fly?
 	<LI>N.B. Can put Oro and Mysql (and even Dialogix) into endorsed dir for deployment, but not &quot;droppable&quot;
@@ -604,7 +604,7 @@
 		<LI>Functions
 		<LI>Data
 	</UL>
-	<LI>[NO:  Keep as is] Datum should be interface to make new datatypes pluggable? Problem is how to do DatumMath.
+	<LI>[NO: Keep as is] Datum should be interface to make new datatypes pluggable? Problem is how to do DatumMath.
 	<LI>[done] Rename package to org.dialogix.*
 	<LI>[ ] Remove XMLString or tailor so can change what is filtered?
 	<LI>[ ] Support Durations (date1 - date2) which don't have Java date=0 problem
@@ -623,7 +623,154 @@
 		<LI>[done] Compute results of equations
 	</UL>
 	<LI>[done - 1/6/05 ] Build revised version of Parser that uses Logger?
-	<LI>[ ] Test cases to validate accuracy of parser
+</UL>
+
+<P>
+<HR ALIGN="CENTER">
+</P>
+<P>Notes from 1/17/05</P>
+
+<UL>
+	<LI>Code Maintenance
+	<UL>
+		<LI>[done 1/17 ] Add Javadoc comments to existing code
+		<UL>
+			<LI>http://java.sun.com/j2se/javadoc/writingdoccomments/index.html
+			<LI>@author name-text
+			<LI>@param parameter-name description
+			<LI>@return description
+			<LI>@see reference
+			<UL>
+				<LI>@see &quot;string&quot;
+				<LI>@see &lt;a href=&quot;URL#value&quot;&gt;label&lt;/a&gt;
+				<LI>@see package.class#member label
+			</UL>
+			<LI>@throws class-name description
+		</UL>
+		<LI>[done 1/17 ] Change spacing, bracketting to support Java coding standards
+		<UL>
+			<LI>Keep lines / comments &lt; 80 characters long
+			<LI>When using conditional expressions, indent twice normal to highlight nested block
+			<LI>Comments should be preceeded by a blank line
+			<LI>Avoid compound statements on a single line
+			<LI>Avoid if statements that lack braces
+			<LI>Start braces on same line as loop or conditional (not stand-alone below it)
+			<LI>Switch statements -- explicitly comment if falls through
+			<LI>Use XXX to say that something is bogus but works; FIXME to flag bogus and broken
+			<LI>Java recommends using tab = 8 spaces; most Apache projects use 2, so I'll use 2
+		</UL>
+		<LI>[done 1/17] Add javadoc target to the Ant build task
+		<LI>[done ] Test cases for parser as Tab delimited file
+	</UL>
+	<LI>Serialization
+	<UL>
+		<LI>Can the Context implement serializable and thus persist across sessions and/or stop-restarts of Tomcat?
+	</UL>
+	<LI>Psychinformatics Server
+	<UL>
+		<LI>Install new Tomcat 5.5?
+		<LI>Install new JDK? (what are implications on runnability of existing programs? Should install stand-beside
+		<LI>Install new War versions of Dialogix on a module-by-module basis (after confirming can do proper logging
+	</UL>
+</UL>
+
+<P>
+<HR ALIGN="CENTER">
+</P>
+<P>Notes from 1/18/05</P>
+
+<UL>
+	<LI>Refactoring - Parser
+	<UL>
+		<LI>Context
+		<UL>
+			<LI>Include Parser (one Parser per Context)? Only for error reporting?
+			<LI>ErrorLogger? -- so can log syntax errors from Functions, DatumMath, Datum, and have available to user for review.
+			If Log4J is used, could do via DB with lookup, but overkill?
+			<LI>Locale --
+			<LI>Make a Factory and/or BusinessObject and/or BusinessDelegate so has common
+		</UL>
+		<LI>DataAccessObject
+		<UL>
+			<LI>Configure using XML so can interface with DB, Hashtable, Flatfile, or Sockets
+			<LI>Make Interface
+			<LI>If Functions run remotely, need way to pass error messagers back to Context -- a TransferObject?
+		</UL>
+		<LI>Datum
+		<UL>
+			<LI>Is Context needed here?
+			<UL>
+				<LI>Used for parseNumber, parseDate, formatDate, formatNumber
+				<LI>get(&quot;please enter a&quot;) [-- should be in view]
+				<LI>getTypeName() [-- should be part of Locale]
+			</UL>
+			<LI>INVALID object -- shouldn't it be a flag so can set a Datum as invalid; or always create a new one?
+			<LI>Syntax: Use dot notation to get view of data, rather than casts? -- esp for Duration?
+		</UL>
+		<LI>DatumMath
+		<UL>
+			<LI>Date - Date should be Duration, which has integer values for Year, Month, Day, etc.
+			<LI>Does not use Context subcomponents -- can we change passing so all functions are like op(context,a,b) instead
+			of op(a,b)? Would that be helpful?
+		</UL>
+		<LI>Parser
+		<UL>
+			<LI>Fix errors in current functions
+			<LI>Test date math, esp. durations
+			<LI>Throw error if anything left on the parse stack
+			<UL>
+				<LI>(EOF or EOL before end of Statement) -- unterminated Statement
+				<LI>EOL/EOF after Statement, but with earlier tokens left (e.g. &quot;(1 + 2&quot;, unclosed paren)
+			</UL>
+			<LI>Unit testing (ant target to automate running of tests currently passed via index.vm)
+			<LI>Context Use
+			<UL>
+				<LI>Datum getDAO().set(String,Datum) -- XXX currently void, make return Datum for ASSIGN
+				<LI>void getDAO().function()
+				<LI>Datum getDAO().getDatum(String)
+				<LI>error messages
+			</UL>
+		</UL>
+		<LI>Functions
+		<UL>
+			<LI>Navigation
+			<LI>Instrument-specific
+			<LI>Node-specific
+			<LI>Introspection
+			<LI>API for extensibility
+		</UL>
+		<LI>Reserved
+		<UL>
+			<LI>Add persistence mechanism (e.g. via DAO?)
+			<LI>Can they be treated as metadata, globals, etc so can be scoped?
+		</UL>
+	</UL>
+	<LI>Refactoring - Navigation
+	<LI>Refactoring - Views
+	<LI>SQL
+	<UL>
+		<LI>Allow SQL queries for response sets and validation (e.g. patient lookup)
+		<LI>How generalize this? (DataSource, with query against it)?
+		<LI>Would Torque help for this?
+		<LI>Can Dialogix also do SQL inserts into operational systems for fields that need multiple targets?
+	</UL>
+	<LI>[ ] POI for Excel import / export?
+	<LI>[ ] Torque for data persistence and to ease DB portability
+	<LI>[ ] FckEditor to ease web-based instrument creation?
+	<UL>
+		<LI>Successfully integrated it -- see \FCKeditor\* under Apache. Can download speed be improved?
+	</UL>
+	<LI>[ ] Add &quot;in&quot; operator to Dialogix parser syntax -- a form of equality operation (re priority)
+	<UL>
+		<LI>Dilemma -- there is no Set type which stores multiple values, so would need to re-write each time?
+		<LI>Would like defined access to a DataSource, like list of patients
+	</UL>
+	<LI>[ ] JDBC
+	<UL>
+		<LI>How generic is it?  Will same syntax work for all databases and data sources so can point to local files too?
+	</UL>
+	<LI>[ ] Compound types
+	<LI>[ ] Relationship to XForms
 </UL>
 
 
