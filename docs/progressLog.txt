@@ -425,3 +425,10 @@ Reorganization & Documentation
     -- removed old XXXXLicense.java scheme.  Replaced with single License.java file, whose contents are set by ant build routine
     -- modified ant build routine to read license information from /license/*.license files.
     -- "ant src" now creates src archive of current code.
+    -- Added Isso (http://www.issosetup.com/) - based Setup program, which creates a Windows installer
+    -- Added a customized README.txt
+    -- Added a customized License.txt
+    -- Added dialogix.bat, a single file which lauches both the server and client, and tries to locate JAVA_HOME
+    -- Added a Dialogix icon
+    -- "ant zip-dist" creates a Zip file installation, which is best for Unix systems
+    -- "ant dist" creates a Windows installer using the Isso Setup system
