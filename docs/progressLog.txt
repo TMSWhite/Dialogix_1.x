@@ -353,3 +353,6 @@ Reorganization & Documentation
     check for Uencode on restoring interviews
     check for version incompatabilities when restoring
     add support for regular expressions
+
+<< changes from 2.9.0 to 2.9.1
+  Enhancement - Added Perl5 regex to Node "mask" column, and regexMatch() function using InputValidator.java and Jakarta-ORO project
