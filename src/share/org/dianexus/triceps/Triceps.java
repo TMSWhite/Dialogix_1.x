@@ -31,7 +31,7 @@ public class Triceps {
 	public Triceps(String scheduleLoc) {
 		nodes = new Schedule(scheduleLoc);
 		if (!nodes.init()) {
-			errors.addElement(nodes.getErrors());
+			setError(nodes.getErrors());
 		}
 		resetEvidence();
 		setDefaultValues();
@@ -77,8 +77,7 @@ public class Triceps {
 		}
 		catch (Throwable t) {
 			String msg = "Error loading datafile: " + t.getMessage() + " restoring original schedule";
-			errors.addElement(Node.encodeHTML(msg));
-			System.err.println(msg);
+			setError(msg);
 			nodes = oldNodes;
 			evidence = oldEvidence;
 			return false;
@@ -103,17 +102,14 @@ public class Triceps {
 		return stopTimeStr;
 	}
 
-	public Enumeration getErrors() {
+	public Vector getErrors() {
 		/* when there is an error in getting or parsing a node */
 		if (parser.hasErrors()) {
-			Vector v=parser.getErrors();
-			for (int c=0;c<v.size();++c) {
-				errors.addElement(v.elementAt(c));
-			}
+			setError(parser.getErrors());
 		}
 		Vector tmp = errors;
 		errors = new Vector();
-		return tmp.elements();
+		return tmp;
 	}
 
 	public Enumeration getQuestions() {
@@ -127,7 +123,7 @@ public class Triceps {
 		do {
 			if (step >= size()) {
 				if (braceLevel > 0) {
-					errors.addElement("missing " + braceLevel + " closing brace(s)");
+					setError("missing " + braceLevel + " closing brace(s)");
 				}
 				break;
 			}
@@ -206,14 +202,14 @@ public class Triceps {
 
 		if (currentStep == size()) {
 			/* then already at end */
-			errors.addElement("You are already at the end of interview.  Thanks again.");
+			setError("You are already at the end of interview.  Thanks again.");
 			return ERROR;
 		}
 
 		do {		// loop forward through nodes -- break to query user or to end
 			if (step >= size()) {	// then the schedule is complete
 				if (braceLevel > 0) {
-					errors.addElement("Missing " + braceLevel + " closing brace(s)");
+					setError("Missing " + braceLevel + " closing brace(s)");
 				}
 				currentStep = size();	// put at last node
 				numQuestions = 0;
@@ -224,7 +220,7 @@ public class Triceps {
 				return AT_END;
 			}
 			if ((node = nodes.getNode(step)) == null) {
-				errors.addElement("Invalid node at step " + step);
+				setError("Invalid node at step " + step);
 				return ERROR;
 			}
 
@@ -237,51 +233,52 @@ public class Triceps {
 					}
 					else {
 						++braceLevel;	// XXX:  skip this entire section
-						evidence.set(node, Datum.getInstance(Datum.NA));	// and set all of this brace's values to NA
+						evidence.set(node, Datum.NA_DATUM);	// and set all of this brace's values to NA
 					}
 				}
 				else {
 					++braceLevel;	// skip this inner block
-					evidence.set(node, Datum.getInstance(Datum.NA));	// set all of this brace's values to NA
+					evidence.set(node, Datum.NA_DATUM);	// set all of this brace's values to NA
 				}
 			}
 			else if (actionType == Node.GROUP_CLOSE) {
 				--braceLevel;	// close an open block
-				evidence.set(node, Datum.getInstance(Datum.NA));	// closing an open block, so set value to NA
+				evidence.set(node, Datum.NA_DATUM);	// closing an open block, so set value to NA
 				if (braceLevel < 0) {
 					node.setError("Extra closing brace");
-					return ERROR;
+					return OK;	// otherwise won't be able to progress past the dangling closing brace!
+//					return ERROR;
 				}
 			}
 			else if (actionType == Node.EVAL) {
 				if (braceLevel > 0) {
-					evidence.set(node, Datum.getInstance(Datum.NA));	// NA if internal to a brace when going forwards
+					evidence.set(node, Datum.NA_DATUM);	// NA if internal to a brace when going forwards
 				}
 				else {
 					if (parser.booleanVal(evidence, node.getDependencies())) {
 						evidence.set(node, new Datum(parser.stringVal(evidence, node.getQuestionOrEval()),node.getDatumType(),node.getMask()));
 					}
 					else {
-						evidence.set(node, Datum.getInstance(Datum.NA));	// if doesn't satisfy dependencies, store NA
+						evidence.set(node, Datum.NA_DATUM);	// if doesn't satisfy dependencies, store NA
 					}
 				}
 			}
 			else if (actionType == Node.QUESTION) {
 				if (braceLevel > 0) {
-					evidence.set(node, Datum.getInstance(Datum.NA));	// NA if internal to a brace when going forwards
+					evidence.set(node, Datum.NA_DATUM);	// NA if internal to a brace when going forwards
 				}
 				else {
 					if (parser.booleanVal(evidence, node.getDependencies())) {
 						break;	// ask this question
 					}
 					else {
-						evidence.set(node, Datum.getInstance(Datum.NA));	// if doesn't satisfy dependencies, store NA
+						evidence.set(node, Datum.NA_DATUM);	// if doesn't satisfy dependencies, store NA
 					}
 				}
 			}
 			else {
 				node.setError("Invalid action type");
-				evidence.set(node, Datum.getInstance(Datum.NA));
+				evidence.set(node, Datum.NA_DATUM);
 				return ERROR;
 			}
 			++step;
@@ -299,12 +296,12 @@ public class Triceps {
 
 		Node n = evidence.getNode(val);
 		if (n == null) {
-			errors.addElement("Unknown node: " + Node.encodeHTML(val.toString()));
+			setError("Unknown node: " + val.toString());
 			return ERROR;
 		}
 		int result = evidence.getStep(n);
 		if (result == -1) {
-			errors.addElement("Unable to find index for node: " + n);
+			setError("Unable to find index for node: " + n);
 			return ERROR;
 		} else {
 			currentStep = result;
@@ -321,9 +318,9 @@ public class Triceps {
 		while (true) {
 			if (--step < 0) {
 				if (braceLevel < 0)
-					errors.addElement("Missing " + braceLevel + " openining braces");
+					setError("Missing " + braceLevel + " openining braces");
 
-				errors.addElement("You are already at the beginning.");
+				setError("You are already at the beginning.");
 				return ERROR;
 			}
 			if ((node = nodes.getNode(step)) == null)
@@ -340,7 +337,7 @@ public class Triceps {
 			else if (actionType == Node.GROUP_OPEN) {
 				++braceLevel;
 				if (braceLevel > 0) {
-					errors.addElement("extra opening brace");
+					setError("extra opening brace");
 					return ERROR;
 				}
 				if (braceLevel == 0 && parser.booleanVal(evidence, node.getDependencies())) {
@@ -397,20 +394,23 @@ public class Triceps {
 			init = n.getAnswerGiven();
 
 			if (init == null || init.length() == 0 || init.equals(Datum.TYPES[Datum.UNASKED])) {
-				d = Datum.getInstance(Datum.UNASKED);
+				d = Datum.UNASKED_DATUM;
 			}
 			else if (init.equals(Datum.TYPES[Datum.UNKNOWN])) {
-				d = Datum.getInstance(Datum.UNKNOWN);
+				d = Datum.UNKNOWN_DATUM;
 			}
 			else if (init.equals(Datum.TYPES[Datum.NA])) {
-				d = Datum.getInstance(Datum.NA);
+				d = Datum.NA_DATUM;
 			}
 			else if (init.equals(Datum.TYPES[Datum.INVALID])) {
-				d = Datum.getInstance(Datum.INVALID);
+				d = Datum.INVALID_DATUM;
 			}
 			else if (init.equals(Datum.TYPES[Datum.REFUSED])) {
-				d = Datum.getInstance(Datum.REFUSED);
+				d = Datum.REFUSED_DATUM;
 			}
+			else if (init.equals(Datum.TYPES[Datum.NOT_UNDERSTOOD])) {
+				d = Datum.NOT_UNDERSTOOD_DATUM;
+			}			
 			else {
 				d = new Datum(init,n.getDatumType(),n.getMask());
 			}
@@ -423,7 +423,7 @@ public class Triceps {
 
 	public boolean storeValue(Node q, String answer, String comment, String special, boolean adminMode) {
 		if (q == null) {
-			errors.addElement("null node");
+			setError("null node");
 			return false;
 		}
 
@@ -441,22 +441,22 @@ public class Triceps {
 		if (special != null && special.trim().length() > 0) {
 			if (adminMode) {
 				if (special.equals(Datum.TYPES[Datum.REFUSED])) {
-					evidence.set(q,Datum.getInstance(Datum.REFUSED));
+					evidence.set(q,Datum.REFUSED_DATUM);
 					return true;
 				}
 				if (special.equals(Datum.TYPES[Datum.UNKNOWN])) {
-					evidence.set(q,Datum.getInstance(Datum.UNKNOWN));
+					evidence.set(q,Datum.UNKNOWN_DATUM);
 					return true;
 				}
 				if (special.equals(Datum.TYPES[Datum.NOT_UNDERSTOOD])) {
-					evidence.set(q,Datum.getInstance(Datum.NOT_UNDERSTOOD));
+					evidence.set(q,Datum.NOT_UNDERSTOOD_DATUM);
 					return true;
 				}
-				errors.addElement("Unknown special datatype");
+				setError("Unknown special datatype");
 				return false;
 			}
 			else {
-				errors.addElement("You do not currently have permission to be in Admin Mode");
+				setError("You do not currently have permission to be in Admin Mode");
 				return false;
 			}
 		}
@@ -478,13 +478,13 @@ public class Triceps {
 			else {
 				q.setError("<- " + s);
 			}
-			evidence.set(q,Datum.getInstance(Datum.UNASKED));
+			evidence.set(q,Datum.UNASKED_DATUM);
 			return false;
 		}
 
 		/* check if out of range */
 		if (!q.isWithinRange(d)) {
-			evidence.set(q,Datum.getInstance(Datum.UNASKED));
+			evidence.set(q,Datum.UNASKED_DATUM);
 			return false;	// shouldn't wording of error be done here, not in Node?
 		}
 		else {
@@ -642,12 +642,11 @@ public class Triceps {
 		}
 		catch (Throwable t) {
 			String msg = "error writing to " + filename + ": " + t.getMessage();
-			errors.addElement(Node.encodeHTML(msg));
-			System.err.println(msg);
+			setError(msg);
 		}
 		if (fw != null) {
 			try { fw.close(); } catch (Throwable t) {
-				System.err.println("Error closing writer: " + t.getMessage());
+				setError("Error closing writer: " + t.getMessage());
 			}
 		}
 		return ok;
@@ -711,8 +710,7 @@ public class Triceps {
 		}
 		catch (Throwable t) {
 			String msg = "Unable to write schedule file: " + t.getMessage();
-			errors.addElement(Node.encodeHTML(msg));
-			System.err.println(msg);
+			setError(msg);
 			return false;
 		}
 	}
@@ -747,6 +745,9 @@ public class Triceps {
 	public boolean isAllowComments() {
 		return Boolean.valueOf(nodes.getReserved(Schedule.ALLOW_COMMENTS)).booleanValue();
 	}
+	public boolean isAllowLanguageSwitching() {
+		return Boolean.valueOf(nodes.getReserved(Schedule.ALLOW_LANGUAGE_SWITCHING)).booleanValue();
+	}	
 	
 	public String getIcon() { return nodes.getReserved(Schedule.ICON); }
 	public String getHeaderMsg() { return nodes.getReserved(Schedule.HEADER_MSG); }
@@ -761,7 +762,7 @@ public class Triceps {
 	public boolean setFilename(String name) { return nodes.setReserved(Schedule.FILENAME, name); }
 
 	public boolean setLanguage(String language) {
-		return nodes.setLanguage(language);
+		return nodes.setReserved(Schedule.CURRENT_LANGUAGE,language);
 	}
 
 	public int getLanguage() { return nodes.getLanguage(); }
@@ -778,5 +779,16 @@ public class Triceps {
 		if (s == null)
 			return false;
 		return s.equals(temp);
+	}
+	
+	private void setError(String s) {
+		errors.addElement(s);
+System.err.println(s);
+	}
+	
+	private void setError(Vector v) {
+		for (int i=0;i<v.size();++i) {
+			errors.addElement(v.elementAt(i));
+		}
 	}
 }
