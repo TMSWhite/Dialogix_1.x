@@ -997,7 +997,7 @@ if (DEPLOYABLE) {
 					/** For Completed dir - check actual filenames **/
 					try {
 						fname = sched.getReserved(Schedule.COMPLETED_DIR) + fext + ".jar";
-if (DEBUG) Logger.writeln("##exists(" + fname + ")");
+//if (DEBUG) Logger.writeln("##exists(" + fname + ")");
 						file = new File(fname);
 						if (file.exists())
 							return new Datum(triceps,true);
