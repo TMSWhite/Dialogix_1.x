@@ -4,7 +4,7 @@ package org.dianexus.triceps;
 /*import java.lang.*;*/
 /*import java.io.*;*/
 /*import java.text.*;*/
-import java.util.HashMap;
+import java.util.Hashtable;
 import java.util.Date;
 
 /*public*/ final class Datum implements VersionIF  {
@@ -59,12 +59,12 @@ import java.util.Date;
 	private String error = null;
 	private String variableName = null;
 	Triceps triceps = null;	// need package level access in DatumMath
-	private static final HashMap SPECIAL_DATA = new HashMap();
+	private static final Hashtable SPECIAL_DATA = new Hashtable();
 
 	/*public*/ Datum(Triceps lang, double d) { init(lang, new Double(d), NUMBER, null); }
 	/*public*/ Datum(Triceps lang, long l) { init(lang, new Long(l), NUMBER, null); }
-
-	/*public*/ static Datum getInstance(Triceps lang, int i) {
+	
+	/*public*/ static synchronized Datum getInstance(Triceps lang, int i) {
 if (i == INVALID) {
 if (DEBUG) Logger.printStackTrace(new Throwable("##INVALID Datum"));
 }

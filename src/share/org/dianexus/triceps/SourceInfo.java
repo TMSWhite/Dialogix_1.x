@@ -1,7 +1,7 @@
 package org.dianexus.triceps;
 
 import java.io.File;
-import java.util.HashMap;
+import java.util.Hashtable;
 
 /*public*/ final class SourceInfo implements VersionIF {
 	/*public*/ static final int SOURCE_OK = 0;
@@ -17,14 +17,14 @@ import java.util.HashMap;
 	private long fileLength = 0L;
 	private int status = SOURCE_IS_NULL;
 	
-	private static final HashMap sources = new HashMap();
+	private static final Hashtable sources = new Hashtable();
 	
 	private SourceInfo(String src) { 
 		source = src;
 		getInfo();
 	}
 	
-	/*public*/ static SourceInfo getInstance(String src) {
+	/*public*/ static synchronized SourceInfo getInstance(String src) {
 		SourceInfo si = new SourceInfo(src);
 		Object o = sources.get(src);
 		
@@ -39,7 +39,7 @@ import java.util.HashMap;
 			}
 		}
 		else {
-			sources.put(src,si);
+			sources.put(src,si); 
 			return si;
 		}
 	}
