@@ -520,7 +520,9 @@ if (DEPLOYABLE) {
 						setError(triceps.get("unknown_node") + nodeName, line, column,nodeName);
 						return Datum.getInstance(triceps,Datum.INVALID);
 					}
-					return new Datum(triceps, node.getReadback(triceps.getLanguage()),Datum.STRING);
+					return new Datum(triceps, 
+						triceps.getParser().parseJSP(triceps,node.getReadback(triceps.getLanguage())),
+						Datum.STRING);
 				}
 				case ISINVALID:
 					return new Datum(triceps, datum.isType(Datum.INVALID));
