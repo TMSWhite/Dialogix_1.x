@@ -134,7 +134,7 @@ public class TricepsServlet extends HttpServlet {
 			out = res.getWriter();
 
 			directive = req.getParameter("directive");	// XXX: directive must be set before calling processHidden
-			processEventTimings(req.getParameter("EVENT_TIMINGS"));
+			triceps.processEventTimings(req.getParameter("EVENT_TIMINGS"));
 			
 			setGlobalVariables();
 
@@ -582,7 +582,7 @@ public class TricepsServlet extends HttpServlet {
 		}
 		else if (directive.equals(triceps.get("save_to"))) {
 			String name = req.getParameter(triceps.get("save_to"));
-			ok = triceps.toTSV(workingFilesDir,name);
+			ok = triceps.saveWorkingInfo(name);
 			if (ok) {
 				info.println(triceps.get("interview_saved_successfully_as") + (workingFilesDir + name));
 			}
@@ -692,7 +692,7 @@ public class TricepsServlet extends HttpServlet {
 					info.println(triceps.get("interview_saved_successfully_as") + (completedFilesDir + filename));
 				}
 
-				savedOK = triceps.toTSV(floppyDir,filename);
+				savedOK = triceps.saveToFloppy();
 				ok = savedOK && ok;
 				if (savedOK) {
 					info.println(triceps.get("interview_saved_successfully_as") + (floppyDir + filename));
@@ -763,10 +763,13 @@ public class TricepsServlet extends HttpServlet {
 			triceps = Triceps.NULL;
 		}
 		else {
-			triceps = new Triceps(name);
+			if (triceps != Triceps.NULL) {
+				triceps.setSchedule(name);
+			}
+			else {
+				triceps = new Triceps(name,workingFilesDir,completedFilesDir,floppyDir);
+			}
 		}
-		triceps.getSchedule().setReserved(Schedule.WORKING_DIR,workingFilesDir);
-		triceps.getSchedule().setReserved(Schedule.COMPLETED_DIR,completedFilesDir);
 		return triceps.isValid();
 	}
 
@@ -1249,18 +1252,4 @@ public class TricepsServlet extends HttpServlet {
 
 		return sb.toString();
 	}
-	
-	
-	private void processEventTimings(String src) {
-		if (src == null) {
-			return;
-		}
-			
-		StringTokenizer lines = new StringTokenizer(src,"|",false);
-
-		while(lines.hasMoreTokens()) {
-			String s = lines.nextToken();
-			Logger.writeln(s);
-		}
-	}	
 }
