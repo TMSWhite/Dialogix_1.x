@@ -2,7 +2,7 @@
 import java.io.*;
 import java.util.*;
 
-public class QssTokenManager implements QssConstants
+public class QssTokenManager implements QssConstants, VersionIF
 {
 private final int jjStopStringLiteralDfa_0(int pos, long active0)
 {
@@ -466,22 +466,22 @@ private final int jjMoveNfa_0(int startState, int curPos)
    }
 }
 static final int[] jjnextStates = {
-   21, 22, 27, 28, 31, 32, 17, 6, 7, 9, 1, 2, 4, 13, 14, 17, 
-   23, 24, 17, 31, 32, 17, 15, 16, 25, 26, 29, 30, 33, 34, 
+   21, 22, 27, 28, 31, 32, 17, 6, 7, 9, 1, 2, 4, 13, 14, 17,
+   23, 24, 17, 31, 32, 17, 15, 16, 25, 26, 29, 30, 33, 34,
 };
 public static final String[] jjstrLiteralImages = {
-"", null, null, "\53", "\55", "\41", "\52", "\57", "\76", "\76\75", "\75\75", 
-"\41\75", "\74", "\74\75", "\56", "\46\46", "\174\174", "\45", "\136", "\46", "\174", 
-"\75", "\77", "\72", "\54", "\50", "\51", "\133", "\135", "\173", "\175", "\73", null, 
+"", null, null, "\53", "\55", "\41", "\52", "\57", "\76", "\76\75", "\75\75",
+"\41\75", "\74", "\74\75", "\56", "\46\46", "\174\174", "\45", "\136", "\46", "\174",
+"\75", "\77", "\72", "\54", "\50", "\51", "\133", "\135", "\173", "\175", "\73", null,
 null, null, null, null, null, null, null, null, null, "\12", };
 public static final String[] lexStateNames = {
-   "DEFAULT", 
+   "DEFAULT",
 };
 static final long[] jjtoToken = {
-   0x688ffffffffL, 
+   0x688ffffffffL,
 };
 static final long[] jjtoSkip = {
-   0x700000000L, 
+   0x700000000L,
 };
 private ASCII_CharStream input_stream;
 private final int[] jjrounds = new int[39];
@@ -545,7 +545,7 @@ int jjround;
 int jjmatchedPos;
 int jjmatchedKind;
 
-public final Token getNextToken() 
+public final Token getNextToken()
 {
   int kind;
   Token specialToken = null;
@@ -554,13 +554,13 @@ public final Token getNextToken()
 
   EOFLoop :
   for (;;)
-  {   
-   try   
-   {     
+  {
+   try
+   {
       curChar = input_stream.BeginToken();
-   }     
+   }
    catch(java.io.IOException e)
-   {        
+   {
       jjmatchedKind = 0;
       matchedToken = jjFillToken();
       return matchedToken;

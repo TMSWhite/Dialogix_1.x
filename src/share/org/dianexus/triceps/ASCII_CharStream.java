@@ -4,7 +4,7 @@
  * contain only ASCII characters (without unicode processing).
  */
 
-public final class ASCII_CharStream
+public final class ASCII_CharStream implements VersionIF
 {
   public static final boolean staticFlag = false;
   int bufsize;
@@ -188,7 +188,7 @@ public final class ASCII_CharStream
   }
 
   /**
-   * @deprecated 
+   * @deprecated
    * @see #getEndColumn
    */
 
@@ -197,7 +197,7 @@ public final class ASCII_CharStream
   }
 
   /**
-   * @deprecated 
+   * @deprecated
    * @see #getEndLine
    */
 
@@ -352,7 +352,7 @@ public final class ASCII_CharStream
         bufcolumn[j] = newCol + columnDiff;
         columnDiff = nextColDiff;
         i++;
-     } 
+     }
 
      if (i < len)
      {

@@ -3,7 +3,7 @@
  * Describes the input token stream.
  */
 
-public class Token {
+public class Token implements VersionIF {
 
   /**
    * An integer that describes the kind of this token.  This numbering
