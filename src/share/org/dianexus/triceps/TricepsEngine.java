@@ -74,6 +74,9 @@ public class TricepsEngine implements VersionIF {
 	private boolean allowNotUnderstood = false;
 	private boolean allowLanguageSwitching = false;
 	private boolean allowJumpTo = false;
+	private boolean alwaysShowAdminIcons = false;
+	private boolean showSaveToFloppyInAdminMode = false;
+	private boolean wrapAdminIcons = true;
 
 	private String directive = null;	// the default
 	private Triceps triceps = Triceps.NULL;
@@ -250,6 +253,9 @@ if (AUTHORABLE) {
 			allowNotUnderstood = schedule.getBooleanReserved(Schedule.ALLOW_DONT_UNDERSTAND);
 			allowLanguageSwitching = schedule.getBooleanReserved(Schedule.ALLOW_LANGUAGE_SWITCHING);
 			allowJumpTo = schedule.getBooleanReserved(Schedule.ALLOW_JUMP_TO);
+			alwaysShowAdminIcons = schedule.getBooleanReserved(Schedule.ALWAYS_SHOW_ADMIN_ICONS);
+			showSaveToFloppyInAdminMode = schedule.getBooleanReserved(Schedule.SHOW_SAVE_TO_FLOPPY_IN_ADMIN_MODE);
+			wrapAdminIcons = schedule.getBooleanReserved(Schedule.WRAP_ADMIN_ICONS);
 		}
 		else {
 			debugMode = false;
@@ -264,10 +270,13 @@ if (AUTHORABLE) {
 			allowNotUnderstood = false;
 			allowLanguageSwitching = false;
 			allowJumpTo = false;
+			alwaysShowAdminIcons = false;
+			showSaveToFloppyInAdminMode = false;
+			wrapAdminIcons = true;
 		}
 		allowEasyBypass = false;
 		okPasswordForTempAdminMode = false;
-		okToShowAdminModeIcons = false;
+		okToShowAdminModeIcons = alwaysShowAdminIcons;	// the default -- either on or off.
 		isSplashScreen = false;
 		activePrefix = schedule.getReserved(Schedule.ACTIVE_BUTTON_PREFIX);
 		activeSuffix = schedule.getReserved(Schedule.ACTIVE_BUTTON_SUFFIX);
@@ -1456,7 +1465,13 @@ if (XML) {
 					sb.append(node.prepareChoicesAsHTML(datum,errMsg,autogenOptionNums));
 					sb.append("</td>");
 					if (needSpecialOptions) {
-						sb.append("<td width='1%' NOWRAP>" + clickableOptions + "</td>");
+						sb.append("<td width='1%'");
+						if (!wrapAdminIcons) {
+							sb.append(" NOWRAP");
+						}
+						sb.append(">");
+						sb.append(clickableOptions);
+						sb.append("</td>");
 					}
 					break;
 				default:
@@ -1487,7 +1502,13 @@ if (XML) {
 						}
 					}
 					if (needSpecialOptions) {
-						sb.append("<td width='1%' NOWRAP>" + clickableOptions + "</td>");
+						sb.append("<td width='1%'");
+						if (!wrapAdminIcons) {
+							sb.append(" NOWRAP");
+						}
+						sb.append(">");
+						sb.append(clickableOptions);
+						sb.append("</td>");
 					}
 					break;
 			}
@@ -1522,7 +1543,16 @@ if (XML) {
 			sb.append(buildSubmit("jumpToFirstUnasked"));
 		}
 		if (schedule.getBooleanReserved(Schedule.SUSPEND_TO_FLOPPY) || okToShowAdminModeIcons) {
-			sb.append(buildSubmit("suspendToFloppy"));
+			if (schedule.getBooleanReserved(Schedule.SUSPEND_TO_FLOPPY)) {
+				sb.append(buildSubmit("suspendToFloppy"));
+			}
+			else {
+				if (okToShowAdminModeIcons) {
+					if (showSaveToFloppyInAdminMode) {
+						sb.append(buildSubmit("suspendToFloppy"));
+					}
+				}
+			}
 		}
 
 		if (allowEasyBypass || okToShowAdminModeIcons) {

@@ -79,6 +79,9 @@ import java.io.FileReader;
 	/*public*/ static final int SWAP_NEXT_AND_PREVIOUS = 54;
 	/*public*/ static final int ANSWER_OPTION_FIELD_WIDTH = 55;
 	/*public*/ static final int SET_DEFAULT_FOCUS = 56;
+	/*public*/ static final int ALWAYS_SHOW_ADMIN_ICONS = 57;
+	/*public*/ static final int SHOW_SAVE_TO_FLOPPY_IN_ADMIN_MODE = 58;
+	/*public*/ static final int WRAP_ADMIN_ICONS = 59;
 
 	private static final String DEFAULT_LANGUAGE = "en_US";
 	/*public*/ static final String TRICEPS_DATA_FILE = "DATA";
@@ -143,6 +146,9 @@ import java.io.FileReader;
 		"__SWAP_NEXT_AND_PREVIOUS__",
 		"__ANSWER_OPTION_FIELD_WIDTH__",
 		"__SET_DEFAULT_FOCUS__",
+		"__ALWAYS_SHOW_ADMIN_ICONS__",
+		"__SHOW_SAVE_TO_FLOPPY_IN_ADMIN_MODE__",
+		"__WRAP_ADMIN_ICONS__"
 	};
 
 	private Date startTime = null;
@@ -248,7 +254,9 @@ import java.io.FileReader;
 		setReserved(SWAP_NEXT_AND_PREVIOUS,"false");
 		setReserved(ANSWER_OPTION_FIELD_WIDTH,"0");
 		setReserved(SET_DEFAULT_FOCUS,"true");
-		
+		setReserved(ALWAYS_SHOW_ADMIN_ICONS,"false");
+		setReserved(SHOW_SAVE_TO_FLOPPY_IN_ADMIN_MODE,"false");
+		setReserved(WRAP_ADMIN_ICONS,"false");
 	}
 		
 	/*public*/ boolean init(boolean log) {
@@ -767,6 +775,9 @@ if (DEPLOYABLE) {
 			case SWAP_NEXT_AND_PREVIOUS: s = Boolean.valueOf(value.trim()).toString(); break;
 			case ANSWER_OPTION_FIELD_WIDTH: s = setAnswerOptionFieldWidth(value); break;
 			case SET_DEFAULT_FOCUS: s = Boolean.valueOf(value.trim()).toString(); break;
+			case ALWAYS_SHOW_ADMIN_ICONS: s = Boolean.valueOf(value.trim()).toString(); break;
+			case SHOW_SAVE_TO_FLOPPY_IN_ADMIN_MODE: s = Boolean.valueOf(value.trim()).toString(); break;
+			case WRAP_ADMIN_ICONS: s = Boolean.valueOf(value.trim()).toString(); break;
 			default: return false;
 		}
 		
