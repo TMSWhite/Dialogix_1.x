@@ -24,6 +24,7 @@ public class TricepsServlet extends HttpServlet implements VersionIF {
 	
 	private ServletConfig config = null;
 	private TricepsEngine tricepsEngine = null;
+	private String sessionID = null;
 
 	
 	public void init(ServletConfig config) throws ServletException {
@@ -84,7 +85,7 @@ if (DEBUG) Logger.printStackTrace(t);
 	private void okPage(HttpServletRequest req, HttpServletResponse res) {
 		HttpSession session = req.getSession(true);
 		
-		String sessionID = TRICEPS_ENGINE + "." + session.getId();
+		sessionID = TRICEPS_ENGINE + "." + session.getId();
 		
 		tricepsEngine = (TricepsEngine) session.getAttribute(sessionID);
 		if (tricepsEngine == null) {
@@ -103,6 +104,7 @@ if (DEBUG) {
 		
 	/* standard Apache log format (after the #@# prefix for easier extraction) */
 	Logger.writeln("#@#(" + req.getParameter("DIRECTIVE") + ") " + 
+		sessionID + 
 		((WEB_SERVER) ? (req.getRemoteAddr() + " - [" + new Date(System.currentTimeMillis()) + "] \"" +
 		req.getMethod() + " " + req.getRequestURI() + "\" \"" +
 		req.getHeader(USER_AGENT) + "\" \"" + req.getHeader(ACCEPT_LANGUAGE) + "\" \"" + req.getHeader(ACCEPT_CHARSET) + "\"") : "") +
