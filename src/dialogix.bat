@@ -10,7 +10,7 @@ rem File for starting Dialogix server and browser
 rem ----- Verify and Set Required Environment Variables ---------------------
 
 set _PATH=%PATH%
-PATH=%PATH%;@@TOMCAT.HOME@@/bin
+PATH=%PATH%;@@DIALOGIX.HOME@@\bin
 
 if not "%JAVA_HOME%" == "" goto gotJavaHome
 
@@ -35,9 +35,9 @@ set _NETSCAPE_="C:\Program Files\Netscape\Communicator\Program\netscape.exe"
 set _IE_="C:\Program Files\Internet Explorer\IEXPLORE.EXE"
 
 rem -- start server --
-cd bin
+cd @@DIALOGIX.HOME@@\bin
 start /MIN startup.bat %1 %2
-cd ..
+cd @@DIALOGIX.HOME@@
 sleep 10
 
 rem -- start browser, giving preference to Netscape --
