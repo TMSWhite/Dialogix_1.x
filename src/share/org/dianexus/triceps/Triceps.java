@@ -660,7 +660,7 @@ public class Triceps {
 		try {
 			url = new URL(filename);
 			br = new BufferedReader(new InputStreamReader(url.openStream()));
-			br.mark(1000);	// allows stream be reset to beginning, rather than closing & re-opening it
+//			br.mark(1000);	// allows stream be reset to beginning, rather than closing & re-opening it
 
 			String fileLine;
 			while ((fileLine = br.readLine()) != null) {
@@ -674,7 +674,8 @@ public class Triceps {
 					break;
 				}
 				else {
-					br.reset();	// so that resume reading from the beginning of the file
+					br = new BufferedReader(new InputStreamReader(url.openStream()));
+//					br.reset();	// so that resume reading from the beginning of the file
 					ok = true;
 					break;
 				}
