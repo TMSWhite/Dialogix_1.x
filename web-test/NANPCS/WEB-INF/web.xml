@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+    <!DOCTYPE web-app PUBLIC
+    "-//Sun Microsystems, Inc.//DTD Web Application 2.3//EN"
+    "http://java.sun.com/dtd/web-app_2_3.dtd">
+
+<web-app>
+    <servlet>
+        <servlet-name>
+            Dialogix
+        </servlet-name>
+        <servlet-class>
+            org.dianexus.triceps.TricepsServlet
+        </servlet-class>
+        <init-param>
+            <param-name>dialogix.dir</param-name>
+            <param-value>@@DIALOGIX.DIR@@</param-value>
+        </init-param>   
+        <init-param>
+            <param-name>scheduleSrcDir</param-name>
+            <param-value>NANPCS/WEB-INF/schedules/</param-value>
+        </init-param>
+        <init-param>
+            <param-name>workingFilesDir</param-name>
+            <param-value>NANPCS/WEB-INF/working/</param-value>
+        </init-param>
+        <init-param>
+            <param-name>completedFilesDir</param-name>
+            <param-value>NANPCS/WEB-INF/completed/</param-value>
+        </init-param>
+        <init-param>
+            <param-name>imageFilesDir</param-name>
+            <param-value>/images/</param-value>
+        </init-param>
+        <init-param>
+            <param-name>helpIcon</param-name>
+            <param-value>help_true.gif</param-value>
+        </init-param>
+        <init-param>
+            <param-name>logoIcon</param-name>
+            <param-value>school_of_nursing_title.jpg</param-value>
+        </init-param>
+        <init-param>
+            <param-name>floppyDir</param-name>
+            <param-value>@@FLOPPY.DIR@@</param-value>
+        </init-param>
+        <init-param>
+            <param-name>floppyDir</param-name>
+            <param-value>NANPCS/WEB-INF/archive/</param-value>
+        </init-param>      
+        <init-param>
+            <param-name>displayWorking</param-name>
+            <param-value>true</param-value>
+        </init-param>                
+    </servlet>
+</web-app>
+
+
