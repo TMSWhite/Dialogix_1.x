@@ -63,7 +63,7 @@ class InputValidator implements VersionIF {
 if (DEBUG) Logger.writeln(err);
 			valid = false;
 		}
-//if (DEBUG) Logger.writeln("InputValidator - m/" + getPattern() + "/ -> " + isValid() + " " + getErrors());
+if (DEBUG) Logger.writeln("InputValidator - m/" + getPattern() + "/ -> " + isValid() + " " + getErrors());
 	}
 	
 	/** test whether string s matches the pattern */
