@@ -327,7 +327,8 @@ public class TricepsServlet extends HttpServlet {
 			sb.append("&nbsp;");
 		}
 		else {
-			sb.append("			<IMG NAME='icon' SRC='" + Node.encodeHTML(imageFilesDir + logo) + "' ALIGN='top' BORDER='0' onMouseDown='javascript:setAdminModePassword();' ALT='Logo'>\n");
+			sb.append("			<IMG NAME='icon' SRC='" + Node.encodeHTML(imageFilesDir + logo) + "' ALIGN='top' BORDER='0'" +
+				((!isSplashScreen) ? " onMouseDown='javascript:setAdminModePassword();'":"") + " ALT='Logo'>\n");
 		}
 		sb.append("	</TD>\n");
 		sb.append("	<TD ALIGN='left'><FONT SIZE='5'><B>" + Node.encodeHTML((triceps != null) ? triceps.getHeaderMsg() : "Triceps System") + "</B></FONT></TD>\n");
