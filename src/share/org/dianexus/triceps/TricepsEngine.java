@@ -1238,7 +1238,7 @@ if (XML) {
 		result.append("<?xml-stylesheet href=\"triceps.xsl\" type=\"text/xsl\"?>\n");
 		result.append("<?cocoon-process type=\"xslt\"?>\n");
 			
-		String file = "/usr/local/triceps/webapps/samples/test5.xml";
+		String file = "/usr/local/xml/test.xml";
 		try {
 			result.append(responseXML());
 			
