@@ -223,6 +223,10 @@ public class Node  {
 		processFormattingMask();
 		parseRange();
 		createParseRangeStr();
+		
+		if (datumType == Datum.INVALID) {
+			setParseError("Invalid dataType");
+		}
 	}
 	catch (Throwable t) {
 		setParseError("Syntax error creating node: " + t.getMessage());
