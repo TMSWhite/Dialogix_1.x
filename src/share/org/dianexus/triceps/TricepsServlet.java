@@ -21,6 +21,7 @@ public class TricepsServlet extends HttpServlet implements VersionIF {
 	static final String USER_AGENT = "User-Agent";
 	static final String ACCEPT_LANGUAGE = "Accept-Language";
 	static final String ACCEPT_CHARSET = "Accept-Charset";
+	static final String CONTENT_TYPE = "text/html; charset=UTF-8";	// can make UTF-8 by default?
 	
 	ServletConfig config = null;
 	TricepsEngine tricepsEngine = null;
@@ -106,7 +107,7 @@ if (DEBUG) Logger.printStackTrace(t);
 		logAccess(req, " OK");
 		
 		try {
-			res.setContentType("text/html");
+			res.setContentType(CONTENT_TYPE);
 			PrintWriter out = res.getWriter();
 			
 			tricepsEngine.doPost(req,res,out,null,null);
@@ -164,13 +165,13 @@ if (DEBUG && false) {
 	void errorPage(HttpServletRequest req, HttpServletResponse res) {
 		logAccess(req, " UNSUPPORTED BROWSER");
 		try {
-			res.setContentType("text/html");
+			res.setContentType(CONTENT_TYPE);
 			PrintWriter out = res.getWriter();
 			
 			out.println("<!DOCTYPE html PUBLIC '-//W3C//DTD HTML 4.01 Transitional//EN'>");
 			out.println("<html>");
 			out.println("<head>");
-			out.println("<META HTTP-EQUIV='Content-Type' CONTENT='text/html;CHARSET=iso-8859-1'>");
+			out.println("<META HTTP-EQUIV='Content-Type' CONTENT='" + CONTENT_TYPE + "'>");
 			out.println("<title>Triceps Error-Unsupported Browser</title>");
 			out.println("</head>");
 			out.println("<body bgcolor='white'>");
@@ -194,13 +195,13 @@ if (DEBUG) Logger.printStackTrace(t);
 	void expiredSessionErrorPage(HttpServletRequest req, HttpServletResponse res) {
 		logAccess(req, " EXPIRED SESSION");
 		try {
-			res.setContentType("text/html");
+			res.setContentType(CONTENT_TYPE);
 			PrintWriter out = res.getWriter();
 			
 			out.println("<!DOCTYPE html PUBLIC '-//W3C//DTD HTML 4.01 Transitional//EN'>");
 			out.println("<html>");
 			out.println("<head>");
-			out.println("<META HTTP-EQUIV='Content-Type' CONTENT='text/html;CHARSET=iso-8859-1'>");
+			out.println("<META HTTP-EQUIV='Content-Type' CONTENT='" + CONTENT_TYPE + "'>");
 			out.println("<title>Triceps Error-Expired Session</title>");
 			out.println("</head>");
 			out.println("<body bgcolor='white'>");

@@ -222,13 +222,13 @@ if (DEBUG) Logger.printStackTrace(t);
 		shutdown(req,"now at loginPage",true);
 		
 		try {
-			res.setContentType("text/html");
+			res.setContentType(CONTENT_TYPE);
 			PrintWriter out = res.getWriter();
 			
 			out.println("<!DOCTYPE html PUBLIC '-//W3C//DTD HTML 4.01 Transitional//EN'>");
 			out.println("<html>");
 			out.println("<head>");
-			out.println("<META HTTP-EQUIV='Content-Type' CONTENT='text/html;CHARSET=iso-8859-1'>");
+			out.println("<META HTTP-EQUIV='Content-Type' CONTENT='" + CONTENT_TYPE + "'>");
 			out.println("<title>Login</title>");
 			out.println("</head>");
 			out.println("<body bgcolor='white'>");
@@ -383,7 +383,7 @@ if (DEBUG) Logger.printStackTrace(t);
 		}
 		
 		try {
-			res.setContentType("text/html");
+			res.setContentType(CONTENT_TYPE);
 			PrintWriter out = res.getWriter();
 			
 			tricepsEngine.doPost(req,res,out,hiddenLoginToken,restoreFile);
