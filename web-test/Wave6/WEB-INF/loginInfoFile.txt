@@ -1,0 +1,8 @@
+# 4 column, tab separated list of 
+# (1) username
+# (2) password
+# (3) filename -- so can restore from existing file
+# (4) instrument name -- so can create one from scratch
+
+guest	guest	guest	Wave6\WEB-INF\schedules\wave6-qol-web.txt
+irb	irb	irb	Wave6\WEB-INF\schedules\wave6-sa-web.txt
