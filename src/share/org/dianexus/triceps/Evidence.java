@@ -10,6 +10,7 @@ import java.util.Date;
 import java.util.GregorianCalendar;
 import java.util.Calendar;
 import java.io.File;
+import java.net.URLEncoder;
 
 /*public*/ class Evidence implements VersionIF  {
 	private static final int FUNCTION_INDEX = 2;
@@ -349,7 +350,7 @@ if (DEBUG) Logger.writeln("##Evidence.initReserved()-schedule=null");
 			
 if (DEPLOYABLE) {			
 		if (value.isReserved()) {
-			writeReserved(value.getReservedNum());
+			schedule.writeReserved(value.getReservedNum());
 		}
 		else {
 			writeNode(node,val);
@@ -403,29 +404,30 @@ if (DEPLOYABLE) {
 		sb.append("\t");
 		sb.append(q.getAnswerLanguageNum());
 		sb.append("\t");
+		sb.append(q.getTimeStampStr());
+		sb.append("\t");
 		sb.append(q.getQuestionAsAsked());
 		sb.append("\t");
-		sb.append(ans);				
+		sb.append(URLEncoder.encode(ans));	
 		sb.append("\t");
-		sb.append(comment);
-		sb.append("\t");
-		sb.append(q.getTimeStampStr());
+		sb.append(URLEncoder.encode(comment));
 		triceps.dataLogger.println(sb.toString());
 }		
 	}
 	
-
+/*
 	void writeReserved(int id) {	// package level access
 if (DEPLOYABLE) {	
 		StringBuffer sb = new StringBuffer("\t");
 		
 		sb.append(Schedule.RESERVED_WORDS[id]);
-		sb.append("\t0\t\t");
+		sb.append("\t0\t\t\t");
 		sb.append(schedule.getReserved(id));
-		sb.append("\t\t");
+		sb.append("\t");
 		triceps.dataLogger.println(sb.toString());
 }		
 	}
+*/
 	
 	/*public*/ void writeDatafileHeaders() {
 if (DEPLOYABLE) {		
