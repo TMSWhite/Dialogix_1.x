@@ -137,11 +137,10 @@ while($r  = mysql_fetch_assoc($res))
         break;     
       default:
       case 'nothing':
-        echo ("<field name='$VarName'>
+          echo ("
           <prompt>
             $ActionPhrase
           </prompt>
-          </field>
         ");
         break;
       case 'memo':
