@@ -18,7 +18,8 @@ public class Triceps {
 	private Evidence evidence = null;
 	private Parser parser = null;
 
-	private Logger errorLogger = new Logger();
+	private Logger errorLogger = null;
+	private Logger eventLogger = null;
 	private int currentStep=0;
 	private int numQuestions=0;	// so know how many to skip for compount question
 	private int firstStep = 0;	
@@ -45,24 +46,39 @@ public class Triceps {
 	public static final Triceps NULL = new Triceps();	
 	
 	private Triceps() {
-		this(null);
+		this(null,null,null,null);
 		isValid = false;
 	}
 	
-	public Triceps(String scheduleLoc) {
+	public void finalize() {
+		if (eventLogger != null && isAtEnd())
+			eventLogger.delete();	// otherwise keep it in the working directory - should it be appended to if it exists?
+	}
+	
+	
+	public Triceps(String scheduleLoc, String workingFilesDir, String completedFilesDir, String floppyDir) {
 		/* initialize required variables */
 		parser = new Parser();
 		setLocale(null);	// the default
-		setSchedule(scheduleLoc);
+		errorLogger = new Logger();
+		setSchedule(scheduleLoc,workingFilesDir,completedFilesDir,floppyDir);
 	}
 	
-	public void setSchedule(String scheduleLoc) {
+	public void setSchedule(String scheduleLoc, String workingFilesDir, String completedFilesDir, String floppyDir) {
 		nodes = new Schedule(this, scheduleLoc);
 		setLanguage(null);	// the default until overidden
+		
+		nodes.setReserved(Schedule.WORKING_DIR,workingFilesDir);
+		nodes.setReserved(Schedule.COMPLETED_DIR,completedFilesDir);
+		nodes.setReserved(Schedule.FLOPPY_DIR,floppyDir);	
 		
 		if (!nodes.init()) {
 			setError(nodes.getErrors());
 		}
+		else {
+			saveEventLog(nodes.getReserved(Schedule.WORKING_DIR),nodes.getReserved(Schedule.FILENAME),true);
+		}
+		
 		resetEvidence();
 		setDefaultValues();
 		createTempPassword();
@@ -650,26 +666,33 @@ Logger.writeln("null node at index " + i);
 		return parseErrors;
 	}
 	
-	public boolean saveWorkingInfo() {
-		return toTSV(nodes.getReserved(Schedule.WORKING_DIR),nodes.getReserved(Schedule.FILENAME));
-	}
-	
-	public boolean saveCompletedInfo() {
-		boolean ok = toTSV(nodes.getReserved(Schedule.COMPLETED_DIR),nodes.getReserved(Schedule.FILENAME));
-		if (ok) {
-			ok = deleteFile(nodes.getReserved(Schedule.WORKING_DIR),nodes.getReserved(Schedule.FILENAME));
-		}
+	public boolean saveWorkingInfo(String name) {
+		String dir = nodes.getReserved(Schedule.WORKING_DIR);
+		boolean ok = toTSV(dir,name);
 		return ok;
 	}
 	
-
-	private boolean toTSV(String dir) {
-		return toTSV(dir,nodes.getReserved(Schedule.FILENAME));
+	public boolean saveWorkingInfo() {
+		return saveWorkingInfo(nodes.getReserved(Schedule.FILENAME));
 	}
 	
-	private boolean deleteFile(String dir) {
-		return deleteFile(dir,nodes.getReserved(Schedule.FILENAME));
+	public boolean saveCompletedInfo() {
+		String name = nodes.getReserved(Schedule.FILENAME);
+		boolean ok = toTSV(nodes.getReserved(Schedule.COMPLETED_DIR),name);
+		if (ok) {
+			ok = deleteFile(nodes.getReserved(Schedule.WORKING_DIR),name) && ok;
+		}
+		ok = saveEventLog(nodes.getReserved(Schedule.COMPLETED_DIR),name, false) && ok;
+		return ok;
 	}
+	
+	public boolean saveToFloppy() {
+		return toTSV(nodes.getReserved(Schedule.FLOPPY_DIR),nodes.getReserved(Schedule.FILENAME));
+	}
+	
+//	private boolean toTSV(String dir) {
+//		return toTSV(dir,nodes.getReserved(Schedule.FILENAME));
+//	}
 	
 	private boolean deleteFile(String dir, String targetName) {
 		String filename = dir + targetName;
@@ -688,22 +711,18 @@ Logger.writeln("null node at index " + i);
 		return ok;
 	}
 
-	public boolean toTSV(String dir, String targetName) {
+	private boolean toTSV(String dir, String targetName) {
 		String filename = dir + targetName;
-		FileWriter fw = null;
+		Writer fw = null;
 		boolean ok = false;
 
 		stopTimer();
 
-		try {
-			File f = new File(filename);
-
-			fw = new FileWriter(filename);
-			ok = writeTSV(fw);
-		}
-		catch (IOException e) {
-			String msg = get("error_writing_to") + filename + ": " + e.getMessage();
-			setError(msg);
+		fw = nodes.getWriter(filename);
+		ok = writeTSV(fw);
+		
+		if (!ok) {
+			setError(get("error_writing_to") + filename);
 		}
 		if (fw != null) {
 			try { fw.close(); } catch (IOException t) { }
@@ -834,7 +853,6 @@ Logger.writeln("null node at index " + i);
 	}
 
 	public String getFilename() { return nodes.getReserved(Schedule.FILENAME); }
-	public boolean setFilename(String name) { return nodes.setReserved(Schedule.FILENAME, name); }
 
 	public boolean setLanguage(String language) {
 		return nodes.setReserved(Schedule.CURRENT_LANGUAGE,language);
@@ -866,7 +884,80 @@ Logger.writeln("null node at index " + i);
 	public boolean isAtBeginning() { return (currentStep <= firstStep); }
 	public boolean isAtEnd() { return (currentStep >= size()); }
 	public int getCurrentStep() { return currentStep; }
+	
+	public void processEventTimings(String src) {
+		if (src == null || eventLogger == null) {
+			return;
+		}
+			
+		StringTokenizer lines = new StringTokenizer(src,"|",false);
 
+		while(lines.hasMoreTokens()) {
+			String s = lines.nextToken();
+			eventLogger.println(s);
+		}
+	}	
+	
+	public boolean changeFilenames(String dir, String oldname, String newname) {
+		boolean ok = false;
+		
+		/* change the name of the working file */
+		ok = saveWorkingInfo(newname);
+		
+		if (!ok) {
+			setError(get("error_changing_filenames"));
+		}
+		else {
+			deleteFile(dir,oldname);
+			saveEventLog(dir,newname,true);
+		}
+
+		return ok;
+	}
+	
+	public boolean saveEventLog(String dir, String name, boolean rename) {
+		boolean ok = true;
+		
+		try {
+			if (eventLogger == null) {
+				File file = new File(dir + name + ".events");
+				eventLogger = new Logger(file,Logger.DOS_EOL);	
+				return true;
+			}
+			
+			String copy = eventLogger.toString(false);
+				
+			if (rename) {
+				File file = new File(dir + name + ".events");
+				eventLogger.delete();	// remove old one
+				eventLogger = new Logger(file,Logger.DOS_EOL);
+				eventLogger.print(copy);	// copy in current information
+			}
+			else {
+				/* save a copy to the new location, but don't delete current file */
+				FileWriter fw = nodes.getWriter(dir + name);
+				try {
+					fw.write(copy);
+				}
+				catch (IOException e) {
+					ok = false;
+				}
+				if (fw != null) { 
+					try { fw.close(); } catch (IOException t) { }
+				}
+				if (!ok) {
+					setError(get("unable_to_move_event_logs_to") + dir + name);
+				}
+			}
+		}
+		catch (Throwable t) {
+			setError(get("unable_to_move_event_logs_to") + dir + name);
+			Logger.printStackTrace(t);
+		}
+		return ok;
+	}
+	
+	
 	/* Formerly from Lingua */
 
 	public static Locale getLocale(String lang, String country, String extra) {
