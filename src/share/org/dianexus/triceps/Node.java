@@ -425,7 +425,7 @@ else setParseError("syntax error");
 			case RADIO_HORIZONTAL:
 			case RADIO_HORIZONTAL2:
 			case COMBO2:
-			case LIST2;
+			case LIST2:
 				String val=null;
 				String msg=null;
 				int field=0;
@@ -901,7 +901,7 @@ if (XML) {
 				if (answerType == COMBO || answerType == LIST) {
 					key = (autogen) ? Integer.toString(count) : ac.getValue();
 				}
-				sb.append(ac.toXML(selected, MAX_TEXT_LEN_FOR_COMBO, key);
+				sb.append(ac.toXML(selected, MAX_TEXT_LEN_FOR_COMBO, key));
 			}
 			StringBuffer acs = sb;
 			sb = new StringBuffer();
