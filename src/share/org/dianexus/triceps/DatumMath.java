@@ -9,13 +9,15 @@ public class DatumMath {
 	private static GregorianCalendar gc_math = new GregorianCalendar();
 	
 	static Datum hasError(Datum a, Datum b) {
+		// This function needs to be reconsidered as to the proper way to handle error propagation
+		/*
 		if (a.isType(Datum.INVALID) || (b != null && b.isType(Datum.INVALID))) {
 			return Datum.getInstance(Datum.INVALID);
 		}
 		if (a.isType(Datum.REFUSED) || (b != null && b.isType(Datum.REFUSED))) {
 			return Datum.getInstance(Datum.REFUSED);
 		}
-		/* Do NOT throw an error message if try to access a NA datatype? 
+		// Do NOT throw an error message if try to access a NA datatype? 
 		if (a.isType(Datum.NA) || (b != null && b.isType(Datum.NA))) {
 			return Datum.getInstance(Datum.INVALID);
 		}
@@ -38,18 +40,14 @@ public class DatumMath {
 	}
 	
 	static int getCalendarField(Datum d, int datumType) {
-		int field = DatumMath.datumToCalendar(datumType);
-		int value;
-		
 		synchronized (calendar) {
 			calendar.setTime(d.dateVal());
-			value = calendar.get(field);
+			return calendar.get(DatumMath.datumToCalendar(datumType));
 		}
-		return value;
 	}
 
 	/** This method returns the sum of two Datum objects of type double. */
-	static Datum add(Datum a, Datum b) {
+	static /* synchronized */ Datum add(Datum a, Datum b) {
 		Datum d = DatumMath.hasError(a,b);
 		if (d != null)
 			return d;
@@ -87,14 +85,14 @@ public class DatumMath {
 		}
 	}
 	
-	static Datum and(Datum a, Datum b) {
+	static /* synchronized */ Datum and(Datum a, Datum b) {
 		Datum d = DatumMath.hasError(a,b);
 		if (d != null)
 			return d;
 					
 		return new Datum(a.longVal() & b.longVal());
 	}
-	static Datum andand(Datum a, Datum b) {
+	static /* synchronized */ Datum andand(Datum a, Datum b) {
 		Datum d = DatumMath.hasError(a,b);
 		if (d != null)
 			return d;
@@ -102,7 +100,7 @@ public class DatumMath {
 		return new Datum(a.booleanVal() && b.booleanVal());
 	}
 	/** This method concatenates two Datum objects of type String and returns the resulting Datum object. */
-	static Datum concat(Datum a, Datum b) {
+	static /* synchronized */ Datum concat(Datum a, Datum b) {
 		Datum d = DatumMath.hasError(a,b);
 		if (d != null)
 			return d;
@@ -118,7 +116,7 @@ public class DatumMath {
 	 * This method evaluates the boolean value of the first Datum object, returns the second Datum object if true,
 	 * returns the third Datum object if false.
 	 */
-	static Datum conditional(Datum a, Datum b, Datum c) {
+	static /* synchronized */ Datum conditional(Datum a, Datum b, Datum c) {
 		Datum d = DatumMath.hasError(a,null);	// if conditional based upon a REFUSED or INVALID, always return that type
 		if (d != null)
 			return d;
@@ -129,7 +127,7 @@ public class DatumMath {
 			return c;
 	}
 	/** This method returns the division of two Datum objects of type double. */
-	static Datum divide(Datum a, Datum b) {
+	static /* synchronized */ Datum divide(Datum a, Datum b) {
 		Datum d = DatumMath.hasError(a,b);
 		if (d != null)
 			return d;
@@ -145,7 +143,7 @@ public class DatumMath {
 	 * This method returns a Datum of type boolean, value true, if two Datum objects of type String or double are equal
 	 * or value false if not equal.
 	 */
-	static Datum eq(Datum a, Datum b) {
+	static /* synchronized */ Datum eq(Datum a, Datum b) {
 		Datum d = DatumMath.hasError(a,b);
 		if (d != null)
 			return d;
@@ -181,7 +179,7 @@ public class DatumMath {
 	 * This method returns a Datum of type boolean upon comparing two Datum objects of type String or double for
 	 * greater than or equal.
 	 */
-	static Datum ge(Datum a, Datum b) {
+	static /* synchronized */ Datum ge(Datum a, Datum b) {
 		Datum d = DatumMath.hasError(a,b);
 		if (d != null)
 			return d;
@@ -217,7 +215,7 @@ public class DatumMath {
 	/**
 	 * This method returns a Datum of type boolean upon comparing two Datum objects of type String or double for greater than.
 	 */
-	static Datum gt(Datum a, Datum b) {
+	static /* synchronized */ Datum gt(Datum a, Datum b) {
 		Datum d = DatumMath.hasError(a,b);
 		if (d != null)
 			return d;
@@ -253,7 +251,7 @@ public class DatumMath {
 	 * This method returns a Datum of type boolean upon comparing two Datum objects of type String or double for
 	 * less than or equal.
 	 */
-	static Datum le(Datum a, Datum b) {
+	static /* synchronized */ Datum le(Datum a, Datum b) {
 		Datum d = DatumMath.hasError(a,b);
 		if (d != null)
 			return d;
@@ -287,7 +285,7 @@ public class DatumMath {
 		return new Datum(false);
 	}
 	/** This method returns a Datum of type boolean upon comparing two Datum objects of type String or double for less than. */
-	static Datum lt(Datum a, Datum b) {
+	static /* synchronized */ Datum lt(Datum a, Datum b) {
 		Datum d = DatumMath.hasError(a,b);
 		if (d != null)
 			return d;
@@ -320,7 +318,7 @@ public class DatumMath {
 		return new Datum(false);
 	}
 	/** This method returns a Datum object of type double that is the modulus of two Datum objects of type double. */
-	static Datum modulus(Datum a, Datum b) {
+	static /* synchronized */ Datum modulus(Datum a, Datum b) {
 		Datum d = DatumMath.hasError(a,b);
 		if (d != null)
 			return d;
@@ -333,7 +331,7 @@ public class DatumMath {
 		}
 	}
 	/** This method returns the product of two Datum objects of type double. */
-	static Datum multiply(Datum a, Datum b) {
+	static /* synchronized */ Datum multiply(Datum a, Datum b) {
 		Datum d = DatumMath.hasError(a,b);
 		if (d != null)
 			return d;
@@ -341,7 +339,7 @@ public class DatumMath {
 		return new Datum(a.doubleVal() * b.doubleVal());
 	}
 	/** This method returns a Datum object of type double that is the negative of the passed Datum object. */
-	static Datum neg(Datum a) {
+	static /* synchronized */ Datum neg(Datum a) {
 		Datum d = DatumMath.hasError(a,null);
 		if (d != null)
 			return d;
@@ -352,7 +350,7 @@ public class DatumMath {
 	 * This method returns a Datum of type boolean, value true, if two Datum objects of type String or double are not equal
 	 * or value false if equal.
 	 */
-	static Datum neq(Datum a, Datum b) {
+	static /* synchronized */ Datum neq(Datum a, Datum b) {
 		Datum d = DatumMath.hasError(a,b);
 		if (d != null)
 			return d;
@@ -385,7 +383,7 @@ public class DatumMath {
 		return new Datum(false);
 	}
 	/** This method returns a Datum object of the opposite value of the Datum object passed. */
-	static Datum not(Datum a) {
+	static /* synchronized */ Datum not(Datum a) {
 		Datum d = DatumMath.hasError(a,null);
 		if (d != null)
 			return d;
@@ -393,14 +391,14 @@ public class DatumMath {
 		return new Datum(!a.booleanVal());
 	}
 	/** This method returns a Datum of type boolean, value true, if either of two Datum objects of type long are true. */
-	static Datum or(Datum a, Datum b) {
+	static /* synchronized */ Datum or(Datum a, Datum b) {
 		Datum d = DatumMath.hasError(a,b);
 		if (d != null)
 			return d;
 					
 		return new Datum(a.longVal() | b.longVal());
 	}
-	static Datum oror(Datum a, Datum b) {
+	static /* synchronized */ Datum oror(Datum a, Datum b) {
 		Datum d = DatumMath.hasError(a,b);
 		if (d != null)
 			return d;
@@ -408,7 +406,7 @@ public class DatumMath {
 		return new Datum(a.booleanVal() || b.booleanVal());
 	}
 	/** This method returns the difference between two Datum objects of type double. */
-	static Datum subtract(Datum a, Datum b) {
+	static /* synchronized */ Datum subtract(Datum a, Datum b) {
 		Datum d = DatumMath.hasError(a,b);
 		if (d != null)
 			return d;
@@ -423,7 +421,7 @@ public class DatumMath {
 				return (new Datum(newMonth, Datum.MONTH));
 		}
 	}
-	static Datum xor(Datum a, Datum b) {
+	static /* synchronized */ Datum xor(Datum a, Datum b) {
 		Datum d = DatumMath.hasError(a,b);
 		if (d != null)
 			return d;
