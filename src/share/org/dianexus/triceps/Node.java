@@ -925,8 +925,8 @@ if (AUTHORABLE) {
 	public String getQuestionAsAsked() { return questionAsAsked; }
 	public String getAnswerGiven() { return answerGiven; }
 	public String getAnswerTimeStampStr() { return answerTimeStampStr; }
-	public void setComment(String c) { comment = c; }
-	public String getComment() { return comment; }
+	public void setComment(String c) { comment = (c == null) ? "" : c; }
+	public String getComment() { return ((comment == null) ? "" : comment); }
 
 	public void setAnswerLanguageNum(int langNum) {
 if (AUTHORABLE) {
