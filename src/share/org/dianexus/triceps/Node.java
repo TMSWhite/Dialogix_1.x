@@ -738,25 +738,68 @@ public class Node  {
 
 
 	static public String encodeHTML(String s, boolean disallowEmpty) {
+		/* Limited HTML tagging supported:
+			<B></B>
+			<I></I>
+			<U></U>
+			<BR>
+		*/
 		char[] src = s.toCharArray();
 		StringBuffer dst = new StringBuffer();
-
-		for (int i=0;i<src.length;++i) {
-			switch (src[i]) {
-				case '\'': dst.append("&#39;"); break;
-				case '\"': dst.append("&#34;"); break;
-				case '<': dst.append("&#60;"); break;
-				case '>': dst.append("&#62;"); break;
-				case '&': dst.append("&#38;"); break;
-				default: dst.append(src[i]); break;
+		
+		try {
+			for (int i=0;i<src.length;++i) {
+				switch (src[i]) {
+					case '\'': dst.append("&#39;"); break;
+					case '\"': dst.append("&#34;"); break;
+					case '<': 
+						if (((i+2) < src.length) && src[i+2] == '>') {
+							switch(src[i+1]) {
+								case 'B': case 'b': dst.append("<B>"); i+=2; break;
+								case 'I': case 'i': dst.append("<I>"); i+=2; break;
+								case 'U': case 'u': dst.append("<U>"); i+=2; break;
+								default: dst.append("&#60;"); break;
+							}
+						}
+						else if (((i+3) < src.length) && src[i+1] == '/' && src[i+3] == '>') {
+							switch(src[i+2]) {
+								case 'B': case 'b': dst.append("</B>"); i+=3; break;
+								case 'I': case 'i': dst.append("</I>"); i+=3; break;
+								case 'U': case 'u': dst.append("</U>"); i+=3; break;
+								default: dst.append("&#60;"); break;
+							}
+						}						
+						else if (((i+3) < src.length) && src[i+3] == '>') {
+							if ((src[i+1] == 'b' || src[i+1] == 'B') &&
+									(src[i+2] == 'r' || src[i+2] == 'R')) {
+								dst.append("<BR>");
+								i+=3;
+							}
+							else {
+								dst.append("&#60;");
+							}
+						}
+						else {
+							dst.append("&#60;");
+						}
+						break;
+					case '>': dst.append("&#62;"); break;
+					case '&': dst.append("&#38;"); break;
+					default: dst.append(src[i]); break;
+				}
 			}
 		}
-		String ans = dst.toString();
-		if (disallowEmpty && ans.length() == 0) {
-			return "&nbsp;";
+		catch (Throwable t) {
+			/* ArrayIndexOutOfBounds */
 		}
-		else {
-			return ans;
+		finally {
+			String ans = dst.toString();
+			if (disallowEmpty && ans.length() == 0) {
+				return "&nbsp;";
+			}
+			else {
+				return ans;
+			}
 		}
 	}
 
