@@ -5,7 +5,18 @@
 require_once("conn_dialogix.php");
 
 if(!isset($_GET['Instrument'])) {
-	DialogixError("Must specify an instrument name");
+  DialogixError("Must specify an instrument name");
+}
+
+$question = 0;
+
+if(!isset($_GET['question'])) {
+  $question = 1;
+}
+else {
+
+  $question = $_GET['question'];
+  
 }
 
 $InstrumentName = $_GET['Instrument'];
@@ -35,7 +46,7 @@ if ($num_rows == 0) {
 $rows = array();
 
 while($r  = mysql_fetch_assoc($res))
-	array_push($rows, $r);
+  array_push($rows, $r);
 
 ?>
 
@@ -44,109 +55,114 @@ while($r  = mysql_fetch_assoc($res))
 <table border=1 width=100% align=center>
 <tr><td align="center"><FONT SIZE="5">Voice XML File for (<?php echo $InstrumentName; ?>)</FONT></td></tr>
 <tr><td>
-	<?php echo nl2br(htmlspecialchars('
-		<?xml version="1.0" encoding="UTF-8"?>
-		<vxml xmlns="http://www.w3.org/2001/vxml" 
-		  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
-		  xsi:schemaLocation="http://www.w3.org/2001/vxml 
-		   http://www.w3.org/TR/voicexml20/vxml.xsd"
-		   version="2.0">
-		  <form>
-		  <field name="drink">
-		     <prompt>Would you like coffee, tea, milk, or nothing?</prompt>
-		     <grammar src="drink.grxml" type="application/srgs+xml"/>
-		  </field>
-		  <block>
-		     <submit next="http://www.drink.example.com/drink2.asp"/>
-		  </block>
-		 </form>
-		</vxml>
-		'));
-	?>
-</td></tr>
-
 <?php
-/*
-	foreach($rows as $s)
-	{
-		extract($s);
-		echo "<tr><td>$GroupNum</td><td>$VarNum</td><td>$VarName";
-			
-		if ($Concept != '') {
-			echo "<br><font color='blue'>$Concept</font>";
-		}
-		
-		// Split relevance in case it is too long
-		$rel_array = preg_split("/(\W+)/", $Relevance, -1, PREG_SPLIT_DELIM_CAPTURE | PREG_SPLIT_NO_EMPTY);
-		$new_rel = implode(" ",$rel_array);
-		
-		echo "<td>$new_rel";
-			
-		if ($Validation == '') {
-			echo "&nbsp;";
-		}
-		else {
-			echo "<br><font color='blue'>";
-			if ($MinVal != '' or $MaxVal != '') {
-				echo "($MinVal - $MaxVal)";
-			}
-			if ($OtherVals != '') {
-				$otherarray = explode(";",$OtherVals);
-				echo "(";
-				$count = 0;
-				foreach ($otherarray as $other) {
-					++$count;
-					if ($count > 1) {
-						echo ", ";
-					}
-					echo "$other";
-				}
-				echo ")";
-			}
-			if ($ReturnType != '') {
-				echo " => $ReturnType";
-			}
-			echo "</font>";
-		}
-		echo "</td><td>";
-		
-		if ($ActionType == 'e') {
-			echo "<font color='blue'>$ActionPhrase</font>";
-		}
-		else {
-			echo "$ActionPhrase";
-		}
-		echo "</td><td><font color='blue'>";
-		if ($DisplayType == 'double') {
-			echo "number";
-		}
-		else if ($DisplayType == 'nothing') {
-			echo "message";
-		}
-		else {
-			echo "$DisplayType";
-		}
-		echo "</font>";
-		if ($AnswerOptions != '') {
-			echo "<br>";
-			$ansarray = explode("|", $AnswerOptions);
-			$toggle = 0;
-			foreach ($ansarray as $ans) {
-				if ($toggle == 0) {
-					echo "[$ans] ";
-					$toggle = 1;
-				}
-				else {
-					echo "$ans<br>";
-					$toggle = 0;
-				}
-			}
-		}
-		echo "</td></tr>\n";
-	}
-*/
+  $namelist='';
+  $nonmatch = "<catch event='nomatch noinput help'>
+      Sorry, I did not understand that.
+      <reprompt/>
+      </catch>
+      ";
+  echo ('
+    <?xml version="1.0" encoding="UTF-8"?>
+    <vxml version="2.0">
+    <form>
+    ');
+  foreach($rows as $r){  
+    extract($r);
+    $namelist .= " $VarName";
+    switch($DisplayType) {
+      case 'check':
+      case 'combo':
+      case 'combo2':
+      case 'list':
+      case 'list2':
+      case 'radio':
+      case 'radio2':
+      case 'radio3':
+        echo ("<field name='$VarName'>
+          <prompt>
+            $ActionPhrase
+            <enumerate/>
+          </prompt>
+        ");
+        /* Do options here */
+        $ansarray = explode("|", $AnswerOptions);
+        $toggle = 0;
+        $counter = 1;
+        foreach ($ansarray as $ans) {
+          if ($toggle == 0) {
+            echo "<option dtmf='$counter' value='$ans'>";
+            ++$counter;
+            $toggle = 1;
+          }
+          else {
+            echo "$ans</option>";
+            $toggle = 0;
+          }
+        }
+        echo ("$nonmatch</field>");
+        break;
+      case 'double':
+        echo ("<field name='$VarName' type='number'>
+          <prompt>
+            $ActionPhrase
+          </prompt>
+          $nonmatch
+          </field>
+        ");
+        break;
+      case 'date':
+      case 'day':
+      case 'month':
+      case 'year':
+        echo ("<field name='$VarName' type='date'>
+          <prompt>
+            $ActionPhrase
+          </prompt>
+          $nonmatch
+          </field>
+        ");
+        break;
+      case 'time':
+      case 'hour':
+      case 'minute':
+      case 'second':
+        echo ("<field name='$VarName' type='time'>
+          <prompt>
+            $ActionPhrase
+          </prompt>
+          $nonmatch
+          </field>
+        ");
+        break;     
+      default:
+      case 'nothing':
+        echo ("<field name='$VarName'>
+          <prompt>
+            $ActionPhrase
+          </prompt>
+          </field>
+        ");
+        break;
+      case 'memo':
+      case 'password':
+      case 'text':
+        echo ("<record name='$VarName' maxtime='60s' dtmfterm='true' beep='true'>
+          <prompt>$ActionPhrase</prompt>
+          $nonmatch
+          </record>
+        ");
+        break;
+    }
+  }
+  echo ("<filled>
+    <submit enctype='multippart/form-data' next='http://dialogix.org/LogVoiceXMLResponse.php'
+      namelist='$namelist' method='post'/>
+    </filled>
+    </form>
+    </vxml>
+    ");
 ?>
-
 </table>
 
 <?php include("Dialogix_Table_PartB.php"); ?>
