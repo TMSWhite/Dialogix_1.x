@@ -238,7 +238,7 @@ sub dat2sas {
 		if (-d $dir) {
 			my @folder = split(/\//,$dir);
 			my $last_folder = $folder[$#folder];
-			my $command = "perl $Prefs->{DAT2SAS} $conf_file $last_folder $dir/*.dat";
+			my $command = "perl $Prefs->{DAT2SAS} $conf_file $last_folder \"$dir/*.dat\"";
 			&doit_warn($command);
 		}
 	}
@@ -251,7 +251,7 @@ sub evt2sas {
 		if (-d $dir) {
 			my @folder = split(/\//,$dir);
 			my $last_folder = $folder[$#folder];
-			my $command = "perl $Prefs->{EVT2SAS} $conf_file $last_folder $dir/*.evt";
+			my $command = "perl $Prefs->{EVT2SAS} $conf_file $last_folder \"$dir/*.evt\"";
 			&doit_warn($command);
 		}
 	}

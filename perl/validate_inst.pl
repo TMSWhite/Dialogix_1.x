@@ -1057,7 +1057,7 @@ sub month {
 sub createMysqlTables {
 	open (MYSQL_TABLES,">InstrumentTableDefs.mysql") or die "unable to open InstrumentTableDefs.mysql";
 	print MYSQL_TABLES qq|
-		drop table if exists Dialogix.InstrumentMeta;
+		/* drop table if exists Dialogix.InstrumentMeta; */
 		create table Dialogix.InstrumentMeta (
 			ID int(11) NOT NULL auto_increment,
 			PRIMARY KEY  (ID),
@@ -1078,7 +1078,7 @@ sub createMysqlTables {
   			KEY InstrumentName (InstrumentName)
   		) TYPE=MyISAM;	
 		
-		drop table if exists Dialogix.InstrumentContents;
+		/* drop table if exists Dialogix.InstrumentContents; */
 		create table Dialogix.InstrumentContents (
 			ID int(11) NOT NULL auto_increment,
 			PRIMARY KEY  (ID),
@@ -1116,7 +1116,7 @@ sub createMysqlTables {
   			KEY InstrumentName (InstrumentName)
 		) TYPE=MyISAM;			
 		
-		drop table if exists Dialogix.InstrumentHeaders;
+		/* drop table if exists Dialogix.InstrumentHeaders; */
 		create table Dialogix.InstrumentHeaders (
 			ID int(11) NOT NULL auto_increment,
 			PRIMARY KEY  (ID),
@@ -1126,7 +1126,7 @@ sub createMysqlTables {
   			KEY InstrumentName (InstrumentName)
 		) TYPE=MyISAM;	
 		
-		drop table if exists Dialogix.InstrumentTranslations;
+		/* drop table if exists Dialogix.InstrumentTranslations; */
 		create table Dialogix.InstrumentTranslations (
 			ID int(11) NOT NULL auto_increment,
 			PRIMARY KEY  (ID),

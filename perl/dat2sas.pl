@@ -114,7 +114,7 @@ sub CreateTablesForDialogixRawData {
 	open (GENERIC_TABLE, ">DialogixRawData.makeTable.sql") or die "Unable to write to DialogixRawData.makeTable.sql";
 	
 	print GENERIC_TABLE qq|
-		DROP TABLE IF EXISTS Dialogix.RawData;
+		/* DROP TABLE IF EXISTS Dialogix.RawData; */
 		
 		CREATE TABLE Dialogix.RawData (
 		  RawDataID bigint NOT NULL auto_increment,
@@ -422,7 +422,7 @@ foreach(@gargs) {
 			my $tablename = $instrument_name;
 			$tablename =~ s/\W/_/g;
 			
-			print SPECIFIC "DROP TABLE IF EXISTS ${tablename};\n";
+			print SPECIFIC "/*DROP TABLE IF EXISTS ${tablename};*/\n";
 			print SPECIFIC qq|
 				CREATE TABLE Dialogix.${tablename} (
 				ID bigint NOT NULL auto_increment,
