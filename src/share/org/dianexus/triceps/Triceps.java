@@ -28,7 +28,7 @@ public class Triceps {
 	private Date stopTime = null;
 	private String startTimeStr = null;
 	private String stopTimeStr = null;
-	
+
 	private String workingFilesDir = null;
 	private String completedFilesDir = null;
 	private String scheduleSrcDir = null;
@@ -50,7 +50,7 @@ public class Triceps {
 		else {
 			scheduleURL = filename;
 			scheduleUrlPrefix = optionalFilePrefix;
-			
+
 			nodes = new Schedule();
 			return (nodes.load(br,scheduleURL) && resetEvidence() && setDefaultEvidence());
 		}
@@ -59,14 +59,14 @@ public class Triceps {
 	public boolean reloadSchedule() {
 		Schedule oldNodes = nodes;
 		Evidence oldEvidence = evidence;
-		
+
 		nodes = new Schedule();
-		
+
 		boolean ok=false;
-		
+
 		ok = nodes.load(Triceps.getReader(scheduleURL,urlPrefix,scheduleUrlPrefix),scheduleURL);
 		ok = resetEvidence() && ok;
-		
+
 		try {
 			for (int i=0;i<oldNodes.size();++i) {
 				Node oldNode = oldNodes.getNode(i);
@@ -80,7 +80,7 @@ public class Triceps {
 			System.err.println(msg);
 			return false;
 		}
-		
+
 		return ok;
 	}
 
@@ -101,11 +101,11 @@ public class Triceps {
 
 	public Enumeration getErrors() {
 		/* when there is an error in getting or parsing a node */
-		if (parser.hasErrors()) { 
-			Vector v=parser.getErrors(); 
-			for (int c=0;c<v.size();++c) { 
-				errors.addElement(v.elementAt(c)); 
-			}  
+		if (parser.hasErrors()) {
+			Vector v=parser.getErrors();
+			for (int c=0;c<v.size();++c) {
+				errors.addElement(v.elementAt(c));
+			}
 		}
 		Vector tmp = errors;
 		errors = new Vector();
@@ -159,14 +159,21 @@ public class Triceps {
 
 	public String getQuestionStr(Node q) {
 		/* recompute the min and max ranges, if necessary - must be done before premature abort (if invalid entry)*/
-		int parseRangeType = q.getParseRangeType();
 
-		if (parseRangeType == Node.PARSE_MIN || parseRangeType == Node.PARSE_MIN_AND_MAX) {
-			q.setMinDatum(parser.parse(evidence,q.getMinStr()));
-		}
-		if (parseRangeType == Node.PARSE_MAX || parseRangeType == Node.PARSE_MIN_AND_MAX) {
-			q.setMaxDatum(parser.parse(evidence,q.getMaxStr()));
-		}
+		String s;
+
+		s = q.getMinStr();
+		if (s != null)
+			q.setMinDatum(parser.parse(evidence,s));
+		else
+			q.setMinDatum(null);
+
+		s = q.getMaxStr();
+		if (s != null)
+			q.setMaxDatum(parser.parse(evidence,s));
+		else
+			q.setMaxDatum(null);
+
 		q.createParseRangeStr();
 
 		q.setQuestionAsAsked(parser.parseJSP(evidence, q.getQuestionOrEval()) + q.getQuestionMask());
@@ -179,7 +186,7 @@ public class Triceps {
 		numQuestions = 0;
 		return gotoNext();
 	}
-	
+
 	public int gotoStarting() {
 		currentStep = Integer.parseInt(nodes.getReserved(Schedule.STARTING_STEP));
 		if (currentStep < 0)
@@ -207,10 +214,10 @@ public class Triceps {
 				}
 				currentStep = size();	// put at last node
 				numQuestions = 0;
-				
+
 				/* Before advancing any further, save to completed files dir */
 //				toTSV(getCompletedFilesDir() + startTimeStr);		// no, have the servlet do this after sending next question
-				
+
 				return AT_END;
 			}
 			if ((node = nodes.getNode(step)) == null) {
@@ -226,7 +233,7 @@ public class Triceps {
 						break;	// this is the first node of a block - break out of loop to ask it
 					}
 					else {
-						++braceLevel;	// XXX:  skip this entire section 
+						++braceLevel;	// XXX:  skip this entire section
 						evidence.set(node, Datum.getInstance(Datum.NA));	// and set all of this brace's values to NA
 					}
 //					if (parser.hasErrors()) { Vector v=parser.getErrors(); for (int c=0;c<v.size();++c) { errors.addElement(v.elementAt(c)); }  }
@@ -281,10 +288,10 @@ public class Triceps {
 		} while (true);
 		currentStep = step;
 		numQuestions = 0;
-		
+
 		/* Before advancing any further, save a scratch file */
 //		toTSV(getWorkingFilesDir() + startTimeStr);	// no, have the servlet do this after returning reply?
-		
+
 		return OK;
 	}
 
@@ -374,7 +381,7 @@ public class Triceps {
 		stopTime = null;	// reset stopTime, since re-starting
 		nodes.setReserved(Schedule.START_TIME,startTimeStr);	// so that saved schedule knows when it was started
 	}
-	
+
 	private void stopTimer() {
 		if (stopTime == null) {
 			stopTime = new Date(System.currentTimeMillis());
@@ -412,12 +419,12 @@ public class Triceps {
 			else {
 				d = new Datum(init,n.getDatumType(),n.getMask());
 			}
-			
+
 			evidence.set(n,d,n.getAnswerTimeStampStr());
 		}
-		
+
 		startTimer(new Date(System.currentTimeMillis()));	// use current time
-		
+
 		return true;
 	}
 
@@ -433,11 +440,11 @@ public class Triceps {
 			}
 		}
 		Datum d;
-		
+
 		if (comment != null) {
 			q.setComment(comment);
-		}			
-		
+		}
+
 		if (special != null) {
 			if (okToRefuse && special.equals(Datum.TYPES[Datum.REFUSED])) {
 				evidence.set(q,Datum.getInstance(Datum.REFUSED));
@@ -452,7 +459,7 @@ public class Triceps {
 				return true;
 			}
 		}
-		
+
 		if (q.getAnswerType() == Node.NOTHING && q.getQuestionOrEvalType() != Node.EVAL) {
 			d = Datum.getInstance(Datum.NA);
 		}
@@ -564,14 +571,34 @@ public class Triceps {
 			}
 
 			int actionType = n.getQuestionOrEvalType();
-			String action = n.getQuestionOrEval();
+			String s = n.getQuestionOrEval();
 
-			if (action != null) {
+			/* Check questionOrEval for syntax errors */
+			if (s != null) {
 				if (actionType == Node.QUESTION) {
-					parser.parseJSP(evidence, action);
+					parser.parseJSP(evidence, s);
 				}
 				else if (actionType == Node.EVAL) {
-					parser.stringVal(evidence, action);
+					parser.stringVal(evidence, s);
+				}
+			}
+			
+			/* Check min & max range delimiters for syntax errors */
+			s = n.getMinStr();
+			if (s != null) {
+				parser.stringVal(evidence, s);
+			}
+			s = n.getMaxStr();
+			if (s != null) {
+				parser.stringVal(evidence, s);
+			}
+			
+			Vector v = n.getAnswerChoices();
+			if (v != null) {
+				for (int j=0;j<v.size();++j) {
+					AnswerChoice ac = (AnswerChoice) v.elementAt(j);
+					if (ac != null)
+						ac.parse(parser, evidence);	// any errors will be associated with the parser, not the node (although this is misleading)
 				}
 			}
 
@@ -594,7 +621,7 @@ public class Triceps {
 		}
 		return parseErrors;
 	}
-	
+
 	public boolean toTSV() {
 		return toTSV(getWorkingFilesDir() + nodes.getReserved(Schedule.FILENAME));
 	}
@@ -638,12 +665,12 @@ public class Triceps {
 			/* set save file so can resume at same position */
 			nodes.setReserved(Schedule.STARTING_STEP,Integer.toString(currentStep));
 			nodes.toTSV(out);
-			
+
 			/* Write comments saying when started and stopped.  If multiply resumed, will list these several times */
 			out.write("COMMENT " + "Schedule: " + scheduleURL + "\n");
 			out.write("COMMENT " + "Started: " + getStartTimeStr() + "\n");
 			out.write("COMMENT " + "Stopped: " + getStopTimeStr() + "\n");
-			
+
 			/* Show the names of the output columns */
 			out.write("COMMENT " + "concept\tinternalName\texternalName\tdependencies\tquestionOrEvalType");
 			for (int i=0;i<nodes.getLanguages().size();++i) {
@@ -670,11 +697,11 @@ public class Triceps {
 				if (comment == null)
 					comment = "";
 
-				out.write(n.toTSV() + 
-					"\t" + n.getAnswerLanguageNum() + 
-					"\t" + n.getQuestionAsAsked() + 
-					"\t" + ans + 
-					"\t" + comment + 					
+				out.write(n.toTSV() +
+					"\t" + n.getAnswerLanguageNum() +
+					"\t" + n.getQuestionAsAsked() +
+					"\t" + ans +
+					"\t" + comment +
 					"\t" + n.getTimeStampStr() + "\n");
 			}
 			out.flush();
@@ -727,7 +754,7 @@ public class Triceps {
 				}
 			}
 		}
-		
+
 		/* Is it a URL pointing to a file? If so, try reading from it*/
 		try {
 			filename = ((urlPrefix != null) ? urlPrefix : "") + filename;
@@ -768,7 +795,7 @@ public class Triceps {
 				}
 			}
 		}
-		
+
 		if (!ok) {
 			StringBuffer sb = new StringBuffer();
 			if (url != null) {
@@ -783,7 +810,7 @@ public class Triceps {
 			if (sb.length() == 0) {
 				sb.append("[fname=" + fname + "], [optionalFilePrefix=" + optionalFilePrefix + "]");
 			}
-				
+
 			fileAccessError = "Error accessing or reading from " + sb.toString();
 			System.err.println(fileAccessError);
 			return null;
@@ -793,19 +820,19 @@ public class Triceps {
 			return null;
 		}
 	}
-	
+
 	public static String getReaderError() {
 		String tmp = fileAccessError;
 		fileAccessError = null;
 		return tmp;
 	}
-	
+
 	public String getTitle() {
 		return nodes.getReserved(Schedule.TITLE);
 	}
-	
-	public void setWorkingFilesDir(String s) { 
-		workingFilesDir = ((s == null) ? "" : s); 
+
+	public void setWorkingFilesDir(String s) {
+		workingFilesDir = ((s == null) ? "" : s);
 		try {
 			File f = new File(workingFilesDir);
 			if (!f.isDirectory() || !f.canRead()) {
@@ -821,48 +848,60 @@ public class Triceps {
 	public String getCompletedFilesDir() { return completedFilesDir; }
 	public void setScheduleSrcDir(String s) { scheduleSrcDir = ((s == null) ? "" : s); }
 	public String getScheduleSrcDir() { return scheduleSrcDir; }
-	
-	public String getPasswordForRefused() { 
+
+	public String getPasswordForRefused() {
 		String s = nodes.getReserved(Schedule.PASSWORD_FOR_REFUSED);
 		if (s == null || s.trim().length() == 0)
 			return null;
 		else
 			return s;
 	}
-	public String getPasswordForUnknown() { 
+	public String getPasswordForUnknown() {
 		String s = nodes.getReserved(Schedule.PASSWORD_FOR_UNKNOWN);
 		if (s == null || s.trim().length() == 0)
 			return null;
 		else
 			return s;
 	}
-	public String getPasswordForNotUnderstood() { 
+	public String getPasswordForNotUnderstood() {
 		String s = nodes.getReserved(Schedule.PASSWORD_FOR_NOT_UNDERSTOOD);
 		if (s == null || s.trim().length() == 0)
 			return null;
 		else
 			return s;
 	}
-	
+
 	public boolean isShowInvisibleOptions() {
 		return Boolean.valueOf(nodes.getReserved(Schedule.SHOW_INVISIBLE_OPTIONS)).booleanValue();
+	}
+	public boolean isShowQuestionRef() {
+		return Boolean.valueOf(nodes.getReserved(Schedule.SHOW_QUESTION_REF)).booleanValue();
+	}	
+	public boolean isAutoGenOptionNum() {
+		return Boolean.valueOf(nodes.getReserved(Schedule.AUTOGEN_OPTION_NUM)).booleanValue();
+	}
+	public boolean isDebugMode() {
+		return Boolean.valueOf(nodes.getReserved(Schedule.DEBUG_MODE)).booleanValue();		
+	}
+	public boolean isDeveloperMode() {
+		return Boolean.valueOf(nodes.getReserved(Schedule.DEVELOPER_MODE)).booleanValue();		
 	}
 	
 	public String getIcon() { return nodes.getReserved(Schedule.ICON); }
 	public String getHeaderMsg() { return nodes.getReserved(Schedule.HEADER_MSG); }
-	
+
 	public void setPasswordForRefused(String s) { nodes.setReserved(Schedule.PASSWORD_FOR_REFUSED,s); }
-	
+
 	public Datum evaluateExpr(String expr) {
 		return parser.parse(evidence,expr);
 	}
-	
+
 	public String getFilename() { return nodes.getReserved(Schedule.FILENAME); }
 	public boolean setFilename(String name) { return nodes.setReserved(Schedule.FILENAME, name); }
-	
+
 	public boolean setLanguage(String language) {
 		return nodes.setLanguage(language);
 	}
-	
+
 	public int getLanguage() { return nodes.getLanguage(); }
 }
