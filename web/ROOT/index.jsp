@@ -130,7 +130,7 @@ Columbia University, Department of Medical Informatics<FONT SIZE="6"><BR>
         <TR>
                 <TD>Self-Assessment</TD>
                 <TD>~5 min</TD>
-                <TD><A href="JavaScript:void;" onclick="JavaScript:window.top.open('/CET/servlet/Dialogix?schedule=CET/WEB-INF/schedules/AutoMEQ-SA.jar&DIRECTIVE=START','_blank','resizable=yes,scrollbars=yes,status=yes');" 
+                <TD><A href="JavaScript:void;" onclick="JavaScript:window.top.open('/CET/servlet/Dialogix?schedule=CET/WEB-INF/schedules/AutoMEQ-SA-irb.jar&DIRECTIVE=START','_blank','resizable=yes,scrollbars=yes,status=yes');" 
                         >Automated Morningness-Eveningness Questionnaire (AutoMEQ-SA)</A></TD>
                 <TD><A HREF="#CET">Center for Environmental Therapeutics</A></TD>
         </TR>
