@@ -22,13 +22,15 @@ sub main {
 	print OUT  qq|	<HEAD>|, "\n";
 	print OUT  qq|		<META HTTP-EQUIV="Content-Type" CONTENT="text/html;CHARSET=iso-8859-1">|, "\n";
 	print OUT  qq|	</HEAD>|, "\n";
-	print OUT  qq|	<TITLE>Translation File for $ARGV[2]</TITLE>|, "\n";
+	print OUT  qq|	<TITLE>Logic File for $ARGV[2]</TITLE>|, "\n";
 	print OUT  qq|<BODY>|, "\n";
 	print OUT  qq|	<P ALIGN='center'><b>Logic File for $ARGV[2]</b></P>|, "\n";
 	print OUT  qq|	<TABLE border='1'>|, "\n";
 	print OUT  qq|		<tr><td width="5%"><b>#</b></td><td width="%15"><b>Variable Name</b></td><td width="15%"><b>Relevance</b></td><td width='40%'><b>Question</b></td><td width='20%'><b>Answers</b></td></tr>|, "\n";
 	
 	my $count = 0;
+	
+	# should I calculate the # of items on a screen first -- best way is via inst2xml.pl, but overly complex syntax
 	
 	foreach (@lines) {
 		chomp;
