@@ -62,7 +62,12 @@ while($r  = mysql_fetch_assoc($res))
 		if ($Concept != '') {
 			echo "<br><font color='blue'>$Concept</font>";
 		}
-		echo"<td>$Relevance";
+		
+		/* Split relevance in case it is too long */
+		$rel_array = preg_split("/(\W+)/", $Relevance, -1, PREG_SPLIT_DELIM_CAPTURE | PREG_SPLIT_NO_EMPTY);
+		$new_rel = implode(" ",$rel_array);
+		
+		echo "<td>$new_rel";
 			
 		if ($Validation == '') {
 			echo "&nbsp;";
