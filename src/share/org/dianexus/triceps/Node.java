@@ -55,6 +55,7 @@ public class Node  {
 
 	private static final int MAX_TEXT_LEN_FOR_COMBO = 60;
 	private static final int MAX_ITEMS_IN_LIST = 20;
+	private static boolean AUTOGEN_OPTION_ACCELERATOR = true;
 	
 
 	private String concept = "";
@@ -543,11 +544,15 @@ public class Node  {
 						choices.append(prefix);
 						if (line++ == 0) {
 							if (selected) {
-								choices.append(" SELECTED>" + optionNum + ")&nbsp;");
+								choices.append(" SELECTED>" + 
+									((AUTOGEN_OPTION_ACCELERATOR) ? String.valueOf(optionNum) : Node.encodeHTML(ac.getValue())) + 
+									")&nbsp;");
 								nothingSelected = false;
 							}
 							else {
-								choices.append(">" + optionNum + ")&nbsp;");
+								choices.append(">" + 
+									((AUTOGEN_OPTION_ACCELERATOR) ? String.valueOf(optionNum) : Node.encodeHTML(ac.getValue())) + 
+									")&nbsp;");
 							}
 						}
 						else {
@@ -789,5 +794,7 @@ public class Node  {
 			timeStamp = time;
 			timeStampStr = t;
 		}
-	}	
+	}
+	
+	public static void setAutoGenOptionAccelerator(boolean t) { AUTOGEN_OPTION_ACCELERATOR = t; }
 }

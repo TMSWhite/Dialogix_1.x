@@ -11,9 +11,10 @@ public class Schedule  {
 	private static final int STARTING_STEP = 1;
 	private static final int START_TIME = 2;
 	private static final int PASSWORD_FOR_REFUSED = 3;
+	private static final int AUTOGEN_OPTION_NUM = 4;
 	
 	private static final String[] RESERVED_WORDS = {
-		"__TITLE__", "__STARTING_STEP__", "__START_TIME__", "__PASSWORD_FOR_REFUSED__"
+		"__TITLE__", "__STARTING_STEP__", "__START_TIME__", "__PASSWORD_FOR_REFUSED__", "__AUTOGEN_OPTION_NUM__"
 	};
 	
 	private String title = "Triceps System";
@@ -129,14 +130,21 @@ public class Schedule  {
 				break;
 			}
 		}
-
+		
 		switch (resIdx) {
 			case TITLE: setTitle(value); break;
 			case STARTING_STEP: setStartingStep(value); break;
 			case START_TIME: setStartTime(value); break;
 			case PASSWORD_FOR_REFUSED: setPasswordForRefused(value); break;
+			case AUTOGEN_OPTION_NUM: setAutoGenOptionNum(value); break;
 			default: System.out.println("unrecognized reserved word " + name + " on line " + line + " of file " + filename); break;
 		}
+	}
+	
+	public void setAutoGenOptionNum(String s) {
+		Boolean b = Boolean.valueOf(s);
+		Node.setAutoGenOptionAccelerator(b.booleanValue());	// very much of a hack - call Node directly
+		reserved.put(RESERVED_WORDS[AUTOGEN_OPTION_NUM], b.toString());
 	}
 	
 	public void setPasswordForRefused(String s) { 
