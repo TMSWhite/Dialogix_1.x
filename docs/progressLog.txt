@@ -223,3 +223,12 @@ Reorganization & Documentation
     - now contains meat of what was TricepsServlet code
   TricepsServlet
     - now only contains Servlet wrapper classes to maintain TricepsEngine sessions	
+	
+<< changes from version 2.7.6 to 2.7.7
+  TricepsServlet
+    - session ID explictly used to avoid overlap
+    - now logs all GET and POST events to Logger
+  TricepsEngine
+    - comments allowed for nothing nodes, but Refused excluded
+    - fixed final screen (so only shows Thank You message)
+    - schedule load error - now gives error on splashscreen, not "you are already at end"

@@ -741,15 +741,20 @@ if (AUTHORABLE) {
 			info.println(triceps.get("the_interview_is_completed"));
 			if (DEPLOYABLE) {
 				savedName = triceps.saveCompletedInfo();
-				if (savedName != null) {
+				/*
+				if (savedName == null) {
 					info.println(triceps.get("interview_saved_successfully_as") + savedName);
 				}
+				*/
 	
 				savedName = triceps.copyCompletedToFloppy();
+				/*
 				if (savedName != null) {
 					info.println(triceps.get("interview_saved_successfully_as") + savedName);
 				}
+				*/
 			}
+			return sb.toString();
 		}
 		else if (directive.equals("previous")) {
 			// don't store current
@@ -884,14 +889,6 @@ if (AUTHORABLE) {
 			String clickableOptions = buildClickableOptions(node,inputName,isSpecial);
 
 			switch(node.getAnswerType()) {
-				case Node.NOTHING:
-					if (color != null) {
-						sb.append("<td colspan='3'><font" + color + ">" + triceps.getQuestionStr(node) + "</font></td>");
-					}
-					else {
-						sb.append("<td colspan='3'>" + triceps.getQuestionStr(node) + "</td>");
-					}
-					break;
 				case Node.RADIO_HORIZONTAL:
 					sb.append("<td colspan='3'>");
 					sb.append("<input type='hidden' name='" + (inputName + "_COMMENT") + "' value='" + XMLAttrEncoder.encode(node.getComment()) + "'>");
@@ -917,7 +914,12 @@ if (AUTHORABLE) {
 					sb.append("<td width='1%' NOWRAP>" + clickableOptions + "</td>");
 					break;
 				default:
-					sb.append("<td>");
+					if (node.getAnswerType() == Node.NOTHING) {
+						sb.append("<td colspan='2'>");
+					}
+					else {
+						sb.append("<td>");
+					}
 					sb.append("<input type='hidden' name='" + (inputName + "_COMMENT") + "' value='" + XMLAttrEncoder.encode(node.getComment()) + "'>");
 					sb.append("<input type='hidden' name='" + (inputName + "_SPECIAL") + "' value='" +
 						((isSpecial) ? (triceps.toString(node,true)) : "") +
@@ -929,7 +931,9 @@ if (AUTHORABLE) {
 					else {
 						sb.append(triceps.getQuestionStr(node));
 					}
-					sb.append("<td>" + node.prepareChoicesAsHTML(datum,autogenOptionNums) + errMsg + "</td>");
+					if (node.getAnswerType() != Node.NOTHING) {
+						sb.append("<td>" + node.prepareChoicesAsHTML(datum,autogenOptionNums) + errMsg + "</td>");
+					}
 					sb.append("</td><td width='1%' NOWRAP>" + clickableOptions + "</td>");
 					break;
 			}
@@ -1046,8 +1050,9 @@ if (AUTHORABLE) {
 		}
 
 		/* If something has been set as Refused, Unknown, etc, allow going forward without additional headache */
+		/* Don't want to be able to refuse Nothing nodes, since can be used to prevent advancement */
 
-		if (showAdminModeIcons || okToShowAdminModeIcons || isSpecial) {
+		if (!(node.getAnswerType() == Node.NOTHING) && (showAdminModeIcons || okToShowAdminModeIcons || isSpecial)) {
 			if (allowRefused || isRefused) {
 				sb.append("<img name='" + inputName + "_REFUSED_ICON" + "' src='" + ((isRefused) ? getIcon(Schedule.REFUSED_ICON_ON) : getIcon(Schedule.REFUSED_ICON_OFF)) +
 					"' align='top' border='0' alt='" + triceps.get("Set_as_Refused") + "' onMouseUp='evHandler(event);markAsRefused(\"" + inputName + "\");'>");

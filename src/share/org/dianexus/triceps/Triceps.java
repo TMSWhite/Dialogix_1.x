@@ -178,7 +178,7 @@ if (DEPLOYABLE) {
 		}
 		else {
 			setError(nodes.getErrors());
-			return true;
+			return false;
 		}
 	}
 	
@@ -353,7 +353,7 @@ if (DEBUG) Logger.writeln("##Unable to reload schedule");
 		if (currentStep == size()) {
 			/* then already at end */
 			setError(get("already_at_end_of_interview"));
-			return ERROR;
+			return AT_END;
 		}
 
 		do {		// loop forward through nodes -- break to query user or to end
