@@ -1,5 +1,5 @@
 @echo Starting Dialogix version @@DIALOGIX.VERSION_MAJOR@@.@@DIALOGIX.VERSION_MINOR@@
-@echo Copyright (c) 2000-2002 Thomas M. White, MD
+@echo Copyright (c) 2000-2003 Thomas M. White, MD
 @echo Licensed to @@LICENSE.STUDY_NAME@@ for @@LICENSE.STUDY_ALIAS@@ Study
 @echo (@@LICENSE.GRANT_NAME@@: @@LICENSE.GRANT_TITLE@@)
 

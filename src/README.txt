@@ -21,7 +21,7 @@ In order to run Dialogix, you need two things:
 (2) Your personalized DIALOGIX SETUP FILE.
 
 JAVA DEVELOPMENT KIT
-This can be downloaded from http://java.sun.com/j2se/1.3/download.html, and
+This can be downloaded from http://java.sun.com/j2se/1.4/download.html, and
 installed by following the directions found there.
 
 DIALOGIX SETUP FILE
