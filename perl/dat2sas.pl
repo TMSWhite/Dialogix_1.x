@@ -64,10 +64,66 @@ sub main {
 	print "<<DATA: $instrument_name>>\n";
 	
 	&load_instrument($instrument);
+	
+	if (-e "DialogixRawData.mysql_data") {
+		open (GENERIC, ">>DialogixRawData.mysql_data") or die "Unable to append to DialogixRawData.mysql_data";
+	}
+	else {
+		open (GENERIC, ">DialogixRawData.mysql_data") or die "Unable to write to DialogixRawData.mysql_data";
+#		print GENERIC "InstrumentName\tInstanceName\tVarName\tVarNum\tGroupNum\tDisplayNum\tLangNum\tWhenAsMS\tTimeStamp\tAnswerType\tAnswer\tQuestionAsAsked\tComment\n";
+		&CreateTablesForDialogixRawData;
+	}
+	
+	if (-e "DialogixSpecificTables.sql") {
+		open (SPECIFIC_ALLTABLES, ">>DialogixSpecificTables.sql") or die "Unable to append to DialogixSpecificTables.sql";
+	}
+	else {
+		open (SPECIFIC_ALLTABLES, ">DialogixSpecificTables.sql") or die "Unable to write to DialogixSpecificTables.sql";
+	}
+	
+	open (SPECIFIC_DATA,">${instrument_name}.specific.mysql_data") or die "unable to write to ${instrument_name}.specific.mysql_data";
+	
 	&process_files(\@dat_file_globs);
 	&processPath;
+	
+	close (GENERIC);
+	close (SPECIFIC_DATA);
+	close (SPECIFIC_ALLTABLES)
 }
 
+sub CreateTablesForDialogixRawData {
+	open (GENERIC_TABLE, ">DialogixRawData.makeTable.sql") or die "Unable to write to DialogixRawData.makeTable.sql";
+	
+	print GENERIC_TABLE qq|
+		DROP TABLE IF EXISTS Dialogix.RawData;
+		
+		CREATE TABLE Dialogix.RawData (
+		  RawDataID bigint NOT NULL auto_increment,
+		  InstrumentName varchar(200) NOT NULL,
+		  InstanceName varchar(200) NOT NULL,
+		  VarName varchar(100) NOT NULL,
+		  VarNum int NOT NULL,
+		  GroupNum smallint NOT NULL,
+		  DisplayNum smallint NOT NULL,
+		  LangNum smallint NOT NULL,
+		  WhenAsMS bigint NOT NULL,
+		  TimeStamp timestamp(14) NOT NULL,
+		  AnswerType tinyint NOT NULL,
+		  Answer text,
+		  QuestionAsAsked text,
+		  Comment text,
+		  PRIMARY KEY  (RawDataID)
+		) TYPE=MyISAM;
+		
+	|;	# end of text block
+#	print GENERIC_TABLE qq|LOAD DATA LOCAL INFILE 'DialogixRawData.mysql_data' INTO TABLE `Dialogix.RawData` FIELDS TERMINATED BY '\\t' ESCAPED BY '\\\\' LINES TERMINATED BY '\\r\\n';|;
+	
+		
+    close (GENERIC_TABLE);
+}
+
+sub CreateTableForInstrument {
+}
 
 sub processPath {
 	&processPathHash;
@@ -119,6 +175,18 @@ foreach(@gargs) {
 		@stepDirection = (1);	# always start going forward
 		
 		my $lastDisplayStep = 0;
+		
+		# use default filename, if necessary
+		my $filebase = &calc_huid($filename);
+		if ($filebase =~ /tri[0-9]+$/) {
+			$finished = 0;
+		}
+		else {
+			$finished = 1;
+		}
+		if ($huid eq '') {
+			$huid = $filebase;
+		}		
 		
 		# recording the duration is a bit of a pain due to the file format
 		# DISPLAY_COUNT is set immediately before the page is sent.  
@@ -214,7 +282,7 @@ foreach(@gargs) {
 				my @ansList;
 				my @dispCntList;
 				
-				my $ans = &fixSpecialAnswers($vals[5]);
+				my ($ans, $missingType) = &fixSpecialAnswers($vals[5]);
 				if ($ans =~ /^\s*$/) {
 					if ($sched_nodes{$vals[1]}{'atype'} eq 'nothing') {
 						$ans = '.';	# assumes that a missing value, with a value of '.', since nothing elements should not have results (unless an eval)
@@ -257,6 +325,13 @@ foreach(@gargs) {
 				$modules{$module} = $module;
 				
 				$stopTime = $vals[3];	# ending time of the this event - used to determine duration of next event
+				
+				# Print out this log to a file
+				print GENERIC "NULL\t$instrument_name\t$filebase\t$internalName\t$sched_nodes{$vals[1]}{'firstStep'}\t" .
+					"$sched_nodes{$vals[1]}{'group'}\t" .
+					"$currentDispCnt\t$vals[2]\t$vals[3]\t" . 
+					&makeTimestamp($vals[3]) . 
+					"\t$missingType\t$ans\t$vals[4]\t$vals[6]\n";
 			}
 		}
 		# if last line in the file is DISPLAY_COUNT, then this was unfinished, and last line indicates which question was viewed but not answered.
@@ -285,18 +360,6 @@ foreach(@gargs) {
 		# now convert the time stamps to usable format
 		my $startDate = &fixTime($firstStartTime);
 		my $stopDate = &fixTime($stopTime);
-		
-		# use default filename, if necessary
-		my $filebase = &calc_huid($filename);
-		if ($filebase =~ /tri[0-9]+$/) {
-			$finished = 0;
-		}
-		else {
-			$finished = 1;
-		}
-		if ($huid eq '') {
-			$huid = $filebase;
-		}
 		
 #		print "$huid\t" . join(',',@stepOrder) . "\t" . join(',',@stepDirection) . "\n";	# debuging order and direction -- success
 		
@@ -336,6 +399,42 @@ foreach(@gargs) {
 			}
 		}
 		
+		#create table definition for Mysql
+		if (!(-e "${instrument_name}.specific.sql")) {
+			open (SPECIFIC, ">${instrument_name}.specific.sql");
+			my $tablename = $instrument_name;
+#			$tablename =~ s/\.//g;
+			$tablename =~ s/\W/_/g;
+			
+			print SPECIFIC "DROP TABLE IF EXISTS ${tablename};\n";
+			print SPECIFIC qq|
+				CREATE TABLE Dialogix.${tablename} (
+				ID bigint NOT NULL auto_increment,
+				PRIMARY KEY (ID),
+				InstrumentName varchar(200) NOT NULL,
+				InstanceName varchar(200) NOT NULL,
+				StartTime timestamp(14) NOT NULL
+				|;
+			foreach my $arg (sort { $a->{'count'} <=> $b->{'count'} } values(%data)) {
+				my %datum = %{ $arg };
+				next unless defined(%datum);
+				print SPECIFIC ",\n$datum{'internalName'} text";
+			}
+			print SPECIFIC "\n) TYPE=MyISAM;\n";
+
+#			print SPECIFIC qq|LOAD DATA LOCAL INFILE '${instrument_name}.specific.mysql_data' INTO TABLE `Dialogix.${tablename}` FIELDS TERMINATED BY '\\t' ESCAPED BY '\\\\' LINES TERMINATED BY '\\r\\n';|;
+
+			close (SPECIFIC);
+			
+			open (SPECIFIC, "<${instrument_name}.specific.sql") or die "Unable to read from ${instrument_name}.specific.sql";
+			my @lines = (<SPECIFIC>);
+			foreach my $line (@lines) {
+				print SPECIFIC_ALLTABLES $line;
+			}
+			close (SPECIFIC);
+			
+		}
+		
 		#print huid at beginning of row for each module file
 		foreach my $key (sort(keys(%outs))) {
 			# also print start time, stop time, and duration?
@@ -358,6 +457,15 @@ foreach(@gargs) {
 				print { $outs{$datum{'module'}} } "\t", $datum{'answerGiven'};
 			}
 		}
+		
+		#Also print the complete data to the spefic file
+		print SPECIFIC_DATA "NULL\t$instrument_name\t$filebase\t" . &makeTimestamp($firstStartTime);
+		foreach my $key (sort { $a->{'count'} <=> $b->{'count'} } values(%data)) {
+			my %datum = %{ $key };		
+			next unless defined(%datum);
+			print SPECIFIC_DATA "\t", $datum{'answerGiven'};				
+		}
+		print SPECIFIC_DATA "\n";
 		
 		#close all output files, add newline and close
 		foreach my $key (sort(keys(%outs))) {
@@ -544,6 +652,8 @@ sub load_instrument_nodes {
 			alen => $vals[5],
 			atype => $vals[6],		# e.g. date, double, nothing, ...
 			c8name => $vals[7],		# unique 8 char name
+			md5 => $vals[8],
+			group => $vals[9],
 		};
 	}
 }
@@ -551,13 +661,29 @@ sub load_instrument_nodes {
 sub fixSpecialAnswers {
 	my $arg = &fixAns(shift);
 	
-	if ($Prefs->{NA} ne '*' && $arg eq '*NA*') { return $Prefs->{NA}; }
-	elsif ($Prefs->{REFUSED} ne '*' && $arg eq '*REFUSED*') { return $Prefs->{REFUSED}; }
-	elsif ($Prefs->{UNKNOWN} ne '*' && $arg eq '*UNKNOWN*') { return $Prefs->{UNKNOWN}; }
-	elsif ($Prefs->{HUH} ne '*' && $arg eq '*HUH*') { return $Prefs->{HUH}; }
-	elsif ($Prefs->{INVALID} ne '*' && $arg eq '*INVALID*') { return $Prefs->{INVALID}; }
-	elsif ($Prefs->{UNASKED} ne '*' && $arg eq '*UNASKED*') { return $Prefs->{UNASKED}; }	
-	else { return $arg; }
+	# List of Missing Value Types
+	# 0 = normal
+	# 1 = UNASKED
+	# 2 = NA
+	# 3 = INVALID
+	# 4 = REFUSED
+	# 5 = UNKNOWN
+	# 6 = HUH
+	
+	if ($arg eq '*NA*') { return ((($Prefs->{NA} ne '*') ? $Prefs->{NA} : $arg), 2); }
+	elsif ($arg eq '*REFUSED*') { return ((($Prefs->{REFUSED} ne '*') ? $Prefs->{REFUSED} : $arg), 4); }
+	elsif ($arg eq '*UNKNOWN*') { return ((($Prefs->{UNKNOWN} ne '*') ? $Prefs->{UNKNOWN} : $arg), 5); }
+	elsif ($arg eq '*HUH*') { return ((($Prefs->{HUH} ne '*') ? $Prefs->{HUH} : $arg), 6); }
+	elsif ($arg eq '*INVALID*') { return ((($Prefs->{INVALID} ne '*') ? $Prefs->{INVALID} : $arg), 3); }
+	elsif ($arg eq '*UNASKED*') { return ((($Prefs->{UNASKED} ne '*') ? $Prefs->{UNASKED} : $arg), 1); }	
+	else { return ($arg, 0); }
+}
+
+sub makeTimestamp {
+	my $arg = shift;
+	
+	my @timeArray = localtime(int($arg/1000));
+	return sprintf("%03d%02d%02d%02d%02d%02d",($timeArray[5] + 1900),($timeArray[4]+1),$timeArray[3],$timeArray[2],$timeArray[1],$timeArray[0]);
 }
 
 sub fixTime {
