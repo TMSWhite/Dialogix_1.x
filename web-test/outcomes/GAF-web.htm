@@ -1,0 +1,301 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2//EN">
+<HTML>
+
+<HEAD>
+	<META HTTP-EQUIV="Content-Type" CONTENT="text/html;CHARSET=iso-8859-1">
+
+	<META NAME="Author" Content="Thomas M. White, M.D., M.S.">
+	<TITLE>Electronic GAF Form</TITLE>
+</HEAD>
+
+<BODY>
+
+<FORM ACTION="/outcomes/servlet/parseGAF" METHOD="POST" ENCTYPE="application/x-www-form-urlencoded">
+<P>
+<TABLE BORDER="1" CELLPADDING="0" CELLSPACING="0" WIDTH="100%">
+	<TR>
+		<TD VALIGN="MIDDLE" ROWSPAN="2" COLSPAN="2" BGCOLOR="#FFFF66">
+			<P ALIGN="CENTER"><B><FONT SIZE="4" FACE="Arial, Helvetica">Global Assessment of Function</FONT></B>
+		</TD>
+		<TD WIDTH="14%" VALIGN="MIDDLE"><B><FONT SIZE="2" FACE="Arial, Helvetica">Location</FONT></B></TD>
+		<TD WIDTH="4%" VALIGN="MIDDLE"><FONT SIZE="2" FACE="Arial, Helvetica">Facility</FONT></TD>
+		<TD WIDTH="14%" VALIGN="MIDDLE">
+			<SELECT NAME="facility">
+			<OPTION VALUE> </OPTION>
+			<OPTION VALUE="CDPC">CDPC</OPTION>
+			<OPTION VALUE="CNYPC">CNYPC</OPTION>
+			<OPTION VALUE="Elmira">Elmira</OPTION>
+			</SELECT>
+		</TD>
+		<TD WIDTH="8%" VALIGN="MIDDLE"><FONT SIZE="2" FACE="Arial, Helvetica">Unit/Ward#</FONT></TD>
+		<TD WIDTH="11%" VALIGN="MIDDLE"><INPUT TYPE="TEXT" NAME="ptWard" SIZE="7"></TD>
+		<TD WIDTH="6%" VALIGN="MIDDLE"><FONT SIZE="2" FACE="Arial, Helvetica">Date Completed</FONT></TD>
+		<TD WIDTH="29%" VALIGN="MIDDLE"><INPUT TYPE="TEXT" NAME="dateCompleted" SIZE="10"></TD>
+	</TR>
+	<TR>
+		<TD WIDTH="14%" VALIGN="MIDDLE"><B><FONT SIZE="2" FACE="Arial, Helvetica">Patient Info</FONT></B></TD>
+		<TD WIDTH="4%" VALIGN="MIDDLE"><FONT SIZE="2" FACE="Arial, Helvetica">Sex</FONT></TD>
+		<TD WIDTH="14%" VALIGN="MIDDLE">
+			<SELECT NAME="ptSex">
+			<OPTION SELECTED VALUE="male">Male</OPTION>
+			<OPTION VALUE="female">Female</OPTION>
+			</SELECT>
+		</TD>
+		<TD WIDTH="8%" VALIGN="MIDDLE"><FONT SIZE="2" FACE="Arial, Helvetica">C#</FONT></TD>
+		<TD WIDTH="11%" VALIGN="MIDDLE"><INPUT TYPE="TEXT" NAME="ptCaseID" SIZE="10"></TD>
+		<TD WIDTH="6%" VALIGN="MIDDLE"><FONT SIZE="2" FACE="Arial, Helvetica">State ID#</FONT></TD>
+		<TD WIDTH="29%" VALIGN="MIDDLE"><INPUT TYPE="TEXT" NAME="ptStateID" SIZE="10"></TD>
+	</TR>
+	<TR>
+		<TD WIDTH="11%" VALIGN="MIDDLE"><B><FONT SIZE="2" FACE="Arial, Helvetica">Patient Info</FONT></B></TD>
+		<TD WIDTH="3%" VALIGN="MIDDLE"><FONT SIZE="2" FACE="Arial, Helvetica">First</FONT></TD>
+		<TD WIDTH="14%" VALIGN="MIDDLE"><INPUT TYPE="TEXT" NAME="ptFirst" SIZE="15"></TD>
+		<TD WIDTH="4%" VALIGN="MIDDLE"><FONT SIZE="2" FACE="Arial, Helvetica">Last</FONT></TD>
+		<TD WIDTH="14%" VALIGN="MIDDLE"><INPUT TYPE="TEXT" NAME="ptLast" SIZE="15"></TD>
+		<TD WIDTH="8%" VALIGN="MIDDLE"><FONT SIZE="2" FACE="Arial, Helvetica">Middle</FONT></TD>
+		<TD WIDTH="11%" VALIGN="MIDDLE"><INPUT TYPE="TEXT" NAME="ptMiddle" SIZE="7"></TD>
+		<TD WIDTH="6%" VALIGN="MIDDLE"><FONT SIZE="2" FACE="Arial, Helvetica">DOB</FONT></TD>
+		<TD WIDTH="29%" VALIGN="MIDDLE"><INPUT TYPE="TEXT" NAME="ptDOB" SIZE="10"></TD>
+	</TR>
+	<TR>
+		<TD WIDTH="11%" VALIGN="MIDDLE"><B><FONT SIZE="2" FACE="Arial, Helvetica">Clinician Info</FONT></B></TD>
+		<TD WIDTH="3%" VALIGN="MIDDLE"><FONT SIZE="2" FACE="Arial, Helvetica">First</FONT></TD>
+		<TD WIDTH="14%" VALIGN="MIDDLE"><INPUT TYPE="TEXT" NAME="raterFirst" SIZE="15"></TD>
+		<TD WIDTH="4%" VALIGN="MIDDLE"><FONT SIZE="2" FACE="Arial, Helvetica">Last</FONT></TD>
+		<TD WIDTH="14%" VALIGN="MIDDLE"><INPUT TYPE="TEXT" NAME="raterLast" SIZE="15"></TD>
+		<TD WIDTH="8%" VALIGN="MIDDLE"><FONT SIZE="2" FACE="Arial, Helvetica">Title</FONT></TD>
+		<TD WIDTH="11%" VALIGN="MIDDLE">
+			<SELECT NAME="raterTitle">
+			<OPTION VALUE SELECTED> </OPTION>
+			<OPTION VALUE="RN">RN</OPTION>
+			<OPTION VALUE="Psol">Psol</OPTION>
+			<OPTION VALUE="Psych">Psych</OPTION>
+			<OPTION VALUE="MedSpec">MedSpec</OPTION>
+			<OPTION VALUE="Rehab">Rehab</OPTION>
+			<OPTION VALUE="MD">MD</OPTION>
+			<OPTION VALUE="Other">Other</OPTION>
+			</SELECT>
+		</TD>
+		<TD WIDTH="6%" VALIGN="MIDDLE"><FONT SIZE="2" FACE="Arial, Helvetica">Orion ID</FONT></TD>
+		<TD WIDTH="29%" VALIGN="MIDDLE"><INPUT TYPE="TEXT" NAME="raterOrionID" SIZE="10"></TD>
+	</TR>
+</TABLE>
+
+<TABLE BORDER="1" CELLPADDING="0" CELLSPACING="0" WIDTH="100%">
+	<TR>
+		<TD ROWSPAN="5" BGCOLOR="#FFFF66">
+			<P ALIGN="CENTER"><B><FONT SIZE="2" FACE="Arial, Helvetica">Social Functioning</FONT></B>
+		</TD>
+		<TD BGCOLOR="#FFFF66"><FONT SIZE="2" FACE="Arial, Helvetica">Job, School, Parenting</FONT></TD>
+		<TD>
+			<SELECT NAME="gaf1">
+			<OPTION VALUE="95">91-100: SUPERIOR FUNCTIONING</OPTION>
+			<OPTION VALUE="85">81-90: GOOD FUNCTIONING</OPTION>
+			<OPTION VALUE="75">71-80: SLIGHT IMPAIRMENT</OPTION>
+			<OPTION VALUE="75">&nbsp;&nbsp;temporarily falls behind in schoolwork</OPTION>
+			<OPTION VALUE="65">61-70: SOME DIFFICULTY</OPTION>
+			<OPTION VALUE="65">&nbsp;&nbsp;occasional truancy</OPTION>
+			<OPTION VALUE="55">51-60: MODERATE DIFFICULTY</OPTION>
+			<OPTION VALUE="55">&nbsp;&nbsp;conflicts with peers and coworkers</OPTION>
+			<OPTION VALUE="45">41-50: SERIOUS IMPAIRMENT</OPTION>
+			<OPTION VALUE="45">&nbsp;&nbsp;unable to keep job;child failing school;parent neglects family</OPTION>
+			</SELECT>
+		</TD>
+	</TR>
+	<TR>
+		<TD BGCOLOR="#FFFF66"><FONT SIZE="2" FACE="Arial, Helvetica">Friends, Relationships</FONT></TD>
+		<TD>
+			<SELECT NAME="gaf2">
+			<OPTION VALUE="95">91-100: SUPERIOR FUNCTIONING</OPTION>
+			<OPTION VALUE="85">81-90: GOOD FUNCTIONING</OPTION>
+			<OPTION VALUE="75">71-80: SLIGHT IMPAIRMENT</OPTION>
+			<OPTION VALUE="65">61-70: SOME DIFFICULTY</OPTION>
+			<OPTION VALUE="65">&nbsp;&nbsp;only some meaningful relationships</OPTION>
+			<OPTION VALUE="55">51-60: MODERATE DIFFICULTY</OPTION>
+			<OPTION VALUE="55">&nbsp;&nbsp;few friends, conflicts with peers</OPTION>
+			<OPTION VALUE="45">41-50: SERIOUS IMPAIRMENT</OPTION>
+			<OPTION VALUE="45">&nbsp;&nbsp;no friends, child defiant at home; child beats up younger children</OPTION>
+			</SELECT>
+		</TD>
+	</TR>
+	<TR>
+		<TD BGCOLOR="#FFFF66"><FONT SIZE="2" FACE="Arial, Helvetica">Activities</FONT></TD>
+		<TD>
+			<SELECT NAME="gaf3">
+			<OPTION VALUE="95">91-100: SUPERIOR FUNCTIONING</OPTION>
+			<OPTION VALUE="85">81-90: GOOD FUNCTIONING</OPTION>
+			<OPTION VALUE="85">&nbsp;&nbsp;involved in wide range of activities</OPTION>
+			<OPTION VALUE="75">71-80: SLIGHT IMPAIRMENT</OPTION>
+			<OPTION VALUE="65">61-70: SOME DIFFICULTY</OPTION>
+			<OPTION VALUE="65">&nbsp;&nbsp;occasional thefts within household</OPTION>
+			<OPTION VALUE="55">51-60: MODERATE DIFFICULTY</OPTION>
+			<OPTION VALUE="45">41-50: SERIOUS IMPAIRMENT</OPTION>
+			<OPTION VALUE="45">&nbsp;&nbsp;stays in bed all day; severe obsessional rituals; frequent shoplifting</OPTION>
+			</SELECT>
+		</TD>
+	</TR>
+	<TR>
+		<TD BGCOLOR="#FFFF66"><FONT SIZE="2" FACE="Arial, Helvetica">Housing</FONT></TD>
+		<TD>
+			<SELECT NAME="gaf4">
+			<OPTION VALUE="95">91-100: SUPERIOR FUNCTIONING</OPTION>
+			<OPTION VALUE="45">41-50: SERIOUS IMPAIRMENT</OPTION>
+			<OPTION VALUE="45">&nbsp;&nbsp;no home</OPTION>
+			</SELECT>
+		</TD>
+	</TR>
+	<TR>
+		<TD BGCOLOR="#FFFF66"><FONT SIZE="2" FACE="Arial, Helvetica">Overall Social Functioning</FONT></TD>
+		<TD>
+			<SELECT NAME="gaf5">
+			<OPTION VALUE="95">91-100: superior</OPTION>
+			<OPTION VALUE="85">81-90: GOOD or MINIMAL impairment</OPTION>
+			<OPTION VALUE="75">71-80: SLIGHT or TRANSIENT impairment in ONE functional domain</OPTION>
+			<OPTION VALUE="65">61-70: SOME or MILD difficulty in ONE domain</OPTION>
+			<OPTION VALUE="55">51-60: MODERATE difficulty on ONE domain</OPTION>
+			<OPTION VALUE="45">41-50: ONE SERIOUS impairment</OPTION>
+			<OPTION VALUE="35">31-40: SEVERAL SERIOUS impairments</OPTION>
+			<OPTION VALUE="25">21-30: SERIOUS impairment in ALMOST ALL areas</OPTION>
+			</SELECT>
+		</TD>
+	</TR>
+	<TR>
+		<TD ROWSPAN="8" BGCOLOR="#FFFF66">
+			<P ALIGN="CENTER"><B><FONT SIZE="2" FACE="Arial, Helvetica">Symptoms</FONT></B>
+		</TD>
+		<TD BGCOLOR="#FFFF66"><FONT SIZE="2" FACE="Arial, Helvetica">Anxiety</FONT></TD>
+		<TD>
+			<SELECT NAME="gaf6">
+			<OPTION VALUE="95">91-100: none</OPTION>
+			<OPTION VALUE="85">81-90: minimal - mild anxiety before exam</OPTION>
+			<OPTION VALUE="75">71-80: transient</OPTION>
+			<OPTION VALUE="65">61-70: mild</OPTION>
+			<OPTION VALUE="55">51-60: moderate - occasional panic attack</OPTION>
+			<OPTION VALUE="45">41-50: serious - severe obsessional rituals</OPTION>
+			</SELECT>
+		</TD>
+	</TR>
+	<TR>
+		<TD BGCOLOR="#FFFF66"><FONT SIZE="2" FACE="Arial, Helvetica">Mood Sx</FONT></TD>
+		<TD>
+			<SELECT NAME="gaf7">
+			<OPTION VALUE="95">91-100: none</OPTION>
+			<OPTION VALUE="85">81-90: minimal</OPTION>
+			<OPTION VALUE="75">71-80: transient</OPTION>
+			<OPTION VALUE="65">61-70: mild - depressed mood and insomnia</OPTION>
+			<OPTION VALUE="55">51-60: moderate</OPTION>
+			<OPTION VALUE="45">41-50: serious - depression with suicidal ideation</OPTION>
+			<OPTION VALUE="15">11-20: manic excitement</OPTION>
+			</SELECT>
+		</TD>
+	</TR>
+	<TR>
+		<TD BGCOLOR="#FFFF66"><FONT SIZE="2" FACE="Arial, Helvetica">Concentration Impairment</FONT></TD>
+		<TD>
+			<SELECT NAME="gaf8">
+			<OPTION VALUE="95">91-100: none</OPTION>
+			<OPTION VALUE="85">81-90: minimal</OPTION>
+			<OPTION VALUE="75">71-80: transient - decreased concentration after family argument</OPTION>
+			<OPTION VALUE="65">61-70: mild</OPTION>
+			<OPTION VALUE="55">51-60: moderate</OPTION>
+			<OPTION VALUE="45">41-50: serious</OPTION>
+			</SELECT>
+		</TD>
+	</TR>
+	<TR>
+		<TD BGCOLOR="#FFFF66"><FONT SIZE="2" FACE="Arial, Helvetica">Delusions</FONT></TD>
+		<TD>
+			<SELECT NAME="gaf9">
+			<OPTION VALUE="95">91-100: none</OPTION>
+			<OPTION VALUE="55">51-60: delusion without loss of reality testing</OPTION>
+			<OPTION VALUE="45">41-50: partial delusions - questions beliefs</OPTION>
+			<OPTION VALUE="35">31-40: delusion without loss of reality testing</OPTION>
+			<OPTION VALUE="25">21-30: behavior considerably influenced by delusions</OPTION>
+			</SELECT>
+		</TD>
+	</TR>
+	<TR>
+		<TD BGCOLOR="#FFFF66"><FONT SIZE="2" FACE="Arial, Helvetica">Hallucinations</FONT></TD>
+		<TD>
+			<SELECT NAME="gaf10">
+			<OPTION VALUE="95">91-100: none</OPTION>
+			<OPTION VALUE="55">51-60: hallucination without loss of reality testing</OPTION>
+			<OPTION VALUE="35">31-40: hallucination with loss of reality testing</OPTION>
+			<OPTION VALUE="25">21-30: behavior considerably influenced by hallucinations</OPTION>
+			</SELECT>
+		</TD>
+	</TR>
+	<TR>
+		<TD BGCOLOR="#FFFF66"><FONT SIZE="2" FACE="Arial, Helvetica">Communication or Formal Thought Disorder</FONT></TD>
+		<TD>
+			<SELECT NAME="gaf11">
+			<OPTION VALUE="95">91-100: none</OPTION>
+			<OPTION VALUE="55">51-60: circumstantial speech</OPTION>
+			<OPTION VALUE="35">31-40: speech at time illogical, obscure, or irrelevant</OPTION>
+			<OPTION VALUE="25">21-30: sometimes incoherent or acts grossly inappropriately</OPTION>
+			<OPTION VALUE="15">11-20: largely incoherent or mute</OPTION>
+			</SELECT>
+		</TD>
+	</TR>
+	<TR>
+		<TD BGCOLOR="#FFFF66"><FONT SIZE="2" FACE="Arial, Helvetica">Negative Sx</FONT></TD>
+		<TD>
+			<SELECT NAME="gaf12">
+			<OPTION VALUE="95">91-100: none</OPTION>
+			<OPTION VALUE="65">61-70: mild</OPTION>
+			<OPTION VALUE="55">51-60: moderate - flat affect</OPTION>
+			<OPTION VALUE="45">41-50: serious</OPTION>
+			</SELECT>
+		</TD>
+	</TR>
+	<TR>
+		<TD BGCOLOR="#FFFF66"><FONT SIZE="2" FACE="Arial, Helvetica">Hygeine</FONT></TD>
+		<TD>
+			<SELECT NAME="gaf13">
+			<OPTION VALUE="95">91-100: adequate</OPTION>
+			<OPTION VALUE="15">11-20: occasionally fails to maintain minimal hygiene (smearing feces)</OPTION>
+			<OPTION VALUE="5">1-10: persistent inability to maintain minimal hygiene</OPTION>
+			</SELECT>
+		</TD>
+	</TR>
+	<TR>
+		<TD ROWSPAN="2" BGCOLOR="#FFFF66">
+			<P ALIGN="CENTER"><B><FONT SIZE="2" FACE="Arial, Helvetica">Danger</FONT></B>
+		</TD>
+		<TD BGCOLOR="#FFFF66"><FONT SIZE="2" FACE="Arial, Helvetica">Danger to Self</FONT></TD>
+		<TD>
+			<SELECT NAME="gaf14">
+			<OPTION VALUE="95">91-100: no</OPTION>
+			<OPTION VALUE="45">41-50: some suicidal ideation</OPTION>
+			<OPTION VALUE="25">21-30: suicidal preoccupation without attempt</OPTION>
+			<OPTION VALUE="15">11-20: some danger to self (attempt without expectation of death, frequent violence)</OPTION>
+			<OPTION VALUE="5">1-10: persistent danger of hurting self OR suicide attempt with expectation of death</OPTION>
+			</SELECT>
+		</TD>
+	</TR>
+	<TR>
+		<TD BGCOLOR="#FFFF66"><FONT SIZE="2" FACE="Arial, Helvetica">Danger to Others</FONT></TD>
+		<TD>
+			<SELECT NAME="gaf15">
+			<OPTION VALUE="95">91-100: no</OPTION>
+			<OPTION VALUE="45">41-50: child frequently beats up on younger children</OPTION>
+			<OPTION VALUE="25">21-30: violence against property</OPTION>
+			<OPTION VALUE="15">11-20: some danger of hurting self or others (frequent violence)</OPTION>
+			<OPTION VALUE="5">1-10: persistent danger of hurting self or others (recurrent violence)</OPTION>
+			</SELECT>
+		</TD>
+	</TR>
+	<TR>
+		<TD HEIGHT="21" COLSPAN="3" BGCOLOR="#FFFF66">
+			<CENTER>
+			<P><INPUT TYPE="RESET" NAME="Reset" VALUE="Clear Answers"> <INPUT TYPE="SUBMIT" NAME="Submit" VALUE="Submit GAF">
+</CENTER>
+		</TD>
+	</TR>
+</TABLE>
+
+</FORM>
+
+</BODY>
+
+</HTML>

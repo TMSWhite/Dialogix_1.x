@@ -1,0 +1,630 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2//EN">
+<!--last modified on Friday, September 10, 1999 12:10 PM -->
+<HTML>
+
+<HEAD>
+	<META HTTP-EQUIV="Content-Type" CONTENT="text/html;CHARSET=iso-8859-1">
+
+	<META NAME="Author" Content="Thomas M. White, M.D., M.S.">
+	<TITLE>Electronic BPRS Form</TITLE>
+</HEAD>
+
+<BODY>
+
+<FORM ACTION="/outcomes/servlet/parseBPRS" METHOD="POST" ENCTYPE="application/x-www-form-urlencoded">
+<P>
+<TABLE BORDER="1" CELLPADDING="0" CELLSPACING="0" WIDTH="100%">
+	<TR>
+		<TD VALIGN="MIDDLE" ROWSPAN="2" COLSPAN="2" BGCOLOR="#FFFF66">
+			<P ALIGN="CENTER"><B><FONT SIZE="4" FACE="Arial, Helvetica">Brief Psychiatric Rating Scale</FONT></B>
+		</TD>
+		<TD WIDTH="14%" VALIGN="MIDDLE"><B><FONT SIZE="2" FACE="Arial, Helvetica">Location</FONT></B></TD>
+		<TD WIDTH="4%" VALIGN="MIDDLE"><FONT SIZE="2" FACE="Arial, Helvetica">Facility</FONT></TD>
+		<TD WIDTH="14%" VALIGN="MIDDLE">
+			<SELECT NAME="facility">
+			<OPTION VALUE> </OPTION>
+			<OPTION VALUE="CDPC">CDPC</OPTION>
+			<OPTION VALUE="CNYPC">CNYPC</OPTION>
+			<OPTION VALUE="Elmira">Elmira</OPTION>
+			</SELECT>
+		</TD>
+		<TD WIDTH="8%" VALIGN="MIDDLE"><FONT SIZE="2" FACE="Arial, Helvetica">Unit/Ward#</FONT></TD>
+		<TD WIDTH="11%" VALIGN="MIDDLE"><INPUT TYPE="TEXT" NAME="ptWard" SIZE="7"></TD>
+		<TD WIDTH="6%" VALIGN="MIDDLE"><FONT SIZE="2" FACE="Arial, Helvetica">Date Completed</FONT></TD>
+		<TD WIDTH="29%" VALIGN="MIDDLE"><INPUT TYPE="TEXT" NAME="dateCompleted" SIZE="10"></TD>
+	</TR>
+	<TR>
+		<TD WIDTH="14%" VALIGN="MIDDLE"><B><FONT SIZE="2" FACE="Arial, Helvetica">Patient Info</FONT></B></TD>
+		<TD WIDTH="4%" VALIGN="MIDDLE"><FONT SIZE="2" FACE="Arial, Helvetica">Sex</FONT></TD>
+		<TD WIDTH="14%" VALIGN="MIDDLE">
+			<SELECT NAME="ptSex">
+			<OPTION VALUE="male" SELECTED>Male</OPTION>
+			<OPTION VALUE="female">Female</OPTION>
+			</SELECT>
+		</TD>
+		<TD WIDTH="8%" VALIGN="MIDDLE"><FONT SIZE="2" FACE="Arial, Helvetica">C#</FONT></TD>
+		<TD WIDTH="11%" VALIGN="MIDDLE"><INPUT TYPE="TEXT" NAME="ptCaseID" SIZE="10"></TD>
+		<TD WIDTH="6%" VALIGN="MIDDLE"><FONT SIZE="2" FACE="Arial, Helvetica">State ID#</FONT></TD>
+		<TD WIDTH="29%" VALIGN="MIDDLE"><INPUT TYPE="TEXT" NAME="ptStateID" SIZE="10"></TD>
+	</TR>
+	<TR>
+		<TD WIDTH="11%" VALIGN="MIDDLE"><B><FONT SIZE="2" FACE="Arial, Helvetica">Patient Info</FONT></B></TD>
+		<TD WIDTH="3%" VALIGN="MIDDLE"><FONT SIZE="2" FACE="Arial, Helvetica">First</FONT></TD>
+		<TD WIDTH="14%" VALIGN="MIDDLE"><INPUT TYPE="TEXT" NAME="ptFirst" SIZE="15"></TD>
+		<TD WIDTH="4%" VALIGN="MIDDLE"><FONT SIZE="2" FACE="Arial, Helvetica">Last</FONT></TD>
+		<TD WIDTH="14%" VALIGN="MIDDLE"><INPUT TYPE="TEXT" NAME="ptLast" SIZE="15"></TD>
+		<TD WIDTH="8%" VALIGN="MIDDLE"><FONT SIZE="2" FACE="Arial, Helvetica">Middle</FONT></TD>
+		<TD WIDTH="11%" VALIGN="MIDDLE"><INPUT TYPE="TEXT" NAME="ptMiddle" SIZE="7"></TD>
+		<TD WIDTH="6%" VALIGN="MIDDLE"><FONT SIZE="2" FACE="Arial, Helvetica">DOB</FONT></TD>
+		<TD WIDTH="29%" VALIGN="MIDDLE"><INPUT TYPE="TEXT" NAME="ptDOB" SIZE="10"></TD>
+	</TR>
+	<TR>
+		<TD WIDTH="11%" VALIGN="MIDDLE"><B><FONT SIZE="2" FACE="Arial, Helvetica">Clinician Info</FONT></B></TD>
+		<TD WIDTH="3%" VALIGN="MIDDLE"><FONT SIZE="2" FACE="Arial, Helvetica">First</FONT></TD>
+		<TD WIDTH="14%" VALIGN="MIDDLE"><INPUT TYPE="TEXT" NAME="raterFirst" SIZE="15"></TD>
+		<TD WIDTH="4%" VALIGN="MIDDLE"><FONT SIZE="2" FACE="Arial, Helvetica">Last</FONT></TD>
+		<TD WIDTH="14%" VALIGN="MIDDLE"><INPUT TYPE="TEXT" NAME="raterLast" SIZE="15"></TD>
+		<TD WIDTH="8%" VALIGN="MIDDLE"><FONT SIZE="2" FACE="Arial, Helvetica">Title</FONT></TD>
+		<TD WIDTH="11%" VALIGN="MIDDLE">
+			<SELECT NAME="raterTitle">
+			<OPTION VALUE SELECTED> </OPTION>
+			<OPTION VALUE="RN">RN</OPTION>
+			<OPTION VALUE="Psol">Psol</OPTION>
+			<OPTION VALUE="Psych">Psych</OPTION>
+			<OPTION VALUE="MedSpec">MedSpec</OPTION>
+			<OPTION VALUE="Rehab">Rehab</OPTION>
+			<OPTION VALUE="MD">MD</OPTION>
+			<OPTION VALUE="Other">Other</OPTION>
+			</SELECT>
+		</TD>
+		<TD WIDTH="6%" VALIGN="MIDDLE"><FONT SIZE="2" FACE="Arial, Helvetica">Orion ID</FONT></TD>
+		<TD WIDTH="29%" VALIGN="MIDDLE"><INPUT TYPE="TEXT" NAME="raterOrionID" SIZE="10"></TD>
+	</TR>
+</TABLE>
+
+<TABLE BORDER="1" CELLPADDING="0" CELLSPACING="0" WIDTH="100%">
+	<TR>
+		<TD ROWSPAN="4" BGCOLOR="#FFFF66">
+			<P ALIGN="CENTER"><B><FONT SIZE="2" FACE="Arial, Helvetica">Attitude</FONT></B>
+		</TD>
+		<TD ROWSPAN="2" BGCOLOR="#FFFF66"><FONT SIZE="2" FACE="Arial, Helvetica">Uncooperativeness</FONT></TD>
+		<TD><B><FONT SIZE="2" FACE="Arial, Helvetica">RATE OBSERVED:</FONT></B><FONT SIZE="2" FACE="Arial, Helvetica">Readiness
+			to cooperate with the interview (from evasiveness to refusing to answer questions) <BR>
+			</FONT><B><FONT SIZE="2" FACE="Arial, Helvetica">NOT:</FONT></B><FONT SIZE="2" FACE="Arial, Helvetica"> Reports
+			of behavior outside interview</FONT></TD>
+	</TR>
+	<TR>
+		<TD>
+			<SELECT NAME="bprs1">
+			<OPTION VALUE="1">1) NONE</OPTION>
+			<OPTION VALUE="2">2) VERY MILD</OPTION>
+			<OPTION VALUE="2">&nbsp;&nbsp;does not seem motivated</OPTION>
+			<OPTION VALUE="3">3) MILD</OPTION>
+			<OPTION VALUE="3">&nbsp;&nbsp;seems evasive in certain areas</OPTION>
+			<OPTION VALUE="4">4) MODERATE</OPTION>
+			<OPTION VALUE="4">&nbsp;&nbsp;fails to elaborate spontaneously</OPTION>
+			<OPTION VALUE="5">5) MODERATELY SEVERE</OPTION>
+			<OPTION VALUE="5">&nbsp;&nbsp;expresses resentment and is unfriendly throughout</OPTION>
+			<OPTION VALUE="6">6) SEVERE</OPTION>
+			<OPTION VALUE="6">&nbsp;&nbsp;refuses to answer a number of questions</OPTION>
+			<OPTION VALUE="7">7) VERY SEVERE</OPTION>
+			<OPTION VALUE="7">&nbsp;&nbsp;refuses to answer most questions</OPTION>
+			<OPTION VALUE="9" SELECTED>NOT ASSESSED</OPTION>
+			</SELECT>
+		</TD>
+	</TR>
+	<TR>
+		<TD ROWSPAN="2" BGCOLOR="#FFFF66"><FONT SIZE="2" FACE="Arial, Helvetica">Emotional Withdrawal</FONT></TD>
+		<TD><B><FONT SIZE="2" FACE="Arial, Helvetica">RATE OBSERVED:</FONT></B><FONT SIZE="2" FACE="Arial, Helvetica"> Deficiency
+			in relating to interviewer (eye contact, physical orientation, engagement) <BR>
+			</FONT><B><FONT SIZE="2" FACE="Arial, Helvetica">NOT:</FONT></B><FONT SIZE="2" FACE="Arial, Helvetica"> Blunted
+			affect</FONT></TD>
+	</TR>
+	<TR>
+		<TD>
+			<SELECT NAME="bprs2">
+			<OPTION VALUE="1">1) NONE</OPTION>
+			<OPTION VALUE="2">2) VERY MILD</OPTION>
+			<OPTION VALUE="2">&nbsp;&nbsp;occ. poor eye contact</OPTION>
+			<OPTION VALUE="3">3) MILD</OPTION>
+			<OPTION VALUE="3">&nbsp;&nbsp;frequent poor eye contact</OPTION>
+			<OPTION VALUE="4">4) MODERATE</OPTION>
+			<OPTION VALUE="4">&nbsp;&nbsp;little eye contact, but engaged and appropriately responsive</OPTION>
+			<OPTION VALUE="5">5) MODERATELY SEVERE</OPTION>
+			<OPTION VALUE="5">&nbsp;&nbsp;stares at floor OR oriented away from interviewer, but moderately engaged</OPTION>
+			<OPTION VALUE="6">6) SEVERE</OPTION>
+			<OPTION VALUE="6">&nbsp;&nbsp;more persistent or pervasive than moderately severe</OPTION>
+			<OPTION VALUE="7">7) VERY SEVERE</OPTION>
+			<OPTION VALUE="7">&nbsp;&nbsp;&quot;spacey&quot; (absence of emotional relatedness), and disproportionately unengaged</OPTION>
+			<OPTION VALUE="9" SELECTED>NOT ASSESSED</OPTION>
+			</SELECT>
+		</TD>
+	</TR>
+	<TR>
+		<TD ROWSPAN="6" BGCOLOR="#FFFF66">
+			<P ALIGN="CENTER"><B><FONT SIZE="2" FACE="Arial, Helvetica">Motor</FONT></B>
+		</TD>
+		<TD ROWSPAN="2" BGCOLOR="#FFFF66"><FONT SIZE="2" FACE="Arial, Helvetica">Motor Retardation</FONT></TD>
+		<TD><B><FONT SIZE="2" FACE="Arial, Helvetica">RATE OBSERVED:</FONT></B><FONT SIZE="2" FACE="Arial, Helvetica"> Slowness
+			of movements and conversation <BR>
+			</FONT><B><FONT SIZE="2" FACE="Arial, Helvetica">NOT:</FONT></B><FONT SIZE="2" FACE="Arial, Helvetica"> Subjective
+			report of energy level</FONT></TD>
+	</TR>
+	<TR>
+		<TD>
+			<SELECT NAME="bprs3">
+			<OPTION VALUE="1">1) NONE</OPTION>
+			<OPTION VALUE="2">2) VERY MILD</OPTION>
+			<OPTION VALUE="2">&nbsp;&nbsp;slowness with doubtful clinical significance</OPTION>
+			<OPTION VALUE="3">3) MILD</OPTION>
+			<OPTION VALUE="3">&nbsp;&nbsp;conversation somewhat retarded, movement somewhat slowed</OPTION>
+			<OPTION VALUE="4">4) MODERATE</OPTION>
+			<OPTION VALUE="4">&nbsp;&nbsp;conversation noticeably retarded, but not strained</OPTION>
+			<OPTION VALUE="5">5) MODERATELY SEVERE</OPTION>
+			<OPTION VALUE="5">&nbsp;&nbsp;conversation strained, moves very slowly</OPTION>
+			<OPTION VALUE="6">6) SEVERE</OPTION>
+			<OPTION VALUE="6">&nbsp;&nbsp;conversation difficult to maintain, hardly moves at all</OPTION>
+			<OPTION VALUE="7">7) VERY SEVERE</OPTION>
+			<OPTION VALUE="7">&nbsp;&nbsp;conversation nearly impossible, does not move at all during interview</OPTION>
+			<OPTION VALUE="9" SELECTED>NOT ASSESSED</OPTION>
+			</SELECT>
+		</TD>
+	</TR>
+	<TR>
+		<TD ROWSPAN="2" BGCOLOR="#FFFF66"><FONT SIZE="2" FACE="Arial, Helvetica">Tension</FONT></TD>
+		<TD><B><FONT SIZE="2" FACE="Arial, Helvetica">RATE OBSERVED:</FONT></B><FONT SIZE="2" FACE="Arial, Helvetica"> Any
+			motor restlessness / agitation (from fidgeting to pacing), including tardive dyskinesia <BR>
+			</FONT><B><FONT SIZE="2" FACE="Arial, Helvetica">NOT:</FONT></B><FONT SIZE="2" FACE="Arial, Helvetica"> Subjective
+			experiences of anxiety, tension, or nervousness</FONT></TD>
+	</TR>
+	<TR>
+		<TD>
+			<SELECT NAME="bprs4">
+			<OPTION VALUE="1">1) NONE</OPTION>
+			<OPTION VALUE="2">2) VERY MILD</OPTION>
+			<OPTION VALUE="2">&nbsp;&nbsp;occ. fidgets</OPTION>
+			<OPTION VALUE="3">3) MILD</OPTION>
+			<OPTION VALUE="3">&nbsp;&nbsp;frequently fidgets</OPTION>
+			<OPTION VALUE="4">4) MODERATE</OPTION>
+			<OPTION VALUE="4">&nbsp;&nbsp;constantly fidgets OR frequently fidgets and wrings hands or pulls clothes</OPTION>
+			<OPTION VALUE="5">5) MODERATELY SEVERE</OPTION>
+			<OPTION VALUE="5">&nbsp;&nbsp;constantly fidgets AND wrings hands, and pulls clothes</OPTION>
+			<OPTION VALUE="6">6) SEVERE</OPTION>
+			<OPTION VALUE="6">&nbsp;&nbsp;cannot remain seated (e.g. must pace)</OPTION>
+			<OPTION VALUE="7">7) VERY SEVERE</OPTION>
+			<OPTION VALUE="7">&nbsp;&nbsp;paces in a frantic manner</OPTION>
+			<OPTION VALUE="9" SELECTED>NOT ASSESSED</OPTION>
+			</SELECT>
+		</TD>
+	</TR>
+	<TR>
+		<TD ROWSPAN="2" BGCOLOR="#FFFF66"><FONT SIZE="2" FACE="Arial, Helvetica">Mannerisms &amp; Posturing</FONT></TD>
+		<TD><B><FONT SIZE="2" FACE="Arial, Helvetica">RATE OBSERVED:</FONT></B><FONT SIZE="2" FACE="Arial, Helvetica"> Bizarreness
+			of motor behavior, regardless of cause (e.g. tardive dyskinesia) <BR>
+			</FONT><B><FONT SIZE="2" FACE="Arial, Helvetica">NOT:</FONT></B><FONT SIZE="2" FACE="Arial, Helvetica"> Heightened
+			motor activity</FONT></TD>
+	</TR>
+	<TR>
+		<TD>
+			<SELECT NAME="bprs5">
+			<OPTION VALUE="1">1) NONE</OPTION>
+			<OPTION VALUE="2">2) VERY MILD</OPTION>
+			<OPTION VALUE="2">&nbsp;&nbsp;odd behavior of doubtful significance (e.g. occ. lip movements, unprompted smiling)</OPTION>
+			<OPTION VALUE="3">3) MILD</OPTION>
+			<OPTION VALUE="3">&nbsp;&nbsp;strange but not bizarre (e.g. occ. rhythmic head-tilting, or occ. abnormal finger movements)</OPTION>
+			<OPTION VALUE="4">4) MODERATE</OPTION>
+			<OPTION VALUE="4">&nbsp;&nbsp;(e.g. assumes yoga position briefly, infrequent tongue protrusions, rocking)</OPTION>
+			<OPTION VALUE="5">5) MODERATELY SEVERE</OPTION>
+			<OPTION VALUE="5">&nbsp;&nbsp;(e.g. maintains yoga position throughout interview, unusual movements in several body areas)</OPTION>
+			<OPTION VALUE="6">6) SEVERE</OPTION>
+			<OPTION VALUE="6">&nbsp;&nbsp;more frequent, intense, or pervasive than mod. severe</OPTION>
+			<OPTION VALUE="7">7) VERY SEVERE</OPTION>
+			<OPTION VALUE="7">&nbsp;&nbsp;bizarre posturing throughout most of interview, continuous abnormal movements in several body areas</OPTION>
+			<OPTION VALUE="9" SELECTED>NOT ASSESSED</OPTION>
+			</SELECT>
+		</TD>
+	</TR>
+	<TR>
+		<TD ROWSPAN="4" BGCOLOR="#FFFF66">
+			<P ALIGN="CENTER"><B><FONT SIZE="2" FACE="Arial, Helvetica">Affect</FONT></B>
+		</TD>
+		<TD ROWSPAN="2" BGCOLOR="#FFFF66"><FONT SIZE="2" FACE="Arial, Helvetica">Blunted Affect</FONT></TD>
+		<TD><B><FONT SIZE="2" FACE="Arial, Helvetica">RATE OBSERVED:</FONT></B><FONT SIZE="2" FACE="Arial, Helvetica">Monotonous
+			voice, and deficits in facial expression, and body gestures <BR>
+			</FONT><B><FONT SIZE="2" FACE="Arial, Helvetica">NOT:</FONT></B><FONT SIZE="2" FACE="Arial, Helvetica"> Emotional
+			withdrawal</FONT></TD>
+	</TR>
+	<TR>
+		<TD>
+			<SELECT NAME="bprs6">
+			<OPTION VALUE="1">1) NONE</OPTION>
+			<OPTION VALUE="2">2) VERY MILD</OPTION>
+			<OPTION VALUE="2">&nbsp;&nbsp;occ. seems indifferent to normally emotive material</OPTION>
+			<OPTION VALUE="3">3) MILD</OPTION>
+			<OPTION VALUE="3">&nbsp;&nbsp;somewhat diminished in one dimension (face, gesture, voice)</OPTION>
+			<OPTION VALUE="4">4) MODERATE</OPTION>
+			<OPTION VALUE="4">&nbsp;&nbsp;moderately diminished in one dimension, or somewhat in several (face, gesture, voice)</OPTION>
+			<OPTION VALUE="5">5) MODERATELY SEVERE</OPTION>
+			<OPTION VALUE="5">&nbsp;&nbsp;severely diminished in two dimensions (monotonous, restricted body gestures, severe lack of facial expression)</OPTION>
+			<OPTION VALUE="6">6) SEVERE</OPTION>
+			<OPTION VALUE="6">&nbsp;&nbsp;profound flattening of affect</OPTION>
+			<OPTION VALUE="7">7) VERY SEVERE</OPTION>
+			<OPTION VALUE="7">&nbsp;&nbsp;totally monotonous voice AND total lack of expressive gestures throughout the evaluation</OPTION>
+			<OPTION VALUE="9" SELECTED>NOT ASSESSED</OPTION>
+			</SELECT>
+		</TD>
+	</TR>
+	<TR>
+		<TD ROWSPAN="2" BGCOLOR="#FFFF66"><FONT SIZE="2" FACE="Arial, Helvetica">Excitement</FONT></TD>
+		<TD><B><FONT SIZE="2" FACE="Arial, Helvetica">RATE OBSERVED:</FONT></B><FONT SIZE="2" FACE="Arial, Helvetica">Hypomanic
+			affect, expansiveness, and irritability <BR>
+			</FONT><B><FONT SIZE="2" FACE="Arial, Helvetica">NOT:</FONT></B><FONT SIZE="2" FACE="Arial, Helvetica"> Inferred
+			affect from grandiose delusions</FONT></TD>
+	</TR>
+	<TR>
+		<TD>
+			<SELECT NAME="bprs7">
+			<OPTION VALUE="1">1) NONE</OPTION>
+			<OPTION VALUE="2">2) VERY MILD</OPTION>
+			<OPTION VALUE="2">&nbsp;&nbsp;mild and of doubtful clinical significance</OPTION>
+			<OPTION VALUE="3">3) MILD</OPTION>
+			<OPTION VALUE="3">&nbsp;&nbsp;irritable or expansive at times</OPTION>
+			<OPTION VALUE="4">4) MODERATE</OPTION>
+			<OPTION VALUE="4">&nbsp;&nbsp;frequently irritable or expansive</OPTION>
+			<OPTION VALUE="5">5) MODERATELY SEVERE</OPTION>
+			<OPTION VALUE="5">&nbsp;&nbsp;constantly irritable or expansive OR at times enraged or euphoric</OPTION>
+			<OPTION VALUE="6">6) SEVERE</OPTION>
+			<OPTION VALUE="6">&nbsp;&nbsp;enraged or euphoric during most of the interview</OPTION>
+			<OPTION VALUE="7">7) VERY SEVERE</OPTION>
+			<OPTION VALUE="7">&nbsp;&nbsp;interview had to be stopped due to severe euphoria or rage</OPTION>
+			<OPTION VALUE="9" SELECTED>NOT ASSESSED</OPTION>
+			</SELECT>
+		</TD>
+	</TR>
+	<TR>
+		<TD ROWSPAN="2" BGCOLOR="#FFFF66">
+			<P ALIGN="CENTER"><B><FONT SIZE="2" FACE="Arial, Helvetica">Thought Process</FONT></B>
+		</TD>
+		<TD ROWSPAN="2" BGCOLOR="#FFFF66"><FONT SIZE="2" FACE="Arial, Helvetica">Conceptual Disorganization</FONT></TD>
+		<TD><B><FONT SIZE="2" FACE="Arial, Helvetica">RATE OBSERVED:</FONT></B><FONT SIZE="2" FACE="Arial, Helvetica"> Formal
+			thought disorder: loose associations, flight of ideas, incoherence, neologisms <BR>
+			</FONT><B><FONT SIZE="2" FACE="Arial, Helvetica">NOT:</FONT></B><FONT SIZE="2" FACE="Arial, Helvetica"> Mere circumstantiality
+			or pressured speech, even if marked; NOR patient's subjective impression</FONT></TD>
+	</TR>
+	<TR>
+		<TD>
+			<SELECT NAME="bprs8">
+			<OPTION VALUE="1">1) NONE</OPTION>
+			<OPTION VALUE="2">2) VERY MILD</OPTION>
+			<OPTION VALUE="2">&nbsp;&nbsp;somewhat vague</OPTION>
+			<OPTION VALUE="3">3) MILD</OPTION>
+			<OPTION VALUE="3">&nbsp;&nbsp;frequently vague, but interview progressed smoothly</OPTION>
+			<OPTION VALUE="4">4) MODERATE</OPTION>
+			<OPTION VALUE="4">&nbsp;&nbsp;occ. irrelevant statements OR infrequent neologisms OR moderate loosening of associations</OPTION>
+			<OPTION VALUE="5">5) MODERATELY SEVERE</OPTION>
+			<OPTION VALUE="5">&nbsp;&nbsp;frequent formal thought disorder without severely straining the interview</OPTION>
+			<OPTION VALUE="6">6) SEVERE</OPTION>
+			<OPTION VALUE="6">&nbsp;&nbsp;formal thought disorder during most of interview, severely straining the interview</OPTION>
+			<OPTION VALUE="7">7) VERY SEVERE</OPTION>
+			<OPTION VALUE="7">&nbsp;&nbsp;very little coherent information can be obtained</OPTION>
+			<OPTION VALUE="9" SELECTED>NOT ASSESSED</OPTION>
+			</SELECT>
+		</TD>
+	</TR>
+	<TR>
+		<TD ROWSPAN="6" BGCOLOR="#FFFF66">
+			<P ALIGN="CENTER"><B><FONT SIZE="2" FACE="Arial, Helvetica">Mood</FONT></B>
+		</TD>
+		<TD ROWSPAN="2" BGCOLOR="#FFFF66"><FONT SIZE="2" FACE="Arial, Helvetica">Depressive Mood</FONT></TD>
+		<TD><B><FONT SIZE="2" FACE="Arial, Helvetica">ASK:</FONT></B><FONT SIZE="2" FACE="Arial, Helvetica"> &quot;In the past
+			week, have you had less interest in your usual activities? Have you felt sad or depressed? (Have your cried at
+			all?) (How bad is the feeling?) (How long does it last?)&quot; <BR>
+			</FONT><B><FONT SIZE="2" FACE="Arial, Helvetica">RATE VERBAL REPORT OF:</FONT></B><FONT SIZE="2" FACE="Arial, Helvetica">
+			Frequency and intensity of depressed mood <BR>
+			</FONT><B><FONT SIZE="2" FACE="Arial, Helvetica">NOT:</FONT></B><FONT SIZE="2" FACE="Arial, Helvetica"> Inferred
+			from psychomotor retardation, somatic complaints, or guilt</FONT></TD>
+	</TR>
+	<TR>
+		<TD>
+			<SELECT NAME="bprs9">
+			<OPTION VALUE="1">1) NONE</OPTION>
+			<OPTION VALUE="2">2) VERY MILD</OPTION>
+			<OPTION VALUE="2">&nbsp;&nbsp;occ. somewhat depressed</OPTION>
+			<OPTION VALUE="3">3) MILD</OPTION>
+			<OPTION VALUE="3">&nbsp;&nbsp;occ. moderately, OR often somewhat depressed</OPTION>
+			<OPTION VALUE="4">4) MODERATE</OPTION>
+			<OPTION VALUE="4">&nbsp;&nbsp;occ. very, OR often moderately depressed</OPTION>
+			<OPTION VALUE="5">5) MODERATELY SEVERE</OPTION>
+			<OPTION VALUE="5">&nbsp;&nbsp;often very depressed</OPTION>
+			<OPTION VALUE="6">6) SEVERE</OPTION>
+			<OPTION VALUE="6">&nbsp;&nbsp;depressed most of the time</OPTION>
+			<OPTION VALUE="7">7) VERY SEVERE</OPTION>
+			<OPTION VALUE="7">&nbsp;&nbsp;depressed nearly all of the time</OPTION>
+			<OPTION VALUE="9" SELECTED>NOT ASSESSED</OPTION>
+			</SELECT>
+		</TD>
+	</TR>
+	<TR>
+		<TD ROWSPAN="2" BGCOLOR="#FFFF66"><FONT SIZE="2" FACE="Arial, Helvetica">Anxiety</FONT></TD>
+		<TD><B><FONT SIZE="2" FACE="Arial, Helvetica">ASK:</FONT></B><FONT SIZE="2" FACE="Arial, Helvetica"> &quot;During the
+			past week, have you felt very frightened or anxious? Have you worried a lot? (What do you worry about?) Have you
+			had the feeling that something terrible might happen?&quot; <BR>
+			</FONT><B><FONT SIZE="2" FACE="Arial, Helvetica">RATE VERBAL REPORT OF:</FONT></B><FONT SIZE="2" FACE="Arial, Helvetica">
+			Worry, fear, or overconcern for present or future. <BR>
+			</FONT><B><FONT SIZE="2" FACE="Arial, Helvetica">NOT:</FONT></B><FONT SIZE="2" FACE="Arial, Helvetica"> Inferred
+			anxiety, physical signs, defense mechanisms, or somatic concern.</FONT></TD>
+	</TR>
+	<TR>
+		<TD>
+			<SELECT NAME="bprs10">
+			<OPTION VALUE="1">1) NONE</OPTION>
+			<OPTION VALUE="2">2) VERY MILD</OPTION>
+			<OPTION VALUE="2">&nbsp;&nbsp;occ. somewhat anxious</OPTION>
+			<OPTION VALUE="3">3) MILD</OPTION>
+			<OPTION VALUE="3">&nbsp;&nbsp;occ. moderately, OR often somewhat anxious</OPTION>
+			<OPTION VALUE="4">4) MODERATE</OPTION>
+			<OPTION VALUE="4">&nbsp;&nbsp;occ. very, OR often moderately anxious</OPTION>
+			<OPTION VALUE="5">5) MODERATELY SEVERE</OPTION>
+			<OPTION VALUE="5">&nbsp;&nbsp;often very anxious</OPTION>
+			<OPTION VALUE="6">6) SEVERE</OPTION>
+			<OPTION VALUE="6">&nbsp;&nbsp;very anxious most of the time</OPTION>
+			<OPTION VALUE="7">7) VERY SEVERE</OPTION>
+			<OPTION VALUE="7">&nbsp;&nbsp;very anxious nearly all of the time</OPTION>
+			<OPTION VALUE="9" SELECTED>NOT ASSESSED</OPTION>
+			</SELECT>
+		</TD>
+	</TR>
+	<TR>
+		<TD ROWSPAN="2" BGCOLOR="#FFFF66"><FONT SIZE="2" FACE="Arial, Helvetica">Hostility</FONT></TD>
+		<TD><B><FONT SIZE="2" FACE="Arial, Helvetica">ASK:</FONT></B><FONT SIZE="2" FACE="Arial, Helvetica"> &quot;During the
+			past week, have you been feeling irritable? How have you been getting along with other people? (Have you gotten
+			in any arguments or fights?) Have you been easily annoyed or angered? (How strongly have you felt this way?) (How
+			much of the time?)&quot; <BR>
+			</FONT><B><FONT SIZE="2" FACE="Arial, Helvetica">RATE VERBAL REPORT OF:</FONT></B><FONT SIZE="2" FACE="Arial, Helvetica">
+			Feelings (anger), and actions (yelling, threatening, assault) <BR>
+			</FONT><B><FONT SIZE="2" FACE="Arial, Helvetica">NOT:</FONT></B><FONT SIZE="2" FACE="Arial, Helvetica"> Inferred
+			hostility from neurotic defenses, anxiety, or somatic complaints.</FONT></TD>
+	</TR>
+	<TR>
+		<TD>
+			<SELECT NAME="bprs11">
+			<OPTION VALUE="1">1) NONE</OPTION>
+			<OPTION VALUE="2">2) VERY MILD</OPTION>
+			<OPTION VALUE="2">&nbsp;&nbsp;occ. somewhat angry</OPTION>
+			<OPTION VALUE="3">3) MILD</OPTION>
+			<OPTION VALUE="3">&nbsp;&nbsp;occ. moderately, OR often somewhat angry</OPTION>
+			<OPTION VALUE="4">4) MODERATE</OPTION>
+			<OPTION VALUE="4">&nbsp;&nbsp;occ. yells at others OR occ. very angry, OR often moderately angry</OPTION>
+			<OPTION VALUE="5">5) MODERATELY SEVERE</OPTION>
+			<OPTION VALUE="5">&nbsp;&nbsp;often yells at others OR often very angry OR occ. threatens to harm others</OPTION>
+			<OPTION VALUE="6">6) SEVERE</OPTION>
+			<OPTION VALUE="6">&nbsp;&nbsp;physically abusive one or two times, OR makes frequent threats to harm others</OPTION>
+			<OPTION VALUE="7">7) VERY SEVERE</OPTION>
+			<OPTION VALUE="7">&nbsp;&nbsp;intervention required to prevent assaultiveness on several occasions OR any serious assault</OPTION>
+			<OPTION VALUE="9" SELECTED>NOT ASSESSED</OPTION>
+			</SELECT>
+		</TD>
+	</TR>
+	<TR>
+		<TD ROWSPAN="10" BGCOLOR="#FFFF66">
+			<P ALIGN="CENTER"><B><FONT SIZE="2" FACE="Arial, Helvetica">Thought Content</FONT></B>
+		</TD>
+		<TD ROWSPAN="2" BGCOLOR="#FFFF66"><FONT SIZE="2" FACE="Arial, Helvetica">Somatic Concerns</FONT></TD>
+		<TD><B><FONT SIZE="2" FACE="Arial, Helvetica">ASK:</FONT></B><FONT SIZE="2" FACE="Arial, Helvetica"> &quot;During the
+			past week, how has your physical health been? Do you feel you are physically ill in any way? (What do you think
+			is wrong? How serious is it?). Have you worried about your health recently?&quot; <BR>
+			</FONT><B><FONT SIZE="2" FACE="Arial, Helvetica">RATE VERBAL REPORT OF:</FONT></B><FONT SIZE="2" FACE="Arial, Helvetica">
+			Concern for physical problems, real or imagined.</FONT></TD>
+	</TR>
+	<TR>
+		<TD>
+			<SELECT NAME="bprs12">
+			<OPTION VALUE="1">1) NONE</OPTION>
+			<OPTION VALUE="2">2) VERY MILD</OPTION>
+			<OPTION VALUE="2">&nbsp;&nbsp;occ. somewhat concerned</OPTION>
+			<OPTION VALUE="3">3) MILD</OPTION>
+			<OPTION VALUE="3">&nbsp;&nbsp;occ. moderately, OR often somewhat concerned</OPTION>
+			<OPTION VALUE="4">4) MODERATE</OPTION>
+			<OPTION VALUE="4">&nbsp;&nbsp;occ. very, OR often moderately concerned</OPTION>
+			<OPTION VALUE="5">5) MODERATELY SEVERE</OPTION>
+			<OPTION VALUE="5">&nbsp;&nbsp;often very concerned</OPTION>
+			<OPTION VALUE="6">6) SEVERE</OPTION>
+			<OPTION VALUE="6">&nbsp;&nbsp;very concerned most of the time</OPTION>
+			<OPTION VALUE="7">7) VERY SEVERE</OPTION>
+			<OPTION VALUE="7">&nbsp;&nbsp;very concerned nearly all of the time</OPTION>
+			<OPTION VALUE="9" SELECTED>NOT ASSESSED</OPTION>
+			</SELECT>
+		</TD>
+	</TR>
+	<TR>
+		<TD ROWSPAN="2" BGCOLOR="#FFFF66"><FONT SIZE="2" FACE="Arial, Helvetica">Guilt Feelings</FONT></TD>
+		<TD><B><FONT SIZE="2" FACE="Arial, Helvetica">ASK:</FONT></B><FONT SIZE="2" FACE="Arial, Helvetica"> &quot;During the
+			past week, have you been blaming yourself for anything? Have you been feeling guilty? (Do you feel that you deserve
+			punishment?) (Have you been thinking about this a lot?)&quot; <BR>
+			</FONT><B><FONT SIZE="2" FACE="Arial, Helvetica">RATE VERBAL REPORT OF:</FONT></B><FONT SIZE="2" FACE="Arial, Helvetica">
+			Overconcern or remorse for past or present behavior, real or imagined. <BR>
+			</FONT><B><FONT SIZE="2" FACE="Arial, Helvetica">NOT:</FONT></B><FONT SIZE="2" FACE="Arial, Helvetica"> Depression,
+			anxiety, defenses, or inferred guilt</FONT></TD>
+	</TR>
+	<TR>
+		<TD>
+			<SELECT NAME="bprs13">
+			<OPTION VALUE="1">1) NONE</OPTION>
+			<OPTION VALUE="2">2) VERY MILD</OPTION>
+			<OPTION VALUE="2">&nbsp;&nbsp;occ. feels somewhat guilty</OPTION>
+			<OPTION VALUE="3">3) MILD</OPTION>
+			<OPTION VALUE="3">&nbsp;&nbsp;occ. feels moderately, OR often somewhat guilty</OPTION>
+			<OPTION VALUE="4">4) MODERATE</OPTION>
+			<OPTION VALUE="4">&nbsp;&nbsp;occ. feels very, OR often moderately guilty</OPTION>
+			<OPTION VALUE="5">5) MODERATELY SEVERE</OPTION>
+			<OPTION VALUE="5">&nbsp;&nbsp;often feels very guilty</OPTION>
+			<OPTION VALUE="6">6) SEVERE</OPTION>
+			<OPTION VALUE="6">&nbsp;&nbsp;very guilty most of the time OR encapsulated DELUSION of guilt</OPTION>
+			<OPTION VALUE="7">7) VERY SEVERE</OPTION>
+			<OPTION VALUE="7">&nbsp;&nbsp;agonizing constant feelings of guilt OR pervasive DELUSION(s) of guilt</OPTION>
+			<OPTION VALUE="9" SELECTED>NOT ASSESSED</OPTION>
+			</SELECT>
+		</TD>
+	</TR>
+	<TR>
+		<TD ROWSPAN="2" BGCOLOR="#FFFF66"><FONT SIZE="2" FACE="Arial, Helvetica">Grandiosity</FONT></TD>
+		<TD><B><FONT SIZE="2" FACE="Arial, Helvetica">ASK:</FONT></B><FONT SIZE="2" FACE="Arial, Helvetica"> &quot;During the
+			past week, have you felt more self-confident than usual? Do you have any special abilities or talents? Do you feel
+			there is a special purpose or mission to your life? (Have you thought you might be somebody rich or famous?)&quot;
+			<BR>
+			</FONT><B><FONT SIZE="2" FACE="Arial, Helvetica">RATE VERBAL REPORT OF:</FONT></B><FONT SIZE="2" FACE="Arial, Helvetica">
+			Claims of exaggerated talents, powers, abilities, etc. (from inflated self-esteem to delusions of grandeur) <BR>
+			</FONT><B><FONT SIZE="2" FACE="Arial, Helvetica">NOT:</FONT></B><FONT SIZE="2" FACE="Arial, Helvetica"> Delusions
+			of persecution or guilt unless related to exaggerated attributes of the patient</FONT></TD>
+	</TR>
+	<TR>
+		<TD>
+			<SELECT NAME="bprs14">
+			<OPTION VALUE="1">1) NONE</OPTION>
+			<OPTION VALUE="2">2) VERY MILD</OPTION>
+			<OPTION VALUE="2">&nbsp;&nbsp;more confident than most, but doubtful clinical significance</OPTION>
+			<OPTION VALUE="3">3) MILD</OPTION>
+			<OPTION VALUE="3">&nbsp;&nbsp;exaggerates talents somewhat out of proportion to circumstances</OPTION>
+			<OPTION VALUE="4">4) MODERATE</OPTION>
+			<OPTION VALUE="4">&nbsp;&nbsp;exaggerates talents clearly out of proportion to circumstances OR suspected DELUSION(s)</OPTION>
+			<OPTION VALUE="5">5) MODERATELY SEVERE</OPTION>
+			<OPTION VALUE="5">&nbsp;&nbsp;single encapsulated DELUSION OR multiple fragmented DELUSIONS</OPTION>
+			<OPTION VALUE="6">6) SEVERE</OPTION>
+			<OPTION VALUE="6">&nbsp;&nbsp;DELUSION(s) or delusional system that patient seems preoccupied with</OPTION>
+			<OPTION VALUE="7">7) VERY SEVERE</OPTION>
+			<OPTION VALUE="7">&nbsp;&nbsp;nearly all conversation related to patient's grandiose DELUSION(s)</OPTION>
+			<OPTION VALUE="9" SELECTED>NOT ASSESSED</OPTION>
+			</SELECT>
+		</TD>
+	</TR>
+	<TR>
+		<TD ROWSPAN="2" BGCOLOR="#FFFF66"><FONT SIZE="2" FACE="Arial, Helvetica">Suspiciousness</FONT></TD>
+		<TD><B><FONT SIZE="2" FACE="Arial, Helvetica">ASK:</FONT></B><FONT SIZE="2" FACE="Arial, Helvetica"> &quot;How did
+			you get along with people, in general, during the past week? Do you feel that you have to be on guard with people?
+			Has anyone been giving you a hard time, or accusing you of things? Has anyone deliberately tried to annoy you?
+			Tried to harm you?&quot; <BR>
+			</FONT><B><FONT SIZE="2" FACE="Arial, Helvetica">RATE VERBAL REPORT OF:</FONT></B><FONT SIZE="2" FACE="Arial, Helvetica">
+			Current belief (delusional or otherwise) concerning past or present circumstances</FONT></TD>
+	</TR>
+	<TR>
+		<TD>
+			<SELECT NAME="bprs15">
+			<OPTION VALUE="1">1) NONE</OPTION>
+			<OPTION VALUE="2">2) VERY MILD</OPTION>
+			<OPTION VALUE="2">&nbsp;&nbsp;rare cases of distrust that may not be warranted</OPTION>
+			<OPTION VALUE="3">3) MILD</OPTION>
+			<OPTION VALUE="3">&nbsp;&nbsp;occ. instances of suspiciousness that are definitely not warranted</OPTION>
+			<OPTION VALUE="4">4) MODERATE</OPTION>
+			<OPTION VALUE="4">&nbsp;&nbsp;freq. suspiciousness OR transient ideas of reference</OPTION>
+			<OPTION VALUE="5">5) MODERATELY SEVERE</OPTION>
+			<OPTION VALUE="5">&nbsp;&nbsp;pervasive suspiciousness, OR frequent ideas of reference</OPTION>
+			<OPTION VALUE="6">6) SEVERE</OPTION>
+			<OPTION VALUE="6">&nbsp;&nbsp;encapsulated DELUSION(s) of reference or persecution</OPTION>
+			<OPTION VALUE="7">7) VERY SEVERE</OPTION>
+			<OPTION VALUE="7">&nbsp;&nbsp;pervasive or more widespread, frequent, or intense DELUSION(s)</OPTION>
+			<OPTION VALUE="9" SELECTED>NOT ASSESSED</OPTION>
+			</SELECT>
+		</TD>
+	</TR>
+	<TR>
+		<TD ROWSPAN="2" BGCOLOR="#FFFF66"><FONT SIZE="2" FACE="Arial, Helvetica">Unusual Thought Content</FONT></TD>
+		<TD><B><FONT SIZE="2" FACE="Arial, Helvetica">ASK:</FONT></B><FONT SIZE="2" FACE="Arial, Helvetica"> &quot;Have you
+			had any difficulty with your thinking in the past week? Do certain things have special meaning for you? (Give me
+			an example.) Is there any interference with your thoughts? Is there anything controlling your thoughts or movements?
+			Do you see references to yourself in surprising places, like on TV?&quot; RATE: Degree of delusional conviction
+			and effect on behavior.</FONT></TD>
+	</TR>
+	<TR>
+		<TD>
+			<SELECT NAME="bprs16">
+			<OPTION VALUE="1">1) NONE</OPTION>
+			<OPTION VALUE="2">2) VERY MILD</OPTION>
+			<OPTION VALUE="2">&nbsp;&nbsp;delusions suspected or likely</OPTION>
+			<OPTION VALUE="3">3) MILD</OPTION>
+			<OPTION VALUE="3">&nbsp;&nbsp;PARTIAL DELUSION at times patient questions own beliefs</OPTION>
+			<OPTION VALUE="4">4) MODERATE</OPTION>
+			<OPTION VALUE="4">&nbsp;&nbsp;full DELUSIONAL conviction with little or no behavioral impact</OPTION>
+			<OPTION VALUE="5">5) MODERATELY SEVERE</OPTION>
+			<OPTION VALUE="5">&nbsp;&nbsp;full DELUSIONAL conviction with occ. behavioral impact</OPTION>
+			<OPTION VALUE="6">6) SEVERE</OPTION>
+			<OPTION VALUE="6">&nbsp;&nbsp;significant behavioral impact (e.g. neglects responsibilities)</OPTION>
+			<OPTION VALUE="7">7) VERY SEVERE</OPTION>
+			<OPTION VALUE="7">&nbsp;&nbsp;major impact (e.g. stops eating because believes food is poisoned)</OPTION>
+			<OPTION VALUE="9" SELECTED>NOT ASSESSED</OPTION>
+			</SELECT>
+		</TD>
+	</TR>
+	<TR>
+		<TD ROWSPAN="2" BGCOLOR="#FFFF66">
+			<P ALIGN="CENTER"><B><FONT SIZE="2" FACE="Arial, Helvetica">Perception</FONT></B>
+		</TD>
+		<TD ROWSPAN="2" BGCOLOR="#FFFF66"><FONT SIZE="2" FACE="Arial, Helvetica">Hallucinatory Behavior</FONT></TD>
+		<TD><B><FONT SIZE="2" FACE="Arial, Helvetica">ASK:</FONT></B><FONT SIZE="2" FACE="Arial, Helvetica"> &quot;Have you
+			had any unusual experiences during the past week? Do you seem to hear noises or voices when there's no one around,
+			and nothing else to explain it? (Have you had visions, or seen things that others couldn't see?) Is there anything
+			unusual about the way things feel, or taste, or smell? (How often do you [hear voices]?) (Do your voices make it
+			hard to concentrate?) (Do they tell you to do things?)&quot;</FONT></TD>
+	</TR>
+	<TR>
+		<TD>
+			<SELECT NAME="bprs17">
+			<OPTION VALUE="1">1) NONE</OPTION>
+			<OPTION VALUE="2">2) VERY MILD</OPTION>
+			<OPTION VALUE="2">&nbsp;&nbsp;suspected only</OPTION>
+			<OPTION VALUE="3">3) MILD</OPTION>
+			<OPTION VALUE="3">&nbsp;&nbsp;definite hallucinations, but infreq., transient, or insignificant (e.g. voice calling patient's name)</OPTION>
+			<OPTION VALUE="4">4) MODERATE</OPTION>
+			<OPTION VALUE="4">&nbsp;&nbsp;hallucinations are not extremely distressing nor every day (e.g. two conversing voices)</OPTION>
+			<OPTION VALUE="5">5) MODERATELY SEVERE</OPTION>
+			<OPTION VALUE="5">&nbsp;&nbsp;nearly every day, OR a source of extreme distress</OPTION>
+			<OPTION VALUE="6">6) SEVERE</OPTION>
+			<OPTION VALUE="6">&nbsp;&nbsp;moderate impact on behavior (e.g. work impaired by concentration difficulty)</OPTION>
+			<OPTION VALUE="7">7) VERY SEVERE</OPTION>
+			<OPTION VALUE="7">&nbsp;&nbsp;severe impact on behavior (e.g. suicide attempt 2&deg; command hallucination)</OPTION>
+			<OPTION VALUE="9" SELECTED>NOT ASSESSED</OPTION>
+			</SELECT>
+		</TD>
+	</TR>
+	<TR>
+		<TD ROWSPAN="2" BGCOLOR="#FFFF66">
+			<P ALIGN="CENTER"><B><FONT SIZE="2" FACE="Arial, Helvetica">Orientation</FONT></B>
+		</TD>
+		<TD ROWSPAN="2" BGCOLOR="#FFFF66"><FONT SIZE="2" FACE="Arial, Helvetica">Disorientation</FONT></TD>
+		<TD><B><FONT SIZE="2" FACE="Arial, Helvetica">ASK:</FONT></B><FONT SIZE="2" FACE="Arial, Helvetica"> &quot;Now I want
+			to ask you some standard questions that we usually ask at this point. What is today's date? (What day of the week
+			is is it? What month? What day of the month? What year?) Where are we now?&quot;</FONT></TD>
+	</TR>
+	<TR>
+		<TD>
+			<SELECT NAME="bprs18">
+			<OPTION VALUE="1">1) NONE</OPTION>
+			<OPTION VALUE="2">2) VERY MILD</OPTION>
+			<OPTION VALUE="2">&nbsp;&nbsp;somewhat confused</OPTION>
+			<OPTION VALUE="3">3) MILD</OPTION>
+			<OPTION VALUE="3">&nbsp;&nbsp;e.g. off by a year</OPTION>
+			<OPTION VALUE="4">4) MODERATE</OPTION>
+			<OPTION VALUE="4">&nbsp;&nbsp;e.g off by a decade</OPTION>
+			<OPTION VALUE="5">5) MODERATELY SEVERE</OPTION>
+			<OPTION VALUE="5">&nbsp;&nbsp;unsure where s/he is</OPTION>
+			<OPTION VALUE="6">6) SEVERE</OPTION>
+			<OPTION VALUE="6">&nbsp;&nbsp;no idea where s/he is</OPTION>
+			<OPTION VALUE="7">7) VERY SEVERE</OPTION>
+			<OPTION VALUE="7">&nbsp;&nbsp;does not know who s/he is</OPTION>
+			<OPTION VALUE="9" SELECTED>NOT ASSESSED</OPTION>
+			</SELECT>
+		</TD>
+	</TR>
+	<TR>
+		<TD HEIGHT="21" COLSPAN="3" BGCOLOR="#FFFF66">
+			<CENTER>
+			<P><INPUT TYPE="RESET" NAME="Reset" VALUE="Clear Answers"> <INPUT TYPE="SUBMIT" NAME="Submit" VALUE="Submit BPRS">
+</CENTER>
+		</TD>
+	</TR>
+</TABLE>
+
+</FORM>
+
+</BODY>
+
+</HTML>

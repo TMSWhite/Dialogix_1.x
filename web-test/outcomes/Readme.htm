@@ -1,0 +1,193 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2//EN">
+<HTML>
+
+<HEAD>
+	<META HTTP-EQUIV="Content-Type" CONTENT="text/html;CHARSET=iso-8859-1">
+	<META NAME="GENERATOR" Content="Visual Page 2.0 for Windows">
+	<TITLE>Clinically Optimized BPRS and GAF</TITLE>
+</HEAD>
+
+<BODY>
+
+<P>
+<TABLE BORDER="0" CELLPADDING="0" CELLSPACING="0" WIDTH="650">
+	<TR>
+		<TD WIDTH="50%"><IMG SRC="nypi.jpg" WIDTH="300" HEIGHT="62" ALIGN="BOTTOM" BORDER="0"></TD>
+		<TD WIDTH="50%">
+			<P ALIGN="RIGHT"><IMG SRC="cpmc_dmi.jpg" WIDTH="300" HEIGHT="91" ALIGN="BOTTOM" BORDER="0">
+		</TD>
+	</TR>
+</TABLE>
+<B><FONT SIZE="6">Clinically Optimized Outcomes Instruments</FONT></B></P>
+<P><B>System Requirements</B></P>
+
+<BLOCKQUOTE>
+	<P>Windows 95, 98, or NT</P>
+	<P>32 MB of RAM</P>
+	<P>1 MB of Hard-disk space (20 MB if Java has not already been installed)</P>
+</BLOCKQUOTE>
+
+<P><B>Installation</B></P>
+
+<BLOCKQUOTE>
+	<P>Install Java, if not already done. Java versions 1.2 or later can be used. They are available from <A HREF="http://java.sun.com/products/jdk/1.1/jre/download-jre-windows.html">Sun</A>.</P>
+	<P>Unarchive web_bprs.zip into the C:\ directory - this will create the c:\web_bprs directory and sub-folders</P>
+</BLOCKQUOTE>
+
+<P><B>Using Web-based BPRS and GAF on a Single Computer</B></P>
+
+<BLOCKQUOTE>
+	<P>Start the server:</P>
+	<BLOCKQUOTE>
+		<P><FONT FACE="Courier New, Courier">c:<BR>
+		cd \web_bprs\jswdk<BR>
+		java2 startserver</FONT></P>
+	</BLOCKQUOTE>
+	<P>This will launch a separate DOS window in which something like the following should appear:</P>
+	<BLOCKQUOTE>
+		<P><FONT FACE="Courier New, Courier">JSWDK WebServer Version 1.0.1<BR>
+		Loaded configuration from file: c:\web_bprs\jswdk\webserver.xml<BR>
+		endpoint created: localhost/127.0.0.1:8080</FONT></P>
+	</BLOCKQUOTE>
+	<P>Do NOT manually close this DOS window, otherwise the Java Server will be terminated.</P>
+
+	<P>At this point, you can use Web-BPRS and Web-GAF. Point the browser to:</P>
+	<BLOCKQUOTE>
+		<P><FONT FACE="Courier New, Courier">http://localhost:8080/index.htm</FONT></P>
+	</BLOCKQUOTE>
+	<P>The first time a form is submitted to the Java servlet, it is initialized. You will see a message like the following
+	in the console window.</P>
+	<BLOCKQUOTE>
+		<P><FONT FACE="Courier New, Courier">com.sun.web.core.DefaultServlet: init<BR>
+		com.sun.web.core.InvokerServlet: init<BR>
+		parseBPRS: init</FONT></P>
+	</BLOCKQUOTE>
+	<P>Meanwhile, the client should see the calculated scores from the BPRS or GAF.</P>
+
+	<P>To properly stop the server (optional - if the computer is kept on, there is no need to stop the server), do
+	the following:</P>
+	<BLOCKQUOTE>
+		<P><FONT FACE="Courier New, Courier">c:<BR>
+		cd \web_bprs\jswdk<BR>
+		java2 stopserver</FONT></P>
+	</BLOCKQUOTE>
+</BLOCKQUOTE>
+
+<P><B>Troubleshooting</B></P>
+<P>
+<TABLE BORDER="1" CELLPADDING="0" CELLSPACING="0" WIDTH="650">
+	<TR>
+		<TD WIDTH="25%" VALIGN="TOP">Out of Environment space message when running startserver.bat</TD>
+		<TD WIDTH="75%" VALIGN="TOP">Edit the properties for c:\windows\command.com and c:\command.com (right click on them, select Properties):<BR>
+			<BR>
+			Under the <B>Program</B> tab, change the<B> Cmd line:</B> arguments to <B>C:\COMMAND.COM /E:8192</B></TD>
+	</TR>
+	<TR>
+		<TD WIDTH="25%" VALIGN="TOP">Message in startserver window saying that tools.jar or classes.zip not found</TD>
+		<TD WIDTH="75%" VALIGN="TOP">This message can be ignored - it does not affect the running of Web-BPRS/GAF. If you want, you can follow the message's
+			instructions to avoid having it appear in the future.</TD>
+	</TR>
+	<TR>
+		<TD WIDTH="25%">Other errors</TD>
+		<TD WIDTH="75%">Read the c:\web_bprs\jswdk\Readme.html and FAQ.html files.</TD>
+	</TR>
+</TABLE>
+</P>
+<P><B>Implementing Web-BPRS and GAF on a Secure Intranet</B></P>
+
+<BLOCKQUOTE>
+	<P><B>Please note</B>, the new HIPPA and existing HCFA requirements prohibit the electronic transmission of patient
+	data over insecure lines. Please consult with your local security specialist before installing this program on
+	an Intranet.</P>
+	<P>Install Java on the server, if not already done. Java versions 1.2 or later can be used. They are available
+	from <A HREF="http://java.sun.com/products/jdk/1.1/jre/download-jre-windows.html">Sun</A>.</P>
+	<P>Unarchive web_bprs.zip into the C:\ directory of the server - this will create the c:\web_bprs directory and
+	sub-folders</P>
+	<P>Edit c:\web_bprs\jswdk\webpages\BPRS-web.htm on the server</P>
+	<BLOCKQUOTE>
+		<P>Change the line</P>
+		<BLOCKQUOTE>
+			<P>&lt;FORM ACTION=&quot;http://<B>localhost</B>:8080/bprs/servlet/parseBPRS&quot;</P>
+		</BLOCKQUOTE>
+		<P>to</P>
+		<BLOCKQUOTE>
+			<P>&lt;FORM ACTION=&quot;http://<B>your_server</B>:8080/bprs/servlet/parseBPRS&quot;</P>
+		</BLOCKQUOTE>
+		<P>where <B>your_server</B> is the name or IP address of your secure intranet server.</P>
+	</BLOCKQUOTE>
+	<P>Edit c:\web_bprs\jswdk\webpages\GAF-web.htm on the server</P>
+	<BLOCKQUOTE>
+		<P>Change the line</P>
+		<BLOCKQUOTE>
+			<P>&lt;FORM ACTION=&quot;http://<B>localhost</B>:8080/bprs/servlet/parseGAF&quot;</P>
+		</BLOCKQUOTE>
+		<P>to</P>
+		<BLOCKQUOTE>
+			<P>&lt;FORM ACTION=&quot;http://<B>your_server</B>:8080/bprs/servlet/parseGAF&quot;</P>
+		</BLOCKQUOTE>
+		<P>where <B>your_server</B> is the name or IP address of your secure intranet server.</P>
+	</BLOCKQUOTE>
+	<P>Start the Java servlet server on <B>your_server</B>:</P>
+	<BLOCKQUOTE>
+		<P><FONT FACE="Courier New, Courier">c:<BR>
+		cd \web_bprs\jswdk<BR>
+		java2 startserver</FONT></P>
+	</BLOCKQUOTE>
+	<P>This will launch a separate DOS window in which something like the following should appear:</P>
+	<BLOCKQUOTE>
+		<P><FONT FACE="Courier New, Courier">JSWDK WebServer Version 1.0.1<BR>
+		Loaded configuration from file: c:\web_bprs\jswdk\webserver.xml<BR>
+		endpoint created: localhost/127.0.0.1:8080</FONT></P>
+	</BLOCKQUOTE>
+	<P>Do NOT manually close this DOS window, otherwise the Java Server will be terminated.</P>
+
+	<P>At this point, you and your clients can use Web-BPRS and Web-GAF. Point the browser to:</P>
+	<BLOCKQUOTE>
+		<P><FONT FACE="Courier New, Courier">http://</FONT><B><FONT FACE="Courier New, Courier">your_server</FONT></B><FONT
+		FACE="Courier New, Courier">:8080/index.htm</FONT></P>
+	</BLOCKQUOTE>
+	<P>The first time a form is submitted to the Java servlet, it is initialized. You will see a message like the following
+	in the console window.</P>
+	<BLOCKQUOTE>
+		<P><FONT FACE="Courier New, Courier">com.sun.web.core.DefaultServlet: init<BR>
+		com.sun.web.core.InvokerServlet: init<BR>
+		parseBPRS: init</FONT></P>
+	</BLOCKQUOTE>
+	<P>Meanwhile, the client should see the calculated scores from the BPRS or GAF.</P>
+
+	<P>To properly stop the server (optional - if the computer is kept on, there is no need to stop the server), do
+	the following:</P>
+	<BLOCKQUOTE>
+		<P><FONT FACE="Courier New, Courier">c:<BR>
+		cd \web_bprs\jswdk<BR>
+		java2 stopserver</FONT></P>
+	</BLOCKQUOTE>
+	<P><B>Accessing the collected data</B></P>
+	<P>Each time the Submit button is pressed on the Web-BPRS and Web-GAF forms, data is appended to the c:\web_bprs\webpages<B>\bprs.bar</B>
+	and c:\web_bprs\webpages<B>\gaf.bar</B> files, respectively. A database is not currently used, as that would require
+	that a database be installed and maintained on the server (or individual machines). The text files are not designed
+	for clinical use. It is not possible to reconstruct a patient's score sheet from these files; nor is there any
+	guarantee that the information contained in these files is complete. It is not meant to replace, substitute for,
+	or augment the medical record.</P>
+</BLOCKQUOTE>
+
+<P><BR>
+
+<HR ALIGN="LEFT" WIDTH="650">
+
+<TABLE BORDER="0" CELLPADDING="0" CELLSPACING="0" WIDTH="650">
+	<TR>
+		<TD WIDTH="55%"  NOWRAP>Thomas White, MD, MS<BR>
+			New York State Pychiatric Institute &amp;<BR>
+			Columbia University, Department of Medical Informatics</TD>
+		<TD WIDTH="45%" VALIGN="TOP">
+			<P ALIGN="RIGHT"><A HREF="mailto:twhite@ln.nimh.nih.gov">email</A><BR>
+			<A HREF="http://informatics.cpmc.columbia.edu/homepages/thw7001/">homepage</A>
+		</TD>
+	</TR>
+</TABLE>
+
+
+</BODY>
+
+</HTML>

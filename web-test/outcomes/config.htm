@@ -1,0 +1,104 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2//EN">
+<HTML>
+
+<HEAD>
+	<META HTTP-EQUIV="Content-Type" CONTENT="text/html;CHARSET=iso-8859-1">
+<META NAME="VPSiteProject" CONTENT="file:///C|/Projects/bprs2/OUTCOMES/Project.vpp">
+
+	<META NAME="GENERATOR" Content="Visual Page 2.0 for Windows">
+	<TITLE>Configurating Intranet for BPRS</TITLE>
+</HEAD>
+
+<BODY>
+
+<P>
+<TABLE BORDER="0" CELLPADDING="0" CELLSPACING="0" WIDTH="650">
+	<TR>
+		<TD WIDTH="50%"><IMG SRC="nypi.jpg" WIDTH="300" HEIGHT="62" ALIGN="BOTTOM" BORDER="0"></TD>
+		<TD WIDTH="50%">
+			<P ALIGN="RIGHT"><IMG SRC="cpmc_dmi.jpg" WIDTH="300" HEIGHT="91" ALIGN="BOTTOM" BORDER="0">
+		</TD>
+	</TR>
+</TABLE>
+<B><FONT SIZE="5">Configuring Intranet Servers for BPRS &amp; GAF</FONT></B></P>
+<P><B>Introduction:</B>
+
+<UL>
+	<LI>Patient data can <I>not</I> be transmitted over the web, due to existing HCFA standards and proposed <A HREF="http://aspe.hhs.gov/admnsimp/">HIPPA
+	regulations</A>.
+	<LI>However, it is legal to use the BPRS and GAF applications on a local machine, or a secure intranet, if and
+	only if your local facility has certified that no unauthorized users can access the patient information.
+	<LI>Below are instructions for preparing a single machine or local intranet for using my BPRS and GAF applications.
+</UL>
+
+<P><B>Methods:</B>
+
+<UL>
+	<LI>See the <A HREF="http://informatics.cpmc.columbia.edu/homepages/thw7001/presentations/991206/index.htm">powerpoint
+	presentation</A> for a discussion of the reasons and methods for optimizing the BPRS and GAF for clinical use.
+	<LI>When data is submitted from the forms, a Java Servlet processes the information, calculates the overall and
+	subscale scores, and saves all of the information to a comma-delimited text file in the Sevlet's home directory.
+	Thus, there is no need for a proprietary database - the comma-delimited text files can be imported directly into
+	Excel, Access, or other tools for analysis.
+</UL>
+
+<P><B>Requirements:</B></P>
+
+<UL>
+	<LI><B>Secure Intranet</B>
+	<UL>
+		<LI>Patient data can not be sent over the web electronically (without first consulting HCFA).
+		<LI>The data files containing the stored BPRS and GAF data must not be accessible to unauthorized users.
+		<LI>N.B. The proposed <A HREF="http://aspe.hhs.gov/admnsimp/">HIPPA regulations</A> impose significant penalties
+		for violating these regulations. Although these guidelines are designed to regulate industries which might want
+		to profit from knowledge of a patient's health status, they do also regulate clinical and research activity. HIPPA
+		has a 60 day public commentary period on these regulations. Since they will directly impact upon pyschiatric and
+		forensic care, it is worth reviewing and commenting upon these <A HREF="http://aspe.hhs.gov/admnsimp/">proposals.</A>
+	</UL>
+	<LI><B>Web Server</B>
+	<UL>
+		<LI>Windows NT + IIS or Personal Web Server
+		<LI>Linux + Apache
+		<LI>Unix + Apache
+	</UL>
+	<LI><B>Java Servlet Support</B>
+	<UL>
+		<LI>Windows - Sun's<A HREF="http://java.sun.com/products/jsp/download.html"> JSWDK</A> (JavaServer Web Development
+		Kit)
+		<LI>Unix - See <A HREF="http://java.apache.org/jserv/">Apache</A> pages for native JavaServlet support. Otherwise
+		use <A HREF="http://java.sun.com/products/jsp/download.html">JSWDK</A>
+		<UL>
+			<LI>for JSWDK, if you follow the setup directions, you will be able to point your browser to working example pages.
+		</UL>
+	</UL>
+	<LI><B>Java Support</B>
+	<UL>
+		<LI>Windows/Unix - Sun's <A HREF="http://java.sun.com/products/jdk/1.2/">JDK1.2</A>
+	</UL>
+	<LI><B>BPRS/GAF source files</B>
+	<UL>
+		<LI>Please contact <A HREF="mailto:twhite@ln.nimh.nih.gov">me</A>.
+		<LI>Once you have the source files, follow the instructions in the <A HREF="Readme.htm">Readme</A> file to install,
+		test, and troubleshoot BPRS and GAF.
+	</UL>
+</UL>
+
+<P>
+<HR ALIGN="LEFT" WIDTH="650">
+
+<TABLE BORDER="0" CELLPADDING="0" CELLSPACING="0" WIDTH="650">
+	<TR>
+		<TD WIDTH="55%"  NOWRAP>Thomas White, MD, MS<BR>
+			New York State Pychiatric Institute &amp;<BR>
+			Columbia University, Department of Medical Informatics</TD>
+		<TD WIDTH="45%" VALIGN="TOP">
+			<P ALIGN="RIGHT"><A HREF="mailto:twhite@ln.nimh.nih.gov">email</A><BR>
+			<A HREF="http://informatics.cpmc.columbia.edu/homepages/thw7001/">homepage</A>
+		</TD>
+	</TR>
+</TABLE>
+
+
+</BODY>
+
+</HTML>
