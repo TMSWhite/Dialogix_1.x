@@ -211,7 +211,7 @@ public class TricepsServlet extends HttpServlet {
 			
 			ok = triceps.toTSV(file);
 			if (ok) {
-				out.println("<B>Interview saved successfully as " + Node.encodeHTML(name) + " (" + file + ")</B><HR>");
+				out.println("<B>Interview saved successfully as " + Node.encodeHTML(name) + " (" + Node.encodeHTML(file) + ")</B><HR>");
 			}
 		}
 		else if (directive.equals("evaluate expr:")) {
@@ -269,7 +269,7 @@ public class TricepsServlet extends HttpServlet {
 			Enumeration errs = triceps.getErrors();
 			if (errs.hasMoreElements()) {
 				while (errs.hasMoreElements()) {
-					out.println("<B>" + Node.encodeHTML((String) errs.nextElement()) + "</B><BR>");
+					out.println("<B>" + (String) errs.nextElement() + "</B><BR>");
 				}
 			}
 			out.println("<HR>");

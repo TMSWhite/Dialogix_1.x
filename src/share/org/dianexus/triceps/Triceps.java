@@ -107,7 +107,7 @@ public class Triceps implements Serializable {
 			else if ("q".equals(actionType)) {
 			}
 			else {
-				errors.push("Invalid action type: " + actionType);
+				errors.push("Invalid action type: " + Node.encodeHTML(actionType));
 				break;				
 			}
 		} while (braceLevel > 0);
@@ -194,7 +194,7 @@ public class Triceps implements Serializable {
 				}
 			}
 			else {
-				errors.push("Unknown actionType " + actionType);
+				errors.push("Unknown actionType " + Node.encodeHTML(actionType));
 				return false;
 			}
 			++step;
@@ -209,7 +209,7 @@ public class Triceps implements Serializable {
 		
 		Node n = evidence.getNode(val);
 		if (n == null) {
-			errors.push("Unknown node: " + val);
+			errors.push("Unknown node: " + Node.encodeHTML(val.toString()));
 			return false;
 		}
 		int result = evidence.getStep(n);
@@ -265,7 +265,7 @@ public class Triceps implements Serializable {
 				// else within a brace, or not applicable, so skip it.
 			}
 			else {
-				errors.push("invalid actionType " + actionType);
+				errors.push("invalid actionType " + Node.encodeHTML(actionType));
 				return false;				
 			}
 		}
@@ -333,7 +333,7 @@ public class Triceps implements Serializable {
 		}
 
 		if ((answer == null || answer.trim().equals("")) && currentStep >= 0) {
-			errors.push("<bold>Please enter a <i>" + Datum.TYPES[q.getDatumType()] + "</i> for question <i>" + q.getQuestionRef() + "</i>.");
+			errors.push("<bold>Please enter a <i>" + Datum.TYPES[q.getDatumType()] + "</i> for question <i>" + Node.encodeHTML(q.getQuestionRef()) + "</i>.");
 			return false;
 		}
 		else {	// got a proper answer -- handle it
@@ -425,7 +425,7 @@ public class Triceps implements Serializable {
 			return ok;
 		}
 		catch (IOException e) {
-			errors.push("error writing to " + filename + ": " + e);
+			errors.push("error writing to " + Node.encodeHTML(filename) + ": " + e);
 			return false;
 		}
 	}
@@ -458,7 +458,7 @@ public class Triceps implements Serializable {
 			return true;
 		}
 		catch (IOException e) {
-			errors.push("Unable to write schedule file: " + e);
+			errors.push("Unable to write schedule file: " + Node.encodeHTML(e.getMessage()));
 			return false;
 		}
 	}
