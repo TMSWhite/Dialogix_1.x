@@ -682,6 +682,7 @@ public class Triceps {
 		}
 		catch (Throwable t) {
 			/* not a valid URL, or unable to access it - so try reading from a file */
+			System.err.println(t.getMessage());
 		}
 		finally {
 			if (ok) {
@@ -706,6 +707,7 @@ public class Triceps {
 			}
 		}
 		catch (Throwable t) {
+			System.err.println(t.getMessage());
 		}
 		finally {
 			if (ok) {
@@ -753,11 +755,11 @@ public class Triceps {
 		try {
 			File f = new File(workingFilesDir);
 			if (!f.isDirectory() || !f.canRead()) {
-				System.out.println("unreadable directory " + f.toString());
+				System.err.println("unreadable directory " + f.toString());
 			}
 		}
 		catch (Throwable t) {
-			System.out.println(t.getMessage());
+			System.err.println(t.getMessage());
 		}
 	}
 	public String getWorkingFilesDir() { return workingFilesDir; }
