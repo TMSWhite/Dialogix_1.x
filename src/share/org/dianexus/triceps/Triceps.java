@@ -47,6 +47,8 @@ import java.util.jar.JarEntry;
 	/*public*/ static final int WORKING_DIR = 1;
 	/*public*/ static final int COMPLETED_DIR = 2;
 	/*public*/ static final int FLOPPY_DIR = 3;
+	/*public*/ static final String SUSPEND_DIR = "suspended/";
+
 
 	private Schedule nodes = null;
 	private Evidence evidence = null;
@@ -930,6 +932,27 @@ if (DEPLOYABLE) {
 			return null;
 		}
 	}
+	
+	
+	/*public*/ String suspendToFloppy() {
+		String savedName = this.saveCompletedInfo(Triceps.SUSPEND_DIR);
+		savedName = this.copyCompletedToFloppy(Triceps.SUSPEND_DIR);
+		if (savedName != null) {
+			// now delete copy from completed dir so that they don't accumulate?
+			String name = nodes.getReserved(Schedule.COMPLETED_DIR) + Triceps.SUSPEND_DIR + nodes.getReserved(Schedule.FILENAME) + ".jar";
+			File file = new File(name);
+			try {
+				file.delete(); 
+			}
+			catch (Exception e) {
+				this.setError("unable to delete " + name + ": " + e.getMessage());
+			}				
+			return savedName;
+		}
+		else {
+			return null;
+		}
+	}	
 	
 	/*public*/ String getTitle() {
 		return nodes.getReserved(Schedule.TITLE);

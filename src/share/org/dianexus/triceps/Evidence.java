@@ -112,6 +112,7 @@ import java.io.File;
 	private static final int GOTO_NEXT = 83;
 	private static final int MEAN = 84;
 	private static final int STDDEV = 85;
+	private static final int SUSPEND_TO_FLOPPY = 86;
 
 	
 	private static final Object FUNCTION_ARRAY[][] = {
@@ -201,6 +202,7 @@ import java.io.File;
 		{ "gotoNext",			ZERO,		new Integer(GOTO_NEXT) },	
 		{ "mean",				UNLIMITED,	new Integer(MEAN) },
 		{ "stddev",				UNLIMITED,	new Integer(STDDEV) },
+		{ "suspendToFloppy",	ZERO,		new Integer(SUSPEND_TO_FLOPPY) },
 	};
 
 	private static final Hashtable FUNCTIONS = new Hashtable();
@@ -1258,7 +1260,10 @@ if (DEBUG) Logger.writeln("##SecurityException @ Evidence.fileExists()" + e.getM
 						}
 						std = Math.sqrt(sumsqdiff / (count - 1));
 						return new Datum(triceps, std);
-					}				
+					}		
+				case SUSPEND_TO_FLOPPY:
+					triceps.suspendToFloppy();
+					return new Datum(triceps, "", Datum.STRING);
 			}
 		}
 		catch (Throwable t) {
