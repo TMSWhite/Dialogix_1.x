@@ -127,17 +127,17 @@ public class TricepsServlet extends HttpServlet {
 			out.println(header());
 			
 			out.println(getCustomHeader());
-System.err.println("Sending header");
+//System.err.println("Sending header");
 //out.flush();
 
 			if (errors != null) {
 				out.println(errors.toString());
 				errors =  null;
-System.err.println("Sending errors");
+//System.err.println("Sending errors");
 //out.flush();				
 			}
 			
-System.err.println("Sending form");
+//System.err.println("Sending form");
 
 			if (form != null) {
 				out.println("<FORM method='POST' name='myForm' action='" + HttpUtils.getRequestURL(req) + "'>\n");
@@ -146,14 +146,14 @@ System.err.println("Sending form");
 				out.println("</FORM>\n");
 			}
 //out.flush();
-System.err.println("Sending debugInfo");
+//System.err.println("Sending debugInfo");
 			out.println(debugInfo);
 //out.flush();
-System.err.println("Sending footer");
+//System.err.println("Sending footer");
 
 			out.println(footer());
 			
-System.err.println("Closing writer\n----Cycle# " + ++TricepsServlet.cycle + "-----\n");
+//System.err.println("Closing writer\n----Cycle# " + ++TricepsServlet.cycle + "-----\n");
 			out.close();	// XXX:  causes "Network Connection reset by peer" with Ham-D.txt - WHY?  Without close, dangling resources?
 
 			/* Store appropriate stuff in the session */
@@ -288,12 +288,12 @@ System.err.println("Closing writer\n----Cycle# " + ++TricepsServlet.cycle + "---
 		sb.append("<TR>\n");
 		sb.append("	<TD WIDTH='1%'>\n");
 
-		String icon = Node.encodeHTML((triceps != null) ? triceps.getIcon() : (imageFilesDir + logoIcon));
-		if (icon.trim().equals("")) {
+		String logo = (triceps != null) ? triceps.getIcon() : logoIcon;
+		if (logo.trim().equals("")) {
 			sb.append("&nbsp;");
 		}
 		else {
-			sb.append("			<IMG NAME='icon' SRC='" + icon + "' ALIGN='top' BORDER='0' onmousedown='showMain(event)' ALT='Logo'>\n");
+			sb.append("			<IMG NAME='icon' SRC='" + Node.encodeHTML(imageFilesDir + logo) + "' ALIGN='top' BORDER='0' onmousedown='showMain(event)' ALT='Logo'>\n");
 		}
 		sb.append("	</TD>\n");
 		sb.append("	<TD ALIGN='left'><FONT SIZE='5'><B>" + Node.encodeHTML((triceps != null) ? triceps.getHeaderMsg() : "Triceps System") + "</B></FONT></TD>\n");
@@ -441,7 +441,7 @@ System.err.println("Closing writer\n----Cycle# " + ++TricepsServlet.cycle + "---
 				"</TD>\n");
 			sb.append("	<TD><input type='SUBMIT' name='directive' value='RESTORE'></TD>\n");
 
-			sb.append(showOptions());
+//			sb.append(showOptions());
 
 			sb.append("</TABLE>\n");
 			return sb.toString();
@@ -455,6 +455,10 @@ System.err.println("Closing writer\n----Cycle# " + ++TricepsServlet.cycle + "---
 				directive = null;
 				return processDirective();
 			}
+			// re-check developerMode options - they aren't set via the hidden options, since a new copy of Triceps created
+			debugMode = triceps.nodes.isDebugMode();
+			developerMode = triceps.nodes.isDeveloperMode();
+			showQuestionNum = triceps.nodes.isShowQuestionRef();
 
 			ok = ok && ((gotoMsg = triceps.gotoStarting()) == Triceps.OK);	// don't proceed if prior error
 			// ask question
@@ -477,6 +481,10 @@ System.err.println("Closing writer\n----Cycle# " + ++TricepsServlet.cycle + "---
 				return "<B>Unable to find or access schedule '" + restore + "'</B><HR>" +
 					processDirective();
 			}
+			// re-check developerMode options - they aren't set via the hidden options, since a new copy of Triceps created
+			debugMode = triceps.nodes.isDebugMode();
+			developerMode = triceps.nodes.isDeveloperMode();
+			showQuestionNum = triceps.nodes.isShowQuestionRef();
 
 			ok = ok && ((gotoMsg = triceps.gotoStarting()) == Triceps.OK);	// don't proceed if prior error
 
