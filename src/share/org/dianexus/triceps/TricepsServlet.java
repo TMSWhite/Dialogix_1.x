@@ -22,9 +22,9 @@ public class TricepsServlet extends HttpServlet implements VersionIF {
 	static final String ACCEPT_LANGUAGE = "Accept-Language";
 	static final String ACCEPT_CHARSET = "Accept-Charset";
 	
-	private ServletConfig config = null;
-	private TricepsEngine tricepsEngine = null;
-	private String sessionID = null;
+	ServletConfig config = null;
+	TricepsEngine tricepsEngine = null;
+	String sessionID = null;
 
 	
 	public void init(ServletConfig config) throws ServletException {
@@ -45,7 +45,7 @@ public class TricepsServlet extends HttpServlet implements VersionIF {
 		tricepsEngine = null;	// reset it in case of error page
 		try {
 			if (isSupportedBrowser(req)) {
-				okPage(req,res);
+				okPage(req,res,null);
 			}
 			else {
 				errorPage(req,res);
@@ -58,7 +58,7 @@ if (DEBUG) Logger.printStackTrace(t);
 		}
 	}
 	
-	private boolean isSupportedBrowser(HttpServletRequest req) {
+	boolean isSupportedBrowser(HttpServletRequest req) {
 		String userAgent = req.getHeader(USER_AGENT);
 		
 		if (userAgent == null) {
@@ -87,7 +87,7 @@ if (DEBUG) Logger.printStackTrace(t);
 		}
 	}
 
-	private void okPage(HttpServletRequest req, HttpServletResponse res) {
+	void okPage(HttpServletRequest req, HttpServletResponse res, String hiddenLoginToken) {
 		HttpSession session = req.getSession(true);
 		
 		if (session.isNew()) {
@@ -117,7 +117,18 @@ if (DEBUG) Logger.printStackTrace(t);
 			return;
 		}
 		
-		tricepsEngine.doPost(req,res);
+		try {
+			res.setContentType("text/html");
+			PrintWriter out = res.getWriter();
+			
+			tricepsEngine.doPost(req,res,out,hiddenLoginToken);
+			
+			out.close();
+			out.flush();
+		}
+		catch (Throwable t) {
+if (DEBUG) Logger.printStackTrace(t);
+		}			
 		
 		session.setAttribute(fullSessionID, tricepsEngine);
 		
@@ -134,7 +145,7 @@ if (DEBUG) Logger.printStackTrace(t);
 		}
 	}
 	
-	private void logAccess(HttpServletRequest req, String msg) {
+	void logAccess(HttpServletRequest req, String msg) {
 if (DEBUG) {	
 	/* standard Apache log format (after the #@# prefix for easier extraction) */
 	Logger.writeln("#@#(" + req.getParameter("DIRECTIVE") + ") [" + new Date(System.currentTimeMillis()) + "] " + 
@@ -168,7 +179,7 @@ if (DEBUG && false) {
 	}
 	
 
-	private void errorPage(HttpServletRequest req, HttpServletResponse res) {
+	void errorPage(HttpServletRequest req, HttpServletResponse res) {
 		logAccess(req, " UNSUPPORTED BROWSER");
 		try {
 			res.setContentType("text/html");
@@ -198,7 +209,7 @@ if (DEBUG) Logger.printStackTrace(t);
 		}		
 	}
 	
-	private void expiredSessionErrorPage(HttpServletRequest req, HttpServletResponse res) {
+	void expiredSessionErrorPage(HttpServletRequest req, HttpServletResponse res) {
 		logAccess(req, " EXPIRED SESSION");
 		try {
 			res.setContentType("text/html");

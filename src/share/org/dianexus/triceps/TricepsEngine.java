@@ -119,16 +119,13 @@ public class TricepsEngine implements VersionIF {
 		return schedule.getReserved(Schedule.IMAGE_FILES_DIR) + schedule.getReserved(which);
 	}
 
-	public void doPost(HttpServletRequest req, HttpServletResponse res)  {
+	public void doPost(HttpServletRequest req, HttpServletResponse res, PrintWriter out, String hiddenLoginToken)  {
 		try {
 			this.req = req;
 			this.res = res;
 			XmlString form = null;
 			firstFocus = null; // reset it each time
 			
-			res.setContentType("text/html");
-			PrintWriter out = res.getWriter();
-
 			directive = req.getParameter("DIRECTIVE");	// XXX: directive must be set before calling processHidden
 //if (DEBUG) Logger.writeln("##directive='" + directive + "'");			
 			if (directive != null && directive.trim().length() == 0) {
@@ -144,7 +141,7 @@ if (DEPLOYABLE) {
 			processPreFormDirectives();
 			processHidden();
 
-			form = new XmlString(triceps, createForm());
+			form = new XmlString(triceps, createForm(hiddenLoginToken));
 
 			out.println(header());	// must be processed AFTER createForm, otherwise setFocus() doesn't work
 			new XmlString(triceps, getCustomHeader(),out);
@@ -177,8 +174,6 @@ if (DEBUG) Logger.writeln("##" + errs);
 if (DEBUG && XML) cocoonXML();			
 
 			out.println(footer());	// should not be parsed
-			out.flush();
-			out.close();
 			
 			// set as finished if needed
 			if ("finished".equals(directive)) {
@@ -583,7 +578,7 @@ if (DEBUG) Logger.writeln("##Throwable @ Servlet.selectFromInterviewsInDir" + t.
 			return sb.toString();
 	}
 
-	private String createForm() {
+	private String createForm(String hiddenLoginToken) {
 		StringBuffer sb = new StringBuffer();
 		String formStr = null;
 
@@ -601,6 +596,9 @@ if (DEBUG) Logger.writeln("##Throwable @ Servlet.selectFromInterviewsInDir" + t.
 
 		sb.append(formStr);
 		
+		if (hiddenLoginToken != null) {
+			sb.append(hiddenLoginToken);
+		}
 		sb.append("<input type='hidden' name='PASSWORD_FOR_ADMIN_MODE' value=''>");	// must manually bypass each time
 		sb.append("<input type='hidden' name='LANGUAGE' value=''>");
 if (DEPLOYABLE) {		

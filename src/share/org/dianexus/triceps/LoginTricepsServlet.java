@@ -36,7 +36,7 @@ public class LoginTricepsServlet extends TricepsServlet {
 	static final String LOGIN_ERR_NEW_SESSION = "Please login";
 	static final String LOGIN_ERR_MISSING_UNAME_OR_PASS = "Please enter both your username and password";
 	static final String LOGIN_ERR_INVALID_UNAME_OR_PASS = "The username or password you entered was incorrect";	/* don't mix so many messages? */
-	static final String LOGIN_ERR_INVALID = "Please login again (invalid authentication)";
+	static final String LOGIN_ERR_INVALID = "Please login again --  You will resume from where you left off.<br/><br/>(Your login session was invalided either because you accidentaly pressed the browser's back button (instead of the 'prevous' button, or you attempted to use a bookmarked page from the instrument)";
 	
 	LoginRecords loginRecords = LoginRecords.NULL;
 	static Random random = new Random();
@@ -59,6 +59,15 @@ public class LoginTricepsServlet extends TricepsServlet {
 	}
 
 	public void doPost(HttpServletRequest req, HttpServletResponse res)  {
+		try {
+			processPost(req,res);
+		}
+		catch (Throwable t) {
+if (DEBUG) Logger.printStackTrace(t);
+		}	
+	}
+	
+	void processPost(HttpServletRequest req, HttpServletResponse res)  {
 		/* validate session */
 		/* Ensure that there is actually a session object  -- if not, create one */
 		HttpSession session = req.getSession(true);
@@ -125,10 +134,14 @@ public class LoginTricepsServlet extends TricepsServlet {
 		/* compare login token to the one stored in the session */
 		if (storedLoginToken.equals(loginToken) && storedIP.equals(loginIP)) {
 			/* create and store new login token -- so can't re-submit */
-			session.setAttribute(LOGIN_TOKEN,createLoginToken());
+			loginToken = createLoginToken();
+			session.setAttribute(LOGIN_TOKEN,loginToken);
 			
+			/* ensure that this hidden parameter is sent with each new form -- this is a hack */
+			String hiddenLoginToken = "<input type='hidden' name='" + LOGIN_TOKEN + "' value='" + loginToken + "'>";
+
 			/* pass control through to main Dialogix servlet */
-			super.doPost(req,res);
+			processAuthenticatedRequest(req,res,hiddenLoginToken);
 		}
 		else {
 			/* What if try to re-submit -- what will happen? */
@@ -136,6 +149,18 @@ public class LoginTricepsServlet extends TricepsServlet {
 			return;
 		}
 	}
+	
+	void processAuthenticatedRequest(HttpServletRequest req, HttpServletResponse res, String hiddenLoginToken)  {
+		/* Now, must load the proper instrument from the "database" */
+		/* Might also want to warn about the unsupported browser feature earlier? */
+		if (isSupportedBrowser(req)) {
+			okPage(req,res,hiddenLoginToken);
+		}
+		else {
+			errorPage(req,res);
+		}
+	}
+	
 	
 	private static String createLoginToken() {
 		return System.currentTimeMillis() + "." + Long.toString(random.nextLong());
