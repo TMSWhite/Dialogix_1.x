@@ -432,3 +432,8 @@ Reorganization & Documentation
     -- Added a Dialogix icon
     -- "ant zip-dist" creates a Zip file installation, which is best for Unix systems
     -- "ant dist" creates a Windows installer using the Isso Setup system
+
+  DEPLOYMENT
+    -- modified Isso install to better deal with Window 98 -- still imperfect
+    -- added support for Tomcat 4.0.3
+    -- added BASIC authentication for Prefs project
