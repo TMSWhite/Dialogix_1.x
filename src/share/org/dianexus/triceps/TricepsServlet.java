@@ -30,7 +30,7 @@ public class TricepsServlet extends HttpServlet {
 	private String helpURL = "";
 
 	/* hidden variables */
-	private boolean debug = false;
+	private boolean debugMode = false;
 	private boolean developerMode = false;
 	private boolean okPasswordForRefused = false;
 	private boolean okPasswordForUnknown = false;
@@ -171,29 +171,6 @@ System.err.println("Closing writer\n----Cycle# " + ++TricepsServlet.cycle + "---
 	private String processHidden() {
 		StringBuffer sb = new StringBuffer();
 
-		if ("on".equals(req.getParameter("DEBUG"))) {
-			debug = true;
-		}
-		else
-			debug = false;
-
-		if ("on".equals(req.getParameter("developerMode"))) {
-			developerMode = true;
-		}
-		else
-			developerMode = false;
-
-		/* XXX: Kludge - put in HIDDEN if developerMode && debug = false (else lose its state)
-			This must follow assessement of developerMode && debug, else lose state */
-		if ("on".equals(req.getParameter("showQuestionNum"))) {
-			showQuestionNum = true;
-			if (!debug && !developerMode) {
-				sb.append("<input type='HIDDEN' name='showQuestionNum' value='on'>\n");
-			}
-		}
-		else
-			showQuestionNum = false;
-
 		String settingAsRefused = null;
 		String settingAsUnknown = null;
 		String language = null;
@@ -255,7 +232,37 @@ System.err.println("Closing writer\n----Cycle# " + ++TricepsServlet.cycle + "---
 		sb.append("<input type='HIDDEN' name='PASSWORD_FOR_REFUSED' value=''>\n");	// must manually bypass each time
 		sb.append("<input type='HIDDEN' name='PASSWORD_FOR_UNKNOWN' value=''>\n");	// must manually bypass each time
 		sb.append("<input type='HIDDEN' name='LANGUAGE' value=''>\n");	// must manually bypass each time
+				
 		
+		/** Process requests to change developerMode-type status **/
+		if (triceps != null && directive != null) {
+			/* Get current values */
+			debugMode = triceps.nodes.isDebugMode();
+			developerMode = triceps.nodes.isDeveloperMode();
+			showQuestionNum = triceps.nodes.isShowQuestionRef();			
+			
+			/* Toggle these values, as requested */
+			if (directive.startsWith("turn developerMode")) {
+				developerMode = !developerMode;
+				triceps.nodes.setReserved(Schedule.DEVELOPER_MODE, String.valueOf(developerMode));
+				directive = "refresh current";
+			}
+			else if (directive.startsWith("turn debugMode")) {
+				debugMode = !debugMode;
+				triceps.nodes.setReserved(Schedule.DEBUG_MODE, String.valueOf(debugMode));				
+				directive = "refresh current";
+			}
+			else if (directive.startsWith("turn showQuestionNum")) {
+				showQuestionNum = !showQuestionNum;
+				triceps.nodes.setReserved(Schedule.SHOW_QUESTION_REF, String.valueOf(showQuestionNum));				
+				directive = "refresh current";
+			}
+		}
+		else {
+			debugMode = false;
+			developerMode = false;
+			showQuestionNum = false;
+		}
 
 		return sb.toString();
 	}
@@ -304,6 +311,7 @@ System.err.println("Closing writer\n----Cycle# " + ++TricepsServlet.cycle + "---
 		StringBuffer sb = new StringBuffer();
 		StringBuffer schedules = new StringBuffer();
 		StringBuffer suspendedInterviews = new StringBuffer();
+		Enumeration nodes;	
 
 		// get the POSTed directive (start, back, next, help, suspend, etc.)	- default is opening screen
 		if (directive == null || "select new interview".equals(directive)) {
@@ -639,43 +647,42 @@ System.err.println("Closing writer\n----Cycle# " + ++TricepsServlet.cycle + "---
 			ok = ok && (gotoMsg == Triceps.OK);
 			// ask question
 		}
-//		if (!ok)
-		{
-			/* should do this regardless of OK status?  Might catch interesting parsing errors? */
-			int errCount = 0;
-			Enumeration errs = triceps.getErrors();
-			if (errs.hasMoreElements()) {
-				while (errs.hasMoreElements()) {
-					++errCount;
-					sb.append("<B>" + Node.encodeHTML((String) errs.nextElement()) + "</B><BR>\n");
-				}
-			}
 
-			Enumeration nodes = triceps.getQuestions();
-			while (nodes.hasMoreElements()) {
-				Node n = (Node) nodes.nextElement();
-				if (n.hasRuntimeErrors()) {
-					if (++errCount == 1) {
-						sb.append("<B>Please answer the question(s) listed in <FONT color='red'>RED</FONT> before proceeding</B><BR>\n");
-					}
-					if (n.focusableArray()) {
-						firstFocus = Node.encodeHTML(n.getName()) + "[0]";
-						break;
-					}
-					else if (n.focusable()) {
-						firstFocus = Node.encodeHTML(n.getName());
-						break;
-					}
-				}
-			}
-
-			if (errCount > 0) {
-				sb.append("<HR>\n");
+		
+		/* Show any accumulated errors */
+		int errCount = 0;
+		Enumeration errs = triceps.getErrors();
+		if (errs.hasMoreElements()) {
+			while (errs.hasMoreElements()) {
+				++errCount;
+				sb.append("<B>" + Node.encodeHTML((String) errs.nextElement()) + "</B><BR>\n");
 			}
 		}
 
+		nodes = triceps.getQuestions();
+		while (nodes.hasMoreElements()) {
+			Node n = (Node) nodes.nextElement();
+			if (n.hasRuntimeErrors()) {
+				if (++errCount == 1) {
+					sb.append("<B>Please answer the question(s) listed in <FONT color='red'>RED</FONT> before proceeding</B><BR>\n");
+				}
+				if (n.focusableArray()) {
+					firstFocus = Node.encodeHTML(n.getName()) + "[0]";
+					break;
+				}
+				else if (n.focusable()) {
+					firstFocus = Node.encodeHTML(n.getName());
+					break;
+				}
+			}
+		}
+
+		if (errCount > 0) {
+			sb.append("<HR>\n");
+		}
+
 		if (firstFocus == null) {
-			Enumeration nodes = triceps.getQuestions();
+			nodes = triceps.getQuestions();
 			while (nodes.hasMoreElements()) {
 				Node n = (Node) nodes.nextElement();
 				if (n.focusableArray()) {
@@ -704,7 +711,7 @@ System.err.println("Closing writer\n----Cycle# " + ++TricepsServlet.cycle + "---
 		// if parser internal to Schedule, should have method access it, not directly
 		StringBuffer sb = new StringBuffer();
 
-		if (debug) {
+		if (debugMode) {
 			sb.append("<H4>QUESTION AREA</H4>\n");
 		}
 
@@ -779,7 +786,7 @@ System.err.println("Closing writer\n----Cycle# " + ++TricepsServlet.cycle + "---
 
 		sb.append("	</TD></TR>\n");
 
-		if (developerMode || debug) {
+		if (developerMode || debugMode) {
 			sb.append("	<TR><TD COLSPAN='" + ((showQuestionNum) ? 4 : 3 ) + "' ALIGN='center'>\n");
 			sb.append("<input type='SUBMIT' name='directive' value='select new interview'>\n");
 			sb.append("<input type='SUBMIT' name='directive' value='restart (clean)'>\n");
@@ -808,7 +815,7 @@ System.err.println("Closing writer\n----Cycle# " + ++TricepsServlet.cycle + "---
 		StringBuffer sb = new StringBuffer();
 		// Complete printout of what's been collected per node
 
-		if (debug) {
+		if (debugMode) {
 			sb.append("<hr>\n");
 			sb.append("<H4>CURRENT QUESTION(s)</H4>\n");
 			sb.append("<TABLE CELLPADDING='2' CELLSPACING='1'  WIDTH='100%' BORDER='1'>\n");
@@ -861,13 +868,13 @@ System.err.println("Closing writer\n----Cycle# " + ++TricepsServlet.cycle + "---
 	}
 
 	private String showOptions() {
-		if (developerMode || debug) {
+		if (developerMode || debugMode) {
 			StringBuffer sb = new StringBuffer();
 
 			sb.append("	<TR><TD COLSPAN='" + ((showQuestionNum) ? 4 : 3 ) + "' ALIGN='center'>\n");
-			sb.append("  developerMode<input type='checkbox' name='developerMode' value='on'" + ((developerMode) ? " CHECKED" : "") + ">\n");
-			sb.append("  showQuestionNum<input type='checkbox' name='showQuestionNum' value='on'" + ((showQuestionNum) ? " CHECKED" : "") + ">\n");
-			sb.append("  debug<input type='checkbox' name='DEBUG' value='on'" + ((debug) ? " CHECKED" : "") + ">\n");
+			sb.append("	<input type='SUBMIT' name='directive' value='turn developerMode " + ((developerMode) ? "OFF" : "ON") + "'>\n");
+			sb.append("	<input type='SUBMIT' name='directive' value='turn debugMode " + ((debugMode) ? "OFF" : "ON" )+ "'>\n");
+			sb.append("	<input type='SUBMIT' name='directive' value='turn showQuestionNum " + ((showQuestionNum) ? "OFF" : "ON") + "'>\n");
 			sb.append("</TD></TR>\n");
 			return sb.toString();
 		}
