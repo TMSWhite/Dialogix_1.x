@@ -58,14 +58,15 @@ public class TricepsServlet extends HttpServlet {
 		out.println("<form method='POST' action='http://localhost/triceps/servlet/TricepsServlet'>");
 		out.println("<pre>");
 		out.println("The system currently supports one schedule.");
-//		out.println("Select a schedule:	<select name='schedule'>");
-//		out.println("							<option selected>navigation.txt");
+		out.println("Select a schedule:	<select name='schedule'>");
+		out.println("							<option selected>navigation.txt");
 //		out.println("							<option navigation2.txt");
-//		out.println("							</select>");
+		out.println("							</select>");
+		out.println("The system currently only starts a new interview.");
 		out.println("Select an interview:	<select name='interview'>");
 		out.println("								<option selected>new");
 //		out.println("								<option> test-completed");
-		out.println("								<option> test-suspended");
+//		out.println("								<option> test-suspended");
 		out.println("								</select>");
 		out.println("<hr>");
 		out.println("<input type='SUBMIT' name='directive' value='START'>		<input type='RESET'>");
@@ -94,7 +95,10 @@ public class TricepsServlet extends HttpServlet {
 		out.println("<title>TRICEPS SYSTEM -- Diagnostic Interview Schedule for Children</title>");
  		out.println("</head>");
 		out.println("<body>");
+		
+		/* This is the meat. */
 		doit();
+		
 		out.println("</body>");
 		out.println("</html>");
 		if (node != null)
@@ -103,7 +107,7 @@ public class TricepsServlet extends HttpServlet {
 			session.putValue("evidence", evidence);
 	}
 	/**
-	 * This method basically gets the next node in the schedule, checks the activator
+	 * This method basically gets the next node in the schedule, checks the activation
 	 * dependencies to see if it should be executed, then, if it's a question it
 	 * invokes queryUser(), otherwise, it evaluates the evidence and moves to
 	 * the next node.
@@ -155,7 +159,8 @@ public class TricepsServlet extends HttpServlet {
 				return;
 			}
 			else if (directive.equals("suspend")) {		// gotta go -- be back later :-)
-				infoMessage = suspendInterview(evidence);
+				String status = "suspended";
+				infoMessage = saveEvidence(evidence, status);
 				queryUser();	// re-display current node  ****** this should change!!!
 				return;
 			}
@@ -186,7 +191,7 @@ public class TricepsServlet extends HttpServlet {
 						e.printStackTrace();
 					}
 				}
-				if (answer == null && step >= 0) {
+				if ((answer == null || answer.equals("")) && step >= 0) {
 					infoMessage = "<bold>You cannot proceed without answering.</bold>";
 				}
 				else {	// got a proper answer -- handle it
@@ -196,8 +201,11 @@ public class TricepsServlet extends HttpServlet {
 					}
 					while (true) {		// loop forward through nodes -- break to query user or to end
 						if (++step >= nodes.size()) {	// then the schedule is complete
-							infoMessage = "<bold>Interview Completed...</bold>";
+							String status = "completed";
 							// store evidence here
+							infoMessage = saveEvidence(evidence, status);				
+							// close the session
+							// session.invalidate();
 							break;
 						}
 						if ((node = nodes.getNode(step)) == null)		// just in case something wierd happens
@@ -378,11 +386,10 @@ public class TricepsServlet extends HttpServlet {
 
 	/**
 	 * This method assembles the evidence accumulated and stores it with
-	 * a marker indicating it is an incomplete collection of data.
-	 * To be implemented.....
+	 * a marker indicating its status -- completed or suspended.
 	 */
-	private String suspendInterview(Evidence ev) throws IOException {
-		ev.saveSuspended();
-		return "Suspending Interview....";
+	private String saveEvidence(Evidence ev, String status) throws IOException {
+		ev.save("/tmp/test-" + status);
+		return "Saving " + status + " Interview....";
 	}
 }
