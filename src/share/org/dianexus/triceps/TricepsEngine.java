@@ -772,19 +772,19 @@ if (AUTHORABLE) {
 			if (DEPLOYABLE) {
 				savedName = triceps.saveCompletedInfo();
 				if (savedName != null) {
-					info.println(triceps.get("interview_saved_successfully_as") + savedName);
+					if (!WEB_SERVER) info.println(triceps.get("interview_saved_successfully_as") + savedName);
 					triceps.deleteDataLoggers();
 				}
 				else {
-					info.println(triceps.get("error_saving_data_to_completed_dir"));
+					if (!WEB_SERVER) info.println(triceps.get("error_saving_data_to_completed_dir"));
 				}
 	
 				savedName = triceps.copyCompletedToFloppy();
 				if (savedName != null) {
-					info.println(triceps.get("interview_saved_successfully_as") + savedName);
+					if (!WEB_SERVER) info.println(triceps.get("interview_saved_successfully_as") + savedName);
 				}
 				else {
-					info.println(triceps.get("error_saving_data_to_floppy_dir"));
+					if (!WEB_SERVER) info.println(triceps.get("error_saving_data_to_floppy_dir"));
 				}				
 			}
 			return sb.toString();
@@ -1135,6 +1135,7 @@ if (XML) {
 		
 		/* pre-assess whether there are any special icons needed for the final column */
 		boolean	needSpecialOptions = false;
+		boolean needQuestionNumColumn = false;
 		
 		if (okToShowAdminModeIcons || allowComments) {
 			needSpecialOptions = true;
@@ -1146,11 +1147,15 @@ if (XML) {
 				Datum datum = triceps.getDatum(node);	
 				if (datum.isRefused() || datum.isUnknown() || datum.isNotUnderstood()) {
 					needSpecialOptions = true;
-					break;
+				}
+				if (node.getExternalName().trim().length() > 0) {
+					needQuestionNumColumn = true;
 				}
 			}
 		}
-		colpad = (showQuestionNum ? 1 : 0) + (needSpecialOptions ? 1 : 0);
+		if (!showQuestionNum) needQuestionNumColumn = false;
+		
+		colpad = (needQuestionNumColumn ? 1 : 0) + (needSpecialOptions ? 1 : 0);
 
 		questionNames = triceps.getQuestions();
 
@@ -1173,7 +1178,7 @@ if (XML) {
 
 			sb.append("<tr>");
 
-			if (showQuestionNum) {
+			if (needQuestionNumColumn) {
 				if (color != null) {
 					sb.append("<td><font" + color + "><b>" + node.getExternalName() + "</b></font></td>");
 				}
@@ -1205,7 +1210,7 @@ if (XML) {
 					}
 					sb.append("</td></tr><tr>");
 
-					if (showQuestionNum) {
+					if (needQuestionNumColumn) {
 						sb.append("<td>&nbsp;</td>");
 					}
 					sb.append("<td colspan='2' bgcolor='lightgrey'>");
