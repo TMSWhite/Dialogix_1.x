@@ -55,6 +55,33 @@ my $levelTypes = {
 	year => 'SCALE',
 };
 
+my $LOINCscaleTypes = {
+	check => 'NOM',
+	combo => 'NOM',
+	combo2 => 'NOM',
+	date => 'QN',
+	day => 'QN',
+	day_num => 'QN',		# since start of year.
+	double => 'QN',
+	hour => 'QN',
+	list => 'NOM',
+	list2 => 'NOM',
+	memo => 'NOM',
+	minute => 'QN',
+	month => 'NOM',		# since name of the month
+	month_num => 'QN',
+	nothing => 'NAR',
+	password => 'NAR',
+	radio => 'NOM',
+	radio2 => 'NOM',
+	radio3 => 'NOM',
+	second => 'QN',
+	text => 'NAR',
+	time => 'NOM',
+	weekday => 'NOM',	# since name of weekday
+	year => 'QN',
+};
+
 
 # formats reference SPSS data types -- the date formats have not been validated yet
 my $SPSSformats = {
@@ -199,7 +226,8 @@ sub initMysqlTables {
 #			"\tValidation\tReturnType\tMinVal\tMaxVal\tOtherVals\tInputMask\tFormatMask" .
 #			"\tDisplayType\tisRequired\tisMessage" .
 #			"\tLevel\tSPSSformat\tSASinformat\tSASformat\tAnswersNumeric" .
-#			"\tDefaultAnswer\tDefaultComment\n";
+#			"\tDefaultAnswer\tDefaultComment" .
+#			"\tLOINCproperty\tLOINCtimeAspect\tLOINCsystem\tLOINCscale\tLOINCmethod\n";
 			
 	open (MYSQL_HEADERS, ">InstrumentHeaders.mysql") or die "unable to open InstrumentHeaders.mysql";
 #	print MYSQL_HEADERS "NULL\tInstrumentName\tReservedVarName\tValue\n";
@@ -443,7 +471,7 @@ sub processFile {
 		my $outline;
 		my @temp = split(/\t/);
 		my ($qtext, $qlen, $qmd5, $amd5);
-		my ($atype, $ansMap, $atext, $alen, $isString, $isNum, $level, $SPSSformat, $SASinformat, $SASformat);
+		my ($atype, $ansMap, $atext, $alen, $isString, $isNum, $level, $LOINCscale, $SPSSformat, $SASinformat, $SASformat);
 	
 		if (/^\s*$/) {
 			next;
@@ -549,7 +577,7 @@ sub processFile {
 				
 				my $ansOptions = shift(@args);
 				
-				($atype, $ansMap, $atext, $alen, $isString, $isNum, $level, $SPSSformat, $SASinformat, $SASformat) = &cat_ans($ansOptions);
+				($atype, $ansMap, $atext, $alen, $isString, $isNum, $level, $LOINCscale, $SPSSformat, $SASinformat, $SASformat) = &cat_ans($questionOrEvalType,$ansOptions);
 				
 				@temp = split(/\|/,$ansOptions);	# answer options
 				$displayType  = shift(@temp);
@@ -603,6 +631,7 @@ sub processFile {
 			
 			if ($isMessage == 1) {
 				$level = '';
+				$LOINCscale = 'NAR';
 				$SPSSformat = '';
 				$SASinformat = '';
 				$SASformat = '';
@@ -614,7 +643,9 @@ sub processFile {
 				"\t$validation\t$ReturnType\t$MinVal\t$MaxVal\t$OtherVals\t$InputMask\t$FormatMask" .
 				"\t$displayType\t1\t$isMessage" .
 				"\t$level\t$SPSSformat\t$SASinformat\t$SASformat\t$isNum" .
-				"\t$defaultAnswer\t$defaultComment\n";
+				"\t$defaultAnswer\t$defaultComment" .
+				"\tFINDING\tPT\t^PATIENT\t$LOINCscale\tOBSERVED\n";
+
 				
 			++$stepNum;			
 			# Determine whether this is a display group
@@ -624,7 +655,9 @@ sub processFile {
 			if ($actionTypeOnly eq ']') {
 				$in_block = 0;
 			}
-			++$dispGroup if ($in_block == 0);		
+			if ($in_block == 0 && $actionTypeOnly !~ /e/i) {
+				++$dispGroup;		
+			}
 			
 			my @outtemp = split(/\t/,$outline);
 			shift(@outtemp);	# remove concept -- irrelevant for display purposes
@@ -836,8 +869,9 @@ sub qlen {
 }
 
 sub cat_ans {
+	my $questionOrEvalType = shift;
 	my $arg = shift;
-	my (@vals, $atype, $count, $text, %ansMap, $isString, $isNum, $level, $SPSSformat, $SASinformat, $SASformat);
+	my (@vals, $atype, $count, $text, %ansMap, $isString, $isNum, $level, $LOINCscale, $SPSSformat, $SASinformat, $SASformat);
 	
 	if ($arg !~ /\|/) {
 		# then double, date, etc.
@@ -885,10 +919,24 @@ sub cat_ans {
 		%ansMap = {};
 	}
 	
-	$level = $levelTypes->{$atype};
-	$SPSSformat = $SPSSformats->{$atype};
-	$SASinformat = $SASinformats->{$atype};
-	$SASformat = $SASformats->{$atype};
+	# assume that all evaluations are quantitative?  Not true for setting of text variables
+	if ($questionOrEvalType =~ /^e/i) {
+		if ($atype eq 'nothing') {
+			$atype = 'double';
+		}
+		$level = $levelTypes->{$atype};
+		$LOINCscale = $LOINCscaleTypes->{$atype};
+		$SPSSformat = $SPSSformats->{$atype};
+		$SASinformat = $SASinformats->{$atype};
+		$SASformat = $SASformats->{$atype};
+	}
+	else {
+		$level = $levelTypes->{$atype};
+		$LOINCscale = $LOINCscaleTypes->{$atype};
+		$SPSSformat = $SPSSformats->{$atype};
+		$SASinformat = $SASinformats->{$atype};
+		$SASformat = $SASformats->{$atype};
+	}
 	
 	if ($isString) {
 		$SPSSformat = 'A8' if ($SPSSformat =~ /^F/); # must be short enough that can do frequency analyses
@@ -903,7 +951,7 @@ sub cat_ans {
 		$isNum = 0;
 	}
 	
-	return ($atype, \%ansMap, $text, length($text), $isString, $isNum, $level, $SPSSformat, $SASinformat, $SASformat);
+	return ($atype, \%ansMap, $text, length($text), $isString, $isNum, $level, $LOINCscale, $SPSSformat, $SASinformat, $SASformat);
 }
 
 sub strip_html {
@@ -1060,6 +1108,11 @@ sub createMysqlTables {
 			AnswersNumeric smallint NULL,
 			DefaultAnswer text NULL,
 			DefaultComment text NULL,
+			LOINCproperty varchar(30) NULL default 'FINDING',
+			LOINCtimeAspect varchar(15) NULL default 'PT',
+			LOINCsystem varchar(100) NULL default '^PATIENT',
+			LOINCscale varchar(30) NULL,
+			LOINCmethod varchar(50) NULL default 'OBSERVED',
   			KEY InstrumentName (InstrumentName)
 		) TYPE=MyISAM;			
 		
