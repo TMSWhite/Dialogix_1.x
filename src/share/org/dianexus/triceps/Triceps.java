@@ -697,13 +697,22 @@ public class Triceps {
 
 		/* If not a URL, then try reading from a file */
 		try {
-			file = new File(((optionalFilePrefix != null) ? optionalFilePrefix : "") + filename);
-			if (!file.exists() || !file.isFile() || !file.canRead()) {
-				ok = false;
+			String fileSrc = ((optionalFilePrefix != null) ? optionalFilePrefix : "") + filename;
+			System.err.println(fileSrc);
+			if (fileSrc != null) {
+				file = new File(fileSrc);
+				if (!file.exists() || !file.isFile() || !file.canRead()) {
+					ok = false;
+					System.err.println("Error - file doesn't exist; isn't a file, or is unreadable");
+				}
+				else {
+					br = new BufferedReader(new FileReader(file));
+					ok = true;
+					System.err.println("success");
+				}
 			}
 			else {
-				br = new BufferedReader(new FileReader(file));
-				ok = true;
+				System.err.println("Error - null filename");
 			}
 		}
 		catch (Throwable t) {
