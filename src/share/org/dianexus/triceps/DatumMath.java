@@ -168,7 +168,6 @@ public class DatumMath {
 					if (a.isType(Datum.NUMBER))
 						return new Datum(a.doubleVal() == b.doubleVal());
 					else {
-//System.err.println("eq\t" + a.stringVal() + "\t" + b.stringVal() + "\t" + a.stringVal().compareTo(b.stringVal()));
 						return new Datum(a.stringVal().compareTo(b.stringVal()) == 0);
 					}
 				case Datum.NUMBER:
@@ -210,7 +209,6 @@ public class DatumMath {
 					if (a.isType(Datum.NUMBER))
 						return new Datum(a.doubleVal() >= b.doubleVal());
 					else {
-//System.err.println("ge\t" + a.stringVal() + "\t" + b.stringVal() + "\t" + a.stringVal().compareTo(b.stringVal()));
 						return new Datum(a.stringVal().compareTo(b.stringVal()) >= 0);
 					}
 				case Datum.NUMBER:
@@ -250,7 +248,6 @@ public class DatumMath {
 					if (a.isType(Datum.NUMBER))
 						return new Datum(a.doubleVal() > b.doubleVal());
 					else {
-//System.err.println("gt\t" + a.stringVal() + "\t" + b.stringVal() + "\t" + a.stringVal().compareTo(b.stringVal()));
 						return new Datum(a.stringVal().compareTo(b.stringVal()) > 0);
 					}
 				case Datum.NUMBER:
@@ -292,7 +289,6 @@ public class DatumMath {
 					if (a.isType(Datum.NUMBER))
 						return new Datum(a.doubleVal() <= b.doubleVal());
 					else {
-//System.err.println("le\t" + a.stringVal() + "\t" + b.stringVal() + "\t" + a.stringVal().compareTo(b.stringVal()));
 						return new Datum(a.stringVal().compareTo(b.stringVal()) <= 0);
 					}
 				case Datum.NUMBER:
@@ -330,7 +326,6 @@ public class DatumMath {
 					if (a.isType(Datum.NUMBER))
 						return new Datum(a.doubleVal() < b.doubleVal());
 					else {
-//System.err.println("lt\t" + a.stringVal() + "\t" + b.stringVal() + "\t" + a.stringVal().compareTo(b.stringVal()));
 						return new Datum(a.stringVal().compareTo(b.stringVal()) < 0);
 					}
 				case Datum.NUMBER:
@@ -400,7 +395,6 @@ public class DatumMath {
 					if (a.isType(Datum.NUMBER))
 						return new Datum(a.doubleVal() != b.doubleVal());
 					else {
-//System.err.println("neq\t" + a.stringVal() + "\t" + b.stringVal() + "\t" + a.stringVal().compareTo(b.stringVal()));
 						return new Datum(a.stringVal().compareTo(b.stringVal()) != 0);
 					}
 				case Datum.NUMBER:
