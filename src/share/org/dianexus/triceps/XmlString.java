@@ -5,6 +5,7 @@ public class XmlString extends Object {
 	private static final Hashtable BINARY_TAGS;
 	private static final Hashtable UNARY_TAGS;
 	private static final Hashtable DISALLOWED_TAGS;
+	private static final Hashtable SOLO_ATTRIBUTES;
 	private static final String binaryHTMLtags[] = {
 		"a","abbr","acronym","address",
 		"b","bdo","big", "blockquote",
@@ -65,6 +66,16 @@ public class XmlString extends Object {
 		"&otilde;","&ouml;","&divide;","&oslash;","&ugrave;","&uacute;","&ucirc;","&uuml;","&yacute;","&thorn;",
 		"&yuml;",
 	};
+	private static final String soloHTMLattributes[] = {
+		"checked", "compact",
+		"disabled",
+		"ismap",
+		"nohref", "noshade", "nowrap",
+		"multiple",
+		"readonly",
+		"selected",
+	};
+	
 	private static final String QUOT = "&quot;";
 	private static final String LT = "&lt;";
 	private static final String GT = "&gt;";
@@ -77,6 +88,7 @@ public class XmlString extends Object {
 		BINARY_TAGS = new Hashtable();
 		UNARY_TAGS = new Hashtable();
 		DISALLOWED_TAGS = new Hashtable();
+		SOLO_ATTRIBUTES = new Hashtable();
 		/* initialize static Hashtables */
 		for (int i=0;i<standardHTMLentities.length;++i) {
 			ENTITIES.put(standardHTMLentities[i], "HTMLentity");
@@ -89,7 +101,10 @@ public class XmlString extends Object {
 		}
 		for (int i=0;i<disallowedHTMLtags.length;++i) {
 			DISALLOWED_TAGS.put(disallowedHTMLtags[i], "disallowedHTMLtag");
-		}		
+		}
+		for (int i=0;i<soloHTMLattributes.length;++i) {
+			SOLO_ATTRIBUTES.put(soloHTMLattributes[i],"soloHTMLattribute");
+		}
 	}
 	
 	private StringBuffer dst = new StringBuffer();	// in which output string is composed
@@ -100,11 +115,7 @@ public class XmlString extends Object {
 	private int column = 1;
 		
     public XmlString(String src) {
-    	this(src,false);
-    }
-	
-    public XmlString(String src, boolean disallowEmpty) {
-    	value = encodeHTML(src,disallowEmpty);
+    	value = encodeHTML(src);
     }
     
     public	String toString() { return value; }
@@ -207,7 +218,12 @@ public class XmlString extends Object {
 								return false;
 							}
 						}
-						which = EQUALS_SIGN;
+						if (SOLO_ATTRIBUTES.containsKey(token.toLowerCase())) {
+							which = NMTOKEN;
+						}
+						else {
+							which = EQUALS_SIGN;
+						}
 					}
 						break;
 					case EQUALS_SIGN:
@@ -275,6 +291,17 @@ public class XmlString extends Object {
 		for (int i=tagStack.size()-1;i>=0;--i) {
 			String t = (String) tagStack.elementAt(i);
 			
+			if ("td".equals(t)) {
+				for (int j=dst.length()-1;j>=0;--j) {
+					if (Character.isWhitespace(dst.charAt(j)))
+						continue;
+					if (dst.charAt(j) == '>') {
+						dst.append(NBSP);	// Netscape doesn't deal well with empty Table cells
+					}
+					break;
+				}
+			}
+			
 			prettyPrint("</" + t + ">");
 			tagStack.removeElementAt(i);	// decrements its counter
 			
@@ -287,7 +314,7 @@ public class XmlString extends Object {
 		}
 	}
 
-	private String encodeHTML(String s, boolean disallowEmpty) {
+	private String encodeHTML(String s) {
 		if (s != null) {
 			try {
 				char[] src = s.toCharArray();
@@ -329,43 +356,17 @@ public class XmlString extends Object {
 							break;
 						case '&': {
 							String entity = null;
-							int entityEnd;
-							entityEnd = s.indexOf(';',i);
+							int entityEnd = s.indexOf(';',i);
 							if (entityEnd != -1) {
 								entity = s.substring(i,entityEnd+1);
-								if (ENTITIES.containsKey(entity)) {
+								if (isEntity(entity)) {
 									dst.append(entity);
 									i += (entity.length()-1);
 								}
 								else {
-									/* check whether it is a valid UNICODE character */
-									boolean isUnicode = true;
-									String unicodeTriple = null;
-									
-									entityEnd = entity.indexOf('#',i);
-									if (entityEnd == 1 && entity.length() <= 3) {
-										unicodeTriple = entity.substring(entityEnd,entity.length());
-										for (int j=0;j<unicodeTriple.length();++j) {
-											if (!Character.isDigit(unicodeTriple.charAt(j))) {
-												isUnicode = false;
-												break;
-											}
-										}
-										if (isUnicode) {
-											dst.append(entity);
-											i += (entity.length()-1);
-										}
-										else {
-											error("not a recognized Unicode entity " + entity);
-											dst.append(AMP);			
-											column += AMP.length();
-										}
-									}
-									else {
-										error("not a recognized Unicode entity:" + entity);
-										dst.append(AMP);
-										column += AMP.length();
-									}
+									error("not a recognized Unicode entity:" + entity);
+									dst.append(AMP);
+									column += AMP.length();
 								}
 							}
 							else {
@@ -399,12 +400,7 @@ for (int i=0;i<errors.size();++i) {
 	System.err.println((String) errors.elementAt(i));
 }
 
-		if (disallowEmpty && ans.length() == 0) {
-			return NBSP;
-		}
-		else {
-			return ans;
-		}
+		return ans;
 	}
 	
 	private void error(String s) {
@@ -413,4 +409,26 @@ for (int i=0;i<errors.size();++i) {
 	
 	public boolean hasErrors() { return (errors.size() > 0); }
 	public Vector getErrors() { return errors; }
+	
+	public static synchronized boolean isEntity(String entity) {
+		if (ENTITIES.containsKey(entity)) {
+			return true;
+		}
+		else {
+			/* check whether it is a valid UNICODE character */
+			int unicodeHashMark = entity.indexOf('#');
+			if (unicodeHashMark == 1 && entity.length() <= 3) {
+				String unicodeTriple = entity.substring(unicodeHashMark,entity.length());
+				for (int j=0;j<unicodeTriple.length();++j) {
+					if (!Character.isDigit(unicodeTriple.charAt(j))) {
+						return false;
+					}
+				}
+				return true;
+			}
+			else {
+				return false;
+			}
+		}	
+	}
 }
