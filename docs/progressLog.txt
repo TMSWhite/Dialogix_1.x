@@ -286,3 +286,7 @@ Reorganization & Documentation
     added IP_ADDRESS and BROWSER_TYPE to .dat and .evt logs.
     this allows detection of change in source location and event storage format
     affected files:  Schedule.java, Triceps.java, TricepsEngine.java
+
+<< changes from version 2.8.3 to 2.8.4
+  Added ability to suspend to floppy, error messages when fails to save, and jump_to_first_unasked
+  update_dat.pl now translates among all three Triceps file formats

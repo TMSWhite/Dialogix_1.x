@@ -388,6 +388,7 @@ if (DEBUG) Logger.writeln("##stringVal(" + showReserved + "," + mask + ") -> inv
 	/*public*/ boolean isRefused() { return (type == REFUSED); }
 	/*public*/ boolean isUnknown() { return (type == UNKNOWN); }
 	/*public*/ boolean isNotUnderstood() { return (type == NOT_UNDERSTOOD); }
+	/*public*/ boolean isUnasked() { return (type == UNASKED); }
 
 	/*public*/ boolean isType(int t) {
 		switch(t) {

@@ -457,6 +457,28 @@ if (DEBUG) Logger.writeln("##Unable to reload schedule");
 					
 		return OK;
 	}
+	
+	/*public*/ int jumpToFirstUnasked() {
+		int ok=OK;
+		Node node;
+		Datum datum;
+		Enumeration enum;
+		
+		while(true) {
+			enum = getQuestions();
+			while(enum.hasMoreElements()) {
+				node = (Node) enum.nextElement();
+				datum = evidence.getDatum(node);
+				if (datum.isUnasked()) {
+					return ok;	// break to use this set of questions
+				}
+			}
+			ok = gotoNext();
+			if (ok != OK) {
+				return ok;
+			}
+		}
+	}
 
 	/*public*/ int gotoNode(Object val) {
 		int step = currentStep;
@@ -762,7 +784,6 @@ if (AUTHORABLE) {
 if (DEPLOYABLE) {
 		String name = saveAsJar(nodes.getReserved(Schedule.FILENAME));
 		if (name != null) {
-			deleteDataLoggers();
 			return name;
 		}
 		return null;
@@ -793,12 +814,15 @@ if (DEPLOYABLE) {
 	
 	/*public*/ String copyCompletedToFloppy() {
 		String name = nodes.getReserved(Schedule.FILENAME) + ".jar";
+		String floppyDir = nodes.getReserved(Schedule.FLOPPY_DIR) + name;
 		
-		boolean ok = JarWriter.NULL.copyFile(nodes.getReserved(Schedule.COMPLETED_DIR) + name, nodes.getReserved(Schedule.FLOPPY_DIR) + name);
+		boolean ok = JarWriter.NULL.copyFile(nodes.getReserved(Schedule.COMPLETED_DIR) + name, floppyDir);
 		if (ok)
 			return name;
-		else
+		else {
+			setError(get("error_saving_data_to") + floppyDir);
 			return null;
+		}
 	}
 	
 	/*public*/ String getTitle() {

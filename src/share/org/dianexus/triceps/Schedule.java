@@ -73,6 +73,8 @@ import java.io.ByteArrayInputStream;
 	/*public*/ static final int ALLOW_JUMP_TO = 47;
 	/*public*/ static final int BROWSER_TYPE = 48;
 	/*public*/ static final int IP_ADDRESS = 49;
+	/*public*/ static final int SUSPEND_TO_FLOPPY = 50;
+	/*public*/ static final int JUMP_TO_FIRST_UNASKED = 51;
 
 	private static final String DEFAULT_LANGUAGE = "en_US";
 	/*public*/ static final String TRICEPS_DATA_FILE = "DATA";
@@ -130,6 +132,8 @@ import java.io.ByteArrayInputStream;
 		"__ALLOW_JUMP_TO__",
 		"__BROWSER_TYPE__",
 		"__IP_ADDRESS__",
+		"__SUSPEND_TO_FLOPPY__",
+		"__JUMP_TO_FIRST_UNASKED__",
 	};
 
 	private Date startTime = null;
@@ -228,6 +232,8 @@ import java.io.ByteArrayInputStream;
 		setReserved(ALLOW_JUMP_TO,"false");
 		setReserved(BROWSER_TYPE,null);
 		setReserved(IP_ADDRESS,null);
+		setReserved(SUSPEND_TO_FLOPPY,"false");
+		setReserved(JUMP_TO_FIRST_UNASKED,"false");
 	}
 		
 	/*public*/ boolean init() {
@@ -724,6 +730,8 @@ if (DEPLOYABLE) {
 			case ALLOW_JUMP_TO: s = Boolean.valueOf(value.trim()).toString(); break;
 			case BROWSER_TYPE: if (expert) s = value; break;
 			case IP_ADDRESS: if (expert) s = value; break;
+			case SUSPEND_TO_FLOPPY: if (expert) s = Boolean.valueOf(value.trim()).toString(); break;
+			case JUMP_TO_FIRST_UNASKED: if (expert) s = Boolean.valueOf(value.trim()).toString(); break;
 			default: return false;
 		}
 		

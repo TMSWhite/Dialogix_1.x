@@ -770,18 +770,21 @@ if (AUTHORABLE) {
 			info.println(triceps.get("the_interview_is_completed"));
 			if (DEPLOYABLE) {
 				savedName = triceps.saveCompletedInfo();
-				/*
-				if (savedName == null) {
+				if (savedName != null) {
 					info.println(triceps.get("interview_saved_successfully_as") + savedName);
+					triceps.deleteDataLoggers();
 				}
-				*/
+				else {
+					info.println(triceps.get("error_saving_data_to_completed_dir"));
+				}
 	
 				savedName = triceps.copyCompletedToFloppy();
-				/*
 				if (savedName != null) {
 					info.println(triceps.get("interview_saved_successfully_as") + savedName);
 				}
-				*/
+				else {
+					info.println(triceps.get("error_saving_data_to_floppy_dir"));
+				}				
 			}
 			return sb.toString();
 		}
@@ -792,7 +795,19 @@ if (AUTHORABLE) {
 			ok = ok && (gotoMsg == Triceps.OK);
 			// ask question
 		}
-
+		else if (directive.equals("jumpToFirstUnasked")) {
+			ok = ok && (triceps.jumpToFirstUnasked() == Triceps.OK);
+		}
+		else if (directive.equals("suspendToFloppy")) {
+			String savedName = triceps.saveCompletedInfo();
+			savedName = triceps.copyCompletedToFloppy();
+			if (savedName != null) {
+				info.println(triceps.get("interview_saved_successfully_as") + savedName);
+			}
+			else {
+				info.println(triceps.get("error_saving_data_to_floppy_dir"));
+			}							
+		}
 
 		/* Show any accumulated errors */
 		if (triceps.hasErrors()) {
@@ -1213,10 +1228,15 @@ if (XML) {
 		if (!triceps.isAtBeginning()) {
 			sb.append(buildSubmit("previous"));
 		}
-	
 		if (allowJumpTo || (developerMode && AUTHORABLE)) {
 			sb.append(buildSubmit("jump_to"));
 			sb.append("<input type='text' name='jump_to_data' size='10' " + listEventHandlers("text") + ">");
+		}
+		if (schedule.getBooleanReserved(Schedule.JUMP_TO_FIRST_UNASKED)) {
+			sb.append(buildSubmit("jumpToFirstUnasked"));
+		}
+		if (schedule.getBooleanReserved(Schedule.SUSPEND_TO_FLOPPY)) {
+			sb.append(buildSubmit("suspendToFloppy"));
 		}
 
 		if (allowEasyBypass || okToShowAdminModeIcons) {
