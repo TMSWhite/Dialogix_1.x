@@ -43,6 +43,8 @@ public class Evidence  {
 	private static final int NEWDATE = 23;
 	private static final int NEWTIME = 24;
 	private static final int ISINVALID = 25;
+	private static final int MIN = 26;
+	private static final int MAX = 27;
 
 	private static final Object FUNCTION_ARRAY[][] = {
 		{ "desc",				ONE,		new Integer(DESC) },
@@ -71,6 +73,8 @@ public class Evidence  {
 		{ "newDate",			UNLIMITED,	new Integer(NEWDATE) },
 		{ "newTime",			UNLIMITED,	new Integer(NEWTIME) },
 		{ "isInvalid",			ONE,		new Integer(ISINVALID) },
+		{ "min",				UNLIMITED,	new Integer(MIN) },
+		{ "max",				UNLIMITED,	new Integer(MAX) },
 	};
 
 	private static final Hashtable FUNCTIONS = new Hashtable();
@@ -448,7 +452,49 @@ public class Evidence  {
 						return new Datum(lingua, sb.toString(), Datum.TIME, "hh:mm:ss");
 					}			
 					break;
-			}
+				case MIN:
+					if (params.size() == 0) {
+						return Datum.getInstance(lingua,Datum.INVALID);
+					}
+					else {
+						Datum minVal = null;
+						
+						for (int i=0;i<params.size();++i) {
+							Datum a = getParam(params.elementAt(i));
+							
+							if (i == 0) {
+								minVal = a;
+							}
+							else {
+								if (DatumMath.lt(a,minVal).booleanVal()) {
+									minVal = a;
+								}
+							}
+						}
+						return new Datum(minVal);
+					}
+				case MAX:
+					if (params.size() == 0) {
+						return Datum.getInstance(lingua,Datum.INVALID);
+					}
+					else {
+						Datum maxVal = null;
+						
+						for (int i=0;i<params.size();++i) {
+							Datum a = getParam(params.elementAt(i));
+							
+							if (i == 0) {
+								maxVal = a;
+							}
+							else {
+								if (DatumMath.gt(a,maxVal).booleanVal()) {
+									maxVal = a;
+								}
+							}
+						}
+						return new Datum(maxVal);
+					}
+				}
 		}
 		catch (Throwable t) { 
 			Logger.printStackTrace(t);
