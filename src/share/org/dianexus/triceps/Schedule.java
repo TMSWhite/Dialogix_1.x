@@ -120,6 +120,7 @@ public class Schedule  {
 		try {
 			int line = 0;
 			int count=0;
+			int reservedCount=0;
 			String fileLine;
 
 			while ((fileLine = br.readLine()) != null) {
@@ -134,16 +135,25 @@ public class Schedule  {
 					continue;
 				}
 				if (fileLine.startsWith("RESERVED")) {
-					parseReserved(line, source, fileLine);
+					if (parseReserved(line, source, fileLine)) {
+						++reservedCount;
+					}
 					continue;
 				}
 				
 				if (!parseNodes)
 					break;	// so that only set RESERVED values
+					
+				if (reservedCount == 0) {
+					return false;	// must have some reserved lines before nodes, else can't be a schedule file
+				}
 
 				Node node = new Node(line, source, fileLine, languageCount);
 				++count;
 				nodes.addElement(node);
+			}
+			if (reservedCount == 0) {
+				return false;
 			}
 			if (parseNodes)
 				System.err.println("Read " + count + " nodes from " + source);
@@ -185,19 +195,16 @@ public class Schedule  {
 		return nodes.size();
 	}
 
-	private void parseReserved(int line, String filename, String fileLine) {
+	private boolean parseReserved(int line, String filename, String fileLine) {
 		StringTokenizer ans = new StringTokenizer(fileLine,"\t",true);
 		int field = 0;
 		String name=null;
 		String value=null;
+		boolean ok = false;
 
 		while(ans.hasMoreTokens()) {
 			String s = null;
-			try {
-				s = ans.nextToken();
-			}
-			catch (NoSuchElementException e) {
-			}
+			s = ans.nextToken();
 
 			if (s.equals("\t")) {
 				++field;
@@ -212,10 +219,10 @@ public class Schedule  {
 			}
 		}
 		if (field < 2) {
-			System.err.println("Incorrect syntax for " + ((name != null) ? name : "") + " [" + filename + "(" + line + ")]");
+			setError("Incorrect syntax for " + ((name != null) ? name : "") + " [" + filename + "(" + line + ")]");
 		}
 		if (name == null || value == null)
-			return;
+			return false;
 
 		int resIdx=-1;
 		for (int i=0;i<RESERVED_WORDS.length;++i) {
@@ -226,8 +233,10 @@ public class Schedule  {
 		}
 
 		if (!setReserved(resIdx, value)) {
-			System.err.println(name + " not recognized [" + filename + "(" + line + ")]");
+			setError(name + " not recognized [" + filename + "(" + line + ")]");
+			return false;
 		}
+		return true;
 	}
 	
 	public boolean overloadReserved(Schedule oldNodes) {
