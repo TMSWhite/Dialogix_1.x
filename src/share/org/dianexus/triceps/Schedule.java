@@ -179,7 +179,7 @@ import java.io.ByteArrayInputStream;
 		setReserved(PASSWORD_FOR_ADMIN_MODE,"");
 		setReserved(AUTOGEN_OPTION_NUM,"true");
 		setReserved(ICON,"");
-		setReserved(HEADER_MSG,VERSION_NAME);
+		setReserved(HEADER_MSG,LICENSE_MSG);
 		setReserved(SHOW_QUESTION_REF,"false");
 		setReserved(DEVELOPER_MODE,"false");
 		setReserved(DEBUG_MODE,"false");

@@ -364,7 +364,7 @@ if (AUTHORABLE) {
 				">");
 		}
 		sb.append("	</td>");
-		sb.append("	<td align='left'><font SIZE='5'><b>" + ((triceps.isValid() && !isSplashScreen) ? triceps.getHeaderMsg() : VERSION_NAME) + "</b></font></td>");
+		sb.append("	<td align='left'><font SIZE='4'>" + ((triceps.isValid() && !isSplashScreen) ? triceps.getHeaderMsg() : LICENSE_MSG) + "</font></td>");
 
 		String globalHelp = null;
 		if (triceps.isValid() && !isSplashScreen) {

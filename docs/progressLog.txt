@@ -159,3 +159,27 @@ Look & Feel
   All data saved in /triceps/dist/tomcat/webapps/STUDY/Web-Inf/{working|completed} directories
   Available schedules found in /triceps/dist/tomcat/webapps/STUDY/Web-Inf/schedules directories
   
+<<changes from version 2.60 to 2.70
+<<10/10/2000
+
+Licensing
+  BYSLicenseIF and CICLicenseIF explicitly compiled into code
+  License message appears on splash screen
+  Link from splash screen to appropriate license file
+  
+Authentication
+  Deployable can now only use signed Jar files
+    quite small and fast
+  Code changes to ScheduleSource.java to support this
+  Added /make/keysign.bat to facilitate signing
+    
+Administration
+  STUDY_ALIAS (e.g. BYS, CIC, Demos), now used internally
+  changed index.html files and directory names to reflect new schema
+  changed web.xml files to reflect this
+  
+Encryption & Non-repudiation
+  Too difficult for Triceps, and given state of export restrictions.
+  Encourage investigators to send Jar datafiles (currently unsigned) via SSL-mail
+  
+ 

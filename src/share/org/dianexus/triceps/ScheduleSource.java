@@ -11,6 +11,7 @@ import java.util.jar.JarFile;
 import java.io.IOException;
 import java.util.jar.JarEntry;
 import java.io.InputStreamReader;
+import java.security.cert.Certificate;
 
 /*public*/ final class ScheduleSource implements VersionIF {
 	private boolean isValid = false;
@@ -144,7 +145,7 @@ if (DEBUG)	Logger.writeln("##Throwable @ ScheduleSource.readFromAscii() " + e.ge
 		boolean ok = true;
 		
 		try {
-			jf = new JarFile(sourceInfo.getSource(),true);
+			jf = new JarFile(sourceInfo.getSource());
 			headers = jarEntryToVector(jf, "headers");
 			body = jarEntryToVector(jf, "body");
 			reservedCount = headers.size();
@@ -162,6 +163,9 @@ if (DEBUG) Logger.writeln("##readFromJar " + e.getMessage());
 		
 		try {
 			JarEntry je = jf.getJarEntry(name);
+			
+			/* first read the data */
+								
 			InputStreamReader isr = new InputStreamReader(jf.getInputStream(je));
 			BufferedReader br = new BufferedReader(isr);
 
@@ -180,6 +184,26 @@ if (DEBUG)		Logger.writeln("##IOException @ ScheduleSource.jarEntryToVector()" +
 			if (br != null) {
 				try { br.close(); } catch (IOException t) { }
 			}
+			
+			/* then validate certificates */
+			Certificate certs[] = je.getCertificates();
+			
+			if (certs == null || certs.length == 0) {
+if (DEBUG) 		Logger.writeln("##ScheduleSource.jarEntryToVector(" + sourceInfo.getSource() + "," + name + ") is not signed");
+if (DEPLOYABLE)	return new Vector();	// empty;		
+			}
+			else {
+				Certificate cert = certs[0];
+				
+				try {
+if (DEBUG) Logger.writeln("##verifying certificate " + cert.toString());
+					cert.verify(cert.getPublicKey());
+				}
+				catch (Throwable t) {
+if (DEBUG) Logger.writeln("##invalid certificate or corrupted signing: " + t.getMessage());
+if (DEPLOYABLE)	return new Vector();	// empty;		
+				}
+			}			
 		}	
 		catch (Throwable e) {
 if (DEBUG) Logger.writeln("##Throwable @ jarEntryToVector"  + e.getMessage());
