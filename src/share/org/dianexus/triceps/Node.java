@@ -32,7 +32,7 @@ public class Node  {
 		"text", "double", "radio2", "password","memo", 
 		"date", "time", "year", "month", "day", "weekday", "hour", "minute", "second", "month_num"};
 	private static final int DATA_TYPES[] = { 
-		Datum.STRING, Datum.NA, Datum.STRING, Datum.STRING, Datum.STRING, Datum.STRING,
+		Datum.STRING, Datum.STRING, Datum.STRING, Datum.STRING, Datum.STRING, Datum.STRING,
 		Datum.STRING, Datum.NUMBER, Datum.STRING, Datum.STRING, Datum.STRING,
 		Datum.DATE, Datum.TIME, Datum.YEAR, Datum.MONTH, Datum.DAY, Datum.WEEKDAY, Datum.HOUR, Datum.MINUTE, Datum.SECOND, Datum.MONTH_NUM};
 
