@@ -1,2 +1,0 @@
-explorer "@@WORKING.DIR@@"
-exit

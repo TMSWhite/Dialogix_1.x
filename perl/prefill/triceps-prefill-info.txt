@@ -1,2 +1,0 @@
-BYS-Adult-template.txt	BYS-Adult-subjects.txt	Filename	FullHUID	
-BYS-Child-template.txt	BYS-Child-subjects.txt	FullHUID	Filename
