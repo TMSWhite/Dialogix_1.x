@@ -453,9 +453,10 @@ if (DEPLOYABLE) {
 		}
 
 		int i = getNodeIndex(name);
+		Value value = null;
 		if (i == -1) {
 			i = size();	// append to end
-			Value value = new Value(name,val);
+			value = new Value(name,val);
 			values.addElement(value);
 			aliases.put(name, new Integer(i));
 
@@ -464,10 +465,36 @@ if (DEPLOYABLE) {
 		}
 		else {
 			/* variables don't change their names after being created */
-			Value v = (Value) values.elementAt(i);
-			v.setDatum(val,null);
+			value = (Value) values.elementAt(i);
+			value.setDatum(val,null);
 		}
-if (DEBUG) Logger.writeln("@@Evidence.set(" + name + "," + val.stringVal() + ")");	// where is this function being used - does it explain missing RESERVED word logging?		
+		
+if (DEPLOYABLE) {			
+		if (value.isReserved()) {
+			triceps.getSchedule().writeReserved(value.getReservedNum());
+		}
+		else {
+			writeValue(name,val);
+		}
+}			
+}
+
+	private void writeValue(String name, Datum d) {
+if (DEPLOYABLE) {		
+		String ans=null;
+		StringBuffer sb = new StringBuffer("\t");
+		
+		if (d == null) { ans = ""; }
+		else { ans = d.stringVal(true); }
+		
+		sb.append(name);
+		sb.append("\t\t");	// do I know the current language number?
+		sb.append(System.currentTimeMillis());
+		sb.append("\t\t");
+		sb.append(InputEncoder.encode(ans));	
+		sb.append("\t");
+		triceps.dataLogger.println(sb.toString());
+}		
 	}
 	
 	private void writeNode(Node q, Datum d) {
