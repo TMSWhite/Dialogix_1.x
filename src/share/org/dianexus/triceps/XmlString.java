@@ -234,24 +234,24 @@ if (DEBUG) Logger.writeln("##IOException @ new XMLString()" + e.getMessage());
 				String endTag = tag.substring(1,tag.length());
 
 				if (st.hasMoreTokens()) {
-if (AUTHORABLE)	error(triceps.get("ending_tags_may_not_have_attribute_value_pairs") + asElement(element));
+if ((AUTHORABLE || DEBUG))	error(triceps.get("ending_tags_may_not_have_attribute_value_pairs") + asElement(element));
 					return false;
 				}
 				if (UNARY_TAGS.containsKey(endTag)) {
-if (AUTHORABLE)	error(triceps.get("unary_tags_may_not_have_closing_tags") + asElement(element));
+if ((AUTHORABLE || DEBUG))	error(triceps.get("unary_tags_may_not_have_closing_tags") + asElement(element));
 					return false;
                 }
                 if (!BINARY_TAGS.containsKey(endTag)) {
-if (AUTHORABLE)	error(triceps.get("invalid_end_tag") + asElement(element));
+if ((AUTHORABLE || DEBUG))	error(triceps.get("invalid_end_tag") + asElement(element));
 					return false;
 				}
                 if (DISALLOWED_TAGS.containsKey(endTag)) {
-if (AUTHORABLE)	error(triceps.get("disallowed_for_security_reasons") + asElement(element));
+if ((AUTHORABLE || DEBUG))	error(triceps.get("disallowed_for_security_reasons") + asElement(element));
                 	return false;
                 }
 
 				if (!tagStack.contains(endTag)) {
-if (AUTHORABLE)	error(triceps.get("rejecting_mismatched_endTag") + asElement(element));
+if ((AUTHORABLE || DEBUG))	error(triceps.get("rejecting_mismatched_endTag") + asElement(element));
 					return false;
 				}
 
@@ -261,7 +261,7 @@ if (AUTHORABLE)	error(triceps.get("rejecting_mismatched_endTag") + asElement(ele
 
 			if (BINARY_TAGS.containsKey(tag)) {
 				tagType = BINARY_TAG;
-if (AUTHORABLE && xhtmlizedUnary) error("binary tags may not contain unary terminators" + asElement(element));
+if ((AUTHORABLE || DEBUG) && xhtmlizedUnary) error("binary tags may not contain unary terminators" + asElement(element));
 			}
 			else if (UNARY_TAGS.containsKey(tag)) {
 				tagType = UNARY_TAG;
@@ -271,7 +271,7 @@ if (AUTHORABLE && xhtmlizedUnary) error("binary tags may not contain unary termi
 			}
 
 			if (DISALLOWED_TAGS.containsKey(tag)) {
-if (AUTHORABLE)	error(triceps.get("disallowed_for_security_reasons") + asElement(element));
+if ((AUTHORABLE || DEBUG))	error(triceps.get("disallowed_for_security_reasons") + asElement(element));
 				return false;
 			}
 
@@ -304,7 +304,7 @@ if (AUTHORABLE)	error(triceps.get("disallowed_for_security_reasons") + asElement
 						break;
 					case EQUALS_SIGN:
 						if (!"=".equals(token)) {
-if (AUTHORABLE)	error(triceps.get("expected_equals_sign") + asElement(element));
+if ((AUTHORABLE || DEBUG))	error(triceps.get("expected_equals_sign") + asElement(element));
 							return false;
 						}
 						which = START_OF_STRING;
@@ -312,7 +312,7 @@ if (AUTHORABLE)	error(triceps.get("expected_equals_sign") + asElement(element));
 					case START_OF_STRING:
 						quoteChar = token;
 						if (!("\"".equals(quoteChar) || "\'".equals(quoteChar))) {
-if (AUTHORABLE)	error(triceps.get("expected_start_of_a_string") + asElement(element));
+if ((AUTHORABLE || DEBUG))	error(triceps.get("expected_start_of_a_string") + asElement(element));
 							return false;
 						}
 						withinEscape = false;
@@ -348,14 +348,14 @@ if (AUTHORABLE)	error(triceps.get("expected_start_of_a_string") + asElement(elem
 				return true;
 			}
 			else {
-if (AUTHORABLE)	error(triceps.get("prematurely_terminated_element") + parsingPosition[which] + " " + asElement(element));
+if ((AUTHORABLE || DEBUG))	error(triceps.get("prematurely_terminated_element") + parsingPosition[which] + " " + asElement(element));
 //if (DEBUG) Logger.writeln("##XMLString.isValidElement(<<" + src + ">>)->(<<" + element + ">>): prematurely terminated");
 				return false;	// unterminated attribute-value pairs
 			}
 		}
 		catch (Throwable t) {
 if (DEBUG) Logger.writeln("##Throwable @ XMLString.isValidElement(" + src + ") " + t.getMessage());
-if (AUTHORABLE)	error(triceps.get("prematurely_terminated_element") + parsingPosition[which] + " " + asElement(element));
+if ((AUTHORABLE || DEBUG))	error(triceps.get("prematurely_terminated_element") + parsingPosition[which] + " " + asElement(element));
 			return false;
 		}
 	}
@@ -412,7 +412,7 @@ if (DEBUG) Logger.writeln("##IOException @ XMLString.insertMissingEndTags()" + e
 				break;
 			}
 			else {
-if (AUTHORABLE)	error(triceps.get("inserting_missing_endTag_for") + asElement(t));
+if ((AUTHORABLE || DEBUG))	error(triceps.get("inserting_missing_endTag_for") + asElement(t));
 			}
 		}
 	}
@@ -447,7 +447,7 @@ if (AUTHORABLE)	error(triceps.get("inserting_missing_endTag_for") + asElement(t)
 								}
 							}
 							else {
-if (AUTHORABLE)	error(triceps.get("no_closing_right_angle_bracket"));
+if ((AUTHORABLE || DEBUG))	error(triceps.get("no_closing_right_angle_bracket"));
 								dst.write(LT);
 								column += LT.length();
 							}
@@ -510,6 +510,7 @@ if (DEBUG) Logger.writeln("##IOException @ XMLString.encodeHTML()" + e.getMessag
 
 	private void error(String s) {
 		logger.println(s,lineNum,column);
+		Logger.writeln(s);	// so that have record of these infractions
 	}
 
 	/*public*/ boolean hasErrors() { return (logger.size() > 0); }
@@ -519,7 +520,7 @@ if (DEBUG) Logger.writeln("##IOException @ XMLString.encodeHTML()" + e.getMessag
 		char[] chars = token.toCharArray();
 		for (int i=0;i<chars.length;++i) {
 			if (!(Character.isLetterOrDigit(chars[i]) || chars[i] == '_')) {
-if (AUTHORABLE)	error(triceps.get("name_contains_invalid_character") + chars[i]);
+if ((AUTHORABLE || DEBUG))	error(triceps.get("name_contains_invalid_character") + chars[i]);
 				return false;
 			}
 		}
