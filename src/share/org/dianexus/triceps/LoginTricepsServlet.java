@@ -445,6 +445,7 @@ if (DEBUG) Logger.printStackTrace(t);
 	        	lr.addMapping("Dem1",rst.getString(8));
 //if (DEBUG) Logger.writeln("LOGIN: " + lr.showValue());
 	        }
+	        stmt.close();
 	        conn.close();
 	    } catch (Exception t) {
 			Logger.writeln("Error updating database \"" + t.getMessage());
