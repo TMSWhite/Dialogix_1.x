@@ -6,12 +6,11 @@
 package org.dianexus.triceps;
 
 import java.io.File;
-import java.util.jar.JarOutputStream;
+import java.util.zip.ZipOutputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipException;
-import java.util.jar.JarEntry;
 import java.io.UnsupportedEncodingException;
 import java.io.FileNotFoundException;
 import java.lang.SecurityException;
@@ -21,7 +20,7 @@ import java.io.FileInputStream;
 /*public*/ class JarWriter implements VersionIF {
 	private String filename = null;
 	private FileOutputStream fos = null;
-	private JarOutputStream jos = null;
+	private ZipOutputStream jos = null;
 	private Logger errorLogger = new Logger();
 	/*public*/ static final JarWriter NULL = new JarWriter();	
 	
@@ -44,7 +43,7 @@ import java.io.FileInputStream;
 		try {
 			filename = name;
 			fos = new FileOutputStream(filename);
-			jos = new JarOutputStream(fos);
+			jos = new ZipOutputStream(fos);
 		}
 		catch (Throwable e) {	// FileNotFoundException, SecurityException, IOException, NullPointerException
 			err = e;	// unable to create file
@@ -89,7 +88,7 @@ import java.io.FileInputStream;
 			return false;
 		
 		try {
-			ze = new JarEntry(name);
+			ze = new ZipEntry(name);
 			jos.putNextEntry(ze);
 			
 			byte[] buf = new byte[1000];
