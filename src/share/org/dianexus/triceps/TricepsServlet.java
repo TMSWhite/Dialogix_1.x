@@ -104,7 +104,7 @@ public class TricepsServlet extends HttpServlet {
 		out.println(footer());
 		
 		out.flush();
-//		out.close();	// XXX:  causes "Network Connection reset by peer" with Ham-D.txt - WHY?  Without close, dangling resources?
+		out.close();	// XXX:  causes "Network Connection reset by peer" with Ham-D.txt - WHY?  Without close, dangling resources?
 
 		/* Store appropriate stuff in the session */
 		if (triceps != null)
