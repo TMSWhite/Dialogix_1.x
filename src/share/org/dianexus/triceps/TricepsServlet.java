@@ -340,6 +340,15 @@ if (AUTHORABLE) {
 				schedule.setReserved(Schedule.SHOW_QUESTION_REF, String.valueOf(showQuestionNum));
 				directive = "refresh current";
 			}
+			else if (directive.equals("sign_schedule")) {
+				if (schedule.saveAsJar()) {
+					errors.println(triceps.get("signed_schedule_saved_as") + schedule.getReserved(Schedule.SCHEDULE_SOURCE) + ".jar");
+				}
+				else {
+					errors.println(triceps.get("unable_to_save_signed_schedule"));
+				}
+				directive = "refresh current";
+			}
 		}
 }
 	}
@@ -862,6 +871,7 @@ if (AUTHORABLE) {
 		}
 		schedule = triceps.getSchedule();
 		schedule.setReserved(Schedule.IMAGE_FILES_DIR,imageFilesDir);
+		schedule.setReserved(Schedule.SCHEDULE_DIR,scheduleSrcDir);
 		return triceps.isValid();
 	}
 
@@ -1183,6 +1193,7 @@ if (AUTHORABLE) {
 			sb.append(buildSubmit("turn_developerMode"));
 			sb.append(buildSubmit("turn_debugMode"));
 			sb.append(buildSubmit("turn_showQuestionNum"));
+			sb.append(buildSubmit("sign_schedule"));
 			sb.append("</td></tr>");
 			return sb.toString();
 		}
