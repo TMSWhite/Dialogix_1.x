@@ -27,6 +27,8 @@ public class TricepsEngine implements VersionIF {
 	
 	static final int BROWSER_MSIE = 1;
 	static final int BROWSER_NS = 2;
+	static final int BROWSER_NS6 = 3;
+	static final int BROWSER_OPERA = 4;
 	static final int BROWSER_OTHER = 0;
 	private int browserType = BROWSER_OTHER;
 
@@ -332,7 +334,7 @@ if (AUTHORABLE) {
 		}
 		else {
 			sb.append("<img name='icon' src='" + (imageFilesDir + logo) + "' align='top' border='0'" +
-				((!isSplashScreen) ? " onMouseUp='evHandler(event);setAdminModePassword();'":"") +
+				((!isSplashScreen) ? " onmouseup='evHandler(event);setAdminModePassword();'":"") +
 				((!isSplashScreen) ? (" alt='" + triceps.get("LogoMessage") + "'") : "") +
 				">");
 		}
@@ -349,7 +351,7 @@ if (AUTHORABLE) {
 
 		sb.append("	<td width='1%'>");
 		if (globalHelp != null && globalHelp.trim().length() != 0) {
-			sb.append("<img src='" + getIcon(Schedule.HELP_ICON) + "' alt='" + triceps.get("Help") + "' align='top' border='0' onMouseUp='evHandler(event);help(\"_TOP_\",\"" + globalHelp + "\");'>");
+			sb.append("<img src='" + getIcon(Schedule.HELP_ICON) + "' alt='" + triceps.get("Help") + "' align='top' border='0' onmouseup='evHandler(event);help(\"_TOP_\",\"" + globalHelp + "\");'>");
 		}
 		else {
 			sb.append("&nbsp;");
@@ -535,7 +537,7 @@ if (DEPLOYABLE) {
 					String language = (String) languages.elementAt(i);
 					boolean selected = (i == triceps.getLanguage());
 					sb.append(((selected) ? "\n<u>" : "") +
-						"<input type='button' onClick='evHandler(event);setLanguage(\"" + language + "\");' name='select_" + language + "' value='" + language + "'>" +
+						"<input type='button' onclick='evHandler(event);setLanguage(\"" + language + "\");' name='select_" + language + "' value='" + language + "'>" +
 						((selected) ? "</u>" : ""));
 				}
 				sb.append("</td></tr></table>");
@@ -967,15 +969,26 @@ if (XML) {
 	
 	private void whichBrowser() {
 		String userAgent = req.getHeader(USER_AGENT);
-		if (userAgent.indexOf("MSIE") != -1) {
-			browserType = BROWSER_MSIE;
+		if ((userAgent.indexOf("Mozilla/4") != -1)) {
+			if (userAgent.indexOf("MSIE") != -1) {
+				browserType = BROWSER_MSIE;
+			}
+			else if (userAgent.indexOf("Opera") != -1) {
+				browserType = BROWSER_OPERA;
+			}
+			else {
+				browserType = BROWSER_NS;
+			}
 		}
-		else if (userAgent.indexOf("Mozilla") != -1) {
-			browserType = BROWSER_NS;
+		else if (userAgent.indexOf("Netscape6") != -1) {
+			browserType = BROWSER_NS6;
+		}
+		else if (userAgent.indexOf("Opera") != -1) {
+			browserType = BROWSER_OPERA;
 		}
 		else {
 			browserType = BROWSER_OTHER;
-		}
+		}		
 	}
 
 	private String responseXML() {
@@ -987,6 +1000,12 @@ if (XML) {
 		}
 		else if (browserType == BROWSER_NS) {
 			browser = "NS";
+		}
+		else if (browserType == BROWSER_NS6) {
+			browser = "NS6";
+		}
+		else if (browserType == BROWSER_OPERA) {
+			browser = "Opera";
 		}
 		else {
 			browser = "other";
@@ -1193,7 +1212,7 @@ if (XML) {
 	
 		if (allowJumpTo || (developerMode && AUTHORABLE)) {
 			sb.append(buildSubmit("jump_to"));
-			sb.append("<input type='text' name='jump_to_data' size='10'>");
+			sb.append("<input type='text' name='jump_to_data' size='10' " + listEventHandlers("text") + ">");
 		}
 
 		if (allowEasyBypass || okToShowAdminModeIcons) {
@@ -1209,13 +1228,13 @@ if (AUTHORABLE) {
 			sb.append(buildSubmit("select_new_interview"));
 			sb.append(buildSubmit("restart_clean"));
 			sb.append(buildSubmit("save_to"));
-			sb.append("<input type='text' name='save_to_data' size='10'>");
+			sb.append("<input type='text' name='save_to_data' size='10' " + listEventHandlers("text") + ">");
 			sb.append("</td></tr>");
 			sb.append("<tr><td colspan='" + ((showQuestionNum) ? 4 : 3 ) + "' align='center'>");
 			sb.append(buildSubmit("reload_questions"));
 			sb.append(buildSubmit("show_Syntax_Errors"));
 			sb.append(buildSubmit("evaluate_expr"));
-			sb.append("<input type='text' name='evaluate_expr_data'>");
+			sb.append("<input type='text' name='evaluate_expr_data' " + listEventHandlers("text") + ">");
 			sb.append("</td></tr>");
 		}
 }
@@ -1237,7 +1256,9 @@ if (AUTHORABLE) {
 		sb.append(inactivePrefix);
 		sb.append(triceps.get(name));
 		sb.append(inactiveSuffix);
-		sb.append("'>");
+		sb.append("' ");
+		sb.append(listEventHandlers("submit"));
+		sb.append(">");
 		
 		sb.append("<input type='hidden' name='DIRECTIVE_");
 		sb.append(name);
@@ -1246,6 +1267,20 @@ if (AUTHORABLE) {
 		sb.append("'>");
 		return sb.toString();
 	}
+	
+			
+	static String listEventHandlers(String type) {
+		if (type == "submit") {
+			return " onblur='submitHandler(event)' onclick='submitHandler(event)' onfocus='submitHandler(event)' onchange='submitHandler(event)' onkeypress='keyHandler(event)'";
+		}
+		else if (type == "select") { // select
+			return " onblur='selectHandler(event)' onclick='selectHandler(event)' onfocus='selectHandler(event)' onchange='selectHandler(event)' onkeypress='keyHandler(event)'";
+		}
+		else {
+			return " onblur='evHandler(event)' onclick='evHandler(event)' onfocus='evHandler(event)' onchange='evHandler(event)' onkeypress='keyHandler(event)'";
+		}
+	}
+	
 	
 	private String buildClickableOptions(Node node, String inputName, boolean isSpecial) {
 		StringBuffer sb = new StringBuffer();
@@ -1273,7 +1308,7 @@ if (AUTHORABLE) {
 		String localHelpURL = node.getHelpURL();
 		if (localHelpURL != null && localHelpURL.trim().length() != 0) {
 			sb.append("<img src='" + getIcon(Schedule.HELP_ICON) +
-				"' align='top' border='0' alt='" + triceps.get("Help") + "' onMouseUp='evHandler(event);help(\"" + inputName + "\",\"" + localHelpURL + "\");'>");
+				"' align='top' border='0' alt='" + triceps.get("Help") + "' onmouseup='evHandler(event);help(\"" + inputName + "\",\"" + localHelpURL + "\");'>");
 		}
 		else {
 			// don't show help icon if no help is available?
@@ -1283,11 +1318,11 @@ if (AUTHORABLE) {
 		if (showAdminModeIcons || okToShowAdminModeIcons || allowComments) {
 			if (comment != null && comment.trim().length() != 0) {
 				sb.append("<img name='" + inputName + "_COMMENT_ICON" + "' src='" + getIcon(Schedule.COMMENT_ICON_ON) +
-					"' align='top' border='0' alt='" + triceps.get("Add_a_Comment") + "' onMouseUp='evHandler(event);comment(\"" + inputName + "\");'>");
+					"' align='top' border='0' alt='" + triceps.get("Add_a_Comment") + "' onmouseup='evHandler(event);comment(\"" + inputName + "\");'>");
 			}
 			else  {
 				sb.append("<img name='" + inputName + "_COMMENT_ICON" + "' src='" + getIcon(Schedule.COMMENT_ICON_OFF) +
-					"' align='top' border='0' alt='" + triceps.get("Add_a_Comment") + "' onMouseUp='evHandler(event);comment(\"" + inputName + "\");'>");
+					"' align='top' border='0' alt='" + triceps.get("Add_a_Comment") + "' onmouseup='evHandler(event);comment(\"" + inputName + "\");'>");
 			}
 		}
 
@@ -1297,15 +1332,15 @@ if (AUTHORABLE) {
 		if (!(node.getAnswerType() == Node.NOTHING) && (showAdminModeIcons || okToShowAdminModeIcons || isSpecial)) {
 			if (allowRefused || isRefused) {
 				sb.append("<img name='" + inputName + "_REFUSED_ICON" + "' src='" + ((isRefused) ? getIcon(Schedule.REFUSED_ICON_ON) : getIcon(Schedule.REFUSED_ICON_OFF)) +
-					"' align='top' border='0' alt='" + triceps.get("Set_as_Refused") + "' onMouseUp='evHandler(event);markAsRefused(\"" + inputName + "\");'>");
+					"' align='top' border='0' alt='" + triceps.get("Set_as_Refused") + "' onmouseup='evHandler(event);markAsRefused(\"" + inputName + "\");'>");
 			}
 			if (allowUnknown || isUnknown) {
 				sb.append("<img name='" + inputName + "_UNKNOWN_ICON" + "' src='" + ((isUnknown) ? getIcon(Schedule.UNKNOWN_ICON_ON) : getIcon(Schedule.UNKNOWN_ICON_OFF)) +
-					"' align='top' border='0' alt='" + triceps.get("Set_as_Unknown") + "' onMouseUp='evHandler(event);markAsUnknown(\"" + inputName + "\");'>");
+					"' align='top' border='0' alt='" + triceps.get("Set_as_Unknown") + "' onmouseup='evHandler(event);markAsUnknown(\"" + inputName + "\");'>");
 			}
 			if (allowNotUnderstood || isNotUnderstood) {
 				sb.append("<img name='" + inputName + "_NOT_UNDERSTOOD_ICON" + "' src='" + ((isNotUnderstood) ? getIcon(Schedule.DONT_UNDERSTAND_ICON_ON) : getIcon(Schedule.DONT_UNDERSTAND_ICON_OFF)) +
-					"' align='top' border='0' alt='" + triceps.get("Set_as_Not_Understood") + "' onMouseUp='evHandler(event);markAsNotUnderstood(\"" + inputName + "\");'>");
+					"' align='top' border='0' alt='" + triceps.get("Set_as_Not_Understood") + "' onmouseup='evHandler(event);markAsNotUnderstood(\"" + inputName + "\");'>");
 			}
 		}
 
@@ -1440,11 +1475,11 @@ if (DEPLOYABLE) {
 		sb.append("	now = new Date();\n");
 		sb.append("	if (Ns4up) { target=e.target; } else { target=e.srcElement;}\n");
 		sb.append("	if (Ns4up) {\n");
-			sb.append("	val = String.fromCharCode(e.which) + ',';\n");
-			sb.append("	msg = target.name + ',' + target.type + ',' + e.type + ',' + now.getTime() + ',' + (now.getTime() - startTime.getTime()) + ',' + val + '\t';\n");
+		sb.append("		val = String.fromCharCode(e.which) + ',';\n");
+		sb.append("		msg = target.name + ',' + target.type + ',' + e.type + ',' + now.getTime() + ',' + (now.getTime() - startTime.getTime()) + ',' + val + '\t';\n");
 		sb.append(" } else {\n");
-			sb.append("	val = String.fromCharCode(e.keyCode) + ',';\n");
-			sb.append("	msg = target.name + ',' + target.type + ',' + e.type + ',' + now.getTime() + ',' + (now.getTime() - startTime.getTime()) + ',' + val + '\t';\n");
+		sb.append("		val = String.fromCharCode(e.keyCode) + ',';\n");
+		sb.append("		msg = target.name + ',' + target.type + ',' + e.type + ',' + now.getTime() + ',' + (now.getTime() - startTime.getTime()) + ',' + val + '\t';\n");
 		sb.append("	} \n");
 		sb.append("	document.myForm.EVENT_TIMINGS.value += msg;\n");
 		sb.append("	return true;\n");
@@ -1456,18 +1491,18 @@ if (DEPLOYABLE) {
 		sb.append("	now = new Date();\n");
 		sb.append("	if (Ns4up) { target=e.target; } else { target=e.srcElement;}\n");
 		sb.append("	if (Ns4up) {\n");
-			sb.append("	val = ',';\n");
-			sb.append("	msg = target.name + ',' + target.type + ',' + e.type + ',' + now.getTime() + ',' + (now.getTime() - startTime.getTime()) + ',' + val + '\t';\n");
+		sb.append("		val = ',';\n");
+		sb.append("		msg = target.name + ',' + target.type + ',' + e.type + ',' + now.getTime() + ',' + (now.getTime() - startTime.getTime()) + ',' + val + '\t';\n");
 		sb.append(" } else {\n");
-			sb.append("	val = ',';\n");
-			sb.append("	msg = target.name + ',' + target.type + ',' + e.type + ',' + now.getTime() + ',' + (now.getTime() - startTime.getTime()) + ',' + val + '\t';\n");
+		sb.append("		val = ',';\n");
+		sb.append("		msg = target.name + ',' + target.type + ',' + e.type + ',' + now.getTime() + ',' + (now.getTime() - startTime.getTime()) + ',' + val + '\t';\n");
 		sb.append("	} \n");
 		sb.append("	document.myForm.EVENT_TIMINGS.value += msg;\n");
 }
 		sb.append("	name = document.myForm.elements['DIRECTIVE_' + target.name].value;\n");
 		sb.append("	if (e.type == 'focus') { target.value='" + activePrefix + "' + name + '" + activeSuffix + "'; }\n");
 		sb.append("	else if (e.type == 'blur') { target.value='" + inactivePrefix + "' + name + '" + inactiveSuffix + "'; }\n");
-		sb.append("	document.myForm.elements['DIRECTIVE'].value = target.name;\n");
+		sb.append("	document.myForm.DIRECTIVE.value = target.name;\n");
 		sb.append("	return true;\n");
 		sb.append("}\n");
 
@@ -1476,12 +1511,12 @@ if (DEPLOYABLE) {
 		sb.append("	now = new Date();\n");
 		sb.append("	if (Ns4up) { target=e.target; } else { target=e.srcElement;}\n");
 		sb.append("	if (Ns4up) {\n");
-			sb.append("	val = target.options[target.selectedIndex].value + ',' + target.options[target.selectedIndex].text;\n");
-			sb.append("	msg = target.name + ',' + target.type + ',' + e.type + ',' + now.getTime() + ',' + (now.getTime() - startTime.getTime()) + ',' + val + '\t';\n");
+		sb.append("		val = target.options[target.selectedIndex].value + ',' + target.options[target.selectedIndex].text;\n");
+		sb.append("		msg = target.name + ',' + target.type + ',' + e.type + ',' + now.getTime() + ',' + (now.getTime() - startTime.getTime()) + ',' + val + '\t';\n");
 		sb.append(" } else {\n");
-			sb.append("	val = target.options[target.selectedIndex].value + ',' + target.options[target.selectedIndex].text;\n");
-			sb.append("	name = target.name;\n");
-			sb.append("	msg = target.name + ',' + target.type + ',' + e.type + ',' + now.getTime() + ',' + (now.getTime() - startTime.getTime()) + ',' + val + '\t';\n");
+		sb.append("		val = target.options[target.selectedIndex].value + ',' + target.options[target.selectedIndex].text;\n");
+		sb.append("		name = target.name;\n");
+		sb.append("		msg = target.name + ',' + target.type + ',' + e.type + ',' + now.getTime() + ',' + (now.getTime() - startTime.getTime()) + ',' + val + '\t';\n");
 		sb.append("	} \n");
 
 		sb.append("	document.myForm.EVENT_TIMINGS.value += msg;\n");
@@ -1493,15 +1528,18 @@ if (DEPLOYABLE) {
 		sb.append("	now = new Date();\n");
 		sb.append("	if (Ns4up) { target=e.target; } else { target=e.srcElement;}\n");
 		sb.append("	if (Ns4up) {\n");
-			sb.append("	val = ',' + target.value;\n");
-			sb.append("	msg = target.name + ',' + target.type + ',' + e.type + ',' + now.getTime() + ',' + (now.getTime() - startTime.getTime()) + ',' + val + '\t';\n");
+		sb.append("		if (e.type=='focus' && (target.type=='text' || target.type=='textarea')) { target.select();}\n");
+		sb.append("		val = ',' + target.value;\n");
+		sb.append("		msg = target.name + ',' + target.type + ',' + e.type + ',' + now.getTime() + ',' + (now.getTime() - startTime.getTime()) + ',' + val + '\t';\n");
 		sb.append(" } else {\n");
-			sb.append(" if (target == null) {\n");
-			sb.append("	msg = 'null,null,' + e.type + ',' + now.getTime() + ',' + (now.getTime() - startTime.getTime()) + ',null\t';\n");
-		sb.append("	} else {\n");
-			sb.append("	val = ',' + target.value;\n");
-			sb.append("	msg = target.name + ',' + target.type + ',' + e.type + ',' + now.getTime() + ',' + (now.getTime() - startTime.getTime()) + ',' + val + '\t';\n");
-		sb.append("		}\n	} \n");
+		sb.append(" 	if (target == null) {\n");
+		sb.append("			msg = 'null,null,' + e.type + ',' + now.getTime() + ',' + (now.getTime() - startTime.getTime()) + ',null\t';\n");
+		sb.append("		} else {\n");
+		sb.append("			if (e.type=='focus' && (target.type=='text' || target.type=='textarea')) { target.select();}\n");
+		sb.append("			val = ',' + target.value;\n");
+		sb.append("			msg = target.name + ',' + target.type + ',' + e.type + ',' + now.getTime() + ',' + (now.getTime() - startTime.getTime()) + ',' + val + '\t';\n");
+		sb.append("		}\n");
+		sb.append("	} \n");
 		sb.append("	document.myForm.EVENT_TIMINGS.value += msg;\n");
 }
 		sb.append("	return true;\n");
@@ -1509,35 +1547,14 @@ if (DEPLOYABLE) {
 	
 if (DEPLOYABLE) {	
 		sb.append("	if (Ns4up) { window.captureEvents(Event.Load); }\n");
-		sb.append("window.onLoad = evHandler;\n");
+		sb.append("window.onload = evHandler;\n");
 }		
 
 		sb.append("function init(e) {\n");
 		sb.append(" evHandler(e);\n");
-		sb.append("	for (var i=0;i<document.myForm.elements.length;++i) {\n");
-		sb.append("		el = document.myForm.elements[i];\n");
-if (DEPLOYABLE) {		
-		sb.append("		evH = evHandler;\n");
-		sb.append("		if (el.type == 'select-multiple' || el.type == 'select-one') { evH = selectHandler; } else \n");
-}
-		sb.append("		if (el.type == 'submit') { evH = submitHandler; }\n");
-		sb.append("		el.onBlur = evH;\n");
-		sb.append("		el.onClick = evH;\n");
-		sb.append("		el.onFocus = evH;\n");
-if (DEPLOYABLE) {		
-		sb.append("		el.onChange = evH;\n");
-		sb.append("		el.onKeyPress = keyHandler;\n");
-}		
-		sb.append("	}\n");
-		sb.append("	for (var k=0;k<document.images.length;++k){\n");
-		sb.append("		el = document.images[k];\n");
-		sb.append("		el.onMouseUp = evHandler;\n");
-		sb.append("	}\n");
-
 		if (firstFocus != null) {
 			sb.append("	document.myForm." + firstFocus + ".focus();\n");
 		}
-
 		sb.append("}\n");
 		sb.append("function setAdminModePassword(name) {\n");
 		sb.append("	ans = prompt('" +
@@ -1635,10 +1652,17 @@ if (DEPLOYABLE) {
 		sb.append("<META HTTP-EQUIV='Content-Type' CONTENT='text/html;CHARSET=iso-8859-1'>\n");
 		sb.append("<title>" + title + "</title>\n");
 
-		sb.append(createJavaScript());
+		if (!"finished".equals(directive)) {
+			sb.append(createJavaScript());
+		}
 
 		sb.append("</head>\n");
-		sb.append("<body bgcolor='white' onload='init(event);'>");
+		sb.append("<body bgcolor='white'");
+		
+		if (!"finished".equals(directive)) {
+			sb.append(" onload='init(event);'");
+		}
+		sb.append(">");
 
 		return sb.toString();
 	}

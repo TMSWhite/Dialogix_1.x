@@ -275,3 +275,10 @@ Reorganization & Documentation
     affected files:  TricepsServlet.java
   Cocoon
     affected files:  AnswerChoice.java, Node.java, TricepsEngine
+
+<< changes from version 2.8.2 to 2.8.3
+  Internet Explorer 5.x
+    now works - had to explicitly put all onXXX event commands in <input>s, rather than dynamically building them
+    affected files:  Node.java, TricepsEngine.java, TricepsServlet.java
+  Opera
+    tested - still doesn't work - generates error messages like e.* is not an object - seems to be a JavaScript event model problem.

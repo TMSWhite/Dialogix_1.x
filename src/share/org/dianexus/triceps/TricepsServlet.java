@@ -56,12 +56,13 @@ if (DEBUG) Logger.printStackTrace(t);
 	
 	private boolean isSupportedBrowser(HttpServletRequest req) {
 		String userAgent = req.getHeader(USER_AGENT);
+		
 		if ((userAgent.indexOf("Mozilla/4") != -1)) {
 			if (userAgent.indexOf("MSIE") != -1) {
-				return false;	// false for IE masquerading as Netscape
+				return true;	// IE masquerading as Netscape - finally fixed so that works OK
 			}
 			else if (userAgent.indexOf("Opera") != -1) {
-				return true;	// true for Opera masquerading as Netscape
+				return false;	// Opera masquerading as Netscape - problem with the event model
 			}
 			else {
 				return true;	// true for Netscape 4.x
@@ -71,7 +72,7 @@ if (DEBUG) Logger.printStackTrace(t);
 			return false;	// does not work with Netscape6 - lousy layout, repeat calls to GET (not POST), so re-starts on each screen.  Why?
 		}
 		else if (userAgent.indexOf("Opera") != -1) {
-			return true;	// true for Opera
+			return false;	// Opera - problem with the event model
 		}
 		else {
 			return false;
@@ -141,7 +142,7 @@ if (DEBUG && false) {
 			out.println("   <table border='0' cellpadding='0' cellspacing='3' width='100%'>");
 			out.println("      <tr>");
 			out.println("         <td width='1%'><img name='icon' src='/images/trilogo.jpg' align='top' border='0' alt='Logo' /> </td>");
-			out.println("         <td align='left'><font SIZE='4'>Sorry for the inconvenience, but Triceps currently only works with Netscape 4.xx.<br />Please email <a href='mailto:tw176@columbia.edu'>me</a> to be notified when other browsers are supported.<br />In the meantime, Netscape 4.75 can be downloaded <a href='http://home.netscape.com/download/archive/client_archive47x.html'>here</a></font></td>");
+			out.println("         <td align='left'><font SIZE='4'>Sorry for the inconvenience, but Triceps currently only works with Netscape 4.xx. and Internet Explorer 5.x<br />Please email <a href='mailto:tw176@columbia.edu'>me</a> to be notified when other browsers are supported.<br />In the meantime, Netscape 4.75 can be downloaded <a href='http://home.netscape.com/download/archive/client_archive47x.html'>here</a></font></td>");
 			out.println("      </tr>");
 			out.println("   </table>");
 			out.println("</body>");

@@ -519,7 +519,7 @@ else setParseError("syntax error");
 				ac = (AnswerChoice) ans.nextElement();
 				ac.parse(triceps);
 				sb.append("<input type='radio' name='" + getLocalName() + "' " + "value='" + ac.getValue() + "'" +
-					(isSelected(datum,ac) ? " checked" : "") + ">" + ac.getMessage() + "<br>");
+					(isSelected(datum,ac) ? " checked " : " ") + TricepsEngine.listEventHandlers("radio") + ">" + ac.getMessage() + "<br>");
 			}
 			break;
 		case RADIO_HORIZONTAL: // will store integers
@@ -537,7 +537,7 @@ else setParseError("syntax error");
 					ac.parse(triceps);
 					sb.append("<td valign='top' width='" + pct.toString() + "%'>");
 					sb.append("<input type='radio' name='" + getLocalName() + "' " + "value='" + ac.getValue() + "'" +
-						(isSelected(datum,ac)? " checked" : "") + ">" + ac.getMessage());
+						(isSelected(datum,ac)? " checked " : " ") + TricepsEngine.listEventHandlers("radio") + ">" + ac.getMessage());
 					sb.append("</td>");
 				}
 				sb.append("</tr>");
@@ -550,7 +550,7 @@ else setParseError("syntax error");
 				ac = (AnswerChoice) ans.nextElement();
 				ac.parse(triceps);
 				sb.append("<input type='checkbox' name='" + getLocalName() + "' " + "value='" + ac.getValue() + "'" +
-					(isSelected(datum,ac) ? " checked" : "") + ">" + ac.getMessage() + "<br>");
+					(isSelected(datum,ac) ? " checked " : " ") + TricepsEngine.listEventHandlers("select") + ">" + ac.getMessage() + "<br>");
 			}
 			break;
 		case COMBO:	// stores integers as value
@@ -630,7 +630,8 @@ else setParseError("syntax error");
 				totalLines += line;
 			}
 			sb.append("<select name='" + getLocalName() + "'" +
-				((answerType == LIST) ? (" size = '" + Math.min(MAX_ITEMS_IN_LIST,totalLines+1) + "'") : "") +
+				((answerType == LIST) ? (" size = '" + Math.min(MAX_ITEMS_IN_LIST,totalLines+1) + "' ") : " ") +
+				TricepsEngine.listEventHandlers("select") +
 				">");
 			sb.append("<option value=''" +
 				((nothingSelected) ? " selected" : "") + ">" +	// so that focus is properly shifted on List box
@@ -643,29 +644,29 @@ else setParseError("syntax error");
 		case TEXT:	// stores Text type
 			if (datum != null && datum.exists())
 				defaultValue = datum.stringVal();
-			sb.append("<input type='text'" +
-				" onfocus='evHandler(event);select();'" +
+			sb.append("<input type='text' " +
+				TricepsEngine.listEventHandlers("text") +
 				" name='" + getLocalName() + "' value='" + XMLAttrEncoder.encode(defaultValue) + "'>");
 			break;
 		case MEMO:
 			if (datum != null && datum.exists())
 				defaultValue = datum.stringVal();
 			sb.append("<textarea rows='5'" +
-				" onfocus='evHandler(event);select();'" +
+				TricepsEngine.listEventHandlers("text") +
 				" name='" + getLocalName() + "'>" + XMLAttrEncoder.encode(defaultValue) + "</textarea>");
 			break;
 		case PASSWORD:	// stores Text type
 			if (datum != null && datum.exists())
 				defaultValue = datum.stringVal();
 			sb.append("<input type='password'" +
-				" onfocus='evHandler(event);select();'" +
+				TricepsEngine.listEventHandlers("text") +
 				" name='" + getLocalName() + "' value='" + XMLAttrEncoder.encode(defaultValue) + "'>");
 			break;
 		case DOUBLE:	// stores Double type
 			if (datum != null && datum.exists())
 				defaultValue = datum.stringVal();
 			sb.append("<input type='text'" +
-				" onfocus='evHandler(event);select();'" +
+				TricepsEngine.listEventHandlers("text") +
 				" name='" + getLocalName() + "' value='" + defaultValue + "'>");
 			break;
 		default:
@@ -685,7 +686,7 @@ else setParseError("syntax error");
 			if (datum != null && datum.exists())
 				defaultValue = datum.stringVal();
 			sb.append("<input type='text'" +
-				" onfocus='evHandler(event);select();'" +
+				TricepsEngine.listEventHandlers("text") +
 				" name='" + getLocalName() + "' value='" + defaultValue + "'>");
 			break;
 		case NOTHING:
