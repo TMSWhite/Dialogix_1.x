@@ -695,6 +695,7 @@ if (AUTHORABLE) {
 			if (ok) {
 				info.println(triceps.get("schedule_restored_successfully"));
 			}
+			schedule = triceps.getSchedule();	// so that update the local pointer
 			// re-ask current question
 }
 		}
