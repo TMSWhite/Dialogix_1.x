@@ -331,7 +331,7 @@ public class Evidence  {
 				case ISINVALID:
 					return new Datum(datum.isType(Datum.INVALID));
 				case ISASKED		 :
-					return new Datum(datum.isType(Datum.NA) && !datum.isType(Datum.UNKNOWN));
+					return new Datum(!(datum.isType(Datum.NA)));
 				case ISNA			:
 					return new Datum(datum.isType(Datum.NA));
 				case ISREFUSED	   :
