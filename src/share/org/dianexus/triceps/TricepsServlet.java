@@ -101,6 +101,8 @@ public class TricepsServlet extends HttpServlet {
 		
 		out.println("</body>");
 		out.println("</html>");
+		
+		/* Store the node and evidence in the session */
 		if (node != null)
 			session.putValue("currentNode", node);
 		if (evidence != null)
