@@ -26,9 +26,6 @@ if [ ! -r "$BASEDIR"/bin/setclasspath.sh ]; then
   exit 1
 fi
 
-# Set the default Java options for all scripts
-JAVA_OPTS=
-
 # Set the default -Djava.endorsed.dirs argument
 JAVA_ENDORSED_DIRS="$BASEDIR"/bin:"$BASEDIR"/common/lib
 
@@ -49,5 +46,3 @@ fi
 # Set standard commands for invoking Java.
 _RUNJAVA="$JAVA_HOME"/bin/java
 _RUNJDB="$JAVA_HOME"/bin/jdb
-
-

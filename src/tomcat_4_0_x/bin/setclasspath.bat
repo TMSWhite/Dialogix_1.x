@@ -27,9 +27,6 @@ echo This environment variable is needed to run this program
 goto end
 :okBasedir
 
-rem Set the default Java options for all scripts
-set JAVA_OPTS=
-
 rem Set the default -Djava.endorsed.dirs argument
 set JAVA_ENDORSED_DIRS=%BASEDIR%\bin;%BASEDIR%\common\lib
 

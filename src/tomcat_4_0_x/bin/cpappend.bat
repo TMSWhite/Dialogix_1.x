@@ -1,16 +1,19 @@
 rem ---------------------------------------------------------------------------
-rem Append a path onto the CLASSPATH
+rem Append to CLASSPATH
 rem
 rem $Id$
 rem ---------------------------------------------------------------------------
 
-rem Get remaining unshifted command line arguments and save them in the
-set CMD_LINE_ARGS=%1
+rem Process the first argument
+if ""%1"" == """" goto end
+set CLASSPATH=%CLASSPATH%;%1
 shift
+
+rem Process the remaining arguments
 :setArgs
-if ""%1""=="""" goto doneSetArgs
-set CMD_LINE_ARGS=%CMD_LINE_ARGS% %1
+if ""%1"" == """" goto doneSetArgs
+set CLASSPATH=%CLASSPATH% %1
 shift
 goto setArgs
 :doneSetArgs
-
+:end

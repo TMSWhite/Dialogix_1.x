@@ -29,5 +29,3 @@ if [ ! -x "$PRGDIR"/"$EXECUTABLE" ]; then
 fi
 
 exec "$PRGDIR"/"$EXECUTABLE" jspc "$@"
-
-
