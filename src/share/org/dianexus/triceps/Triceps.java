@@ -27,6 +27,8 @@ public class Triceps {
 	private String startTimeStr = null;
 	private String stopTimeStr = null;
 	private boolean isValid = false;
+	private Random random = new Random();
+	private String tempPassword = null;
 
 	public Triceps(String scheduleLoc) {
 		nodes = new Schedule(scheduleLoc);
@@ -35,6 +37,7 @@ public class Triceps {
 		}
 		resetEvidence();
 		setDefaultValues();
+		createTempPassword();
 		isValid = true;
 	}
 	
@@ -418,7 +421,7 @@ public class Triceps {
 		startTimer(new Date(System.currentTimeMillis()));	// use current time
 	}
 
-	public boolean storeValue(Node q, String answer, String comment, String special, boolean okToRefuse, boolean okToUnknown, boolean okToNotUnderstood) {
+	public boolean storeValue(Node q, String answer, String comment, String special, boolean adminMode) {
 		if (q == null) {
 			errors.addElement("null node");
 			return false;
@@ -435,23 +438,32 @@ public class Triceps {
 			q.setComment(comment);
 		}
 
-		if (special != null) {
-			if (okToRefuse && special.equals(Datum.TYPES[Datum.REFUSED])) {
-				evidence.set(q,Datum.getInstance(Datum.REFUSED));
-				return true;
+		if (special != null && special.trim().length() > 0) {
+			if (adminMode) {
+				if (special.equals(Datum.TYPES[Datum.REFUSED])) {
+					evidence.set(q,Datum.getInstance(Datum.REFUSED));
+					return true;
+				}
+				if (special.equals(Datum.TYPES[Datum.UNKNOWN])) {
+					evidence.set(q,Datum.getInstance(Datum.UNKNOWN));
+					return true;
+				}
+				if (special.equals(Datum.TYPES[Datum.NOT_UNDERSTOOD])) {
+					evidence.set(q,Datum.getInstance(Datum.NOT_UNDERSTOOD));
+					return true;
+				}
+				errors.addElement("Unknown special datatype");
+				return false;
 			}
-			if (okToUnknown && special.equals(Datum.TYPES[Datum.UNKNOWN])) {
-				evidence.set(q,Datum.getInstance(Datum.UNKNOWN));
-				return true;
-			}
-			if (okToNotUnderstood && special.equals(Datum.TYPES[Datum.NOT_UNDERSTOOD])) {
-				evidence.set(q,Datum.getInstance(Datum.NOT_UNDERSTOOD));
-				return true;
+			else {
+				errors.addElement("You do not currently have permission to be in Admin Mode");
+				return false;
 			}
 		}
 
 		if (q.getAnswerType() == Node.NOTHING && q.getQuestionOrEvalType() != Node.EVAL) {
-			d = Datum.getInstance(Datum.NA);
+			evidence.set(q,new Datum("",Datum.STRING));
+			return true;
 		}
 		else {
 			d = new Datum(answer,q.getDatumType(),q.getMask()); // use expected value type
@@ -709,30 +721,16 @@ public class Triceps {
 		return nodes.getReserved(Schedule.TITLE);
 	}
 
-	public String getPasswordForRefused() {
-		String s = nodes.getReserved(Schedule.PASSWORD_FOR_REFUSED);
-		if (s == null || s.trim().length() == 0)
-			return null;
-		else
-			return s;
-	}
-	public String getPasswordForUnknown() {
-		String s = nodes.getReserved(Schedule.PASSWORD_FOR_UNKNOWN);
-		if (s == null || s.trim().length() == 0)
-			return null;
-		else
-			return s;
-	}
-	public String getPasswordForNotUnderstood() {
-		String s = nodes.getReserved(Schedule.PASSWORD_FOR_NOT_UNDERSTOOD);
+	public String getPasswordForAdminMode() {
+		String s = nodes.getReserved(Schedule.PASSWORD_FOR_ADMIN_MODE);
 		if (s == null || s.trim().length() == 0)
 			return null;
 		else
 			return s;
 	}
 
-	public boolean isShowInvisibleOptions() {
-		return Boolean.valueOf(nodes.getReserved(Schedule.SHOW_INVISIBLE_OPTIONS)).booleanValue();
+	public boolean isShowAdminModeIcons() {
+		return Boolean.valueOf(nodes.getReserved(Schedule.SHOW_ADMIN_ICONS)).booleanValue();
 	}
 	public boolean isShowQuestionRef() {
 		return Boolean.valueOf(nodes.getReserved(Schedule.SHOW_QUESTION_REF)).booleanValue();
@@ -746,11 +744,14 @@ public class Triceps {
 	public boolean isDeveloperMode() {
 		return Boolean.valueOf(nodes.getReserved(Schedule.DEVELOPER_MODE)).booleanValue();		
 	}
+	public boolean isAllowComments() {
+		return Boolean.valueOf(nodes.getReserved(Schedule.ALLOW_COMMENTS)).booleanValue();
+	}
 	
 	public String getIcon() { return nodes.getReserved(Schedule.ICON); }
 	public String getHeaderMsg() { return nodes.getReserved(Schedule.HEADER_MSG); }
 
-	public void setPasswordForRefused(String s) { nodes.setReserved(Schedule.PASSWORD_FOR_REFUSED,s); }
+	public void setPasswordForAdminMode(String s) { nodes.setReserved(Schedule.PASSWORD_FOR_ADMIN_MODE,s); }
 
 	public Datum evaluateExpr(String expr) {
 		return parser.parse(evidence,expr);
@@ -764,4 +765,18 @@ public class Triceps {
 	}
 
 	public int getLanguage() { return nodes.getLanguage(); }
+	
+	public String createTempPassword() {
+		tempPassword = Long.toString(random.nextLong());
+		return tempPassword;
+	}
+	
+	public boolean isTempPassword(String s) {
+		String temp = tempPassword;
+		createTempPassword();	// reset it
+		
+		if (s == null)
+			return false;
+		return s.equals(temp);
+	}
 }
