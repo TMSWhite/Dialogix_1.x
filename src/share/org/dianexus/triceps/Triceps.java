@@ -631,8 +631,8 @@ public class Triceps {
 		URL url = null;
 		File file = null;
 
-		if (filename == null)
-			return null;
+//		if (filename == null)
+//			return null;
 
 		/* Is it a URL pointing to a file? If so, try reading from it*/
 		try {
