@@ -1,0 +1,94 @@
+TRICEPS Project
+
+Version 1 Requirements
+
+System requirements
+1.separate the definition of the schedule from the system code
+2.support the definition of any structured interview schedule
+3.web-based interface
+4.multiple, concurrent interviews
+5.choice of schedules
+6.expression parser/interpreter
+7.ability to re-load a schedule
+8.sequentially iterate nodes
+9.schedule data stored in flat file
+10.results data stored in flat file
+11.timestamp each new node
+12.Java servlet-enabled web server
+
+DISC requirements
+1.perform a DISC-based introduction and ADHD interview
+2.assist the construction and maintenance of a DISC schedule
+3.provide a view of  the results of an individual interview
+4.incorporate both DSM-IV concepts DISC concepts (un-authenticated)
+5.apply official DISC scoring algorithms
+
+Interview requirements 
+1.questions may be phrased with reference to previous answers
+2.actions (questions, evaluations) may depend on previous answers
+3.one may review the answers given to previous questions and make changes
+4.one may suspend and resume an interview
+5.answer types include all the standard HTML form inputs
+6.one may jump to an arbitrary node
+7.one may reset all the evidence (start over)
+
+Author requirements (via spreadsheet)
+1.select, define, and manipulate domain-specific concepts
+2.select, define, and manipulate actions
+3.define node dependencies (links between nodes)
+
+Report requirements
+1.display all nodes as generated
+2.include "not applicable" nodes
+3.display node details
+
+Testing and verification requirements
+1.paper interview reproduction
+2.test cases for scoring algorithm
+
+
+Requirements for subsequent version(s)
+
+System requirements
+1.authorization/authentication controlled access
+2.upgrade to selectable storage of schedule and results data
+3.upgrade to logical iteration of nodes
+4.context sensitive help
+5.full program documentation
+6.generic interface to actions to allow multiple types
+7.generic interface to concepts to allow multiple ontologies, typologies, vocabularies
+8.generic interface to data to allow multiple types, type checking, and higher order consistency checks
+9.session/access logging
+10.export facilities to common data formats
+
+DISC requirements
+1.upgrade to full DISC interview
+2.add various language and interviewee versions
+3.import data files from other DISC interviews
+
+Interview requirements
+1.support audio rendering of questions
+2.language switching
+
+Author requirements
+1.concept editing/definition in selected domain
+2.dynamic tracking of node dependencies (sorting)
+3.optional graphical representation of logic elements
+4.ability to compose reports 
+5.action editing/definition in selected repertoire 
+
+Reporting requirements
+1.diagnostic summary reports for individual interviews
+2.diagnostic summary reports across groups of interviews
+3.exporting evidence to external, standard formats
+4.summaries by concept
+5.report combined parent-child interview results
+6.support arbitrary grouping of interviews 
+
+Testing and verification requirements
+1.system functions
+2.DISC compatibility
+3.interview variations
+4.scoring algorithms
+5.interface/usability issues
+6.test-retest

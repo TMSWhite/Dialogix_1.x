@@ -1,0 +1,213 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2//EN">
+<HTML>
+
+<HEAD>
+	
+	<META NAME="VPSiteProject" CONTENT="file:///C|/cvs/Triceps/TricepsHTML.vpp"><META HTTP-EQUIV="Content-Type" CONTENT="text/html;CHARSET=iso-8859-1">
+	<META NAME="GENERATOR" Content="Visual Page 2.0 for Windows">
+	<TITLE>Open Source Architectures for Multi-layer Authoring</TITLE>
+</HEAD>
+
+<BODY>
+
+<P ALIGN="CENTER"><B><FONT SIZE="5">Open Source Architectures for Multi-Layered Authoring</FONT></B></P>
+<P><B><FONT SIZE="4">XML-APACHE</FONT></B></P>
+
+<BLOCKQUOTE>
+	<P><A HREF="http://xml.apache.org/cocoon/index.html"><FONT SIZE="4">COCOON</FONT></A><FONT SIZE="4"> (1.7)</FONT></P>
+</BLOCKQUOTE>
+
+
+<UL>
+	<UL>
+		<LI>Publishing framework that seperates content and style into three layers
+		<UL>
+			<LI>XML creation
+			<LI>XML processing - with logic separated from content
+			<LI>XSL rendering - to any of HTML, PDF, XML, WML, XHTML
+		</UL>
+		<LI>uses XSP (extensible server pages) to integrate these three layers
+		<LI>predefined to support browser dependent styling, including IE, opera, lynx, java, wap, and Netscape
+		<LI>supports multiple cycles of processing (e.g. pipes)
+		<LI><IMG SRC="CocoonSchema.jpg" WIDTH="450" HEIGHT="253" ALIGN="BOTTOM" BORDER="0">
+		<LI>sophisticated caching - detects and reloads only those combinations of files that have changed content
+		<LI>includes support for several processors:
+		<UL>
+			<LI>XSLT - using <A HREF="#XALAN">Xalan</A>
+			<LI><A HREF="http://xml.apache.org/cocoon/xsp.html">XSP</A>
+			<UL>
+				<LI>separates logic from content by referencing functions via tags for logic (&lt;xsp:expr&gt;, &lt;xsp:logic&gt;)
+				<LI>uses Bean Scripting Framework (BSF) to allow any scripting language
+				<LI>includes utility methods for access to DOM, HTTP request/response, File, and String operations
+			</UL>
+			<LI><A HREF="http://xml.apache.org/cocoon/dcp.html">DCP</A>
+			<UL>
+				<LI>an alternative to XSP to let external logic be referenced by simple XML tags
+				<LI>supports JavaScript / ECMAScript support
+				<LI>allows aliasing to logic to support re-use
+			</UL>
+			<LI><A HREF="http://xml.apache.org/cocoon/sql.html">SQL</A> - to JDBC
+			<UL>
+				<LI>easy specificication of connections and aliases to them
+				<LI>direct use of SQL within a &lt;query&gt; tag generates XML tags conforming to query result
+				<LI>supports specification of how to deal with nulls, and how to uniquely identify rows and rowsets
+				<LI>supports {@tag} syntax to allow access to more complex, externally defined queries
+				<LI>supports several levels of error handling to deal with SQLExceptions
+			</UL>
+			<LI><A HREF="http://xml.apache.org/cocoon/ldap.html">LDAP</A> - with output to XML
+			<UL>
+				<LI>similar to SQL parser, converts native LDAP queries into XML-tagged result set
+				<LI>supports several levels of error handling
+			</UL>
+		</UL>
+		<LI>allows multiple layers of XSLT - e.g. flow, then layout, then display (e.g. overall menus, then page breaks,
+		then particular elements)
+		<LI><A HREF="http://xml.apache.org/cocoon/cocoon2.html">Version 2</A> of Cocoon has these features planned
+		<UL>
+			<LI>incremental operation - client can start receiving data before all processing completed (e.g. pipe model)
+			<LI>lowered memory consumption, easier scalability, more optimizable code model, reduced garbage collection
+			<LI>replacement of reactor model in favor of pipeline mapping (pyramid model of web contracts)
+			<LI><IMG SRC="pyramid-model.gif" WIDTH="313" HEIGHT="159" ALIGN="BOTTOM" BORDER="0">
+		</UL>
+	</UL>
+	<P><A HREF="http://xml.apache.org/fop/index.html"><FONT SIZE="4">FOP</FONT></A><FONT SIZE="4"> (0.12.1)</FONT></P>
+	<UL>
+		<LI>XSL driven formatter to generate dynamic PDF or complex HTML files
+	</UL>
+	<P><A NAME="XALAN"></A><A HREF="http://xml.apache.org/xalan/index.html"><FONT SIZE="4">XALAN</FONT></A><FONT SIZE="4">
+	(1.0.0)</FONT></P>
+	<UL>
+		<LI>full support for <A HREF="http://www.w3.org/TR/xslt">XSLT</A> and <A HREF="http://www.w3.org/TR/xpath">XPath</A>
+		<LI>Optionally use the Document Table Model (<A HREF="http://xml.apache.org/xalan/dtm.html">DTM</A>) (uses SAX,
+		so faster than object creation needed for DOM)
+		<UL>
+			<LI>Uses table of indices (and associated transform) for faster performance.
+		</UL>
+		<LI>uses Bean Scripting Framework (BSF) to allow use of any scripting language including JavaScript, PerlScript,
+		JScript/VBScript, Jacl, JPython, BML, NetRexx, and Mozilla Rhino
+		<LI>supports Redirect extension to allow XSL output to multiple files from a single XML source file
+		<LI>namespace extensions allow for complex Java formatting of data objects (comparable to supporting JavaBeans
+		internal to XSL)
+		<LI>has wrapper classes to support quick building of Applets and Servlets
+		<LI>supports pipelining of XSLT, unlike JSP
+		<LI>stylesheets can be compiled for speed
+	</UL>
+	<P><A HREF="http://xml.apache.org/xerces-j/index.html"><FONT SIZE="4">XERCES</FONT></A><FONT SIZE="4"> (1.0.3)</FONT></P>
+	<UL>
+		<LI>XML parsers in Java, Perl, and C++
+		<LI>supports all W3 beta specifications (Schema, DOM2, SAX2)
+		<LI>IBM has replaced its award winning XML4J with Xerces
+		<LI>support for building XML editors
+	</UL>
+	<P><A HREF="http://java.apache.org/jetspeed/index.html"><FONT SIZE="4">JETSPEED</FONT></A><FONT SIZE="4"> (1.0)</FONT></P>
+	<UL>
+		<LI>Portlet API
+		<LI>Avantgo synchronization
+		<LI>database user authentication
+		<LI>support for XML content feeds via Open Content Syndication
+	</UL>
+	<P><A HREF="http://java.apache.org/turbine/index.html"><FONT SIZE="4">TURBINE</FONT></A><FONT SIZE="4"> (alpha)</FONT></P>
+	<UL>
+		<LI>servlet based framework for rapid development of secure web applications
+		<LI>separates page content into five types of components:
+		<LI><IMG SRC="TurbineModules.gif" WIDTH="307" HEIGHT="150" ALIGN="BOTTOM" BORDER="0">
+		<UL>
+			<LI>which generates:
+		</UL>
+		<LI><IMG SRC="TurbineModuleObjectLayout.gif" WIDTH="371" HEIGHT="421" ALIGN="BOTTOM" BORDER="0">
+		<LI>allows use of Java, rather than XML/XSL/XSP approaches
+		<LI>supports EJB integration
+		<LI>built-in support for access control lists and user permissions
+		<LI>extensible error handling
+	</UL>
+</UL>
+
+<P></P>
+
+<P>
+<HR ALIGN="CENTER">
+</P>
+
+<P><B><A HREF="http://www.enhydra.com/"><FONT SIZE="4">ENHYDRA</FONT></A></B><FONT SIZE="4"> (3.0 beta2)</FONT>
+
+<BLOCKQUOTE>
+	<P><FONT SIZE="4">FEATURES</FONT></P>
+</BLOCKQUOTE>
+
+
+<UL>
+	<UL>
+		<LI>Goal is to separate business logic from content and support robust database interfaces
+		<UL>
+			<LI>support for JDBC-like ResultSet that can aggregate from several different databases simultaneously
+			<LI>support for database load-balancing layer
+			<LI>includes DODS (Data Object Design Studio) - a GUI for creating data objects and queries
+		</UL>
+		<LI>uses XML ID attributes to reference external logic
+		<LI>automates conversion of HTML pages into Java code to construct DOM tree from which HTML can be re-created
+		<LI>WML extensions for wireless
+		<LI>cookie-less sessions (e.g. supports legacy browsers, and users who don't allow cookies)
+		<LI>strictly geared towards HTML<FONT SIZE="4"></FONT>
+	</UL>
+</UL>
+
+
+<BLOCKQUOTE>
+	<P><FONT SIZE="4">XMLC SYNTAX</FONT></P>
+</BLOCKQUOTE>
+
+
+<UL>
+	<UL>
+		<LI>Separate logic and content by using XML tags to reference external business logic
+		<LI>Enhydra finds any instance of ID attribute within HTML tags, then generates a DOM representation of HTML document
+		with getElementID and setTextID() methods for each ID found.
+		<LI>&lt;SPAN ID=&quot;name&quot;&gt;, &lt;FORM ID=&quot;name&quot;&gt;, &lt;INPUT ID=&quot;name&quot;&gt;
+		<UL>
+			<LI>allows dynamic manipulation via HTMLInputElement, HTMLHeadElement, HTMLTitleElement, HTMLBodyElement, HTMLParagraphElement,
+			HTMLFormElement, etc. classes
+		</UL>
+	</UL>
+	<P><B>DODS</B></P>
+	<UL>
+		<LI>Goal is to facilitate object-to-relational database mapping
+		<LI>Allows definition of data &quot;Things&quot; via GUI, generating:
+		<UL>
+			<LI>Thing.sql - containing &quot;create table&quot; commands
+			<LI>ThingDO.java - represents a row in the ResultSet
+			<LI>ThingQuery.java - provides SQL query access to database
+			<LI>ThingBDO.java - business data object - extra layer of abstraction fro dealing with data
+		</UL>
+	</UL>
+</UL>
+
+<P>
+<HR ALIGN="CENTER">
+</P>
+
+<P><B><FONT SIZE="4">MOZILLA</FONT></B></P>
+
+<BLOCKQUOTE>
+	<P><A HREF="http://www.mozilla.org/xpfe/xptoolkit/index.html"><FONT SIZE="4">XUL</FONT></A><B> (Xplatorm UI Language)
+	(alpha)</B></P>
+</BLOCKQUOTE>
+
+
+<UL>
+	<UL>
+		<LI>XML syntax for building dynamic UIs
+		<LI>does not separate content and logic
+		<LI>Widgets include menus, toolbars/boxes, titled buttons, trees, tabbed panes, sliders, splitters, progress-meters,
+		tristate buttons, popups
+		<LI>event listeners (broadcasters/observers), hot keys, disabling,
+		<LI>styling using CSS syntax
+		<LI>facilitation of drag-and-drop
+		<LI>layout managers - only box, but supports nesting and width specifiers
+		<LI>UI reuse using named overlays
+	</UL>
+</UL>
+
+
+</BODY>
+
+</HTML>

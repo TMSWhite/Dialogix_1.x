@@ -1,0 +1,169 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2//EN">
+<HTML>
+
+<HEAD>
+	<META HTTP-EQUIV="Content-Type" CONTENT="text/html;CHARSET=iso-8859-1">
+	<META NAME="GENERATOR" Content="Visual Page 2.0 for Windows">
+	<TITLE>untitled</TITLE>
+</HEAD>
+
+<BODY>
+
+<P ALIGN="CENTER"><B><FONT SIZE="5">Java Security and Cyrptography</FONT></B></P>
+<P><B>CREATING A CERTIFICATE AND OPTIONAL KEYSTORE</B>
+
+<BLOCKQUOTE>
+	<P><FONT FACE="Courier New, Courier">C:\cvs\Triceps\dist-jar&gt;java3 keytool -genkey -alias signTriceps -keystore
+	Triceps<BR>
+	Enter keystore password: Triceps password<BR>
+	What is your first and last name?<BR>
+	[Unknown]: Thomas M. White, MD, MS<BR>
+	What is the name of your organizational unit?<BR>
+	[Unknown]: Department of Medical Informatics<BR>
+	What is the name of your organization?<BR>
+	[Unknown]: Columbia University<BR>
+	What is the name of your City or Locality?<BR>
+	[Unknown]: New York<BR>
+	What is the name of your State or Province?<BR>
+	[Unknown]: NY<BR>
+	What is the two-letter country code for this unit?<BR>
+	[Unknown]: US<BR>
+	Is &lt;CN=&quot;Thomas M. White, MD, MS&quot;, OU=Department of Medical Informatics, O=Columbia University, L=New
+	York, ST=NY, C=US&gt; correct?<BR>
+	[no]: y<BR>
+	<BR>
+	Enter key password for &lt;signTriceps&gt;<BR>
+	(RETURN if same as keystore password): signTricepsPassword</FONT>
+</BLOCKQUOTE>
+
+<P><BR>
+<BR>
+&gt;&gt; creates keystore in the directory in which keytool was run<BR>
+&gt;&gt; creates a self-signed certificate which is valid for 90 days by default<BR>
+<BR>
+SIGNING A JAR FILE 
+
+<BLOCKQUOTE>
+	<P>C:\cvs\Triceps\dist-jar&gt;java3 jarsigner -keystore Triceps -signedjar sTriceps.jar Triceps.jar signTriceps<BR>
+	Enter Passphrase for keystore: Triceps password<BR>
+	Enter key password for signTriceps: signTricepsPassword
+</BLOCKQUOTE>
+
+<P><BR>
+&gt;&gt; creates sTriceps.jar signed with the private key<BR>
+<BR>
+<B>EXPORTING A CERTIFICATE</B>
+
+<BLOCKQUOTE>
+	<P><FONT FACE="Courier New, Courier">C:\cvs\Triceps\dist-jar&gt;java3 keytool -export -keystore Triceps -alias
+	signTriceps -file signTriceps.cer<BR>
+	Enter keystore password: Triceps password<BR>
+	Certificate stored in file &lt;signTriceps.cer&gt;</FONT>
+</BLOCKQUOTE>
+
+<P><BR>
+&gt;&gt; creates a binary certificate containing the public key - about 876 bytes<BR>
+<BR>
+<B>IMPORTING A CERTIFICATE (users)</B>
+
+<BLOCKQUOTE>
+	<P><FONT FACE="Courier New, Courier">C:\cvs\Triceps\dist-jar&gt;java3 keytool -import -alias pubTriceps -file signTriceps.cer
+	-keystore pubTriceps<BR>
+	Enter keystore password: public Triceps password<BR>
+	Owner: CN=&quot;Thomas M. White, MD, MS&quot;, OU=Department of Medical Informatics, O=Columbia University, L=New
+	York, ST=NY, C=US<BR>
+	Issuer: CN=&quot;Thomas M. White, MD, MS&quot;, OU=Department of Medical Informatics, O=Columbia University, L=New
+	York, ST=NY, C=US<BR>
+	Serial number: 39a53c4f<BR>
+	Valid from: Thu Aug 24 11:16:31 EDT 2000 until: Wed Nov 22 10:16:31 EST 2000<BR>
+	Certificate fingerprints:<BR>
+	MD5: 74:AD:4F:EC:ED:4A:18:04:BF:AF:D0:21:59:DC:75:9E<BR>
+	SHA1: 13:5B:6B:F0:A3:4F:D4:62:71:D8:CE:DF:87:6C:DE:F1:59:9E:AB:E0<BR>
+	Trust this certificate? [no]: y<BR>
+	Certificate was added to keystore</FONT>
+</BLOCKQUOTE>
+
+<P><BR>
+&gt;&gt; creates the keystore pubTriceps, and adds signTriceps public certificate to it.<BR>
+<BR>
+<B>PRINTING A CERTIFICATE'S INFORMATION FOR REVIEW</B>
+
+<BLOCKQUOTE>
+	<P><FONT FACE="Courier New, Courier">C:\cvs\Triceps\dist-jar&gt;java3 keytool -printcert -file signTriceps.cer<BR>
+	Owner: CN=&quot;Thomas M. White, MD, MS&quot;, OU=Department of Medical Informatics, O=Columbia University, L=New
+	York, ST=NY, C=US<BR>
+	Issuer: CN=&quot;Thomas M. White, MD, MS&quot;, OU=Department of Medical Informatics, O=Columbia University, L=New
+	York, ST=NY, C=US<BR>
+	Serial number: 39a53c4f<BR>
+	Valid from: Thu Aug 24 11:16:31 EDT 2000 until: Wed Nov 22 10:16:31 EST 2000<BR>
+	Certificate fingerprints:<BR>
+	MD5: 74:AD:4F:EC:ED:4A:18:04:BF:AF:D0:21:59:DC:75:9E<BR>
+	SHA1: 13:5B:6B:F0:A3:4F:D4:62:71:D8:CE:DF:87:6C:DE:F1:59:9E:AB:E0</FONT>
+</BLOCKQUOTE>
+
+<P><BR>
+&gt;&gt; prints this message<BR>
+&gt;&gt; user should validate that the fingerprints attached to the certificate (these) match those created during
+import<BR>
+<BR>
+<B>SENDING AN IMPORTANT DOCUMENT - NONREPUDICATION</B> (Verify that a jar file is authentic)</P>
+
+<BLOCKQUOTE>
+	<P><FONT FACE="Courier New, Courier">C:\cvs\Triceps\dist-jar&gt;java3 jarsigner -verify -keystore pubTriceps Triceps.jar<BR>
+	jar verified.</FONT></P>
+
+	<P><FONT FACE="Courier New, Courier">C:\cvs\Triceps\dist-jar&gt;java3 jarsigner -verify -verbose -keystore pubTriceps
+	Triceps.jar<BR>
+	<BR>
+	2278 Thu Aug 24 11:24:24 EDT 2000 META-INF/MANIFEST.MF<BR>
+	2331 Thu Aug 24 11:24:58 EDT 2000 META-INF/SIGNTRIC.SF<BR>
+	1178 Thu Aug 24 11:24:58 EDT 2000 META-INF/SIGNTRIC.DSA<BR>
+	0 Wed Aug 23 16:07:18 EDT 2000 META-INF/<BR>
+	smk 9387 Sun Aug 20 21:49:38 EDT 2000 TricepsBundle_es.properties<BR>
+	smk 8237 Wed Aug 16 15:03:06 EDT 2000 TricepsBundle.properties<BR>
+	0 Wed Aug 23 16:07:16 EDT 2000 org/<BR>
+	0 Wed Aug 23 16:07:16 EDT 2000 org/dianexus/<BR>
+	0 Wed Aug 23 16:07:16 EDT 2000 org/dianexus/triceps/<BR>
+	smk 1818 Wed Aug 23 16:07:16 EDT 2000 org/dianexus/triceps/AnswerChoice.class<BR>
+	smk 467 Wed Aug 23 16:07:16 EDT 2000 org/dianexus/triceps/VersionIF.class<BR>
+	smk 24086 Wed Aug 23 16:07:16 EDT 2000 org/dianexus/triceps/Triceps.class<BR>
+	smk 21001 Wed Aug 23 16:07:16 EDT 2000 org/dianexus/triceps/Schedule.class<BR>
+	smk 23436 Wed Aug 23 16:07:16 EDT 2000 org/dianexus/triceps/Evidence.class<BR>
+	smk 3274 Wed Aug 23 16:07:16 EDT 2000 org/dianexus/triceps/Parser.class<BR>
+	smk 6235 Wed Aug 23 16:07:16 EDT 2000 org/dianexus/triceps/Logger.class<BR>
+	smk 21893 Wed Aug 23 16:07:18 EDT 2000 org/dianexus/triceps/Node.class<BR>
+	smk 13956 Wed Aug 23 16:07:18 EDT 2000 org/dianexus/triceps/Datum.class<BR>
+	smk 2504 Wed Aug 23 16:07:18 EDT 2000 org/dianexus/triceps/Value.class<BR>
+	smk 457 Wed Aug 23 16:07:18 EDT 2000 org/dianexus/triceps/Qss$JJCalls.class<BR>
+	smk 27125 Wed Aug 23 16:07:18 EDT 2000 org/dianexus/triceps/Qss.class<BR>
+	smk 2308 Wed Aug 23 16:07:18 EDT 2000 org/dianexus/triceps/QssConstants.class<BR>
+	smk 738 Wed Aug 23 16:07:18 EDT 2000 org/dianexus/triceps/Token.class<BR>
+	smk 3300 Wed Aug 23 16:07:18 EDT 2000 org/dianexus/triceps/ParseException.class<BR>
+	smk 10077 Wed Aug 23 16:07:18 EDT 2000 org/dianexus/triceps/QssTokenManager.class<BR>
+	smk 6335 Wed Aug 23 16:07:18 EDT 2000 org/dianexus/triceps/ASCII_CharStream.class<BR>
+	smk 9229 Wed Aug 23 16:07:18 EDT 2000 org/dianexus/triceps/DatumMath.class<BR>
+	smk 2271 Wed Aug 23 16:07:18 EDT 2000 org/dianexus/triceps/ParseError.class<BR>
+	smk 2208 Wed Aug 23 16:07:18 EDT 2000 org/dianexus/triceps/ScheduleList.class<BR>
+	smk 2615 Wed Aug 23 16:07:18 EDT 2000 org/dianexus/triceps/TokenMgrError.class<BR>
+	smk 28350 Wed Aug 23 16:07:18 EDT 2000 org/dianexus/triceps/TricepsServlet.class<BR>
+	smk 12768 Wed Aug 23 16:07:18 EDT 2000 org/dianexus/triceps/XmlString.class<BR>
+	<BR>
+	s = signature was verified<BR>
+	m = entry is listed in manifest<BR>
+	k = at least one certificate was found in keystore<BR>
+	i = at least one certificate was found in identity scope<BR>
+	<BR>
+	jar verified.<BR>
+	</FONT></P>
+</BLOCKQUOTE>
+
+<P>&gt;&gt; This approach could be used to verify the integrity of the Jar file with which Triceps would be run.
+ However, it either requires that the user manually verifies file.  Alternativelyu, if there is as way to have
+th system do the verifying (e.g. of a compressed Jar file launched by a stub loader), there might be less dobut
+as to the integrity of the system?</P>
+
+<P><FONT FACE="Courier New, Courier"></FONT>
+
+</BODY>
+
+</HTML>

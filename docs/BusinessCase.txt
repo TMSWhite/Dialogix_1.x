@@ -1,0 +1,67 @@
+TRICEPS Project
+
+Business Case
+
+What is it?
+Triceps is a World-Wide Web-based software system for rapidly designing, deploying, and analyzing complex surveys and structured interviews.  In particular it:
+1.allows interview schedule definition or modification
+2.performs interviews
+3.reports interview results
+4.instantiates a generalizable model of inquiry
+
+Why is it useful?
+1.can be deployed for data collection in many ways
+2.connects interview questions and answers with standard vocabulary and concepts
+3.works for any interview language
+4.permits dynamic, personalized interviews
+5.permits data storage flexibility both in format and location
+
+What problem(s) does it solve?
+1.the speed of interview development
+2.the cost of system code modification
+3.unreferenced data and questions
+4.the standardization of terms and concepts
+5.the integration with other systems
+6.interview tailoring, i.e., shaping a interview in the light of previous responses
+7.the confusion of content with presentation
+8.deployment limitations
+9.the need for data isolation
+
+What are its advantages?
+1.simple, compact, and fast
+2.domain independent (e.g., useful in medicine or marketing)
+3.permits independent control of standardized concepts, questions, and their data
+4.easy to use
+5.questions and data are clearly referenced by a standard concept or vocabulary
+6.permits personalized questions
+7.built to use the internet for distributed deployment and data storage
+8.supports display and media variations
+9.supports multiple users
+10.platform independent
+11.not limited to pre-defined question or answer types
+12.data persistence is not bound to any particular storage system
+
+What is novel about it?
+1.its underlying theoretical model
+2.possesses advanced iteration logic
+3.applicable in multiple domains
+4.dynamic question formation, tailoring
+5.action flexibility
+6.explicit integration of standard terms and concepts at each step in the interview
+7.separates content and logic of the interview from its presentation
+8.able to interpret and execute actions defined in the schedule (external to the system)
+
+Who will use it?
+1.interviewers collecting data in face-to-face structured interviews
+2.enterprises collecting data in web-based interviews
+3.educators developing curricula, teaching courses, and giving tests
+4.researchers developing and deploying measurement instruments
+5.clinicians needing a customized data collection tool
+6.students organizing material being studied
+7.domain specialists developing improved concept and relation typologies
+
+What is the closest prior state of the art?
+1.systems to define, deliver, and score simple, static interviews
+2.systems to define, deliver, and score educational programs (Socratease)
+3.domain-specific systems to deploy, score, and report complicated interviews (C-CISC, JADE)
+4.

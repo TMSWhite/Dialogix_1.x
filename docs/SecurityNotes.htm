@@ -1,0 +1,354 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2//EN">
+<HTML>
+
+<HEAD>
+	<META HTTP-EQUIV="Content-Type" CONTENT="text/html;CHARSET=iso-8859-1">
+	<TITLE>untitled</TITLE>
+</HEAD>
+
+<BODY>
+
+<P ALIGN="CENTER"><B><FONT SIZE="5">Security Information</FONT></B> (from John Carton)</P>
+
+<P ALIGN="CENTER"><B>The SANS Institute - Securing Linux Step By Step</B></P>
+
+<UL>
+	<LI>BIOS
+	<UL>
+		<LI>disable AUTO settings - changes can affect the disks
+		<LI>disable booting from removable media
+		<LI>lock access via keyboard, drives, etc.
+	</UL>
+	<LI>Partitions
+	<UL>
+		<LI>keep /var, and any partition that can accumulate error messages separate.  That way if the error logs overflow,
+		the system will still run.
+		<LI>recommendation:
+		<UL>
+			<LI>hda:  500MB /
+			<LI>hda:  1000MB /usr
+			<LI>hda:  1500MB /usr/local
+			<LI>hda:  2000MB /tmp
+			<LI>hda:  4000MB /var/spool/news
+			<LI>hdb:  500MB swap
+			<LI>hdb:  5500MB /home
+			<LI>hdb:  3000MB /var
+		</UL>
+	</UL>
+	<LI>Passwords
+	<UL>
+		<LI>Shadow them with MD5 digest.  They are then put in /etc/shadow, and only readable by root
+		<LI>without it, if /etc/passwd is world readable, can use <I>Crack</I> tool
+	</UL>
+	<LI>/etc/inittab defines behavior of init (process # 1)
+	<UL>
+		<LI>comment out line which enables CTRL-ALT-DELETE
+		<UL>
+			<LI>#ca::ctrlaltdel:/sbi/shutdown -t3 -r now
+		</UL>
+		<LI>required password for single user mode
+		<UL>
+			<LI>~~:S:wait:/sbin/sulogin
+		</UL>
+		<LI>restart init:
+		<UL>
+			<LI>[root]# init q
+		</UL>
+	</UL>
+	<LI>Password protect LILO boots
+	<UL>
+		<LI>add following to /etc/lilo.conf after the <I>prompt</I> line:
+		<UL>
+			<LI>password = your-password
+			<LI>restricted
+		</UL>
+		<LI>chmod 600 /etc/lilo.conf
+		<LI>/sbin/lilo
+	</UL>
+	<LI>System access policies
+	<UL>
+		<LI>disable root login via telnet
+		<UL>
+			<LI>/etc/securetty - lists which ttys can allow root login.  Should be restricted to tty1, tty2, tty3, ..., tty8
+			only (console)
+		</UL>
+		<LI>disable root login via ftp
+		<UL>
+			<LI>/etc/ftpusers - lists accounts that are NOT allowed to login via FTP.  Should contain all?
+		</UL>
+		<LI>authorization
+		<UL>
+			<LI>/etc/security/access.conf
+			<UL>
+				<LI>-:ALL EXCEPT root admin :console
+			</UL>
+			<LI>/etc/security/group.conf
+			<LI>/etc/security/limits.conf
+			<LI>/etc/security/times.conf - e.g. normal business hours
+		</UL>
+	</UL>
+	<LI>Logging
+	<UL>
+		<LI>sysklogd
+		<UL>
+			<LI>syslogd
+			<LI>klogd
+		</UL>
+		<LI>/etc/syslogd.conf
+		<LI>N.B. syslogd has no way to detect tampering with the log files.  Newer version exist. ***
+		<LI>optimize SYSLOG settings (separtor must be TAB)
+		<UL>
+			<LI>*.warn;*.err    /var/log/syslog
+			<LI>kern.*             /var/log/kernel
+		</UL>
+		<LI>configure real-time logging to VTY7 and VTY8 (ALT-F7 and ALT-F8 screens)
+		<UL>
+			<LI>*.info;mail.none;authpriv.none    /dev/tty7
+			<LI>authpriv.*   /dev/tty7
+			<LI>*.warn;*.err   /dev/tty7
+			<LI>kern.*   /dev/tty7
+			<LI>mail.*   /dev/tty8
+		</UL>
+		<LI>create log files
+		<UL>
+			<LI>[root]# touch /ver/log/syslog /var/log/kernel
+			<LI>[root]# chmod 700 /var/log/syslog /var/log/kernel
+		</UL>
+		<LI>restart syslogd
+		<UL>
+			<LI>[root]# killall -HUP syslogd
+		</UL>
+		<LI>log rotation (logrotate)
+		<UL>
+			<LI>/etc/logrotate.d/syslog
+			<UL>
+				<LI>/var/log/kernel {
+				<UL>
+					<LI>compress
+					<LI>postrotate
+					<UL>
+						<LI>/usr/bin/killall -9 klogd
+						<LI>/usr/sbin/klogd &amp;
+					</UL>
+					<LI>endscript
+				</UL>
+				<LI>}
+				<LI>/var/log/syslog {
+				<UL>
+					<LI>compress
+					<LI>postrotate
+					<UL>
+						<LI>/usr/bin/killall -HUP syslogd
+					</UL>
+					<LI>endscript
+				</UL>
+				<LI>}
+			</UL>
+			<LI>/etc/logrotate.conf
+			<UL>
+				<LI>weekly
+				<LI>rotate 4
+				<LI>errors root
+				<LI>create
+				<LI>compress
+			</UL>
+			<LI>/etc/cron.daily/logrotate
+		</UL>
+		<LI>remote logging
+		<UL>
+			<LI>/etc/syslog.conf
+			<UL>
+				<LI>*.warn;*.err  @loghost
+				<LI>authpriv.*;auth.*  @loghost
+			</UL>
+		</UL>
+		<LI>synchronize system clock with log server
+		<UL>
+			<LI>/etc/cron.hourly/set-ntp:
+			<UL>
+				<LI>/usr/sbin/ntpupdate -bu -t 3 loghost.example.org
+				<LI>/sbin/hwclock --systohc
+			</UL>
+			<LI>chmod 700 /etc/cron.hourly/set-ntp
+			<LI>[requires sue of xntpd NTP daemon.  xntp3 RPM is available
+		</UL>
+	</UL>
+	<LI>Inetd
+	<UL>
+		<LI>comment out all services
+		<LI>kill -HUP inetd
+		<LI>ensure that no user has a .rhosts in their home directory (or make it root and unchangeable)?
+		<LI>remove /etc/hosts.equiv
+		<LI>prevent inetd from starting in the first place?
+		<UL>
+			<LI>/bin/rm /etc/rc.d/rc[345].d/*inet
+		</UL>
+		<LI>If must have inetd, use TCP wrappers
+		<UL>
+			<LI>/usr/sbin/tcpd - called by inetd instead of normal daemon
+			<LI>checks /etc/hosts.allow and /etc/hosts.deny
+			<LI>if passes check, sends request to normal daemon
+		</UL>
+		<LI>/etc/hosts.deny
+		<UL>
+			<LI>ALL: ALL
+		</UL>
+		<LI>/etc/hosts.allow
+		<UL>
+			<LI>in.ftpd:  host.example.org
+		</UL>
+		<LI>/etc/inetd.conf
+		<UL>
+			<LI>ftp stream tcp nowait root /usr/sbin/tcpd in.ftpd -l -a
+		</UL>
+		<LI>verify that no typos
+		<UL>
+			<LI>tcpdchk -v
+		</UL>
+		<LI>TCP wrapped services - banners
+		<UL>
+			<LI>required to warn user not to try to hack system - required for prosecution
+			<LI>mkdir /etc/banners
+			<LI>cp /usr/doc/tcp_wrapers-7.6/Banners.Makefile /etc/banners/Makefile
+			<LI>cd /etc/banners
+			<LI>echo &quot;This is a prototype banner. Replace it&quot; &gt; prototype
+			<LI>make
+			<LI>[creates banners for in.telnetd, in.ftpd, and in.rlogind]
+			<LI>/etc/hosts.allow
+			<UL>
+				<LI>in.telnetd:  work.example.org  : banners /etc/banners : allow
+				<LI>all : all : banners /etc/banners : deny
+			</UL>
+		</UL>
+	</UL>
+	<LI>Run-time Network services
+	<UL>
+		<LI>all expect <I>start</I> and <I>stop</I> parameters
+		<LI>/etc/rc.d/init.d/httpd stop
+		<LI>all scripts are in /etc/rc.d/init.d
+		<LI>what is running? - tells which ports are listening
+		<UL>
+			<LI>/bin/netstat -at
+			<LI>doesn't say which process is listening on which port
+		</UL>
+		<LI>lsof (list of open files - including network sockets)
+		<UL>
+			<LI>lsof -i +M
+			<UL>
+				<LI>COMMAND  PID  USER  FD  TYPE  DEVICE  NODENAME
+				<LI>portmap          3264  root     3u   inet      4546        UDP *:sunprc[portmapper]
+				<LI>portmap          3264  root     4u   inet      4547        TCP *:sunprc[portmapper] (LISTEN)
+			</UL>
+			<LI>lsof -i -Fc | grep '^c' | cut -b2-20 | sort -u
+			<UL>
+				<LI>httpd
+				<LI>lpd
+				<LI>...
+			</UL>
+		</UL>
+		<LI>eliminate uncessesary services
+		<UL>
+			<LI>/sbin/chkconf - adds/removes scripts from runlevels 3,4,5 without deleting script from /etc/rc.d/init.d
+			<LI>foreach $service in {httpd, lpd, named, netfs, sbm, nfs, portmap, sendmail}
+			<UL>
+				<LI>/etc/rc.d/init.d/$service stop
+				<LI>/sbin/chkconf $service off
+			</UL>
+			<LI>can also remove the actual service from /etc/rc.d/init.d/* for extra security
+		</UL>
+	</UL>
+	<LI>Get latest versions of software
+	<UL>
+		<LI>http://www.redhad.com/cort/support/errata
+		<LI>ftp://updates.redhat.com -&gt; /usr/local/updates
+		<LI>rpm -Uvh &lt;package-name&gt;
+		<UL>
+			<LI>rpm -Uvh samba-2.0.5a-1.i386.rpm
+			<LI>rpm -Uvh ftp://updates.redhat.com/6.0/i386/samba-2.0.5a-1.i386.rpm
+			<LI>rpm -F /usr/local/updates/* - freshens all packages in that directory
+		</UL>
+		<LI>AutoRPM - keeps everything up to date (secure?)
+		<UL>
+			<LI>cd /usr/local/src
+			<LI>tar xzf &lt;download-dir&gt;/autorpm*.tar.gz
+			<LI>cd autorpm*
+			<LI>mkdir --mode 700 /etc/autorpm.d
+			<LI>cp autorpm.conf autorpm.d/* /etc/autorpm.d
+			<LI>mkdir --mode 700 /etc/autorpm.d/pools
+			<LI>cp pools/* /etc/autorrpm.d/pools
+			<LI>install --owner=root --group=bin --mode=0700 autorpm.pl /usr/sbin/autorpm
+			<LI>cp autorpm.8 /usr/local/man/man8
+			<LI>cp autorpm.conf.5 /usr/local/man/man5
+			<LI>[root]# autorpm --interactive
+		</UL>
+	</UL>
+	<LI>Disable DNS
+	<UL>
+		<LI>/etc/rc.d./init.d/named stop
+		<LI>rpm -e caching-nameserver
+		<LI>rpm -e bind
+		<LI>nameserver www.xxx.yyy.zzz - make sure to remove 127.0.0.1 (since not using self as nameserver)
+	</UL>
+	<LI>Turn off sendmail
+	<UL>
+		<LI>/etc/sysconfig/sendmail
+		<UL>
+			<LI>DAEMON=no
+			<LI>QUEUE=15m
+		</UL>
+		<LI>/etc/rc.d/init.d/sendmail restart
+	</UL>
+	<LI>Turn off NFS exports and remove NFS daemons
+	<UL>
+		<LI>/etc/rc.d/init.d/nfs stop
+		<LI>rpm -e knfsd
+	</UL>
+	<LI>Turn off HTTP
+	<UL>
+		<LI>/etc/rc.d/init.d/httpd stop
+		<LI>rpm -e apache
+		<LI>rpm -e apache-devel
+		<LI>/etc/httpd/conf/httpd.conf
+		<UL>
+			<LI>Listen 127.0.0.1:80
+		</UL>
+		<LI>netstat -a | grep www
+		<UL>
+			<LI>tcp 0 0 localhost:www *:* LISTEN
+		</UL>
+	</UL>
+	<LI>Eliminate anonymous FTP 
+	<UL>
+		<LI>/etc/ftpaccess
+		<UL>
+			<LI>class all real *
+		</UL>
+		<LI>rpm -e anonftp
+	</UL>
+	<LI>Don't put development tools (make, perl, gcc, etc) on servers - otherwise if hacker breaks into user account,
+	they can download and compile programs that inappropriately grant root privilidges
+	<LI>Assess what is installed
+	<UL>
+		<LI>rpm -qail &gt; /root/package.list
+		<LI>chmod 400 /root/package.list
+	</UL>
+	<LI>SSH
+	<UL>
+		<LI>http://www.ssh.fi/sshprotocols2/download.html
+		<LI>compile with -with-libwrap - allows TCP-wrapper style access control
+		<LI>/etc/rc.d/rc.local
+		<UL>
+			<LI>add /usr/local/sbin/sshd
+		</UL>
+		<LI>chkconfig sshd on
+		<LI>/etc/hosts.allow
+		<UL>
+			<LI>compile with 
+		</UL>
+	</UL>
+</UL>
+
+
+</BODY>
+
+</HTML>

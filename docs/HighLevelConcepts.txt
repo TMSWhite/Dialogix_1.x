@@ -1,0 +1,150 @@
+High Level Concepts:
+
+-JTableTree for viewing results
+	values as they are set
+	table of values over time
+	graph of values over time
+	statistical trends
+	percent of sample having a sx
+	variance in scores (e.g. unrealiable, highly labile?)
+	time-line view of diagnoses/sx (to be integrated with other medicatation data
+	values in table cells can be numerical, or horizontal bar graph
+	can represent percent of selecting each choice for a question as a stacked horizontal bar graph
+	
+-BPRS can be represented using this tool
+	Extend question to include:
+		<!ELEMENT question (intro?, answer)>
+		<!ATTLIST question name ID #OPTIONAL
+								language (english|spanish|french|...) #IMPLIED "english"
+								voicable (true|false) #IMPLIED "false"
+								printable (true|false) #IMPLIED "true"
+								graphical (true|false) #IMPLIED "false">
+		<!ELEMENT intro #PCDATA>
+		<!ELEMENT answer (single | choices | choice*)>
+		<!ELEMENT single EMPTY>
+		<!ATTLIST single type (date|text|number) #REQUIRED>
+		<!ELEMENT choice (value?, msg?, anchor?)>
+		<!ELEMENT value CDATA>
+		<!ELEMENT msg #PCDATA>
+		<!ELEMENT anchor #PCDATA>
+		<!ELEMENT choices (choice*)>
+		<!ATTLIST choices id ID #REQUIRED>
+
+<!-- Example of text to speech translation:
+When did you <B>last</B> beat your wife
+When did you <emphasis>last</empahasis> beat your wife.	
+-->	
+		
+	Implement each node in XML:(?)
+		<!ELEMENT node (concept*,conditional,action)>
+		<!ATTLIST node name ID #REQUIRED>
+		<!ELEMENT concept EMPTY>
+		<!ATTLIST concept name ID #REQUIRED>
+		<!ELEMENT conditional CDATA>
+		<!ELEMENT action (question|eval|grouper)>
+		<!ELEMENT eval CDATA>
+		<!ELEMENT grouper (question?)>
+		<!ATTLIST grouper type ([|]) #REQUIRED>
+		
+	Implement schedule as:
+		<!ELEMENT schedule (node*)>
+		<!ATTLIST schedule completion_date CDATA #REQUIRED>
+	or
+		<!ELEMENT schedule (concept*)>
+		<!ELEMENT concept (concept|node)*>	// allow nesting of concepts
+		<!ELEMENT node (alias*,conditional,action)>
+		<!ELEMENT alias NTOKEN>	// valid token
+		
+	Implement evidence as:
+		<!ELEMENT data (datum*)>
+		<!ELEMENT datum value>
+		<!ATTLIST datum node ID #REQUIRED>	// link to the referring node
+		<!ELEMENT value CDATA>	// same as above
+		
+		
+	This would give the flexibility needed to encode the BPRS questions and the evaluation of the scores.
+	Global presentation styles would specify how to layout choices and their relationship to the concept heirarchy
+		- for example, if XSL allows, could use node ID from datum to get to node.question.choice[value].msg
+		
+
+-Multiple results-viewing types
+	table of questions/answer/the text that represents (or subsets of those columns)
+	tree-table of the same
+	printable version - e.g. HTML table with summary statistics at the end
+		could use XSL or other stylesheet system to show
+		
+-Applet viewer
+	might abstract access to question from display - so that can retrieve over network if needed
+		could do as serialized object (if needed) so that can invoke question's display method
+		might facilitate implementation as client/server, or local to a single application
+	two main viewing areas:
+		results within the concept heirarchy; along with statistical tools
+		query interface - with its tools
+	Menu options
+		load/save schedule
+		load/save interview state & data (evidence)
+		view historical data for a patient
+		view debug screen (shows XML hierarchy of node ELEMENTs)
+		preferences
+			question display styles
+			results display styles
+
+-Language:	Could readily extend the expression parser into full-blown Java-based JavaScript+
+	-TreeHash - indexed hashtable - can access by name or position (fastested as double-hash)
+		-could implement aliases this way too:
+			-Aliases - Hashtable of Stacks of uids; Hashtable of uids returns Datum
+			-overloading of names to implement local scope
+	-statements - add semicolon for multiple on a line
+	-arrays - implement as TreeHash
+	-multi-dimensional arrays - hashes of hashes like Perl
+		-use Java's try/catch and introspection to avoid crashes when no sub-array
+	-object-like properties & methods - use dot notation like JS/Java
+		-properties: also implemented as TreeHash: x.y = x.get("y")
+		-methods: TreeHash - x.length();
+		-reserved_methods for data_type access:  x.int(), or x._int, or x:int
+		-users able to create own data_types using similar access syntax: y:_date, z:_bigInt, q:_irrational
+	-extensible: link in Java classes - e.g. Math.rand();
+		-needs import statement equivalent for localizing code/functions
+	-local scope/braces
+		-use TreeHash overloading to implement names of local variables
+		-could use ::X notation to indicate a variable at an outer scoping level (although probably not needed)
+		-would need "var" operator to indicate that a new variable is being declared at local scope
+			-could use this for our current stuff as well - e.g. to declare local variables
+		-withing a scoping level, know all names of vars declared, so can garbage collect when leave scope
+	-functions
+		-data-passing - as TreeHash
+			-use Perl-like shift() or $arg[n] to access an element from the array of passed values
+			-automatically allows for variable length argument lists
+				so if comma separated values passed to a function, make a TreeHash of them
+			-simplifies creation of API for pre-compiled functions written in Java
+		-prototyping
+			-fuction name(arg1,arg2,arg3) { statements; }
+			-can use TreeHash to declare arg1 as the name of the variable passed in
+			-can still use 'shift' command if don't know how many arguments to be passed
+			-would need TreeHash.length() and reserved word for args within functions (like Perl's @_)
+		-would allow for localization - write list() as interpretted functions so can replace 'and' with 'und' or 'et'
+		-would allow authors to create their own functions for statistical manipulation, etc.
+	-loop control
+		-implement all standard looping:  if/do/when/while/for/until/unless/break/continue/goto/
+	-classes
+		-local scoping of function names, just like local scoping of variable names
+		-so like ability to create structure 
+		-ideally, parser would actually create Java code for the implemented class (JIT-ish)
+		-requires 'new' method/reserved word
+	-debugging
+		-if make syntax similar enough to Java/JS/Perl, can use those development environments for syntax checking
+		-would not be too hard to debug statement by statement and show values of local variables
+	-error handling
+		-could use try/catch/finally syntax to one-up MS's ON_ERROR RESUME functionality
+		-could also have global error checking overloading - so can put all error trapping at top-most level
+		-should be able to maintain a stack and line-trace like Java
+			-would need subset of that functionality anyway to set and cleanup local scope
+
+	-Comparison to existing art
+		-what has Mozilla done, since open source and must include a JS parser
+		-has Perl been ported to Java?
+		-how powerful and useful are the JavaScript debuggers?
+		
+	-Measuring performance
+		-If fast enouch, can replace Arden Syntax with this
+		-what would it take to make it compiled code?

@@ -1,0 +1,169 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2//EN">
+<HTML>
+
+<HEAD>
+	
+	<META NAME="VPSiteProject" CONTENT="file:///C|/cvs/Triceps/TricepsHTML.vpp"><META HTTP-EQUIV="Content-Type" CONTENT="text/html;CHARSET=iso-8859-1">
+	<META NAME="GENERATOR" Content="Visual Page 2.0 for Windows">
+	<TITLE>untitled</TITLE>
+</HEAD>
+
+<BODY>
+
+<P ALIGN="CENTER"><B><FONT SIZE="4">Triceps Enables Robust Interview Randomization</FONT></B></P>
+<P><B><FONT SIZE="4">Overview</FONT></B></P>
+
+<P>Triceps is a syntax for creating dialogs, which include structured interviews, surveys, questionnaires, directed
+education, and any other computer-human interaction in which the computer presents information to the human, the
+human responds to questions the computer may pose, and the computer adjusts its flow and style of evaluation and
+questioning based upon the human's responses.</P>
+
+<P>From an authoring point of view, Triceps is implemented as a collection of nodes.  Each node consists of five
+components:</P>
+
+<UL>
+	<LI>a collection of names (<I>aliases</I>)
+	<UL>
+		<LI><I>localName</I> - a unique name for identifying and accessing the node's datum.
+		<LI><I>externalName</I> - an optional name which might be meaningfully presented to the human (e.g. the question
+		number from an existing paper schedule)
+		<LI><I>concept</I> - an optional phrase describing the meaning the node (e.g. what information it assesses or collects)
+	</UL>
+	<LI>an <I>action</I>
+	<UL>
+		<LI>a <I>question</I>
+		<UL>
+			<LI>the text of the question to be asked
+			<LI><I>answerOptions</I>, each of which consists of a single <I>displayType</I> (e.g. <I>list, double, text, memo,
+			date</I>), and an optional collection of <I>answerOption</I>-<I>returnValue</I> pairs:
+			<UL>
+				<LI><I>answerOption</I> - the message to be displayed to the human
+				<LI><I>returnValue</I> - the value to be passed back to the system when this option is chosen.
+			</UL>
+		</UL>
+		<LI>an <I>evaluation</I> (in which previous node values are processed)
+	</UL>
+	<LI><I>activation criteria</I>
+	<UL>
+		<LI>an expression that determines whether or not the node's action should be taken.  If the activation criteria
+		evaluate to false, then the node is considered <I>*N/A*</I>, meaning that it should not be asked because it does
+		not apply (e.g. men should not be asked questions about their gynecology).
+	</UL>
+	<LI><I>validiation criteria</I>
+	<UL>
+		<LI>an optional <I>datumType</I> specifier (e.g. <I>number, date, month, hour, string</I>)
+		<UL>
+			<LI>any information collected from the <I>action</I> is forced (cast) into this <I>datumType</I> before being stored
+			in the node's datum.  If the conversion can not occur (e.g. the word &quot;hello&quot; can not be converted into
+			a number), the system reports an error message and asks that a value of the appropriate type be entered.
+		</UL>
+		<LI>an optional <I>min</I> value
+		<UL>
+			<LI>if this value is specified, then the results of the action must be greater than or equal to this value.  Otherwise,
+			the system asks that the human enter a value in the appropriate range
+		</UL>
+		<LI>an optional <I>max</I> value
+		<UL>
+			<LI>if this value is specified, then the results of the action must be less than or equal to this value.  Otherwise,
+			the system asks that hte human enter a value in the appropriate range.
+		</UL>
+		<LI>an optional <I>formattingMask</I>
+		<UL>
+			<LI>[what should be said about this?]
+		</UL>
+	</UL>
+	<LI>a <I>datum</I>
+	<UL>
+		<LI>this stores the result of the action - either the <I>answerOption</I> chosen, or the result of the <I>evaluation</I>.
+	</UL>
+</UL>
+
+<P>Nodes depend upon, or be related to, other nodes, if they include any <I>equation</I> that references another
+node by its alias.  Nodes may include <I>equations</I> in any of the following locations:</P>
+
+<UL>
+	<LI><I>activation criteria</I>
+	<LI><I>validation criteria</I> (e.g. the <I>min</I>, or <I>max</I>)
+	<LI><I>action</I>
+	<UL>
+		<LI>an <I>evaluation</I>
+		<LI>a text substititution within a <I>question</I>
+		<LI>a text substition within the <I>answerOption</I> message
+		<LI>an <I>evaluation </I>to indicate the <I>returnValue</I> for an <I>answerOption</I>
+	</UL>
+</UL>
+
+<P>The flow of a dialog is linear in time - no two <I>actions</I> can occur simultaneously.  Thus, some <I>nodes</I>
+must be processed before others.  In order for a dialog to be flow-valid, all no <I>equation</I> may only reference
+nodes that will be processed before them.  By parsing the <I>equations</I>, the system calculates the <I>dependencies</I>
+for each node, which is the list of nodes that must be declared before the current node is reached in order for
+the current node to be flow-valid.</P>
+
+<P><B><FONT SIZE="4">Randomization</FONT></B></P>
+
+<P>Another way of viewing the <I>dependencies</I> for a given node is to consider the <I>dependencies</I> as the
+node's parents:  The node can not legally exist unless the parents exist first.  Thus, the table of <I>dependencies</I>
+is essentially an inverted tree.  Most tree structures are viewed and processed from the root (initial parent)
+up to the leaves (the terminal children).  In contrast, within the Triceps syntax, all nodes are leaves.  They
+are ultimately connected to a tree at some point, but each leaf doesn't have to contain knowledge of exactly where
+it is connected - only its immediate parents.</P>
+
+<P>It would be useful to build a root-view tree from the dialog's nodes, since most systems only understand and
+process root-view trees.</P>
+
+<UL>
+	<LI>XML
+	<UL>
+		<LI>the standard for data interchange
+		<LI>facilitates the representation of more complex heirarchies
+	</UL>
+	<LI>Java's 
+	<UL>
+		<LI>facilitates a graphical drag and drop motif for authoring nodes and collections of nodes.
+		<LI>for example, an isDropAllowed() function could assess whether a node would be flow-valid a given location,
+		and the insert-cursor could be altered to indicate where a node can be legally dropped.
+	</UL>
+</UL>
+
+<P>Fortunately, inverted trees are mathematically intermutable with a root-view trees (although actually as a directed,
+acyclic graph, not a strict tree).</P>
+
+<P>First, a dialog has to contain the following information:</P>
+
+<UL>
+	<LI>a Vector of nodes, in which each node contains a Vector of references to their immediate parents, by name
+	<LI>a HashMap of nodes (and their aliases) to the index position of the actual node within the vector
+</UL>
+
+<P>From this, a Vector of children for each node can be created (by back-linking the parent nodes to their children).</P>
+
+<P>Then, the following rules can be applied: [add to this]</P>
+
+<UL>
+	<LI>If a node has zero children, it should be freely movable (e.g. it can occur anywhere)
+	<LI>Branches should be freely movable at the same depth level.
+	<UL>
+		<LI>All first-level branches (first level children), should be fully randomizable.  If there are <I>n</I> children
+		at a given level, there are <I>X</I> ways to order those children (the number of permutations of <I>n</I> things
+		taken <I>n</I> at a time).  The total number of permutations for a dialog is the product of all <I>Xi</I>, where
+		<I>Xi</I> is the number of permutations at each branch level.  Each permutation is a sequence of nodes - a Vector
+		of length <I>N</I>, which is the total number of nodes.
+		<LI>There is the possibility that the same sequence can be generated in several different ways (is this true?).
+		 If so, the collection of unique sequences can be readiily generated by excluding duplicates.
+	</UL>
+	<LI>The randomization can occur in a depth-first tree-walk.  This means that at each branch level, a new &quot;thread&quot;
+	(or recursion/continuation instance) is created for each child.  This process recurses down until either no additional
+	child can be added.. [there are probably automatic tree-ordering algorithms - e.g. RDF has a graphical one that
+	not only orders the tree, but also draws it in such a way that all leaves are visible]
+	<LI>As the randomization process occurs, the isDropAllowed() function can be applied for a node (or collection)
+	at each step to assess whether children can be legally added. [since we already know all of the children, this
+	may not be necessary until an author tries to add a new child].
+</UL>
+
+<P></P>
+
+<P>[more to follow] 
+
+</BODY>
+
+</HTML>

@@ -1,0 +1,91 @@
+Bugs
+	check processing of last node in the schedule -- currently
+		it doesn't properly check dependencies and the action occurs
+		no matter what.
+-------------------------
+
+Devise timeline phases
+	inception
+		business case
+			success criteria
+			risk assessment
+			resource needs
+			phase plan
+		prototype for proof of concept
+	elaboration
+		analyse problem domain
+		establish architectural foundation
+		project plan
+		eliminate highest risks
+
+	construction
+		develop complete product
+		finalize requirements and acceptance criteria
+		testing
+	transition
+		beta deployment to user
+		correct problems and add delayed features
+		deploy production system
+
+Process:
+	business modeling -- rationale and context of proposed system
+	requirements -- use case based
+	analysis and design -- multiple architectural views
+	implementation -- software development, unit tests, module integration
+	testing -- test cases, procedures, error-tracking mechanism
+	deployment -- deliverable system configuration
+	configuration management -- e.g., CVS
+	project management -- strategies
+	environment -- infrastructure for development
+
+Deliverables:
+	requirements -- what the system must do
+	design plan -- system architecture and functionality
+	implementation plan --  how it's to be built
+	deployment plan -- getting it to the users
+
+
+Issues
+	Grouping Nodes
+		[] for indicate that MUST go together - e.g. a single question and conditional
+		Means that [] define a single question group
+	Grouping Questions
+		Ability to filter by name - e.g. select those those whose concepts contain XXX
+		If able to get Collection of Questions, and access their properties, then could construct BPRS-like schedule.
+		Tree-view - when expand nodes, could gray-out inactive nodes
+	Applying Styles to Questions - e.g. how to indicate that they should be grouped by concept
+		Styles via XSL?  Would require that can access variables via myJavaScript? - How can ECMAScript equivalent
+			be implemented within my stuff?	I don't seem to have the code for JSP (only the abstract classes) - not
+			clear what would need to be overridden to implement the features I want.
+		If not XSL, then how best to do this?  Would need
+			(1) ability to filter based off of concept name
+			(2) ability to format output.
+				For HTML, could do this as string using my syntax and ability to reference node attributes from
+
+
+5/3/2000
+Finish memo to Pat Cohen re role of Fellows
+Chaining schedules
+	URL to external ones?
+	XML-like namespacing (e.g. load schedule name as ...)
+	child process? (recursion)
+		all new variables should be validated for ID uniqueness
+	better I/O for saving URL
+		write permissions
+		abstract URL vs file
+Query lookups for answer choices
+	parse answer choices for dynamic generation (e.g. combo;`choices`)
+	Arrays - e.g. choices=array(x,y,z)
+		really a hash - and more complex than that if want to use anchors
+GUI
+	focus, shift, next
+	auto-forward (not needed)
+	decrease # buttons
+	hotkey abort? (no, use logo)
+Help button
+Saving
+	at every step
+	add suspended vs. completed save locations
+	allow multiple for each (e.g. if want local and distant copy; or HD and floppy copies)
+Load/Call files
+Reserved words (e.g. for filename, so save file is time by default, but can be UID.txt - need reserved word for filename)

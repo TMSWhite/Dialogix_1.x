@@ -1,0 +1,121 @@
+Church's Thesis
+	Computer programs are not provable - can disprove this
+Standard View
+	Computerized diagnostic systems can't ever be really good
+	limitations on main-machine interface
+	limitations on Knowledge representation
+Standard of Care
+	"community standard"
+	"reasonable person" - practitioner
+	to adhere to standard of care
+	reduce risk
+	does a KDss decrease error rate?
+		correct diagnosis does not imply correct treatment
+		inaccurate diagnosis does not imply incorrect treatment
+		often unassessed
+Appropriate use / users
+	users - DxPlain
+	use - training, context
+	unintended purpose - using med school training tool in clinical practice
+	professional relationships - shared decision support
+Legal Issues
+	malpractice
+		duty to treat
+		deviation from standard of care
+		harm must occur (so good outcome seldom leads to lawsuits)
+		harm causally related to deviation from standard of care
+	Clinical Decision Support Systems
+		decreased error rate leads to decreased malpractice
+		may increase standard of care - so hospitals can be sued if they don't have a CDSS
+	Purpose of CDSS
+		if economic, and something bad happens, than increase liability
+	Textbook model - disclaimer
+		open-loop decision support system
+	Ownership/royalties
+		[Knowledge transfer]
+		what about author of knowledge that is sold elsewhere
+Regulatory Issues
+	RISK
+		potential for harm
+		degree of oversight - e.g. closed loop systems are inherently more risky
+	FDA Cosmetic Act of 1984
+		"medical device" -> contrivance
+			dx, tx, mitigate dx, affect structure or function
+		Class I - exempt
+		Class II - relatively low risk (501K approval)
+		Class III - pre-marketing level approval.  AND, any time changed, has to be re-approved.
+	Classes of Decision Support Systems
+		(1) Educational:  textbook [exempt]
+			non-patient specific
+		(2) Component of a device:  - like a chip on a pacemaker
+		(3) Accessories that are attached to or inform an already regulated clinical system - PACS, Blood Bank, Gamma-Ray planning
+		(4) Stand-alone software
+	Low Risk
+	Intermediate - guideline - probable dx, proposed treatment
+	Risk increases with degree of patient specificity
+	
+Evaluation
+	When?
+		Equipoise
+			when there is a fundamental unceratainty as to which of two systems is best
+			If can prove one better, failure to use would be unethical
+	Why?
+		Improvement
+			publication
+			liability / ethics
+			Cost
+			Outcomes
+				process
+				speed
+				preventative
+			Liability
+			System improvement
+			Safety
+			CYA [what is this?]
+	What?
+		Structure
+		UI
+		Vocabulary
+		KB
+		Inference Mechanism
+	How?
+		Function
+			compared to gold standard - know best answer
+			silver standard - when there are several possible good answers - as assessed by a group of experts
+			Other standards - Functional specification via panel of experts
+				Round Robin - set of cases sent to panel of experts - consensus
+				Majority Voting - all see all cases - ballots for best answer
+		Clinical Outcomes
+			relatively few look at this
+		Efficacy
+			has desired effect in isolation (lab setting)
+		Effectiveness
+			has desired effect in the real-world
+			
+	Methodology
+		Randomized Clinical Trial
+			Prospective
+				Unit of analysis:  MD?  Patient?  Office/Clinic?
+				Blinding
+			Retrospective
+				Case Control
+		Critical Incident
+			open ended questions about disasters
+			responses classified into groups
+			matrix
+		Survey
+		Meta-Analysis
+		On-Off (pseudo correlational)
+		
+	Woahs!
+		Biases
+			Hawthorne - being observed
+			Check-list effect - organizing info in a questionnaire might impact knowledge
+			Carry-over bias - output in intervention arm of study will affect the control group
+			Feedback
+			Secular Trend - if affects standard of care, might be world changes
+			System Change - e.g. to knowledge base
+			
+Midterm Exam Info
+	KB separate from Inference Engine makes maintainability easier
+	Production rules - unable to do things in sequence.

@@ -1,0 +1,859 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2//EN">
+<HTML>
+
+<HEAD>
+	<META HTTP-EQUIV="Content-Type" CONTENT="text/html;CHARSET=iso-8859-1">
+<META NAME="VPSiteProject" CONTENT="file:///C|/cvs/Triceps/TricepsHTML.vpp">
+
+	<META NAME="GENERATOR" Content="Visual Page 2.0 for Windows">
+	<TITLE>untitled</TITLE>
+</HEAD>
+
+<BODY>
+
+<P ALIGN="CENTER"><B><FONT SIZE="4">Triceps Architectural Analysis (a.k.a. To Do List)</FONT></B></P>
+<P><B>Study Management</B></P>
+
+<UL>
+	<LI>Enumerating Studies
+	<UL>
+		<LI>studyFile (flat file DB)
+		<UL>
+			<LI>studyName | subjectsFile | studyAuthHash?
+		</UL>
+		<LI>[e.g. if we want to regulate who is able to post a study on the server]
+	</UL>
+	<LI>Enumerating Subjects
+	<UL>
+		<LI>subjectsFile (flat file DB)
+		<UL>
+			<LI>GLOBAL id2actionFile=&quot;file location&quot;
+			<LI>GLOBAL msgFile=&quot;file location&quot;
+			<LI>GLOBAL varName=value*
+			<LI>lastName | firstName | emailAddress | workPhone? | uniqueID
+		</UL>
+		<LI>id2actionFile (flat file DB)
+		<UL>
+			<LI>uniqueID | scheduleFilename | dataFilename | loginName? | password? | secureIDCard#? | uidAuthHash? | (internalName
+			| defaultValue)*
+			<LI>[authHash or a variant is to prevent search engines from accessing study by uniqueID alone]
+		</UL>
+		<LI>msgFile (text)
+		<UL>
+			<LI>could use Qss to mail-merge subject's names, etc.
+			<LI>could allow for additional GLOBAL variable names for more finely grained substitutions
+		</UL>
+	</UL>
+	<LI>Contacting Subjects
+	<UL>
+		<LI>iterate over subjectsFile (perl) and email them (perl/sendmail) the mail-merged msgFile
+		<LI>embed link to Triceps as GET command - e.g.
+		<UL>
+			<LI>http://host:port/triceps/TricepsServlet?study=******,studyAuth=*****,uid=******,uidAuth=******
+		</UL>
+		<LI>existing(?) tools could monitor for returned email, and implement cron job for re-contacting subjects who fail
+		to respond in a timely manner
+	</UL>
+	<LI>Authenticating Subjects
+	<UL>
+		<LI>study-scope done via studyAuthHash
+		<LI>subject-scope done via subjectAuthHash. Might migrate to loginName/password or reference to secureIDCard# and
+		tool for doing triple authentication (who, what know, what have)
+	</UL>
+	<LI>Attribution / Ownership
+	<UL>
+		<LI>instrument author (or original instrument) &amp; appropriate publication and copyright references
+		<LI>instrument converter (from original to Triceps)
+		<LI>translator(s)
+		<LI>version #, date, time
+		<LI>validated by whom, when, how?
+		<LI>new copyright &amp; date
+		<LI>who &amp; how to contact:
+		<UL>
+			<LI>help
+			<LI>questions / comments / references
+			<LI>to participate if not invited
+			<LI>[perhaps just primary investigator, or primary contact point]
+		</UL>
+	</UL>
+	<LI>Compensation
+	<UL>
+		<LI>publication
+		<UL>
+			<LI>(co)-authorship, acknowledgement
+		</UL>
+		<LI>monetary
+		<UL>
+			<LI>per use
+			<LI>per incident (help/technical)
+			<LI>volume discounts
+		</UL>
+		<LI>barter
+		<UL>
+			<LI>click-miles
+			<LI>promotional advertising
+		</UL>
+		<LI>to-whom?
+		<UL>
+			<LI>us
+			<LI>CPMC/RFMH
+			<LI>owners of original instruments
+			<LI>owners of converted instruments
+		</UL>
+	</UL>
+	<LI>Storing Data
+	<UL>
+		<LI>schedule can have RESERVED word to indicate how to deal with repeated access to same schedule by same individual
+		<UL>
+			<LI>disallow: &quot;Thanks, but you have already completed this interview&quot;]
+			<LI>review: reload schedule at current location (even if completed) and let subject review/modify information
+			<LI>version: reload schedule at current location (e.g. reloading prior answers), but save to new filename
+			<LI>new: load schedule without defaults, and save to new filename
+			<LI>resume: reload schedule with prior values, and overwrite datafile
+			<LI>replace: load schedule without prior values, and overwrite datafile
+			<LI>[e.g. 4 binary choices]
+			<UL>
+				<LI>allow/disallow reload if completed
+				<LI>allow/disallow reload if suspended
+				<LI>load with/without prior values
+				<LI>overwrite existing datafile vs. create new one
+			</UL>
+		</UL>
+		<LI>studyFile can make dataFile names unique
+		<UL>
+			<LI>dataFileName should be a prefix
+			<LI>Triceps will add multiple suffixes to indicate:
+			<UL>
+				<LI>version# [datetime.1-n]
+				<LI>working vs. completed? (as opposed to separate directory?)
+				<LI>eventLog
+			</UL>
+		</UL>
+		<LI>Authors can indicate how they want to store/manage data by specifying the sub-directory structure
+		<UL>
+			<LI>id2actionFile can put datafiles for different groups that happen to use the same schedule in different directories
+			for easier collation/retrieval/blindedness (only know to what group the subject belongs by the directory - info
+			not contained in datafile used in subsequent analyses
+		</UL>
+		<LI>SQL
+		<UL>
+			<LI>[create_table statements (ideally, create table if doesn't already exist)]
+			<LI>[all Insert statements for each of the potentially needed tables]
+			<LI>[perl script to create these from our current storage format?]
+			<LI>subjectTable
+			<UL>
+				<LI>subjectID
+				<LI>lastName
+				<LI>firstName
+				<LI>emailAddress
+				<LI>phoneNumber
+				<LI>authHash
+			</UL>
+			<LI>scheduleTable
+			<UL>
+				<LI>scheduleID
+				<LI>internalNameID
+				<LI>concept
+				<LI>externalName
+				<LI>activationCriteria (currently called dependencies)
+				<LI>actionType (e,q,[,])
+				<LI>dataType
+				<LI>minVal
+				<LI>maxVal
+				<LI>dataFormattingMask
+				<LI>displayType (list,combo,radio,double, ...)
+			</UL>
+			<LI>actionTable
+			<UL>
+				<LI>languageID
+				<LI>scheduleID
+				<LI>internalNameID
+				<LI>readback
+				<LI>qOrEval (question or evaluation statement)
+				<LI>helpURL
+			</UL>
+			<LI>answerOptionsTable
+			<UL>
+				<LI>languageID
+				<LI>scheduleID
+				<LI>internalNameID
+				<LI>answerOptionID (ordering number, since author should be able to order them)
+				<LI>returnValue (must be the same for all similar answerOptionID values - e.g. across languages)
+				<LI>messageDisplayed
+				<LI>customHelpURL?
+			</UL>
+			<LI>sessionTable
+			<UL>
+				<LI>sessionID
+				<LI>subjectID
+				<LI>studyID
+				<LI>scheduleID
+				<LI>time-started*
+				<LI>time-stopped*
+				<LI>status when stopped*
+			</UL>
+			<LI>dataTable
+			<UL>
+				<LI>subjectID
+				<LI>studyID
+				<LI>dataID
+				<LI>sessionID
+				<LI>internalNameID
+				<LI>languageNum
+				<LI>questionAsAsked
+				<LI>answerGiven
+				<LI>whenAnswered
+				<LI>comment
+			</UL>
+		</UL>
+	</UL>
+	<LI>Collating Data
+	<UL>
+		<LI>perl scripts to transpose and label datafiles for import into SAS, etc.
+		<LI>could design them to optionally concat all data in a single directory, and/or all with a similar suffix/extension
+	</UL>
+	<LI>Retrieving Data
+	<UL>
+		<LI>remote access to data by authenticated users?
+		<LI>this is a HIPAA issue that requires more rigor.
+	</UL>
+	<LI>Analyzing Data
+	<UL>
+		<LI>eventLogs
+		<UL>
+			<LI>network speed (affects perceived speed)
+			<LI>screen load time (onLoad - startTime) - indicates time required to init Javascript and render screen
+			<LI>thinking time per question
+			<UL>
+				<LI>for first question: (whenStartedRecordingFinalAnswer - focusTime)
+				<LI>for subsequent questions:
+				<UL>
+					<LI>same as first question (if tend to tab off of a question after answering it), OR
+					<LI>(whenStartedRecordingFinalAnswer - lastInputTime for prior question)
+				</UL>
+			</UL>
+			<LI>answeringTime per question
+			<UL>
+				<LI>(whenFinishedRecordingFinalAnswer - whenStartedRecordingFinalAnswer)
+				<LI>for text, how should typos and answer changes be distinguished?
+			</UL>
+			<LI>helpTime per question (e.g. if reviewing questionSpecificHelp)
+			<LI>navigationTime per screen
+			<LI>plot of step# vs. screen#
+			<UL>
+				<LI>should be an upsloping diagonal line
+				<LI>will show use of previous/next
+				<LI>will show multiple points on same step if errors are made, or language is changed
+			</UL>
+			<LI>plot of step# vs. time, with different symbols for eventType
+			<UL>
+				<LI>graphically can show networkTime, loadTime, thinkingTime, answeringTime, helpTime, and navigationTime
+				<LI>simultaneously shows previous-next usage
+				<LI>alternatively, could show timeline, and simply label start/stop of each step# (or internalName)
+			</UL>
+			<LI>stacked bar graph of step# vs eventType
+			<UL>
+				<LI>same as above, but left-justified (so empty space)
+			</UL>
+		</UL>
+		<LI>usability
+		<UL>
+			<LI>(thinkingTime + answerTime) vs. displayType (t-Test)
+			<UL>
+				<LI>inter-subject - get average across large sample
+				<LI>intra-subject - have several comparably difficult questions, or repeated questions with different ording (e.g.
+				&quot;what color are your eyes&quot;)
+				<LI>compare different presentation styles and ordering of options (e.g. with radio buttons - and therefore GOMS
+				analysis suggests would have to take more time to answer)
+			</UL>
+		</UL>
+	</UL>
+	<LI>Automation
+	<UL>
+		<LI>web-based front-end
+		<LI>file-upload or submit of subjectsFile and id2actionFile along with desired studyname
+		<UL>
+			<LI>peer-reviewed or automated addition of information to studyFile
+			<LI>automated establishment of virtual domains and security layers based upon uploaded information
+		</UL>
+		<LI>role-based access restrictions
+		<UL>
+			<LI>add / remove / modify a study
+			<LI>add / remove / modify a schedule
+			<UL>
+				<LI>authoring
+				<LI>validation
+				<LI>[if authoring/validation done on a laptop, then number of roles needed on a server is smaller - only have to
+				upload the validated file once done]
+			</UL>
+			<LI>add / remove / modify the subjectsFile
+			<LI>add / remove / modify / view the id2actionFile
+		</UL>
+		<LI>versioning
+		<UL>
+			<LI>monitor changes in subjectsFile, id2actionFile, etc.
+			<LI>monitor changes in scheduleFiles
+			<LI>monitor changes to associated help files
+			<LI>[automated, behind-the-scenes CVS implementation]
+		</UL>
+		<LI>bug-reporting / tracking
+		<UL>
+			<LI>[bugzilla reported to have security holes. What about gnats, etc?]
+		</UL>
+		<LI>FAQ
+		<UL>
+			<LI>FAQ-omatic seems quite nice
+		</UL>
+		<LI>notification options
+		<UL>
+			<LI>when a subject has completed a schedule
+			<LI>summary reports
+			<UL>
+				<LI>percent of subjects who have completed the study - sorted by any groupings
+				<LI>uids and/or demographics of subjects who have not completed the study
+			</UL>
+			<LI>automated reminders to subjects who have not completed study (email, telephone, fax, snail mail)
+			<LI>automated thank-you notes to subjects who have completed study
+			<LI>automated notification of desire for followup
+			<LI>easy way for subjects to submit a new email address and/or phone number if they move (authenticated by original
+			hash)
+		</UL>
+		<LI>demos
+		<UL>
+			<LI>re-construct an interview's progress from the eventLog? (so can see what was happening when error occurred)
+			<LI>non-interactive navigation through a schedule based upon an eventLog (rather than requiring screen shots)
+		</UL>
+	</UL>
+	<LI>Reporting Data
+	<LI>Deployment
+	<UL>
+		<LI>easier install, especially re Linux systems
+	</UL>
+</UL>
+
+<P><B>Schedule Functionality</B></P>
+
+<UL>
+	<LI>Functions [unimplemented in <B>bold</B>]
+	<UL>
+		<LI>Type
+		<UL>
+			<LI>isAsked(node), isAnswered(node)
+			<LI>hasComment(node)
+			<LI>isNA(node), isRefused(node), isUnknown(node), isNotUnderstood(node), isInvalid(node), isSpecial(node)
+			<LI>isDate(node)
+		</UL>
+		<LI>Time
+		<UL>
+			<LI>toDate(node), toYear(node), toMonth(node), toMonthNum(node), toDay(node), toDayNum(node), toWeekday(node)
+			<LI>toTime(node), toHour(node), toSecond(node)
+			<LI>getNow()
+			<LI>getStartTime()
+			<LI>newDate
+			<UL>
+				<LI>newDate(&quot;E&quot;) // weekday name
+				<LI>newDate(string,mask) // any allowable Java SimpleDateFormat format
+				<LI>newDate(y,m,d)
+			</UL>
+			<LI>newTime
+			<UL>
+				<LI>newTime(string,mask) // any allowable Java DecimalFormat format
+				<LI>newTime(h,m,s)
+			</UL>
+		</UL>
+		<LI>Math
+		<UL>
+			<LI>min(...), max(...)
+			<LI>count(...)
+		</UL>
+		<LI>Group
+		<UL>
+			<LI>list(...)
+			<LI>orlist(...)
+		</UL>
+		<LI>Retrieval
+		<UL>
+			<LI>desc(node)
+			<LI>getComment(node)
+			<LI>getType(node)
+			<LI>numAnsOptions(node)
+			<LI>getAnsOption
+			<UL>
+				<LI>getAnsOption(node) // returns the message corresponding to the answer selected
+				<LI>getAnsOption(node,index) // returns the message at that index within the answerOptions
+			</UL>
+		</UL>
+		<LI>String Processing
+		<UL>
+			<LI>charAt(str1,index)
+			<LI>compareTo(str1,str2)
+			<LI>compareToIgnoreCase(str1,str2)
+			<LI>endsWith(str1,suffix) // whether str1 ends with suffix
+			<LI>indexOf(str1,str2) // index of first occurrence of specified substring
+			<LI>indexOf(str1,str2,fromIndex)
+			<LI>lastIndexOf(str1,str2)
+			<LI>lastIndexOf(str1,str2,fromIndex) // search backwards from index
+			<LI>length(str1)
+			<LI>startsWith(str1,prefix) // whether str1 starts with prefix
+			<LI>startsWith(str1,prefix,fromIndex) // whether str1 starts with prefix at fromIndex
+			<LI>substring(str1,beginIndex) // makes substring of str1 from begiinIndex to end of str1
+			<LI>substring(str1,beginIndex,endIndex)
+			<LI>toLowerCase(str1)
+			<LI>toUpperCase(str1)
+			<LI>trim(str1) // remove whitespace
+		</UL>
+		<LI><B>Regex</B>
+		<UL>
+			<LI>[OROMatcher is now under Tomcat license]
+		</UL>
+		<LI><B>External Actions</B>
+		<UL>
+			<LI>email()
+			<LI>database queries
+		</UL>
+	</UL>
+	<LI><B>Requested Functionality</B>
+	<UL>
+		<LI>disallow overwriting of existing files in either working or save directory
+		<UL>
+			<LI>automatically warn or add extension until more customized solution available
+		</UL>
+		<LI>changing __FILENAME__ should change the filename on the system, not make a copy and preserve the old file.
+		<LI>individually turn on/off each of REFUSED, UNKNOWN, DONT_UNDERSTAND (as with COMMENT)
+		<LI>find better icons for CRUD
+	</UL>
+	<LI><B>Bugs</B>
+	<UL>
+		<LI>timestamp not accurately restored on resume?
+		<LI><B><I>[FIXED]</I></B> N/A different from barriers of knowledge (UNKOWN), understanding, or cooperation.
+		<UL>
+			<LI>if X is N/A, then (X==Y) is always false, and (X!=Y) <I>should</I> always be true.
+			<LI>however, currently treated like barriers: both (X==Y) and (X!=Y) are always false
+		</UL>
+		<LI>pressing enter on password field (rather than when Next is focused) results in 'select-new-interview' behavior?
+	</UL>
+	<LI>Potential Functionality to Consider
+	<UL>
+		<LI>three frames
+		<UL>
+			<LI>top frame includes icon, header_msg, global help
+			<LI>left frame includes ability to jump among modules via links
+			<LI>main frame shows content
+		</UL>
+		<LI>authentication / authorization screen
+		<LI>auto-tester
+		<UL>
+			<LI>ensure that all equations have reasonable values
+			<UL>
+				<LI>X == Y - make sure that Y is a valid value for X
+				<LI>report nodes where can't tell for sure (e.g. Q = A + B)
+				<LI>report nodes that have constitutively true components to their equations (e.g. X &lt; 3 where max X value is
+				2)
+			</UL>
+			<LI>conditional branch points (dependencies)
+			<UL>
+				<LI>for any branch point, identify all possible options
+				<LI>this will help conversion back to paper: need to know what to do for each possible answer
+			</UL>
+			<LI>graphical representations
+			<UL>
+				<LI>flow dependencies among nodes (directed acyclic graph) - will show converging paths
+				<LI>logical dependencies among nodes (simple tree - what must come first)
+				<LI>Are there tools that build and allow the navigation of such graphs (e.g. SGI?)
+			</UL>
+			<LI>what benefit might be gained from depth-first recursively trying all possible branches?
+			<UL>
+				<LI>is there any possibility that some answers might lead to a deadlock - can't proceed?
+				<LI>are there graphical ways of depicting the possible flow paths that would facilitate debugging and validation?
+				<LI>from an FDA and medico-legal perspective, is there a way to prove that the instrument won't fail?
+			</UL>
+		</UL>
+		<LI>vector/array processing
+		<UL>
+			<LI>dynamically build answerOptions (e.g. &quot;which of these caretakers was most important to you?&quot;)
+		</UL>
+		<LI>code-reuse
+		<UL>
+			<LI>name and re-use answerOptions (collection of choices)
+			<LI>re-usable modules (e.g. ask a set of 5 questions for each medication you take)
+			<UL>
+				<LI>name a collection of nodes
+			</UL>
+			<LI>loading a sub-schedule
+			<UL>
+				<LI>namespacing
+			</UL>
+		</UL>
+		<LI>looping
+		<UL>
+			<LI>foreach
+			<LI>while
+			<LI>until
+			<LI>break
+		</UL>
+		<LI>grouping
+		<UL>
+			<LI>for display
+			<LI>for logic
+		</UL>
+		<LI>ordering
+		<UL>
+			<LI>blocks that must occur in sequence
+			<LI>blocks that can be randomized (default?)
+		</UL>
+		<LI>validation
+		<UL>
+			<LI>min
+			<LI>max
+			<LI>allowable values
+			<LI>excluded values
+			<LI>arbitrary equations? ((this &gt; 2 &amp;&amp; this &lt; 7) || (this == 77 || this == 99))
+			<LI>pattern matching?
+		</UL>
+		<LI>global variables
+		<UL>
+			<LI>the only type to which a new value can be assigned (via =)
+			<LI>navigation issues (what to do when go backwards)
+			<UL>
+				<LI>optionally push prior value and restore it when go backwards (e.g. __HEADER_MSG__)
+				<LI>optionally have new value be permanent (e.g. __FILENAME__, __LANGUAGE__)
+			</UL>
+			<LI>scoping
+			<UL>
+				<LI>protected (within a module)
+				<LI>public (across all modules in active use)
+			</UL>
+		</UL>
+		<LI>variable name validation
+		<UL>
+			<LI>restrict to NMTOKENs for ease of use in SQL and XML?
+			<LI>e.g. internalName must only contain alphanumeric or underscore characters?
+		</UL>
+		<LI>name translators
+		<UL>
+			<LI>translate.pl converts all instances of variable names from old to new value (e.g. merges internalName and externalName,
+			and replacees all instances of either within equations to the newName)
+			<LI>for validation and publication purposes, might want similar functionality for the answer to which a node is
+			being compared (e.g. &quot;Q7 == 2&quot; would become &quot;Q7 == 'yes'&quot; or &quot;'ADHD;moduleB;meets_criteria'
+			== 'yes'&quot;)
+		</UL>
+		<LI>input styles
+		<UL>
+			<LI>combo2 &amp; list2
+			<UL>
+				<LI>like combo and list, but with an internationalized <I>other</I> option which pops up a dialog allowing free-text
+				entry of a value not anticipated by the combo or list box
+				<LI>when going backwards, might display as <I>other</I>: theValueEntered
+			</UL>
+		</UL>
+		<LI>debug &amp; developer Modes
+		<UL>
+			<LI>specify which debug columns to view
+			<UL>
+				<LI>good for demos, where might want to show functionality without giving away intellectual property
+			</UL>
+			<LI>on-off toggles for all standard buttons (e.g. evaluate_expr, save_as, ...)
+			<LI>specify which types of syntax errors to view
+		</UL>
+		<LI>JTree view of logical (not flow) dependencies among nodes
+		<UL>
+			<LI>for each node, determine dependencies to other nodes (external references)
+			<UL>
+				<LI>this is a list of logical parents
+			</UL>
+			<LI>for each node, make list of children (fill it from parent references)
+			<UL>
+				<LI>this is a root-view tree of the sort JTree can process
+			</UL>
+			<LI>create JTreeModel to access and manipulate these nodes
+		</UL>
+	</UL>
+	<LI>XHTMLTidy
+	<UL>
+		<LI>how hard is Unicode support?
+		<LI>how hard is translation to different character encoding? [or should XML be used for this once XHTMLTidy cleans
+		up rest of code?]
+		<LI>options
+		<UL>
+			<LI>equations (&lt;,&gt;,&amp;,...) expanded to elements <I>vs.</I> throw and error
+			<LI>warn if non-portable (IE or NS specific)
+			<LI>allow custom element names (as long as no space between &lt; and name)
+			<LI>allow custom attribute names
+		</UL>
+		<LI>optionally disallow all instances of certain tags (and the content between them)
+		<LI>can XHTMLTidy be passed array, flat file, or XML to indicate the various options (for dynamic enabling/disabling
+		of elements)?
+		<LI>element meta-types
+		<UL>
+			<LI>unary (empty elements - can't contain anything else)
+			<LI>binary (can optionally contain other elements - open and close tags required)
+		</UL>
+		<LI>element meta-attributes
+		<UL>
+			<LI>elementName
+			<LI>required attributes
+			<LI>optional attributes
+			<LI>IE specific attributes
+			<LI>NS specific attributes
+			<LI>elements which can be nested within this tag
+			<LI>elements which can not be nested within this tag
+		</UL>
+		<LI>facilitate dynamic translation - e.g. most formatting tags (&lt;b&gt;,&lt;i&gt;,&lt;u&gt;, ...) to &lt;emph&gt;
+		for voice rendering?
+		<LI>easy access to typical options (e.g. SAFE_WITHIN_TABLE - only tags which are allowed within a table (e.g. no
+		html, body, frame,meta, ...), and excludes unsafe options (embed,applet, ...))
+		<LI>stand-alone servlet
+		<UL>
+			<LI>send input, get back converted file and messages indicating errors
+			<LI>would facilitate CVS versioning of HTML files
+			<UL>
+				<LI>pretty-prints in a consistent fashion (unlike all HTML authoring programs)
+				<LI>can optionally strip META tags added by HTML authoring programs
+			</UL>
+			<LI>the potential to be a separately available service for authors
+			<LI>could accept batch uploads (e.g. submit an entire web-site to convert/validate it)
+		</UL>
+		<LI>event logging
+		<UL>
+			<LI>could easily have an option to add browser-independent event logging to any file
+		</UL>
+		<LI>as JavaBean for redistribution
+	</UL>
+</UL>
+
+<P><B>Security</B></P>
+
+<UL>
+	<LI>HIPPA compliance
+	<LI>SSL
+	<LI>Authentication
+	<LI>Access
+	<LI>Roles
+	<LI>Data storage
+	<LI>Paper-based backups?
+</UL>
+
+<P><B>Accessibility</B></P>
+
+<UL>
+	<LI>Voice
+	<LI>WAP
+	<LI>Audio/Video input
+	<LI>Audio/Video output
+	<UL>
+		<LI>SMIL?
+	</UL>
+	<LI>XML DTDs
+	<UL>
+		<LI>scheduleFile
+		<LI>studyFile
+		<LI>id2actionFile
+		<LI>studyManagementFile
+		<UL>
+			<LI>account and access management for study authors
+			<LI>versioning parameters
+			<LI>bug-reporting parameters
+			<LI>FAQ parameters
+			<LI>notification parameters
+			<LI>etc.
+		</UL>
+		<LI>dataFileFormat
+	</UL>
+	<LI>XSL
+	<UL>
+		<LI>fancier styling to target platforms
+	</UL>
+</UL>
+
+<P><B>Research</B></P>
+
+<UL>
+	<LI>Assessing Instrument Equivalence Validity
+	<UL>
+		<LI>randomization
+		<LI>arbitrary path through interview (as long as variables are pre-declared)
+	</UL>
+	<LI>Assessing Reliability
+	<UL>
+		<LI>identify standard approaches, statistics, and reporting styles (tables, graphs)
+		<LI>make some or all of these easily available (or point links to external resources)
+	</UL>
+	<LI>Back-to-paper
+	<LI>Usability
+	<UL>
+		<LI>identify and implement a set of valuable usability measures
+		<UL>
+			<LI>event-based from the eventLog
+			<LI>typical usability scales: satisfaction, computer usage, etc.
+		</UL>
+	</UL>
+	<LI>Schedules to Convert
+	<UL>
+		<LI>CGAS (Childhood GAF)
+		<LI>DISC?
+		<LI>SAMSA
+	</UL>
+</UL>
+
+<P><B>Presentation Issues</B></P>
+
+<UL>
+	<LI>Current API from TricepsServlet to Triceps (desired additions or changes in <B>bold</B>)
+	<UL>
+		<LI>Internationalization
+		<UL>
+			<LI>getLanguages() - so can build list of buttons for switching languages
+			<LI>setLanguage(String) - null for default
+			<LI>get(String)
+			<LI>getIcon() - default Icon
+			<LI>getHeaderMsg()
+			<LI>getTitle()
+		</UL>
+		<LI>Navigation
+		<UL>
+			<LI>isAtBeginning()
+			<LI>isAtEnd()
+			<LI>gotoStarting() -  the current working position - e.g. for resuming
+			<LI>gotoNode(String) - for debugging only
+			<LI>gotoFirst()
+			<LI>gotoNext()
+			<LI>gotoPrevious()
+			<LI>resetEvidence() - restart from scratch
+			<LI>reloadSchedule() - from source location
+			<LI>getQuestions() - Vector of Nodes
+			<UL>
+				<LI>hasRuntimeErrors()
+				<LI>focusable()
+				<LI>focusableArray()
+				<LI>getLocalName()
+				<LI>getExternalName()
+				<LI>getAnswerType() - display type (e.g. list, combo, radio)
+				<LI>getComment()
+				<LI>getHelpURL()
+				<LI>prepareChoicesAsHTML(datum,errMsg,autogenOptionNums)
+				<UL>
+					<LI>getAnswerChoices() - vector of AnswerChoice
+					<UL>
+						<LI>ac.parse(triceps) - translates current answerChoice using current evidence
+						<LI>ac.getValue() - returns the translated returnValue
+						<LI>ac.getMessage() - returns the translated message
+						<LI>ac.<B>getMessage(maxLen)</B> - returns array of Strings representing translated message, but broken at word-boundaries
+						so that no String is longer than maxLen
+						<LI>ac.isSelected() - test whether this answerChoice is the currently selected one
+					</UL>
+					<LI>numAnswerChoices() - so know how much space to allocate for them
+				</UL>
+				<LI>[implement <B>get</B> methods for all Node attributes]
+				<LI>[make getAnswerChoices() directly accessible, rather than via prepareChoicesAsHTML()]
+				<LI>[call to getAnswerChoices() should pre-parse all options, rather than forcing author to remember to do so]
+				<LI>[make <B>parseString()</B> and <B>parseExpr()</B> available to perform language specific substitutions on any
+				input?]
+			</UL>
+			<LI>getDatum(Node) - current datum for node
+			<UL>
+				<LI>[for evaluate_expr - which is for debugging only]
+				<UL>
+					<LI>getTypeName()
+					<LI>stringVal(showReserved)
+					<LI>booleanVal()
+					<LI>dateVal()
+					<LI>doubleVal()
+					<LI>monthVal()
+				</UL>
+				<LI> isRefused()
+				<LI>isUnknown()
+				<LI> isNotUnderstood()
+			</UL>
+			<LI>storeValue(Node, answer, comment, special, okToSetSpecial)
+			<LI>getQuestionStr(Node) - with substitutions
+			<LI>toString(Node, showNameIfSpecial) - current value for that node
+		</UL>
+		<LI>Save
+		<UL>
+			<LI>saveWorkingState()
+			<LI>saveCompletedState()
+			<LI>getFilename() - for display purposes
+			<LI>toTSV(directory, name) - only for save_as
+		</UL>
+		<LI>Flags
+		<UL>
+			<LI>isValid()
+			<LI>isDeveloperMode()
+			<LI>isDebugMode()
+			<LI>isShowQuestionRef()
+			<LI>isShowAdminModeIcons()
+			<LI>isAutoGenOptionNum()
+			<LI>isAllowComments()
+			<LI>isAllowRefused()
+			<LI>isAllowUnknown()
+			<LI>isAllowNotUnderstood()
+			<LI>isAllowLanguageSwitching()
+			<LI>isRecordEvents()
+		</UL>
+		<LI>Authentication
+		<UL>
+			<LI>getPasswordForAdminMode()
+			<LI>isTempPassword(String) - to verify that can keep current Refuse/Unknown/NotUnderstood setting without re-entering
+			adminModePassword
+			<LI>createTempPassword()
+		</UL>
+		<LI>Debug
+		<UL>
+			<LI>evaluateExpr(String)
+			<LI>getParser().getErrors()
+			<LI>collectParseErrors() - Vector of ParseErrors
+			<UL>
+				<LI>getNode()
+				<LI>getSourceFile()
+				<LI>getSourceLine()
+				<LI>getLocalName()
+				<LI>getDependencies()
+				<LI>getQuestionOrEvalType()
+				<LI>getQuestionOrEval()
+			</UL>
+			<LI>getSchedule().hasErrors()
+			<LI>getSchedule().getErrors()
+			<LI>getSchedule().setReserved()
+			<UL>
+				<LI>DEVELOPER_MODE
+				<LI>DEBUG_MODE
+				<LI>SHOW_QUESTION_REF
+				<LI>WORKING_DIR
+				<LI>COMPLETED_DIR
+			</UL>
+			<LI>getEvidence().hasErrors()
+			<LI>getEvidence().getErrors()
+			<LI>getErrors()
+			<LI>getEvidence()
+			<LI>getQuestions() - Vector of Nodes
+			<UL>
+				<LI>getDatumType()
+				<LI>getLocalName()
+				<LI>getConcept()
+				<LI>getDependencies()
+				<LI>getQuestionOrEvalTypeField()
+				<LI>getQuestionOrEval()
+				<LI>getExternalName()
+			</UL>
+			<LI>size() - number of nodes
+			<LI>getNode(int)
+			<LI>isSet(Node)
+		</UL>
+	</UL>
+	<LI>How should the API be extended to support a flexible presentation?
+	<UL>
+		<LI>Custom variables
+		<UL>
+			<LI>Researcher should be able to specify variables or tags to send to the presentation layer, where they would
+			operate upon them
+			<LI>Should these have types - e.g. Boolean, Number, String?
+			<LI>Should be defined withiin schedule
+		</UL>
+		<LI>Required vs. Optional Parameters
+	</UL>
+</UL>
+
+
+</BODY>
+
+</HTML>
