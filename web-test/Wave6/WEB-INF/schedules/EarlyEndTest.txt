@@ -29,6 +29,8 @@ Instruct/a	ND37b		1	q		"Welcome to our interview on the Web. We hope that you fi
 Instruct/b	ND37c		1	q		"You may close this interview at any point and resume at your convenience. Entering your user name and password will restore your own interview at the point where you left off. We ask that, once you start, you then complete this interview within a week."	nothing
 Instruct/c	ND37d		1	q		"The computer will let you know if you missed answering a question. If you do not wish to answer an individual question or a question is asked that does not apply to you, click on the Children in the Community logo in the upper left hand corner of your screen and at the prompt type in ""bypass."" This will give you icons that you can click to skip the question."	nothing
 	Dem1		1	e		Dem1	nothing
+	makeFilenameEqualID		1	e		__FILENAME__ = Dem1	nothing
+	makeTitleEqualID		1	e		__TITLE_FOR_PICKLIST_WHEN_IN_PROGRESS__ = Dem1	nothing	
 Demo/2	Dem2		1	[		Sex	list|1|female|2|male
 Demo/3	Dem3		1	]		Where do you currently live?	list|1|Large city|2|smaller city|3|Suburb|4|Small town|5|Rural area
 	_vacant		1	q		[Pretend the rest of the self-assessment goes here].  CLICK NEXT	nothing
