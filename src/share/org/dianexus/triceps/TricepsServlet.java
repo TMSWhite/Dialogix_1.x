@@ -16,16 +16,6 @@ public class TricepsServlet extends HttpServlet implements VersionIF {
 	private Logger errors = new Logger();
 	private Logger info = new Logger();
 
-	public static String HELP_T_ICON = null;
-	public static String COMMENT_T_ICON = null;
-	public static String COMMENT_F_ICON = null;
-	public static String REFUSED_T_ICON = null;
-	public static String REFUSED_F_ICON = null;
-	public static String UNKNOWN_T_ICON = null;
-	public static String UNKNOWN_F_ICON = null;
-	public static String NOT_UNDERSTOOD_T_ICON = null;
-	public static String NOT_UNDERSTOOD_F_ICON = null;
-
 	private HttpServletRequest req;
 	private HttpServletResponse res;
 	private PrintWriter out;
@@ -38,6 +28,10 @@ public class TricepsServlet extends HttpServlet implements VersionIF {
 	private String logoIcon = "";
 	private String floppyDir = "";
 	private String helpURL = "";
+	private String activePrefix = "";
+	private String activeSuffix = "";
+	private String inactivePrefix = "";
+	private String inactiveSuffix = "";
 
 	/* hidden variables */
 	private boolean debugMode = false;
@@ -82,7 +76,7 @@ public class TricepsServlet extends HttpServlet implements VersionIF {
 		if (s != null)
 			completedFilesDir = s.trim();
 		s = config.getInitParameter("imageFilesDir");
-		if (s != null)
+		if (s != null) 
 			imageFilesDir = s.trim();
 		s = config.getInitParameter("logoIcon");
 		if (s != null)
@@ -93,21 +87,14 @@ public class TricepsServlet extends HttpServlet implements VersionIF {
 		s = config.getInitParameter("helpURL");
 		if (s != null)
 			helpURL = s.trim();
-
-		HELP_T_ICON = imageFilesDir + "help_true.gif";
-		COMMENT_T_ICON = imageFilesDir + "comment_true.gif";
-		COMMENT_F_ICON = imageFilesDir + "comment_false.gif";
-		REFUSED_T_ICON = imageFilesDir + "refused_true.gif";
-		REFUSED_F_ICON = imageFilesDir + "refused_false.gif";
-		UNKNOWN_T_ICON = imageFilesDir + "unknown_true.gif";
-		UNKNOWN_F_ICON = imageFilesDir + "unknown_false.gif";
-		NOT_UNDERSTOOD_T_ICON = imageFilesDir + "not_understood_true.gif";
-		NOT_UNDERSTOOD_F_ICON = imageFilesDir + "not_understood_false.gif";
-
 	}
 
 	public void destroy() {
 		super.destroy();
+	}
+	
+	public String getIcon(int which) {
+		return schedule.getReserved(Schedule.IMAGE_FILES_DIR) + schedule.getReserved(which);
 	}
 
 	/**
@@ -141,7 +128,11 @@ public class TricepsServlet extends HttpServlet implements VersionIF {
 			res.setContentType("text/html");
 			out = res.getWriter();
 
-			directive = req.getParameter("directive");	// XXX: directive must be set before calling processHidden
+			directive = req.getParameter("DIRECTIVE");	// XXX: directive must be set before calling processHidden
+//if (DEBUG) Logger.writeln("##directive='" + directive + "'");			
+			if (directive != null && directive.trim().length() == 0) {
+				directive = null;
+			}
 			triceps.processEventTimings(req.getParameter("EVENT_TIMINGS"));
 
 			setGlobalVariables();
@@ -166,7 +157,7 @@ public class TricepsServlet extends HttpServlet implements VersionIF {
 			}
 
 			if (form.hasErrors() && developerMode) {
-				new XmlString(triceps, "<b>" + form.getErrors() + "</b>",out);
+if (AUTHORABLE)	new XmlString(triceps, "<b>" + form.getErrors() + "</b>",out);
 			}
 
 			out.println(form.toString());
@@ -182,9 +173,9 @@ public class TricepsServlet extends HttpServlet implements VersionIF {
 			/* Store appropriate stuff in the session */
 			session.putValue("triceps", triceps);
 
-			if (triceps.get("next").equals(directive)) {
+			if (directive.equals(triceps.get("next"))) {
 				if (triceps.isAtEnd()) {
-					System.runFinalization();	// could offer to let subject confirm that done, at which point written to floppy, etc.?
+//					System.runFinalization();	// could offer to let subject confirm that done, at which point written to floppy, etc.?
 				}
 				else {
 					triceps.saveWorkingInfo();	// don't I want to catch potential errors?
@@ -213,8 +204,8 @@ if (DEBUG) Logger.writeln("##Throwable @ Servlet.doPost()" + t.getMessage());
 
 if (AUTHORABLE) {
 		/* Want to evaluate expression before doing rest so can see results of changing global variable values */
-		if (triceps.get("evaluate_expr").equals(directive)) {
-			String expr = req.getParameter(triceps.get("evaluate_expr"));
+		if (directive != null && directive.equals(triceps.get("evaluate_expr"))) {
+			String expr = req.getParameter("evaluate_expr_data");
 			if (expr != null) {
 				Datum datum = triceps.evaluateExpr(expr);
 
@@ -258,7 +249,7 @@ if (AUTHORABLE) {
 			showAdminModeIcons = false;
 			autogenOptionNums = true;
 			allowComments = false;
-			allowRecordEvents = false;
+			allowRecordEvents = true;	// so captures info about opening screens
 			allowRefused = false;
 			allowUnknown = false;
 			allowNotUnderstood = false;
@@ -268,6 +259,18 @@ if (AUTHORABLE) {
 		okPasswordForTempAdminMode = false;
 		okToShowAdminModeIcons = false;
 		isSplashScreen = false;
+		activePrefix = schedule.getReserved(Schedule.ACTIVE_BUTTON_PREFIX);
+		activeSuffix = schedule.getReserved(Schedule.ACTIVE_BUTTON_SUFFIX);
+		inactivePrefix = spaces(activePrefix.length());
+		inactiveSuffix = spaces(activeSuffix.length());
+	}
+	
+	private String spaces(int len) {
+		StringBuffer sb = new StringBuffer();
+		for (int i=0;i<len;++i) {
+			sb.append("  ");
+		}
+		return sb.toString();
 	}
 
 	private void processHidden() {
@@ -276,7 +279,7 @@ if (AUTHORABLE) {
 			return;
 
 		String settingAdminMode = req.getParameter("PASSWORD_FOR_ADMIN_MODE");
-		if (settingAdminMode != null && !settingAdminMode.trim().equals("")) {
+		if (settingAdminMode != null && settingAdminMode.trim().length()>0) {
 			/* if try to enter a password, make sure that doesn't reset the form if password fails */
 			String passwd = triceps.getPasswordForAdminMode();
 			if (passwd != null) {
@@ -326,7 +329,7 @@ if (AUTHORABLE) {
 		sb.append("<td width='1%'>");
 
 		String logo = (!isSplashScreen && triceps.isValid()) ? triceps.getIcon() : logoIcon;
-		if (logo.trim().equals("")) {
+		if (logo.trim().length()==0) {
 			sb.append("&nbsp;");
 		}
 		else {
@@ -348,7 +351,7 @@ if (AUTHORABLE) {
 
 		sb.append("	<td width='1%'>");
 		if (globalHelp != null && globalHelp.trim().length() != 0) {
-			sb.append("<img src='" + HELP_T_ICON + "' alt='" + triceps.get("Help") + "' align='top' border='0' onMouseUp='evHandler(event);help(\"_TOP_\",\"" + globalHelp + "\");'>");
+			sb.append("<img src='" + getIcon(Schedule.HELP_ICON) + "' alt='" + triceps.get("Help") + "' align='top' border='0' onMouseUp='evHandler(event);help(\"_TOP_\",\"" + globalHelp + "\");'>");
 		}
 		else {
 			sb.append("&nbsp;");
@@ -495,10 +498,11 @@ if (DEBUG) Logger.writeln("##Throwable @ Servlet.selectFromInterviewsInDir" + t.
 		sb.append(languageButtons());
 
 		sb.append(formStr);
-
+		
 		sb.append("<input type='hidden' name='PASSWORD_FOR_ADMIN_MODE' value=''>");	// must manually bypass each time
 		sb.append("<input type='hidden' name='LANGUAGE' value=''>");
 		sb.append("<input type='hidden' name='EVENT_TIMINGS' value=''>");	// list of event timings
+		sb.append("<input type='hidden' name='DIRECTIVE' value=''>");
 
 		sb.append("</FORM>");
 
@@ -536,7 +540,7 @@ if (DEBUG) Logger.writeln("##Throwable @ Servlet.selectFromInterviewsInDir" + t.
 		Enumeration nodes;
 
 		// get the POSTed directive (start, back, next, help, suspend, etc.)	- default is opening screen
-		if (directive == null || triceps.get("select_new_interview").equals(directive)) {
+		if (directive == null || directive.equals(triceps.get("select_new_interview"))) {
 			/* Construct splash screen */
 			isSplashScreen = true;
 			triceps.setLanguage(null);	// the default
@@ -548,19 +552,20 @@ if (DEBUG) Logger.writeln("##Throwable @ Servlet.selectFromInterviewsInDir" + t.
 			/* Build the list of available interviews */
 			sb.append(selectFromInterviewsInDir("schedule",scheduleSrcDir,false));
 
-			sb.append("</td>");
-			sb.append("<td><input type='submit' name='directive' value='" + triceps.get("START") + "'></td>");
-			sb.append("</tr>");
+			sb.append("</td><td>");
+			sb.append(buildSubmit("START"));
+			sb.append("</td></tr>");
 
 			/* Build the list of suspended interviews */
-			sb.append("<tr><td>" + triceps.get("or_restore_an_interview_in_progress") + "</td>");
-			sb.append("<td>");
+			sb.append("<tr><td>");
+			sb.append(triceps.get("or_restore_an_interview_in_progress"));
+			sb.append("</td><td>");
 
 			sb.append(selectFromInterviewsInDir("RestoreSuspended",workingFilesDir,true));
 
-			sb.append("</td>");
-			sb.append("<td><input type='submit' name='directive' value='" + triceps.get("RESTORE") + "'></td>");
-			sb.append("</tr></table>");
+			sb.append("</td><td>");
+			sb.append(buildSubmit("RESTORE"));
+			sb.append("</td></tr></table>");
 
 			return sb.toString();
 		}
@@ -583,7 +588,7 @@ if (DEBUG) Logger.writeln("##Throwable @ Servlet.selectFromInterviewsInDir" + t.
 			String restore;
 
 			restore = req.getParameter("RestoreSuspended");
-			if (restore == null || restore.trim().equals("")) {
+			if (restore == null || restore.trim().length()==0) {
 				directive = null;
 				return processDirective();
 			}
@@ -607,12 +612,12 @@ if (DEBUG) Logger.writeln("##Throwable @ Servlet.selectFromInterviewsInDir" + t.
 		}
 		else if (directive.equals(triceps.get("jump_to"))) {
 if (AUTHORABLE) {
-			gotoMsg = triceps.gotoNode(req.getParameter(triceps.get("jump_to")));
+			gotoMsg = triceps.gotoNode(req.getParameter("jump_to_data"));
 			ok = (gotoMsg == Triceps.OK);
 			// ask this question
 }
 		}
-		else if (directive.equals("refresh current")) {
+		else if ("refresh current".equals(directive)) {
 			ok = true;
 			// re-ask the current question
 		}
@@ -634,7 +639,7 @@ if (AUTHORABLE) {
 		}
 		else if (directive.equals(triceps.get("save_to"))) {
 if (AUTHORABLE) {
-			String name = req.getParameter(triceps.get("save_to"));
+			String name = req.getParameter("save_to_data");
 			ok = triceps.saveWorkingInfo(name);
 			if (ok) {
 				info.println(triceps.get("interview_saved_successfully_as") + (workingFilesDir + name));
@@ -806,7 +811,7 @@ if (AUTHORABLE) {
 			}
 		}
 		if (firstFocus == null) {
-			firstFocus = "directive[0]";	// try to focus on Next button if nothing else available
+			firstFocus = triceps.get("next");	// try to focus on Next button if nothing else available
 		}
 
 		firstFocus = (new XmlString(triceps, firstFocus)).toString();	// make sure properly formatted
@@ -832,6 +837,7 @@ if (AUTHORABLE) {
 			triceps = Triceps.NULL;
 		}
 		schedule = triceps.getSchedule();
+		schedule.setReserved(Schedule.IMAGE_FILES_DIR,imageFilesDir);
 		return triceps.isValid();
 	}
 
@@ -945,10 +951,11 @@ if (AUTHORABLE) {
 		sb.append("<tr><td colspan='" + ((showQuestionNum) ? 4 : 3) + "' align='center'>");
 
 		if (!triceps.isAtEnd()) {
-			sb.append("<input type='submit' name='directive' value='" + triceps.get("next") + "'>");
+			sb.append(buildSubmit("next"));
 		}
+	
 		if (!triceps.isAtBeginning()) {
-			sb.append("<input type='submit' name='directive' value='" + triceps.get("previous") + "'>");
+			sb.append(buildSubmit("previous"));
 		}
 
 		if (allowEasyBypass || okToShowAdminModeIcons) {
@@ -961,18 +968,18 @@ if (AUTHORABLE) {
 if (AUTHORABLE) {
 		if (developerMode) {
 			sb.append("<tr><td colspan='" + ((showQuestionNum) ? 4 : 3 ) + "' align='center'>");
-			sb.append("<input type='submit' name='directive' value='" + triceps.get("select_new_interview") + "'>");
-			sb.append("<input type='submit' name='directive' value='" + triceps.get("restart_clean") + "'>");
-			sb.append("<input type='submit' name='directive' value='" + triceps.get("jump_to") + "' size='10'>");
-			sb.append("<input type='text' name='" + triceps.get("jump_to") + "'>");
-			sb.append("<input type='submit' name='directive' value='" + triceps.get("save_to") + "'>");
-			sb.append("<input type='text' name='" + triceps.get("save_to") + "'>");
+			sb.append(buildSubmit("select_new_interview"));
+			sb.append(buildSubmit("restart_clean"));
+			sb.append(buildSubmit("jump_to"));
+			sb.append("<input type='text' name='jump_to_data' size='10'>");
+			sb.append(buildSubmit("save_to"));
+			sb.append("<input type='text' name='save_to_data' size='10'>");
 			sb.append("</td></tr>");
 			sb.append("<tr><td colspan='" + ((showQuestionNum) ? 4 : 3 ) + "' align='center'>");
-			sb.append("<input type='submit' name='directive' value='" + triceps.get("reload_questions") + "'>");
-			sb.append("<input type='submit' name='directive' value='" + triceps.get("show_Syntax_Errors") + "'>");
-			sb.append("<input type='submit' name='directive' value='" + triceps.get("evaluate_expr") + "'>");
-			sb.append("<input type='text' name='" + triceps.get("evaluate_expr") + "'>");
+			sb.append(buildSubmit("reload_questions"));
+			sb.append(buildSubmit("show_Syntax_Errors"));
+			sb.append(buildSubmit("evaluate_expr"));
+			sb.append("<input type='text' name='evaluate_expr_data'>");
 			sb.append("</td></tr>");
 		}
 }
@@ -983,7 +990,12 @@ if (AUTHORABLE) {
 
 		return sb.toString();
 	}
-
+	
+		
+	private String buildSubmit(String name) {
+		return "<input type='submit' name='" + triceps.get(name) + "' value='" + inactivePrefix + triceps.get(name) + inactiveSuffix + "'>";
+	}
+	
 	private String buildClickableOptions(Node node, String inputName, boolean isSpecial) {
 		StringBuffer sb = new StringBuffer();
 
@@ -1009,7 +1021,7 @@ if (AUTHORABLE) {
 
 		String localHelpURL = node.getHelpURL();
 		if (localHelpURL != null && localHelpURL.trim().length() != 0) {
-			sb.append("<img src='" + HELP_T_ICON +
+			sb.append("<img src='" + getIcon(Schedule.HELP_ICON) +
 				"' align='top' border='0' alt='" + triceps.get("Help") + "' onMouseUp='evHandler(event);help(\"" + inputName + "\",\"" + localHelpURL + "\");'>");
 		}
 		else {
@@ -1019,11 +1031,11 @@ if (AUTHORABLE) {
 		String comment = node.getComment();
 		if (showAdminModeIcons || okToShowAdminModeIcons || allowComments) {
 			if (comment != null && comment.trim().length() != 0) {
-				sb.append("<img name='" + inputName + "_COMMENT_ICON" + "' src='" + COMMENT_T_ICON +
+				sb.append("<img name='" + inputName + "_COMMENT_ICON" + "' src='" + getIcon(Schedule.COMMENT_ICON_ON) +
 					"' align='top' border='0' alt='" + triceps.get("Add_a_Comment") + "' onMouseUp='evHandler(event);comment(\"" + inputName + "\");'>");
 			}
 			else  {
-				sb.append("<img name='" + inputName + "_COMMENT_ICON" + "' src='" + COMMENT_F_ICON +
+				sb.append("<img name='" + inputName + "_COMMENT_ICON" + "' src='" + getIcon(Schedule.COMMENT_ICON_OFF) +
 					"' align='top' border='0' alt='" + triceps.get("Add_a_Comment") + "' onMouseUp='evHandler(event);comment(\"" + inputName + "\");'>");
 			}
 		}
@@ -1032,15 +1044,15 @@ if (AUTHORABLE) {
 
 		if (showAdminModeIcons || okToShowAdminModeIcons || isSpecial) {
 			if (allowRefused || isRefused) {
-				sb.append("<img name='" + inputName + "_REFUSED_ICON" + "' src='" + ((isRefused) ? REFUSED_T_ICON : REFUSED_F_ICON) +
+				sb.append("<img name='" + inputName + "_REFUSED_ICON" + "' src='" + ((isRefused) ? getIcon(Schedule.REFUSED_ICON_ON) : getIcon(Schedule.REFUSED_ICON_OFF)) +
 					"' align='top' border='0' alt='" + triceps.get("Set_as_Refused") + "' onMouseUp='evHandler(event);markAsRefused(\"" + inputName + "\");'>");
 			}
 			if (allowUnknown || isUnknown) {
-				sb.append("<img name='" + inputName + "_UNKNOWN_ICON" + "' src='" + ((isUnknown) ? UNKNOWN_T_ICON : UNKNOWN_F_ICON) +
+				sb.append("<img name='" + inputName + "_UNKNOWN_ICON" + "' src='" + ((isUnknown) ? getIcon(Schedule.UNKNOWN_ICON_ON) : getIcon(Schedule.UNKNOWN_ICON_OFF)) +
 					"' align='top' border='0' alt='" + triceps.get("Set_as_Unknown") + "' onMouseUp='evHandler(event);markAsUnknown(\"" + inputName + "\");'>");
 			}
 			if (allowNotUnderstood || isNotUnderstood) {
-				sb.append("<img name='" + inputName + "_NOT_UNDERSTOOD_ICON" + "' src='" + ((isNotUnderstood) ? NOT_UNDERSTOOD_T_ICON : NOT_UNDERSTOOD_F_ICON) +
+				sb.append("<img name='" + inputName + "_NOT_UNDERSTOOD_ICON" + "' src='" + ((isNotUnderstood) ? getIcon(Schedule.DONT_UNDERSTAND_ICON_ON) : getIcon(Schedule.DONT_UNDERSTAND_ICON_OFF)) +
 					"' align='top' border='0' alt='" + triceps.get("Set_as_Not_Understood") + "' onMouseUp='evHandler(event);markAsNotUnderstood(\"" + inputName + "\");'>");
 			}
 		}
@@ -1127,9 +1139,9 @@ if (AUTHORABLE) {
 			StringBuffer sb = new StringBuffer();
 
 			sb.append("<tr><td colspan='" + ((showQuestionNum) ? 4 : 3 ) + "' align='center'>");
-			sb.append("<input type='submit' name='directive' value='" + triceps.get("turn_developerMode") + ((developerMode) ? triceps.get("OFF") : triceps.get("ON")) +  "'>");
-			sb.append("<input type='submit' name='directive' value='" + triceps.get("turn_debugMode") + ((debugMode) ? triceps.get("OFF") : triceps.get("ON")) +  "'>");
-			sb.append("<input type='submit' name='directive' value='" + triceps.get("turn_showQuestionNum") + ((showQuestionNum) ? triceps.get("OFF") : triceps.get("ON")) +  "'>");
+			sb.append(buildSubmit("turn_developerMode"));
+			sb.append(buildSubmit("turn_debugMode"));
+			sb.append(buildSubmit("turn_showQuestionNum"));
 			sb.append("</td></tr>");
 			return sb.toString();
 		}
@@ -1146,43 +1158,47 @@ if (AUTHORABLE) {
 		sb.append("var name = null;\n");
 		sb.append("var msg = null;\n");
 
-		if (allowRecordEvents) {
-			sb.append("var startTime = new Date();\n");
-			sb.append("var el = null;\n");
-			sb.append("var evH = null;\n");
-			sb.append("var ans = null;\n");
+		sb.append("var startTime = new Date();\n");
+		sb.append("var el = null;\n");
+		sb.append("var evH = null;\n");
+		sb.append("var ans = null;\n");
 
-			sb.append("function keyHandler(e) {\n");
+		sb.append("function keyHandler(e) {\n");
+		if (allowRecordEvents) {
 			sb.append("	now = new Date();\n");
 			sb.append("	val = String.fromCharCode(e.which) + ',' + e.target.value;\n");
 			sb.append("	name = e.target.name;\n");
 			sb.append("	msg = name + ',' + e.target.type + ',' + e.type + ',' + now.getTime() + ',' + (now.getTime() - startTime.getTime()) + ',' + val + '|';\n");
 			sb.append("	document.myForm.EVENT_TIMINGS.value += msg;\n");
-			sb.append("	return true;\n");
-			sb.append("}\n");
+		}
+		sb.append("	return true;\n");
+		sb.append("}\n");
 
-			sb.append("function submitHandler(e) {\n");
+		sb.append("function submitHandler(e) {\n");
+		if (allowRecordEvents) {
 			sb.append("	now = new Date();\n");
 			sb.append("	val = ',';\n");
-			sb.append("	name = e.target.value;\n");
-			sb.append("	msg = name + ',' + e.target.type + ',' + e.type + ',' + now.getTime() + ',' + (now.getTime() - startTime.getTime()) + ',' + val + '|';\n");
+			sb.append("	msg = e.target.name + ',' + e.target.type + ',' + e.type + ',' + now.getTime() + ',' + (now.getTime() - startTime.getTime()) + ',' + val + '|';\n");
 			sb.append("	document.myForm.EVENT_TIMINGS.value += msg;\n");
-			sb.append("	return true;\n");
-			sb.append("}\n");
-
-			sb.append("function selectHandler(e) {\n");
+		}
+		sb.append("	if (e.type == 'focus') { e.target.value='" + activePrefix + "' + e.target.name + '" + activeSuffix + "'; }\n");
+		sb.append("	else if (e.type == 'blur') { e.target.value='" + inactivePrefix + "' + e.target.name + '" + inactiveSuffix + "'; }\n");
+		sb.append("	document.myForm.elements['DIRECTIVE'].value = e.target.name;\n");
+		sb.append("	return true;\n");
+		sb.append("}\n");
+		
+		sb.append("function selectHandler(e) {\n");
+		if (allowRecordEvents) {
 			sb.append("	now = new Date();\n");
 			sb.append("	val = e.target.options[e.target.selectedIndex].value + ',' + e.target.options[e.target.selectedIndex].text;\n");
 			sb.append("	name = e.target.name;\n");
 			sb.append("	msg = name + ',' + e.target.type + ',' + e.type + ',' + now.getTime() + ',' + (now.getTime() - startTime.getTime()) + ',' + val + '|';\n");
 			sb.append("	document.myForm.EVENT_TIMINGS.value += msg;\n");
-			sb.append("	return true;\n");
-			sb.append("}\n");
 		}
-
-
+		sb.append("	return true;\n");
+		sb.append("}\n");
+		
 		sb.append("function evHandler(e) {\n");
-
 		if (allowRecordEvents) {
 			sb.append("	now = new Date();\n");
 			sb.append("	val = ',' + e.target.value;\n");
@@ -1190,38 +1206,29 @@ if (AUTHORABLE) {
 			sb.append("	msg = name + ',' + e.target.type + ',' + e.type + ',' + now.getTime() + ',' + (now.getTime() - startTime.getTime()) + ',' + val + '|';\n");
 			sb.append("	document.myForm.EVENT_TIMINGS.value += msg;\n");
 		}
-
 		sb.append("	return true;\n");
 		sb.append("}\n");
-
-		if (allowRecordEvents) {
-			sb.append("window.captureEvents(Event.Load);\n");
-			sb.append("window.onLoad = evHandler;\n");
-		}
+		
+		sb.append("window.captureEvents(Event.Load);\n");
+		sb.append("window.onLoad = evHandler;\n");
 
 		sb.append("function init() {\n");
 
-		if (allowRecordEvents) {
-			sb.append("	for (var i=0;i<document.myForm.elements.length;++i) {\n");
-			sb.append("		el = document.myForm.elements[i];\n");
-			sb.append("		evH = evHandler;\n");
-			sb.append("		if (el.options) { evH = selectHandler; }\n");
-			sb.append("		else if (el.type == 'submit') { evH = submitHandler; }\n");
-			sb.append("		el.onBlur = evH;\n");
-			sb.append("		el.onChange = evH;\n");
-			sb.append("		el.onClick = evH;\n");
-			sb.append("		el.onFocus = evH;\n");
-			sb.append("		el.onKeyPress = keyHandler;\n");
-//			sb.append("		el.onSelect = evH;\n");
-			sb.append("	}\n");
-			sb.append("	for (var k=0;k<document.images.length;++k){\n");
-			sb.append("		el = document.images[k];\n");
-//			sb.append("		el.onKeyUp = keyHandler;\n");
-			sb.append("		el.onMouseUp = evHandler;\n");
-//			sb.append("		el.onClick = evHandler;\n");
-			sb.append("	}\n");
-		}
-
+		sb.append("	for (var i=0;i<document.myForm.elements.length;++i) {\n");
+		sb.append("		el = document.myForm.elements[i];\n");
+		sb.append("		evH = evHandler;\n");
+		sb.append("		if (el.type == 'select-multiple' || el.type == 'select-one') { evH = selectHandler; }\n");
+		sb.append("		else if (el.type == 'submit') { evH = submitHandler; }\n");
+		sb.append("		el.onBlur = evH;\n");
+		sb.append("		el.onChange = evH;\n");
+		sb.append("		el.onClick = evH;\n");
+		sb.append("		el.onFocus = evH;\n");
+		sb.append("		el.onKeyPress = keyHandler;\n");
+		sb.append("	}\n");
+		sb.append("	for (var k=0;k<document.images.length;++k){\n");
+		sb.append("		el = document.images[k];\n");
+		sb.append("		el.onMouseUp = evHandler;\n");
+		sb.append("	}\n");
 
 		if (firstFocus != null) {
 			sb.append("	document.myForm." + firstFocus + ".focus();\n");
@@ -1241,15 +1248,15 @@ if (AUTHORABLE) {
 		sb.append("	val = document.myForm.elements[name + '_SPECIAL'];\n");
 		sb.append("	if (val.value == '" + Datum.getSpecialName(Datum.REFUSED) + "') {\n");
 		sb.append("		val.value = '';\n");
-		sb.append("		document.myForm.elements[name + '_REFUSED_ICON'].src = '" + REFUSED_F_ICON + "';\n");
+		sb.append("		document.myForm.elements[name + '_REFUSED_ICON'].src = '" + getIcon(Schedule.REFUSED_ICON_OFF) + "';\n");
 		sb.append("	} else {\n");
 		sb.append("		val.value = '" + Datum.getSpecialName(Datum.REFUSED) + "';\n");
 		if (allowRefused)
-			sb.append("		document.myForm.elements[name + '_REFUSED_ICON'].src = '" + REFUSED_T_ICON + "';\n");
+			sb.append("		document.myForm.elements[name + '_REFUSED_ICON'].src = '" + getIcon(Schedule.REFUSED_ICON_ON) + "';\n");
 		if (allowUnknown)
-			sb.append("		document.myForm.elements[name + '_UNKNOWN_ICON'].src = '" + UNKNOWN_F_ICON + "';\n");
+			sb.append("		document.myForm.elements[name + '_UNKNOWN_ICON'].src = '" + getIcon(Schedule.UNKNOWN_ICON_OFF) + "';\n");
 		if (allowNotUnderstood)
-			sb.append("		document.myForm.elements[name + '_NOT_UNDERSTOOD_ICON'].src = '" + NOT_UNDERSTOOD_F_ICON + "';\n");
+			sb.append("		document.myForm.elements[name + '_NOT_UNDERSTOOD_ICON'].src = '" + getIcon(Schedule.DONT_UNDERSTAND_ICON_OFF) + "';\n");
 		sb.append("	}\n");
 		sb.append("}\n");
 		sb.append("function markAsUnknown(name) {\n");
@@ -1257,15 +1264,15 @@ if (AUTHORABLE) {
 		sb.append("	val = document.myForm.elements[name + '_SPECIAL'];\n");
 		sb.append("	if (val.value == '" + Datum.getSpecialName(Datum.UNKNOWN) + "') {\n");
 		sb.append("		val.value = '';\n");
-		sb.append("		document.myForm.elements[name + '_UNKNOWN_ICON'].src = '" + UNKNOWN_F_ICON + "';\n");
+		sb.append("		document.myForm.elements[name + '_UNKNOWN_ICON'].src = '" + getIcon(Schedule.UNKNOWN_ICON_OFF) + "';\n");
 		sb.append("	} else {\n");
 		sb.append("		val.value = '" + Datum.getSpecialName(Datum.UNKNOWN) + "';\n");
 		if (allowRefused)
-			sb.append("		document.myForm.elements[name + '_REFUSED_ICON'].src = '" + REFUSED_F_ICON + "';\n");
+			sb.append("		document.myForm.elements[name + '_REFUSED_ICON'].src = '" + getIcon(Schedule.REFUSED_ICON_OFF) + "';\n");
 		if (allowUnknown)
-			sb.append("		document.myForm.elements[name + '_UNKNOWN_ICON'].src = '" + UNKNOWN_T_ICON + "';\n");
+			sb.append("		document.myForm.elements[name + '_UNKNOWN_ICON'].src = '" + getIcon(Schedule.UNKNOWN_ICON_ON) + "';\n");
 		if (allowNotUnderstood)
-			sb.append("		document.myForm.elements[name + '_NOT_UNDERSTOOD_ICON'].src = '" + NOT_UNDERSTOOD_F_ICON + "';\n");
+			sb.append("		document.myForm.elements[name + '_NOT_UNDERSTOOD_ICON'].src = '" + getIcon(Schedule.DONT_UNDERSTAND_ICON_OFF) + "';\n");
 		sb.append("	}\n");
 		sb.append("}\n");
 		sb.append("function markAsNotUnderstood(name) {\n");
@@ -1273,15 +1280,15 @@ if (AUTHORABLE) {
 		sb.append("	val = document.myForm.elements[name + '_SPECIAL'];\n");
 		sb.append("	if (val.value == '" + Datum.getSpecialName(Datum.NOT_UNDERSTOOD) + "') {\n");
 		sb.append("		val.value = '';\n");
-		sb.append("		document.myForm.elements[name + '_NOT_UNDERSTOOD_ICON'].src = '" + NOT_UNDERSTOOD_F_ICON + "';\n");
+		sb.append("		document.myForm.elements[name + '_NOT_UNDERSTOOD_ICON'].src = '" + getIcon(Schedule.DONT_UNDERSTAND_ICON_OFF) + "';\n");
 		sb.append("	} else {\n");
 		sb.append("		val.value = '" + Datum.getSpecialName(Datum.NOT_UNDERSTOOD) + "';\n");
 		if (allowRefused)
-			sb.append("		document.myForm.elements[name + '_REFUSED_ICON'].src = '" + REFUSED_F_ICON + "';\n");
+			sb.append("		document.myForm.elements[name + '_REFUSED_ICON'].src = '" + getIcon(Schedule.REFUSED_ICON_OFF) + "';\n");
 		if (allowUnknown)
-			sb.append("		document.myForm.elements[name + '_UNKNOWN_ICON'].src = '" + UNKNOWN_F_ICON + "';\n");
+			sb.append("		document.myForm.elements[name + '_UNKNOWN_ICON'].src = '" + getIcon(Schedule.UNKNOWN_ICON_OFF) + "';\n");
 		if (allowNotUnderstood)
-			sb.append("		document.myForm.elements[name + '_NOT_UNDERSTOOD_ICON'].src = '" + NOT_UNDERSTOOD_T_ICON + "';\n");
+			sb.append("		document.myForm.elements[name + '_NOT_UNDERSTOOD_ICON'].src = '" + getIcon(Schedule.DONT_UNDERSTAND_ICON_ON) + "';\n");
 		sb.append("	}\n");
 		sb.append("}\n");
 		sb.append("function help(name,target) {\n");
@@ -1295,8 +1302,8 @@ if (AUTHORABLE) {
 		sb.append("	if (ans == null) return;\n");
 		sb.append("	document.myForm.elements[name + '_COMMENT'].value = ans;\n");
 		sb.append("	if (ans != null && ans.length > 0) {\n");
-		sb.append("		document.myForm.elements[name + '_COMMENT_ICON'].src = '" + COMMENT_T_ICON + "';\n");
-		sb.append("	} else { document.myForm.elements[name + '_COMMENT_ICON'].src = '" + COMMENT_F_ICON + "'; }\n");
+		sb.append("		document.myForm.elements[name + '_COMMENT_ICON'].src = '" + getIcon(Schedule.COMMENT_ICON_ON) + "';\n");
+		sb.append("	} else { document.myForm.elements[name + '_COMMENT_ICON'].src = '" + getIcon(Schedule.COMMENT_ICON_OFF) + "'; }\n");
 		sb.append("}\n");
 		sb.append("function setLanguage(lang) {\n");
 		sb.append("	document.myForm.LANGUAGE.value = lang;\n");
@@ -1327,7 +1334,7 @@ if (AUTHORABLE) {
 		sb.append(createJavaScript());
 
 		sb.append("</head>\n");
-		sb.append("<body bgcolor='white' onload='evHandler(event);init();'>");
+		sb.append("<body name='body' bgcolor='white' onload='evHandler(event);init();'>");
 
 		return sb.toString();
 	}
