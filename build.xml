@@ -73,10 +73,11 @@
 
 
   <property name="app.name"      value="dialogix"/>
-  <property name="app.version"   value="2.9.5"/>
   <property name="build.home"    value="build"/>
   <property name="deploy.home"   value="${tomcat.home}/webapps/"/>
   <property name="dist.home"     value="dist"/>
+  <property name="app.version"	 value="${dialogix.version_major}.${dialogix.version_minor}"/>
+
   
   <!-- Note that .basedir must not include initial /, else zip file doesn't match it -->
   
@@ -213,8 +214,17 @@
    description="Compile Java sources">
 
     <!-- Compile Java classes as necessary -->
-    <copy  todir="${build.home}/src/">
+    <copy  todir="${build.home}/src/" filtering="true">
     <fileset dir="src/share" includes="**/*.java"/>
+       <filterset begintoken="@@" endtoken="@@">
+         <filter token="DIALOGIX.AUTHORABLE" value="${dialogix.authorable}"/>
+         <filter token="DIALOGIX.DEPLOYABLE" value="${dialogix.deployable}"/>
+         <filter token="DIALOGIX.WEB_SERVER" value="${dialogix.web_server}"/>
+         <filter token="DIALOGIX.XML" value="${dialogix.xml}"/>
+         <filter token="DIALOGIX.VERSION_MAJOR" value="${dialogix.version_major}"/>
+         <filter token="DIALOGIX.VERSION_MINOR" value="${dialogix.version_minor}"/>
+         <filter token="DIALOGIX.LICENSE" value="${dialogix.license}"/>
+       </filterset>
     </copy>
     
     <!-- By default, copy the JDK1.1 compatible files -->
@@ -370,7 +380,6 @@
    description="Create binary distribution">
    
     <!-- backup project source -->
-    <delete dir="${dist.home}"/>
     <mkdir dir="${dist.home}"/>
     
     <jar jarfile="${dist.home}/${app.name}_${app.version}-src.jar" basedir="/">
@@ -380,7 +389,7 @@
     </jar>
 
     <!-- Create application Zip file -->
-    <zip zipfile="${dist.home}/${zip.name}_win${windows.version}_${app.version}.zip"
+    <zip zipfile="${dist.home}/${zip.name}.zip"
          basedir="/">
 		<include name="${zip.basedir}/archive/**"/>
 		<include name="${zip.basedir}/bin/**"/>
@@ -449,7 +458,13 @@
     <echo message="tomcat.version=${tomcat.version}"/>
     <echo message="zip.basedir=${zip.basedir}"/>
     <echo message="cvs.basedir=${cvs.basedir}"/>
-    <echo message="windows.version=${windows.version}"/>
+    <echo message="deploy.os=${deploy.os}"/>
+    <echo message="dialogix.authorable=${dialogix.authorable}"/>
+    <echo message="dialogix.deployable=${dialogix.deployable}"/>
+    <echo message="dialogix.web_server=${dialogix.web_server}"/>
+    <echo message="dialogix.version_major=${dialogix.version_major}"/>
+    <echo message="dialogix.version_minor=${dialogix.version_minor}"/>
+    <echo message="dialogix.xml=${dialogix.xml}"/>
     
     <!-- Copy static files from external dependencies as needed -->
 
@@ -474,20 +489,43 @@
     </condition>    
     
     <condition property="using.win98">
-    	<equals arg1="${windows.version}" arg2="98" />
+    	<equals arg1="${deploy.os}" arg2="win98" />
     </condition>    
     <condition property="using.win2000">
-    	<equals arg1="${windows.version}" arg2="2000" />
+    	<equals arg1="${deploy.os}" arg2="win2000" />
     </condition>
     
-    <condition property="zip.name" value="${app.name}_ALL">
+    <condition property="dialogix.user_role" value="_Developer">
+    	<and>
+    		<equals arg1="${dialogix.authorable}" arg2="true"/>
+    		<equals arg1="${dialogix.deployable}" arg2="true"/>
+    	</and>
+    </condition>
+    <condition property="dialogix.user_role" value="_Interviewer">
+    	<and>
+    		<equals arg1="${dialogix.authorable}" arg2="false"/>
+    		<equals arg1="${dialogix.deployable}" arg2="true"/>
+       	</and>
+    </condition>
+    
+    <condition property="dialogix.webbable" value="_WebServer">
+    	<equals arg1="${dialogix.web_server}" arg2="true"/>
+    </condition>
+     <condition property="dialogix.webbable" value="">
+    	<equals arg1="${dialogix.web_server}" arg2="true"/>
+    </condition>   
+    
+    <condition property="dialogix.package_name" value="ALL">
     	<equals arg1="${dialogix.package}" arg2="**" />
     </condition>    
-    <condition property="zip.name" value="${app.name}_${dialogix.package}">
+    <condition property="dialogix.package_name" value="${dialogix.package}">
     	<not>
     		<equals arg1="${dialogix.package}" arg2="**" />
     	</not>
-    </condition>        
+    </condition>  
+    
+    <property name="zip.name" 
+    	value="${app.name}_${app.version}_${deploy.os}_${dialogix.package_name}${dialogix.webbable}${dialogix.user_role}" />
   </target>
   
 
