@@ -80,7 +80,6 @@ public class TricepsServlet extends HttpServlet {
 		String hiddenStr = "";
 		firstFocus = null; // reset it each time
 		
-
 		triceps = (Triceps) session.getValue("triceps");
 
 		res.setContentType("text/html");
@@ -89,14 +88,7 @@ public class TricepsServlet extends HttpServlet {
 		
 		hiddenStr = processHidden();
 
-		/* Process the form */
-		try {
-			form = processDirective();
-		}
-		catch (Exception e) {
-			System.out.println(e.getMessage());
-			e.printStackTrace();
-		}
+		form = processDirective();
 
 		out = res.getWriter();
 		out.println(header());
@@ -109,13 +101,17 @@ public class TricepsServlet extends HttpServlet {
 			out.println("</FORM>\n");
 		}
 		out.println(footer());
+		
+		out.flush();
+		out.close();	// XXX:  causes "Network Connection reset by peer" with Ham-D.txt - WHY?  Without close, dangling resources?
 
 		/* Store appropriate stuff in the session */
 		if (triceps != null)
 			session.putValue("triceps", triceps);
-
-		out.flush();
-//		out.close();	// XXX:  causes "Network Connection reset by peer" with Ham-D.txt - WHY?  Without close, dangling resources?
+			
+		if ("next".equals(directive)) {
+			triceps.toTSV();
+		}
 	}
 	
 	private String processHidden() {
@@ -575,10 +571,17 @@ public class TricepsServlet extends HttpServlet {
 			while (nodes.hasMoreElements()) {
 				Node n = (Node) nodes.nextElement();
 				if (n.hasRuntimeErrors()) {
-					++errCount;
-					sb.append("<B>Please answer the question(s) listed in <FONT color='red'>RED</FONT> before proceeding</B><BR>\n");
-					firstFocus = Node.encodeHTML(n.getName());
-					break;
+					if (++errCount == 1) {
+						sb.append("<B>Please answer the question(s) listed in <FONT color='red'>RED</FONT> before proceeding</B><BR>\n");
+					}
+					if (n.focusableArray()) {
+						firstFocus = Node.encodeHTML(n.getName()) + "[0]";
+						break;
+					}
+					else if (n.focusable()) {
+						firstFocus = Node.encodeHTML(n.getName());
+						break;
+					}
 				}
 			}
 
@@ -591,12 +594,19 @@ public class TricepsServlet extends HttpServlet {
 			Enumeration nodes = triceps.getQuestions();
 			while (nodes.hasMoreElements()) {
 				Node n = (Node) nodes.nextElement();
-				if (n.focusable()) {
+				if (n.focusableArray()) {
+					firstFocus = Node.encodeHTML(n.getName()) + "[0]";
+					break;
+				}
+				else if (n.focusable()) {
 					firstFocus = Node.encodeHTML(n.getName());
 					break;
 				}
 			}
 		}
+		if (firstFocus == null) {
+			firstFocus = "directive[0]";	// try to focus on Next button if nothing else available
+		}		
 
 		sb.append(queryUser());
 		return sb.toString();
