@@ -1,7 +1,8 @@
 import java.util.*;
 import java.lang.*;
+import java.io.*;
 
-public class Datum {
+public class Datum implements Serializable {
 	static final int UNKNOWN = 0;		// haven't asked
 	static final int DOUBLE = 1;
 	static final int STRING = 2;
