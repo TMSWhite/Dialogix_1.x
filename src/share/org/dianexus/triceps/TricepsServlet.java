@@ -561,10 +561,14 @@ public class TricepsServlet extends HttpServlet {
 			ok = ok && (gotoMsg == Triceps.OK);
 			// ask question
 		}
-		if (!ok) {
+//		if (!ok) 
+		{
+			/* should do this regardless of OK status?  Might catch interesting parsing errors? */
+			int errCount = 0;
 			Enumeration errs = triceps.getErrors();
 			if (errs.hasMoreElements()) {
 				while (errs.hasMoreElements()) {
+					++errCount;
 					sb.append("<B>" + Node.encodeHTML((String) errs.nextElement()) + "</B><BR>\n");
 				}
 			}
@@ -573,13 +577,16 @@ public class TricepsServlet extends HttpServlet {
 			while (nodes.hasMoreElements()) {
 				Node n = (Node) nodes.nextElement();
 				if (n.hasRuntimeErrors()) {
+					++errCount;
 					sb.append("<B>Please answer the question(s) listed in <FONT color='red'>RED</FONT> before proceeding</B><BR>\n");
 					firstFocus = Node.encodeHTML(n.getName());
 					break;
 				}
 			}
 
-			sb.append("<HR>\n");
+			if (errCount > 0) {
+				sb.append("<HR>\n");
+			}
 		}
 
 		if (firstFocus == null) {
