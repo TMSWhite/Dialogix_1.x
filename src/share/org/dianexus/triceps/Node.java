@@ -4,36 +4,46 @@ import java.io.*;
 
 
 public class Node implements Serializable {
-	public static final int UNKNOWN = -1;
-	public static final int RADIO = 0;
-	public static final int CHECK = 1;
-	public static final int COMBO = 2;
-	public static final int DATE = 3;
-	public static final int MONTH = 4;
-	public static final int TEXT = 5;
-	public static final int DOUBLE=6;
-	public static final int NOTHING=7;	// do nothing
-	public static final int RADIO2=8;	// different layout
-	public static final int PASSWORD=9;
-	private static final String QUESTION_TYPES[] = {"radio", "check", "combo", "date", "month", "text", "double", "nothing", "radio2", "password" };
-	private static final int DATA_TYPES[] = { Datum.STRING, Datum.STRING, Datum.STRING, Datum.DATE, Datum.MONTH, Datum.STRING, Datum.DOUBLE, Datum.STRING, Datum.STRING, Datum.STRING};
-	private static final String QUESTION_MASKS[] = { "", "", "", " (e.g. 7/23/1982)", " (e.g. February)", "", "", "", "", ""};
+	public static final int UNKNOWN = 0;
+	public static final int RADIO = 1;
+	public static final int CHECK = 2;
+	public static final int COMBO = 3;
+	public static final int DATE = 4;
+	public static final int MONTH = 5;
+	public static final int TEXT = 6;
+	public static final int DOUBLE=7;
+	public static final int NOTHING=8;	// do nothing
+	public static final int RADIO2=9;	// different layout
+	public static final int PASSWORD=10;
+	public static final int MEMO=11;
+	private static final String QUESTION_TYPES[] = {"*unknown*","radio", "check", "combo", "date", "month", "text", "double", "nothing", "radio2", "password","memo" };
+	private static final int DATA_TYPES[] = { Datum.STRING, Datum.STRING, Datum.STRING, Datum.STRING, Datum.DATE, Datum.MONTH, Datum.STRING, Datum.DOUBLE, Datum.STRING, Datum.STRING, Datum.STRING, Datum.STRING};
+	private static final String QUESTION_MASKS[] = { "", "", "", "", " (e.g. 7/23/1982)", " (e.g. February)", "", "", "", "", "", ""};
 
-	private static final int MAX_OPTION_LEN = 60;
+	public static final int QUESTION = 1;
+	public static final int EVAL = 2;
+	public static final int GROUP_OPEN = 3;
+	public static final int GROUP_CLOSE = 4;
+	public static final String ACTION_TYPE_NAMES[] = {"*unknown*","question", "expression", "group_open", "group_close" };
+	public static final String ACTION_TYPES[] = {"?","q","e","[","]"};
+
+	private static final int MAX_TEXT_LEN_FOR_COMBO = 60;
 
 	private String concept = "";
 	private String description = "";
-	private int step = 0;
+	private int sourceLine = 0;
+	private String sourceFile = "";
 	private String stepName = "";
 	private String dependencies = "";
 	private String questionRef = ""; // name within DISC
-	private String actionType = "";
+	private int actionType = UNKNOWN;
 	private String action = "";
 	private int answerType = UNKNOWN;
 	private int datumType = Datum.INVALID;
 	private String answerOptions = "";
 	private Vector answerChoices = new Vector();
-	private String error = null;
+	private Vector runtimeErrors = new Vector();
+	private Vector parseErrors = new Vector();
 
 	// loading from extended Schedule with default answers
 	// XXX hack - Node shouldn't know values of evidence - Schedule should know how to load itself.
@@ -44,11 +54,14 @@ public class Node implements Serializable {
 	/* XXX - there is no reliable way to tokenize tab delimited files - constantly dropped null values -
 	so must have dummy variables in empty columns */
 
-	public Node(int step, String tsv) {
+	public Node(int sourceLine, String sourceFile, String tsv) {
 		int	count=0;
+		String token;
+
 		try {
 			StringTokenizer st = new StringTokenizer(tsv, "\t");
-			this.step = step;
+			this.sourceLine = sourceLine;
+			this.sourceFile = sourceFile;
 			count = st.countTokens();
 
 			concept = getNextToken(st);
@@ -66,13 +79,23 @@ public class Node implements Serializable {
 
 			dependencies = getNextToken(st);
 			questionRef = getNextToken(st);
-			actionType = getNextToken(st);
+
+			token = getNextToken(st);
+			for (int z=0;z<ACTION_TYPES.length;++z) {
+				if (token.equalsIgnoreCase(ACTION_TYPES[z])) {
+					actionType = z;
+					break;
+				}
+			}
+			if (actionType == UNKNOWN) {
+				setParseError("Unknown action type <B>" + Node.encodeHTML(token) + "</B> on line " + sourceLine + " in file <B>" + sourceFile + "</B>");
+			}
+
 			action = getNextToken(st);
 			answerOptions = getNextToken(st);
 
 			int index = answerOptions.indexOf(";");
 
-			String token;
 			if (index != -1) {
 				token = answerOptions.substring(0, index);
 			}
@@ -83,15 +106,20 @@ public class Node implements Serializable {
 			for (int z=0;z<QUESTION_TYPES.length;++z) {
 				if (token.equalsIgnoreCase(QUESTION_TYPES[z])) {
 					answerType = z;
-					datumType = DATA_TYPES[z];
 					break;
 				}
 			}
-			if ("e".equals(actionType) || answerType == UNKNOWN) {
-				setError("Unknown data type (" + token + ") on line " + (step + 1));
+
+			if (actionType == EVAL) {
 				answerType = NOTHING;
-				datumType = DATA_TYPES[answerType];
 			}
+			else if (answerType == UNKNOWN) {
+				setParseError("Unknown data type for answer<B>" + Node.encodeHTML(token) + "</B> on line " + sourceLine + " in file <B>" + sourceFile + "</B>");
+				answerType = NOTHING;
+
+			}
+
+			datumType = DATA_TYPES[answerType];
 
 			parseTSV(answerOptions);
 
@@ -101,7 +129,7 @@ public class Node implements Serializable {
 		}
 		catch(NoSuchElementException e) {
 			if (count < 8) {
-				setError("Error tokenizing line " + (step + 1) + " (" + count + "/8 tokens found)" + e.getMessage());
+				setParseError("Error tokenizing line " + sourceLine + "in file <B>" + Node.encodeHTML(sourceFile) + "</B>: (" + count + "/8 tokens found)" + Node.encodeHTML(e.getMessage()));
 			}
 		}
 	}
@@ -138,7 +166,7 @@ public class Node implements Serializable {
 			return "";
 		}
 		catch (IndexOutOfBoundsException e) {
-			setError("Internal error: " + e.getMessage());
+			setParseError("Internal error: " + Node.encodeHTML(e.getMessage()));
 			return "";
 		}
 	}
@@ -165,10 +193,10 @@ public class Node implements Serializable {
 					}
 				}
 				catch (NullPointerException e) {
-					setError("Error tokenizing answer options: " + e);
+					setParseError("Error tokenizing answer options: " + Node.encodeHTML(e.getMessage()));
 				}
 				catch (NoSuchElementException e) {
-					setError("Error tokenizing answer options: " + e);
+					setParseError("Error tokenizing answer options: " + Node.encodeHTML(e.getMessage()));
 				}
 				break;
 			default:
@@ -178,6 +206,7 @@ public class Node implements Serializable {
 			case DOUBLE:
 			case NOTHING:
 			case PASSWORD:
+			case MEMO:
 				break;
 		}
 
@@ -195,7 +224,7 @@ public class Node implements Serializable {
 			case RADIO:	// will store integers
 				while (ans.hasMoreElements()) { // for however many radio buttons there are
 					ac = (AnswerChoice) ans.nextElement();
-					sb.append("<input type='radio'" + "name='" + Node.encodeHTML(getName()) + "' " + "value='" + Node.encodeHTML(ac.getValue()) + "'" +
+					sb.append("<input type='radio' name='" + Node.encodeHTML(getName()) + "' " + "value='" + Node.encodeHTML(ac.getValue()) + "'" +
 						(DatumMath.eq(datum,new Datum(ac.getValue(),DATA_TYPES[answerType])).booleanVal() ? " CHECKED" : "") + ">" + Node.encodeHTML(ac.getMessage()) + "<br>");
 				}
 				break;
@@ -214,7 +243,7 @@ public class Node implements Serializable {
 					while (ans.hasMoreElements()) { // for however many radio buttons there are
 						ac = (AnswerChoice) ans.nextElement();
 						sb.append("\n<TD VALIGN='top' WIDTH='" + pct.toString() + "%'>");
-						sb.append("<input type='radio'" + "name='" + Node.encodeHTML(getName()) + "' " + "value='" + Node.encodeHTML(ac.getValue()) + "'" +
+						sb.append("<input type='radio' name='" + Node.encodeHTML(getName()) + "' " + "value='" + Node.encodeHTML(ac.getValue()) + "'" +
 							(DatumMath.eq(datum,new Datum(ac.getValue(),DATA_TYPES[answerType])).booleanVal() ? " CHECKED" : "") + ">" + Node.encodeHTML(ac.getMessage()));
 						sb.append("</TD>");
 					}
@@ -226,7 +255,7 @@ public class Node implements Serializable {
 			case CHECK:
 				while (ans.hasMoreElements()) { // for however many radio buttons there are
 					ac = (AnswerChoice) ans.nextElement();
-					sb.append("<input type='checkbox'" + "name='" + Node.encodeHTML(getName()) + "' " + "value='" + Node.encodeHTML(ac.getValue()) + "'" +
+					sb.append("<input type='checkbox' name='" + Node.encodeHTML(getName()) + "' " + "value='" + Node.encodeHTML(ac.getValue()) + "'" +
 						(DatumMath.eq(datum, new Datum(ac.getValue(),DATA_TYPES[answerType])).booleanVal() ? " CHECKED" : "") + ">" + Node.encodeHTML(ac.getMessage()) + "<br>");
 				}
 				break;
@@ -245,13 +274,13 @@ public class Node implements Serializable {
 					int line=0;
 
 					while (option.length() > 0) {
-						if (option.length() < MAX_OPTION_LEN) {
+						if (option.length() < MAX_TEXT_LEN_FOR_COMBO) {
 							stop = option.length();
 						}
 						else {
-							stop = option.lastIndexOf(' ',MAX_OPTION_LEN);
+							stop = option.lastIndexOf(' ',MAX_TEXT_LEN_FOR_COMBO);
 							if (stop <= 0) {
-								stop = MAX_OPTION_LEN;	// if no extra space, take entire string
+								stop = MAX_TEXT_LEN_FOR_COMBO;	// if no extra space, take entire string
 							}
 						}
 
@@ -297,6 +326,11 @@ public class Node implements Serializable {
 					defaultValue = datum.stringVal();
 				sb.append("<input type='text' name='" + Node.encodeHTML(getName()) + "' value='" + Node.encodeHTML(defaultValue) + "'>");
 				break;
+			case MEMO:
+				if (datum != null && datum.exists())
+					defaultValue = datum.stringVal();
+				sb.append("<textarea rows='5' name='" + Node.encodeHTML(getName()) + ">" + Node.encodeHTML(defaultValue) + "</TEXTAREA>");
+				break;
 			case PASSWORD:	// stores Text type
 				if (datum != null && datum.exists())
 					defaultValue = datum.stringVal();
@@ -314,7 +348,7 @@ public class Node implements Serializable {
 			}
 		}
 		catch (Throwable t) {
-			setError("Internal error: " + t);
+			setError("Internal error: " + Node.encodeHTML(t.getMessage()));
 			return "";
 		}
 
@@ -323,7 +357,7 @@ public class Node implements Serializable {
 
 
 	public String getAction() { return action; }
-	public String getActionType() { return actionType; }
+	public int getActionType() { return actionType; }
 	public String getAnswerOptions() { return answerOptions; }
 	public int getAnswerType() { return answerType; }
 	public int getDatumType() { return datumType; }
@@ -334,42 +368,53 @@ public class Node implements Serializable {
 	public String getQuestionRef() { return questionRef; }
 	public String getDebugAnswer() { return debugAnswer; }
 	public String getQuestionMask() { return QUESTION_MASKS[answerType]; }
-	public int getStep() { return step; }
+	public int getSourceLine() { return sourceLine; }
+	public String getSourceFile() { return sourceFile; }
 	public String getQuestionAsAsked() { return questionAsAsked; }
 	public void setQuestionAsAsked(String s) { questionAsAsked = s; }
 
 	public boolean focusable() { return (answerType != UNKNOWN && answerType != NOTHING); }
 
+	public void setParseError(String error) {
+		parseErrors.addElement(error);
+	}
 	public void setError(String error) {
-		if (this.error == null)
-			this.error = error;
-		else
-			this.error = this.error + "<BR>" + error;
-
+		runtimeErrors.addElement(error);
 	}
 
-	public String getError() {
-		String temp = error;
-		error = null;
-		return temp;
+	public Vector getErrors() {
+		Vector errs = new Vector();
+		for (int j=0;j<parseErrors.size();++j) { errs.addElement(parseErrors.elementAt(j)); }
+		for (int j=0;j<runtimeErrors.size();++j) { errs.addElement(runtimeErrors.elementAt(j)); }
+		runtimeErrors = new Vector();	// clear the runtime errors;
+		return errs;
 	}
 
-	public boolean hasError() { return (error != null); }
+	public Vector getRuntimeErrors() {
+		Vector errs = runtimeErrors;
+		runtimeErrors = new Vector();	// clear them.
+		return errs;
+	}
+
+
+	public boolean hasErrors() { return ((runtimeErrors.size() + parseErrors.size()) > 0); }
+	public boolean hasRuntimeErrors() { return (runtimeErrors.size() > 0); }
+
 
 	/**
 	 * Prints out the components of a node in the schedule.
 	 */
 	public String toString() {
-		return "Node (" + step + "): <B>" + Node.encodeHTML(stepName) + "</B><BR>\n" + "Concept: <B>" + Node.encodeHTML(concept) + "</B><BR>\n" +
+		return "Node (" + sourceLine + "): <B>" + Node.encodeHTML(stepName) + "</B><BR>\n" + "Concept: <B>" + Node.encodeHTML(concept) + "</B><BR>\n" +
 			"Description: <B>" + Node.encodeHTML(description) + "</B><BR>\n" + "Dependencies: <B>" + Node.encodeHTML(dependencies) + "</B><BR>\n" +
-			"Question Reference: <B>" + Node.encodeHTML(questionRef) + "</B><BR>\n" + "Action Type: <B>" + Node.encodeHTML(actionType) + "</B><BR>\n" +
+			"Question Reference: <B>" + Node.encodeHTML(questionRef) + "</B><BR>\n" + "Action Type: <B>" + Node.encodeHTML(ACTION_TYPE_NAMES[actionType]) + "</B><BR>\n" +
 			"Action: <B>" + Node.encodeHTML(action) + "</B><BR>\n" + "AnswerType: <B>" + Node.encodeHTML(QUESTION_TYPES[answerType]) + "</B><BR>\n" + "AnswerOptions: <B>" +
 			Node.encodeHTML(answerOptions) + "</B><BR>\n";
 	}
 
 	public String toTSV() {
 		return concept + "\t" + description + "\t" + stepName + "\t" + dependencies + "\t" + questionRef +
-			"\t" + actionType + "\t" + action + "\t" + answerOptions;
+			"\t" + ACTION_TYPES[actionType] + "\t" + action + "\t" + answerOptions;
 	}
 
 

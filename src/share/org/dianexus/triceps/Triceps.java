@@ -12,8 +12,9 @@ public class Triceps implements Serializable {
 	public static final int AT_END = 3;
 
 	private static final SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy.MM.dd..hh.mm.ss z");
+	static private final Vector EMPTY_LIST = new Vector();
 
-	private static final String NULL = "not set";	// a default value to represent null in config files
+	public static final String NULL = "not set";	// a default value to represent null in config files
 
 	private Object scheduleURL = null;
 	private Schedule nodes = null;
@@ -87,7 +88,7 @@ public class Triceps implements Serializable {
 	public Enumeration getQuestions() {
 		Vector e = new Vector();
 		int braceLevel  = 0;
-		String actionType;
+		int actionType;
 		Node node;
 		int step = currentStep;
 
@@ -103,24 +104,24 @@ public class Triceps implements Serializable {
 			actionType = node.getActionType();
 			e.addElement(node);	// add regardless of type
 
-			if ("[".equals(actionType)) {
+			if (actionType == Node.GROUP_OPEN) {
 				++braceLevel;
 			}
-			else if ("e".equals(actionType)) {
+			else if (actionType == Node.EVAL) {
 				errors.addElement("Should not have expression evaluations within a query block (brace level " + braceLevel);
 				break;
 			}
-			else if ("]".equals(actionType)) {
+			else if (actionType == Node.GROUP_CLOSE) {
 				--braceLevel;
 				if (braceLevel < 0) {
 					errors.addElement("Extra closing brace");
 					break;
 				}
 			}
-			else if ("q".equals(actionType)) {
+			else if (actionType == Node.QUESTION) {
 			}
 			else {
-				errors.addElement("Invalid action type: " + Node.encodeHTML(actionType));
+				errors.addElement("Invalid action type");
 				break;
 			}
 		} while (braceLevel > 0);
@@ -144,7 +145,7 @@ public class Triceps implements Serializable {
 	public int gotoNext() {
 		Node node;
 		int braceLevel = 0;
-		String actionType;
+		int actionType;
 		int step = currentStep + numQuestions;
 
 		if (currentStep == size()) {
@@ -170,7 +171,7 @@ public class Triceps implements Serializable {
 
 			actionType = node.getActionType();
 
-			if ("[".equals(actionType)) {
+			if (actionType == Node.GROUP_OPEN) {
 				if (braceLevel == 0) {
 					if (parser.booleanVal(evidence, node.getDependencies())) {
 						break;	// this is the first node of a block
@@ -184,14 +185,14 @@ public class Triceps implements Serializable {
 					++braceLevel;	// skip this inner block
 				}
 			}
-			else if ("]".equals(actionType)) {
+			else if (actionType == Node.GROUP_CLOSE) {
 				--braceLevel;	// close an open block
 				if (braceLevel < 0) {
 					errors.addElement("Extra closing brace");
 					return ERROR;
 				}
 			}
-			else if ("e".equals(actionType)) {
+			else if (actionType == Node.EVAL) {
 				if (braceLevel > 0) {
 					evidence.set(node, new Datum(Datum.NA));	// NA if internal to a brace?
 				}
@@ -207,7 +208,7 @@ public class Triceps implements Serializable {
 					}
 				}
 			}
-			else if ("q".equals(actionType)) {
+			else if (actionType == Node.QUESTION) {
 				if (braceLevel > 0) {
 					;	// skip over it, keeping current value - looking for end of block
 				}
@@ -222,7 +223,7 @@ public class Triceps implements Serializable {
 				}
 			}
 			else {
-				errors.addElement("Unknown actionType " + Node.encodeHTML(actionType));
+				errors.addElement("INvalid action type");
 				return ERROR;
 			}
 			++step;
@@ -253,7 +254,7 @@ public class Triceps implements Serializable {
 	public int gotoPrevious() {
 		Node node;
 		int braceLevel = 0;
-		String actionType;
+		int actionType;
 		int step = currentStep;
 
 		while (true) {
@@ -269,14 +270,14 @@ public class Triceps implements Serializable {
 
 			actionType = node.getActionType();
 
-			if ("e".equals(actionType)) {
+			if (actionType == Node.EVAL) {
 				;	// skip these going backwards?
 //				evidence.set(node,new Datum(Datum.NA));	// reset evaluations when going backwards
 			}
-			else if ("]".equals(actionType)) {
+			else if (actionType == Node.GROUP_CLOSE) {
 				--braceLevel;
 			}
-			else if ("[".equals(actionType)) {
+			else if (actionType == Node.GROUP_OPEN) {
 				++braceLevel;
 				if (braceLevel > 0) {
 					errors.addElement("extra opening brace");
@@ -290,7 +291,7 @@ public class Triceps implements Serializable {
 					if (parser.hasErrors()) { Vector v=parser.getErrors(); for (int c=0;c<v.size();++c) { errors.addElement(v.elementAt(c)); }  }
 				}
 			}
-			else if ("q".equals(actionType)) {
+			else if (actionType == Node.QUESTION) {
 				if (braceLevel == 0 && parser.booleanVal(evidence, node.getDependencies())) {
 					if (parser.hasErrors()) { Vector v=parser.getErrors(); for (int c=0;c<v.size();++c) { errors.addElement(v.elementAt(c)); }  }
 					break;	// ask this block of questions
@@ -301,7 +302,7 @@ public class Triceps implements Serializable {
 				}
 			}
 			else {
-				errors.addElement("invalid actionType " + Node.encodeHTML(actionType));
+				errors.addElement("Invalid action type");
 				return ERROR;
 			}
 		}
@@ -478,6 +479,7 @@ public class Triceps implements Serializable {
 		Vector parseErrors = new Vector();
 		Vector dependenciesErrors;
 		Vector actionErrors;
+		Vector nodeErrors;
 		boolean hasErrors;
 		Evidence ev = new Evidence(nodes);
 
@@ -487,8 +489,9 @@ public class Triceps implements Serializable {
 				continue;
 
 			hasErrors = false;
-			dependenciesErrors = new Vector();
-			actionErrors = new Vector();
+			dependenciesErrors = EMPTY_LIST;
+			actionErrors = EMPTY_LIST;
+			nodeErrors = EMPTY_LIST;
 
 			parser.booleanVal(ev, n.getDependencies());
 
@@ -497,14 +500,14 @@ public class Triceps implements Serializable {
 				dependenciesErrors = parser.getErrors();
 			}
 
-			String actionType = n.getActionType();
+			int actionType = n.getActionType();
 			String action = n.getAction();
 
 			if (action != null) {
-				if ("q".equals(actionType)) {
+				if (actionType == Node.QUESTION) {
 					parser.parseJSP(ev, action);
 				}
-				else if ("e".equals(actionType)) {
+				else if (actionType == Node.EVAL) {
 					parser.stringVal(ev, action);
 				}
 			}
@@ -514,8 +517,16 @@ public class Triceps implements Serializable {
 				actionErrors = parser.getErrors();
 			}
 
+			if (n.hasErrors()) {
+				hasErrors = true;
+				nodeErrors = n.getErrors();
+			}
+			else {
+				nodeErrors = EMPTY_LIST;
+			}
+
 			if (hasErrors) {
-				parseErrors.addElement(new ParseError(n, dependenciesErrors, actionErrors));
+				parseErrors.addElement(new ParseError(n, dependenciesErrors, actionErrors, nodeErrors));
 			}
 		}
 		return parseErrors;

@@ -399,49 +399,69 @@ public class TricepsServlet extends HttpServlet {
 		}
 		else if (directive.equals("show Errors")) {
 			Vector pes = triceps.collectParseErrors();
-			Vector errs;
 
-			sb.append("<TABLE CELLPADDING='2' CELLSPACING='1' WIDTH='100%' border='1'>\n");
-			sb.append("<TR><TD>line#</TD><TD>name</TD><TD>Dependencies</TD><TD><B>Dependency Errors</B></TD><TD>Action Type</TD><TD>Action</TD><TD><B>Action Errors</B></TD><TD><B>Other Errors</B></TD></TR>\n");
-
-			for (int i=0;i<pes.size();++i) {
-				ParseError pe = (ParseError) pes.elementAt(i);
-				Node n = pe.getNode();
-
-				sb.append("\n<TR><TD>" + (n.getStep() + 1) + "</TD><TD>" + Node.encodeHTML(n.getQuestionRef(),true) + "</TD>");
-				sb.append("\n<TD>" + Node.encodeHTML(pe.getDependencies(),true) + "</TD>\n<TD>");
-
-				errs = pe.getDependenciesErrors();
-				if (errs.size() == 0) {
-					sb.append("&nbsp;");
-				}
-				else {
-					for (int j=0;j<errs.size();++j) {
-						if (j > 0)
-							sb.append("<BR>");
-						sb.append("" + (j+1) + ")&nbsp;" + Node.encodeHTML((String) errs.elementAt(j)));
-					}
-				}
-
-				sb.append("</TD>\n<TD>" + Node.encodeHTML(n.getActionType(),true) + "</TD><TD>" + Node.encodeHTML(pe.getAction(),true) + "</TD><TD>");
-
-				errs = pe.getActionErrors();
-				if (errs.size() == 0) {
-					sb.append("&nbsp;");
-				}
-				else {
-					for (int j=0;j<errs.size();++j) {
-						if (j > 0)
-							sb.append("<BR>");
-						sb.append("" + (j+1) + ")&nbsp;" + Node.encodeHTML((String) errs.elementAt(j)));
-					}
-				}
-
-				sb.append("</TD><TD>" + Node.encodeHTML(n.getError(),true) + "</TD>");
-
-				sb.append("</TR>");
+			if (pes.size() == 0) {
+				sb.append("<B>No errors were found</B><HR>");
 			}
-			sb.append("</TABLE><HR>\n");
+			else {
+				Vector errs;
+
+				for (int i=0;i<pes.size();++i) {
+					ParseError pe = (ParseError) pes.elementAt(i);
+					Node n = pe.getNode();
+
+					if (i == 0) {
+						sb.append("<FONT color='red'>The following errors were found in file <B>" + n.getSourceFile() + "</B></FONT><BR>\n");
+						sb.append("<TABLE CELLPADDING='2' CELLSPACING='1' WIDTH='100%' border='1'>\n");
+						sb.append("<TR><TD>line#</TD><TD>name</TD><TD>Dependencies</TD><TD><B>Dependency Errors</B></TD><TD>Action Type</TD><TD>Action</TD><TD><B>Action Errors</B></TD><TD><B>Other Errors</B></TD></TR>\n");
+					}
+
+					sb.append("\n<TR><TD>" + n.getSourceLine() + "</TD><TD>" + Node.encodeHTML(n.getQuestionRef(),true) + "</TD>");
+					sb.append("\n<TD>" + Node.encodeHTML(pe.getDependencies(),true) + "</TD>\n<TD>");
+
+					errs = pe.getDependenciesErrors();
+					if (errs.size() == 0) {
+						sb.append("&nbsp;");
+					}
+					else {
+						for (int j=0;j<errs.size();++j) {
+							if (j > 0)
+								sb.append("<BR>");
+							sb.append("" + (j+1) + ")&nbsp;" + Node.encodeHTML((String) errs.elementAt(j),true));
+						}
+					}
+
+					sb.append("</TD>\n<TD>" + Node.ACTION_TYPES[n.getActionType()] + "</TD><TD>" + Node.encodeHTML(pe.getAction(),true) + "</TD><TD>");
+
+					errs = pe.getActionErrors();
+					if (errs.size() == 0) {
+						sb.append("&nbsp;");
+					}
+					else {
+						for (int j=0;j<errs.size();++j) {
+							if (j > 0)
+								sb.append("<BR>");
+							sb.append("" + (j+1) + ")&nbsp;" + Node.encodeHTML((String) errs.elementAt(j),true));
+						}
+					}
+
+					sb.append("</TD>\n<TD>");
+
+					errs = pe.getNodeErrors();
+					if (errs.size() == 0) {
+						sb.append("&nbsp;");
+					}
+					else {
+						for (int j=0;j<errs.size();++j) {
+							if (j > 0)
+								sb.append("<BR>");
+							sb.append("" + (j+1) + ")&nbsp;" + (String) errs.elementAt(j));	// don't Node.encodeHTML() these, since pre-processed within Node
+						}
+					}
+					sb.append("</TD></TR>");
+				}
+				sb.append("</TABLE><HR>\n");
+			}
 		}
 		else if (directive.equals("forward")) {
 			// store current answer(s)
@@ -494,7 +514,7 @@ public class TricepsServlet extends HttpServlet {
 			Enumeration nodes = triceps.getQuestions();
 			while (nodes.hasMoreElements()) {
 				Node n = (Node) nodes.nextElement();
-				if (n.hasError()) {
+				if (n.hasRuntimeErrors()) {
 					sb.append("<B>Please answer the question(s) listed in <FONT color='red'>RED</FONT> before proceeding</B><BR>\n");
 					firstFocus = Node.encodeHTML(n.getName());
 					break;
@@ -544,9 +564,20 @@ public class TricepsServlet extends HttpServlet {
 			Node node = (Node) questionNames.nextElement();
 			Datum datum = triceps.getDatum(node);
 
-			if (node.hasError()) {
+			if (node.hasRuntimeErrors()) {
 				color = " color='red'";
-				errMsg = "<FONT color='red'>" + node.getError() + "</FONT>";
+				StringBuffer errStr = new StringBuffer("<FONT color='red'>");
+
+				Vector errs = node.getRuntimeErrors();
+
+				for (int j=0;j<errs.size();++j) {
+					if (j > 0) {
+						errStr.append("<BR>\n");
+					}
+					errStr.append((String) errs.elementAt(j));
+				}
+				errStr.append("</FONT>");
+				errMsg = errStr.toString();
 			}
 			else {
 				color = "";

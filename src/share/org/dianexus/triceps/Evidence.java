@@ -4,12 +4,10 @@ import java.io.*;
 import java.net.*;
 
 /**
- * Contains data generated at each node.  Such data are produced either 
+ * Contains data generated at each node.  Such data are produced either
  * by the person running the interview in response to
  * questions, or by the system evaluating previously stored evidence
  * TODO:
- *	output in various formats - e.g. flat file
- *	restore from various formats? - e.g. XML, ObjectStream
  *	who should maintain aliases? - is evidence self knowing, or is that Triceps' role?
  */
 public class Evidence implements Serializable {
@@ -25,7 +23,7 @@ public class Evidence implements Serializable {
 		nodes = new Vector(size);
 		this.schedule = schedule;
 		size = schedule.size();
-		
+
 		Node node;
 		int i;
 		for (i = 0; i < size; ++i) {
@@ -38,12 +36,33 @@ public class Evidence implements Serializable {
 			}
 			nodes.addElement(node);
 			Integer j = new Integer(i);
-			aliases.put(node.getConcept(), j);
-			aliases.put(node.getName(), j);
-			aliases.put(node.getQuestionRef(), j);			
+
+			addAlias(node,node.getConcept(),j);
+			addAlias(node,node.getName(),j);
+			addAlias(node,node.getQuestionRef(),j);
 		}
 	}
-	
+
+	private void addAlias(Node n, String alias, Integer index) {
+		if (alias == null || alias.equals(Triceps.NULL))
+			return;	// ignore invalid aliases
+
+		Object o = aliases.put(alias,index);
+		if (o != null) {
+			int pastIndex = ((Integer) o).intValue();
+
+			if (pastIndex != index.intValue()) {
+				/* Allow a single node to try to set the same alias for itself multiple times.
+				However, each node must have non-overlapping aliases with other nodes */
+				aliases.put(alias,o);	// restore overwritten alias
+				Node prevNode = schedule.getNode(pastIndex);
+				n.setParseError("Duplicate alias <B>" + Node.encodeHTML(alias) + "</B> previously used for node <B>" + Node.encodeHTML(prevNode.getName()) + "</B> on line " + prevNode.getSourceLine());
+//				prevNode.setParseError("Node '" + n.getName() + "' is trying to steal your alias '" + alias + "'");
+			}
+		}
+	}
+
+
 	public Evidence(int size) {
 		schedule = null;
 		this.size = size;
@@ -54,7 +73,7 @@ public class Evidence implements Serializable {
 			data.addElement(null);
 			nodes.addElement(null);
 		}
-	}	
+	}
 
 	public boolean containsKey(Object val) {
 		if (val == null)
@@ -65,7 +84,7 @@ public class Evidence implements Serializable {
 			return aliases.containsKey(((Node)val).getName());
 		return false;
 	}
-	
+
 	public Datum getDatum(Object val) {
 		if (!containsKey(val))
 			return null;
@@ -78,7 +97,7 @@ public class Evidence implements Serializable {
 			return null;
 		return (Datum)data.elementAt(i.intValue());
 	}
-	
+
 	public Node getNode(Object val) {
 		if (!containsKey(val)) {
 			System.out.println("Node not found: " + val);
@@ -97,11 +116,11 @@ public class Evidence implements Serializable {
 		if (o instanceof Node) {
 			return (Node)o;
 		}
-		
+
 		else
 			return null;
 	}
-	
+
 	public int getStep(Node n) {
 		if (n == null)
 			return -1;
@@ -111,24 +130,32 @@ public class Evidence implements Serializable {
 			return -1;
 		}
 	}
-	
+
 	public void set(Node node, Datum val) {
 		if (node == null || val == null) {
 			System.out.println("null value for node or val");
 			return;
 		}
 		Integer i;
-		i = (Integer)aliases.get(node.getName());
+		i = (Integer)aliases.get(node.getName());	// fast way to access value - via hash
+		if (i == null)
+			i = (Integer)aliases.get(node.getQuestionRef());	// fast way to access value - via hash
+		if (i == null)
+			i = (Integer)aliases.get(node.getConcept());	// fast way to access value - via hash
+		if (i == null)
+			i = new Integer(getStep(node));	// potentially slow way - search for identical node within vector
 		if (i == null) {
-			i = new Integer(node.getStep());
+			System.out.println("Node does not exist within evidence");
+			return;
 		}
+
 		data.setElementAt(val, i.intValue());
 		nodes.setElementAt(node, i.intValue());
 		aliases.put(node.getConcept(), i);
 		aliases.put(node.getName(), i);
 		aliases.put(node.getQuestionRef(), i);
 	}
-	
+
 	public void set(String name, Datum val) {
 		if (name == null || val == null) {
 			System.out.println("null value for name or val");
@@ -147,15 +174,15 @@ public class Evidence implements Serializable {
 		}
 		aliases.put(name, i);
 	}
-	
+
 	public int size() {
 		return data.size();
 	}
-	
+
 	public String toXML() {
 		StringBuffer sb = new StringBuffer("<Evidence>\n");
 		Enumeration e = aliases.keys();
-		
+
 		while (e.hasMoreElements()) {
 			String s = (String)e.nextElement();
 			sb.append("	<datum name='" + s + "' value='" + toString(s) + "'/>\n");
@@ -163,7 +190,7 @@ public class Evidence implements Serializable {
 		sb.append("</Evidence>");
 		return sb.toString();
 	}
-	
+
 	public String toString(Object val) {
 		Datum d = getDatum(val);
 		if (d == null)
@@ -171,7 +198,7 @@ public class Evidence implements Serializable {
 		else
 			return d.stringVal();
 	}
-	
+
 	public void unset(Node node) {
 		if (node == null)
 			return;
@@ -183,7 +210,7 @@ public class Evidence implements Serializable {
 			nodes.setElementAt(null, i.intValue());
 		}
 	}
-	
+
 	public void unset(String name) {
 		Integer i = (Integer)aliases.remove(name);
 		if (i != null) {

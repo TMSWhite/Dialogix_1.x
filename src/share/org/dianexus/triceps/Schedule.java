@@ -21,23 +21,27 @@ public class Schedule implements Serializable {
 		BufferedReader br = null;
 		if (file == null)
 			return false;
+
+		String filename = file.toString();
 		try {
-			int count = 0;
+			int line = 1;
+			int count=0;
 			String fileLine;
 			br = new BufferedReader(new FileReader(file));
 			while ((fileLine = br.readLine()) != null) {
+				++line;
 				if (fileLine.startsWith("COMMENT"))
 					continue;
 
-				Node node = new Node(count, fileLine);
+				Node node = new Node(line, filename, fileLine);
 				++count;
 				nodes.addElement(node);
 			}
-			System.out.println("Read " + count + " nodes from " + file);
+			System.out.println("Read " + count + " nodes from " + filename);
 			return true;
 		}
 		catch(IOException e) {
-			System.out.println("Error reading " + file);
+			System.out.println("Error reading " + filename);
 			return false;
 		}
 		finally {
@@ -55,9 +59,12 @@ public class Schedule implements Serializable {
 			return false;
 
 		boolean err = false;
+		String 	filename = url.toExternalForm();
+
 		try {
 			is = url.openStream();
 			int count = 0;
+			int line = 1;
 			String fileLine;
 			br = new BufferedReader(new InputStreamReader(is));
 			while ((fileLine = br.readLine()) != null) {
@@ -67,30 +74,28 @@ public class Schedule implements Serializable {
 					err = true;
 					break;
 				}
+				++line;
 				if (fileLine.startsWith("COMMENT"))
 					continue;
 
-				Node node = new Node(count, fileLine);
+				Node node = new Node(line, filename, fileLine);
 				++count;
 				nodes.addElement(node);
 			}
 			if (err) {
-				System.out.println("Unable to access " + url.toExternalForm());
+				System.out.println("Unable to access " + filename);
 				return false;
 			}
 			System.out.println("Read " + count + " nodes from " + url);
 			return true;
 		}
 		catch(IOException e) {
-			System.out.println("Error reading " + url.toExternalForm());
+			System.out.println("Error reading " + filename);
 			return false;
 		}
 		finally {
 			if (br != null) {
 				try { br.close(); } catch (Exception e) {}
-			}
-			if (is != null) {
-				try { is.close(); } catch (Exception e) {}
 			}
 		}
 	}
