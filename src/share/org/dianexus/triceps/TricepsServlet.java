@@ -41,16 +41,16 @@ public class TricepsServlet extends HttpServlet {
 		String s;
 
 		s = config.getInitParameter("scheduleList");
-		if (s != null && !s.trim().equals(""))
+		if (s != null)
 			scheduleList = s.trim();
 		s = config.getInitParameter("scheduleSrcDir");
-		if (s != null && !s.trim().equals(""))
+		if (s != null)
 			scheduleSrcDir = s.trim();
 		s = config.getInitParameter("workingFilesDir");
-		if (s != null && !s.trim().equals(""))
+		if (s != null)
 			workingFilesDir = s.trim();
 		s = config.getInitParameter("completedFilesDir");
-		if (s != null && !s.trim().equals(""))
+		if (s != null)
 			completedFilesDir = s.trim();			
 			
 	}
