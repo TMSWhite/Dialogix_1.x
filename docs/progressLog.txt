@@ -1,0 +1,130 @@
+Triceps Progress Log
+
+<<changes from version 2.10a to 2.20a
+<<9/9/00
+
+Evidence.java
+	removed local writeReserved()
+	  - call schedule.writeReserved() instead
+	re-ordered dataLogging 
+	  - WAS null, localName, answerLangNum, questionAsAsked, ans, comment, timeStamp
+	  - NOW null, localName, answerLangNum, timeStamp, questionAsAsked, URLencoded(ans), URLencoded(comment)
+  
+Node.java
+  added attEncode() method for encoding the value='' attribute of various HTML elements
+    - converts a String to HTML4 encoding 
+      - chars encoded: ISOcontrol, &, <, >, ', "
+      - encoding format: &#xxx;
+      - rest of characters are sent as-is
+      - FIXME - this may not extend to Unicode
+    - ignores embedded entities (since reflects direct data input - human wouldn't enter '&nbsp;')
+  attEncode() called for the following
+    <input type='text'>
+    <input type='password'>
+    <textarea>
+    <input type='hidden' name='COMMENT'>
+  changed timeStamp format
+    - used to use yyyy.mm.dd..hh.mm.ss
+    - now uses milliseconds since 1970.01.01.00.00.00.000
+  
+Schedule.java
+  added DISPLAY_COUNT
+    - lets loggers know how many screens the user has seen
+  changed timeStamp format
+    - TITLE_FOR_PICKLIST_WHEN_IN_PROGRESS uses Date(), rather than milliseconds, since more easily interprettable
+  re-ordered dataLogging for Nodes
+    - WAS null, localName, answerLangNum, questionAsAsked, ans, comment, timeStamp
+    - NOW null, localName, answerLangNum, timeStamp, questionAsAsked, URLencoded(ans), URLencoded(comment)
+  re-ordered dataLogging for Reserved
+    - WAS RESERVED, name, value, , , timeStamp
+    - NOW RESERVED, name, value, timeStamp, , , ,
+
+Triceps.java
+  added tracking of DISPLAY_COUNT
+  added tracking of timeSent and timeReceived
+  added start message to eventLogger
+  changed timeStamp format for START_TIME from yyyy.mm..hh.mm.ss to milliseconds
+  changed eventLogging source (from HTTP)
+    - line separator changed from pipe to tab
+    - intra-line token separator changed kept as comma
+  changed eventLogging storage to file
+    - each line terminated with \n
+    - 6 columns of data collected
+      localName, inputType, eventType, timeStamp, (timeStamp-screenStartTime), eventData, varValue
+    - varValue may contain commas, so extra tokens past #6 merged into a single one
+    - commas converted to tabs in eventLogger file
+    - columns 5 & 6 are URLencoded() in eventLogger file
+    - 7 columns are written - the displayCount is prepended to the other 6
+  added sent_request and received_response events to eventLogging
+    - sent_request logs timeStamp and (sent_request - received_response)
+      - tracks internal processingTime
+    - received_response logs timeStamp and (received_response - sent_request)
+      - tracks total transitTime for a given screen display
+    - once local and remote times are synchronized, average network delay can be calculated
+      - outbound = (loadTime - sentTime)
+      - inbound = (receivedTime - submitTime)
+      - responseTime = (inbound + outbound) = perceived wait time
+
+TricepsServlet.java
+  added logging of sent_request and received_response
+    - when should sent_request be registered? - ideally before any screen loading occurs
+  comments are now attEncoded()
+  changed eventLogging
+    - no longer tracks varValue for each keystroke since becomes huge
+    - such tracking unnecessary, since focus, blur, and change all show varValue
+    - separator char now tab instead of pipe
+    
+XMLString.java
+  bugfixes
+    - backslash in an <input> generated a prematurely terminated warning
+    - entity parsing did not detect &#xxx; format correctly
+    - entity parsing searched too deeply - now limited to 10 characters
+  TESTING
+    - attEncode() ensures that any value can be passed to <input type='xxx' value=''> 
+    - tested with all ASCII characters to ensure that values collected and preserved
+    - no buffer overflow detected with up to 25,000 characters
+    - XXX - should test 32k and 64k inputs to see whether gracefully handled
+    - Excel makes mistakes when importing TSV files with these column widths
+      - ignores subsequent columns - required re-ordering timeStamp
+      - does not generated any error messages
+    - Netscape can only handle ~30k of input
+    - saving to Jar file causing trouble with data dataLogger and eventLogger
+
+
+<<changes from version 2.20a to 2.30a
+<<9/10/00
+
+Logger.java
+  changed meaning of discard - if (!discard), then StringBuffer accumulates data too
+  write() explicitly re-opens file if it has been closed
+  bugfix - close and delete set variables to null for close detection
+  
+Triceps.java
+  dataLogger and eventLogger don't buffer contents (discard = true) - prevents overflows
+  changed Jar file writing 
+    - use InputStream and OutputStream to work with bytes, not chars
+    - modularized writing of Jar entries
+    - copyFile instead of simultaneous writes
+    - [Note that JarOutputStream is finicky - using finish() or closeEntry() causes errors in writing Jar file]
+  TESTING
+    - 16K and 25K data in comment and/or value fields are supported without error
+    
+<<changes from version 2.30a to 2.40a
+<<9/10/00
+
+JarFile.java
+  implements methods originally in Triceps
+    - getInstance(jarFilename)
+    - addEntry(name,InputStream)
+    - addEntry(name,File)
+    - close()
+    - copyFile(src,dst)
+    
+Triceps.java
+  removed methods now in JarFile
+  
+Datum.java
+  renamed reserved words *N/A* to *NA*, and *HUH?* to *HUH*
+  
+Logger.java
+  added getInputStream() method - closes existing file, returns FileInputStream for it
