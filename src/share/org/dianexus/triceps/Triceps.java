@@ -31,6 +31,7 @@ import java.util.MissingResourceException;
 import java.text.SimpleDateFormat;
 import java.io.FileNotFoundException;
 import java.lang.SecurityException;
+import java.net.URLEncoder;
 
 
 /*public*/ class Triceps implements VersionIF {
@@ -946,11 +947,45 @@ if (DEPLOYABLE) {
 			return;
 		}
 
-		StringTokenizer lines = new StringTokenizer(src,"|",false);
+		StringTokenizer lines = new StringTokenizer(src,"\t",false);
+		StringTokenizer vals = null;
+		String line = null;
+		String token = null;
+		int tokenCount = 0;
+		StringBuffer sb = null;
 		
 		while(lines.hasMoreTokens()) {
-			String s = lines.nextToken();
-			eventLogger.println(displayCountStr + "," + s);
+			line = (String) lines.nextToken();
+			vals = new StringTokenizer(line,",",true);
+			tokenCount = vals.countTokens();
+//if (DEBUG) Logger.writeln("" + tokenCount + "\t" + line);			
+			eventLogger.print(displayCountStr + "\t");
+			
+			tokenCount = 0;
+			while(vals.hasMoreTokens()) {
+				token = (String) vals.nextToken();
+				if (tokenCount >= 6) {
+					sb = new StringBuffer(token);
+					// remaining contents may contain commas, and thus be incorrectly treated as tokens
+					// so, merge remaining contents into a single value
+					while (vals.hasMoreTokens()) {
+						sb.append((String) vals.nextToken());
+					}
+					token = sb.toString();
+				}
+				else if (token.equals(",")) {
+					eventLogger.print("\t");
+					++tokenCount;
+					continue;
+				}
+				if (tokenCount >= 5) {
+					eventLogger.print(URLEncoder.encode(token));
+				}
+				else {
+					eventLogger.print(token);
+				}
+			}
+			eventLogger.println("");
 		}
 		
 		eventLogger.flush();	// so that committed to disk
@@ -974,7 +1009,7 @@ if (DEBUG) Logger.writeln("##NumberFormatException @ Triceps.initDisplayCount()"
 		incrementDisplayCount();
 if (DEPLOYABLE) {		
 		timeSent = System.currentTimeMillis();
-		eventLogger.println(displayCountStr + ",,,sent_request," + timeSent + "," + (timeSent - timeReceived) + ",,");
+		eventLogger.println(displayCountStr + "\t\t\tsent_request\t" + timeSent + "\t" + (timeSent - timeReceived) + "\t\t");
 		eventLogger.flush();	// so that committed to disk
 }		
 	}
@@ -982,7 +1017,7 @@ if (DEPLOYABLE) {
 	/*public*/ void receivedResponseFromUser() {
 if (DEPLOYABLE) {		
 		timeReceived = System.currentTimeMillis();
-		eventLogger.println(displayCountStr + ",,,received_response," + timeReceived + "," + (timeReceived - timeSent) + ",,");
+		eventLogger.println(displayCountStr + "\t\t\treceived_response\t" + timeReceived + "\t" + (timeReceived - timeSent) + "\t\t");
 		eventLogger.flush();	// so that committed to disk
 }
 	}
