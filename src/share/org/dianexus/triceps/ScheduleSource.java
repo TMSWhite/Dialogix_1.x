@@ -7,6 +7,11 @@ import java.io.FileReader;
 import java.util.Vector;
 import java.util.Hashtable;
 
+import java.util.jar.JarFile;
+import java.io.IOException;
+import java.util.jar.JarEntry;
+import java.io.InputStreamReader;
+
 /*public*/ final class ScheduleSource implements VersionIF {
 	private boolean isValid = false;
 	private Vector headers = new Vector();
@@ -32,12 +37,10 @@ import java.util.Hashtable;
 	}
 	
 	/*public*/ static synchronized ScheduleSource getInstance(String src) {
-		if (src == null || 
-			!(src.endsWith(".txt") || src.endsWith(".jar") || src.endsWith(".dat"))
-			) {
+		if (src == null) {
 			return NULL;
 		}
-			
+		
 		ScheduleSource ss = (ScheduleSource) sources.get(src);
 		
 		SourceInfo newSI = SourceInfo.getInstance(src);
@@ -72,75 +75,115 @@ if (DEBUG) Logger.writeln("##ScheduleSource(" + src + ") is not accessible, or h
 	}
 	
 	private boolean load() {
-		if (DEPLOYABLE && sourceInfo.getSource().endsWith(".jar")) {
-			// load from Jar file
-/*			
-			boolean ok = false;
-			
-			FileInputStream fis = null;
-			JarInputStream jis = null;
-			
-			try {
-				FileInputStream fis = new FileInputStream(sourceInfo.getSource());
-				JarInputStream jis = new JarInputStream(fis);
-				JarEntry je = jis.getNextJarEntry();
-				
-			}
-			catch (Exception e) {
-if (DEBUG) Logger.writeln("##ScheduleSource.load(" + sourceInfo.getSource() + ")-> " + e.getMessage());
-			}
-			if (jis != null) try { jis.close(); jis = null; fis = null; } catch(Throwable t) { }
-			if (fis != null) try { fis.close(); fis = null; } catch(Throwable t) { }
-*/			
-			return false;
+		String name = sourceInfo.getSource();
+		
+		if ((DEPLOYABLE || DEMOABLE) && name.endsWith(".jar")) {
+			return readFromJar();
 		}
-//		else if (AUTHORABLE && (sourceInfo.getSource().endsWith(".txt") || sourceInfo.getSource().endsWith(".dat"))) {
-		else if ((AUTHORABLE || DEPLOYABLE) && (sourceInfo.getSource().endsWith(".txt") || sourceInfo.getSource().endsWith(".dat"))) {
-			// load from text file
-			boolean pastHeaders = false;
-			BufferedReader br = null;
-			try {
-				br = new BufferedReader(new FileReader(new File(sourceInfo.getSource())));
-				String fileLine = null;
-				while ((fileLine = br.readLine()) != null) {
-					if (fileLine.trim().equals("")) {
-						continue;
-					}
-					if (!pastHeaders && fileLine.startsWith("RESERVED")) {
-						++reservedCount;
-						headers.addElement(fileLine);
-						continue;
-					}
-					if (fileLine.startsWith("COMMENT")) {
-						if (pastHeaders) {
-							body.addElement(fileLine);
-						}
-						else {
-							headers.addElement(fileLine);
-						}
-						continue;
-					}
-					// otherwise a body line
-					pastHeaders = true;	// so that datafile RESERVED words are added in sequence
-					body.addElement(fileLine);
-				}
-			}
-			catch (IOException e) {
-if (DEBUG)		Logger.writeln("##IOException @ ScheduleSource.load()" + e.getMessage());
-			}
-			if (br != null) {
-				try { br.close(); } catch (IOException t) { }
-			}
-			return true;
+		else if (AUTHORABLE && name.endsWith(".txt")) {
+			return readFromAscii();
+		}
+		else if (name.endsWith(".dat")) {
+			return readFromAscii();
 		}
 		else {
 			return false;
 		}
 	}
 	
+	private boolean readFromAscii() {
+		// load from text file
+		boolean pastHeaders = false;
+		BufferedReader br = null;
+		try {
+			br = new BufferedReader(new FileReader(new File(sourceInfo.getSource())));
+			String fileLine = null;
+			while ((fileLine = br.readLine()) != null) {
+				if ("".equals(fileLine.trim())) {
+					continue;
+				}
+				if (!pastHeaders && fileLine.startsWith("RESERVED")) {
+					++reservedCount;
+					headers.addElement(fileLine);
+					continue;
+				}
+				if (fileLine.startsWith("COMMENT")) {
+					if (pastHeaders) {
+						body.addElement(fileLine);
+					}
+					else {
+						headers.addElement(fileLine);
+					}
+					continue;
+				}
+				// otherwise a body line
+				pastHeaders = true;	// so that datafile RESERVED words are added in sequence
+				body.addElement(fileLine);
+			}
+		}
+		catch (Throwable e) {
+if (DEBUG)	Logger.writeln("##Throwable @ ScheduleSource.readFromAscii() " + e.getMessage());
+		}
+		if (br != null) {
+			try { br.close(); } catch (IOException t) { }
+		}
+		return true;
+	}
+	
 	/*public*/ Vector getHeaders() { return headers; }
 	/*public*/ Vector getBody() { return body; }
 	/*public*/ boolean isValid() { return isValid; }
+	/*public*/ String getSrcName() { if (sourceInfo == null) return "";  return sourceInfo.getSource(); }
 	
 	/*public*/ SourceInfo getSourceInfo() { return sourceInfo; }
+	
+	private boolean readFromJar() {
+		// load from Jar file
+		JarFile jf = null;
+		JarEntry je = null;
+		boolean ok = true;
+		
+		try {
+			jf = new JarFile(sourceInfo.getSource(),true);
+			headers = jarEntryToVector(jf, "headers");
+			body = jarEntryToVector(jf, "body");
+			reservedCount = headers.size();
+		}
+		catch (Throwable e) {
+if (DEBUG) Logger.writeln("##readFromJar " + e.getMessage());
+			ok = false;
+		}
+		if (jf != null) try { jf.close(); } catch (Throwable t) { }
+		return ok;
+	}
+	
+	private Vector jarEntryToVector(JarFile jf, String name) {
+		Vector v = new Vector();
+		
+		try {
+			JarEntry je = jf.getJarEntry(name);
+			InputStreamReader isr = new InputStreamReader(jf.getInputStream(je));
+			BufferedReader br = new BufferedReader(isr);
+
+			String fileLine = null;
+			try {
+				while ((fileLine = br.readLine()) != null) {
+					if ("".equals(fileLine.trim())) {
+						continue;
+					}
+					v.addElement(fileLine);
+				}
+			}
+			catch (Throwable e) {	// IOException
+if (DEBUG)		Logger.writeln("##IOException @ ScheduleSource.jarEntryToVector()" + e.getMessage());
+			}
+			if (br != null) {
+				try { br.close(); } catch (IOException t) { }
+			}
+		}	
+		catch (Throwable e) {
+if (DEBUG) Logger.writeln("##Throwable @ jarEntryToVector"  + e.getMessage());
+		}
+		return v;	
+	}
 }

@@ -194,14 +194,6 @@ if (AUTHORABLE)	new XmlString(triceps, "<b>" + form.getErrors() + "</b>",out);
 			/* Store appropriate stuff in the session */
 			session.putValue("triceps", triceps);
 
-			if (directive != null && directive.equals("next")) {
-				if (triceps.isAtEnd()) {
-//					System.runFinalization();	// could offer to let subject confirm that done, at which point written to floppy, etc.?
-				}
-				else {
-//					triceps.saveWorkingInfo();	// don't I want to catch potential errors?
-				}
-			}
 		}
 		catch (Throwable t) {
 if (DEBUG) Logger.writeln("##Throwable @ Servlet.doPost()" + t.getMessage());
@@ -341,8 +333,9 @@ if (AUTHORABLE) {
 				directive = "refresh current";
 			}
 			else if (directive.equals("sign_schedule")) {
-				if (schedule.saveAsJar()) {
-					errors.println(triceps.get("signed_schedule_saved_as") + schedule.getReserved(Schedule.SCHEDULE_SOURCE) + ".jar");
+				String name = schedule.signAndSaveAsJar();
+				if (name != null) {
+					errors.println(triceps.get("signed_schedule_saved_as") + name);
 				}
 				else {
 					errors.println(triceps.get("unable_to_save_signed_schedule"));
@@ -526,6 +519,10 @@ if (DEBUG) Logger.writeln("##Throwable @ Servlet.selectFromInterviewsInDir" + t.
 		sb.append("<FORM method='POST' name='myForm' action='" + HttpUtils.getRequestURL(req) + "'>");
 
 		formStr = processDirective();	// since this sets isSplashScreen, which is needed to decide whether to display language buttons
+		
+		if ("finished".equals(directive)) {
+			return formStr;
+		}
 
 		sb.append(languageButtons());
 
@@ -776,26 +773,32 @@ if (AUTHORABLE) {
 			ok = ok && ((gotoMsg = triceps.gotoNext()) == Triceps.OK);	// don't proceed if prior errors - e.g. unanswered questions
 
 			if (gotoMsg == Triceps.AT_END) {
-				// save the file, but still give the option to go back and change answers
-				boolean savedOK;
-				String filename = triceps.getFilename();
+				directive = "finished";
+				return processDirective();
+			}
 
-				info.println(triceps.get("the_interview_is_completed"));
+			// don't goto next if errors
+			// ask question
+		}
+		else if (directive.equals("finished")) {
+			// save the file, but still give the option to go back and change answers
+			boolean savedOK;
+			String filename = triceps.getFilename();
+
+			info.println(triceps.get("the_interview_is_completed"));
+			if (DEPLOYABLE) {
 				savedOK = triceps.saveCompletedInfo();
 				ok = savedOK && ok;
 				if (savedOK) {
 					info.println(triceps.get("interview_saved_successfully_as") + (completedFilesDir + filename));
 				}
-
+	
 				savedOK = triceps.saveToFloppy();
 				ok = savedOK && ok;
 				if (savedOK) {
 					info.println(triceps.get("interview_saved_successfully_as") + (floppyDir + filename));
 				}
 			}
-
-			// don't goto next if errors
-			// ask question
 		}
 		else if (directive.equals("previous")) {
 			// don't store current
@@ -989,9 +992,9 @@ if (AUTHORABLE) {
 		}
 	
 		if (!triceps.isAtBeginning()) {
-if (DEPLOYABLE && !triceps.isAtEnd()) {
+//if (!triceps.isAtEnd()) {
 			sb.append(buildSubmit("previous"));
-}			
+//}			
 		}
 
 		if (allowEasyBypass || okToShowAdminModeIcons) {

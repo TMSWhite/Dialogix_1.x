@@ -759,9 +759,9 @@ if (DEPLOYABLE) {
 	private boolean saveAsJar(String fn) {
 if (DEPLOYABLE) {
 		/* create jar or zip file of data and events */
-		JarFile jf = null;
+		JarWriter jf = null;
 		
-		jf = JarFile.getInstance(nodes.getReserved(Schedule.COMPLETED_DIR) + fn + ".jar");
+		jf = JarWriter.getInstance(nodes.getReserved(Schedule.COMPLETED_DIR) + fn + ".jar");
 		
 		if (jf == null)
 			return false;
@@ -779,7 +779,7 @@ if (DEPLOYABLE) {
 	/*public*/ boolean saveToFloppy() {
 		String name = nodes.getReserved(Schedule.FILENAME) + ".jar";
 		
-		return JarFile.NULL.copyFile(nodes.getReserved(Schedule.COMPLETED_DIR) + name, nodes.getReserved(Schedule.FLOPPY_DIR) + name);
+		return JarWriter.NULL.copyFile(nodes.getReserved(Schedule.COMPLETED_DIR) + name, nodes.getReserved(Schedule.FLOPPY_DIR) + name);
 	}
 	
 	/*public*/ String getTitle() {

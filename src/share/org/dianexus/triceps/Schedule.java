@@ -219,7 +219,7 @@ import java.io.ByteArrayInputStream;
 		
 	/*public*/ boolean init() {
 		boolean ok = init2();
-if (DEBUG) {
+if (DEBUG && false) {
 		String source = null;
 		SourceInfo si = null;
 		if (scheduleSource != null && ((si = scheduleSource.getSourceInfo()) != null)) {
@@ -374,6 +374,16 @@ if (DEBUG) Logger.writeln("##@@Error loading dataBody");
 		if (ss == null || !ss.isValid()) {
 			return false;
 		}
+		
+		if ((AUTHORABLE && ss.getSrcName().endsWith(".txt")) ||
+			((DEPLOYABLE || DEMOABLE) && ss.getSrcName().endsWith(".jar"))
+			) { 
+			; 
+		}
+		else {
+//if (DEBUG) 	Logger.writeln("##ScheduleSource.loadSchedule(" + ss.getSrcName() + ")-> error");
+			return false;
+		}		
 			
 		Vector lines = ss.getHeaders();
 		String source = ss.getSourceInfo().getSource();
@@ -948,16 +958,23 @@ if (DEBUG) Logger.writeln("##Schedule.setError()" + s);
 	
 	/*public*/ Triceps getTriceps() { return triceps; }
 	
-	/*public*/ boolean saveAsJar() {
-if (DEPLOYABLE) {
-		JarFile jf = null;
+	/*public*/ String signAndSaveAsJar() {
+if (AUTHORABLE) {		
+		JarWriter jf = null;
 		
-		StringBuffer sb = null;
+		String name = new String(getReserved(Schedule.SCHEDULE_SOURCE));
+		int lastPeriod = name.lastIndexOf(".");
+		if (lastPeriod != -1) {
+			name = name.substring(0,lastPeriod) + ".jar";
+		}
+		else {
+			name = name + ".jar";
+		}
 		
-		jf = JarFile.getInstance(getReserved(Schedule.SCHEDULE_SOURCE) + ".jar");
+		jf = JarWriter.getInstance(name);
 		
 		if (jf == null)
-			return false;
+			return null;
 			
 		boolean ok = false;
 				
@@ -965,9 +982,9 @@ if (DEPLOYABLE) {
 		ok = jf.addEntry("body",vectorToIS(scheduleSource.getBody())) && ok;
 		jf.close();
 		
-		return ok;
+		return (ok) ? name : null;
 }
-		return false;
+		return null;
 	}
 	
 	private ByteArrayInputStream vectorToIS(Vector v) {
