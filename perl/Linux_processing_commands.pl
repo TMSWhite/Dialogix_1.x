@@ -15,4 +15,8 @@ find . -regex '.*completed\/[A-Za-z0-9_.-]*\.jar' -print > /home/tmw/data/comple
 
 find . -regex '.*working\/[A-Za-z0-9_.-]*\.dat.*' -print > /home/tmw/data/working_list.txt
 
-find . -regex '.*schedules\/[A-Za-z0-9_.-]*\.jar' -print > /home/tmw/data/instruments_list.txt
+find . -regex '.*schedules\/.*[A-Za-z0-9_.-]*\.jar' -print > /home/tmw/data/instruments_list.txt
+
+# Create tar file of all deployed versions of instruments (assuming I backed them up properly)
+
+tar czvf /home/tmw/data/instruments.tgz `find . -regex '.*schedules\/.*[A-Za-z0-9_.-]*\.jar' -print`
