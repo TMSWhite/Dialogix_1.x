@@ -7,20 +7,15 @@
          webapps/, work/ and log/ will be relative to this ( unless 
          set explicitely to absolute paths ).
       -->
-    <ContextManager workDir="work" >	<!-- home="/usr/local/dialogix" > -->
+    <ContextManager workDir="work" >
 
-		<!--    
-    	<property name="dialogix.home" value="/usr/local/dialogix" />
-		-->
       <!-- ==================== Global modules ==================== -->
         <LoaderInterceptor11  useApplicationLoader="true" />
 
         <TrustedLoader />
 
         <LogSetter name="tc_log" timestamps="true"
-		   verbosityLevel="WARNING" 
-			path="logs/tc-${yyyyMMdd}.log" /> 
-
+		   verbosityLevel="INFORMATION"  />
 
         <LogEvents enabled="false" />
         
@@ -29,16 +24,16 @@
 
         <!-- Separated Context -->
         <ContextXmlReader config="conf/apps.xml" />
-        
+
         <AutoDeploy source="modules" target="modules" 
 		    redeploy="true" />
 
         <AutoWebApp dir="modules" host="DEFAULT" trusted="true"/>
-        
+
         <AutoDeploy source="webapps" target="webapps" />
 
         <AutoWebApp dir="webapps" host="DEFAULT" />
-        
+
         <PolicyLoader securityManagerClass="java.lang.SecurityManager"
 		      policyFile="conf/tomcat.policy" />
 
@@ -83,7 +78,9 @@
 			useJspServlet="false"
 			/>
         
-        <StaticInterceptor listings="true" />
+        <StaticInterceptor listings="true"
+                           useAcceptLanguage="true"
+                           useCharset="locale" />
         
         <ReloadInterceptor fullReload="true" />
 
@@ -156,7 +153,10 @@
 
         <DecodeInterceptor /> 
 
-        <SessionId cookiesFirst="true" noCookies="true" /> 
+        <!-- If you are running SSL and wish to verify Tomcat sessions 
+             against SSL sessions, use checkSSLSessionId="true"
+             Default is checkSSLSessionId="false" -->
+        <SessionId cookiesFirst="true" noCookies="false" /> 
 
         <!-- Automatic config generation
              Set noRoot="false" if you wish to have Tomcat try to take
@@ -173,9 +173,9 @@
         <NSConfig noRoot="true" />
 
          <!-- Uncoment for apache-style logs 
-              Attributes: logFile, flush, format 
+              Attributes: logFile, flush, format
         <AccessLogInterceptor/>
-        -->
+          -->
       <!-- ==================== Connectors ==================== -->
 
        <!-- new http adapter. Attributes:
