@@ -3,8 +3,17 @@
 use strict;
 use IO::File;
 use XML::Parser;
+use Data::Dumper;
+use Cwd;
 
 my $PERLDIR = "c:/cvs2/dialogix/perl";
+my $USETIDY = 0;
+my $CONVERT2XML = 0;
+my $CREATETIDY = 0;
+my $VALIDATEXML = 0;
+my $RECURSEDIRS = 0;
+my @FILEGLOB = ('*');
+
 
 my $dataTypes = {
 	check => 'string',
@@ -36,15 +45,62 @@ my $dataTypes = {
 	string => 'string',
 };	
 
-&main(@ARGV);
+&main;
 
 sub main {
-	my @args = @_;
+	if ($#ARGV != 3) {
+		die "usage\ninst2xml.pl <convert2xml> <createTidy> <validateXML> <recurseDirs>\n";
+	}
+	($CONVERT2XML, $CREATETIDY, $VALIDATEXML, $RECURSEDIRS) = @ARGV;
 	
-	foreach (@args) {
-		foreach (glob($_)) {
-			&inst2xml($_);
-			&validate_xml("$_.xml");
+	my $srcdir = Cwd::cwd();
+	print "[$srcdir]\n";
+	
+	foreach (@FILEGLOB) {
+		&look($_);
+	}
+}
+
+sub look {
+	my @files = sort(glob(shift));
+	my @txtfiles = sort(grep(/\.txt$/,@files));
+	my @dirs;
+	foreach (@files) {
+		push @dirs, $_ if (-d);
+	}
+	
+	foreach (@txtfiles,@dirs) {
+		&processDir($_);
+	}
+}
+
+sub processDir {
+	my $file = shift;
+	
+	if (-d $file && $RECURSEDIRS) {
+		my $srcdir = Cwd::cwd();
+		if (chdir($file)) {
+			print "[$srcdir/$file]\n";
+			foreach (@FILEGLOB) {
+				&look($_);
+			}
+			chdir($srcdir);
+			print "[$srcdir]\n";
+		}
+		else {
+			print "ERR - unable to chdir to $file";
+		}
+	}
+	elsif ($file =~ /\.txt$/) {
+		my $xmlfile;
+		if ((-f $file) && (-r $file)) {
+			$xmlfile = &inst2xml($file);
+			if ((-f $xmlfile) && (-r $xmlfile)) {
+				&validate_xml($xmlfile);
+			}
+			else {
+				print "unable to find $xmlfile\n";
+			}			
 		}
 	}
 }
@@ -59,35 +115,61 @@ sub inst2xml {
 	chomp(@src);
 	close (IN);
 	
-	# parse the lines
-	my @lines;
-	my @languages = ( 'en_US' );	# default, if nothing specified, is to use English
+	my $base = &basename($filename);
 	
-	foreach (@src) {
-		next if (/^\s*$/);
-		if (/^RESERVED/) {
-			my $reserved = &parse_reserved($_);	# this pre-supposes that all reserveds must be parsed first -- isnt' this true in headers vs. body?
-			if ($reserved->{'resname'} eq '__LANGUAGES__') {
-				@languages = &parse_languages($reserved->{'resval'});
+	# want tidied an original versions -- cheat by using global variables and processing twice, rather than re-writing access to &parse_html and &parse_exp;
+	if ($CONVERT2XML) {
+		foreach my $tidy (0 .. ($CREATETIDY == 1)) {
+			# parse the lines
+			my @lines;
+			my @languages = ( 'en_US' );	# default, if nothing specified, is to use English
+			my ($starttime,$stoptime);
+			$starttime = time;
+			
+			$USETIDY = $tidy;	# a global variable
+			
+			# read the data, without processing it (other than to remove Excel's extraneous quotes
+			foreach (@src) {
+				next if (/^\s*$/);
+				if (/^RESERVED/) {
+					my $reserved = &parse_reserved($_);	# this pre-supposes that all reserveds must be parsed first -- isnt' this true in headers vs. body?
+					if ($reserved->{'resname'} eq '__LANGUAGES__') {
+						@languages = &parse_languages($reserved->{'resval'});
+					}
+					push @lines, $reserved;
+				}
+				elsif (/^\s*COMMENT/) {
+					push @lines, &parse_comment($_);
+				}
+				else {
+					push @lines, &parse_node($_);
+				}
 			}
-			push @lines, $reserved;
-		}
-		elsif (/^\s*COMMENT/) {
-			push @lines, &parse_comment($_);
-		}
-		else {
-			push @lines, &parse_node($_);
+			
+			# write them as XML (initially not taking advantage of Perl's XML / DOM features
+			my $xmlfile = $base;
+			if ($tidy) {
+				$xmlfile = "$base.tidy";
+			}
+			&write_xml($base,$xmlfile,\@languages,\@lines);
+			my $stoptime = time;
+			print "wrote XML to $xmlfile.xml in " . ($stoptime - $starttime) . " seconds\n";			
 		}
 	}
-	
-	# write them as XML (initially not taking advantage of Perl's XML / DOM features
-	&write_xml($filename,\@languages,\@lines);
+	unlink("tmp.tmp");	# remove extraneous file used by tidy.
+	return "$base.tidy.xml";
 }
 
 sub validate_xml {
 	my $filename = shift;
+
+	if (!$VALIDATEXML) {
+		print "skipping validation of \"$filename\"\n";
+		return;
+	}
+	
 	my ($starttime,$stoptime);
-	$starttime = time;
+	$starttime = time;	
 	
 	my $parser = new XML::Parser(Style => 'Tree', ErrorContext => 2);
 	my $parse = $parser->parsefile($filename);
@@ -98,8 +180,6 @@ sub validate_xml {
 
 sub dump_parse {
 	my ($filename, $parse) = @_;
-	
-	use Data::Dumper;
 	
 	open (DUMP,">$filename.dump;") or die "unable to dump to $filename.dump";
 	print DUMP Data::Dumper->Dump($parse);
@@ -114,8 +194,7 @@ sub parse_languages {
 
 
 sub write_xml {
-	my ($filename,$rlangs,$rlines) = @_;
-	my $base = &basename($filename);
+	my ($base,$filename,$rlangs,$rlines) = @_;
 	my @langs = @$rlangs;
 	my @lines = @$rlines;
 	
@@ -204,8 +283,6 @@ sub write_xml {
 	
 	print OUT "</dialogix_instrument>\n";
 	close (OUT);
-	print "wrote XML to $filename.xml\n";
-	return "$filename.xml";
 }
 
 sub basename {
@@ -440,31 +517,42 @@ sub parse_eqn {
 sub parse_html {
 	my $arg = shift;
 	
-	# could do JTidy equivalent here, if really daring!  This will be needed for badly formed HTML!
-	
 	my $exp = $arg;
 	
-	# don't call tidy if no markup present
-	
-	my $call_tidy = m/<.+>/;
-	
-	if ($call_tidy) {
-		open (TEMP,">tmp.tmp") or die "unable to write to tmp.tmp";
-		print TEMP $exp;
-		close (TEMP);
-		my @results = qx|$PERLDIR/tidy.exe -config $PERLDIR/tidy.conf < tmp.tmp|;
-		chomp(@results);
-		$exp = join(' ',@results);
+	if ($USETIDY) {
+		# don't call tidy if no markup present
+		my $call_tidy = m/<.+>/;
 		
-		$exp =~ s/%20/ /g;
+		if ($call_tidy) {
+			open (TEMP,">tmp.tmp") or die "unable to write to tmp.tmp";
+			print TEMP $exp;
+			close (TEMP);
+			my @results = qx|$PERLDIR/tidy.exe -config $PERLDIR/tidy.conf < tmp.tmp|;
+			chomp(@results);
+			$exp = '';
+			# trim the extra space that tidy includes
+			foreach my $result (@results) {
+				if ($result =~ /^\s*(.*?)\s*$/) {
+					$exp .= $1;
+				}
+			}
+#			$exp = join(' ',@results);
+			
+			$exp =~ s/%20/ /g;
+		}
+		else {
+			# remove special characters
+			$exp =~ s/&(?![#\d\w]{1,5};)/&amp;/g;
+			$exp =~ s/</&lt;/g;
+			$exp =~ s/>/&gt;/g;
+		}
 	}
-	else {
-		# remove special characters
-		$exp =~ s/&nbsp;/&#160;/g;
-		$exp =~ s/&(?![#\d\w]{1,5};)/&amp;/g;
-		$exp =~ s/</&lt;/g;
-		$exp =~ s/>/&gt;/g;
-	}
+	
+	# these conversion are done by all to facilitate comparison
+	$exp =~ s/&nbsp;/&#160;/g;
+	$exp =~ s|<\s*br\s*/\s*>|<br />|gi;
+	$exp =~ s|<\s*br\s*>|<br />|gi;
+	$exp =~ s|([\.\?:])\s+|$1  |g;
 	
 	return $exp;
 }
