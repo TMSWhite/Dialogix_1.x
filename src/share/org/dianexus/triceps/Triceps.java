@@ -213,15 +213,15 @@ public class Triceps implements Serializable {
 			triceps = (Triceps) ois.readObject();
 			ois.close();
 			triceps.parser = new Parser();	// restore unsaved parser
+			return triceps;
 		}
 		catch (IOException e) {
 			System.out.println(e);
+			return null;
 		}
 		catch (java.lang.ClassNotFoundException e) {
 			System.out.println(e);
-		}
-		finally {
-			return triceps;
+			return null;
 		}
 	}
 	

@@ -11,6 +11,7 @@ import java.net.*;
  *	an http response as defined in the JSDK.
  */
 public class TricepsServlet extends HttpServlet {
+	private static final String SUSPENDED = "suspendedInterviews";
 	private Triceps triceps;
 	private HttpServletRequest req;
 	private HttpServletResponse res;
@@ -57,10 +58,28 @@ public class TricepsServlet extends HttpServlet {
 		out.println("							</select>");
 		out.println("<BR><input type='SUBMIT' name='directive' value='START'>\n");
 		out.println("<BR>OR<BR>");
-		out.println("Restore an old interview:	<select name='restoreFrom'>");
+		out.println("Restore an old interview:	");
+		
+		out.println("<input type='text' name='restoreFrom'>");
 		// FIXME - query/iterate for list of stored schedules
-		out.println("								<option value='/tmp/test-suspended'> test-suspended");
+/*
+		out.println("<select name='restoreFrom'>");
+		Cookie cookies[] = req.getCookies();
+		
+		boolean found = false;
+		for (int i=0;i<cookies.length;++i) {
+			System.out.println(cookies[i].getName() + "->" + cookies[i].getValue());
+			if (cookies[i].getName().equalsIgnoreCase(SUSPENDED)) {
+				out.println(cookies[i].getValue());	// adds the option list
+				found = true;
+				break;
+			}
+		}
+		if (!found) {
+			out.println("<option value=''>*none available*");
+		}		
 		out.println("							 </select>");
+*/
 		out.println("<BR><input type='SUBMIT' name='directive' value='RESTORE'>");
 		out.println("</pre>");
 		out.println("</body>");
@@ -141,9 +160,26 @@ public class TricepsServlet extends HttpServlet {
 			// ask question
 		} 
 		else if (directive.equals("RESTORE")) {
-			triceps = Triceps.restore(req.getParameter("restoreFrom"));
-			// check for errors (should probably throw them)
-			// ask question
+			String restore = req.getParameter("restoreFrom");
+			restore = restore + "." + req.getRemoteUser() + "." + req.getRemoteHost() + ".suspend";
+			
+			Triceps temp;
+			if (restore == null || restore.trim().equals("") || ((temp = Triceps.restore(restore)) == null)) {
+				try {
+					this.doGet(req,res);
+				}
+				catch (ServletException e) {
+				}
+				catch (IOException e) {
+				}
+				return;				
+			}
+			else {
+				triceps = temp;
+				out.println("<B>Successfully restored interview from " + restore + "</B><HR>");
+				// check for errors (should probably throw them)
+				// ask question
+			}
 		} 
 		else if (directive.equals("jump-to")) {	
 			ok = triceps.gotoNode(req.getParameter("jump-to"));
@@ -157,14 +193,47 @@ public class TricepsServlet extends HttpServlet {
 		else if (directive.equals("reload questions")) { // debugging option
 			ok = triceps.reloadSchedule();
 			if (ok) {
-				out.println("<B>Interview restored successfully</B><HR>");
+				out.println("<B>Schedule restored successfully</B><HR>");
 			}
 			// re-ask current question
 		}
-		else if (directive.equals("suspend")) {		// XXX gotta go -- be back later :-)
-			ok = triceps.save("/tmp/test-suspended");
+		else if (directive.equals("suspend-as")) {		// XXX gotta go -- be back later :-)
+			String name = req.getParameter("suspend-as");
+			String file = name + "." + req.getRemoteUser() + "." + req.getRemoteHost() + ".suspend";
+			ok = triceps.save(file);
 			if (ok) {
-				out.println("<B>Interview saved successfully</B><HR>");
+				out.println("<B>Interview saved successfully as " + name + " (" + file + ")</B><HR>");
+				/*
+				try {
+					String restore = "<option value='" + file + "'>" + name + "\n";
+					
+					Cookie cookies[] = req.getCookies();
+					
+					boolean found = false;
+					if (cookies == null) {
+						res.addCookie(new Cookie(SUSPENDED,restore));
+					}
+					else {					
+						for (int i=0;i<cookies.length;++i) {
+							if (cookies[i].getName().equalsIgnoreCase(SUSPENDED)) {
+								String previous = cookies[i].getValue();
+								cookies[i].setMaxAge(0);	// deletes current cookie
+								res.addCookie(new Cookie(SUSPENDED,previous + restore));
+								found = true;
+								break;
+							}
+						}
+					}
+					if (!found) {
+						System.out.println("creating new cookie to store filenames");
+						res.addCookie(new Cookie(SUSPENDED,restore));
+					}
+					out.println("Saved filenames to cookie<BR>");
+				}
+				catch (IllegalArgumentException e) {
+					out.println("Unable to save list of filenames to cookie");
+				}
+				*/
 			}
 			// re-ask same question
 		}
@@ -306,7 +375,8 @@ public class TricepsServlet extends HttpServlet {
 		out.println("<input type='SUBMIT' name='directive' value='backward'>");
 		out.println("<input type='SUBMIT' name='directive' value='forward'>");
 		out.println("<input type='SUBMIT' name='directive' value='help'>");
-		out.println("<input type='SUBMIT' name='directive' value='suspend'>");
+		out.println("<input type='SUBMIT' name='directive' value='suspend-as'>");
+		out.println("<input type='text' name='suspend-as'>");
 		out.println("<BR>");
 		// the following buttons are for debugging
 		out.println("<input type='SUBMIT' name='directive' value='jump-to'>");
