@@ -93,9 +93,17 @@ import java.util.Date;
 	/*public*/ void println(String s, int line, int column) { write(s,line,column,true); }
 
 	private void write(String s, int line, int column, boolean addEol) {
-		if (discard)
+		if (this == NULL)
 			return;
+			
+//		if (discard)
+//			return;
 		try {
+			if (out == null && file != null) {
+if (DEBUG) Logger.writeln("##Logger.write(" + getFilename() + ") - had to re-open closed Logger");
+				openFile();	// in case was closed during finalization to Jar file
+			}
+			
 			++callCount;
 			if (addEol) {
 				++errCount;
@@ -192,8 +200,10 @@ import java.util.Date;
 
 	/*public*/ void close() {
 		try {
-			if (out != null)
+			if (out != null) {
 				out.close();
+				out = null;	// so know that closed;
+			}
 		}
 		catch (IOException e) {
 			writeln(e.getMessage());
@@ -203,8 +213,10 @@ import java.util.Date;
 	/*public*/ boolean delete() {
 		close();
 		try {
-			if (file != null)
+			if (file != null) {
 				file.delete();
+				file = null;
+			}
 		}
 		catch (SecurityException e) {
 			writeln(e.getMessage());
