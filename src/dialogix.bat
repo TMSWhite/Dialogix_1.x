@@ -15,12 +15,13 @@ PATH=%PATH%;@@DIALOGIX.HOME@@\bin
 if not "%JAVA_HOME%" == "" goto gotJavaHome
 
 rem -- try to find JAVA_HOME using standard install directories --
-if exist "c:\jdk1.4.0\bin\java.exe" set JAVA_HOME=c:\j2sdk1.4.0
 if exist "c:\jdk1.3\bin\java.exe" set JAVA_HOME=c:\jdk1.3
 if exist "c:\jdk1.3.1\bin\java.exe" set JAVA_HOME=c:\jdk1.3.1
 if exist "c:\jdk1.3.1_01\bin\java.exe" set JAVA_HOME=c:\jdk1.3.1_01
 if exist "c:\jdk1.3.1_02\bin\java.exe" set JAVA_HOME=c:\jdk1.3.1_02
 if exist "c:\jdk1.3.1_03\bin\java.exe" set JAVA_HOME=c:\jdk1.3.1_03
+if exist "c:\jdk1.4\bin\java.exe" set JAVA_HOME=c:\jdk1.4
+if exist "c:\jdk1.4.0\bin\java.exe" set JAVA_HOME=c:\jdk1.4.0
 
 if not "%JAVA_HOME%" == "" goto gotJavaHome
 echo You must set JAVA_HOME to point at your Java Development Kit installation
