@@ -37,12 +37,10 @@ public class Qss {
 		catch (TokenMgrError e) {
 			errors.addElement("Tokenization error: " + e.getMessage());
 		}
-		finally {
-			if (d == null)
-				return Datum.getInstance(Datum.INVALID);
-			else
-				return d;
-		}
+		if (d == null)
+			return Datum.getInstance(Datum.INVALID);
+		else
+			return d;
 	}
 
 	public boolean hasErrors() {

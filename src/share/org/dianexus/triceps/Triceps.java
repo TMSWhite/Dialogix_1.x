@@ -591,6 +591,7 @@ public class Triceps {
 
 	public boolean toTSV(String filename) {
 		FileWriter fw = null;
+		boolean ok = false;
 
 		stopTimer();
 
@@ -598,22 +599,19 @@ public class Triceps {
 			File f = new File(filename);
 
 			fw = new FileWriter(filename);
-			boolean ok = writeTSV(fw);
-			return ok;
+			ok = writeTSV(fw);
 		}
 		catch (Throwable t) {
 			String msg = "error writing to " + filename + ": " + t.getMessage();
 			errors.addElement(Node.encodeHTML(msg));
 			System.err.println(msg);
-			return false;
 		}
-		finally {
-			if (fw != null) {
-				try { fw.close(); } catch (Throwable t) {
-					System.err.println("Error closing writer: " + t.getMessage());
-				}
+		if (fw != null) {
+			try { fw.close(); } catch (Throwable t) {
+				System.err.println("Error closing writer: " + t.getMessage());
 			}
 		}
+		return ok;
 	}
 
 	public boolean writeTSV(Writer out) {
@@ -694,15 +692,13 @@ public class Triceps {
 		catch (Throwable t) {
 			System.err.println("error accessing file: " + t.getMessage());
 		}
-		finally {
-			if (ok) {
-				return br;
-			}
-			else {
-				if (br != null) {
-					try { br.close(); } catch (Throwable t) {
-						System.err.println("error closing reader: " + t.getMessage());
-					}
+		if (ok) {
+			return br;
+		}
+		else {
+			if (br != null) {
+				try { br.close(); } catch (Throwable t) {
+					System.err.println("error closing reader: " + t.getMessage());
 				}
 			}
 		}
@@ -737,18 +733,16 @@ public class Triceps {
 			/* not a valid URL, or unable to access it - so try reading from a file */
 			System.err.println("can't access as url: " + t.getMessage());
 		}
-		finally {
-			if (ok) {
-				return br;
-			}
-			else {
-				if (br != null) {
-					try { br.close(); } catch (Throwable t) {
-						System.err.println("error closing reader: " + t.getMessage());
-					}
+		if (ok) {
+			return br;
+		}
+		else {
+			if (br != null) {
+				try { br.close(); } catch (Throwable t) {
+					System.err.println("error closing reader: " + t.getMessage());
 				}
 			}
-		}		
+		}
 		
 		if (!ok) {
 			StringBuffer sb = new StringBuffer();

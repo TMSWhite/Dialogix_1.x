@@ -74,48 +74,54 @@ public class TricepsServlet extends HttpServlet {
 	 * This method is invoked when the servlet is requested with POST variables.  This is
 	 * the case after the first request, handled by doGet(), and all further requests.
 	 */
-	public void doPost(HttpServletRequest req, HttpServletResponse res) throws ServletException, IOException {
-		this.req = req;
-		this.res = res;
-		HttpSession session = req.getSession(true);
-		String form = null;
-		String hiddenStr = "";
-		firstFocus = null; // reset it each time
-		urlPrefix = "http://" + req.getServerName() + "/";
-		
+	public void doPost(HttpServletRequest req, HttpServletResponse res)  {
+		try {
+			this.req = req;
+			this.res = res;
+			HttpSession session = req.getSession(true);
+			String form = null;
+			String hiddenStr = "";
+			firstFocus = null; // reset it each time
+			urlPrefix = "http://" + req.getServerName() + "/";
+			
 
-		triceps = (Triceps) session.getValue("triceps");
+			triceps = (Triceps) session.getValue("triceps");
 
-		res.setContentType("text/html");
+			res.setContentType("text/html");
 
-		directive = req.getParameter("directive");	// XXX: directive must be set before calling processHidden
+			directive = req.getParameter("directive");	// XXX: directive must be set before calling processHidden
 
-		hiddenStr = processHidden();
+			hiddenStr = processHidden();
 
-		form = processDirective();
+			form = processDirective();
 
-		out = res.getWriter();
+			out = res.getWriter();
 
-		out.println(header());
-		out.println(getCustomHeader());
+			out.println(header());
+			out.println(getCustomHeader());
 
-		if (form != null) {
-			out.println("<FORM method='POST' name='myForm' action='" + HttpUtils.getRequestURL(req) + "'>\n");
-			out.println(hiddenStr);
-			out.println(form);
-			out.println("</FORM>\n");
+			if (form != null) {
+				out.println("<FORM method='POST' name='myForm' action='" + HttpUtils.getRequestURL(req) + "'>\n");
+				out.println(hiddenStr);
+				out.println(form);
+				out.println("</FORM>\n");
+			}
+			out.println(footer());
+
+			out.flush();
+			out.close();	// XXX:  causes "Network Connection reset by peer" with Ham-D.txt - WHY?  Without close, dangling resources?
+
+			/* Store appropriate stuff in the session */
+			if (triceps != null)
+				session.putValue("triceps", triceps);
+
+			if ("next".equals(directive)) {
+				triceps.toTSV();
+			}
 		}
-		out.println(footer());
-
-		out.flush();
-		out.close();	// XXX:  causes "Network Connection reset by peer" with Ham-D.txt - WHY?  Without close, dangling resources?
-
-		/* Store appropriate stuff in the session */
-		if (triceps != null)
-			session.putValue("triceps", triceps);
-
-		if ("next".equals(directive)) {
-			triceps.toTSV();
+		catch (Throwable t) {
+			System.err.println("Unexpected error: " + t.getMessage());
+			t.printStackTrace(System.err);
 		}
 	}
 
@@ -277,20 +283,16 @@ public class TricepsServlet extends HttpServlet {
 			/* read list of available schedules from file */
 
 			BufferedReader br = Triceps.getReader(scheduleList, urlPrefix, scheduleSrcDir);
-System.err.println("got here 1");
 			if (br == null) {
-System.err.println("got here 2");
 				sb.append("<B>" + Triceps.getReaderError() + "</B><HR>");
 			}
 			else {
-System.err.println("got here 3");
 				try {
 					int count = 0;
 					int line=0;
 					String fileLine;
 					String src;
 					while ((fileLine = br.readLine()) != null) {
-System.err.println("got here 4");
 						++line;
 
 						if (fileLine.startsWith("COMMENT"))
@@ -300,21 +302,16 @@ System.err.println("got here 4");
 							StringTokenizer schedule = new StringTokenizer(fileLine,"\t");
 							String title = schedule.nextToken();
 							String fileLoc = schedule.nextToken();
-System.err.println("got here 5");
 
 							if (title == null || fileLoc == null)
 								continue;
 
 							/* Test whether these files exist */
-System.err.println("got here 6");
 							Reader target = Triceps.getReader(fileLoc,urlPrefix, scheduleSrcDir);
-System.err.println("got here 7");
 							if (target == null) {
-System.err.println("got here 8");
 								sb.append("<B>" + Triceps.getReaderError() + "</B><HR>");
 							}
 							else {
-System.err.println("got here 9");
 								try { target.close(); } catch (Throwable t) { System.err.println("Error closing reader: " + t.getMessage()); }
 
 								++count;
@@ -322,7 +319,6 @@ System.err.println("got here 9");
 							}
 						}
 						catch (Throwable t) {
-System.err.println("got here 10");
 							String msg = "Error tokenizing schedule list '" + scheduleList + "' on line " + line + ": " + t.getMessage();
 							sb.append(msg);
 							System.err.println(msg);
@@ -330,73 +326,55 @@ System.err.println("got here 10");
 					}
 				}
 				catch(Throwable t) {
-System.err.println("got here 11");
 					String msg = "Error reading from " + scheduleList + ": " + t.getMessage();
 					sb.append(msg);
 					System.err.println(msg);
 				}
-//				finally {
-System.err.println("got here 12");
-					if (br != null) {
-						try { br.close(); } catch (Throwable t) {
-							System.err.println("Error closing reader: " + t.getMessage());							
-						}
+				if (br != null) {
+					try { br.close(); } catch (Throwable t) {
+						System.err.println("Error closing reader: " + t.getMessage());							
 					}
-System.err.println("got here 13");
-//				}
-System.err.println("got here 13a");				
+				}
 
 				/* Now build the list of uncompleted interviews */
 
 				try {
-System.err.println("got here 14");
 					File dir = new File(workingFilesDir);
 
-System.err.println("got here 15");
 					if (dir.isDirectory() && dir.canRead()) {
 						String[] files = dir.list();
 
 						int count=0;
 						for (int i=0;i<files.length;++i) {
-System.err.println("got here 16");
 							try {
 								File f = new File(files[i]);
-System.err.println("got here 17");
 								if (!f.isDirectory()) {
 									if (count == 0) {
-System.err.println("got here 18");
 										suspendedInterviews.append("<select name='RestoreSuspended'>\n	<option value=''></option>\n");
 									}
 									suspendedInterviews.append("	<option value='" + files[i] + "'>" + files[i] + "</option>\n");
-System.err.println("got here 19");
 									++count;
 								}
 							}
 							catch (Throwable t) {
-System.err.println("got here 20");
 								System.err.println("Error reading from file " + dir + ": " + t.getMessage());
 							}
 						}
 						if (count > 0) {
-System.err.println("got here 21");
 							suspendedInterviews.append("</select><BR>");
 						}
 						else {
-System.err.println("got here 22");
 							suspendedInterviews.append("&nbsp;");
 						}
 					}
 					else {
-System.err.println("got here 23");
 						System.err.println("can't read from dir " + dir.toString());
 					}
 				}
 				catch(Throwable t) {
-System.err.println("got here 24");
 					System.err.println("Error reading from file: "  + t.getMessage());
 				}
 			}
-System.err.println("got here 25");
 
 			/* Now construct splash screen */
 

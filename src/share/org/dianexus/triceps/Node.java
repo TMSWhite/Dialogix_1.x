@@ -150,7 +150,7 @@ public class Node  {
 				stepName = "_" + stepName;
 			}
 		}
-		catch (IndexOutOfBoundsException e) {
+		catch (Throwable t) {
 			/* Must have a null or zero-length value for stepName */
 		}
 
@@ -791,16 +791,14 @@ public class Node  {
 				}
 			}
 		}
-		catch (ArrayIndexOutOfBoundsException e) {
+		catch (Throwable t) {
 		}
-		finally {
-			String ans = dst.toString();
-			if (disallowEmpty && ans.length() == 0) {
-				return "&nbsp;";
-			}
-			else {
-				return ans;
-			}
+		String ans = dst.toString();
+		if (disallowEmpty && ans.length() == 0) {
+			return "&nbsp;";
+		}
+		else {
+			return ans;
 		}
 	}
 

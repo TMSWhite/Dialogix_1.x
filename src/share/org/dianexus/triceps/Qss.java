@@ -30,12 +30,10 @@ public class Qss implements QssConstants {
                 catch (TokenMgrError e) {
                         errors.addElement("Tokenization error: " + e.getMessage());
                 }
-                finally {
-                        if (d == null)
-                                return Datum.getInstance(Datum.INVALID);
-                        else
-                                return d;
-                }
+                if (d == null)
+                        return Datum.getInstance(Datum.INVALID);
+                else
+                        return d;
         }
 
         public boolean hasErrors() {
@@ -730,6 +728,12 @@ public class Qss implements QssConstants {
     return retval;
   }
 
+  final private boolean jj_3R_57() {
+    if (jj_scan_token(INTEGER_LITERAL)) return true;
+    if (jj_la == 0 && jj_scanpos == jj_lastpos) return false;
+    return false;
+  }
+
   final private boolean jj_3R_54() {
     Token xsp;
     xsp = jj_scanpos;
@@ -1122,12 +1126,6 @@ public class Qss implements QssConstants {
 
   final private boolean jj_3R_16() {
     if (jj_scan_token(0)) return true;
-    if (jj_la == 0 && jj_scanpos == jj_lastpos) return false;
-    return false;
-  }
-
-  final private boolean jj_3R_57() {
-    if (jj_scan_token(INTEGER_LITERAL)) return true;
     if (jj_la == 0 && jj_scanpos == jj_lastpos) return false;
     return false;
   }

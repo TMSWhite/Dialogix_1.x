@@ -82,20 +82,18 @@ public class Schedule  {
 				nodes.addElement(node);
 			}
 			System.err.println("Read " + count + " nodes from " + filename);
-			return (!err);
 		}
 		catch(Throwable t) {
 			System.err.println("Unable to access " + filename + ": " + t.getMessage());
-			return false;
+			err = true;
 		}
-		finally {
-			if (br != null) {
-				try { br.close(); } catch (Throwable t) {
-					System.err.println("Error closing file:" + t.getMessage());
-				}
+		if (br != null) {
+			try { br.close(); } catch (Throwable t) {
+				System.err.println("Error closing file:" + t.getMessage());
 			}
-			setStartTime(startTime);
 		}
+		setStartTime(startTime);
+		return (!err);
 	}
 
 	public Node getNode(int index) {

@@ -245,15 +245,13 @@ public class Datum  {
 				catch (java.text.ParseException e) {
 					type = INVALID;
 				}
-				finally {
-					if (type == INVALID) {
-						String ex = Datum.getExampleFormatStr(mask,t);
-						if (ex.length() > 0)
-							ex = " (e.g. " + ex + ")";
-						error = "Please enter a " + TYPES[t] + ex;
-						sVal = "";
-						dVal = Double.NaN;
-					}
+				if (type == INVALID) {
+					String ex = Datum.getExampleFormatStr(mask,t);
+					if (ex.length() > 0)
+						ex = " (e.g. " + ex + ")";
+					error = "Please enter a " + TYPES[t] + ex;
+					sVal = "";
+					dVal = Double.NaN;
 				}
 				bVal = (Double.isNaN(dVal) || (dVal == 0)) ? false : true;
 				break;
@@ -267,9 +265,7 @@ public class Datum  {
 				catch(NumberFormatException e) {
 					dVal = Double.NaN;
 				}
-				finally {
-					bVal = (Double.isNaN(dVal) || (dVal == 0)) ? false : true;
-				}
+				bVal = (Double.isNaN(dVal) || (dVal == 0)) ? false : true;
 				break;
 			case WEEKDAY:	{ // XXX: need a hack for this, since SimpleDateFormat has bug in way parses Weekdays
 				String day = s.trim().toLowerCase();
@@ -320,14 +316,12 @@ public class Datum  {
 				catch (java.text.ParseException e) {
 					type = INVALID;
 				}
-				finally {
-					if (type == INVALID) {
-						String ex = Datum.getExampleFormatStr(mask,t);
-						if (ex.length() > 0)
-							ex = " (e.g. " + ex + ")";
-						error = "Please enter a " + TYPES[t] + ex;
-						date = null;
-					}
+				if (type == INVALID) {
+					String ex = Datum.getExampleFormatStr(mask,t);
+					if (ex.length() > 0)
+						ex = " (e.g. " + ex + ")";
+					error = "Please enter a " + TYPES[t] + ex;
+					date = null;
 				}
 				break;
 			case REFUSED:
