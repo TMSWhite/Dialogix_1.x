@@ -367,33 +367,12 @@ public class Schedule  {
 	
 	private String setFilename(String s) {
 		String name = s;
-		if (name == null || name.trim().length() == 0 )
+		if (name == null)
 			return null;
-									
-		String previous = getReserved(FILENAME);
-
-		if (previous == null || previous.trim().length() == 0) {	
-			return name;
-		}
-		else {
-			if (previous.equals(s))
-				return previous;	// trying to change to same filename - keep the current name
-				
-			name = getUnusedFilename(name);
-			if (name == null)
-				return previous;
-			
-			if (!previous.equals(name)) {
-				boolean ok = triceps.changeFilenames(getReserved(WORKING_DIR),previous,name);
-				if (ok)
-					return name;
-				else
-					return previous;
-			}
-			else {
-				return name;	// return new name, or unchanged
-			}
-		}
+		name = name.trim();
+		if (name.length() == 0) 
+			return null;
+		return name;
 	}
 
 	private String setStartingStep(String s) {
@@ -654,54 +633,6 @@ public class Schedule  {
 		return null;
 	}
 	
-	
-	public String getUnusedFilename(String template) {
-		String fileroot = null;
-		String date = null;
-		String suffix = null;
-		int count = 0;
-		
-		try {
-			while(true) {
-				fileroot = template + 
-					((date != null) ? ("." + date) : "") +
-					((suffix != null) ? ("." + suffix) : "");
-//Logger.writeln("getUnusedFilename( " + fileroot);					
-				
-				if (isAvailableFilename(getReserved(WORKING_DIR) + fileroot) &&
-					isAvailableFilename(getReserved(COMPLETED_DIR) + fileroot)) {
-//Logger.writeln("	using " + fileroot);					
-					return fileroot;
-				}
-					
-				if (date == null) {
-					date = getReserved(START_TIME);
-				}
-				else {
-					suffix = Integer.toString(++count);
-				}
-			}
-		}
-		catch (SecurityException e) {
-			setError(triceps.get("error_accessing_file") + e.getMessage());
-			return null;
-		}
-	}
-	
-	private boolean isAvailableFilename(String name) throws SecurityException {
-		if (name == null)
-			return false;
-			
-//Logger.writeln("isAvailableFilename(" + name + ")");			
-		File file = new File(name);
-		if (file.exists()) {
-			return false;
-		}
-		else {
-			return true;
-		}
-	}
-		
 	public FileWriter getWriter(String source) {
 		boolean ok = false;
 		FileWriter br = null;
