@@ -395,7 +395,7 @@ public class Triceps {
 		
 		/* this must happen after the evidence is reset, otherwise end up using current time */
 		Date time = nodes.getStartTime();
-		System.out.println(Datum.TIME_MASK.format(time));
+//		System.out.println(Datum.TIME_MASK.format(time));
 		if (time != null) {
 			startTimer(time);
 		}
@@ -403,13 +403,17 @@ public class Triceps {
 		return true;
 	}
 
-	public boolean storeValue(Node q, String answer) {
+	public boolean storeValue(Node q, String answer, boolean bypass) {
 		if (q == null) {
 			errors.addElement("null node");
 			return false;
 		}
 
-		if (answer == null) {
+		if (answer == null || answer.trim().equals("")) {
+			if (bypass) {
+				evidence.set(q,new Datum(Datum.REFUSED));
+				return true;
+			}
 			if (q.getAnswerType() == Node.CHECK) {
 				answer = "0";	// unchecked defaults to false
 			}

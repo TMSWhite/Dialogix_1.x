@@ -483,7 +483,6 @@ public class Node  {
 
 				if (count > 0) {
 					Double pct = new Double(100. / (double) count);
-					sb.append("</TR><TR><TD>&nbsp;</TD>");
 					sb.append("<TD COLSPAN='2' BGCOLOR='lightgrey'>");
 					sb.append("\n<TABLE CELLPADDING='0' CELLSPACING='2' BORDER='1' WIDTH='100%'>");
 					sb.append("\n<TR>");

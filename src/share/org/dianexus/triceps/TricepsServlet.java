@@ -117,13 +117,56 @@ public class TricepsServlet extends HttpServlet {
 		sb.append("<title>" + ((triceps == null) ? "TRICEPS SYSTEM" : triceps.getTitle()) + "</title>\n");
 		sb.append("</head>\n");
 		sb.append("<body>\n");
+		
+		sb.append(getCustomHeader());
 
 		return sb.toString();
 	}
+	
+	private String getCustomHeader() {
+		StringBuffer sb = new StringBuffer();
+		
+			sb.append("<SCRIPT>\n");
+			sb.append("<!--\n");
+			sb.append("function loadTarget() {\n");
+			sb.append("var ans = prompt('Enter the password to bypass this question','');\n");
+			sb.append("if (ans == 'cicbypass') {\n");
+			sb.append("//	document.myForm.REFUSED=\n");
+			sb.append("//	document.myForm.submit();\n");
+			sb.append("	}\n");
+			sb.append("alert('This functionality not currently supported');\n");
+			sb.append("} //-->\n");
+			sb.append("</SCRIPT>");
 
+		
+		sb.append("<TABLE BORDER='0' CELLPADDING='0' CELLSPACING='3' WIDTH='100%'>\n");
+		sb.append("	<TR>\n");
+		sb.append("		<TD WIDTH='18%'>");
+		
+			sb.append("<A HREF='javascript:loadTarget();'>");
+			
+		sb.append("<IMG SRC='file:///C|/cic/images/ciclogo.gif' ALIGN='BOTTOM' BORDER='0' ALT='Children In the Community'>\n");
+		
+			sb.append("</A>");
+		
+		sb.append("</TD>\n		<TD WIDTH='82%'><B><FONT SIZE='5'>Transitions Study</FONT>\n");
+//		sb.append("<BR>\n");
+//		sb.append("</B>(Implemented using the Triceps Interview/Questionnaire System)</TD>\n");
+		sb.append("	</TR>\n");
+		sb.append("</TABLE>\n");
+		sb.append("<HR>\n");
+		
+		return sb.toString();
+	}
+	
+	private String getCustomFooter() {
+		return "";
+	}
 
 	private String footer() {
 		StringBuffer sb = new StringBuffer();
+		
+		sb.append(getCustomFooter());
 
 		sb.append("</body>\n");
 		sb.append("</html>\n");
@@ -143,9 +186,15 @@ public class TricepsServlet extends HttpServlet {
 		StringBuffer schedules = new StringBuffer();
 		StringBuffer suspendedInterviews = new StringBuffer();
 
-		// get the POSTed directive (start, back, forward, help, suspend, etc.)	- default is opening screen
+		// get the POSTed directive (start, back, next, help, suspend, etc.)	- default is opening screen
 		if (directive == null || "select new interview".equals(directive)) {
 			/* read list of available schedules from file */
+			
+			boolean developerMode = false;
+			
+			if ("on".equals(req.getParameter("developerMode"))) {
+				developerMode = true;
+			}
 			
 			BufferedReader br = Triceps.getReader(scheduleList, scheduleSrcDir);
 			if (br == null) {
@@ -180,7 +229,7 @@ public class TricepsServlet extends HttpServlet {
 								try { target.close(); } catch (Exception e) {}
 
 								++count;
-								schedules.append("	<option value='" + Node.encodeHTML(fileLoc) + "'>" + Node.encodeHTML(title) + "\n");								
+								schedules.append("	<option value='" + Node.encodeHTML(fileLoc) + "'>" + Node.encodeHTML(title) + "</option>\n");								
 							}
 						}
 						catch (NullPointerException e) {
@@ -216,9 +265,9 @@ public class TricepsServlet extends HttpServlet {
 								File f = new File(files[i]);
 								if (!f.isDirectory()) {
 									if (count == 0) {
-										suspendedInterviews.append("<select name='RestoreSuspended'>\n	<option value=''>\n");
+										suspendedInterviews.append("<select name='RestoreSuspended'>\n	<option value=''></option>\n");
 									}
-									suspendedInterviews.append("	<option value='" + files[i] + "'>" + files[i] + "\n");
+									suspendedInterviews.append("	<option value='" + files[i] + "'>" + files[i] + "</option>\n");
 									++count;
 								}
 							}
@@ -228,6 +277,9 @@ public class TricepsServlet extends HttpServlet {
 						}
 						if (count > 0) {
 							suspendedInterviews.append("</select><BR>");
+						}
+						else {
+							suspendedInterviews.append("&nbsp;");
 						}
 					}
 					else {
@@ -241,7 +293,6 @@ public class TricepsServlet extends HttpServlet {
 
 			/* Now construct splash screen */
 
-			sb.append("<H2>Triceps Interview/Questionnaire System</H2><HR>\n");
 			sb.append("<TABLE CELLPADDING='2' CELLSPACING='2' BORDER='1'>\n");
 			sb.append("<TR><TD>Please select an interview/questionnaire from the pull-down list:  </TD>\n");
 			sb.append("	<TD><select name='schedule'>\n");
@@ -249,10 +300,17 @@ public class TricepsServlet extends HttpServlet {
 			sb.append("	</select></TD>\n");
 			sb.append("	<TD><input type='SUBMIT' name='directive' value='START'></TD>\n");
 			sb.append("</TR>\n");
+			
 			sb.append("<TR><TD>OR, restore an interview/questionnaire in progress:  </TD>\n");
-			sb.append("	<TD>" + suspendedInterviews + "<input type='text' name='RESTORE'></TD>\n");
+			sb.append("	<TD>" + suspendedInterviews + 
+				((developerMode) ? "<input type='text' name='RESTORE'>" : "") +
+				"</TD>\n");
 			sb.append("	<TD><input type='SUBMIT' name='directive' value='RESTORE'></TD>\n");
-			sb.append("</TR><TR><TD>&nbsp;</TD><TD COLSPAN='2' ALIGN='center'><input type='checkbox' name='DEBUG' value='1'>Show debugging information</input></TD></TR>\n");
+			
+			if (developerMode) {
+				sb.append("</TR><TR><TD>&nbsp;</TD><TD COLSPAN='2' ALIGN='center'><input type='checkbox' name='DEBUG' value='1'>Show debugging information</TD></TR>\n");
+			}
+			
 			sb.append("</TABLE>\n");
 			return sb.toString();
 		}
@@ -421,15 +479,21 @@ public class TricepsServlet extends HttpServlet {
 				sb.append("</TABLE><HR>\n");
 			}
 		}
-		else if (directive.equals("forward")) {
+		else if (directive.equals("next")) {
 			// store current answer(s)
 			Enumeration questionNames = triceps.getQuestions();
+			
+			boolean bypass = false;
+			
+			if ("true".equals(req.getParameter("BYPASS"))) {
+				bypass = true;
+			}
 
 			while(questionNames.hasMoreElements()) {
 				Node q = (Node) questionNames.nextElement();
 				boolean status;
 
-				status = triceps.storeValue(q, req.getParameter(q.getName()));
+				status = triceps.storeValue(q, req.getParameter(q.getName()),bypass);
 				ok = status && ok;
 
 			}
@@ -453,7 +517,7 @@ public class TricepsServlet extends HttpServlet {
 			// don't goto next if errors
 			// ask question
 		}
-		else if (directive.equals("backward")) {
+		else if (directive.equals("previous")) {
 			// don't store current
 			// goto previous
 			gotoMsg = triceps.gotoPrevious();
@@ -509,8 +573,12 @@ public class TricepsServlet extends HttpServlet {
 			debug = true;
 			sb.append("<input type='HIDDEN' name='DEBUG' value='1'>\n");
 		}
-
-		sb.append("<H4>QUESTION AREA</H4>\n");
+		
+		sb.append("<input type='HIDDEN' name='BYPASS' value='0'>\n");	// this is reset when want to REFUSE an answer
+	
+		if (debug) {
+			sb.append("<H4>QUESTION AREA</H4>\n");
+		}
 
 		Enumeration questionNames = triceps.getQuestions();
 		String color;
@@ -542,7 +610,10 @@ public class TricepsServlet extends HttpServlet {
 			}
 
 			sb.append("	<TR>\n");
-			sb.append("		<TD><FONT" + color + "><B>" + Node.encodeHTML(node.getQuestionRef()) + "</FONT></B></TD>\n");
+			
+			if (debug) {
+				sb.append("<TD><FONT" + color + "><B>" + Node.encodeHTML(node.getQuestionRef()) + "</FONT></B></TD>\n");
+			}
 			
 			switch(node.getAnswerType()) {
 				case Node.NOTHING:
@@ -550,6 +621,10 @@ public class TricepsServlet extends HttpServlet {
 					break;
 				case Node.RADIO2:
 					sb.append("		<TD COLSPAN='2'><FONT" + color + ">" + Node.encodeHTML(triceps.getQuestionStr(node)) + "</FONT></TD>\n");
+					sb.append("</TR>\n<TR>\n");
+					if (debug) {
+						sb.append("<TD>&nbsp;</TD>");
+					}
 					sb.append(node.prepareChoicesAsHTML(datum) + errMsg);
 					break;
 				default:
@@ -559,11 +634,16 @@ public class TricepsServlet extends HttpServlet {
 			}
 			sb.append("	</TR>\n");
 		}
-		sb.append("	<TR><TD COLSPAN='3' ALIGN='center'>\n");
-		sb.append("<input type='SUBMIT' name='directive' value='forward'>\n");
-		sb.append("<input type='SUBMIT' name='directive' value='backward'>");
-		sb.append("<input type='SUBMIT' name='directive' value='clear all and re-start'>\n");
-		sb.append("<input type='SUBMIT' name='directive' value='select new interview'>\n");
+		sb.append("	<TR><TD COLSPAN='" + 
+			((debug) ? 3 : 2 ) + "' ALIGN='center'>\n");
+		sb.append("<input type='SUBMIT' name='directive' value='next'>\n");
+		sb.append("<input type='SUBMIT' name='directive' value='previous'>");
+		
+		if (debug) {
+			sb.append("<input type='SUBMIT' name='directive' value='clear all and re-start'>\n");
+			sb.append("<input type='SUBMIT' name='directive' value='select new interview'>\n");
+		}
+		
 		sb.append("	</TD></TR>\n");
 
 		if (debug) {
