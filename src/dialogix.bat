@@ -35,7 +35,7 @@ rem -- start server --
 cd bin
 start /MIN startup.bat %1 %2
 cd ..
-REM sleep 6
+sleep 10
 
 rem -- start browser, giving preference to Netscape --
 
