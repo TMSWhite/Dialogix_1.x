@@ -5,8 +5,8 @@ import java.util.*;
 public class Qss implements QssConstants {
     private Stack stack;
     private Evidence evidence;
-    Logger debugLogger = Logger.NULL;
-    Logger errorLogger = Logger.NULL;
+    Logger debugLogger = Logger.NULL;	// Parser directly assigns this value
+    Logger errorLogger = Logger.NULL;	// Parser directly assigns this value
 
         public Datum parse(Evidence ev) {
                 evidence = ev;
