@@ -9,15 +9,16 @@ public class Triceps {
 	public static final int ERROR = 1;
 	public static final int OK = 2;
 	public static final int AT_END = 3;
+	public static final int AT_BEGINNING = 4;
 
 	private Schedule nodes = null;
 	private Evidence evidence = null;
 	private Parser parser = null;
 
 	private Logger errorLogger = new Logger();
-	private static String fileAccessError = null;
 	private int currentStep=0;
 	private int numQuestions=0;	// so know how many to skip for compount question
+	private int firstStep = 0;	
 	private Date startTime = null;
 	private Date stopTime = null;
 	private String startTimeStr = null;
@@ -182,10 +183,13 @@ public class Triceps {
 	public int gotoFirst() {
 		currentStep = 0;
 		numQuestions = 0;
-		return gotoNext();
+		int ok = gotoNext();
+		firstStep = currentStep;
+		return ok;
 	}
 
 	public int gotoStarting() {
+		gotoFirst();	// to set firstStep for determining minimum step number
 		currentStep = Integer.parseInt(nodes.getReserved(Schedule.STARTING_STEP));
 		if (currentStep < 0)
 			currentStep = 0;
@@ -630,6 +634,26 @@ Logger.writeln("null node at index " + i);
 	public boolean toTSV(String dir) {
 		return toTSV(dir,nodes.getReserved(Schedule.FILENAME));
 	}
+	
+	public boolean deleteFile(String dir) {
+		return deleteFile(dir,nodes.getReserved(Schedule.FILENAME));
+	}
+	
+	public boolean deleteFile(String dir, String targetName) {
+		String filename = dir + targetName;
+		boolean ok = false;
+
+		try {
+			File f = new File(filename);
+			ok = f.delete();
+		}
+		catch (SecurityException e) {
+			String msg = lingua.get("error_deleting") + filename + ": " + e.getMessage();
+			setError(msg);
+		}
+Logger.writeln("delete(" + filename + ") -> " + ok);			
+		return ok;
+	}
 
 	public boolean toTSV(String dir, String targetName) {
 		String filename = dir + targetName;
@@ -651,6 +675,7 @@ Logger.writeln("null node at index " + i);
 		if (fw != null) {
 			try { fw.close(); } catch (IOException t) { }
 		}
+Logger.writeln("save(" + filename + ") -> " + ok);			
 		return ok;
 	}
 
@@ -823,4 +848,7 @@ Logger.writeln("null node at index " + i);
 	public Evidence getEvidence() { return evidence; }
 	public Parser getParser() { return parser; }
 	public Lingua getLingua() { return lingua; }
+	
+	public boolean isAtBeginning() { return (currentStep <= firstStep); }
+	public boolean isAtEnd() { return (currentStep >= size()); }
 }
