@@ -1251,23 +1251,21 @@ if (XML) {
 		boolean	needSpecialOptions = false;
 		boolean needQuestionNumColumn = false;
 		
-		if (okToShowAdminModeIcons || allowComments) {
-			needSpecialOptions = true;
-		}
-		else {
-			questionNames = triceps.getQuestions();
-			for(int count=0;questionNames.hasMoreElements();++count) {
-				Node node = (Node) questionNames.nextElement();
-				Datum datum = triceps.getDatum(node);	
-				if (datum.isRefused() || datum.isUnknown() || datum.isNotUnderstood()) {
-					needSpecialOptions = true;
-				}
-				if (node.getExternalName().trim().length() > 0) {
-					needQuestionNumColumn = true;
-				}
+		questionNames = triceps.getQuestions();
+		for(int count=0;questionNames.hasMoreElements();++count) {
+			Node node = (Node) questionNames.nextElement();
+			Datum datum = triceps.getDatum(node);	
+			if (datum.isRefused() || datum.isUnknown() || datum.isNotUnderstood()) {
+				needSpecialOptions = true;
+			}
+			if (node.getExternalName().trim().length() > 0) {
+				needQuestionNumColumn = true;
 			}
 		}
 		if (!showQuestionNum) needQuestionNumColumn = false;
+		if (okToShowAdminModeIcons || allowComments) {
+			needSpecialOptions = true;
+		}		
 		
 		colpad = (needQuestionNumColumn ? 1 : 0) + (needSpecialOptions ? 1 : 0);
 
