@@ -524,7 +524,7 @@ if (DEBUG) Logger.writeln("##Throwable @ Servlet.selectFromInterviewsInDir" + t.
 if (DEPLOYABLE) {		
 		sb.append("<input type='hidden' name='EVENT_TIMINGS' value=''>");	// list of event timings
 }		
-		sb.append("<input type='hidden' name='DIRECTIVE' value=''>");
+		sb.append("<input type='hidden' name='DIRECTIVE' value='next'>");	// so that ENTER tries to go next, and will be trapped if needed
 
 		sb.append("</FORM>");
 
