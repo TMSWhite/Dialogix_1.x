@@ -26,6 +26,12 @@ public class Schedule  {
 	public static final int LOADED_FROM = 16;
 	public static final int CURRENT_LANGUAGE = 17;
 	public static final int ALLOW_LANGUAGE_SWITCHING = 18;
+	public static final int ALLOW_REFUSED = 19;
+	public static final int ALLOW_UNKNOWN = 20;
+	public static final int ALLOW_DONT_UNDERSTAND = 21;
+	public static final int RECORD_EVENTS = 22;
+	public static final int WORKING_DIR = 23;
+	public static final int COMPLETED_DIR = 24;
 	
 	private static final String DEFAULT_LANGUAGE = "en_US";
 
@@ -49,6 +55,12 @@ public class Schedule  {
 		"__LOADED_FROM__",
 		"__CURRENT_LANGUAGE__",
 		"__ALLOW_LANGUAGE_SWITCHING__",
+		"__ALLOW_REFUSED__",
+		"__ALLOW_UNKNOWN__",
+		"__ALLOW_DONT_UNDERSTAND__",
+		"__RECORD_EVENTS__",
+		"__WORKING_DIR__",
+		"__COMPLETED_DIR__",
 	};
 
 	private Date startTime = null;
@@ -103,6 +115,12 @@ public class Schedule  {
 		setReserved(SCHEDULE_SOURCE,"");
 		setReserved(LOADED_FROM,"");
 		setReserved(ALLOW_LANGUAGE_SWITCHING,"true");
+		setReserved(ALLOW_REFUSED,"true");
+		setReserved(ALLOW_UNKNOWN,"true");
+		setReserved(ALLOW_DONT_UNDERSTAND,"true");
+		setReserved(RECORD_EVENTS,"false");
+		setReserved(WORKING_DIR,".");
+		setReserved(COMPLETED_DIR,".");
 	}
 
 	public boolean init() {
@@ -317,6 +335,12 @@ public class Schedule  {
 			case LOADED_FROM: s = value; break;
 			case CURRENT_LANGUAGE: s = setLanguage(value.trim()); break;
 			case ALLOW_LANGUAGE_SWITCHING: s = Boolean.valueOf(value.trim()).toString(); break;
+			case ALLOW_REFUSED: s = Boolean.valueOf(value.trim()).toString(); break;
+			case ALLOW_UNKNOWN: s = Boolean.valueOf(value.trim()).toString(); break;
+			case ALLOW_DONT_UNDERSTAND: s = Boolean.valueOf(value.trim()).toString(); break;
+			case RECORD_EVENTS: s = Boolean.valueOf(value.trim()).toString(); break;
+			case WORKING_DIR: s = value; break;
+			case COMPLETED_DIR: s = value; break;			
 			default: return false;
 		}
 		if (s != null) {
