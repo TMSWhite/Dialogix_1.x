@@ -6,6 +6,9 @@ import java.net.*;
 /* Triceps
  */
 public class Triceps {
+	public static final int ENGLISH = 1;
+	public static final int SPANISH = 2;
+	
 	public static final int ERROR = 1;
 	public static final int OK = 2;
 	public static final int AT_END = 3;
@@ -16,7 +19,7 @@ public class Triceps {
 
 	private String scheduleURL = null;
 	private String scheduleUrlPrefix = null;
-	private Schedule nodes = new Schedule();
+	public Schedule nodes = new Schedule();	// XXX should this be allowed to be public?
 	private Evidence evidence = null;
 	static private Parser parser = new Parser();
 
@@ -33,6 +36,7 @@ public class Triceps {
 	private String completedFilesDir = null;
 	private String scheduleSrcDir = null;
 	private String urlPrefix = null;
+	private int language = ENGLISH;	// default
 
 	public Triceps(String scheduleSrcDir, String workingFilesDir, String completedFilesDir) {
 		setScheduleSrcDir(scheduleSrcDir);
@@ -649,8 +653,11 @@ public class Triceps {
 				String comment = n.getComment();
 				if (comment == null)
 					comment = "";
+				String helpURL = n.getHelpURL();
+				if (helpURL == null)
+					helpURL = "";
 
-				out.write(n.toTSV() + "\t" + n.getQuestionAsAsked() + "\t" + ans + "\t" + n.getTimeStampStr() + "\t" + comment + "\n");
+				out.write(n.toTSV() + "\t" + n.getQuestionAsAsked() + "\t" + ans + "\t" + n.getTimeStampStr() + "\t" + comment + "\t" + helpURL + "\n");
 			}
 			out.flush();
 			return true;
@@ -822,4 +829,18 @@ public class Triceps {
 	
 	public String getFilename() { return nodes.getReserved(Schedule.FILENAME); }
 	public boolean setFilename(String name) { return nodes.setReserved(Schedule.FILENAME, name); }
+	
+	public boolean setLanguage(int lang) {
+		switch(lang) {
+			case ENGLISH:
+			case SPANISH:
+				language = lang;
+				return true;
+			default:
+				language = ENGLISH;
+				return false;
+		}
+	}
+	
+	public int getLanguage() { return language; }
 }
