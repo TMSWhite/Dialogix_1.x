@@ -80,20 +80,40 @@ import java.io.*;
 		}
 	}
 	
+	private static final String WIN_ID = "Windows";
+	private static final String WIN_PATH = "rundll32";
+	private static final String WIN_FLAG = "url.dll,FileProtocolHandler";
+	
 	static boolean exec(String commands) {
 		// FIXME: this is generating errors, rather than running a sub-process -- why?
 		Runtime rt = Runtime.getRuntime();
 		Process pr = null;
+		String cmd = null;
 		
 		try {
-			pr = rt.exec(commands);
+			if (isWindowsPlatform()) {
+				cmd = WIN_PATH + " " + WIN_FLAG + " " + commands;
+			}
+			else {
+				cmd = commands;
+			}
+			pr = rt.exec(cmd);	// XXX -- check that works for Unix too
 			pr.waitFor();
 			int exit = pr.exitValue();
 			return (exit == 0);	// means normal exit
 		}
 		catch (Exception e) {
-			Logger.writeln("exec error: " + e.getMessage());
+			Logger.writeln("exec error (" + e.getClass().getName() + "): " + e.getMessage());
+			Logger.printStackTrace(e);
 			return false;
 		}
+	}
+	
+	private static boolean isWindowsPlatform() {
+		String os = System.getProperty("os.name");
+		if ( os != null && os.startsWith(WIN_ID))
+		  return true;
+		else
+		  return false;
 	}
 }
