@@ -9,5 +9,5 @@
   <user name="both"   password="tomcat" roles="tomcat,role1" />
   
   <user name="CHOICEs" password="##test987##" roles="CHOICEs" />
-  <user name="dialogix" password="#aka#Triceps#" roles="manager" />
+  <user name="dialogix" password="#aka#Triceps#" roles="manager,tomcat_admin" />
 </tomcat-users>
