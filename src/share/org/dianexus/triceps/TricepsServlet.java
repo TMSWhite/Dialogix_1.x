@@ -111,6 +111,7 @@ public class TricepsServlet extends HttpServlet {
 		doPost(req,res);
 	}
 
+
 	/**
 	 * This method is invoked when the servlet is requested with POST variables.  This is
 	 * the case after the first request, handled by doGet(), and all further requests.
@@ -133,7 +134,8 @@ public class TricepsServlet extends HttpServlet {
 			out = res.getWriter();
 
 			directive = req.getParameter("directive");	// XXX: directive must be set before calling processHidden
-
+			processEventTimings(req.getParameter("EVENT_TIMINGS"));
+			
 			setGlobalVariables();
 
 			processPreFormDirectives();
@@ -145,14 +147,14 @@ public class TricepsServlet extends HttpServlet {
 			new XmlString(triceps, getCustomHeader(),out);
 
 			if (info.size() > 0) {
-				out.println("<B>");
+				out.println("<b>");
 				new XmlString(triceps, info.toString(),out);
-				out.println("</B><HR>");
+				out.println("</b><hr>");
 			}			
 			if (errors.size() > 0) {
-				out.println("<B>");
+				out.println("<b>");
 				new XmlString(triceps, errors.toString(),out);
-				out.println("</B><HR>");
+				out.println("</b><hr>");
 			}
 			
 			if (form.hasErrors() && developerMode) {
@@ -202,14 +204,14 @@ public class TricepsServlet extends HttpServlet {
 			if (expr != null) {
 				Datum datum = triceps.evaluateExpr(expr);
 
-				errors.print("<TABLE WIDTH='100%' CELLPADDING='2' CELLSPACING='1' BORDER='1'>");
-				errors.print("<TR><TD>Equation</TD><TD><B>" + expr + "</B></TD><TD>Type</TD><TD><B>" + datum.getTypeName() + "</B></TD></TR>");
-				errors.print("<TR><TD>String</TD><TD><B>" + datum.stringVal(true) +
-					"</B></TD><TD>boolean</TD><TD><B>" + datum.booleanVal() +
-					"</B></TD></TR>" + "<TR><TD>double</TD><TD><B>" +
-					datum.doubleVal() + "</B></TD><TD>&nbsp;</TD><TD>&nbsp;</TD></TR>");
-				errors.print("<TR><TD>date</TD><TD><B>" + datum.dateVal() + "</B></TD><TD>month</TD><TD><B>" + datum.monthVal() + "</B></TD></TR>");
-				errors.print("</TABLE>");
+				errors.print("<table width='100%' cellpadding='2' cellspacing='1' border='1'>");
+				errors.print("<tr><td>Equation</td><td><b>" + expr + "</b></td><td>Type</td><td><b>" + datum.getTypeName() + "</b></td></tr>");
+				errors.print("<tr><td>String</td><td><b>" + datum.stringVal(true) +
+					"</b></td><td>boolean</td><td><b>" + datum.booleanVal() +
+					"</b></td></tr>" + "<tr><td>double</td><td><b>" +
+					datum.doubleVal() + "</b></td><td>&nbsp;</td><td>&nbsp;</td></tr>");
+				errors.print("<tr><td>date</td><td><b>" + datum.dateVal() + "</b></td><td>month</td><td><b>" + datum.monthVal() + "</b></td></tr>");
+				errors.print("</table>");
 
 				errors.print(triceps.getParser().getErrors());
 			}
@@ -291,26 +293,26 @@ public class TricepsServlet extends HttpServlet {
 	private String getCustomHeader() {
 		StringBuffer sb = new StringBuffer();
 
-		sb.append("<TABLE BORDER='0' CELLPADDING='0' CELLSPACING='3' WIDTH='100%'>");
-		sb.append("<TR>");
-		sb.append("<TD WIDTH='1%'>");
+		sb.append("<table border='0' cellpadding='0' cellspacing='3' width='100%'>");
+		sb.append("<tr>");
+		sb.append("<td width='1%'>");
 
 		String logo = (!isSplashScreen && triceps.isValid()) ? triceps.getIcon() : logoIcon;
 		if (logo.trim().equals("")) {
 			sb.append("&nbsp;");
 		}
 		else {
-			sb.append("<IMG NAME='icon' SRC='" + (imageFilesDir + logo) + "' ALIGN='top' BORDER='0'" +
+			sb.append("<img name='icon' src='" + (imageFilesDir + logo) + "' align='top' border='0'" +
 				((!isSplashScreen) ? " onMouseDown='javascript:setAdminModePassword();'":"") + 
-				((!isSplashScreen) ? (" ALT='" + triceps.get("LogoMessage") + "'") : "") +
+				((!isSplashScreen) ? (" alt='" + triceps.get("LogoMessage") + "'") : "") +
 				">");
 		}
-		sb.append("	</TD>");
-		sb.append("	<TD ALIGN='left'><FONT SIZE='5'><B>" + ((triceps.isValid() && !isSplashScreen) ? triceps.getHeaderMsg() : "Triceps") + "</B></FONT></TD>");
-		sb.append("	<TD WIDTH='1%'><IMG SRC='" + HELP_T_ICON + "' ALT='" + triceps.get("Help") + "' ALIGN='top' BORDER='0' onMouseDown='javascript:help(\"" + helpURL + "\");'></TD>");
-		sb.append("</TR>");
-		sb.append("</TABLE>");
-		sb.append("<HR>");
+		sb.append("	</td>");
+		sb.append("	<td align='left'><font SIZE='5'><b>" + ((triceps.isValid() && !isSplashScreen) ? triceps.getHeaderMsg() : "Triceps") + "</b></font></td>");
+		sb.append("	<td width='1%'><img src='" + HELP_T_ICON + "' alt='" + triceps.get("Help") + "' align='top' border='0' onMouseDown='javascript:help(\"_TOP_\",\"" + helpURL + "\");'></td>");
+		sb.append("</tr>");
+		sb.append("</table>");
+		sb.append("<hr>");
 
 		return sb.toString();
 	}
@@ -448,8 +450,9 @@ public class TricepsServlet extends HttpServlet {
 
 		sb.append(formStr);
 
-		sb.append("<input type='HIDDEN' name='PASSWORD_FOR_ADMIN_MODE' value=''>");	// must manually bypass each time
-		sb.append("<input type='HIDDEN' name='LANGUAGE' value=''>");	// must manually bypass each time
+		sb.append("<input type='hidden' name='PASSWORD_FOR_ADMIN_MODE' value=''>");	// must manually bypass each time
+		sb.append("<input type='hidden' name='LANGUAGE' value=''>");	
+		sb.append("<input type='hidden' name='EVENT_TIMINGS' value=''>");	// list of event timings
 
 		sb.append("</FORM>");
 
@@ -466,15 +469,15 @@ public class TricepsServlet extends HttpServlet {
 		if (!isSplashScreen && triceps.isValid()) {
 			Vector languages = triceps.getSchedule().getLanguages();
 			if (languages.size() > 1) {
-				sb.append("<TABLE WIDTH='100%' BORDER='0'><TR><TD ALIGN='center'>");
+				sb.append("<table width='100%' border='0'><tr><td align='center'>");
 				for (int i=0;i<languages.size();++i) {
 					String language = (String) languages.elementAt(i);
 					boolean selected = (i == triceps.getLanguage());
-					sb.append(((selected) ? "<U>" : "") +
-						"<INPUT TYPE='button' onClick='javascript:setLanguage(\"" + language + "\");' VALUE='" + language + "'>" +
-						((selected) ? "</U>" : ""));
+					sb.append(((selected) ? "<u>" : "") +
+						"<input type='button' onClick='javascript:setLanguage(\"" + language + "\");' name='select_" + language + "' value='" + language + "'>" +
+						((selected) ? "</u>" : ""));
 				}
-				sb.append("</TD></TR></TABLE>");
+				sb.append("</td></tr></table>");
 			}
 		}
 		return sb.toString();
@@ -492,26 +495,26 @@ public class TricepsServlet extends HttpServlet {
 			isSplashScreen = true;
 			triceps.setLanguage(null);	// the default
 
-			sb.append("<TABLE CELLPADDING='2' CELLSPACING='2' BORDER='1'>");
-			sb.append("<TR><TD>" + triceps.get("please_select_an_interview") + "</TD>");
-			sb.append("<TD>");
+			sb.append("<table cellpadding='2' cellspacing='2' border='1'>");
+			sb.append("<tr><td>" + triceps.get("please_select_an_interview") + "</td>");
+			sb.append("<td>");
 
 			/* Build the list of available interviews */
 			sb.append(selectFromInterviewsInDir("schedule",scheduleSrcDir,false));
 
-			sb.append("</TD>");
-			sb.append("<TD><input type='SUBMIT' name='directive' value='" + triceps.get("START") + "'></TD>");
-			sb.append("</TR>");
+			sb.append("</td>");
+			sb.append("<td><input type='submit' name='directive' value='" + triceps.get("START") + "'></td>");
+			sb.append("</tr>");
 
 			/* Build the list of suspended interviews */
-			sb.append("<TR><TD>" + triceps.get("or_restore_an_interview_in_progress") + "</TD>");
-			sb.append("<TD>");
+			sb.append("<tr><td>" + triceps.get("or_restore_an_interview_in_progress") + "</td>");
+			sb.append("<td>");
 
 			sb.append(selectFromInterviewsInDir("RestoreSuspended",workingFilesDir,true));
 
-			sb.append("</TD>");
-			sb.append("<TD><input type='SUBMIT' name='directive' value='" + triceps.get("RESTORE") + "'></TD>");
-			sb.append("</TR></TABLE>");
+			sb.append("</td>");
+			sb.append("<td><input type='submit' name='directive' value='" + triceps.get("RESTORE") + "'></td>");
+			sb.append("</tr></table>");
 
 			return sb.toString();
 		}
@@ -606,20 +609,20 @@ public class TricepsServlet extends HttpServlet {
 					Node n = pe.getNode();
 
 					if (i == 0) {
-						errors.print("<FONT color='red'>" +
-							triceps.get("The_following_syntax_errors_were_found") + (n.getSourceFile()) + "</FONT>");
-						errors.print("<TABLE CELLPADDING='2' CELLSPACING='1' WIDTH='100%' border='1'>");
-						errors.print("<TR><TD>line#</TD><TD>name</TD><TD>Dependencies</TD><TD><B>Dependency Errors</B></TD><TD>Action Type</TD><TD>Action</TD><TD><B>Action Errors</B></TD><TD><B>Node Errors</B></TD><TD><B>Naming Errors</B></TD><TD><B>AnswerChoices Errors</B></TD><TD><B>Readback Errors</B></TD></TR>");
+						errors.print("<font color='red'>" +
+							triceps.get("The_following_syntax_errors_were_found") + (n.getSourceFile()) + "</font>");
+						errors.print("<table cellpadding='2' cellspacing='1' width='100%' border='1'>");
+						errors.print("<tr><td>line#</td><td>name</td><td>Dependencies</td><td><b>Dependency Errors</b></td><td>Action Type</td><td>Action</td><td><b>Action Errors</b></td><td><b>Node Errors</b></td><td><b>Naming Errors</b></td><td><b>AnswerChoices Errors</b></td><td><b>Readback Errors</b></td></tr>");
 					}
 
-					errors.print("<TR><TD>" + n.getSourceLine() + "</TD><TD>" + (n.getLocalName()) + "</TD>");
-					errors.print("<TD>" + n.getDependencies() + "</TD><TD>");
+					errors.print("<tr><td>" + n.getSourceLine() + "</td><td>" + (n.getLocalName()) + "</td>");
+					errors.print("<td>" + n.getDependencies() + "</td><td>");
 
 					errors.print(pe.hasDependenciesErrors() ? pe.getDependenciesErrors() : "&nbsp;");
-					errors.print("</TD><TD>" + Node.ACTION_TYPES[n.getQuestionOrEvalType()] + "</TD><TD>" + n.getQuestionOrEval() + "</TD><TD>");
+					errors.print("</td><td>" + Node.ACTION_TYPES[n.getQuestionOrEvalType()] + "</td><td>" + n.getQuestionOrEval() + "</td><td>");
 
 					errors.print(pe.hasQuestionOrEvalErrors() ? pe.getQuestionOrEvalErrors() : "&nbsp;");
-					errors.print("</TD><TD>");
+					errors.print("</td><td>");
 
 					if (!pe.hasNodeParseErrors()) {
 						errors.print("&nbsp;");
@@ -627,7 +630,7 @@ public class TricepsServlet extends HttpServlet {
 					else {
 						errors.print(pe.getNodeParseErrors());
 					}
-					errors.print("</TD><TD>");
+					errors.print("</td><td>");
 
 					if (!pe.hasNodeNamingErrors()) {
 						errors.print("&nbsp;");
@@ -636,26 +639,26 @@ public class TricepsServlet extends HttpServlet {
 						errors.print(pe.getNodeNamingErrors());
 					}
 
-					errors.print("<TD>" + ((pe.hasAnswerChoicesErrors()) ? pe.getAnswerChoicesErrors() : "&nbsp;") + "</TD>");
-					errors.print("<TD>" + ((pe.hasReadbackErrors()) ? pe.getReadbackErrors() : "&nbsp;") + "</TD>");
+					errors.print("<td>" + ((pe.hasAnswerChoicesErrors()) ? pe.getAnswerChoicesErrors() : "&nbsp;") + "</td>");
+					errors.print("<td>" + ((pe.hasReadbackErrors()) ? pe.getReadbackErrors() : "&nbsp;") + "</td>");
 
-					errors.print("</TR>");
+					errors.print("</tr>");
 				}
-				errors.print("</TABLE><HR>");
+				errors.print("</table><hr>");
 			}
 			if (triceps.getSchedule().hasErrors()) {
-				errors.print("<FONT color='red'>" +
-					triceps.get("The_following_flow_errors_were_found") + "</FONT>");
-				errors.print("<TABLE CELLPADDING='2' CELLSPACING='1' WIDTH='100%' border='1'><TR><TD>");
+				errors.print("<font color='red'>" +
+					triceps.get("The_following_flow_errors_were_found") + "</font>");
+				errors.print("<table cellpadding='2' cellspacing='1' width='100%' border='1'><tr><td>");
 				errors.print(triceps.getSchedule().getErrors());
-				errors.print("</TD></TR></TABLE>");
+				errors.print("</td></tr></table>");
 			}
 			if (triceps.getEvidence().hasErrors()) {
-				errors.print("<FONT color='red'>" +
-					triceps.get("The_following_data_access_errors_were") + "</FONT>");
-				errors.print("<TABLE CELLPADDING='2' CELLSPACING='1' WIDTH='100%' border='1'><TR><TD>");
+				errors.print("<font color='red'>" +
+					triceps.get("The_following_data_access_errors_were") + "</font>");
+				errors.print("<table cellpadding='2' cellspacing='1' width='100%' border='1'><tr><td>");
 				errors.print(triceps.getEvidence().getErrors());
-				errors.print("</TD></TR></TABLE>");
+				errors.print("</td></tr></table>");
 			}
 		}
 		else if (directive.equals(triceps.get("next"))) {
@@ -720,7 +723,7 @@ public class TricepsServlet extends HttpServlet {
 			Node n = (Node) nodes.nextElement();
 			if (n.hasRuntimeErrors()) {
 				if (++errCount == 1) {
-					info.println(triceps.get("please_answer_the_questions_listed_in") + "<FONT color='red'>" + triceps.get("RED") + "</FONT>" + triceps.get("before_proceeding"));
+					info.println(triceps.get("please_answer_the_questions_listed_in") + "<font color='red'>" + triceps.get("RED") + "</font>" + triceps.get("before_proceeding"));
 				}
 				if (n.focusableArray()) {
 					firstFocus = n.getLocalName() + "[0]";
@@ -787,16 +790,16 @@ public class TricepsServlet extends HttpServlet {
 		String color;
 		String errMsg;
 
-		sb.append("<TABLE CELLPADDING='2' CELLSPACING='1' WIDTH='100%' border='1'>");
+		sb.append("<table cellpadding='2' cellspacing='1' width='100%' border='1'>");
 		for(int count=0;questionNames.hasMoreElements();++count) {
 			Node node = (Node) questionNames.nextElement();
 			Datum datum = triceps.getDatum(node);
 
 			if (node.hasRuntimeErrors()) {
 				color = " color='red'";
-				StringBuffer errStr = new StringBuffer("<FONT color='red'>");
+				StringBuffer errStr = new StringBuffer("<font color='red'>");
 				errStr.append(node.getRuntimeErrors());
-				errStr.append("</FONT>");
+				errStr.append("</font>");
 				errMsg = errStr.toString();
 			}
 			else {
@@ -804,14 +807,14 @@ public class TricepsServlet extends HttpServlet {
 				errMsg = "";
 			}
 
-			sb.append("<TR>");
+			sb.append("<tr>");
 
 			if (showQuestionNum) {
 				if (color != null) {
-					sb.append("<TD><FONT" + color + "><B>" + node.getExternalName() + "</B></FONT></TD>");
+					sb.append("<td><font" + color + "><b>" + node.getExternalName() + "</b></font></td>");
 				}
 				else {
-					sb.append("<TD>" + node.getExternalName() + "</TD>");
+					sb.append("<td>" + node.getExternalName() + "</td>");
 				}
 			}
 
@@ -825,88 +828,88 @@ public class TricepsServlet extends HttpServlet {
 			switch(node.getAnswerType()) {
 				case Node.NOTHING:
 					if (color != null) {
-						sb.append("<TD COLSPAN='3'><FONT" + color + ">" + triceps.getQuestionStr(node) + "</FONT></TD>");
+						sb.append("<td colspan='3'><font" + color + ">" + triceps.getQuestionStr(node) + "</font></td>");
 					}
 					else {
-						sb.append("<TD COLSPAN='3'>" + triceps.getQuestionStr(node) + "</TD>");
+						sb.append("<td colspan='3'>" + triceps.getQuestionStr(node) + "</td>");
 					}
 					break;
 				case Node.RADIO_HORIZONTAL:
-					sb.append("<TD COLSPAN='3'>");
-					sb.append("<input type='HIDDEN' name='" + (inputName + "_COMMENT") + "' value='" + (node.getComment()) + "'>");
-					sb.append("<input type='HIDDEN' name='" + (inputName + "_SPECIAL") + "' value='" +
+					sb.append("<td colspan='3'>");
+					sb.append("<input type='hidden' name='" + (inputName + "_COMMENT") + "' value='" + (node.getComment()) + "'>");
+					sb.append("<input type='hidden' name='" + (inputName + "_SPECIAL") + "' value='" +
 						((isSpecial) ? (triceps.toString(node,true)) : "") +
 						"'>");
-					sb.append("<input type='HIDDEN' name='" + (inputName + "_HELP") + "' value='" + (node.getHelpURL()) + "'>");
+					sb.append("<input type='hidden' name='" + (inputName + "_HELP") + "' value='" + (node.getHelpURL()) + "'>");
 					if (color != null) {
-						sb.append("<FONT" + color + ">" + triceps.getQuestionStr(node) + "</FONT>");
+						sb.append("<font" + color + ">" + triceps.getQuestionStr(node) + "</font>");
 					}
 					else {
 						sb.append(triceps.getQuestionStr(node));
 					}
-					sb.append("</TD></TR><TR>");
+					sb.append("</td></tr><tr>");
 					if (showQuestionNum) {
-						sb.append("<TD>&nbsp;</TD>");
+						sb.append("<td>&nbsp;</td>");
 					}
-					sb.append("<TD WIDTH='1%' NOWRAP>" + clickableOptions + "</TD>");
+					sb.append("<td width='1%' NOWRAP>" + clickableOptions + "</td>");
 					sb.append(node.prepareChoicesAsHTML(datum,errMsg,autogenOptionNums));
 					break;
 				default:
-					sb.append("<TD>");
-					sb.append("<input type='HIDDEN' name='" + (inputName + "_COMMENT") + "' value='" + node.getComment() + "'>");
-					sb.append("<input type='HIDDEN' name='" + (inputName + "_SPECIAL") + "' value='" +
+					sb.append("<td>");
+					sb.append("<input type='hidden' name='" + (inputName + "_COMMENT") + "' value='" + node.getComment() + "'>");
+					sb.append("<input type='hidden' name='" + (inputName + "_SPECIAL") + "' value='" +
 						((isSpecial) ? (triceps.toString(node,true)) : "") +
 						"'>");
-					sb.append("<input type='HIDDEN' name='" + (inputName + "_HELP") + "' value='" + node.getHelpURL() + "'>");
+					sb.append("<input type='hidden' name='" + (inputName + "_HELP") + "' value='" + node.getHelpURL() + "'>");
 					if (color != null) {
-						sb.append("<FONT" + color + ">" + triceps.getQuestionStr(node) + "</FONT>");
+						sb.append("<font" + color + ">" + triceps.getQuestionStr(node) + "</font>");
 					}
 					else {
 						sb.append(triceps.getQuestionStr(node));
 					}
-					sb.append("</TD><TD WIDTH='1%' NOWRAP>" + clickableOptions + "</TD>");
-					sb.append("<TD>" + node.prepareChoicesAsHTML(datum,autogenOptionNums) + errMsg + "</TD>");
+					sb.append("</td><td width='1%' NOWRAP>" + clickableOptions + "</td>");
+					sb.append("<td>" + node.prepareChoicesAsHTML(datum,autogenOptionNums) + errMsg + "</td>");
 					break;
 			}
 
-			sb.append("</TR>");
+			sb.append("</tr>");
 		}
-		sb.append("<TR><TD COLSPAN='" + ((showQuestionNum) ? 4 : 3) + "' ALIGN='center'>");
+		sb.append("<tr><td colspan='" + ((showQuestionNum) ? 4 : 3) + "' align='center'>");
 		
 		if (!triceps.isAtEnd()) {
-			sb.append("<input type='SUBMIT' name='directive' value='" + triceps.get("next") + "'>");
+			sb.append("<input type='submit' name='directive' value='" + triceps.get("next") + "'>");
 		}
 		if (!triceps.isAtBeginning()) {
-			sb.append("<input type='SUBMIT' name='directive' value='" + triceps.get("previous") + "'>");
+			sb.append("<input type='submit' name='directive' value='" + triceps.get("previous") + "'>");
 		}
 
 		if (allowEasyBypass || okToShowAdminModeIcons) {
 			/* enables TEMP_ADMIN_MODE going forward for one screen */
-			sb.append("<input type='HIDDEN' name='TEMP_ADMIN_MODE_PASSWORD' value='" + triceps.createTempPassword() + "'>");
+			sb.append("<input type='hidden' name='TEMP_ADMIN_MODE_PASSWORD' value='" + triceps.createTempPassword() + "'>");
 		}
 
-		sb.append("</TD></TR>");
+		sb.append("</td></tr>");
 
 		if (developerMode) {
-			sb.append("<TR><TD COLSPAN='" + ((showQuestionNum) ? 4 : 3 ) + "' ALIGN='center'>");
-			sb.append("<input type='SUBMIT' name='directive' value='" + triceps.get("select_new_interview") + "'>");
-			sb.append("<input type='SUBMIT' name='directive' value='" + triceps.get("restart_clean") + "'>");
-			sb.append("<input type='SUBMIT' name='directive' value='" + triceps.get("jump_to") + "' size='10'>");
+			sb.append("<tr><td colspan='" + ((showQuestionNum) ? 4 : 3 ) + "' align='center'>");
+			sb.append("<input type='submit' name='directive' value='" + triceps.get("select_new_interview") + "'>");
+			sb.append("<input type='submit' name='directive' value='" + triceps.get("restart_clean") + "'>");
+			sb.append("<input type='submit' name='directive' value='" + triceps.get("jump_to") + "' size='10'>");
 			sb.append("<input type='text' name='" + triceps.get("jump_to") + "'>");
-			sb.append("<input type='SUBMIT' name='directive' value='" + triceps.get("save_to") + "'>");
+			sb.append("<input type='submit' name='directive' value='" + triceps.get("save_to") + "'>");
 			sb.append("<input type='text' name='" + triceps.get("save_to") + "'>");
-			sb.append("</TD></TR>");
-			sb.append("<TR><TD COLSPAN='" + ((showQuestionNum) ? 4 : 3 ) + "' ALIGN='center'>");
-			sb.append("<input type='SUBMIT' name='directive' value='" + triceps.get("reload_questions") + "'>");
-			sb.append("<input type='SUBMIT' name='directive' value='" + triceps.get("show_Syntax_Errors") + "'>");
-			sb.append("<input type='SUBMIT' name='directive' value='" + triceps.get("evaluate_expr") + "'>");
+			sb.append("</td></tr>");
+			sb.append("<tr><td colspan='" + ((showQuestionNum) ? 4 : 3 ) + "' align='center'>");
+			sb.append("<input type='submit' name='directive' value='" + triceps.get("reload_questions") + "'>");
+			sb.append("<input type='submit' name='directive' value='" + triceps.get("show_Syntax_Errors") + "'>");
+			sb.append("<input type='submit' name='directive' value='" + triceps.get("evaluate_expr") + "'>");
 			sb.append("<input type='text' name='" + triceps.get("evaluate_expr") + "'>");
-			sb.append("</TD></TR>");
+			sb.append("</td></tr>");
 		}
 
 		sb.append(showOptions());
 
-		sb.append("</TABLE>");
+		sb.append("</table>");
 
 		return sb.toString();
 	}
@@ -936,8 +939,8 @@ public class TricepsServlet extends HttpServlet {
 
 		String helpURL = node.getHelpURL();
 		if (helpURL != null && helpURL.trim().length() != 0) {
-			sb.append("<IMG SRC='" + HELP_T_ICON +
-				"' ALIGN='top' BORDER='0' ALT='" + triceps.get("Help") + "' onMouseDown='javascript:help(\"" + helpURL + "\");'>");
+			sb.append("<img src='" + HELP_T_ICON +
+				"' align='top' border='0' alt='" + triceps.get("Help") + "' onMouseDown='javascript:help(\"" + inputName + "\",\"" + helpURL + "\");'>");
 		}
 		else {
 			// don't show help icon if no help is available?
@@ -946,24 +949,24 @@ public class TricepsServlet extends HttpServlet {
 		String comment = node.getComment();
 		if (showAdminModeIcons || okToShowAdminModeIcons || allowComments) {
 			if (comment != null && comment.trim().length() != 0) {
-				sb.append("<IMG NAME='" + inputName + "_COMMENT_ICON" + "' SRC='" + COMMENT_T_ICON +
-					"' ALIGN='top' BORDER='0' ALT='" + triceps.get("Add_a_Comment") + "' onMouseDown='javascript:comment(\"" + inputName + "\");'>");
+				sb.append("<img name='" + inputName + "_COMMENT_ICON" + "' src='" + COMMENT_T_ICON +
+					"' align='top' border='0' alt='" + triceps.get("Add_a_Comment") + "' onMouseDown='javascript:comment(\"" + inputName + "\");'>");
 			}
 			else  {
-				sb.append("<IMG NAME='" + inputName + "_COMMENT_ICON" + "' SRC='" + COMMENT_F_ICON +
-					"' ALIGN='top' BORDER='0' ALT='" + triceps.get("Add_a_Comment") + "' onMouseDown='javascript:comment(\"" + inputName + "\");'>");
+				sb.append("<img name='" + inputName + "_COMMENT_ICON" + "' src='" + COMMENT_F_ICON +
+					"' align='top' border='0' alt='" + triceps.get("Add_a_Comment") + "' onMouseDown='javascript:comment(\"" + inputName + "\");'>");
 			}
 		}
 
 		/* If something has been set as Refused, Unknown, etc, allow going forward without additional headache */
 
 		if (showAdminModeIcons || okToShowAdminModeIcons || isSpecial) {
-			sb.append("<IMG NAME='" + inputName + "_REFUSED_ICON" + "' SRC='" + ((isRefused) ? REFUSED_T_ICON : REFUSED_F_ICON) +
-				"' ALIGN='top' BORDER='0' ALT='" + triceps.get("Set_as_Refused") + "' onMouseDown='javascript:markAsRefused(\"" + inputName + "\");'>");
-			sb.append("<IMG NAME='" + inputName + "_UNKNOWN_ICON" + "' SRC='" + ((isUnknown) ? UNKNOWN_T_ICON : UNKNOWN_F_ICON) +
-				"' ALIGN='top' BORDER='0' ALT='" + triceps.get("Set_as_Unknown") + "' onMouseDown='javascript:markAsUnknown(\"" + inputName + "\");'>");
-			sb.append("<IMG NAME='" + inputName + "_NOT_UNDERSTOOD_ICON" + "' SRC='" + ((isNotUnderstood) ? NOT_UNDERSTOOD_T_ICON : NOT_UNDERSTOOD_F_ICON) +
-				"' ALIGN='top' BORDER='0' ALT='" + triceps.get("Set_as_Not_Understood") + "' onMouseDown='javascript:markAsNotUnderstood(\"" + inputName + "\");'>");
+			sb.append("<img name='" + inputName + "_REFUSED_ICON" + "' src='" + ((isRefused) ? REFUSED_T_ICON : REFUSED_F_ICON) +
+				"' align='top' border='0' alt='" + triceps.get("Set_as_Refused") + "' onMouseDown='javascript:markAsRefused(\"" + inputName + "\");'>");
+			sb.append("<img name='" + inputName + "_UNKNOWN_ICON" + "' src='" + ((isUnknown) ? UNKNOWN_T_ICON : UNKNOWN_F_ICON) +
+				"' align='top' border='0' alt='" + triceps.get("Set_as_Unknown") + "' onMouseDown='javascript:markAsUnknown(\"" + inputName + "\");'>");
+			sb.append("<img name='" + inputName + "_NOT_UNDERSTOOD_ICON" + "' src='" + ((isNotUnderstood) ? NOT_UNDERSTOOD_T_ICON : NOT_UNDERSTOOD_F_ICON) +
+				"' align='top' border='0' alt='" + triceps.get("Set_as_Not_Understood") + "' onMouseDown='javascript:markAsNotUnderstood(\"" + inputName + "\");'>");
 		}
 
 		if (sb.length() == 0) {
@@ -983,58 +986,58 @@ public class TricepsServlet extends HttpServlet {
 		if (developerMode && debugMode) {
 			sb.append("<hr>");
 			sb.append(triceps.get("CURRENT_QUESTIONS"));
-			sb.append("<TABLE CELLPADDING='2' CELLSPACING='1'  WIDTH='100%' BORDER='1'>");
+			sb.append("<table cellpadding='2' cellspacing='1'  width='100%' border='1'>");
 			Enumeration questionNames = triceps.getQuestions();
 			Evidence evidence = triceps.getEvidence();
 
 			while(questionNames.hasMoreElements()) {
 				Node n = (Node) questionNames.nextElement();
 				Datum d = evidence.getDatum(n);
-				sb.append("<TR>");
-				sb.append("<TD>" + n.getExternalName() + "</TD>");
+				sb.append("<tr>");
+				sb.append("<td>" + n.getExternalName() + "</td>");
 				if (d.isSpecial()) {
-					sb.append("<TD><B><I>" + triceps.toString(n,true) + "</I></B></TD>");
+					sb.append("<td><b><i>" + triceps.toString(n,true) + "</i></b></td>");
 				}
 				else {
-					sb.append("<TD><B>" + triceps.toString(n,true) + "</B></TD>");
+					sb.append("<td><b>" + triceps.toString(n,true) + "</b></td>");
 				}
-				sb.append("<TD>" + Datum.getTypeName(triceps,n.getDatumType()) + "</TD>");
-				sb.append("<TD>" + n.getLocalName() + "</TD>");
-				sb.append("<TD>" + n.getConcept() + "</TD>");
-				sb.append("<TD>" + n.getDependencies() + "</TD>");
-				sb.append("<TD>" + n.getQuestionOrEvalTypeField() + "</TD>");
-				sb.append("<TD>" + n.getQuestionOrEval() + "</TD>");
-				sb.append("</TR>");
+				sb.append("<td>" + Datum.getTypeName(triceps,n.getDatumType()) + "</td>");
+				sb.append("<td>" + n.getLocalName() + "</td>");
+				sb.append("<td>" + n.getConcept() + "</td>");
+				sb.append("<td>" + n.getDependencies() + "</td>");
+				sb.append("<td>" + n.getQuestionOrEvalTypeField() + "</td>");
+				sb.append("<td>" + n.getQuestionOrEval() + "</td>");
+				sb.append("</tr>");
 			}
-			sb.append("</TABLE>");
+			sb.append("</table>");
 
 
 			sb.append("<hr>");
 			sb.append(triceps.get("EVIDENCE_AREA"));
-			sb.append("<TABLE CELLPADDING='2' CELLSPACING='1'  WIDTH='100%' BORDER='1'>");
+			sb.append("<table cellpadding='2' cellspacing='1'  width='100%' border='1'>");
 			for (int i = triceps.size()-1; i >= 0; i--) {
 				Node n = triceps.getNode(i);
 				Datum d = triceps.getDatum(n);
 				if (!triceps.isSet(n))
 					continue;
-				sb.append("<TR>");
-				sb.append("<TD>" + (i + 1) + "</TD>");
-				sb.append("<TD>" + n.getExternalName() + "</TD>");
+				sb.append("<tr>");
+				sb.append("<td>" + (i + 1) + "</td>");
+				sb.append("<td>" + n.getExternalName() + "</td>");
 				if (d.isSpecial()) {
-					sb.append("<TD><B><I>" + triceps.toString(n,true) + "</I></B></TD>");
+					sb.append("<td><b><i>" + triceps.toString(n,true) + "</i></b></td>");
 				}
 				else {
-					sb.append("<TD><B>" + triceps.toString(n,true) + "</B></TD>");
+					sb.append("<td><b>" + triceps.toString(n,true) + "</b></td>");
 				}
-				sb.append("<TD>" +  Datum.getTypeName(triceps,n.getDatumType()) + "</TD>");
-				sb.append("<TD>" + n.getLocalName() + "</TD>");
-				sb.append("<TD>" + n.getConcept() + "</TD>");
-				sb.append("<TD>" + n.getDependencies() + "</TD>");
-				sb.append("<TD>" + n.getQuestionOrEvalTypeField() + "</TD>");
-				sb.append("<TD>" + n.getQuestionOrEval(triceps.getLanguage()) + "</TD>");
-				sb.append("</TR>");
+				sb.append("<td>" +  Datum.getTypeName(triceps,n.getDatumType()) + "</td>");
+				sb.append("<td>" + n.getLocalName() + "</td>");
+				sb.append("<td>" + n.getConcept() + "</td>");
+				sb.append("<td>" + n.getDependencies() + "</td>");
+				sb.append("<td>" + n.getQuestionOrEvalTypeField() + "</td>");
+				sb.append("<td>" + n.getQuestionOrEval(triceps.getLanguage()) + "</td>");
+				sb.append("</tr>");
 			}
-			sb.append("</TABLE>");
+			sb.append("</table>");
 		}
 		return sb.toString();
 	}
@@ -1043,11 +1046,11 @@ public class TricepsServlet extends HttpServlet {
 		if (developerMode) {
 			StringBuffer sb = new StringBuffer();
 
-			sb.append("<TR><TD COLSPAN='" + ((showQuestionNum) ? 4 : 3 ) + "' ALIGN='center'>");
-			sb.append("<input type='SUBMIT' name='directive' value='" + triceps.get("turn_developerMode") + ((developerMode) ? triceps.get("OFF") : triceps.get("ON")) + "'>");
-			sb.append("<input type='SUBMIT' name='directive' value='" + triceps.get("turn_debugMode") + ((debugMode) ? triceps.get("OFF") : triceps.get("ON") )+ "'>");
-			sb.append("<input type='SUBMIT' name='directive' value='" + triceps.get("turn_showQuestionNum") + ((showQuestionNum) ? triceps.get("OFF") : triceps.get("ON")) + "'>");
-			sb.append("</TD></TR>");
+			sb.append("<tr><td colspan='" + ((showQuestionNum) ? 4 : 3 ) + "' align='center'>");
+			sb.append("<input type='submit' name='directive' value='" + triceps.get("turn_developerMode") + ((developerMode) ? triceps.get("OFF") : triceps.get("ON")) +  "'>");
+			sb.append("<input type='submit' name='directive' value='" + triceps.get("turn_debugMode") + ((debugMode) ? triceps.get("OFF") : triceps.get("ON")) +  "'>");
+			sb.append("<input type='submit' name='directive' value='" + triceps.get("turn_showQuestionNum") + ((showQuestionNum) ? triceps.get("OFF") : triceps.get("ON")) +  "'>");
+			sb.append("</td></tr>");
 			return sb.toString();
 		}
 		else
@@ -1056,16 +1059,76 @@ public class TricepsServlet extends HttpServlet {
 
 	private String createJavaScript() {
 		StringBuffer sb = new StringBuffer();
-		sb.append("<SCRIPT  type=\"text/javascript\"> <!--\n");
-		sb.append("var actionName = null;\n");
-		sb.append("\n");
+		sb.append("<script  type=\"text/javascript\"> <!--\n");
+				
+		sb.append("var startTime = new Date();\n");
+		sb.append("var val = null;\n");
+		sb.append("function evHandler(e) {\n");
+		sb.append("	now = new Date();\n");
+		sb.append("	if (e.target.options) { val = e.target.selectedIndex + ',' + e.target.options[e.target.selectedIndex].value; }\n");
+		sb.append("	else if (e.type == 'keypress') { val = String.fromCharCode(e.which) + ',' + e.target.value; }\n");
+		sb.append("	else { val = e.which + ',' + e.target.value; }\n");
+		sb.append("	msg = e.target.name + ',' + e.target.type + ',' + e.type + ',' + val + ',' + now.getTime() + ',' + (now.getTime() - startTime.getTime()) + '|';\n");
+		sb.append("	document.myForm.EVENT_TIMINGS.value += msg;\n");
+		sb.append("	routeEvent(e);\n");
+		sb.append("	return true;\n");
+		sb.append("}\n");
+//		sb.append("window.captureEvents(Event.Load | Event.Resize| Event.MouseMove);\n");
+//		sb.append("window.captureEvents(Event.Blur | Event.Change | Event.Click | Event.Focus | Event.KeyPress | Event.Load | Event.Reset | Event.Resize | Event.Select | Event.Submit);\n");
+/*
+		sb.append("window.captureEvents(Event.Abort | Event.Blur | Event.Change | Event.Click | Event.DblClick | Event.DragDrop | Event.Error | Event.Focus | Event.KeyDown | Event.KeyPress | Event.KeyUp | Event.Load | Event.MouseDown | Event.MouseMove | Event.MouseOut | Event.MouseOver | Event.MouseUp | Event.Move | Event.Reset | Event.Resize | Event.Select | Event.Submit | Event.Unload);\n");
+		sb.append("window.onAbort = evHandler;\n");
+		sb.append("window.onBlur = evHandler;\n");
+		sb.append("window.onChange = evHandler;\n");
+		sb.append("window.onClick = evHandler;\n");
+		sb.append("window.onDblClick = evHandler;\n");
+		sb.append("window.onDragDrop = evHandler;\n");
+		sb.append("window.onError = evHandler;\n");
+		sb.append("window.onFocus = evHandler;\n");
+		sb.append("window.onKeyDown = evHandler;\n");
+		sb.append("window.onKeyPress = evHandler;\n");
+		sb.append("window.onKeyUp = evHandler;\n");
+		sb.append("window.onLoad = evHandler;\n");
+		sb.append("window.onMouseDown = evHandler;\n");
+		sb.append("window.onMouseMove = evHandler;\n");
+		sb.append("window.onMouseOut = evHandler;\n");
+		sb.append("window.onMouseOver = evHandler;\n");
+		sb.append("window.onMouseUp = evHandler;\n");
+		sb.append("window.onMove = evHandler;\n");
+		sb.append("window.onReset = evHandler;\n");
+		sb.append("window.onResize = evHandler;\n");
+		sb.append("window.onSelect = evHandler;\n");
+		sb.append("window.onSubmit = evHandler;\n");
+		sb.append("window.onUnload = evHandler;\n");
+*/
 		sb.append("function init() {\n");
-//		sb.append("window.top.focus();\n");
 
 		if (firstFocus != null) {
 			sb.append("	document.myForm." + firstFocus + ".focus();\n");
 		}
-
+		
+		sb.append("	for (var i=0;i<document.myForm.elements.length;++i) {\n");
+		sb.append("		var el = document.myForm.elements[i];\n");
+		sb.append("		el.onBlur = evHandler;\n");
+		sb.append("		el.onChange = evHandler;\n");
+		sb.append("		el.onClick = evHandler;\n");
+		sb.append("		el.onFocus = evHandler;\n");
+		sb.append("		el.onKeyPress = evHandler;\n");
+		sb.append("		el.onSelect = evHandler;\n");
+		sb.append("		el.onMouseDown = evHandler;\n");
+		sb.append("		el.onMouseUp = evHandler;\n");
+		sb.append("		el.onClick = evHandler;\n");
+		sb.append("	}\n");
+		sb.append("	for (var k=0;k<document.images.length;++k){\n");
+		sb.append("		var el = document.images[k];\n");
+		sb.append("		el.onKeyDown = evHandler;\n");
+		sb.append("		el.onKeyPress = evHandler;\n");
+		sb.append("		el.onKeyUp = evHandler;\n");
+		sb.append("		el.onMouseDown = evHandler;\n");
+		sb.append("		el.onMouseUp = evHandler;\n");
+		sb.append("		el.onClick = evHandler;\n");
+		sb.append("	}\n");
+		sb.append("	document.myForm.onSubmit = evHandler;\n");
 		sb.append("}\n");
 		sb.append("function setAdminModePassword(name) {\n");
 		sb.append("	var ans = prompt('" +
@@ -1076,7 +1139,6 @@ public class TricepsServlet extends HttpServlet {
 		sb.append("	document.myForm.submit();\n\n");
 		sb.append("}\n");
 		sb.append("function markAsRefused(name) {\n");
-		sb.append("	if (!name) name = actionName;\n");
 		sb.append("	if (!name) return;\n");
 		sb.append("	var val = document.myForm.elements[name + '_SPECIAL'];\n");
 		sb.append("	if (val.value == '" + Datum.getSpecialName(Datum.REFUSED) + "') {\n");
@@ -1087,9 +1149,9 @@ public class TricepsServlet extends HttpServlet {
 		sb.append("		document.myForm.elements[name + '_REFUSED_ICON'].src = '" + REFUSED_T_ICON + "';\n");
 		sb.append("		document.myForm.elements[name + '_UNKNOWN_ICON'].src = '" + UNKNOWN_F_ICON + "';\n");
 		sb.append("		document.myForm.elements[name + '_NOT_UNDERSTOOD_ICON'].src = '" + NOT_UNDERSTOOD_F_ICON + "';\n");
-		sb.append("	}\n}\n");
+		sb.append("	}\n");
+		sb.append("}\n");
 		sb.append("function markAsUnknown(name) {\n");
-		sb.append("	if (!name) name = actionName;\n");
 		sb.append("	if (!name) return;\n");
 		sb.append("	var val = document.myForm.elements[name + '_SPECIAL'];\n");
 		sb.append("	if (val.value == '" + Datum.getSpecialName(Datum.UNKNOWN) + "') {\n");
@@ -1100,9 +1162,9 @@ public class TricepsServlet extends HttpServlet {
 		sb.append("		document.myForm.elements[name + '_REFUSED_ICON'].src = '" + REFUSED_F_ICON + "';\n");
 		sb.append("		document.myForm.elements[name + '_UNKNOWN_ICON'].src = '" + UNKNOWN_T_ICON + "';\n");
 		sb.append("		document.myForm.elements[name + '_NOT_UNDERSTOOD_ICON'].src = '" + NOT_UNDERSTOOD_F_ICON + "';\n");
-		sb.append("	}\n}\n");
+		sb.append("	}\n");
+		sb.append("}\n");
 		sb.append("function markAsNotUnderstood(name) {\n");
-		sb.append("	if (!name) name = actionName;\n");
 		sb.append("	if (!name) return;\n");
 		sb.append("	var val = document.myForm.elements[name + '_SPECIAL'];\n");
 		sb.append("	if (val.value == '" + Datum.getSpecialName(Datum.NOT_UNDERSTOOD) + "') {\n");
@@ -1113,12 +1175,12 @@ public class TricepsServlet extends HttpServlet {
 		sb.append("		document.myForm.elements[name + '_REFUSED_ICON'].src = '" + REFUSED_F_ICON + "';\n");
 		sb.append("		document.myForm.elements[name + '_UNKNOWN_ICON'].src = '" + UNKNOWN_F_ICON + "';\n");
 		sb.append("		document.myForm.elements[name + '_NOT_UNDERSTOOD_ICON'].src = '" + NOT_UNDERSTOOD_T_ICON + "';\n");
-		sb.append("	}\n}\n");
-		sb.append("function help(target) {\n");
+		sb.append("	}\n");
+		sb.append("}\n");
+		sb.append("function help(name,target) {\n");
 		sb.append("	if (target != null && target.length != 0) { window.open(target,'__HELP__'); }\n");
 		sb.append("}\n");
 		sb.append("function comment(name) {\n");
-		sb.append("	if (!name) name = actionName;\n");
 		sb.append("	if (!name) return;\n");
 		sb.append("	var ans = prompt('" +
 			triceps.get("Enter_a_comment_for_this_question") +
@@ -1133,7 +1195,7 @@ public class TricepsServlet extends HttpServlet {
 		sb.append("	document.myForm.LANGUAGE.value = lang;\n");
 		sb.append("	document.myForm.submit();\n");
 		sb.append("}\n");
-		sb.append("// --> </SCRIPT>\n");
+		sb.append("// --> </script>\n");
 
 		return sb.toString();
 	}
@@ -1162,4 +1224,18 @@ public class TricepsServlet extends HttpServlet {
 
 		return sb.toString();
 	}
+	
+	
+	private void processEventTimings(String src) {
+		if (src == null) {
+			return;
+		}
+			
+		StringTokenizer lines = new StringTokenizer(src,"|",false);
+
+		while(lines.hasMoreTokens()) {
+			String s = lines.nextToken();
+			Logger.writeln(s);
+		}
+	}	
 }
