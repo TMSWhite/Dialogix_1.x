@@ -12,8 +12,6 @@ public class Triceps {
 
 	static private final Vector EMPTY_LIST = new Vector();
 
-//	public static final String NULL = "not set";	// a default value to represent null in config files
-
 	private String scheduleURL = null;
 	private String scheduleUrlPrefix = null;
 	public	Schedule nodes = new Schedule();	// XXX should this be allowed to be public?
@@ -29,15 +27,9 @@ public class Triceps {
 	private String startTimeStr = null;
 	private String stopTimeStr = null;
 
-	private String workingFilesDir = null;
-	private String completedFilesDir = null;
-	private String scheduleSrcDir = null;
 	private String urlPrefix = null;
 
-	public Triceps(String scheduleSrcDir, String workingFilesDir, String completedFilesDir) {
-		setScheduleSrcDir(scheduleSrcDir);
-		setWorkingFilesDir(workingFilesDir);
-		setCompletedFilesDir(completedFilesDir);
+	public Triceps() {
 	}
 
 	public boolean setSchedule(String filename, String urlPrefix, String optionalFilePrefix) {
@@ -214,9 +206,9 @@ public class Triceps {
 				}
 				currentStep = size();	// put at last node
 				numQuestions = 0;
-
-				/* Before advancing any further, save to completed files dir */
-//				toTSV(getCompletedFilesDir() + startTimeStr);		// no, have the servlet do this after sending next question
+				
+				/* The current state should be saved in the background after the next set of questions is retrieved.
+					It is up to the calling program to call toTSV() to save the state */
 
 				return AT_END;
 			}
@@ -289,9 +281,8 @@ public class Triceps {
 		currentStep = step;
 		numQuestions = 0;
 
-		/* Before advancing any further, save a scratch file */
-//		toTSV(getWorkingFilesDir() + startTimeStr);	// no, have the servlet do this after returning reply?
-
+		/* The current state should be saved in the background after the next set of questions is retrieved.
+			It is up to the calling program to call toTSV() to save the state */
 		return OK;
 	}
 
@@ -622,11 +613,12 @@ public class Triceps {
 		return parseErrors;
 	}
 
-	public boolean toTSV() {
-		return toTSV(getWorkingFilesDir() + nodes.getReserved(Schedule.FILENAME));
+	public boolean toTSV(String dir) {
+		return toTSV(dir,nodes.getReserved(Schedule.FILENAME));
 	}
 
-	public boolean toTSV(String filename) {
+	public boolean toTSV(String dir, String targetName) {
+		String filename = dir + targetName;
 		FileWriter fw = null;
 		boolean ok = false;
 
@@ -830,24 +822,6 @@ public class Triceps {
 	public String getTitle() {
 		return nodes.getReserved(Schedule.TITLE);
 	}
-
-	public void setWorkingFilesDir(String s) {
-		workingFilesDir = ((s == null) ? "" : s);
-		try {
-			File f = new File(workingFilesDir);
-			if (!f.isDirectory() || !f.canRead()) {
-				System.err.println("unreadable directory " + f.toString());
-			}
-		}
-		catch (Throwable t) {
-			System.err.println("error setting working directory: " + t.getMessage());
-		}
-	}
-	public String getWorkingFilesDir() { return workingFilesDir; }
-	public void setCompletedFilesDir(String s) { completedFilesDir = ((s == null) ? "" : s); }
-	public String getCompletedFilesDir() { return completedFilesDir; }
-	public void setScheduleSrcDir(String s) { scheduleSrcDir = ((s == null) ? "" : s); }
-	public String getScheduleSrcDir() { return scheduleSrcDir; }
 
 	public String getPasswordForRefused() {
 		String s = nodes.getReserved(Schedule.PASSWORD_FOR_REFUSED);

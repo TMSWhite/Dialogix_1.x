@@ -195,7 +195,7 @@ public class TricepsServlet extends HttpServlet {
 				session.putValue("triceps", triceps);
 
 			if ("next".equals(directive)) {
-				triceps.toTSV();
+				triceps.toTSV(workingFilesDir);
 			}
 		}
 		catch (Throwable t) {
@@ -523,7 +523,7 @@ public class TricepsServlet extends HttpServlet {
 		}
 		else if (directive.equals("START")) {
 			// load schedule
-			triceps = new Triceps(scheduleSrcDir, workingFilesDir, completedFilesDir);
+			triceps = new Triceps();
 			ok = triceps.setSchedule(req.getParameter("schedule"),urlPrefix,scheduleSrcDir);
 
 			// re-check developerMode options - they aren't set via the hidden options, since a new copy of Triceps created
@@ -546,7 +546,7 @@ public class TricepsServlet extends HttpServlet {
 			}
 
 			// load schedule
-			triceps = new Triceps(scheduleSrcDir, workingFilesDir, completedFilesDir);
+			triceps = new Triceps();
 			ok = triceps.setSchedule(restore,urlPrefix,workingFilesDir);
 
 			if (!ok) {
@@ -585,10 +585,9 @@ public class TricepsServlet extends HttpServlet {
 		}
 		else if (directive.equals("save to:")) {
 			String name = req.getParameter("save to:");
-			String file = workingFilesDir + name;
-			ok = triceps.toTSV(file);
+			ok = triceps.toTSV(workingFilesDir,name);
 			if (ok) {
-				sb.append("<B>Interview saved successfully as " + Node.encodeHTML(name) + " (" + Node.encodeHTML(file) + ")</B><HR>\n");
+				sb.append("<B>Interview saved successfully as " + Node.encodeHTML(workingFilesDir + name) + "</B><HR>\n");
 			}
 		}
 		else if (directive.equals("show XML")) {
@@ -685,22 +684,19 @@ public class TricepsServlet extends HttpServlet {
 			if (gotoMsg == Triceps.AT_END) {
 				// save the file, but still give the option to go back and change answers
 				boolean savedOK;
-				String file = completedFilesDir + triceps.getFilename();
+				String filename = triceps.getFilename();
 
 				sb.append("<B>Thank you, the interview is completed</B><BR>\n");
-				savedOK = triceps.toTSV(file);
+				savedOK = triceps.toTSV(completedFilesDir,filename);
 				ok = savedOK && ok;
 				if (savedOK) {
-					sb.append("<B>Interview saved successfully as " + Node.encodeHTML(file) + "</B><HR>\n");
+					sb.append("<B>Interview saved successfully as " + Node.encodeHTML(completedFilesDir + filename) + "</B><HR>\n");
 				}
 
-				file = floppyDir + triceps.getFilename();
-				savedOK = false;	// reset; then try to save to floppy
-
-				savedOK = triceps.toTSV(file);
+				savedOK = triceps.toTSV(floppyDir,filename);
 				ok = savedOK && ok;
 				if (savedOK) {
-					sb.append("<B>Interview saved successfully as " + Node.encodeHTML(file) + "</B><HR>\n");
+					sb.append("<B>Interview saved successfully as " + Node.encodeHTML(floppyDir + filename) + "</B><HR>\n");
 				}
 			}
 
