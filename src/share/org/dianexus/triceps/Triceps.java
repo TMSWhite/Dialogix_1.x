@@ -56,8 +56,29 @@ public class Triceps {
 	}
 
 	public boolean reloadSchedule() {
+		Schedule oldNodes = nodes;
+		Evidence oldEvidence = evidence;
+		
 		nodes = new Schedule();
-		return nodes.load(Triceps.getReader(scheduleURL,scheduleUrlPrefix),scheduleURL);
+		
+		boolean ok=false;
+		
+		ok = nodes.load(Triceps.getReader(scheduleURL,scheduleUrlPrefix),scheduleURL);
+		ok = resetEvidence() && ok;
+		
+		try {
+			for (int i=0;i<oldNodes.size();++i) {
+				Node oldNode = oldNodes.getNode(i);
+				Node newNode = nodes.getNode(i);
+				evidence.set(newNode, oldEvidence.getDatum(oldNode),oldNode.getTimeStampStr());
+			}
+		}
+		catch (Exception e) {
+			errors.addElement("Error reloading schedule - number of nodes probably changed");
+			return false;
+		}
+		
+		return ok;
 	}
 
 	public Datum getDatum(Node n) {
@@ -157,7 +178,9 @@ public class Triceps {
 	}
 	
 	public int gotoStarting() {
-		currentStep = nodes.getStartingStep();
+		currentStep = Integer.parseInt(nodes.getReserved(Schedule.STARTING_STEP));
+		if (currentStep < 0)
+			currentStep = 0;
 		numQuestions = 0;
 		return gotoNext();
 	}
@@ -346,7 +369,7 @@ public class Triceps {
 		startTime = time;
 		startTimeStr = Datum.format(startTime,Datum.DATE,Datum.TIME_MASK);
 		stopTime = null;	// reset stopTime, since re-starting
-		nodes.setStartTime(startTimeStr);	// so that saved schedule knows when it was started
+		nodes.setReserved(Schedule.START_TIME,startTimeStr);	// so that saved schedule knows when it was started
 	}
 	
 	private void stopTimer() {
@@ -386,17 +409,10 @@ public class Triceps {
 				d = new Datum(init,n.getDatumType(),n.getMask());
 			}
 			
-			evidence.set(n,d);
+			evidence.set(n,d,n.getDefaultAnswerTimeStampStr());
 		}
 		
-		/* Set (or re-set) the start time for the schedule */
-		Date time = nodes.getStartTime();
-		if (time != null) {
-			startTimer(time);	// if resuming a suspended interview, use its start time
-		}
-		else {
-			startTimer(new Date(System.currentTimeMillis()));	// use current time
-		}
+		startTimer(new Date(System.currentTimeMillis()));	// use current time
 		
 		return true;
 	}
@@ -561,7 +577,7 @@ public class Triceps {
 	}
 	
 	public boolean toTSV() {
-		return toTSV(getWorkingFilesDir() + startTimeStr);
+		return toTSV(getWorkingFilesDir() + nodes.getReserved(Schedule.FILENAME));
 	}
 
 	public boolean toTSV(String filename) {
@@ -599,7 +615,7 @@ public class Triceps {
 		try {
 			/* Write header information */
 			/* set save file so can resume at same position */
-			nodes.setStartingStep(Integer.toString(currentStep));
+			nodes.setReserved(Schedule.STARTING_STEP,Integer.toString(currentStep));
 			nodes.toTSV(out);
 			
 			/* Write comments saying when started and stopped.  If multiply resumed, will list these several times */
@@ -729,7 +745,7 @@ public class Triceps {
 	}
 	
 	public String getTitle() {
-		return nodes.getTitle();
+		return nodes.getReserved(Schedule.TITLE);
 	}
 	
 	public void setWorkingFilesDir(String s) { 
@@ -750,10 +766,29 @@ public class Triceps {
 	public void setScheduleSrcDir(String s) { scheduleSrcDir = ((s == null) ? "" : s); }
 	public String getScheduleSrcDir() { return scheduleSrcDir; }
 	
-	public String getPasswordForRefused() { return nodes.getPasswordForRefused(); }
-	public void setPasswordForRefused(String s) { nodes.setPasswordForRefused(s); }
+	public String getPasswordForRefused() { 
+		String s = nodes.getReserved(Schedule.PASSWORD_FOR_REFUSED);
+		if (s == null || s.trim().length() == 0)
+			return null;
+		else
+			return s;
+	}
+	public String getPasswordForUnknown() { 
+		String s = nodes.getReserved(Schedule.PASSWORD_FOR_UNKNOWN);
+		if (s == null || s.trim().length() == 0)
+			return null;
+		else
+			return s;
+	}
+	public String getIcon() { return nodes.getReserved(Schedule.ICON); }
+	public String getHeaderMsg() { return nodes.getReserved(Schedule.HEADER_MSG); }
+	
+	public void setPasswordForRefused(String s) { nodes.setReserved(Schedule.PASSWORD_FOR_REFUSED,s); }
 	
 	public Datum evaluateExpr(String expr) {
 		return parser.parse(evidence,expr);
 	}
+	
+	public String getFilename() { return nodes.getReserved(Schedule.FILENAME); }
+	public boolean setFilename(String name) { return nodes.setReserved(Schedule.FILENAME, name); }
 }
