@@ -30,9 +30,11 @@ Demo/2	Dem2		1	[		Sex	list|1|female|2|male
 Demo/3	Dem3		1	]		Where do you currently live?	list|1|Large city|2|smaller city|3|Suburb|4|Small town|5|Rural area
 	_vacant		1	q		[Pretend the rest of the self-assessment goes here].  CLICK NEXT	nothing
 	_clinpass		1	e		_clinpass	nothing
-	NDdone_with_sa_suspend		1	e		suspendToFloppy();	nothing
+	NDsetStatusCompleted		1	e		setStatusCompleted()	nothing
+	NDdone_with_sa_suspend		1	e		suspendToFloppy(NDdone_with_sa_clinpass);	nothing
 	NDa1		1	q		Thank you.  You have completed this part of the interview.  Exit this window by clicking on the X in the upper right hand corner of your screen. One of our interviewers will contact you soon and ask a few follow-up questions.	nothing
 	NDdone_with_sa_clinpass		1	q;;_clinpass;_clinpass		Clinicians -- please enter the password to continue.  [Hint (for demo purposes), the password is <i>`_clinpass`</i>]	password
+	NDconfirm_subject		1	q		You are resuming the interview for subject <b>`Dem1`</b>.  Is this really who you want?  If not, please exit this interview and resume the one you wanted.	nothing
 	Clinicintro		1	q		The clinical assessment begins here. Please indicate if this is the original assessment or a recoding for reliability data.	list|1|original assessment|2|reliability check
 	_vacant2		1	q		[Pretend rest of clinical interview goes here].  CLICK NEXT	nothing
 close	close		1	q		You are done! Please check to make sure that you have a disk in the computer on which to save this interview. The program will automatically save it to both the hard drive and the disk when you click on the NEXT button.	nothing

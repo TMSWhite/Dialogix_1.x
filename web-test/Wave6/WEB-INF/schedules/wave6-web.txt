@@ -9,27 +9,27 @@ RESERVED	__DEVELOPER_MODE__	TRUE
 RESERVED	__DEBUG_MODE__	TRUE					
 RESERVED	__SCHED_AUTHORS__	"Kathy Gordon for Patricia Cohen, Ph.D."					
 RESERVED	__SCHED_VERSION_MAJOR__	3					
-RESERVED	__SCHED_VERSION_MINOR__	0.3
-RESERVED	__SHOW_ADMIN_ICONS__	true
-RESERVED	__SUSPEND_TO_FLOPPY__	false
-RESERVED	__REFUSED_ICON_OFF__	PreferNotToAnswer-Unchecked.gif
-RESERVED	__REFUSED_ICON_ON__	PreferNotToAnswer-Checked.gif
-RESERVED	__UNKNOWN_ICON_OFF__	IDontKnow-Unchecked.gif
-RESERVED	__UNKNOWN_ICON_ON__	IDontKnow-Checked.gif
-RESERVED	__DONT_UNDERSTAND_ICON_OFF__	IDoNotUnderstand-Unchecked.gif
-RESERVED	__DONT_UNDERSTAND_ICON_ON__	IDoNotUnderstand-Checked.gif
-RESERVED	__ALLOW_COMMENTS__	false
-RESERVED	__WRAP_ADMIN_ICONS__	true
-RESERVED	__SHOW_SAVE_TO_FLOPPY_IN_ADMIN_MODE__	false
-RESERVED	__ALWAYS_SHOW_ADMIN_ICONS__	false
-RESERVED	__DISALLOW_COMMENTS__	true	
+RESERVED	__SCHED_VERSION_MINOR__	0.4					
+RESERVED	__SHOW_ADMIN_ICONS__	TRUE					
+RESERVED	__SUSPEND_TO_FLOPPY__	FALSE					
+RESERVED	__REFUSED_ICON_OFF__	PreferNotToAnswer-Unchecked.gif					
+RESERVED	__REFUSED_ICON_ON__	PreferNotToAnswer-Checked.gif					
+RESERVED	__UNKNOWN_ICON_OFF__	IDontKnow-Unchecked.gif					
+RESERVED	__UNKNOWN_ICON_ON__	IDontKnow-Checked.gif					
+RESERVED	__DONT_UNDERSTAND_ICON_OFF__	IDoNotUnderstand-Unchecked.gif					
+RESERVED	__DONT_UNDERSTAND_ICON_ON__	IDoNotUnderstand-Checked.gif					
+RESERVED	__ALLOW_COMMENTS__	FALSE					
+RESERVED	__WRAP_ADMIN_ICONS__	TRUE					
+RESERVED	__SHOW_SAVE_TO_FLOPPY_IN_ADMIN_MODE__	FALSE					
+RESERVED	__ALWAYS_SHOW_ADMIN_ICONS__	FALSE					
+RESERVED	__DISALLOW_COMMENTS__	TRUE					
 Instruct/aa	ND37a		1	q		Thank you for your continuing participation in the Children in the Community study. You are making an important contribution to the study of mental health and the development of young people in our society. 	nothing
 Instruct/a	ND37b		1	q		"Welcome to our interview on the Web. We hope that you find this an enjoyable experience. Should you have any problems using this interview, please contact the Field Office at (800) 711-6350 or Kathy Gordon at cicp75@msn.com. As you may note, neither your name, address, date of birth nor other identifying information is included in this interview. In fact, we have not even labeled this interview with the identification number we have used for you in previous years. We remain totally committed to keeping the  information you supply completely confidential."	nothing
 Instruct/b	ND37c		1	q		"You may close this interview at any point and resume at your convenience. Entering your user name and password will restore your own interview at the point where you left off. We ask that, once you start, you then complete this interview within a week."	nothing
 Instruct/c	ND37d		1	q		"The computer will let you know if you missed answering a question. If you do not wish to answer an individual question or a question is asked that does not apply to you, click on the Children in the Community logo in the upper left hand corner of your screen and at the prompt type in ""bypass."" This will give you icons that you can click to skip the question."	nothing
 	Dem1		1	e		Dem1	nothing
 	makeFilenameEqualID		1	e		__FILENAME__ = Dem1	nothing
-	makeTitleEqualID		1	e		__TITLE_FOR_PICKLIST_WHEN_IN_PROGRESS__ = Dem1	nothing	
+	makeTitleEqualID		1	e		__TITLE_FOR_PICKLIST_WHEN_IN_PROGRESS__ = Dem1	nothing
 Demo/2	Dem2	Dem2	1	[		Sex	list|1|female|2|male
 Demo/3	Dem3	Dem3	1	]		Where do you currently live?	list|1|Large city|2|smaller city|3|Suburb|4|Small town|5|Rural area
 QOL/Residence/1	Q1	Q1	1	q		Who do you live with now?	"list|1|With parents|2|Alone|3|With own family (spouse or children)|4|In dormitory or other organized group quarters|5|With friend(s), not in dormitory|6|With other relative|7|With girl/boyfriend|8|No fixed abode|9|Other"
@@ -498,7 +498,7 @@ CIC/84	C84	C84	1	[		I have often just not paid my bills.	list|1|false|2|mostly f
 CIC/85	C85	C85	1	q		Some people consider me a drifter because I don't stay long in any one place.	list|1|false|2|mostly false|3|mostly true|4|true
 Alternative to observation/12	Alt12	Alt12	1	]		I get angry and suspicious when people ask me questions.	list|1|false|2|mostly false|3|mostly true|4|true
 Alternative to observation/13	Alt13	Alt13	1	[		I find myself doing or saying silly things when nobody else acts or talks that way.	list|1|false|2|mostly false|3|mostly true|4|true
-Alternative to observation/14	Alt14	Alt14	1	q		"On occasion I have gound myself talking to myself in public, collecting garbage, hoarding food, or doing some other unusual thing."	list|1|false|2|mostly false|3|mostly true|4|true
+Alternative to observation/14	Alt14	Alt14	1	q		"On occasion I have found myself talking to myself in public, collecting garbage, hoarding food, or doing some other unusual thing."	list|1|false|2|mostly false|3|mostly true|4|true
 Alternative to observation/15	Alt15	Alt15	1	]		People often expect more of me than they should.	list|1|false|2|mostly false|3|mostly true|4|true
 CIC/comment5	ND57		1	[		For the following questions please indicate how often these statements are true about you.	nothing
 CIC/87	C87	C87	1	q		"Does your spouse or close friend do things that make you so furious you ""can't see straight? """	list|1|almost never|2|once in a while|3|sometimes|4|often|5|almost always
@@ -864,7 +864,7 @@ scid1/screen/Manic/133	Si133		Si131>0||Si132>0	q		"During that time when you wer
 scid1/screen/Manic/134	Si134		Si131>0||Si132>0	q		"During that time when you were feeling very hyper or irritable, did you need less sleep than usual?"	list|2|yes|1|maybe|0|no
 scid1/screen/Manic/135	Si135		Si131>0||Si132>0	q		"During that time when you were feeling very hyper or irritable, were you much more talkative than usual?"	list|2|yes|1|maybe|0|no
 scid1/screen/Manic/136	Si136		Si131>0||Si132>0	q		"During that time when you were feeling very hyper or irritable, were thoughts racing in your head?"	list|2|yes|1|maybe|0|no
-scid1/screen/Manic/137	Si137		Si131>0||Si132>0	q		"During that time when you were feeling very hyper or irritable, were you so easily distracted by things around you that you had troubel concentrating or staying on one track?"	list|2|yes|1|maybe|0|no
+scid1/screen/Manic/137	Si137		Si131>0||Si132>0	q		"During that time when you were feeling very hyper or irritable, were you so easily distracted by things around you that you had trouble concentrating or staying on one track?"	list|2|yes|1|maybe|0|no
 scid1/screen/Manic/138	Si138		Si131>0||Si132>0	q		"During that time when you were feeling very hyper or irritable, were you restless, or much more active than usual?"	list|2|yes|1|maybe|0|no
 scid1/screen/Manic/139	Si139		Si131>0||Si132>0	q		"During that time when you were feeling very hyper or irritable, did you do anything that could have caused trouble for you or your family?"	list|2|yes|1|maybe|0|no
 scid1/screen/Psychotic/122	Ps122		1	Q		"In the last year, have you been afraid that you might be crazy, or has anyone told you that they were seriously concerned that you were?"	list|2|yes|1|maybe|0|no
@@ -872,7 +872,7 @@ scid1/screen/Psychotic/123	Ps123		1	Q		"In the last year, have there been times 
 scid1/screen/Psychotic/124	Ps124		1	Q		"In the last year, have you received special messages from the TV, radio, or newspaper, or from the way things were arranged around you? "	list|2|yes|1|maybe|0|no
 scid1/screen/Psychotic/125	Ps125		1	Q		"In the last year, has it seemed to you that people have gone out of their way to harass or attack or persecute or conspire against you? "	list|2|yes|1|maybe|0|no
 scid1/screen/Psychotic/126	Ps126		1	Q		"In the last year, have you felt that you were more important than most other people? "	list|2|yes|1|maybe|0|no
-scid1/screen/Psychotic/127	Ps127		1	Q		"In the last year, have you felt that something was very wrong with your body, or that you had a very serious illness even though the doctor can't find anything?? "	list|2|yes|1|maybe|0|no
+scid1/screen/Psychotic/127	Ps127		1	Q		"In the last year, have you felt that something was very wrong with your body, or that you had a very serious illness even though the doctor can't find anything? "	list|2|yes|1|maybe|0|no
 scid1/screen/Psychotic/128	Ps128		1	Q		"In the last year, have you one or more very odd or unusual religious experiences? "	list|2|yes|1|maybe|0|no
 scid1/screen/Psychotic/129	Ps129		1	Q		"In the last year, did you feel that you had done something terrible for which you should be punished? "	list|2|yes|1|maybe|0|no
 scid1/screen/Psychotic/130	Ps130		1	Q		"In the last year, did you hear any voices that other people couldn't hear even if they were there? "	list|2|yes|1|maybe|0|no
@@ -1012,9 +1012,11 @@ imp4	imp4		1	[		My life seems to be disorganized and out of control.	list|0|neve
 imp5	imp5		1	q		I keep finding myself in situations where I know my personal health or safety is at risk.	list|0|never|1|infrequently|2|occasionally|3|frequently|4|always or almost always
 imp6	imp6		1	]		I find myself doing things that make me embarrassed or ashamed.	list|0|never|1|infrequently|2|occasionally|3|frequently|4|always or almost always
 	_clinpass		1	e		_clinpass	nothing
-	NDdone_with_sa_suspend		1	e		suspendToFloppy();	nothing
+	NDsetStatusCompleted		1	e		setStatusCompleted()	nothing
+	NDdone_with_sa_suspend		1	e		suspendToFloppy(NDdone_with_sa_clinpass);	nothing
 	NDa1		1	q		Thank you.  You have completed this part of the interview.  Exit this window by clicking on the X in the upper right hand corner of your screen. One of our interviewers will contact you soon and ask a few follow-up questions.	nothing
 	NDdone_with_sa_clinpass		1	q;;_clinpass;_clinpass		Clinicians -- please enter the password to continue.	password
+	NDconfirm_subject		1	q		You are resuming the interview for subject <b>`Dem1`</b>.  Is this really who you want?  If not, please exit this interview and resume the one you wanted.	nothing
 	Clinicintro		1	q		The clinical assessment begins here. Please indicate if this is the original assessment or a recoding for reliability data.	list|1|original assessment|2|reliability check
 	Clinicid		1	q		Please enter your interviewer number.	double
 	SXMDD		1	e	MDD	"count(Si1,Si2,Si3,Si4,(Si5||Si5a),Si6,Si7,Si8,Si9)"	nothing
@@ -1285,10 +1287,10 @@ scid1/assess/agoraphobia	Sif130	Sif130	Si130>0	]		Subject endures anxiety-provok
 scid1/assess/Manic	Manicsx	Manicsx	1	e		"count(Si131,Si132,Si133,Si134,Si135,Si136,Si137,Si138,Si139)"	nothing
 scid1/assess/Manic	Ndman2	Ndman2	Si131>0&&Manicsx>3	[		"You said that in the past two years, has there been a period of time when you were feeling so good, ""high,"" excited, or hyper that other people thought you were not your normal self or you were so hyper that you got into trouble."	nothing
 scid1/assess/Manic	Ndman3	Ndman3	Si131>0&&Manicsx>3	q		What was that like? How long did it last?	nothing
-scid1/assess/Manic	Sif131	Sif131	Si131>0&&Manicsx>3	]		Manic episode	"list|0|Symptom not present|1|Don’t know or insufficient information|2|Possible hypomanic episode lasting 4,5, or 6 days|3|Possible manic episode lasting at least one week"
+scid1/assess/Manic	Sif131	Sif131	Si131>0&&Manicsx>3	]		Manic episode	"list|0|Symptom not present|1|Don't know or insufficient information|2|Possible hypomanic episode lasting 4,5, or 6 days|3|Possible manic episode lasting at least one week"
 scid1/assess/Manic	Ndman4	Ndman4	Si132>0&&Manicsx>4	[		"You said that In the past two years, has there been a period of time when you were so irritable that you found yourself shouting at people or starting fights or arguments."	nothing
 scid1/assess/Manic	Ndman5	Ndman5	Si132>0&&Manicsx>4	q		What was that like? How long did it last?	nothing
-scid1/assess/Manic	Sif132	Sif132	Si132>0&&Manicsx>4	]		Manic episode	"list|0|Symptom not present|1|Don’t know or insufficient information|2|Possible hypomanic episode lasting 4,5, or 6 days|3|Possible manic episode lasting at least one week"
+scid1/assess/Manic	Sif132	Sif132	Si132>0&&Manicsx>4	]		Manic episode	"list|0|Symptom not present|1|Don't know or insufficient information|2|Possible hypomanic episode lasting 4,5, or 6 days|3|Possible manic episode lasting at least one week"
 scid1/assess/Manic	Ndman6	Ndman6	Si133>0&&(Sif131>1||Sif132>1)	[		"You said that during that time when you were feeling very hyper or irritable, did you feel unusually good about yourself, or did you think that you could accomplish almost anything."	nothing
 scid1/assess/Manic	Ndman7	Ndman7	Si133>0&&(Sif131>1||Sif132>1)	q		Were you unusually self-confident? Did you feel that you had any special powers or abilities?	nothing
 scid1/assess/Manic	Sif133	Sif133	Si133>0&&(Sif131>1||Sif132>1)	]		Inflated self-esteem or grandiosity	list|1|Symptom not present|2|subthreshold|3|Symptom present
@@ -1709,34 +1711,34 @@ Scid2/assess/Schizoid/F60a	ND760	Siif60	Sii60>0 &&ND7000>3	q		"Does that include
 Scid2/assess/Schizoid/F60b	Siif60	Siif60	Sii60>0 &&ND7000>3	]		"Subject neither desires nor enjoys close relationships, including being part of a family."	"list|1|No clear evidence of symptom presence|2|Subthreshold in duration, pervasiveness, intensity or quality|3|Meets criteria"
 Scid2/assess/Schizoid/F60t	ND761		1	e		"count((Siif58==3||Sii58>0),Siif60==3,Sii61,Sii62,Sii63,Sii64,(Sii65||Alt7))"	nothing
 Scid2/assess/Schizoid/F61	ND763	Siif61	Sii61>0 &&ND761>3	[		You said `Sii61==1?'you thought':' '` you would rather do things alone than with other people. 	nothing
-Scid2/assess/Schizoid/F61a	ND764	Siif61	1	q		 (Is that true both at work and during your free time?)	nothing
-Scid2/assess/Schizoid/F61b	Siif61	Siif61	1	]		Subject almost always chooses solitary activities.	"list|1|No clear evidence of symptom presence|2|Subthreshold in duration, pervasiveness, intensity or quality|3|Meets criteria"
+Scid2/assess/Schizoid/F61a	ND764	Siif61	Sii61>0 &&ND761>3	q		 (Is that true both at work and during your free time?)	nothing
+Scid2/assess/Schizoid/F61b	Siif61	Siif61	Sii61>0 &&ND761>3	]		Subject almost always chooses solitary activities.	"list|1|No clear evidence of symptom presence|2|Subthreshold in duration, pervasiveness, intensity or quality|3|Meets criteria"
 Scid2/assess/Schizoid/F61t	ND765		1	e		"count((Siif58==3||Sii58>0),Siif60==3,Siif61==3,Sii62,Sii63,Sii64,(Sii65||Alt7))"	nothing
 Scid2/assess/Schizoid/F61f	ND766		1	e		"count((Siif58==3||Siif58a==3),Siif60==3,Siif61==3,Siif62==3,Siif63==3,Siif64==3,(Siif65==3||falt7==3))"	nothing
 Scid2/assess/Schizoid/F62	ND767	Siif62	Sii62>0 &&ND765>3&&ND766<4	[		You said `Sii62==1?'you thought':' '` you could be content without ever being sexually involved with anyone. 	nothing
-Scid2/assess/Schizoid/F62a	ND768	Siif62	1	q		Tell me more about that.  (Have you always had little interest in having sex?)	nothing
-Scid2/assess/Schizoid/F62b	Siif62	Siif62	1	]		"Subject has little, if any, interest In having sexual experiences with another person."	"list|1|No clear evidence of symptom presence|2|Subthreshold in duration, pervasiveness, intensity or quality|3|Meets criteria"
+Scid2/assess/Schizoid/F62a	ND768	Siif62	Sii62>0 &&ND765>3&&ND766<4	q		Tell me more about that.  (Have you always had little interest in having sex?)	nothing
+Scid2/assess/Schizoid/F62b	Siif62	Siif62	Sii62>0 &&ND765>3&&ND766<4	]		"Subject has little, if any, interest In having sexual experiences with another person."	"list|1|No clear evidence of symptom presence|2|Subthreshold in duration, pervasiveness, intensity or quality|3|Meets criteria"
 Scid2/assess/Schizoid/F62t	ND769		1	e		"count((Siif58==3||Sii58>0),Siif60==3,Siif61==3,Siif62==3,Sii63,Sii64,(Sii65||Alt7))"	nothing
 Scid2/assess/Schizoid/F62f	ND770		1	e		"count((Siif58==3||Siif58a==3),Siif60==3,Siif61==3,Siif62==3,Siif63==3,Siif64==3,(Siif65==3||falt7==3))"	nothing
 Scid2/assess/Schizoid/F63	ND771	Siif63	Sii63>0 && ND769>3&&ND770<4	[		You said `Sii63==1?'you thought':' '` you there are really very few things that give you pleasure. 	nothing
-Scid2/assess/Schizoid/F63a	ND772	Siif63	1	q		Tell me about that.  (What about physical things like eating a good meal or having sex?)	nothing
-Scid2/assess/Schizoid/F63b	Siif63	Siif63	1	]		"Subject takes pleasure in few, if any activities."	"list|1|No clear evidence of symptom presence|2|Subthreshold in duration, pervasiveness, intensity or quality|3|Meets criteria"
+Scid2/assess/Schizoid/F63a	ND772	Siif63	Sii63>0 && ND769>3&&ND770<4	q		Tell me about that.  (What about physical things like eating a good meal or having sex?)	nothing
+Scid2/assess/Schizoid/F63b	Siif63	Siif63	Sii63>0 && ND769>3&&ND770<4	]		"Subject takes pleasure in few, if any activities."	"list|1|No clear evidence of symptom presence|2|Subthreshold in duration, pervasiveness, intensity or quality|3|Meets criteria"
 Scid2/assess/Schizoid/F63t	ND773		1	e		"count((Siif58==3||Sii58>0),Siif60==3,Siif61==3,Siif62==3,Siif63==3,Sii64,(Sii65||Alt7))"	nothing
 Scid2/assess/Schizoid/F63f	ND774		1	e		"count((Siif58==3||Siif58a==3),Siif60==3,Siif61==3,Siif62==3,Siif63==3,Siif64==3,(Siif65==3||falt7==3))"	nothing
 Scid2/assess/Schizoid/F63g	ND774a	ND774a	1	e		count(Siif58>1)	nothing
 Scid2/assess/Schizoid/F58	ND775	Siif58a	Sii58>0 &&ND774a==0&&ND773>3&&ND774<4	[		You said `Sii58==1?'you thought':' '` you there are very few people that you're really close to outside of your immediate family. 	nothing
-Scid2/assess/Schizoid/F58a	ND776	Siif58a	1	q		How many close friends do you have?	nothing
-Scid2/assess/Schizoid/F58b	Siif58a	Siif58a	1	]		Subject lacks close friends or confidants other than first-degree relatives.	"list|1|No clear evidence of symptom presence|2|Subthreshold in duration, pervasiveness, intensity or quality|3|Meets criteria"
+Scid2/assess/Schizoid/F58a	ND776	Siif58a	Sii58>0 &&ND774a==0&&ND773>3&&ND774<4	q		How many close friends do you have?	nothing
+Scid2/assess/Schizoid/F58b	Siif58a	Siif58a	Sii58>0 &&ND774a==0&&ND773>3&&ND774<4	]		Subject lacks close friends or confidants other than first-degree relatives.	"list|1|No clear evidence of symptom presence|2|Subthreshold in duration, pervasiveness, intensity or quality|3|Meets criteria"
 Scid2/assess/Schizoid/F63_1t	ND777		1	e		"count((Siif58==3||Siif58a==3),Siif60==3,Siif61==3,Siif62==3,Siif63==3,Sii64,(Sii65||Alt7))"	nothing
 Scid2/assess/Schizoid/F63_1f	ND778		1	e		"count((Siif58==3||Siif58a==3),Siif60==3,Siif61==3,Siif62==3,Siif63==3,Siif64==3,(Siif65==3||falt7==3))"	nothing
 Scid2/assess/Schizoid/F64	ND779	Siif64	Sii64>0 &&ND777>3&&ND778<4	[		You said `Sii64==1?'you thought':' '` it does not matter to you what people think of you. 	nothing
-Scid2/assess/Schizoid/F64a	ND780	Siif64	1	q		How do you feel when people praise you or criticize you?	nothing
-Scid2/assess/Schizoid/F64b	Siif64	Siif64	1	]		Subject appears indifferent to the praise or criticism of others.	"list|1|No clear evidence of symptom presence|2|Subthreshold in duration, pervasiveness, intensity or quality|3|Meets criteria"
+Scid2/assess/Schizoid/F64a	ND780	Siif64	Sii64>0 &&ND777>3&&ND778<4	q		How do you feel when people praise you or criticize you?	nothing
+Scid2/assess/Schizoid/F64b	Siif64	Siif64	Sii64>0 &&ND777>3&&ND778<4	]		Subject appears indifferent to the praise or criticism of others.	"list|1|No clear evidence of symptom presence|2|Subthreshold in duration, pervasiveness, intensity or quality|3|Meets criteria"
 Scid2/assess/Schizoid/F64t	ND781		1	e		"count((Siif58==3||Siif58a==3),Siif60==3,Siif61==3,Siif62==3,Siif63==3,Siif64==3,(Sii65||Alt7))"	nothing
 Scid2/assess/Schizoid/F64f	ND782		1	e		"count((Siif58==3||Siif58a==3),Siif60==3,Siif61==3,Siif62==3,Siif63==3,Siif64==3,(Siif65==3||falt7==3))"	nothing
 Scid2/assess/Schizoid/F65	ND783	Siif65	Sii65>0 &&ND781>3&&ND782<4	[		You said `Sii65==1?'you thought':' '` you find that nothing makes you very happy or very sad. 	nothing
-Scid2/assess/Schizoid/F65a	ND784	Siif65	1	q		Tell me more about that.	nothing
-Scid2/assess/Schizoid/F65b	Siif65	Siif65	1	]		"Subject shows emotional coldness, detachment, or flattened affectivity."	"list|1|No clear evidence of symptom presence|2|Subthreshold in duration, pervasiveness, intensity or quality|3|Meets criteria"
+Scid2/assess/Schizoid/F65a	ND784	Siif65	Sii65>0 &&ND781>3&&ND782<4	q		Tell me more about that.	nothing
+Scid2/assess/Schizoid/F65b	Siif65	Siif65	Sii65>0 &&ND781>3&&ND782<4	]		"Subject shows emotional coldness, detachment, or flattened affectivity."	"list|1|No clear evidence of symptom presence|2|Subthreshold in duration, pervasiveness, intensity or quality|3|Meets criteria"
 Scid2/assess/Schizoid/F65t	ND785	ND785	1	e		"count((Siif58==3||Siif58a==3),Siif60==3,Siif61==3,Siif62==3,Siif63==3,Siif64==3,Siif65==3,Alt7)"	nothing
 Scid2/assess/Schizoid/786	ND786	ND786	1	e		"count((Siif58==3||Siif58a==3),Siif60==3,Siif61==3,Siif62==3,Siif63==3,Siif64==3,(Siif65==3||falt7==3))"	nothing
 Altobservation/7	ndalt13	ndalt13	Alt7>0&&ND785>3&&ND786<4	[		"You said that when a movie or TV show makes most people happy or sad, you find that it doesn't affect you at all."	nothing
@@ -1744,9 +1746,9 @@ Altobservation/7	ndalt14	ndalt14	Alt7>0&&ND785>3&&ND786<4	q		"Do you ever have v
 Altobservation/7	falt7	falt7	Alt7>0&&ND785>3&&ND786<4	]		"Subject shows emotional coldness, detachment, or flattened affectivity."	"list|1|No clear evidence of symptom presence|2|Subthreshold in duration, pervasiveness, intensity or quality|3|Meets criteria"
 Scid2/assess/Schizoid/SX	schzd_sx	schzd_sx	1	e		"count((Siif58==3||Siif58a==3),Siif60==3,Siif61==3,Siif62==3,Siif63==3,Siif64==3,(Siif65==3||falt7==3))"	nothing
 Scid2/assess/Histrionic/TSx	ND786a		1	e		"count( Sii66,(Sii67||Sii68),Sii69,Sii70,Sii71,Sii72,(C82>2),(Alt8||Alt9))"	nothing
-Scid2/assess/Histrionic/F66	ND787	Siif66	Sii66>0 && ND786>2	[		You said `Sii66==1?'you thought':' '` you like to be the center of attention. 	nothing
-Scid2/assess/Histrionic/F66a	ND788	Siif66	Sii66>0 && ND786>2	q		How do you feel when you're not?	nothing
-Scid2/assess/Histrionic/F66b	Siif66	Siif66	Sii66>0 && ND786>2	]		Subject is uncomfortable in situations in which he or she in not the center of attention.	"list|1|No clear evidence of symptom presence|2|Subthreshold in duration, pervasiveness, intensity or quality|3|Meets criteria"
+Scid2/assess/Histrionic/F66	ND787	Siif66	Sii66>0 && ND786a>2	[		You said `Sii66==1?'you thought':' '` you like to be the center of attention. 	nothing
+Scid2/assess/Histrionic/F66a	ND788	Siif66	Sii66>0 && ND786a>2	q		How do you feel when you're not?	nothing
+Scid2/assess/Histrionic/F66b	Siif66	Siif66	Sii66>0 && ND786a>2	]		Subject is uncomfortable in situations in which he or she in not the center of attention.	"list|1|No clear evidence of symptom presence|2|Subthreshold in duration, pervasiveness, intensity or quality|3|Meets criteria"
 F66t	ND789		1	e		"count( Siif66==3,(Sii67||Sii68),Sii69,Sii70,Sii71,Sii72,(C82>2),(Alt8||Alt9))"	nothing
 Scid2/assess/Histrionic/F67	ND790	Siif67	Sii67>0 && ND789>2	[		You said `Sii67==1?'you thought':' '` you flirt a lot.	nothing
 Scid2/assess/Histrionic/F67a	ND791	Siif67	Sii67>0 && ND789>2	q		"Has anyone complained about this?  You've said that [Do] you often find yourself ""coming on"" to people.  Tell me about it."	nothing
@@ -2009,4 +2011,4 @@ diagnoses/Narcissistic PD	dxNarcis	dxNarcis	1	e	Narcissistic PD	Nardx==1?1:0	not
 diagnoses/Borderline PD	dxBorder	dxBorder	1	e	Borderline PD	Bordx==1?1:0	nothing
 	diagnoses		1	e		"list((dxMDD==1?desc(dxMDD):''),(dxDysth==1?desc(dxDysth):''),(dxAlc==1?desc(dxAlc):''),(dxAlcAb==1?desc(dxAlcAb):''),(dxDrug==1?desc(dxDrug):''),(dxDrugAb==1?desc(dxDrugAb):''),(dxPanic==1?desc(dxPanic):''),(dxPhobia==1?desc(dxPhobia):''),(dxPTSD==1?desc(dxPTSD):''),(dxObsCom==1?desc(dxObsCom):''),(dxGAD==1?desc(dxGAD):''),(dxAnorex==1?desc(dxAnorex):''),(dxBulim==1?desc(dxBulim):''),(dxBinge==1?desc(dxBinge):''),(dxManic==1?desc(dxManic):''),(dxAgor==1?desc(dxAgor):''),(dxDisAm==1?desc(dxDisAm):''),(dxDepers==1?desc(dxDepers):''),(dxDID==1?desc(dxDID):''),(dxDDNOS==1?desc(dxDDNOS):''),(dxAvoid==1?desc(dxAvoid):''),(dxDepend==1?desc(dxDepend):''),(dxObCPD==1?desc(dxObCPD):''),(dxPasAgg==1?desc(dxPasAgg):''),(dxDeprPD==1?desc(dxDeprPD):''),(dxParan==1?desc(dxParan):''),(dxSchizot==1?desc(dxSchizot):''),(dxSchizd==1?desc(dxSchizd):''),(dxHistr==1?desc(dxHistr):''),(dxNarcis==1?desc(dxNarcis):''),(dxBorder==1?desc(dxBorder):''))"	nothing
 	diagnosesb		1	q		"Your assessment of the subject's symptoms has produced positive diagnoses of the following disorders (Antisocial personality disorder, ADHD and psychoses do not have diagnostic formulas in this program and therefore will never be listed.): `diagnoses`"	nothing
-close	close		1	q		You are done! Please check to make sure that you have a disk in the computer on which to save this interview. The Dialogix program will automatically save it to both the hard drive and the disk when you click on the NEXT button.	nothing
+close	close		1	q		You are done! When you press "next" one final time, this interview will be saved to the server.	nothing
