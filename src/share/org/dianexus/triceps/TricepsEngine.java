@@ -11,14 +11,15 @@ import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpUtils;
 import java.io.PrintWriter;
 import java.io.IOException;
-import java.util.TreeMap;
+//import java.util.TreeMap;
 import java.io.File;
 import java.io.Writer;
 import java.util.Vector;
-import java.util.Iterator;
+//import java.util.Iterator;
 import java.util.Enumeration;
 import java.io.StringWriter;
 import java.util.StringTokenizer;
+import java.util.Hashtable;
 
 
 public class TricepsEngine implements VersionIF {
@@ -76,6 +77,7 @@ public class TricepsEngine implements VersionIF {
 	private Schedule schedule = Schedule.NULL;	// triceps.getSchedule()
 	private boolean isloaded = false;
 	private int colpad=2;
+	private boolean isActive = true;	// default is active -- only becomes inactive when times out, or reaches "finished" state
 
 	public TricepsEngine(ServletConfig config) {
 		init(config);
@@ -172,6 +174,11 @@ if (DEBUG && XML) cocoonXML();
 			out.println(footer());	// should not be parsed
 			out.flush();
 			out.close();
+			
+			// set as finished if needed
+			if ("finished".equals(directive)) {
+				this.isActive = false;
+			}
 		}
 		catch (Throwable t) {
 if (DEBUG) Logger.writeln("##Throwable @ Servlet.doPost()" + t.getMessage());
@@ -376,8 +383,8 @@ if (AUTHORABLE) {
 		return sb.toString();
 	}
 
-	private TreeMap getSortedNames(String dir, boolean isSuspended) {
-		TreeMap names = new TreeMap();
+	private Hashtable getSortedNames(String dir, boolean isSuspended) {
+		Hashtable names = new Hashtable();
 		Schedule sched = null;
 		Object prevVal = null;
 		String defaultTitle = null;
@@ -398,6 +405,7 @@ if (AUTHORABLE) {
 					try {
 						defaultTitle = getScheduleInfo(sched,isSuspended);
 						title = defaultTitle;
+						if (title == null) { title = ""; }
 						for (int count=2;true;++count) {
 							prevVal = names.put(title,sched.getLoadedFrom());
 							if (prevVal != null) {
@@ -484,12 +492,38 @@ if (DEBUG) Logger.writeln("##Throwable @ Servlet.getSortedNames()" + t.getMessag
 
 		return sb.toString();
 	}
+	
+	private String[] getSortedKeys(Hashtable ht) {
+		int counter = 0;
+		
+		/* count keys so can allocate array */
+		Enumeration enum = ht.keys();
+		while (enum.hasMoreElements()) {
+			++counter;
+			enum.nextElement();
+		}
+		/* alloate array */
+		String[] array = new String[counter];
+		
+		/* fill array */
+		counter = 0;
+		enum = ht.keys();
+		while (enum.hasMoreElements()) {
+			array[counter] = (String) enum.nextElement();
+			++counter;
+		}
+		
+		/* sort them */
+		QSortAlgorithm sorter = new QSortAlgorithm();
+		sorter.sort(array);
+		return array;
+	}
 
 	private String selectFromInterviewsInDir(String selectTarget, String dir, boolean isSuspended) {
 		StringBuffer sb = new StringBuffer();
 
 		try {
-			TreeMap names = getSortedNames(dir,isSuspended);
+			Hashtable names = getSortedNames(dir,isSuspended);
 
 			if (names.size() > 0) {
 				sb.append("<select name='" + selectTarget + "'>");
@@ -497,9 +531,10 @@ if (DEBUG) Logger.writeln("##Throwable @ Servlet.getSortedNames()" + t.getMessag
 					/* add a blank line so don't accidentally resume a file instead of starting one */
 					sb.append("<option value=''>&nbsp;</option>");
 				}
-				Iterator iterator = names.keySet().iterator();
-				while(iterator.hasNext()) {
-					String title = (String) iterator.next();
+				/* get sorted names */
+				String[] sortedNames = getSortedKeys(names);
+				for (int c=0;c<sortedNames.length;++c) {
+					String title = sortedNames[c];
 					String target = (String) names.get(title);
 					File file = new File(target);
 					String name = file.getName();
@@ -893,7 +928,7 @@ if (AUTHORABLE) {
 			try {
 				String sourceDir;
 				File hd_suspend;
-				File[] list;
+				String[] list;
 				ok = false;
 				for (int d=0;d<2;++d) {
 					if (d == 0) {
@@ -903,13 +938,13 @@ if (AUTHORABLE) {
 						sourceDir = floppyDir + Triceps.SUSPEND_DIR;
 					}
 					hd_suspend = new File(sourceDir);
-					list = hd_suspend.listFiles();
+					list = hd_suspend.list();
 					if (list == null) {
 						continue;	// indicates empty directory
 					}
 					
 					for (int i=0;i<list.length;++i) {
-						File file = list[i];
+						File file = new File(list[i]);
 						if (file.getName().toLowerCase().endsWith(".jar")) {
 							String name = file.getName();
 							ok = JarWriter.NULL.copyFile(sourceDir + name, workingFilesDir + name);
@@ -1128,7 +1163,10 @@ if (XML) {
 	
 	private void whichBrowser() {
 		userAgent = req.getHeader(USER_AGENT);
-		if ((userAgent.indexOf("Mozilla/4") != -1)) {
+		if (userAgent == null) {
+			browserType = BROWSER_OTHER;
+		}
+		else if ((userAgent.indexOf("Mozilla/4") != -1)) {
 			if (userAgent.indexOf("MSIE") != -1) {
 				browserType = BROWSER_MSIE;
 			}
@@ -1890,5 +1928,9 @@ if (DEPLOYABLE) {
 		sb.append(">");
 
 		return sb.toString();
+	}
+	
+	public boolean isFinished() {
+		return (!isActive);
 	}
 }
