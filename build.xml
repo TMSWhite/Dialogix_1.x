@@ -550,6 +550,13 @@
     	</fileset>
     </copy>
     
+    <!-- Copy the custom keystores to the proper location -->
+    <copy todir="${tomcat.home}">
+    	<fileset dir="./keystores">
+    		<include name="*.keystore"/>
+    	</fileset>
+    </copy>
+    
   </target>
 
 
@@ -718,6 +725,7 @@
     <echo message="https.port=${https.port}"/>
     <echo message="ajp12.port=${ajp12.port}"/>
     <echo message="ajp13.port=${ajp13.port}"/>
+    <echo message="SSL.KEYSTORE=${SSL.KEYSTORE}"/>
 
     
     <echo message="LICENSE.PACKAGE_DIR=${LICENSE.PACKAGE_DIR}"/>
