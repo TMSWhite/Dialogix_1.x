@@ -432,11 +432,13 @@ public class Triceps {
 		/* check for type error */
 		if (!d.exists()) {
 			q.setError("<- " + d.getError());
+			evidence.set(q,new Datum(Datum.UNKNOWN));
 			return false;
 		}
 
 		/* check if out of range */
 		if (!q.isWithinRange(d)) {
+			evidence.set(q,new Datum(Datum.UNKNOWN));
 			return false;	// shouldn't wording of error be done here, not in Node?
 		}
 		else {
