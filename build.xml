@@ -352,6 +352,8 @@
        <filterset begintoken="@@" endtoken="@@"> 
          <filter token="HTTP.PORT" value="${http.port}"/>
          <filter token="HTTPS.PORT" value="${https.port}"/>
+         <filter token="AJP12.PORT" value="${ajp12.port}"/>
+         <filter token="AJP13.PORT" value="${ajp13.port}"/>
        </filterset>
      </copy>       
 
@@ -464,7 +466,8 @@
 			<filter token="WORKING.DIR" value="${WORKING.DIR}"/>
 			<filter token="COMPLETED.DIR" value="${COMPLETED.DIR}"/>		 
          <filter token="HTTP.PORT" value="${http.port}"/>
-         <filter token="HTTPS.PORT" value="${https.port}"/>			
+         <filter token="HTTPS.PORT" value="${https.port}"/>	
+		   <filter token="TOMCAT.HOME" value="${tomcat.home}"/>
        </filterset>
     </copy>	
     
@@ -641,6 +644,8 @@
     <echo message="dialogix.xml=${dialogix.xml}"/>
     <echo message="http.port=${http.port}"/>
     <echo message="https.port=${https.port}"/>
+    <echo message="ajp12.port=${ajp12.port}"/>
+    <echo message="ajp13.port=${ajp13.port}"/>
 
     
     <echo message="LICENSE.PACKAGE_DIR=${LICENSE.PACKAGE_DIR}"/>
