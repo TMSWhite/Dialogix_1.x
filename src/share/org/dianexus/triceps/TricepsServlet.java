@@ -5,9 +5,9 @@ import javax.servlet.http.*;
 import java.net.*;
 
 /**
- *	 This is the central engine that iterates through the nodes 
- *	in a schedule producing, e.g., an interview. It also organizes 
- *	the connection to the display. In the first version, this is 
+ *	 This is the central engine that iterates through the nodes
+ *	in a schedule producing, e.g., an interview. It also organizes
+ *	the connection to the display. In the first version, this is
  *	an http response as defined in the JSDK.
  */
 public class TricepsServlet extends HttpServlet {
@@ -48,7 +48,7 @@ public class TricepsServlet extends HttpServlet {
 		this.req = req;
 		this.res = res;
 		HttpSession session = req.getSession(true);
-		
+
 		triceps = (Triceps) session.getValue("triceps");
 
 		res.setContentType("text/html");
@@ -62,7 +62,7 @@ public class TricepsServlet extends HttpServlet {
 		out.println("</head>");
 		out.println("<body>");
 		out.println("<FORM method='POST' action='" + HttpUtils.getRequestURL(req) + "'>");
-		
+
 		/* This is the meat. */
 		try {
 			processDirective(req.getParameter("directive"));
@@ -71,11 +71,11 @@ public class TricepsServlet extends HttpServlet {
 			System.out.println(e.getMessage());
 			e.printStackTrace();
 		}
-		
+
 		out.println("</FORM>");
 		out.println("</body>");
 		out.println("</html>");
-		
+
 		/* Store appropriate stuff in the session */
 		if (triceps != null)
 			session.putValue("triceps", triceps);
@@ -88,7 +88,7 @@ public class TricepsServlet extends HttpServlet {
 	 */
 	private void processDirective(String directive) {
 		boolean ok = true;
-		
+
 		// get the POSTed directive (start, back, forward, help, suspend, etc.)	- default is opening screen
 		if (directive == null || "select new interview".equals(directive)) {
 			out.println("<H2>Triceps Interview/Questionnaire System</H2><HR>");
@@ -99,7 +99,7 @@ public class TricepsServlet extends HttpServlet {
 			out.println("		<option value='EatDis.txt'>Eating Disorders");
 			out.println("		<option value='MiHeart.txt'>MiHeart-combo");
 			out.println("		<option value='MiHeart2.txt'>MiHeart-radio");
-			out.println("		<option value='GAFTree.txt'>GAFTree");
+//			out.println("		<option value='GAFTree.txt'>GAFTree");
 			out.println("		<option value='MoodDis.txt'>Major Depression/Dysthymic Disorder");
 			out.println("		<option value='AUDIT.txt'>AUDIT Alcohol Abuse Test");
 			out.println("		<option value='HAM-D.txt'>Hamilton Rating Scale for Depression");
@@ -109,10 +109,10 @@ public class TricepsServlet extends HttpServlet {
 			out.println("<TR><TD>OR, restore an interview/questionnaire in progress:  </TD>");
 			out.println("	<TD><input type='text' name='RESTORE'></TD>");
 			out.println("	<TD><input type='SUBMIT' name='directive' value='RESTORE'></TD>");
-			out.println("</TR><TR><TD>&nbsp;</TD><TD COLSPAN='2' ALIGN='center'><input type='checkbox' name='DEBUG' value='1'>Show debugging information</input></TD></TR>");			
+			out.println("</TR><TR><TD>&nbsp;</TD><TD COLSPAN='2' ALIGN='center'><input type='checkbox' name='DEBUG' value='1'>Show debugging information</input></TD></TR>");
 			out.println("</TABLE>");
 			return;
-		} 
+		}
 		else if (directive.equals("START")) {
 			// load schedule
 			triceps = new Triceps();
@@ -120,7 +120,7 @@ public class TricepsServlet extends HttpServlet {
 			if (!ok) {
 				ok = triceps.setSchedule(new File("c:/cvs/triceps/docs/" + req.getParameter("schedule")));
 			}
-			
+
 			if (!ok) {
 				try {
 					this.doGet(req,res);
@@ -131,16 +131,16 @@ public class TricepsServlet extends HttpServlet {
 				}
 				return;
 			}
-				
+
 			ok = ok && triceps.gotoFirst();
 
 			// ask question
-		} 
+		}
 /*
 		else if (directive.equals("restore-from-object")) {
 			String restore = req.getParameter("restore-from-object");
 			restore = restore + "." + req.getRemoteUser() + "." + req.getRemoteHost() + ".suspend";
-			
+
 			Triceps temp;
 			if (restore == null || restore.trim().equals("") || ((temp = Triceps.restore(restore)) == null)) {
 				try {
@@ -150,7 +150,7 @@ public class TricepsServlet extends HttpServlet {
 				}
 				catch (IOException e) {
 				}
-				return;				
+				return;
 			}
 			else {
 				triceps = temp;
@@ -158,30 +158,30 @@ public class TricepsServlet extends HttpServlet {
 				// check for errors (should probably throw them)
 				// ask question
 			}
-		} 
+		}
 */
 		else if (directive.equals("RESTORE")) {
 			String restore = req.getParameter("RESTORE");
 			restore = restore + "." + req.getRemoteUser() + "." + req.getRemoteHost() + ".tsv";
-			
+
 			// load schedule
 			triceps = new Triceps();
 			ok = triceps.setSchedule("http://" + req.getServerName() + "/" + restore);
 			if (!ok) {
 				ok = triceps.setSchedule(new File(restore));
 			}
-			
+
 			if (!ok) {
 				processDirective(null);	// select new interview
 				return;
 			}
-				
+
 			ok = ok && triceps.gotoFirst();
 
-			// ask question			
+			// ask question
 		}
-			
-		else if (directive.equals("jump to:")) {	
+
+		else if (directive.equals("jump to:")) {
 			ok = triceps.gotoNode(req.getParameter("jump to:"));
 			// ask this question
 		}
@@ -198,7 +198,7 @@ public class TricepsServlet extends HttpServlet {
 			// re-ask current question
 		}
 		/*
-		else if (directive.equals("suspend-as-object-to")) {		
+		else if (directive.equals("suspend-as-object-to")) {
 			String name = req.getParameter("suspend-as-object-to");
 			String file = name + "." + req.getRemoteUser() + "." + req.getRemoteHost() + ".suspend";
 			ok = triceps.save(file);
@@ -208,10 +208,10 @@ public class TricepsServlet extends HttpServlet {
 			// re-ask same question
 		}
 		*/
-		else if (directive.equals("save to:")) {		
+		else if (directive.equals("save to:")) {
 			String name = req.getParameter("save to:");
 			String file = name + "." + req.getRemoteUser() + "." + req.getRemoteHost() + ".tsv";
-			
+
 			ok = triceps.toTSV(file);
 			if (ok) {
 				out.println("<B>Interview saved successfully as " + Node.encodeHTML(name) + " (" + Node.encodeHTML(file) + ")</B><HR>");
@@ -221,7 +221,7 @@ public class TricepsServlet extends HttpServlet {
 			String expr = req.getParameter("evaluate expr:");
 			if (expr != null) {
 				Datum datum = triceps.parser.parse(triceps.evidence, expr);
-				
+
 				out.println("<TABLE WIDTH='100%' CELLPADDING='2' CELLSPACING='1' BORDER=1>");
 				out.println("<TR><TD>Equation</TD><TD><B>" + Node.encodeHTML(expr) + "</B></TD><TD>Type</TD><TD><B>" + Datum.TYPES[datum.type()] + "</B></TD></TR>");
 				out.println("<TR><TD>String</TD><TD><B>" + Node.encodeHTML(datum.stringVal()) + "</B></TD><TD>boolean</TD><TD><B>" + datum.booleanVal() + "</B></TD></TR>");
@@ -229,7 +229,7 @@ public class TricepsServlet extends HttpServlet {
 				out.println("<TR><TD>date</TD><TD><B>" + datum.dateVal() + "</B></TD><TD>month</TD><TD><B>" + datum.monthVal() + "</B></TD></TR>");
 				out.println("</TABLE>");
 			}
-		}	
+		}
 /*
 		else if (directive.equals("help")) {	// FIXME
 			out.println("<B>No help currently available</B><HR>");
@@ -247,15 +247,15 @@ public class TricepsServlet extends HttpServlet {
 		else if (directive.equals("show XML")) {
 			out.println("<B>Use 'Show Source' to see data in Schedule as XML</B><BR>");
 			out.println("<!--\n" + triceps.toXML() + "\n-->");
-			out.println("<HR>");			
+			out.println("<HR>");
 		}
 		else if (directive.equals("forward")) {
 			// store current answer(s)
 			Enumeration questionNames = triceps.getQuestions();
-			
+
 			while(questionNames.hasMoreElements()) {
 				Node q = (Node) questionNames.nextElement();
-				
+
 				ok = triceps.storeValue(q, req.getParameter(q.getName())) && ok;	// parse all possible errors
 			}
 			// goto next
@@ -291,16 +291,16 @@ public class TricepsServlet extends HttpServlet {
 			debug = true;
 			out.println("<input type='HIDDEN' name='DEBUG' value='1'>");
 		}
-		
+
 		out.println("<H4>QUESTION AREA</H4>");
-		
+
 		Enumeration questionNames = triceps.getQuestions();
-		
+
 		out.println("<TABLE CELLPADDING='2' CELLSPACING='1' WIDTH='100%' border='1'>");
 		for(int count=0;questionNames.hasMoreElements();++count) {
 			Node node = (Node) questionNames.nextElement();
 			Datum datum = triceps.getDatum(node);
-			
+
 			out.println("	<TR>");
 			out.println("		<TD><B>" + Node.encodeHTML(node.getQuestionRef()) + "</B></TD>");
 			out.println("		<TD>" + Node.encodeHTML(triceps.getQuestionStr(node)) + "</TD>");
@@ -313,58 +313,58 @@ public class TricepsServlet extends HttpServlet {
 		out.println("<input type='SUBMIT' name='directive' value='clear all and re-start'>");
 		out.println("<input type='SUBMIT' name='directive' value='select new interview'>");
 		out.println("	</TD></TR>");
-		
+
 		if (debug) {
 			out.println("	<TR><TD COLSPAN='3' ALIGN='center'>");
 			out.println("<input type='SUBMIT' name='directive' value='jump to:'>");
 			out.println("<input type='text' name='jump to:'>");
 			out.println("<input type='SUBMIT' name='directive' value='save to:'>");
-			out.println("<input type='text' name='save to:'>");				
+			out.println("<input type='text' name='save to:'>");
 			out.println("	</TD></TR>");
 			out.println("	<TR><TD COLSPAN='3' ALIGN='center'>");
-			out.println("<input type='SUBMIT' name='directive' value='reload questions'>");		
-			out.println("<input type='SUBMIT' name='directive' value='show XML'>");	
+			out.println("<input type='SUBMIT' name='directive' value='reload questions'>");
+			out.println("<input type='SUBMIT' name='directive' value='show XML'>");
 			out.println("<input type='SUBMIT' name='directive' value='evaluate expr:'>");
 			out.println("<input type='text' name='evaluate expr:'>");
 			out.println("	</TD></TR>");
 		}
-		
+
 		out.println("</TABLE>");
 
 /*
 		// Node info area
 		out.println("<hr>");
-		
+
 		questionNames = triceps.getQuestions();
-			
+
 		for(int count=0;questionNames.hasMoreElements();++count) {
 			Node node = (Node) questionNames.nextElement();
-		
+
 			out.println("<H4>NODE INFORMATION AREA</H4>" + node.toString());
 		}
 */
 		// Complete printout of what's been collected per node
-		
+
 		if (debug) {
 			out.println("<hr>");
 			out.println("<H4>CURRENT QUESTION(s)</H4>");
 			out.println("<TABLE CELLPADDING='2' CELLSPACING='1'  WIDTH='100%' BORDER='1'>");
 			questionNames = triceps.getQuestions();
-				
+
 			while(questionNames.hasMoreElements()) {
 				Node n = (Node) questionNames.nextElement();
-				out.println("<TR>" + 
+				out.println("<TR>" +
 					"<TD>" + Node.encodeHTML(n.getQuestionRef()) + "</TD>" +
 					"<TD><B>" + Node.encodeHTML(triceps.toString(n)) + "</B></TD>" +
 					"<TD>" + Node.encodeHTML(n.getName()) + "</TD>" +
 					"<TD>" + Node.encodeHTML(n.getConcept()) + "</TD>" +
 					"<TD>" + Node.encodeHTML(n.getDependencies()) + "</TD>" +
 					"<TD>" + Node.encodeHTML(n.getAction()) + "</TD>" +
-					"</TR>\n");			
-			}		
+					"</TR>\n");
+			}
 			out.println("</TABLE>");
-			
-			
+
+
 			out.println("<hr>");
 			out.println("<H4>EVIDENCE AREA</H4>");
 			out.println("<TABLE CELLPADDING='2' CELLSPACING='1'  WIDTH='100%' BORDER='1'>");
@@ -372,8 +372,8 @@ public class TricepsServlet extends HttpServlet {
 				Node n = triceps.getNode(i);
 				if (!triceps.isSet(n))
 					continue;
-				out.println("<TR>" + 
-					"<TD>" + (i + 1) + "</TD>" + 
+				out.println("<TR>" +
+					"<TD>" + (i + 1) + "</TD>" +
 					"<TD>" + Node.encodeHTML(n.getQuestionRef()) + "</TD>" +
 					"<TD><B>" + Node.encodeHTML(triceps.toString(n)) + "</B></TD>" +
 					"<TD>" + Datum.TYPES[n.getDatumType()] + "</TD>" +
