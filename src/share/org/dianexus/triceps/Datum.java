@@ -11,7 +11,7 @@ public class Datum implements Serializable {
 	public static final int STRING = 4;
 	public static final int DATE = 5;
 	public static final int MONTH = 6;
-	public static final String TYPES[] = { "*UNKNOWN*", "*NOT APPLICABLE*", "*INVALID*", "DOUBLE", "STRING", "DATE", "MONTH" };
+	public static final String TYPES[] = { "*UNKNOWN*", "*NOT APPLICABLE*", "*INVALID*", "Double", "String", "Date", "Month" };
 	
 	public static final SimpleDateFormat mdy = new SimpleDateFormat("MM/dd/yyyy");
 	public static final SimpleDateFormat month = new SimpleDateFormat("MMMM");

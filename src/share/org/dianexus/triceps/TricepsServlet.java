@@ -50,13 +50,13 @@ public class TricepsServlet extends HttpServlet {
 		out.println("<H2>TRICEPS SYSTEM</H2>");
 		out.println("<hr>Please provide the following information to proceed. <br>");
 		out.println("<form method='POST' action='" + HttpUtils.getRequestURL(req) + "'>");
-		out.println("<pre>");
 		out.println("Start a new interview:		<select name='schedule'>");
 		out.println("							  <option value='ADHD.txt' selected>ADHD");
 		out.println("							  <option value='EatDis.txt'>Eating Disorders");
-		out.println("                             <option value='MiHeart.txt'>MiHeart");
+		out.println("                             <option value='MiHeart.txt'>MiHeart-combo");
+		out.println("                             <option value='MiHeart2.txt'>MiHeart-radio");
 		out.println("							</select>");
-		out.println("<BR><input type='SUBMIT' name='directive' value='START'>\n");
+		out.println("<BR><input type='SUBMIT' name='directive' value='START'>");
 		out.println("<BR>OR<BR>");
 /*
 		out.println("<input type='SUBMIT' name='directive' value='restore-from-object'>" + 
@@ -66,7 +66,8 @@ public class TricepsServlet extends HttpServlet {
 		out.println("<input type='SUBMIT' name='directive' value='restore from:'>" +
 			"<input type='text' name='restore from:'>");		
 //		out.println("<BR><input type='SUBMIT' name='directive' value='RESTORE'>");
-		out.println("</pre>");
+
+		out.println("<BR><input type='checkbox' name='DEBUG' value='1'>Show debugging information</input>");
 		out.println("</body>");
 		out.println("</html>");
 	}
@@ -301,6 +302,13 @@ public class TricepsServlet extends HttpServlet {
 	private void queryUser() {
 		// if parser internal to Schedule, should have method access it, not directly
 		out.println("<form method='POST' action='" + HttpUtils.getRequestURL(req) + "'>");
+		
+		boolean debug = false;
+		if ("1".equals(req.getParameter("DEBUG"))) {
+			debug = true;
+			out.println("<input type='HIDDEN' name='DEBUG' value='1'>");
+		}
+		
 		out.println("<H4>QUESTION AREA</H4>");
 		
 		Enumeration questionNames = triceps.getQuestions();
@@ -319,18 +327,24 @@ public class TricepsServlet extends HttpServlet {
 		out.println("	<TR><TD COLSPAN='3' ALIGN='center'>");
 		out.println("<input type='SUBMIT' name='directive' value='forward'>");
 		out.println("<input type='SUBMIT' name='directive' value='backward'>");
-		out.println("<input type='SUBMIT' name='directive' value='jump to:'>");
-		out.println("<input type='text' name='jump to:'>");
-		out.println("<input type='SUBMIT' name='directive' value='save to:'>");
-		out.println("<input type='text' name='save to:'>");				
-		out.println("	</TD></TR>");
-		out.println("	<TR><TD COLSPAN='3' ALIGN='center'>");
-		out.println("<input type='SUBMIT' name='directive' value='reload questions'>");		
-		out.println("<input type='SUBMIT' name='directive' value='show XML'>");	
 		out.println("<input type='SUBMIT' name='directive' value='clear all and re-start'>");
-		out.println("<input type='SUBMIT' name='directive' value='evaluate expr:'>");
-		out.println("<input type='text' name='evaluate expr:'>");
-		out.println("	</TR></TD>");		
+		out.println("	</TD></TR>");
+		
+		if (debug) {
+			out.println("	<TR><TD COLSPAN='3' ALIGN='center'>");
+			out.println("<input type='SUBMIT' name='directive' value='jump to:'>");
+			out.println("<input type='text' name='jump to:'>");
+			out.println("<input type='SUBMIT' name='directive' value='save to:'>");
+			out.println("<input type='text' name='save to:'>");				
+			out.println("	</TD></TR>");
+			out.println("	<TR><TD COLSPAN='3' ALIGN='center'>");
+			out.println("<input type='SUBMIT' name='directive' value='reload questions'>");		
+			out.println("<input type='SUBMIT' name='directive' value='show XML'>");	
+			out.println("<input type='SUBMIT' name='directive' value='evaluate expr:'>");
+			out.println("<input type='text' name='evaluate expr:'>");
+			out.println("	</TD></TR>");
+		}
+		
 		out.println("</TABLE>");
 
 		out.println("</form>");
@@ -348,42 +362,46 @@ public class TricepsServlet extends HttpServlet {
 		}
 */
 		// Complete printout of what's been collected per node
-		out.println("<hr>");
-		out.println("<H4>CURRENT QUESTION(s)</H4>");
-		out.println("<TABLE CELLPADDING='2' CELLSPACING='1'  WIDTH='100%' BORDER='1'>");
-		questionNames = triceps.getQuestions();
+		
+		if (debug) {
+			out.println("<hr>");
+			out.println("<H4>CURRENT QUESTION(s)</H4>");
+			out.println("<TABLE CELLPADDING='2' CELLSPACING='1'  WIDTH='100%' BORDER='1'>");
+			questionNames = triceps.getQuestions();
+				
+			while(questionNames.hasMoreElements()) {
+				Node n = (Node) questionNames.nextElement();
+				out.println("<TR>" + 
+					"<TD>" + n.getQuestionRef() + "</TD>" +
+					"<TD><B>" + triceps.toString(n) + "</B></TD>" +
+					"<TD>" + n.getName() + "</TD>" +
+					"<TD>" + n.getConcept() + "</TD>" +
+					"<TD>" + n.getDependencies() + "</TD>" +
+					"<TD>" + n.getAction() + "</TD>" +
+					"</TR>\n");			
+			}		
+			out.println("</TABLE>");
 			
-		while(questionNames.hasMoreElements()) {
-			Node n = (Node) questionNames.nextElement();
-			out.println("<TR>" + 
-				"<TD>" + n.getQuestionRef() + "</TD>" +
-				"<TD><B>" + triceps.toString(n) + "</B></TD>" +
-				"<TD>" + n.getName() + "</TD>" +
-				"<TD>" + n.getConcept() + "</TD>" +
-				"<TD>" + n.getDependencies() + "</TD>" +
-				"<TD>" + n.getAction() + "</TD>" +
-				"</TR>\n");			
-		}		
-		out.println("</TABLE>");
-		
-		
-		out.println("<hr>");
-		out.println("<H4>EVIDENCE AREA</H4>");
-		out.println("<TABLE CELLPADDING='2' CELLSPACING='1'  WIDTH='100%' BORDER='1'>");
-		for (int i = triceps.size()-1; i >= 0; i--) {
-			Node n = triceps.getNode(i);
-			if (!triceps.isSet(n))
-				continue;
-			out.println("<TR>" + 
-				"<TD>" + (i + 1) + "</TD>" + 
-				"<TD>" + n.getQuestionRef() + "</TD>" +
-				"<TD><B>" + triceps.toString(n) + "</B></TD>" +
-				"<TD>" + n.getName() + "</TD>" +
-				"<TD>" + n.getConcept() + "</TD>" +
-				"<TD>" + n.getDependencies() + "</TD>" +
-				"<TD>" + n.getAction() + "</TD>" +
-				"</TR>\n");
+			
+			out.println("<hr>");
+			out.println("<H4>EVIDENCE AREA</H4>");
+			out.println("<TABLE CELLPADDING='2' CELLSPACING='1'  WIDTH='100%' BORDER='1'>");
+			for (int i = triceps.size()-1; i >= 0; i--) {
+				Node n = triceps.getNode(i);
+				if (!triceps.isSet(n))
+					continue;
+				out.println("<TR>" + 
+					"<TD>" + (i + 1) + "</TD>" + 
+					"<TD>" + n.getQuestionRef() + "</TD>" +
+					"<TD><B>" + triceps.toString(n) + "</B></TD>" +
+					"<TD>" + Datum.TYPES[n.getDatumType()] + "</TD>" +
+					"<TD>" + n.getName() + "</TD>" +
+					"<TD>" + n.getConcept() + "</TD>" +
+					"<TD>" + n.getDependencies() + "</TD>" +
+					"<TD>" + n.getAction() + "</TD>" +
+					"</TR>\n");
+			}
+			out.println("</TABLE>");
 		}
-		out.println("</TABLE>");
 	}
 }

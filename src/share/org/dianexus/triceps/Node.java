@@ -13,9 +13,10 @@ public class Node implements Serializable {
 	public static final int TEXT = 5;
 	public static final int DOUBLE=6;
 	public static final int NOTHING=7;	// do nothing
-	private static final String QUESTION_TYPES[] = {"radio", "check", "combo", "date", "month", "text", "double", "nothing" };
-	private static final int DATA_TYPES[] = { Datum.DOUBLE, Datum.DOUBLE, Datum.DOUBLE, Datum.DATE, Datum.MONTH, Datum.STRING, Datum.STRING, Datum.STRING};
-	private static final String QUESTION_MASKS[] = { "", "", "", " (e.g. 7/23/1982)", " (e.g. February)", "", "", ""};
+	public static final int RADIO2=8;	// different layout
+	private static final String QUESTION_TYPES[] = {"radio", "check", "combo", "date", "month", "text", "double", "nothing", "radio2" };
+	private static final int DATA_TYPES[] = { Datum.DOUBLE, Datum.DOUBLE, Datum.DOUBLE, Datum.DATE, Datum.MONTH, Datum.STRING, Datum.STRING, Datum.STRING, Datum.DOUBLE};
+	private static final String QUESTION_MASKS[] = { "", "", "", " (e.g. 7/23/1982)", " (e.g. February)", "", "", "", ""};
 	
 	private String concept = "";
 	private String description = "";
@@ -28,6 +29,7 @@ public class Node implements Serializable {
 	private int answerType = UNKNOWN;
 	private int datumType = Datum.INVALID;
 	private String answerOptions = "";
+	private Vector answerChoices = new Vector();
 	
 	// loading from extended Schedule with default answers
 	// XXX hack - Node shouldn't know values of evidence - Schedule should know how to load itself.
@@ -64,9 +66,7 @@ public class Node implements Serializable {
 			else {
 				token = answerOptions;
 			}
-						
-//			System.out.println("actionType=" + actionType + ",action=" + action + ",answerType=" + token + ",answerOptions=" + answerOptions);
-						
+
 			for (int z=0;z<QUESTION_TYPES.length;++z) {
 				if (token.equalsIgnoreCase(QUESTION_TYPES[z])) {
 					answerType = z;
@@ -80,6 +80,8 @@ public class Node implements Serializable {
 				datumType = DATA_TYPES[answerType];
 			}
 			
+			parseTSV(answerOptions);
+			
 			debugAnswer = st.nextToken();
 		}
 		catch(Exception e) {
@@ -91,61 +93,88 @@ public class Node implements Serializable {
 	
 	public boolean parseTSV(String src) {
 		switch (answerType) {
-			case RADIO:
-				break;
 			case CHECK:
-				break;
 			case COMBO:
+			case RADIO:
+			case RADIO2:
+				try {
+					StringTokenizer ans;
+					String val;
+					String msg;
+										
+					ans = new StringTokenizer(answerOptions,";");
+					ans.nextToken();	// discard the answerType
+				
+					while (ans.hasMoreTokens()) { // for however many radio buttons there are
+						val = ans.nextToken();
+						msg = ans.nextToken();				
+						answerChoices.addElement(new AnswerChoice(val,msg));
+					}
+				}
+				catch (NullPointerException e) {
+					System.out.println("Error tokenizing answer options: " + e);
+				}
+				catch (NoSuchElementException e) {
+					System.out.println("Error tokenizing answer options: " + e);
+				}
 				break;
+			default:
 			case DATE:
-				break;
 			case MONTH:
-				break;
 			case TEXT:
-				break;
 			case DOUBLE:
-				break;
 			case NOTHING:
 				break;
 		}
+
 		return true;
 	}
 	
 	public String prepareChoicesAsHTML(Datum datum) {
-		StringTokenizer ans;
 		StringBuffer sb = new StringBuffer();
-		String val;
-		String msg;
 		String defaultValue = "";
+		AnswerChoice ac;
+		Enumeration ans = answerChoices.elements();
 		
 		try {
-			ans = new StringTokenizer(answerOptions, ";");
-			ans.nextToken();	// discard the answerType
 			switch (answerType) {
 			case RADIO:	// will store integers
-				while (ans.hasMoreTokens()) { // for however many radio buttons there are
-					val = ans.nextToken();
-					msg = ans.nextToken();
-					sb.append("<input type='radio'" + "name='" + getName() + "' " + "value=" + val + 
-						(DatumMath.eq(datum,new Datum(val,Datum.DOUBLE)).booleanVal() ? " CHECKED" : "") + ">" + msg + "<br>");
+				while (ans.hasMoreElements()) { // for however many radio buttons there are
+					ac = (AnswerChoice) ans.nextElement();
+					sb.append("<input type='radio'" + "name='" + getName() + "' " + "value=" + ac.getValue() + 
+						(DatumMath.eq(datum,new Datum(ac.getValue(),Datum.DOUBLE)).booleanVal() ? " CHECKED" : "") + ">" + ac.getMessage() + "<br>");
 				}
 				break;
+			case RADIO2: // will store integers
+				/* table underneath questions */
+				sb.append("&nbsp;</TD></TR><TR><TD>&nbsp;</TD><TD COLSPAN='2'>");
+				sb.append("<TABLE CELLPADDING='0' CELLSPACING='2' BORDER='1'>");
+				sb.append("<TR>");
+				while (ans.hasMoreElements()) { // for however many radio buttons there are
+					ac = (AnswerChoice) ans.nextElement();
+					sb.append("<TD VALIGN='top'>");
+					sb.append("<input type='radio'" + "name='" + getName() + "' " + "value=" + ac.getValue() + 
+						(DatumMath.eq(datum,new Datum(ac.getValue(),Datum.DOUBLE)).booleanVal() ? " CHECKED" : "") + ">" + ac.getMessage());
+					sb.append("</TD>");
+				}
+				sb.append("</TR>");
+				sb.append("</TABLE>");
+//				sb.append("</TD></TR>");	// closing the outside is reserverd for TricepsServlet
+				break;				
 			case CHECK:
-				while (ans.hasMoreTokens()) { // for however many check boxes there are
-					val = ans.nextToken();
-					msg = ans.nextToken();
-					sb.append("<input type='checkbox'" + "name='" + getName() + "' " + "value=" + val + 
-						(DatumMath.eq(datum, new Datum(val,Datum.DOUBLE)).booleanVal() ? " CHECKED" : "") + ">" + msg + "<br>");
+				while (ans.hasMoreElements()) { // for however many radio buttons there are
+					ac = (AnswerChoice) ans.nextElement();
+					sb.append("<input type='checkbox'" + "name='" + getName() + "' " + "value=" + ac.getValue() + 
+						(DatumMath.eq(datum, new Datum(ac.getValue(),Datum.DOUBLE)).booleanVal() ? " CHECKED" : "") + ">" + ac.getMessage() + "<br>");
 				}		
 				break;
-			case COMBO:	// stores string as value
+			case COMBO:	// stores integers as value
 				sb.append("<select name='" + getName() + "'>");
 				sb.append("<option>");	// first choice is empty
-				while (ans.hasMoreTokens()) { 
-					val = ans.nextToken();
-					msg = ans.nextToken();
-					sb.append("<option value='" + val + "'" + 
-						(DatumMath.eq(datum, new Datum(val,Datum.STRING)).booleanVal() ? " SELECTED" : "") + ">" + msg + "</option>");
+				while (ans.hasMoreElements()) { // for however many radio buttons there are
+					ac = (AnswerChoice) ans.nextElement();
+					sb.append("<option value='" + ac.getValue() + "'" + 
+						(DatumMath.eq(datum, new Datum(ac.getValue(),Datum.STRING)).booleanVal() ? " SELECTED" : "") + ">" + ac.getMessage() + "</option>");
 				}
 				sb.append("</select>");		
 				break;
@@ -177,12 +206,11 @@ public class Node implements Serializable {
 				break;
 			}
 		}
-		catch (NullPointerException e) {
-			System.out.println("Error tokenizing answer options: " + e);
+		catch (Throwable t) {
+			System.out.println("error: " + t);
+			return "";
 		}
-		catch (NoSuchElementException e) {
-			System.out.println("Error tokenizing answer options: " + e);
-		}
+
 		return sb.toString();
 	}
 	
