@@ -43,7 +43,7 @@ public class Datum  {
 	private static final SimpleDateFormat defaultHourFormat = new SimpleDateFormat("H");
 	private static final SimpleDateFormat defaultMinuteFormat = new SimpleDateFormat("m");
 	private static final SimpleDateFormat defaultSecondFormat = new SimpleDateFormat("s");
-	private static final DecimalFormat defaultNumberFormat = new DecimalFormat();
+	private static final DecimalFormat defaultNumberFormat = new DecimalFormat("#");
 
 	public static final SimpleDateFormat defaultMonthNumFormat = new SimpleDateFormat("M");
 	public static final SimpleDateFormat TIME_MASK = new SimpleDateFormat("yyyy.MM.dd..HH.mm.ss");
