@@ -180,13 +180,19 @@ public class Schedule  {
 				}
 
 				Node node = new Node(triceps, line, source, fileLine, languageCount);
+if (!Triceps.AUTHORABLE) {
+	if (node.hasParseErrors()) {
+		return false;	// schedule must be fully debugged before deployment, otherwise won't load
+	}
+}
 				++count;
 				nodes.addElement(node);
 			}
 			if (reservedCount == 0) {
 				return false;
 			}
-
+			
+if (Triceps.AUTHORABLE) {		
 			/* check for mismatching braces */
 			int braceLevel = 0;
 			Node node = null;
@@ -226,6 +232,7 @@ public class Schedule  {
 			if (braceLevel > 0) {
 				setError(triceps.get("missing") + braceLevel + triceps.get("closing_braces"));
 			}
+}			
 		}
 		catch(IOException e) {
 Logger.writeln("##IOException @ Schedule.load()" + e.getMessage());

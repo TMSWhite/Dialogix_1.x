@@ -275,6 +275,7 @@ Logger.writeln("##Throwable @ Servlet.doPost()" + t.getMessage());
 			okPasswordForTempAdminMode = true;	// allow AdminModeIcon values to be accepted
 		}
 
+if (Triceps.AUTHORABLE) {		
 		/** Process requests to change developerMode-type status **/
 		if (directive != null) {
 			/* Toggle these values, as requested */
@@ -294,6 +295,7 @@ Logger.writeln("##Throwable @ Servlet.doPost()" + t.getMessage());
 				directive = "refresh current";
 			}
 		}
+}
 	}
 
 	private String getCustomHeader() {
@@ -569,34 +571,43 @@ Logger.writeln("##Throwable @ Servlet.selectFromInterviewsInDir" + t.getMessage(
 			// ask question
 		}
 		else if (directive.equals(triceps.get("jump_to"))) {
+if (Triceps.AUTHORABLE) {		
 			gotoMsg = triceps.gotoNode(req.getParameter(triceps.get("jump_to")));
 			ok = (gotoMsg == Triceps.OK);
 			// ask this question
+}			
 		}
 		else if (directive.equals("refresh current")) {
 			ok = true;
 			// re-ask the current question
 		}
 		else if (directive.equals(triceps.get("restart_clean"))) { // restart from scratch
+if (Triceps.AUTHORABLE) {		
 			triceps.resetEvidence();
 			ok = ((gotoMsg = triceps.gotoFirst()) == Triceps.OK);	// don't proceed if prior error
 			// ask first question
+}
 		}
 		else if (directive.equals(triceps.get("reload_questions"))) { // debugging option
+if (Triceps.AUTHORABLE) {		
 			ok = triceps.reloadSchedule();
 			if (ok) {
 				info.println(triceps.get("schedule_restored_successfully"));
 			}
 			// re-ask current question
+}
 		}
 		else if (directive.equals(triceps.get("save_to"))) {
+if (Triceps.AUTHORABLE) {		
 			String name = req.getParameter(triceps.get("save_to"));
 			ok = triceps.saveWorkingInfo(name);
 			if (ok) {
 				info.println(triceps.get("interview_saved_successfully_as") + (workingFilesDir + name));
 			}
+}
 		}
 		else if (directive.equals(triceps.get("show_Syntax_Errors"))) {
+if (Triceps.AUTHORABLE) {		
 			Vector pes = triceps.collectParseErrors();
 
 			if (pes == null || pes.size() == 0) {
@@ -669,6 +680,7 @@ Logger.writeln("##Throwable @ Servlet.selectFromInterviewsInDir" + t.getMessage(
 				errors.print(triceps.getEvidence().getErrors());
 				errors.print("</td></tr></table>");
 			}
+}
 		}
 		else if (directive.equals(triceps.get("next"))) {
 			// store current answer(s)
@@ -998,6 +1010,7 @@ Logger.writeln("##Throwable @ Servlet.selectFromInterviewsInDir" + t.getMessage(
 
 	private String generateDebugInfo() {
 		StringBuffer sb = new StringBuffer();
+if (Triceps.AUTHORABLE) {		
 		// Complete printout of what's been collected per node
 		if (!triceps.isValid())
 			return "";
@@ -1061,10 +1074,12 @@ Logger.writeln("##Throwable @ Servlet.selectFromInterviewsInDir" + t.getMessage(
 			}
 			sb.append("</table>");
 		}
+}		
 		return sb.toString();
 	}
 
 	private String showOptions() {
+if (Triceps.AUTHORABLE) {		
 		if (developerMode) {
 			StringBuffer sb = new StringBuffer();
 
@@ -1077,6 +1092,7 @@ Logger.writeln("##Throwable @ Servlet.selectFromInterviewsInDir" + t.getMessage(
 		}
 		else
 			return "";
+} else return "";
 	}
 
 	private String createJavaScript() {
