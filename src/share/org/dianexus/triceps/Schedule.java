@@ -7,30 +7,38 @@ import java.net.*;
  * Schedule holds a collection of nodes.
 */
 public class Schedule  {
-	public static final int TITLE = 0;
-	public static final int ICON = 1;
-	public static final int HEADER_MSG = 2;
-	public static final int STARTING_STEP = 3;
-	public static final int PASSWORD_FOR_REFUSED = 4;
-	public static final int PASSWORD_FOR_UNKNOWN = 5;
-	public static final int PASSWORD_FOR_NOT_UNDERSTOOD = 6;
-	public static final int LANGUAGES = 7;
-	public static final int SHOW_QUESTION_REF = 8;
-	public static final int AUTOGEN_OPTION_NUM = 9;
-	public static final int DEVELOPER_MODE = 10;
-	public static final int DEBUG_MODE = 11;
-	public static final int START_TIME = 12;
-	public static final int FILENAME = 13;
-	public static final int SHOW_INVISIBLE_OPTIONS = 14;
-	public static final int TITLE_FOR_PICKLIST_WHEN_IN_PROGRESS = 15;
+	public static final int LANGUAGES = 0;
+	public static final int TITLE = 1;
+	public static final int ICON = 2;
+	public static final int HEADER_MSG = 3;
+	public static final int STARTING_STEP = 4;
+	public static final int PASSWORD_FOR_ADMIN_MODE = 5;
+	public static final int SHOW_QUESTION_REF = 6;
+	public static final int AUTOGEN_OPTION_NUM = 7;
+	public static final int DEVELOPER_MODE = 8;
+	public static final int DEBUG_MODE = 9;
+	public static final int START_TIME = 10;
+	public static final int FILENAME = 11;
+	public static final int SHOW_ADMIN_ICONS = 12;
+	public static final int TITLE_FOR_PICKLIST_WHEN_IN_PROGRESS = 13;
+	public static final int ALLOW_COMMENTS = 14;
 
 	public static final String[] RESERVED_WORDS = {
-		"__TITLE__", "__ICON__", "__HEADER_MSG__", "__STARTING_STEP__",
-		"__PASSWORD_FOR_REFUSED__", "__PASSWORD_FOR_UNKNOWN__", "__PASSWORD_FOR_NOT_UNDERSTOOD__",
 		"__LANGUAGES__",
-		"__SHOW_QUESTION_REF__", "__AUTOGEN_OPTION_NUM__",
-		"__DEVELOPER_MODE__", "__DEBUG_MODE__",
-		"__START_TIME__", "__FILENAME__", "__SHOW_INVISIBLE_OPTIONS__", "__TITLE_FOR_PICKLIST_WHEN_IN_PROGRESS__"
+		"__TITLE__", 
+		"__ICON__", 
+		"__HEADER_MSG__", 
+		"__STARTING_STEP__",
+		"__PASSWORD_FOR_ADMIN_MODE__", 
+		"__SHOW_QUESTION_REF__", 
+		"__AUTOGEN_OPTION_NUM__",
+		"__DEVELOPER_MODE__", 
+		"__DEBUG_MODE__",
+		"__START_TIME__", 
+		"__FILENAME__", 
+		"__SHOW_ADMIN_ICONS__", 
+		"__TITLE_FOR_PICKLIST_WHEN_IN_PROGRESS__",
+		"__ALLOW_COMMENTS__"
 	};
 
 	private Date startTime = null;
@@ -64,19 +72,18 @@ public class Schedule  {
 		setReserved(TITLE,"Triceps System");
 		setReserved(STARTING_STEP,"0");
 		setReserved(START_TIME,Datum.TIME_MASK.format(new Date(System.currentTimeMillis())));
-		setReserved(PASSWORD_FOR_REFUSED,"");
+		setReserved(PASSWORD_FOR_ADMIN_MODE,"");
 		setReserved(AUTOGEN_OPTION_NUM,"true");
 		setReserved(FILENAME,getReserved(START_TIME));
-		setReserved(PASSWORD_FOR_UNKNOWN,"");
-		setReserved(PASSWORD_FOR_NOT_UNDERSTOOD,"");
 		setReserved(ICON,"");
 		setReserved(HEADER_MSG,"Triceps System");
 		setReserved(SHOW_QUESTION_REF,"false");
 		setReserved(DEVELOPER_MODE,"false");
 		setReserved(DEBUG_MODE,"false");
 		setReserved(LANGUAGES,"English");
-		setReserved(SHOW_INVISIBLE_OPTIONS,"false");
+		setReserved(SHOW_ADMIN_ICONS,"false");
 		setReserved(TITLE_FOR_PICKLIST_WHEN_IN_PROGRESS,"");	// default is unnamed until initialized
+		setReserved(ALLOW_COMMENTS,"false");
 	}
 	
 	public boolean init() {
@@ -217,19 +224,18 @@ public class Schedule  {
 			case TITLE: s = value; break;
 			case STARTING_STEP: s = setStartingStep(value); break;
 			case START_TIME: s = setStartTime(value); break;
-			case PASSWORD_FOR_REFUSED: s = value; break;
+			case PASSWORD_FOR_ADMIN_MODE: s = value; break;
 			case AUTOGEN_OPTION_NUM: s = Boolean.valueOf(value.trim()).toString(); break;
 			case FILENAME: s = value; break;
-			case PASSWORD_FOR_UNKNOWN: s = value; break;
-			case PASSWORD_FOR_NOT_UNDERSTOOD: s = value; break;
 			case ICON: s = value; break;
 			case HEADER_MSG: s = value; break;
 			case SHOW_QUESTION_REF: s = Boolean.valueOf(value.trim()).toString(); break;
 			case DEVELOPER_MODE: s = Boolean.valueOf(value.trim()).toString(); break;
 			case DEBUG_MODE: s = Boolean.valueOf(value.trim()).toString(); break;
 			case LANGUAGES: s = setLanguages(value); break;
-			case SHOW_INVISIBLE_OPTIONS: s = Boolean.valueOf(value.trim()).toString(); break;
+			case SHOW_ADMIN_ICONS: s = Boolean.valueOf(value.trim()).toString(); break;
 			case TITLE_FOR_PICKLIST_WHEN_IN_PROGRESS: s = value; break;
+			case ALLOW_COMMENTS: s = Boolean.valueOf(value.trim()).toString(); break;
 			default: return false;
 		}
 		if (s != null) {
@@ -264,7 +270,6 @@ public class Schedule  {
 	private String setStartTime(Date t) {
 		startTime = t;
 		String str = Datum.TIME_MASK.format(t);
-//		reserved.put(RESERVED_WORDS[START_TIME], str);
 		return str;
 	}
 
