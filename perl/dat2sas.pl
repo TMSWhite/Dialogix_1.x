@@ -296,47 +296,10 @@ foreach(@gargs) {
 			die "error opening file $out" unless ($fh->open(">>$out"));	# append to existing files
 			$outs{$key} = $fh;
 			
+			#Note, SPSS balks when the lines are too long -- so must have header line, else first data line might be corrupted.  If line is long, SPSS will read first line as though it is several lines
+			
 			if (-z $out) {
 				# file doesn't exist yet, so create it with the proper column headings
-				print { $fh } "UniqueID\tFinished\tStartDate\tStopDate\tTitle\tVersion";
-				
-				if ($sortby eq 'sortby_order_asked') {
-					foreach my $arg (sort { $a->{'count'} <=> $b->{'count'} } values(%data)) {		# this sorts by order asked
-						my %datum = %{ $arg };		
-						next unless ($key eq $datum{'module'});
-						print { $fh } "\t", $datum{'internalName'};	#separate labels by tab
-					}
-				}
-				else {
-					# default to sort alphabetically by name
-					foreach my $arg (sort(keys(%data))) {	# this sorts alphabetically by variable name
-						my %datum = %{ $data{$arg} };
-						next unless ($key eq $datum{'module'});
-						print { $fh } "\t", $datum{'internalName'};	#separate labels by tab
-					}
-				}
-				print { $fh } "\n";	# add newline
-				
-				# now do the same for the concept
-				print { $fh } "UniqueID\tFinished\tStartDate\tStopDate\tTitle\tVersion";
-				
-				if ($sortby eq 'sortby_order_asked') {
-					foreach my $arg (sort { $a->{'count'} <=> $b->{'count'} } values(%data)) {
-						my %datum = %{ $arg };
-						next unless ($key eq $datum{'module'});
-						print { $fh } "\t", $datum{'concept'};	#separate labels by tab
-					}
-				}
-				else {
-					# default to sort alphabetically by name
-					foreach my $arg (sort(keys(%data))) {
-						my %datum = %{ $data{$arg} };
-						next unless ($key eq $datum{'module'});
-						print { $fh } "\t", $datum{'concept'};	#separate labels by tab
-					}					
-				}
-				print { $fh } "\n";	# add newline	
-				
 				print { $fh } "UniqueID\tFinished\tStartDat\tStopDate\tTitle\tVersion";
 				
 				if ($sortby eq 'sortby_order_asked') {

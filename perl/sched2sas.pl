@@ -752,7 +752,7 @@ sub createSPSSdictionary {
 	print SPSS "/DELCASE = LINE\n";
 	print SPSS "/DELIMITERS = \"\\t\"\n";
 	print SPSS "/ARRANGEMENT = DELIMITED\n";
-	print SPSS "/FIRSTCASE = 4\n";
+	print SPSS "/FIRSTCASE = 2\n";		# 4\n";
 	print SPSS "/IMPORTCASE = ALL\n";
 	print SPSS "/VARIABLES =\n";
 	print SPSS "\tUniqueID A15\n";
@@ -851,7 +851,7 @@ sub createSPSSdictionary {
 	print SPSS "/DELCASE = LINE\n";
 	print SPSS "/DELIMITERS = \"\\t\"\n";
 	print SPSS "/ARRANGEMENT = DELIMITED\n";
-	print SPSS "/FIRSTCASE = 4\n";
+	print SPSS "/FIRSTCASE = 2\n";		#4\n";
 	print SPSS "/IMPORTCASE = ALL\n";
 	print SPSS "/VARIABLES =\n";
 	print SPSS "\tUniqueID A15\n";
