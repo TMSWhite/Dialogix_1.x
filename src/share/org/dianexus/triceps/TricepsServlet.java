@@ -303,13 +303,13 @@ public class TricepsServlet extends HttpServlet {
 		}
 		else {
 			sb.append("<img name='icon' src='" + (imageFilesDir + logo) + "' align='top' border='0'" +
-				((!isSplashScreen) ? " onMouseDown='javascript:setAdminModePassword();'":"") + 
+				((!isSplashScreen) ? " onMouseUp='evHandler(event);setAdminModePassword();'":"") + 
 				((!isSplashScreen) ? (" alt='" + triceps.get("LogoMessage") + "'") : "") +
 				">");
 		}
 		sb.append("	</td>");
 		sb.append("	<td align='left'><font SIZE='5'><b>" + ((triceps.isValid() && !isSplashScreen) ? triceps.getHeaderMsg() : "Triceps") + "</b></font></td>");
-		sb.append("	<td width='1%'><img src='" + HELP_T_ICON + "' alt='" + triceps.get("Help") + "' align='top' border='0' onMouseDown='javascript:help(\"_TOP_\",\"" + helpURL + "\");'></td>");
+		sb.append("	<td width='1%'><img src='" + HELP_T_ICON + "' alt='" + triceps.get("Help") + "' align='top' border='0' onMouseUp='evHandler(event);help(\"_TOP_\",\"" + helpURL + "\");'></td>");
 		sb.append("</tr>");
 		sb.append("</table>");
 		sb.append("<hr>");
@@ -474,7 +474,7 @@ public class TricepsServlet extends HttpServlet {
 					String language = (String) languages.elementAt(i);
 					boolean selected = (i == triceps.getLanguage());
 					sb.append(((selected) ? "<u>" : "") +
-						"<input type='button' onClick='javascript:setLanguage(\"" + language + "\");' name='select_" + language + "' value='" + language + "'>" +
+						"<input type='button' onClick='evHandler(event);setLanguage(\"" + language + "\");' name='select_" + language + "' value='" + language + "'>" +
 						((selected) ? "</u>" : ""));
 				}
 				sb.append("</td></tr></table>");
@@ -940,7 +940,7 @@ public class TricepsServlet extends HttpServlet {
 		String helpURL = node.getHelpURL();
 		if (helpURL != null && helpURL.trim().length() != 0) {
 			sb.append("<img src='" + HELP_T_ICON +
-				"' align='top' border='0' alt='" + triceps.get("Help") + "' onMouseDown='javascript:help(\"" + inputName + "\",\"" + helpURL + "\");'>");
+				"' align='top' border='0' alt='" + triceps.get("Help") + "' onMouseUp='evHandler(event);help(\"" + inputName + "\",\"" + helpURL + "\");'>");
 		}
 		else {
 			// don't show help icon if no help is available?
@@ -950,11 +950,11 @@ public class TricepsServlet extends HttpServlet {
 		if (showAdminModeIcons || okToShowAdminModeIcons || allowComments) {
 			if (comment != null && comment.trim().length() != 0) {
 				sb.append("<img name='" + inputName + "_COMMENT_ICON" + "' src='" + COMMENT_T_ICON +
-					"' align='top' border='0' alt='" + triceps.get("Add_a_Comment") + "' onMouseDown='javascript:comment(\"" + inputName + "\");'>");
+					"' align='top' border='0' alt='" + triceps.get("Add_a_Comment") + "' onMouseUp='evHandler(event);comment(\"" + inputName + "\");'>");
 			}
 			else  {
 				sb.append("<img name='" + inputName + "_COMMENT_ICON" + "' src='" + COMMENT_F_ICON +
-					"' align='top' border='0' alt='" + triceps.get("Add_a_Comment") + "' onMouseDown='javascript:comment(\"" + inputName + "\");'>");
+					"' align='top' border='0' alt='" + triceps.get("Add_a_Comment") + "' onMouseUp='evHandler(event);comment(\"" + inputName + "\");'>");
 			}
 		}
 
@@ -962,11 +962,11 @@ public class TricepsServlet extends HttpServlet {
 
 		if (showAdminModeIcons || okToShowAdminModeIcons || isSpecial) {
 			sb.append("<img name='" + inputName + "_REFUSED_ICON" + "' src='" + ((isRefused) ? REFUSED_T_ICON : REFUSED_F_ICON) +
-				"' align='top' border='0' alt='" + triceps.get("Set_as_Refused") + "' onMouseDown='javascript:markAsRefused(\"" + inputName + "\");'>");
+				"' align='top' border='0' alt='" + triceps.get("Set_as_Refused") + "' onMouseUp='evHandler(event);markAsRefused(\"" + inputName + "\");'>");
 			sb.append("<img name='" + inputName + "_UNKNOWN_ICON" + "' src='" + ((isUnknown) ? UNKNOWN_T_ICON : UNKNOWN_F_ICON) +
-				"' align='top' border='0' alt='" + triceps.get("Set_as_Unknown") + "' onMouseDown='javascript:markAsUnknown(\"" + inputName + "\");'>");
+				"' align='top' border='0' alt='" + triceps.get("Set_as_Unknown") + "' onMouseUp='evHandler(event);markAsUnknown(\"" + inputName + "\");'>");
 			sb.append("<img name='" + inputName + "_NOT_UNDERSTOOD_ICON" + "' src='" + ((isNotUnderstood) ? NOT_UNDERSTOOD_T_ICON : NOT_UNDERSTOOD_F_ICON) +
-				"' align='top' border='0' alt='" + triceps.get("Set_as_Not_Understood") + "' onMouseDown='javascript:markAsNotUnderstood(\"" + inputName + "\");'>");
+				"' align='top' border='0' alt='" + triceps.get("Set_as_Not_Understood") + "' onMouseUp='evHandler(event);markAsNotUnderstood(\"" + inputName + "\");'>");
 		}
 
 		if (sb.length() == 0) {
@@ -1063,44 +1063,51 @@ public class TricepsServlet extends HttpServlet {
 				
 		sb.append("var startTime = new Date();\n");
 		sb.append("var val = null;\n");
-		sb.append("function evHandler(e) {\n");
+		sb.append("var name = null;\n");
+		sb.append("var msg = null;\n");
+		sb.append("var el = null;\n");
+		sb.append("var evH = null;\n");
+		sb.append("var ans = null;\n");
+		
+		sb.append("function keyHandler(e) {\n");
 		sb.append("	now = new Date();\n");
-		sb.append("	if (e.target.options) { val = e.target.selectedIndex + ',' + e.target.options[e.target.selectedIndex].value; }\n");
-		sb.append("	else if (e.type == 'keypress') { val = String.fromCharCode(e.which) + ',' + e.target.value; }\n");
-		sb.append("	else { val = e.which + ',' + e.target.value; }\n");
-		sb.append("	msg = e.target.name + ',' + e.target.type + ',' + e.type + ',' + val + ',' + now.getTime() + ',' + (now.getTime() - startTime.getTime()) + '|';\n");
+		sb.append("	val = String.fromCharCode(e.which) + ',' + e.target.value;\n");
+		sb.append("	name = e.target.name;\n");
+		sb.append("	msg = name + ',' + e.target.type + ',' + e.type + ',' + now.getTime() + ',' + (now.getTime() - startTime.getTime()) + ',' + val + '|';\n");
 		sb.append("	document.myForm.EVENT_TIMINGS.value += msg;\n");
-		sb.append("	routeEvent(e);\n");
+		sb.append("	return true;\n");
+		sb.append("}\n");		
+		
+		sb.append("function submitHandler(e) {\n");
+		sb.append("	now = new Date();\n");
+		sb.append("	val = ',';\n");
+		sb.append("	name = e.target.value;\n");
+		sb.append("	msg = name + ',' + e.target.type + ',' + e.type + ',' + now.getTime() + ',' + (now.getTime() - startTime.getTime()) + ',' + val + '|';\n");
+		sb.append("	document.myForm.EVENT_TIMINGS.value += msg;\n");
 		sb.append("	return true;\n");
 		sb.append("}\n");
-//		sb.append("window.captureEvents(Event.Load | Event.Resize| Event.MouseMove);\n");
-//		sb.append("window.captureEvents(Event.Blur | Event.Change | Event.Click | Event.Focus | Event.KeyPress | Event.Load | Event.Reset | Event.Resize | Event.Select | Event.Submit);\n");
-/*
-		sb.append("window.captureEvents(Event.Abort | Event.Blur | Event.Change | Event.Click | Event.DblClick | Event.DragDrop | Event.Error | Event.Focus | Event.KeyDown | Event.KeyPress | Event.KeyUp | Event.Load | Event.MouseDown | Event.MouseMove | Event.MouseOut | Event.MouseOver | Event.MouseUp | Event.Move | Event.Reset | Event.Resize | Event.Select | Event.Submit | Event.Unload);\n");
-		sb.append("window.onAbort = evHandler;\n");
-		sb.append("window.onBlur = evHandler;\n");
-		sb.append("window.onChange = evHandler;\n");
-		sb.append("window.onClick = evHandler;\n");
-		sb.append("window.onDblClick = evHandler;\n");
-		sb.append("window.onDragDrop = evHandler;\n");
-		sb.append("window.onError = evHandler;\n");
-		sb.append("window.onFocus = evHandler;\n");
-		sb.append("window.onKeyDown = evHandler;\n");
-		sb.append("window.onKeyPress = evHandler;\n");
-		sb.append("window.onKeyUp = evHandler;\n");
+
+		sb.append("function selectHandler(e) {\n");
+		sb.append("	now = new Date();\n");
+		sb.append("	val = e.target.options[e.target.selectedIndex].value + ',' + e.target.options[e.target.selectedIndex].text;\n");
+		sb.append("	name = e.target.name;\n");
+		sb.append("	msg = name + ',' + e.target.type + ',' + e.type + ',' + now.getTime() + ',' + (now.getTime() - startTime.getTime()) + ',' + val + '|';\n");
+		sb.append("	document.myForm.EVENT_TIMINGS.value += msg;\n");
+		sb.append("	return true;\n");
+		sb.append("}\n");
+		
+		sb.append("function evHandler(e) {\n");
+		sb.append("	now = new Date();\n");
+		sb.append("	val = ',' + e.target.value;\n");
+		sb.append("	name = e.target.name;\n");
+		sb.append("	msg = name + ',' + e.target.type + ',' + e.type + ',' + now.getTime() + ',' + (now.getTime() - startTime.getTime()) + ',' + val + '|';\n");
+		sb.append("	document.myForm.EVENT_TIMINGS.value += msg;\n");
+		sb.append("	return true;\n");
+		sb.append("}\n");
+		
+		sb.append("window.captureEvents(Event.Load);\n");
 		sb.append("window.onLoad = evHandler;\n");
-		sb.append("window.onMouseDown = evHandler;\n");
-		sb.append("window.onMouseMove = evHandler;\n");
-		sb.append("window.onMouseOut = evHandler;\n");
-		sb.append("window.onMouseOver = evHandler;\n");
-		sb.append("window.onMouseUp = evHandler;\n");
-		sb.append("window.onMove = evHandler;\n");
-		sb.append("window.onReset = evHandler;\n");
-		sb.append("window.onResize = evHandler;\n");
-		sb.append("window.onSelect = evHandler;\n");
-		sb.append("window.onSubmit = evHandler;\n");
-		sb.append("window.onUnload = evHandler;\n");
-*/
+
 		sb.append("function init() {\n");
 
 		if (firstFocus != null) {
@@ -1108,30 +1115,26 @@ public class TricepsServlet extends HttpServlet {
 		}
 		
 		sb.append("	for (var i=0;i<document.myForm.elements.length;++i) {\n");
-		sb.append("		var el = document.myForm.elements[i];\n");
-		sb.append("		el.onBlur = evHandler;\n");
-		sb.append("		el.onChange = evHandler;\n");
-		sb.append("		el.onClick = evHandler;\n");
-		sb.append("		el.onFocus = evHandler;\n");
-		sb.append("		el.onKeyPress = evHandler;\n");
-		sb.append("		el.onSelect = evHandler;\n");
-		sb.append("		el.onMouseDown = evHandler;\n");
-		sb.append("		el.onMouseUp = evHandler;\n");
-		sb.append("		el.onClick = evHandler;\n");
+		sb.append("		el = document.myForm.elements[i];\n");
+		sb.append("		evH = evHandler;\n");
+		sb.append("		if (el.options) { evH = selectHandler; }\n");
+		sb.append("		else if (el.type == 'submit') { evH = submitHandler; }\n");
+		sb.append("		el.onBlur = evH;\n");
+		sb.append("		el.onChange = evH;\n");
+		sb.append("		el.onClick = evH;\n");
+		sb.append("		el.onFocus = evH;\n");
+		sb.append("		el.onKeyPress = keyHandler;\n");
+//		sb.append("		el.onSelect = evH;\n");
 		sb.append("	}\n");
 		sb.append("	for (var k=0;k<document.images.length;++k){\n");
-		sb.append("		var el = document.images[k];\n");
-		sb.append("		el.onKeyDown = evHandler;\n");
-		sb.append("		el.onKeyPress = evHandler;\n");
-		sb.append("		el.onKeyUp = evHandler;\n");
-		sb.append("		el.onMouseDown = evHandler;\n");
+		sb.append("		el = document.images[k];\n");
+//		sb.append("		el.onKeyUp = keyHandler;\n");
 		sb.append("		el.onMouseUp = evHandler;\n");
-		sb.append("		el.onClick = evHandler;\n");
+//		sb.append("		el.onClick = evHandler;\n");
 		sb.append("	}\n");
-		sb.append("	document.myForm.onSubmit = evHandler;\n");
 		sb.append("}\n");
 		sb.append("function setAdminModePassword(name) {\n");
-		sb.append("	var ans = prompt('" +
+		sb.append("	ans = prompt('" +
 			triceps.get("Enter_password_for_Administrative_Mode") +
 				"','');\n");
 		sb.append("	if (ans == null || ans == '') return;\n");
@@ -1140,7 +1143,7 @@ public class TricepsServlet extends HttpServlet {
 		sb.append("}\n");
 		sb.append("function markAsRefused(name) {\n");
 		sb.append("	if (!name) return;\n");
-		sb.append("	var val = document.myForm.elements[name + '_SPECIAL'];\n");
+		sb.append("	val = document.myForm.elements[name + '_SPECIAL'];\n");
 		sb.append("	if (val.value == '" + Datum.getSpecialName(Datum.REFUSED) + "') {\n");
 		sb.append("		val.value = '';\n");
 		sb.append("		document.myForm.elements[name + '_REFUSED_ICON'].src = '" + REFUSED_F_ICON + "';\n");
@@ -1153,7 +1156,7 @@ public class TricepsServlet extends HttpServlet {
 		sb.append("}\n");
 		sb.append("function markAsUnknown(name) {\n");
 		sb.append("	if (!name) return;\n");
-		sb.append("	var val = document.myForm.elements[name + '_SPECIAL'];\n");
+		sb.append("	val = document.myForm.elements[name + '_SPECIAL'];\n");
 		sb.append("	if (val.value == '" + Datum.getSpecialName(Datum.UNKNOWN) + "') {\n");
 		sb.append("		val.value = '';\n");
 		sb.append("		document.myForm.elements[name + '_UNKNOWN_ICON'].src = '" + UNKNOWN_F_ICON + "';\n");
@@ -1166,7 +1169,7 @@ public class TricepsServlet extends HttpServlet {
 		sb.append("}\n");
 		sb.append("function markAsNotUnderstood(name) {\n");
 		sb.append("	if (!name) return;\n");
-		sb.append("	var val = document.myForm.elements[name + '_SPECIAL'];\n");
+		sb.append("	val = document.myForm.elements[name + '_SPECIAL'];\n");
 		sb.append("	if (val.value == '" + Datum.getSpecialName(Datum.NOT_UNDERSTOOD) + "') {\n");
 		sb.append("		val.value = '';\n");
 		sb.append("		document.myForm.elements[name + '_NOT_UNDERSTOOD_ICON'].src = '" + NOT_UNDERSTOOD_F_ICON + "';\n");
@@ -1182,7 +1185,7 @@ public class TricepsServlet extends HttpServlet {
 		sb.append("}\n");
 		sb.append("function comment(name) {\n");
 		sb.append("	if (!name) return;\n");
-		sb.append("	var ans = prompt('" +
+		sb.append("	ans = prompt('" +
 			triceps.get("Enter_a_comment_for_this_question") +
 				"',document.myForm.elements[name + '_COMMENT'].value);\n");
 		sb.append("	if (ans == null) return;\n");
@@ -1220,7 +1223,7 @@ public class TricepsServlet extends HttpServlet {
 		sb.append(createJavaScript());
 
 		sb.append("</head>\n");
-		sb.append("<body bgcolor='white' onload='init()'>");
+		sb.append("<body bgcolor='white' onload='evHandler(event);init();'>");
 
 		return sb.toString();
 	}
