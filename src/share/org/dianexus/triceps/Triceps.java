@@ -69,17 +69,12 @@ public class Triceps {
 		nodes.setReserved(Schedule.FLOPPY_DIR,floppyDir);	
 		
 		if (!nodes.init()) {
-if (!Triceps.AUTHORABLE) {
-	/* disuade authoring by disabling the ability to see a schedule with even a single flaw */
-	nodes = new Schedule(this,null);
-	isValid = false;
-	return;
-}
 			setError(nodes.getErrors());
 		}
 		
 		resetEvidence(false);
 		createTempPassword();
+		
 		isValid = true;
 	}
 
@@ -434,10 +429,8 @@ if (Triceps.AUTHORABLE) {
 	}
 
 	public void resetEvidence(boolean toUnasked) {
-if (Triceps.AUTHORABLE) {		
 		startTimer(new Date(System.currentTimeMillis()));	// use current time
 		evidence = new Evidence(this,toUnasked);
-}
 	}
 
 	public void resetEvidence() {

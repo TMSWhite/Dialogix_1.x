@@ -180,9 +180,10 @@ public class Schedule  {
 				}
 
 				Node node = new Node(triceps, line, source, fileLine, languageCount);
+				
 if (!Triceps.AUTHORABLE) {
 	if (node.hasParseErrors()) {
-		return false;	// schedule must be fully debugged before deployment, otherwise won't load
+		err = true;	// schedule must be fully debugged before deployment, otherwise won't load
 	}
 }
 				++count;

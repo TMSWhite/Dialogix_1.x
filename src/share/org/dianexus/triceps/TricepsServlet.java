@@ -203,7 +203,7 @@ Logger.writeln("##Throwable @ Servlet.doPost()" + t.getMessage());
 			return;
 		}
 
-
+if (Triceps.AUTHORABLE) {
 		/* Want to evaluate expression before doing rest so can see results of changing global variable values */
 		if (triceps.get("evaluate_expr").equals(directive)) {
 			String expr = req.getParameter(triceps.get("evaluate_expr"));
@@ -225,6 +225,7 @@ Logger.writeln("##Throwable @ Servlet.doPost()" + t.getMessage());
 				errors.println("empty expression");
 			}
 		}
+}		
 	}
 
 	private void setGlobalVariables() {
@@ -793,6 +794,9 @@ if (Triceps.AUTHORABLE) {
 				triceps = new Triceps(name,workingFilesDir,completedFilesDir,floppyDir);
 //			}
 		}
+		if (!Triceps.AUTHORABLE && !triceps.getSchedule().isLoaded()) {
+			triceps = Triceps.NULL;
+		}
 		return triceps.isValid();
 	}
 
@@ -915,6 +919,7 @@ if (Triceps.AUTHORABLE) {
 
 		sb.append("</td></tr>");
 
+if (Triceps.AUTHORABLE) {
 		if (developerMode) {
 			sb.append("<tr><td colspan='" + ((showQuestionNum) ? 4 : 3 ) + "' align='center'>");
 			sb.append("<input type='submit' name='directive' value='" + triceps.get("select_new_interview") + "'>");
@@ -931,6 +936,7 @@ if (Triceps.AUTHORABLE) {
 			sb.append("<input type='text' name='" + triceps.get("evaluate_expr") + "'>");
 			sb.append("</td></tr>");
 		}
+}		
 
 		sb.append(showOptions());
 
