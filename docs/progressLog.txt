@@ -481,4 +481,16 @@ Reorganization & Documentation
 << changes from 2.9.8 to 2.9.8.1
 	BUGFIX:
 		Passwords could be bypassed using administrator mode.  This is a security breach.  Fixed.
-		
+	LoginTricepsServlet:
+		Updated to use MySql - but hard-coded for Wave6
+		[] Have database, table, and possibly username/password refs in web.xml
+		[] Have variable name mappings moved to second, joined table
+		[] Updates are now to single table -- try sending them to a log table so can track usage
+	Tomcat 4.1:
+		Preliminary support -- not working correctly with SSL or Dialogix
+	/perl/login2sql.pl:
+		to convert from Wave6 files to the DB used by MySql
+	/Tomcat_4_0_x/conf/server.xml:
+		added Mysql resource
+	/Wave6/WEB-INF/web.xml
+		accesses MySql DB for authentication
