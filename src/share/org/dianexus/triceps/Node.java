@@ -815,8 +815,9 @@ if (AUTHORABLE) {
 	}
 	
 	/*public*/ String toXML(Datum datum, boolean autogen) {
-		StringBuffer sb = new StringBuffer();
 		StringBuffer ask = new StringBuffer();
+if (XML) {
+		StringBuffer sb = new StringBuffer();
 		String defaultValue = "";
 		AnswerChoice ac;
 		Enumeration ans = null;
@@ -831,8 +832,6 @@ if (AUTHORABLE) {
 		ask.append(XMLAttrEncoder.encode(getConcept()));
 		ask.append("\" extName=\"");
 		ask.append(XMLAttrEncoder.encode(getExternalName()));
-		ask.append("\" ansType=\"");
-		ask.append(QUESTION_TYPES[answerType]);
 		ask.append("\" comment=\"");
 		ask.append(XMLAttrEncoder.encode(getComment()));
 		ask.append("\" special=\"");
@@ -843,18 +842,20 @@ if (AUTHORABLE) {
 		ask.append(XMLAttrEncoder.encode(getRuntimeErrors()));
 		ask.append("\"><ask>");
 		ask.append((new XmlString(triceps,triceps.getQuestionStr(this))).toString());	// can have embedded markup
-		ask.append("</ask>");
+		ask.append("</ask><listen>");
 		
 		switch(answerType) {
 		case RADIO:
 		case CHECK:
 			ans = getAnswerChoices().elements();
+			sb.append("<multi type=\"" + QUESTION_TYPES[answerType] + "\">");
 			while (ans.hasMoreElements()) { // for however many choices there are
 				++count;
 				ac = (AnswerChoice) ans.nextElement();
 				ac.parse(triceps);
 				sb.append(ac.toXML(isSelected(datum,ac), -1, (autogen) ? Integer.toString(count) : ac.getValue()));
 			}
+			sb.append("</multi>");
 			break;
 		case COMBO:	
 		case LIST:
@@ -872,8 +873,10 @@ if (AUTHORABLE) {
 			StringBuffer acs = sb;
 			sb = new StringBuffer();
 			
+			sb.append("<multi type=\"" + QUESTION_TYPES[answerType] + "\">");
 			sb.append(AnswerChoice.toXML(triceps.get("select_one_of_the_following"),nothingSelected));
 			sb.append(acs);
+			sb.append("</multi>");
 			break;
 		default:
 		case TEXT:
@@ -882,15 +885,15 @@ if (AUTHORABLE) {
 		case DOUBLE:
 			if (datum != null && datum.exists())
 				defaultValue = datum.stringVal();
-			sb.append("<ac value=\"" + XMLAttrEncoder.encode(defaultValue) + "\"/>");
+			sb.append("<mono type=\"" + QUESTION_TYPES[answerType] + "\" val=\"" + XMLAttrEncoder.encode(defaultValue) + "\"/>");
 			break;
 		case NOTHING:
 			break;
 		}
 		
 		ask.append(sb);
-		ask.append("</node>");
-		
+		ask.append("</listen></node>");
+}	//XML	
 		return ask.toString();
 	}
 

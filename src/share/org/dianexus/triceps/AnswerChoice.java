@@ -44,7 +44,8 @@ import java.util.Vector;
 	
 	/*public*/ String toXML(boolean selected, int maxLen, String key) {
 		StringBuffer sb = new StringBuffer();
-		
+if (XML) {
+			
 		Vector v = subdivideMessage(maxLen);
 		String val = XMLAttrEncoder.encode(getValue());
 		
@@ -52,30 +53,32 @@ import java.util.Vector;
 			sb.append("<ac val=\"");
 			sb.append(val);
 			sb.append("\" key=\"");
-			sb.append(key);	// the accelerator key
+			sb.append((i==0) ? key : " ");	// the accelerator key - only accelerate the first of a multi-line option
 			sb.append("\" on=\"");
 			sb.append((selected && i==0) ? "1" : "0");	// only mark the first instance as selected
 			sb.append("\">");
 			sb.append((new XmlString(null,(String) v.elementAt(i))).toString());	// can have embedded markup
 			sb.append("</ac>");
 		}
+}		
 		return sb.toString();
 	}
 	
 	/*public*/ static String toXML(String emptyVal, boolean selected) {
 		StringBuffer sb = new StringBuffer();
-		
+if (XML) {		
 		sb.append("<ac val=\"\" key=\"\" on=\"");
 		sb.append((selected) ? "1" : "0");	// only mark the first instance as selected
 		sb.append("\">");
 		sb.append(XMLAttrEncoder.encode(emptyVal));
 		sb.append("</ac>");
+}		
 		return sb.toString();
 	}
 	
 	private Vector subdivideMessage(int maxLen) {
 		Vector choices = new Vector();
-
+if (XML) {
 		int start=0;
 		int stop=0;
 		int toadd=0;
@@ -111,7 +114,8 @@ import java.util.Vector;
 			choices.addElement(option.substring(0,stop));
 			
 			start += (stop + toadd);
-		}						
+		}
+}								
 		return choices;
 	}
 }

@@ -15,6 +15,10 @@ import java.util.Enumeration;
 
 
 public class TricepsEngine implements VersionIF {
+	static final String USER_AGENT = "User-Agent";
+	static final String ACCEPT_LANGUAGE = "Accept-Language";
+	static final String ACCEPT_CHARSET = "Accept-Charset";
+
 	private Logger errors = new Logger();
 	private Logger info = new Logger();
 
@@ -841,6 +845,7 @@ if (AUTHORABLE) {
 	
 	private String nodesXML() {
 		StringBuffer sb = new StringBuffer();
+if (XML) {
 		Enumeration questionNames = triceps.getQuestions();
 		
 		sb.append("<nodes>");
@@ -852,13 +857,13 @@ if (AUTHORABLE) {
 			
 		}
 		sb.append("</nodes>");
-		
+}		
 		return sb.toString();
 	}
 	
 	private String metadataXML() {
 		StringBuffer sb = new StringBuffer();
-		
+if (XML) {		
 		sb.append("<metadata>");
 		
 		/* languages */
@@ -926,12 +931,13 @@ if (AUTHORABLE) {
 		}
 		
 		sb.append("</metadata>");
-		
+}		
 		return sb.toString();
 	}
 	
 	private String actionXML(String name, String type, String value, String on) {
 		StringBuffer sb = new StringBuffer();
+if (XML) {
 		sb.append("<act type=\"");
 		sb.append(type);
 		sb.append("\" name=\"");
@@ -943,6 +949,7 @@ if (AUTHORABLE) {
 			sb.append(on);
 		}
 		sb.append("\"/>");
+}		
 		return sb.toString();
 	}
 
@@ -951,14 +958,33 @@ if (AUTHORABLE) {
 			return "";
 			
 		StringBuffer sb = new StringBuffer();
-		sb.append("<triceps>");
+if (XML) {		
+		String userAgent = req.getHeader(USER_AGENT);
+		String browser = null;
+		if (userAgent.indexOf("MSIE") != -1) {
+			browser = "MSIE";
+		}
+		else if (userAgent.indexOf("Mozilla") != -1) {
+			browser = "NS";
+		}
+		else {
+			browser = "other";
+		}
+		
+		sb.append("<triceps lang=\"");
+		sb.append(req.getHeader(ACCEPT_LANGUAGE));
+		sb.append("\" charset=\"");
+		sb.append(req.getHeader(ACCEPT_CHARSET));
+		sb.append("\"><script browser=\"");
+		sb.append(browser);
+		sb.append("\"/><header/>");
 		sb.append(nodesXML());
 		sb.append(metadataXML());
 		sb.append("</triceps>");
-		
+}		
 		return sb.toString();
 	}
-
+	
 	/**
 	 * This method assembles the displayed question and answer options
 	 * and formats them in HTML for return to the client browser.
