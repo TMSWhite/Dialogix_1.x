@@ -217,3 +217,9 @@ ToDo
 	XML data passing between GLU and Cocoon for presentation
 	XML data model (?) of internal structures (or argument for reasons why not)
 	
+<< changes from version 2.7.5 to 2.7.6
+Reorganization & Documentation
+  TricepsEngine
+    - now contains meat of what was TricepsServlet code
+  TricepsServlet
+    - now only contains Servlet wrapper classes to maintain TricepsEngine sessions	
