@@ -152,8 +152,10 @@ if (DEPLOYABLE) {
 				out.println("</b><hr>");
 			}
 
-			if (form.hasErrors() && developerMode) {
-if (AUTHORABLE)	new XmlString(triceps, "<b>" + form.getErrors() + "</b>",out);
+			if (form.hasErrors()) {	// do I want to show HTML errors to users?
+				String errs = form.getErrors();
+if (AUTHORABLE)	new XmlString(triceps, "<b>" + errs + "</b>",out);
+if (DEBUG) Logger.writeln("##" + errs);
 			}
 
 			out.println(form.toString());
@@ -421,6 +423,18 @@ if (DEBUG) Logger.writeln("##Throwable @ Servlet.getSortedNames()" + t.getMessag
 		}
 		return names;
 	}
+	
+	/** Show name and step# of current state within schedule */
+	/*public*/ String getScheduleStatus() {
+		if (schedule == null || schedule == Schedule.NULL) {
+			return "";
+		}
+		else {
+			return 
+				(" " + schedule.getReserved(Schedule.SCHEDULE_SOURCE) + "(" + schedule.getReserved(Schedule.STARTING_STEP) + ")");
+		}
+	}
+	
 
 	private String getScheduleInfo(Schedule sched, boolean isSuspended) {
 		if (sched == null)
@@ -775,20 +789,25 @@ if (AUTHORABLE) {
 				savedName = triceps.saveCompletedInfo();
 				if (savedName != null) {
 					if (!WEB_SERVER) info.println(triceps.get("interview_saved_successfully_as") + savedName);
-					triceps.deleteDataLoggers();
+	
+					savedName = triceps.copyCompletedToFloppy();
+					if (savedName != null) {
+						if (!WEB_SERVER) info.println(triceps.get("interview_saved_successfully_as") + savedName);
+						triceps.deleteDataLoggers();	// only if saved both to completed and floppy
+					}
+					else {
+						if (!WEB_SERVER) info.println(triceps.get("error_saving_data_to_floppy_dir"));
+					}								
 				}
 				else {
 					if (!WEB_SERVER) info.println(triceps.get("error_saving_data_to_completed_dir"));
 				}
-	
-				savedName = triceps.copyCompletedToFloppy();
-				if (savedName != null) {
-					if (!WEB_SERVER) info.println(triceps.get("interview_saved_successfully_as") + savedName);
-				}
-				else {
-					if (!WEB_SERVER) info.println(triceps.get("error_saving_data_to_floppy_dir"));
-				}				
 			}
+			
+			if (triceps.hasErrors()) {
+				sb.append(triceps.getErrors());
+			}
+			
 			String url = schedule.getReserved(Schedule.REDIRECT_ON_FINISH_URL);
 			if (url.length() > 0) { 
 				String msg = schedule.getReserved(Schedule.REDIRECT_ON_FINISH_MSG);
