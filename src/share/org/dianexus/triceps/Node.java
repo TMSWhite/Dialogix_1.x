@@ -55,27 +55,41 @@ public class Node  {
 
 	private static final int MAX_TEXT_LEN_FOR_COMBO = 60;
 	private static final int MAX_ITEMS_IN_LIST = 20;
-	
 
-	private String concept = "";
-	private String description = "";
+	
+	/* These are the columns in the flat file database */
+	private String conceptName = "";
+	private String localName = "";
+	private String externalName = ""; // name within DISC
+	private String dependencies = "";
+	
+	private Vector readback = new Vector();
+	private Vector questionOrEval = new Vector();
+	private Vector answerChoicesStr = new Vector();
+	private Vector answerChoicesVector = new Vector();	// of Vectors
+	private Vector helpURL = new Vector();
+	
+	private int numLanguages = 0;
+	private int answerLanguageNum = 0;
+	private String questionAsAsked = "";
+	private String answerGiven = "";
+	private String answerTimeStampStr = "";
+	private String comment = "";
+	
+	private Hashtable answerChoicesHash = new Hashtable();
+	
+	/* These are local variables */
+	
 	private int sourceLine = 0;
 	private String sourceFile = "";
-	private String stepName = "";
-	private String dependencies = "";
-	private String questionRef = ""; // name within DISC
-	private int actionType = BADTYPE;
-	private String actionTypeField = "";	// actionType;datumType;parseRangeType;min;max;mask
-	private String action = "";
+	private int questionOrEvalType = BADTYPE;
+	private String questionOrEvalTypeField = "";	// questionOrEvalType;datumType;parseRangeType;min;max;mask
 	private int answerType = BADTYPE;
 	private int datumType = Datum.INVALID;
-	private String answerOptions = "";
-	private Vector answerChoices = new Vector();
-	private Hashtable answerChoicesHash = new Hashtable();
 	private Vector runtimeErrors = new Vector();
-	private Vector parseErrors = new Vector();
-
-	private String actionTypeStr = "";
+	private Vector parseErrors = new Vector();	
+	
+	private String questionOrEvalTypeStr = "";
 	private String datumTypeStr = "";
 	private String minStr = null;
 	private String maxStr = null;
@@ -90,22 +104,25 @@ public class Node  {
 	private Format mask = null;
 	private String exampleFormatStr = null;
 
-	// loading from extended Schedule with default answers
-	// XXX hack - Node shouldn't know values of evidence - Schedule should know how to load itself.
-	private String defaultAnswer = null;
-	private String defaultAnswerTimeStampStr = null;
-	private String questionAsAsked = "";
 	private Date timeStamp = null;
 	private String timeStampStr = null;
-	private String comment = null;
-	private String helpURL = null;
 
-	public Node(int sourceLine, String sourceFile, String tsv) {
+	public Node(int sourceLine, String sourceFile, String tsv, int numLanguages) {
+	try {
 		String token;
 		int field = 0;
+		
+		if (numLanguages < 1) {
+			setParseError("Invalid language number (" + numLanguages + "): must be >= 1");
+			numLanguages = 1;	// the default
+		}		
 
 		this.sourceLine = sourceLine;
 		this.sourceFile = sourceFile;
+		this.numLanguages = numLanguages;	// needs to be validated?
+		
+		int numLanguagesFound = 0;
+		int numAnswersFound = 0;		
 
 		StringTokenizer ans = new StringTokenizer(tsv,"\t",true);
 
@@ -114,51 +131,105 @@ public class Node  {
 			try {
 				s = ans.nextToken();
 			}
-			catch (NoSuchElementException e) {
-				setParseError("nextToken: " + e.getMessage());
+			catch (Throwable t) {
+				setParseError("tokenization error: " + t.getMessage());
+				System.err.println("tokenization error: " + t.getMessage());
 			}
 
 			if (s.equals("\t")) {
 				++field;
+				if (field == 7) {
+					++numLanguagesFound;	// since once that field has been entered, has successfully coded a language as present
+				}
+				if (field == 9 && numLanguagesFound < numLanguages) {
+					field = 5;	// so that next element is readback for the next language
+				}
 				continue;
 			}
-
+			
 			switch(field) {
-				case 0: concept = Node.fixExcelisms(s); break;
-				case 1: description = Node.fixExcelisms(s); break;
-				case 2: stepName = Node.fixExcelisms(s); break;
+				/* there should be one copy of each of these */
+				case 0: conceptName = Node.fixExcelisms(s); break;
+				case 1: localName = Node.fixExcelisms(s); break;
+				case 2: externalName = Node.fixExcelisms(s); break;
 				case 3: dependencies= Node.fixExcelisms(s); break;
-				case 4: questionRef = Node.fixExcelisms(s); break;
-				case 5: actionTypeField = Node.fixExcelisms(s); break;
-				case 6: action = Node.fixExcelisms(s); break;
-				case 7: answerOptions = Node.fixExcelisms(s); break;
-				case 8: questionAsAsked = Node.fixExcelisms(s); break;
-				case 9: defaultAnswer = Node.fixExcelisms(s); break;
-				case 10: defaultAnswerTimeStampStr = Node.fixExcelisms(s); break;
-				case 11: comment = Node.fixExcelisms(s); break;
-				case 12: helpURL = Node.fixExcelisms(s); break;
-				default:	break;	// discard any extras
+				case 4: questionOrEvalTypeField = Node.fixExcelisms(s); break;
+				/* there are as many copies of each of these are there are languages */
+				case 5: readback.addElement(Node.fixExcelisms(s)); break;
+				case 6: questionOrEval.addElement(Node.fixExcelisms(s)); break;
+				case 7: answerChoicesStr.addElement(Node.fixExcelisms(s)); break;
+				case 8: helpURL.addElement(Node.fixExcelisms(s)); break;		
+				/* there are as many copies of each of these are there are answers - rudimentary support for arrays? */
+				case 9: {
+					int i = 0;
+					try {
+						i = Integer.parseInt(Node.fixExcelisms(s));
+					}
+					catch (Throwable t) {
+						setParseError("LanguageNum for answer not an integer: " + t.getMessage());
+						System.err.println("LanguageNum for answer not an integer: " + t.getMessage());
+						i = 0; // default language
+					}
+					if (i < 0 || i >= numLanguages) {
+						setParseError("Invalid language number '" + i + "': must be between 0 and " + (numLanguages - 1));
+						System.err.println("Invalid language number '" + i + "': must be between 0 and " + (numLanguages - 1));
+						i = 0;	// default language
+					}
+					answerLanguageNum = i;
+				}
+					break;
+				case 10: questionAsAsked = Node.fixExcelisms(s); break;
+				case 11: answerGiven = Node.fixExcelisms(s); break;
+				case 12: comment = Node.fixExcelisms(s); break;
+				case 13: answerTimeStampStr = Node.fixExcelisms(s); break;
+				default: break;	// ignore extras
 			}
 		}
-
-		/* Fix step names */
-		try {
-			if (Character.isDigit(stepName.charAt(0))) {
-				stepName = "_" + stepName;
+		if (field < 7) {	// help column is optional
+			setParseError("Too few columns: " + field);
+		}
+		if (numLanguagesFound < numLanguages) {
+			setParseError("Missing entries for languages " + (numLanguages - numLanguagesFound) + " to " + (numLanguages - 1));
+		}
+					
+		if (conceptName != null && conceptName.trim().length() > 0) {
+			conceptName = conceptName.trim();
+			if (Character.isDigit(conceptName.charAt(0))) {
+				setParseError("Invalid conceptName '" + conceptName + "':  it begins with a digit - prepending '_'");
+				conceptName = "_" + conceptName;
 			}
 		}
-		catch (Throwable t) {
-			/* Must have a null or zero-length value for stepName */
+		if (localName != null && localName.trim().length() > 0) {
+			localName = localName.trim();
+			if (Character.isDigit(localName.charAt(0))) {
+				setParseError("Invalid localName '" + localName + "':  it begins with a digit - prepending '_'");
+				localName = "_" + localName;
+			}
 		}
+		if (externalName != null && externalName.trim().length() > 0) {
+			externalName = externalName.trim();
+			if (Character.isDigit(externalName.charAt(0))) {
+				setParseError("Invalid externalName '" + externalName + "':  it begins with a digit - prepending '_'");
+				externalName = "_" + externalName;
+			}
+		}	
 
-		parseActionTypeField();
-		parseAnswerOptions();
+		parseQuestionOrEvalTypeField();
+		
+		for (int i=0;i<answerChoicesStr.size();++i) {
+			parseAnswerOptions(i,(String) answerChoicesStr.elementAt(i));
+		}
+		
 		processFormattingMask();
 		parseRange();
 		createParseRangeStr();
 	}
+	catch (Throwable t) {
+		setParseError("Syntax error creating node: " + t.getMessage());
+	}
+	}
 
-	public static String fixExcelisms(String s) {
+	public static /* synchronized */ String fixExcelisms(String s) {
 		/* Fix Excel-isms, in which strings with internal quotes have all quotes replaced with double quotes (\"\"), and
 			whole string surrounded by quotes.
 			XXX - this requires assumption that if a field starts AND stops with a quote, then probably an excel-ism
@@ -182,18 +253,26 @@ public class Node  {
 		}
 	}
 
-	private void parseActionTypeField() {
+	private void parseQuestionOrEvalTypeField() {
 		StringTokenizer ans;
 		int z;
+		
+		if (questionOrEvalTypeField == null) {
+			setParseError("Syntax error - must specify questionOrEvalTypeField");
+			return;
+		}
 
-		ans = new StringTokenizer(actionTypeField,";",true);	// return ';' tokens too
+		ans = new StringTokenizer(questionOrEvalTypeField,";",true);	// return ';' tokens too
 
 		for(int field=0;ans.hasMoreTokens();) {
 			String s = null;
 			try {
 				s = ans.nextToken();
 			}
-			catch (NoSuchElementException e) {}
+			catch (Throwable t) {
+				setParseError("tokenization error: " + t.getMessage());
+				System.err.println("tokenization error: " + t.getMessage());
+			}
 
 			if (";".equals(s)) {
 				++field;
@@ -201,15 +280,15 @@ public class Node  {
 			}
 			switch(field) {
 				case 0:	
-					actionTypeStr = s; 
+					questionOrEvalTypeStr = s; 
 					for (z=0;z<ACTION_TYPES.length;++z) {
-						if (actionTypeStr.equalsIgnoreCase(ACTION_TYPES[z])) {
-							actionType = z;
+						if (questionOrEvalTypeStr.equalsIgnoreCase(ACTION_TYPES[z])) {
+							questionOrEvalType = z;
 							break;
 						}
 					}
 					if (z == ACTION_TYPES.length) {
-						setParseError("Unknown action type <B>" + Node.encodeHTML(actionTypeStr) + "</B>");
+						setParseError("Unknown questionOrEval type <B>" + Node.encodeHTML(questionOrEvalTypeStr) + "</B>");
 					}
 					break;
 				case 1: 
@@ -369,26 +448,44 @@ public class Node  {
 			")";
 	}
 
-	private boolean parseAnswerOptions() {
-		StringTokenizer ans = new StringTokenizer(answerOptions,";",true);	// return ';' tokens too
+	private boolean parseAnswerOptions(int langNum, String src) {
+		/* Need to make sure that the answer type, order of answers, and internal values of answers are the same across all languages */
+		if (src == null) {
+			setParseError("Syntax error - must specify answerOptions");
+			return false;
+		}
+		
+		StringTokenizer ans = new StringTokenizer(src,";",true);	// return ';' tokens too
 		String token = "";
 
+		// Determine the question type (first token)
 		try {
 			token = ans.nextToken();
 		}
-		catch (NoSuchElementException e) {}
-
-		for (int z=0;z<QUESTION_TYPES.length;++z) {
-			if (token.equalsIgnoreCase(QUESTION_TYPES[z])) {
-				answerType = z;
-				break;
+		catch (Throwable t) {
+			setParseError("tokenization error: " + t.getMessage());
+			System.err.println("tokenization error: " + t.getMessage());
+		}
+		
+		if (langNum == 0) {
+			for (int z=0;z<QUESTION_TYPES.length;++z) {
+				if (token.equalsIgnoreCase(QUESTION_TYPES[z])) {
+					answerType = z;
+					break;
+				}
 			}
 		}
+		else {
+			if (!QUESTION_TYPES[answerType].equalsIgnoreCase(token)) {
+				setParseError("mismatch across languages in answerType");
+			}
+			// don't change the known value for answerType
+		}
 
-		if (actionType == EVAL) {
+		if (questionOrEvalType == EVAL) {
 			answerType = NOTHING;	// so no further processing
 			datumType = Datum.STRING;
-			return true;
+			return true;	// XXX? - should this really return?
 		}
 		else if (answerType == BADTYPE) {
 			setParseError("Unknown data type for answer <B>" + Node.encodeHTML(token) + "</B>");
@@ -409,13 +506,29 @@ public class Node  {
 				String val=null;
 				String msg=null;
 				int field=0;
+				Vector ansOptions = new Vector();
+				Vector prevAnsOptions = null;
+				
+				if (langNum > 0) {
+					prevAnsOptions = (Vector) answerChoicesVector.elementAt(0);
+					/*
+					if (ans.countTokens() != (1 + 2 * prevAnsOptions.size())) {
+						setParseError("mismatch across languages in number of answerChoices");
+					}
+					*/
+				}
+				
+				int ansPos = 0;
 
 				while(ans.hasMoreTokens()) {
 					String s = null;
 					try {
 						s = ans.nextToken();
 					}
-					catch (NoSuchElementException e) {}
+					catch (Throwable t) {
+						setParseError("tokenization error: " + t.getMessage());
+						System.err.println("tokenization error: " + t.getMessage());
+					}
 
 					if (";".equals(s)) {
 						++field;
@@ -426,19 +539,36 @@ public class Node  {
 							break;	// discard the first token - answerType
 						case 1:
 							val = s;
+							if (langNum > 0) {
+								boolean err = false;
+								String s2 = null;	// previous answer
+								try {
+									s2 = ((AnswerChoice) prevAnsOptions.elementAt(ansPos++)).getValue();
+									if (!s2.equals(val)) {
+										err = true;
+									}
+								}
+								catch (Throwable t) { err = true; }	// catches NullPointerException and ArrayIndexOutOfBoundsException
+								if (err) {
+									setParseError("mismatch across languages in return value for answerChoice # " + (ansPos-1));
+									val = s2;	// reset it to the previously known return value for consistency (?)
+								}
+							}
 							break;
 						case 2: msg = s;
-							field = 0;	// so that cycle between val & mag;
+							field = 0;	// so that cycle between val & msg;
 							if (val == null || msg == null) {
 								setParseError("Answer choice has null value or message");
 							}
 							else {
 								AnswerChoice ac = new AnswerChoice(val,msg);
-								answerChoices.addElement(ac);
+								ansOptions.addElement(ac);
 								
 								/* check for duplicate answer choice values */
-								if (answerChoicesHash.put(val, ac) != null) {
-									setParseError("Answer value <B>" + val + "</B> already used");
+								if (langNum == 0) {	// only for first pass
+									if (answerChoicesHash.put(val, ac) != null) {
+										setParseError("Answer value <B>" + val + "</B> already used");
+									}
 								}
 							}
 							val = null;
@@ -446,12 +576,13 @@ public class Node  {
 							break;
 					}
 				}
-				if (answerChoices.size() == 0) {
+				if (ansOptions.size() == 0) {
 					setParseError("No answer choices specified");
 				}
 				else if (field == 1) {
 					setParseError("Missing message for value " + val);
 				}
+				answerChoicesVector.addElement(ansOptions);
 				break;
 			default:
 				break;
@@ -460,29 +591,32 @@ public class Node  {
 		return true;
 	}
 	
-	public String prepareChoicesAsHTML(Datum datum, boolean autogen, int language) {
-		return prepareChoicesAsHTML(datum,"",autogen,language);
+	public String prepareChoicesAsHTML(Datum datum, boolean autogen) {
+		return prepareChoicesAsHTML(datum,"",autogen);
 	}
 
-	public String prepareChoicesAsHTML(Datum datum, String errMsg, boolean autogen, int language) {
+	public String prepareChoicesAsHTML(Datum datum, String errMsg, boolean autogen) {
 		/* errMsg is a hack - only applies to RADIO_HORIZONTAL */
 		StringBuffer sb = new StringBuffer();
 		String defaultValue = "";
 		AnswerChoice ac;
-		Enumeration ans = answerChoices.elements();
-
+		Enumeration ans = null;
+		
 		try {
 			switch (answerType) {
 			case RADIO:	// will store integers
+				ans = getAnswerChoices().elements();
 				while (ans.hasMoreElements()) { // for however many radio buttons there are
 					ac = (AnswerChoice) ans.nextElement();
-					sb.append("<input type='radio' name='" + Node.encodeHTML(getName()) + "' " + "value='" + Node.encodeHTML(ac.getValue()) + "'" +
+					sb.append("<input type='radio' name='" + Node.encodeHTML(getLocalName()) + "' " + "value='" + Node.encodeHTML(ac.getValue()) + "'" +
 						(DatumMath.eq(datum,new Datum(ac.getValue(),DATA_TYPES[answerType])).booleanVal() ? " CHECKED" : "") + ">" + Node.encodeHTML(ac.getMessage()) + "<br>");
 				}
 				break;
 			case RADIO_HORIZONTAL: // will store integers
 				/* table underneath questions */
-				int count = answerChoices.size();
+				Vector v = getAnswerChoices();
+				ans = v.elements();
+				int count = v.size();
 
 				if (count > 0) {
 					Double pct = new Double(100. / (double) count);
@@ -492,7 +626,7 @@ public class Node  {
 					while (ans.hasMoreElements()) { // for however many radio buttons there are
 						ac = (AnswerChoice) ans.nextElement();
 						sb.append("\n<TD VALIGN='top' WIDTH='" + pct.toString() + "%'>");
-						sb.append("<input type='radio' name='" + Node.encodeHTML(getName()) + "' " + "value='" + Node.encodeHTML(ac.getValue()) + "'" +
+						sb.append("<input type='radio' name='" + Node.encodeHTML(getLocalName()) + "' " + "value='" + Node.encodeHTML(ac.getValue()) + "'" +
 							(DatumMath.eq(datum,new Datum(ac.getValue(),DATA_TYPES[answerType])).booleanVal() ? " CHECKED" : "") + ">" + Node.encodeHTML(ac.getMessage()));
 						sb.append("</TD>");
 					}
@@ -505,15 +639,17 @@ public class Node  {
 //				sb.append("</TR>");	// closing the outside is reserverd for TricepsServlet
 				break;
 			case CHECK:
+				ans = getAnswerChoices().elements();
 				while (ans.hasMoreElements()) { // for however many radio buttons there are
 					ac = (AnswerChoice) ans.nextElement();
-					sb.append("<input type='checkbox' name='" + Node.encodeHTML(getName()) + "' " + "value='" + Node.encodeHTML(ac.getValue()) + "'" +
+					sb.append("<input type='checkbox' name='" + Node.encodeHTML(getLocalName()) + "' " + "value='" + Node.encodeHTML(ac.getValue()) + "'" +
 						(DatumMath.eq(datum, new Datum(ac.getValue(),DATA_TYPES[answerType])).booleanVal() ? " CHECKED" : "") + ">" + Node.encodeHTML(ac.getMessage()) + "<br>");
 				}
 				break;
 			case COMBO:	// stores integers as value
 			case LIST: {
 				StringBuffer choices = new StringBuffer();
+				ans = getAnswerChoices().elements();
 				
 				int optionNum=0;
 				int totalLines = 0;
@@ -567,7 +703,7 @@ public class Node  {
 
 					choices.append("</option>");
 				}
-				sb.append("\n<select name='" + Node.encodeHTML(getName()) + "'" +
+				sb.append("\n<select name='" + Node.encodeHTML(getLocalName()) + "'" +
 					((answerType == LIST) ? " size = '" + Math.min(MAX_ITEMS_IN_LIST,totalLines+1) + "'" : "") +
 					">");
 				sb.append("\n<option value=''" + 
@@ -580,22 +716,22 @@ public class Node  {
 			case TEXT:	// stores Text type
 				if (datum != null && datum.exists())
 					defaultValue = datum.stringVal();
-				sb.append("<input type='text' onfocus='javascript:select()' name='" + Node.encodeHTML(getName()) + "' value='" + Node.encodeHTML(defaultValue) + "'>");
+				sb.append("<input type='text' onfocus='javascript:select()' name='" + Node.encodeHTML(getLocalName()) + "' value='" + Node.encodeHTML(defaultValue) + "'>");
 				break;
 			case MEMO:
 				if (datum != null && datum.exists())
 					defaultValue = datum.stringVal();
-				sb.append("<TEXTAREA rows='5' onfocus='javascript:select()' name='" + Node.encodeHTML(getName()) + "'>" + Node.encodeHTML(defaultValue) + "</TEXTAREA>");
+				sb.append("<TEXTAREA rows='5' onfocus='javascript:select()' name='" + Node.encodeHTML(getLocalName()) + "'>" + Node.encodeHTML(defaultValue) + "</TEXTAREA>");
 				break;
 			case PASSWORD:	// stores Text type
 				if (datum != null && datum.exists())
 					defaultValue = datum.stringVal();
-				sb.append("<input type='password' onfocus='javascript:select()' name='" + Node.encodeHTML(getName()) + "'>");
+				sb.append("<input type='password' onfocus='javascript:select()' name='" + Node.encodeHTML(getLocalName()) + "'>");
 				break;
 			case DOUBLE:	// stores Double type
 				if (datum != null && datum.exists())
 					defaultValue = datum.stringVal();
-				sb.append("<input type='text' onfocus='javascript:select()' name='" + Node.encodeHTML(getName()) + "' value='" + Node.encodeHTML(defaultValue) + "'>");
+				sb.append("<input type='text' onfocus='javascript:select()' name='" + Node.encodeHTML(getLocalName()) + "' value='" + Node.encodeHTML(defaultValue) + "'>");
 				break;
 			default:
 /*			
@@ -612,7 +748,7 @@ public class Node  {
 */
 				if (datum != null && datum.exists())
 					defaultValue = datum.stringVal();
-				sb.append("<input type='text' onfocus='javascript:select()' name='" + Node.encodeHTML(getName()) + "' value='" + Node.encodeHTML(defaultValue) + "'>");
+				sb.append("<input type='text' onfocus='javascript:select()' name='" + Node.encodeHTML(getLocalName()) + "' value='" + Node.encodeHTML(defaultValue) + "'>");
 				break;
 			case NOTHING:
 				sb.append("&nbsp;");
@@ -621,6 +757,7 @@ public class Node  {
 		}
 		catch (Throwable t) {
 			setError("Internal error: " + Node.encodeHTML(t.getMessage()));
+			System.err.println("Internal error: " + t.getMessage());
 			return "";
 		}
 
@@ -656,19 +793,10 @@ public class Node  {
 		return !(err);
 	}
 
-	public String getAction() { return action; }
-	public int getActionType() { return actionType; }
-	public String getActionTypeField() { return actionTypeField; }
-	public String getAnswerOptions() { return answerOptions; }
 	public int getAnswerType() { return answerType; }
 	public int getDatumType() { return datumType; }
-	public String getConcept() { return concept; }
-	public String getDependencies() { return dependencies; }
-	public String getDescription() { return description; }
-	public String getName() { return stepName; }
-	public String getQuestionRef() { return questionRef; }
-	public String getDefaultAnswer() { return defaultAnswer; }
-	public String getDefaultAnswerTimeStampStr() { return defaultAnswerTimeStampStr; }
+
+
 	public String getQuestionMask() {
 		if (rangeStr != null)
 			return rangeStr;
@@ -677,8 +805,8 @@ public class Node  {
 	 }
 	public int getSourceLine() { return sourceLine; }
 	public String getSourceFile() { return sourceFile; }
-	public String getQuestionAsAsked() { return questionAsAsked; }
-	public void setQuestionAsAsked(String s) { questionAsAsked = s; }
+	public int getQuestionOrEvalType() { return questionOrEvalType; }
+	public String getQuestionOrEvalTypeField() { return questionOrEvalTypeField; }
 	public String getMaskStr() { return maskStr; }
 	public Format getMask() { return mask; }
 	public int getParseRangeType() { return parseRangeType; }
@@ -692,11 +820,13 @@ public class Node  {
 	
 
 	public void setParseError(String error) {
-		parseErrors.addElement(error);
+		if (error != null)
+			parseErrors.addElement(error);
 
 	}
 	public void setError(String error) {
-		runtimeErrors.addElement(error);
+		if (error != null) 
+			runtimeErrors.addElement(error);
 	}
 
 	public Vector getErrors() {
@@ -721,21 +851,31 @@ public class Node  {
 	/**
 	 * Prints out the components of a node in the schedule.
 	 */
+	 /*
 	public String toString() {
-		return "Node (" + sourceLine + "): <B>" + Node.encodeHTML(stepName) + "</B><BR>\n" + "Concept: <B>" + Node.encodeHTML(concept) + "</B><BR>\n" +
-			"Description: <B>" + Node.encodeHTML(description) + "</B><BR>\n" + "Dependencies: <B>" + Node.encodeHTML(dependencies) + "</B><BR>\n" +
-			"Question Reference: <B>" + Node.encodeHTML(questionRef) + "</B><BR>\n" + "Action Type: <B>" + Node.encodeHTML(actionTypeStr) + "</B><BR>\n" +
-			"Action: <B>" + Node.encodeHTML(action) + "</B><BR>\n" + "AnswerType: <B>" + Node.encodeHTML(QUESTION_TYPES[answerType]) + "</B><BR>\n" + "AnswerOptions: <B>" +
-			Node.encodeHTML(answerOptions) + "</B><BR>\n";
+		StringBuffer sb = new StringBuffer();
+		return "Node (" + sourceLine + "): <B>" + Node.encodeHTML(localName) + "</B><BR>\n" + "Concept: <B>" + Node.encodeHTML(conceptName) + "</B><BR>\n" +
+			"Description: <B>" + Node.encodeHTML(readback) + "</B><BR>\n" + "Dependencies: <B>" + Node.encodeHTML(dependencies) + "</B><BR>\n" +
+			"Question Reference: <B>" + Node.encodeHTML(externalName) + "</B><BR>\n" + "Action Type: <B>" + Node.encodeHTML(questionOrEvalTypeStr) + "</B><BR>\n" +
+			"Action: <B>" + Node.encodeHTML(questionOrEval) + "</B><BR>\n" + "AnswerType: <B>" + Node.encodeHTML(QUESTION_TYPES[answerType]) + "</B><BR>\n" + "AnswerOptions: <B>" +
+			Node.encodeHTML(answerChoices) + "</B><BR>\n";
 	}
+	*/
 
 	public String toTSV() {
-		return concept + "\t" + description + "\t" + stepName + "\t" + dependencies + "\t" + questionRef +
-			"\t" + actionTypeField + "\t" + action + "\t" + answerOptions;
+		StringBuffer sb = new StringBuffer(conceptName + "\t" + localName + "\t" + externalName + "\t" + dependencies + "\t" + questionOrEvalTypeField);
+		
+		for (int i = 0;i<numLanguages;++i) {
+			try { sb.append("\t"); sb.append(readback.elementAt(i)); } catch (ArrayIndexOutOfBoundsException e) { }
+			try { sb.append("\t"); sb.append(questionOrEval.elementAt(i)); } catch (ArrayIndexOutOfBoundsException e) { }
+			try { sb.append("\t"); sb.append(answerChoicesStr.elementAt(i)); } catch (ArrayIndexOutOfBoundsException e) { }
+			try { sb.append("\t"); sb.append(helpURL.elementAt(i)); } catch (ArrayIndexOutOfBoundsException e) { }
+		}
+		return sb.toString();
 	}
 
 
-	static public String encodeHTML(String s, boolean disallowEmpty) {
+	static public /* synchronized */ String encodeHTML(String s, boolean disallowEmpty) {
 		/* Limited HTML tagging supported:
 			<B></B>
 			<I></I>
@@ -744,51 +884,54 @@ public class Node  {
 		*/
 		StringBuffer dst = new StringBuffer();
 		
-		try {
-			char[] src = s.toCharArray();
-			
-			for (int i=0;i<src.length;++i) {
-				switch (src[i]) {
-					case '\'': dst.append("&#39;"); break;
-					case '\"': dst.append("&#34;"); break;
-					case '<': 
-						if (((i+2) < src.length) && src[i+2] == '>') {
-							switch(src[i+1]) {
-								case 'B': case 'b': dst.append("<B>"); i+=2; break;
-								case 'I': case 'i': dst.append("<I>"); i+=2; break;
-								case 'U': case 'u': dst.append("<U>"); i+=2; break;
-								default: dst.append("&#60;"); break;
+		if (s != null) {
+			try {
+				char[] src = s.toCharArray();
+				
+				for (int i=0;i<src.length;++i) {
+					switch (src[i]) {
+						case '\'': dst.append("&#39;"); break;
+						case '\"': dst.append("&#34;"); break;
+						case '<': 
+							if (((i+2) < src.length) && src[i+2] == '>') {
+								switch(src[i+1]) {
+									case 'B': case 'b': dst.append("<B>"); i+=2; break;
+									case 'I': case 'i': dst.append("<I>"); i+=2; break;
+									case 'U': case 'u': dst.append("<U>"); i+=2; break;
+									default: dst.append("&#60;"); break;
+								}
 							}
-						}
-						else if (((i+3) < src.length) && src[i+1] == '/' && src[i+3] == '>') {
-							switch(src[i+2]) {
-								case 'B': case 'b': dst.append("</B>"); i+=3; break;
-								case 'I': case 'i': dst.append("</I>"); i+=3; break;
-								case 'U': case 'u': dst.append("</U>"); i+=3; break;
-								default: dst.append("&#60;"); break;
-							}
-						}						
-						else if (((i+3) < src.length) && src[i+3] == '>') {
-							if ((src[i+1] == 'b' || src[i+1] == 'B') &&
-									(src[i+2] == 'r' || src[i+2] == 'R')) {
-								dst.append("<BR>");
-								i+=3;
+							else if (((i+3) < src.length) && src[i+1] == '/' && src[i+3] == '>') {
+								switch(src[i+2]) {
+									case 'B': case 'b': dst.append("</B>"); i+=3; break;
+									case 'I': case 'i': dst.append("</I>"); i+=3; break;
+									case 'U': case 'u': dst.append("</U>"); i+=3; break;
+									default: dst.append("&#60;"); break;
+								}
+							}						
+							else if (((i+3) < src.length) && src[i+3] == '>') {
+								if ((src[i+1] == 'b' || src[i+1] == 'B') &&
+										(src[i+2] == 'r' || src[i+2] == 'R')) {
+									dst.append("<BR>");
+									i+=3;
+								}
+								else {
+									dst.append("&#60;");
+								}
 							}
 							else {
 								dst.append("&#60;");
 							}
-						}
-						else {
-							dst.append("&#60;");
-						}
-						break;
-					case '>': dst.append("&#62;"); break;
-					case '&': dst.append("&#38;"); break;
-					default: dst.append(src[i]); break;
+							break;
+						case '>': dst.append("&#62;"); break;
+						case '&': dst.append("&#38;"); break;
+						default: dst.append(src[i]); break;
+					}
 				}
 			}
-		}
-		catch (Throwable t) {
+			catch (Throwable t) {
+				System.err.println("Exception while HTMLizing string" + t.getMessage());
+			}
 		}
 		String ans = dst.toString();
 		if (disallowEmpty && ans.length() == 0) {
@@ -813,31 +956,92 @@ public class Node  {
 		timeStampStr = Datum.format(timeStamp,Datum.DATE,Datum.TIME_MASK);
 	}
 		
-	public void setTimeStamp(String t) {
-		if (t == null) {
+	public void setTimeStamp(String timeStr) {
+		if (timeStr == null || timeStr.trim().length() == 0) {
 			setTimeStamp();
 			return;
 		}
 			
 		Date time = null;
 		try {
-			time = Datum.TIME_MASK.parse(t);
+			time = Datum.TIME_MASK.parse(timeStr);
 		}
-		catch (java.text.ParseException e) {
-			setParseError("Error parsing time " + e.getMessage());
-			System.err.println("error parsing time " + e.getMessage());
+		catch (Throwable t) {
+			setParseError("Error parsing time " + t.getMessage());
+			System.err.println("error parsing time " + t.getMessage());
 		}
 		if (time == null) {
 			setTimeStamp();
 		}
 		else {
 			timeStamp = time;
-			timeStampStr = t;
+			timeStampStr = timeStr;
 		}
 	}
 	
-	public void setComment(String c) { comment = (comment == null) ? c : (comment + c); }
+	/* These are the get functions for the language specific vectors */
+	// these only occur once 
+	public String getConcept() { return conceptName; }
+	public String getLocalName() { return localName; }
+	public String getExternalName() { return externalName; }
+	public String getDependencies() { return dependencies; }
+	
+	// these are a Vector of length #languages 
+	static private /* synchronized */ String elementAt(Vector v, int i) {
+		/* Get the language most furthest to the right (or the exact match) as the value for an element */
+		String s = null;
+		try { 
+			for (int j=i;j>=0;--j) {
+				if (j >= v.size()) {
+					continue;
+				}
+				s = (String) v.elementAt(j);
+				if (s == null || s.trim().length() == 0) {
+					continue;
+				}
+				else {
+					break;
+				}
+			}
+			if (s == null) {
+				return "";
+			} else {
+				return s;
+			}
+		}
+		catch (Throwable t) {
+			System.err.println("Internal error in elementAt()");
+			return "";
+		}
+	}
+	
+	public String getReadback() { return Node.elementAt(readback,answerLanguageNum); }
+	public String getQuestionOrEval() { return Node.elementAt(questionOrEval, answerLanguageNum); }
+	public Vector getAnswerChoices() { 
+		try {
+			return (Vector) answerChoicesVector.elementAt(answerLanguageNum);
+		}
+		catch (Throwable t) {
+			System.err.println("internal error accessing answerChoices # " + answerLanguageNum);
+			return null;
+		}
+	}	
+	public void	setHelpURL(String h) { helpURL.setElementAt(h,answerLanguageNum); }
+	public String getHelpURL() { return Node.elementAt(helpURL,answerLanguageNum); }
+	
+	public void setQuestionAsAsked(String s) { questionAsAsked = s; }
+	public String getQuestionAsAsked() { return questionAsAsked; }
+	public String getAnswerGiven() { return answerGiven; }
+	public String getAnswerTimeStampStr() { return answerTimeStampStr; }
+	public void setComment(String c) { comment = c; }
 	public String getComment() { return comment; }
-	public void setHelpURL(String h) { helpURL = h; }
-	public String getHelpURL() { return helpURL; }	
+	
+	public void setAnswerLanguageNum(int langNum) { 
+		if (langNum < 0 || langNum >= numLanguages) {
+			setParseError("LanguageNum must be between 0 and " + (numLanguages - 1)); 
+			return;
+		}
+		answerLanguageNum = langNum;
+	}
+	public int getAnswerLanguageNum() { return answerLanguageNum; }
 }
