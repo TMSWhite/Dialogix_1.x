@@ -21,7 +21,8 @@ import java.io.InputStream;
 	/*public*/ static final Logger NULL = new Logger(null,null,true);
 
 	private static PrintWriter STDERR = null;
-	private static final String STDERR_NAME = "Triceps.log.err";
+	private static String STDERR_DIR = "/usr/local/triceps/logs/";
+	static final String STDERR_NAME = STDERR_DIR + "Triceps.log.err";
 
 	static {
 		try {
@@ -107,7 +108,7 @@ import java.io.InputStream;
 //			return;
 		try {
 			if (out == null && file != null) {
-if (DEBUG) Logger.writeln("##Logger.write(" + getFilename() + ") - had to re-open closed Logger");
+//if (DEBUG) Logger.writeln("##Logger.write(" + getFilename() + ") - had to re-open closed Logger");
 				openFile();	// in case was closed during finalization to Jar file
 			}
 			
@@ -144,13 +145,13 @@ if (DEBUG) Logger.writeln("##Logger.write(" + getFilename() + ") - had to re-ope
 		if (STDERR != null) {
 			STDERR.write(s);
 			if (eol)
-				STDERR.write(DOS_EOL);
+				STDERR.write(UNIX_EOL);
 			STDERR.flush();
 		}
 		else {
 			System.err.print(s);
 			if (eol)
-				System.err.print(DOS_EOL);
+				System.err.print(UNIX_EOL);
 		}
 	}
 
@@ -253,4 +254,16 @@ if (DEBUG) Logger.writeln("Logger.getInputStream(" + getFilename() + ")->" + e.g
 			return null;			
 		}
 	}	
+	
+	/*public*/ static InputStream getDefaultInputStream() {
+		try {
+			STDERR.flush();
+			FileInputStream fis = new FileInputStream(STDERR_NAME);
+			return fis;
+		}
+		catch (Exception e) {
+if (DEBUG) Logger.writeln("Logger.getInputStream(" + STDERR_NAME + ")->" + e.getMessage());
+			return null;			
+		}
+	}		
 }
