@@ -282,6 +282,16 @@ public class Datum  {
 					}
 					else {
 						type = t;	// only if successfully parsed
+						
+						/* also check whether can be considered a number */
+						try {
+							dVal = Double.valueOf(sVal).doubleValue();
+						}
+						catch(Throwable e) {
+							dVal = Double.NaN;
+						}
+						bVal = (Double.isNaN(dVal) || (dVal == 0)) ? false : true;				
+						
 					}
 				}
 				catch (java.text.ParseException e) {
@@ -294,14 +304,6 @@ public class Datum  {
 					error = "Please enter a " + TYPES[t] + ex;
 					date = null;
 				}
-				/* also check whether can be considered a number */
-				try {
-					dVal = Double.valueOf(sVal).doubleValue();
-				}
-				catch(NumberFormatException e) {
-					dVal = Double.NaN;
-				}
-				bVal = (Double.isNaN(dVal) || (dVal == 0)) ? false : true;				
 				break;
 			case REFUSED:
 				type = REFUSED;
