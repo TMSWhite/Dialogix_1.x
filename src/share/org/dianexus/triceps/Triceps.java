@@ -14,7 +14,7 @@ public class Triceps {
 
 	private String scheduleURL = null;
 	private String scheduleUrlPrefix = null;
-	public	Schedule nodes = new Schedule();	// XXX should this be allowed to be public?
+	public	Schedule nodes = null;
 	public	Evidence evidence = null;	// XXX should be private - made public for Node.prepareChoicesAsHTML(parser,...)
 	public	Parser parser = new Parser();	// XXX should be private - made public for Node.prepareChoicesAsHTML(parser,...)
 
@@ -26,54 +26,63 @@ public class Triceps {
 	private Date stopTime = null;
 	private String startTimeStr = null;
 	private String stopTimeStr = null;
+	private boolean isValid = false;
 
-	private String urlPrefix = null;
-
-	public Triceps() {
-	}
-
-	public boolean setSchedule(String filename, String urlPrefix, String optionalFilePrefix) {
-		BufferedReader br = Triceps.getReader(filename, urlPrefix, optionalFilePrefix);
-		if (br == null) {
-			scheduleURL = null;
-			errors.addElement("Unable to find or access '" + Triceps.getReaderError() + "'");
-			return false;
+	public Triceps(String scheduleLoc) {
+		nodes = new Schedule(scheduleLoc);
+		if (!nodes.init()) {
+			errors.addElement(nodes.getErrors());
 		}
-		else {
-			scheduleURL = filename;
-			scheduleUrlPrefix = optionalFilePrefix;
-
-			nodes = new Schedule();
-			return (nodes.load(br,scheduleURL) && resetEvidence() && setDefaultEvidence());
-		}
+		resetEvidence();
+		setDefaultValues();
+		isValid = true;
 	}
-
-	public boolean reloadSchedule() {
+	
+	public boolean isValid() { return isValid; }
+	
+	public boolean reloadSchedule() { 
+		return loadDatafile(null);
+	}
+	
+	public boolean loadDatafile(String name) {
 		Schedule oldNodes = nodes;
 		Evidence oldEvidence = evidence;
-
-		nodes = new Schedule();
-
-		boolean ok=false;
-
-		ok = nodes.load(Triceps.getReader(scheduleURL,urlPrefix,scheduleUrlPrefix),scheduleURL);
-		ok = resetEvidence() && ok;
-
+		
+		boolean ok = false;
+		
+		if (name != null) {
+			nodes = new Schedule(name);
+		}
+		else {
+			nodes = new Schedule(nodes.getSource());
+		}
+		
+		if (!nodes.init()) {
+			nodes = oldNodes;
+			return false;
+		}
+		
+		resetEvidence();
+		setDefaultValues();
+		
 		try {
 			for (int i=0;i<oldNodes.size();++i) {
 				Node oldNode = oldNodes.getNode(i);
-				Node newNode = nodes.getNode(i);
-				evidence.set(newNode, oldEvidence.getDatum(oldNode),oldNode.getTimeStampStr());
+				Node newNode = evidence.getNode(oldNode);	// get newNode with same name or concept as old ones
+				if (newNode != null) {
+					evidence.set(newNode, oldEvidence.getDatum(oldNode),oldNode.getTimeStampStr());
+				}
 			}
 		}
 		catch (Throwable t) {
-			String msg = "Error reloading schedule - number of nodes probably changed: " + t.getMessage();
+			String msg = "Error loading datafile: " + t.getMessage() + " restoring original schedule";
 			errors.addElement(Node.encodeHTML(msg));
 			System.err.println(msg);
+			nodes = oldNodes;
+			evidence = oldEvidence;
 			return false;
 		}
-
-		return ok;
+		return true;
 	}
 
 	public Datum getDatum(Node n) {
@@ -169,7 +178,6 @@ public class Triceps {
 		q.createParseRangeStr();
 
 		q.setQuestionAsAsked(parser.parseJSP(evidence, q.getQuestionOrEval()) + q.getQuestionMask());
-//		if (parser.hasErrors()) { Vector v=parser.getErrors(); for (int c=0;c<v.size();++c) { errors.addElement(v.elementAt(c)); }  }
 		return q.getQuestionAsAsked();
 	}
 
@@ -228,7 +236,6 @@ public class Triceps {
 						++braceLevel;	// XXX:  skip this entire section
 						evidence.set(node, Datum.getInstance(Datum.NA));	// and set all of this brace's values to NA
 					}
-//					if (parser.hasErrors()) { Vector v=parser.getErrors(); for (int c=0;c<v.size();++c) { errors.addElement(v.elementAt(c)); }  }
 				}
 				else {
 					++braceLevel;	// skip this inner block
@@ -254,7 +261,6 @@ public class Triceps {
 					else {
 						evidence.set(node, Datum.getInstance(Datum.NA));	// if doesn't satisfy dependencies, store NA
 					}
-//					if (parser.hasErrors()) { Vector v=parser.getErrors(); for (int c=0;c<v.size();++c) { errors.addElement(v.elementAt(c)); }  }
 				}
 			}
 			else if (actionType == Node.QUESTION) {
@@ -268,7 +274,6 @@ public class Triceps {
 					else {
 						evidence.set(node, Datum.getInstance(Datum.NA));	// if doesn't satisfy dependencies, store NA
 					}
-//					if (parser.hasErrors()) { Vector v=parser.getErrors(); for (int c=0;c<v.size();++c) { errors.addElement(v.elementAt(c)); }  }
 				}
 			}
 			else {
@@ -341,7 +346,6 @@ public class Triceps {
 				else {
 					// try the next question
 				}
-//				if (parser.hasErrors()) { Vector v=parser.getErrors(); for (int c=0;c<v.size();++c) { errors.addElement(v.elementAt(c)); }  }
 			}
 			else if (actionType == Node.QUESTION) {
 				if (braceLevel == 0 && parser.booleanVal(evidence, node.getDependencies())) {
@@ -350,7 +354,6 @@ public class Triceps {
 				else {
 					// else within a brace, or not applicable, so skip it.
 				}
-//				if (parser.hasErrors()) { Vector v=parser.getErrors(); for (int c=0;c<v.size();++c) { errors.addElement(v.elementAt(c)); }  }
 			}
 			else {
 				node.setError("Invalid action type");
@@ -359,11 +362,6 @@ public class Triceps {
 		}
 		currentStep = step;
 		return OK;
-	}
-
-	public boolean resetEvidence() {
-		evidence = new Evidence(nodes);
-		return true;
 	}
 
 	private void startTimer(Date time) {
@@ -380,7 +378,11 @@ public class Triceps {
 		}
 	}
 
-	private boolean setDefaultEvidence() {
+	public void resetEvidence() {
+		evidence = new Evidence(nodes);
+	}
+	
+	private void setDefaultValues() {
 		Node n;
 		Datum d;
 		String init;
@@ -391,7 +393,6 @@ public class Triceps {
 
 			init = n.getAnswerGiven();
 
-//			if (init == null || init.length() == 0 || init.equals(NULL) || init.equals(Datum.TYPES[Datum.UNASKED])) {
 			if (init == null || init.length() == 0 || init.equals(Datum.TYPES[Datum.UNASKED])) {
 				d = Datum.getInstance(Datum.UNASKED);
 			}
@@ -415,8 +416,6 @@ public class Triceps {
 		}
 
 		startTimer(new Date(System.currentTimeMillis()));	// use current time
-
-		return true;
 	}
 
 	public boolean storeValue(Node q, String answer, String comment, String special, boolean okToRefuse, boolean okToUnknown, boolean okToNotUnderstood) {
@@ -542,7 +541,6 @@ public class Triceps {
 		Vector actionErrors;
 		Vector nodeErrors;
 		boolean hasErrors;
-//		Evidence ev = new Evidence(nodes);
 
 		for (int i=0;i<size();++i) {
 			n = nodes.getNode(i);
@@ -705,118 +703,6 @@ public class Triceps {
 			System.err.println(msg);
 			return false;
 		}
-	}
-
-	static synchronized BufferedReader getReader(String fname, String urlPrefix, String optionalFilePrefix) {
-		boolean ok = false;
-		BufferedReader br = null;
-		URL url = null;
-		File file = null;
-		String filename=null;
-
-		/* If not a URL, then try reading from a file */
-		try {
-			String fileSrc = ((optionalFilePrefix != null) ? optionalFilePrefix : "") + fname;
-			if (fileSrc != null) {
-				file = new File(fileSrc);
-				if (!file.exists() || !file.isFile() || !file.canRead()) {
-					ok = false;
-					System.err.println("Error - file '" + fileSrc + "' doesn't exist; isn't a file, or is unreadable");
-				}
-				else {
-					br = new BufferedReader(new FileReader(file));
-					ok = true;
-//					System.err.println("successfully read from " + fileSrc);
-				}
-			}
-			else {
-				System.err.println("Error - null filename");
-			}
-		}
-		catch (Throwable t) {
-			System.err.println("error accessing file: " + t.getMessage());
-		}
-		if (ok) {
-			return br;
-		}
-		else {
-			if (br != null) {
-				try { br.close(); } catch (Throwable t) {
-					System.err.println("error closing reader: " + t.getMessage());
-				}
-			}
-		}
-
-		/* Is it a URL pointing to a file? If so, try reading from it*/
-		try {
-			filename = ((urlPrefix != null) ? urlPrefix : "") + filename;
-			url = new URL(filename);
-			br = new BufferedReader(new InputStreamReader(url.openStream()));
-//			br.mark(1000);	// allows stream be reset to beginning, rather than closing & re-opening it
-
-			String fileLine;
-			while ((fileLine = br.readLine()) != null) {
-				fileLine = fileLine.trim();
-				if (fileLine.equals(""))
-					continue;
-
-				/* If this is an HTML page instead of a text file, then an error has occurred */
-				if (fileLine.startsWith("<")) {
-					ok = false;
-					break;
-				}
-				else {
-					br = new BufferedReader(new InputStreamReader(url.openStream()));
-//					br.reset();	// so that resume reading from the beginning of the file
-					ok = true;
-					break;
-				}
-			}
-		}
-		catch (Throwable t) {
-			/* not a valid URL, or unable to access it - so try reading from a file */
-			System.err.println("can't access as url: " + t.getMessage());
-		}
-		if (ok) {
-			return br;
-		}
-		else {
-			if (br != null) {
-				try { br.close(); } catch (Throwable t) {
-					System.err.println("error closing reader: " + t.getMessage());
-				}
-			}
-		}
-
-		if (!ok) {
-			StringBuffer sb = new StringBuffer();
-			if (url != null) {
-				sb.append(url.toString());
-			}
-			if (file != null) {
-				if (sb.length() > 0) {
-					sb.append(" and ");
-				}
-				sb.append(file.toString());
-			}
-			if (sb.length() == 0) {
-				sb.append("[fname=" + fname + "], [optionalFilePrefix=" + optionalFilePrefix + "]");
-			}
-
-			fileAccessError = "Error accessing or reading from " + sb.toString();
-			System.err.println(fileAccessError);
-			return null;
-		}
-		else {
-			System.err.println("Shouldn't get here");
-			return null;
-		}
-	}
-
-	public static String getReaderError() {
-		String tmp = fileAccessError;
-		fileAccessError = null;
-		return tmp;
 	}
 
 	public String getTitle() {
