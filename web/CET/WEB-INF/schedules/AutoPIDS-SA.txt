@@ -1,0 +1,406 @@
+RESERVED	__TRICEPS_FILE_TYPE__	SCHEDULE					
+RESERVED	__TITLE__	AutoPIDS-SA
+RESERVED	__ICON__	CETbulblogo.jpg					
+RESERVED	__HEADER_MSG__	Automated Personal Inventory for Depression and SAD - Self-Assessment Version (AutoPIDS-SA)
+RESERVED	__PASSWORD_FOR_ADMIN_MODE__	bypass					
+RESERVED	__SHOW_QUESTION_REF__	true					
+RESERVED	__AUTOGEN_OPTION_NUM__	false					
+RESERVED	__DEVELOPER_MODE__	true					
+RESERVED	__DEBUG_MODE__	TRUE
+RESERVED	__REDIRECT_ON_FINISH_URL__	www.cet.org
+RESERVED	__REDIRECT_ON_FINISH_MSG__	The Center for Environmental Therapeutics
+RESERVED	__SWAP_NEXT_AND_PREVIOUS__	true
+RESERVED	__SET_DEFAULT_FOCUS__	false
+RESERVED	__SCHED_VERSION_MAJOR__	1
+RESERVED	__SCHED_VERSION_MINOR__	1
+Title	Title		1	[		<b><p align='center'><font size='+2'>Automated Personal Inventory of Depression and SAD</font><br/><font size='+1'>Self-Assessment Version (AutoPIDS-SA)</font><br/><br/>Michael Terman, PhD, Thomas White, MD, MS, MA, and Janet B.W. Williams, DSW<br/><i>New York State Psychiatric Institute and<br/>Department of Psychiatry, Columbia University</i></p></b>	nothing
+Intro	Intro		1	q		This online questionnaire may help you decide whether to consult a clinician about depression, whether Seasonal Affective Disorder (SAD) may be your problem, and whether treatment -- with light, medication, negative air ionization, or psychotherapy -- should be considered. This is not a method for self-diagnosis, but it can help you assess the severity and timing of certain symptoms of depression. You should answer these questions privately - for your personal use only.  You may want to discuss your results with your doctor or therapist, and you will be able to print out your feedback at the end.  If family members or friends also want to use the AutoPIDS-SA, please refer them to this website for separate personal sessions.	nothing
+Intro2	Intro2		1	]		<b><i><p align='center'><font size='+1'>Further notes about privacy</font></p></i></b><p>The AutoPIDS-SA is scored by an online computer program located at Columbia University.  As soon as you complete the questionnaire and receive feedback, all your entries will be erased on that computer.  You will not be identifiable by this website or by the computer, and no record will be kept of your participation.  The Center for Environmental Therapeutics offers you the AutoPIDS-SA, free of charge, entirely confidentially.  At this time, CET cannot offer clinical guidance beyond the general information offered on our website, and we will not be able to respond to personal inquiries about diagnosis or treatment.</p><p>Before answering this questionnaire, you may also want to consider some general precautions to ensure your privacy on the Internet.  For guidelines and suggestions, <a href="../PrivacyInfo.htm" target="_blank">CLICK HERE</a>.</p>	nothing
+CompletionDate	CompletionDate		1	e		formatDate(getNow(),"d MMM yyyy")	nothing
+Aintro	Aintro		1	[		<b>PART 1.  SOME QUESTIONS ABOUT DEPRESSION.</b><p><b><i>In the last year, have you had any single period of time -- <u>lasting at least two weeks</u> -- in which any of the following problems was present nearly every day?  (Of course, you may also have had several such periods.)</i></b></p><p><b>Where there two weeks or more ...</b></p>	nothing
+A1	A1		1	q		When you had trouble falling asleep or staying asleep, or sleeping too much?	list|1|yes|0|no
+A2	A2		1	q		When you were feeling tired or had little energy?	list|1|yes|0|no
+A3	A3		1	q		When you experienced poor appetite or overeating?  Or significant weight gain or loss, although you were not dieting?	list|1|yes|0|no
+A4	A4		1	q		When you found little interest or little pleasure in doing things?	list|1|yes|0|no
+A5	A5		1	q		When you were feeling down, depressed, or hopeless?	list|1|yes|0|no
+A6	A6		1	q		When you were feeling bad about yourself -- or that you were a failure -- or that you were letting yourself or your family down?	list|1|yes|0|no
+A7	A7		1	q		When you had trouble concentring on things, like reading the newspaper or watching television?	list|1|yes|0|no
+A8	A8		1	q		When you were so fidgety or restless that you were moving around a lot more than usual?  Or the opposite -- moving or speaking so slowly that other people could have noticed?	list|1|yes|0|no
+A9	A9		1	]		When you were thinking a lot about death or that you would be better off dead, or even thinking about hurting yourself?	list|1|yes|0|no
+Ascore	Ascore		1	e		count(A1,A2,A3,A4,A5,A6,A7,A8,A9)	nothing
+Bintro	Bintro		1	[		<b>PART 2.  HOW 'SEASONAL' A PERSON ARE YOU?</b><p><b><i>Select that answer that indicates how much of the following behaviors or feelings <u>changes with the seasons</u>.</i></b>  (For instance, you may find you sleep different hours in the winter than in the summer.)</p>	nothing
+B1	B1		1	q		Change in your total sleep length (including nighttime sleep and naps)	list|0|no change|1|slight change|2|moderate change|3|marked change|4|extreme change
+B2	B2		1	q		Change in your level of social activity (including friends, family and co-workers)	list|0|no change|1|slight change|2|moderate change|3|marked change|4|extreme change
+B3	B3		1	q		Change in your general mood, or overall feeling of well-being	list|0|no change|1|slight change|2|moderate change|3|marked change|4|extreme change
+B4	B4		1	q		Change in your weight	list|0|no change|1|slight change|2|moderate change|3|marked change|4|extreme change
+B5	B5		1	q		Change in your appetite (both food cravings and the amount you eat)	list|0|no change|1|slight change|2|moderate change|3|marked change|4|extreme change
+B6	B6		1	q		Change in your energy level	list|0|no change|1|slight change|2|moderate change|3|marked change|4|extreme change
+B7	B7		1	]		If you experience changes with the season, do you feel that these are a problem for you?	list|0|No|1|Yes
+Bscore	Bscore		1	e		(B1 + B2 + B3 + B4 + B5 + B6)	nothing
+Cintro	Cintro		1	q		<b>PART 3.  WHICH MONTHS STAND OUT AS 'EXTREME' TO YOU?</b><p><b><i>For each of the following behaviors or feelings, select all applicable months.  If no particular month stands out for an item, select "none".  You should select a month <u>only if you recollect a distinct change</u> in comparison to other months, occuring for several years.  You may select several months for each item.</i></b></p>	nothing
+C1A_intro	C1A_intro		1	[		I tend to <b>feel worst</b> in (select all applicable months, or <i>None</i>)	nothing
+C1A_Non	C1A_Non		1	q		<B>NONE</B>	check|1|Yes <b>(NONE)</b>
+C1A_Jan	C1A_Jan		1	q		January	check|1|Yes (January)
+C1A_Feb	C1A_Feb		1	q		February	check|1|Yes (February)
+C1A_Mar	C1A_Mar		1	q		March	check|1|Yes (March)
+C1A_Apr	C1A_Apr		1	q		April	check|1|Yes (April)
+C1A_May	C1A_May		1	q		May	check|1|Yes (May)
+C1A_Jun	C1A_Jun		1	q		June	check|1|Yes (June)
+C1A_Jul	C1A_Jul		1	q		July	check|1|Yes (July)
+C1A_Aug	C1A_Aug		1	q		August	check|1|Yes (August)
+C1A_Sep	C1A_Sep		1	q		September	check|1|Yes (September)
+C1A_Oct	C1A_Oct		1	q		October	check|1|Yes (October)
+C1A_Nov	C1A_Nov		1	q		November	check|1|Yes (November)
+C1A_Dec	C1A_Dec		1	]		December	check|1|Yes (December)
+C1A_Score	C1A_Score		1	e		(C1A_Jan + C1A_Feb + C1A_Mar + C1A_Apr + C1A_May + C1A_Jun + C1A_Jul + C1A_Aug + C1A_Sep + C1A_Oct + C1A_Nov + C1A_Dec)	double
+C1A_Err	C1A_Err		(C1A_Score > 0 && C1A_Non == 1)	q;number;10;-5		For the last question, you selected `C1A_Score` month(s), but also marked <b>None</b>.  Please click <b>previous</b> to go back and fix this inconsistency.	password
+C1A_Err2	C1A_Err2		(C1A_Score == 0 && C1A_Non == 0)	q;number;10;-5		You did not select any options for the last question.  Please go back and select either <b>None</b> or the list of applicable months by clicking <b>previous</b>.	password
+C1B_intro	C1B_intro		1	[		I tend to <b>feel best</b> in (select all applicable months, or <i>None</i>)	nothing
+C1B_Non	C1B_Non		1	q		<B>NONE</B>	check|1|Yes <b>(NONE)</b>
+C1B_Jan	C1B_Jan		1	q		January	check|1|Yes (January)
+C1B_Feb	C1B_Feb		1	q		February	check|1|Yes (February)
+C1B_Mar	C1B_Mar		1	q		March	check|1|Yes (March)
+C1B_Apr	C1B_Apr		1	q		April	check|1|Yes (April)
+C1B_May	C1B_May		1	q		May	check|1|Yes (May)
+C1B_Jun	C1B_Jun		1	q		June	check|1|Yes (June)
+C1B_Jul	C1B_Jul		1	q		July	check|1|Yes (July)
+C1B_Aug	C1B_Aug		1	q		August	check|1|Yes (August)
+C1B_Sep	C1B_Sep		1	q		September	check|1|Yes (September)
+C1B_Oct	C1B_Oct		1	q		October	check|1|Yes (October)
+C1B_Nov	C1B_Nov		1	q		November	check|1|Yes (November)
+C1B_Dec	C1B_Dec		1	]		December	check|1|Yes (December)
+C1B_Score	C1B_Score		1	e		(C1B_Jan + C1B_Feb + C1B_Mar + C1B_Apr + C1B_May + C1B_Jun + C1B_Jul + C1B_Aug + C1B_Sep + C1B_Oct + C1B_Nov + C1B_Dec)	double
+C1B_Err	C1B_Err		(C1B_Score > 0 && C1B_Non == 1)	q;number;10;-5		For the last question, you selected `C1B_Score` month(s), but also marked <b>None</b>.  Please click <b>previous</b> to go back and fix this inconsistency.	password
+C1B_Err2	C1B_Err2		(C1B_Score == 0 && C1B_Non == 0)	q;number;10;-5		You did not select any options for the last question.  Please go back and select either <b>None</b> or the list of applicable months by clicking <b>previous</b>.	password
+C1_Jan_Err	C1_Jan_Err		1	e		(C1A_Jan == 1 && C1B_Jan == 1)	double
+C1_Feb_Err	C1_Feb_Err		1	e		(C1A_Feb == 1 && C1B_Feb == 1)	double
+C1_Mar_Err	C1_Mar_Err		1	e		(C1A_Mar == 1 && C1B_Mar == 1)	double
+C1_Apr_Err	C1_Apr_Err		1	e		(C1A_Apr == 1 && C1B_Apr == 1)	double
+C1_May_Err	C1_May_Err		1	e		(C1A_May == 1 && C1B_May == 1)	double
+C1_Jun_Err	C1_Jun_Err		1	e		(C1A_Jun == 1 && C1B_Jun == 1)	double
+C1_Jul_Err	C1_Jul_Err		1	e		(C1A_Jul == 1 && C1B_Jul == 1)	double
+C1_Aug_Err	C1_Aug_Err		1	e		(C1A_Aug == 1 && C1B_Aug == 1)	double
+C1_Sep_Err	C1_Sep_Err		1	e		(C1A_Sep == 1 && C1B_Sep == 1)	double
+C1_Oct_Err	C1_Oct_Err		1	e		(C1A_Oct == 1 && C1B_Oct == 1)	double
+C1_Nov_Err	C1_Nov_Err		1	e		(C1A_Nov == 1 && C1B_Nov == 1)	double
+C1_Dec_Err	C1_Dec_Err		1	e		(C1A_Dec == 1 && C1B_Dec == 1)	double
+C1_Err_Num	C1_Err_Num		1	e		(C1_Jan_Err + C1_Feb_Err + C1_Mar_Err + C1_Apr_Err + C1_May_Err + C1_Jun_Err + C1_Jul_Err + C1_Aug_Err + C1_Sep_Err + C1_Oct_Err + C1_Nov_Err + C1_Dec_Err)	double
+C1_Err_List	C1_Err_List		1	e		list(((C1_Jan_Err > 0) ? "January" : ""), ((C1_Feb_Err > 0) ? "February" : ""), ((C1_Mar_Err > 0) ? "March" : ""), ((C1_Apr_Err > 0) ? "April" : ""), ((C1_May_Err > 0) ? "May" : ""), ((C1_Jun_Err > 0) ? "June" : ""), ((C1_Jul_Err > 0) ? "July" : ""), ((C1_Aug_Err > 0) ? "August" : ""), ((C1_Sep_Err > 0) ? "September" : ""), ((C1_Oct_Err > 0) ? "October" : ""), ((C1_Nov_Err > 0) ? "November" : ""), ((C1_Dec_Err > 0) ? "December" : ""))	text
+C1_Err	C1_Err		(C1_Err_Num > 0)	q		For the last two questions, you indicated that <b>`C1_Err_List`</b> `(C1_Err_Num==1)?"was":"were"` both your <b>best</b> and <b>worst</b> `(C1_Err_Num==1)?"month":"months"` .  Please click <b>previous</b> to go back and fix this inconsistency.	password
+C2A_intro	C2A_intro		1	[		I tend to <b>eat most</b> in (select all applicable months, or <i>None</i>)	nothing
+C2A_Non	C2A_Non		1	q		<B>NONE</B>	check|1|Yes <b>(NONE)</b>
+C2A_Jan	C2A_Jan		1	q		January	check|1|Yes (January)
+C2A_Feb	C2A_Feb		1	q		February	check|1|Yes (February)
+C2A_Mar	C2A_Mar		1	q		March	check|1|Yes (March)
+C2A_Apr	C2A_Apr		1	q		April	check|1|Yes (April)
+C2A_May	C2A_May		1	q		May	check|1|Yes (May)
+C2A_Jun	C2A_Jun		1	q		June	check|1|Yes (June)
+C2A_Jul	C2A_Jul		1	q		July	check|1|Yes (July)
+C2A_Aug	C2A_Aug		1	q		August	check|1|Yes (August)
+C2A_Sep	C2A_Sep		1	q		September	check|1|Yes (September)
+C2A_Oct	C2A_Oct		1	q		October	check|1|Yes (October)
+C2A_Nov	C2A_Nov		1	q		November	check|1|Yes (November)
+C2A_Dec	C2A_Dec		1	]		December	check|1|Yes (December)
+C2A_Score	C2A_Score		1	e		(C2A_Jan + C2A_Feb + C2A_Mar + C2A_Apr + C2A_May + C2A_Jun + C2A_Jul + C2A_Aug + C2A_Sep + C2A_Oct + C2A_Nov + C2A_Dec)	double
+C2A_Err	C2A_Err		(C2A_Score > 0 && C2A_Non == 1)	q;number;10;-5		For the last question, you selected `C2A_Score` month(s), but also marked <b>None</b>.  Please click <b>previous</b> to go back and fix this inconsistency.	password
+C2A_Err2	C2A_Err2		(C2A_Score == 0 && C2A_Non == 0)	q;number;10;-5		You did not select any options for the last question.  Please go back and select either <b>None</b> or the list of applicable months by clicking <b>previous</b>.	password
+C2B_intro	C2B_intro		1	[		I tend to <b>eat least</b> in (select all applicable months, or <i>None</i>)	nothing
+C2B_Non	C2B_Non		1	q		<B>NONE</B>	check|1|Yes <b>(NONE)</b>
+C2B_Jan	C2B_Jan		1	q		January	check|1|Yes (January)
+C2B_Feb	C2B_Feb		1	q		February	check|1|Yes (February)
+C2B_Mar	C2B_Mar		1	q		March	check|1|Yes (March)
+C2B_Apr	C2B_Apr		1	q		April	check|1|Yes (April)
+C2B_May	C2B_May		1	q		May	check|1|Yes (May)
+C2B_Jun	C2B_Jun		1	q		June	check|1|Yes (June)
+C2B_Jul	C2B_Jul		1	q		July	check|1|Yes (July)
+C2B_Aug	C2B_Aug		1	q		August	check|1|Yes (August)
+C2B_Sep	C2B_Sep		1	q		September	check|1|Yes (September)
+C2B_Oct	C2B_Oct		1	q		October	check|1|Yes (October)
+C2B_Nov	C2B_Nov		1	q		November	check|1|Yes (November)
+C2B_Dec	C2B_Dec		1	]		December	check|1|Yes (December)
+C2B_Score	C2B_Score		1	e		(C2B_Jan + C2B_Feb + C2B_Mar + C2B_Apr + C2B_May + C2B_Jun + C2B_Jul + C2B_Aug + C2B_Sep + C2B_Oct + C2B_Nov + C2B_Dec)	double
+C2B_Err	C2B_Err		(C2B_Score > 0 && C2B_Non == 1)	q;number;10;-5		For the last question, you selected `C2B_Score` month(s), but also marked <b>None</b>.  Please click <b>previous</b> to go back and fix this inconsistency.	password
+C2B_Err2	C2B_Err2		(C2B_Score == 0 && C2B_Non == 0)	q;number;10;-5		You did not select any options for the last question.  Please go back and select either <b>None</b> or the list of applicable months by clicking <b>previous</b>.	password
+C2_Jan_Err	C2_Jan_Err		1	e		(C2A_Jan == 1 && C2B_Jan == 1)	double
+C2_Feb_Err	C2_Feb_Err		1	e		(C2A_Feb == 1 && C2B_Feb == 1)	double
+C2_Mar_Err	C2_Mar_Err		1	e		(C2A_Mar == 1 && C2B_Mar == 1)	double
+C2_Apr_Err	C2_Apr_Err		1	e		(C2A_Apr == 1 && C2B_Apr == 1)	double
+C2_May_Err	C2_May_Err		1	e		(C2A_May == 1 && C2B_May == 1)	double
+C2_Jun_Err	C2_Jun_Err		1	e		(C2A_Jun == 1 && C2B_Jun == 1)	double
+C2_Jul_Err	C2_Jul_Err		1	e		(C2A_Jul == 1 && C2B_Jul == 1)	double
+C2_Aug_Err	C2_Aug_Err		1	e		(C2A_Aug == 1 && C2B_Aug == 1)	double
+C2_Sep_Err	C2_Sep_Err		1	e		(C2A_Sep == 1 && C2B_Sep == 1)	double
+C2_Oct_Err	C2_Oct_Err		1	e		(C2A_Oct == 1 && C2B_Oct == 1)	double
+C2_Nov_Err	C2_Nov_Err		1	e		(C2A_Nov == 1 && C2B_Nov == 1)	double
+C2_Dec_Err	C2_Dec_Err		1	e		(C2A_Dec == 1 && C2B_Dec == 1)	double
+C2_Err_Num	C2_Err_Num		1	e		(C2_Jan_Err + C2_Feb_Err + C2_Mar_Err + C2_Apr_Err + C2_May_Err + C2_Jun_Err + C2_Jul_Err + C2_Aug_Err + C2_Sep_Err + C2_Oct_Err + C2_Nov_Err + C2_Dec_Err)	double
+C2_Err_List	C2_Err_List		1	e		list(((C2_Jan_Err > 0) ? "January" : ""), ((C2_Feb_Err > 0) ? "February" : ""), ((C2_Mar_Err > 0) ? "March" : ""), ((C2_Apr_Err > 0) ? "April" : ""), ((C2_May_Err > 0) ? "May" : ""), ((C2_Jun_Err > 0) ? "June" : ""), ((C2_Jul_Err > 0) ? "July" : ""), ((C2_Aug_Err > 0) ? "August" : ""), ((C2_Sep_Err > 0) ? "September" : ""), ((C2_Oct_Err > 0) ? "October" : ""), ((C2_Nov_Err > 0) ? "November" : ""), ((C2_Dec_Err > 0) ? "December" : ""))	text
+C2_Err	C2_Err		(C2_Err_Num > 0)	q		For the last two questions, you indicated that <b>`C2_Err_List`</b> `(C2_Err_Num==1)?"was":"were"` both your <b>best</b> and <b>worst</b> `(C2_Err_Num==1)?"month":"months"` .  Please click <b>previous</b> to go back and fix this inconsistency.	password
+C3A_intro	C3A_intro		1	[		I tend to <b>gain most weight</b> in (select all applicable months, or <i>None</i>)	nothing
+C3A_Non	C3A_Non		1	q		<B>NONE</B>	check|1|Yes <b>(NONE)</b>
+C3A_Jan	C3A_Jan		1	q		January	check|1|Yes (January)
+C3A_Feb	C3A_Feb		1	q		February	check|1|Yes (February)
+C3A_Mar	C3A_Mar		1	q		March	check|1|Yes (March)
+C3A_Apr	C3A_Apr		1	q		April	check|1|Yes (April)
+C3A_May	C3A_May		1	q		May	check|1|Yes (May)
+C3A_Jun	C3A_Jun		1	q		June	check|1|Yes (June)
+C3A_Jul	C3A_Jul		1	q		July	check|1|Yes (July)
+C3A_Aug	C3A_Aug		1	q		August	check|1|Yes (August)
+C3A_Sep	C3A_Sep		1	q		September	check|1|Yes (September)
+C3A_Oct	C3A_Oct		1	q		October	check|1|Yes (October)
+C3A_Nov	C3A_Nov		1	q		November	check|1|Yes (November)
+C3A_Dec	C3A_Dec		1	]		December	check|1|Yes (December)
+C3A_Score	C3A_Score		1	e		(C3A_Jan + C3A_Feb + C3A_Mar + C3A_Apr + C3A_May + C3A_Jun + C3A_Jul + C3A_Aug + C3A_Sep + C3A_Oct + C3A_Nov + C3A_Dec)	double
+C3A_Err	C3A_Err		(C3A_Score > 0 && C3A_Non == 1)	q;number;10;-5		For the last question, you selected `C3A_Score` month(s), but also marked <b>None</b>.  Please click <b>previous</b> to go back and fix this inconsistency.	password
+C3A_Err2	C3A_Err2		(C3A_Score == 0 && C3A_Non == 0)	q;number;10;-5		You did not select any options for the last question.  Please go back and select either <b>None</b> or the list of applicable months by clicking <b>previous</b>.	password
+C3B_intro	C3B_intro		1	[		I tend to <b>lose most weight</b> in (select all applicable months, or <i>None</i>)	nothing
+C3B_Non	C3B_Non		1	q		<B>NONE</B>	check|1|Yes <b>(NONE)</b>
+C3B_Jan	C3B_Jan		1	q		January	check|1|Yes (January)
+C3B_Feb	C3B_Feb		1	q		February	check|1|Yes (February)
+C3B_Mar	C3B_Mar		1	q		March	check|1|Yes (March)
+C3B_Apr	C3B_Apr		1	q		April	check|1|Yes (April)
+C3B_May	C3B_May		1	q		May	check|1|Yes (May)
+C3B_Jun	C3B_Jun		1	q		June	check|1|Yes (June)
+C3B_Jul	C3B_Jul		1	q		July	check|1|Yes (July)
+C3B_Aug	C3B_Aug		1	q		August	check|1|Yes (August)
+C3B_Sep	C3B_Sep		1	q		September	check|1|Yes (September)
+C3B_Oct	C3B_Oct		1	q		October	check|1|Yes (October)
+C3B_Nov	C3B_Nov		1	q		November	check|1|Yes (November)
+C3B_Dec	C3B_Dec		1	]		December	check|1|Yes (December)
+C3B_Score	C3B_Score		1	e		(C3B_Jan + C3B_Feb + C3B_Mar + C3B_Apr + C3B_May + C3B_Jun + C3B_Jul + C3B_Aug + C3B_Sep + C3B_Oct + C3B_Nov + C3B_Dec)	double
+C3B_Err	C3B_Err		(C3B_Score > 0 && C3B_Non == 1)	q;number;10;-5		For the last question, you selected `C3B_Score` month(s), but also marked <b>None</b>.  Please click <b>previous</b> to go back and fix this inconsistency.	password
+C3B_Err2	C3B_Err2		(C3B_Score == 0 && C3B_Non == 0)	q;number;10;-5		You did not select any options for the last question.  Please go back and select either <b>None</b> or the list of applicable months by clicking <b>previous</b>.	password
+C3_Jan_Err	C3_Jan_Err		1	e		(C3A_Jan == 1 && C3B_Jan == 1)	double
+C3_Feb_Err	C3_Feb_Err		1	e		(C3A_Feb == 1 && C3B_Feb == 1)	double
+C3_Mar_Err	C3_Mar_Err		1	e		(C3A_Mar == 1 && C3B_Mar == 1)	double
+C3_Apr_Err	C3_Apr_Err		1	e		(C3A_Apr == 1 && C3B_Apr == 1)	double
+C3_May_Err	C3_May_Err		1	e		(C3A_May == 1 && C3B_May == 1)	double
+C3_Jun_Err	C3_Jun_Err		1	e		(C3A_Jun == 1 && C3B_Jun == 1)	double
+C3_Jul_Err	C3_Jul_Err		1	e		(C3A_Jul == 1 && C3B_Jul == 1)	double
+C3_Aug_Err	C3_Aug_Err		1	e		(C3A_Aug == 1 && C3B_Aug == 1)	double
+C3_Sep_Err	C3_Sep_Err		1	e		(C3A_Sep == 1 && C3B_Sep == 1)	double
+C3_Oct_Err	C3_Oct_Err		1	e		(C3A_Oct == 1 && C3B_Oct == 1)	double
+C3_Nov_Err	C3_Nov_Err		1	e		(C3A_Nov == 1 && C3B_Nov == 1)	double
+C3_Dec_Err	C3_Dec_Err		1	e		(C3A_Dec == 1 && C3B_Dec == 1)	double
+C3_Err_Num	C3_Err_Num		1	e		(C3_Jan_Err + C3_Feb_Err + C3_Mar_Err + C3_Apr_Err + C3_May_Err + C3_Jun_Err + C3_Jul_Err + C3_Aug_Err + C3_Sep_Err + C3_Oct_Err + C3_Nov_Err + C3_Dec_Err)	double
+C3_Err_List	C3_Err_List		1	e		list(((C3_Jan_Err > 0) ? "January" : ""), ((C3_Feb_Err > 0) ? "February" : ""), ((C3_Mar_Err > 0) ? "March" : ""), ((C3_Apr_Err > 0) ? "April" : ""), ((C3_May_Err > 0) ? "May" : ""), ((C3_Jun_Err > 0) ? "June" : ""), ((C3_Jul_Err > 0) ? "July" : ""), ((C3_Aug_Err > 0) ? "August" : ""), ((C3_Sep_Err > 0) ? "September" : ""), ((C3_Oct_Err > 0) ? "October" : ""), ((C3_Nov_Err > 0) ? "November" : ""), ((C3_Dec_Err > 0) ? "December" : ""))	text
+C3_Err	C3_Err		(C3_Err_Num > 0)	q		For the last two questions, you indicated that <b>`C3_Err_List`</b> `(C3_Err_Num==1)?"was":"were"` both your <b>best</b> and <b>worst</b> `(C3_Err_Num==1)?"month":"months"` .  Please click <b>previous</b> to go back and fix this inconsistency.	password
+C4A_intro	C4A_intro		1	[		I tend to <b>sleep most</b> in (select all applicable months, or <i>None</i>)	nothing
+C4A_Non	C4A_Non		1	q		<B>NONE</B>	check|1|Yes <b>(NONE)</b>
+C4A_Jan	C4A_Jan		1	q		January	check|1|Yes (January)
+C4A_Feb	C4A_Feb		1	q		February	check|1|Yes (February)
+C4A_Mar	C4A_Mar		1	q		March	check|1|Yes (March)
+C4A_Apr	C4A_Apr		1	q		April	check|1|Yes (April)
+C4A_May	C4A_May		1	q		May	check|1|Yes (May)
+C4A_Jun	C4A_Jun		1	q		June	check|1|Yes (June)
+C4A_Jul	C4A_Jul		1	q		July	check|1|Yes (July)
+C4A_Aug	C4A_Aug		1	q		August	check|1|Yes (August)
+C4A_Sep	C4A_Sep		1	q		September	check|1|Yes (September)
+C4A_Oct	C4A_Oct		1	q		October	check|1|Yes (October)
+C4A_Nov	C4A_Nov		1	q		November	check|1|Yes (November)
+C4A_Dec	C4A_Dec		1	]		December	check|1|Yes (December)
+C4A_Score	C4A_Score		1	e		(C4A_Jan + C4A_Feb + C4A_Mar + C4A_Apr + C4A_May + C4A_Jun + C4A_Jul + C4A_Aug + C4A_Sep + C4A_Oct + C4A_Nov + C4A_Dec)	double
+C4A_Err	C4A_Err		(C4A_Score > 0 && C4A_Non == 1)	q;number;10;-5		For the last question, you selected `C4A_Score` month(s), but also marked <b>None</b>.  Please click <b>previous</b> to go back and fix this inconsistency.	password
+C4A_Err2	C4A_Err2		(C4A_Score == 0 && C4A_Non == 0)	q;number;10;-5		You did not select any options for the last question.  Please go back and select either <b>None</b> or the list of applicable months by clicking <b>previous</b>.	password
+C4B_intro	C4B_intro		1	[		I tend to <b>sleep least</b> in (select all applicable months, or <i>None</i>)	nothing
+C4B_Non	C4B_Non		1	q		<B>NONE</B>	check|1|Yes <b>(NONE)</b>
+C4B_Jan	C4B_Jan		1	q		January	check|1|Yes (January)
+C4B_Feb	C4B_Feb		1	q		February	check|1|Yes (February)
+C4B_Mar	C4B_Mar		1	q		March	check|1|Yes (March)
+C4B_Apr	C4B_Apr		1	q		April	check|1|Yes (April)
+C4B_May	C4B_May		1	q		May	check|1|Yes (May)
+C4B_Jun	C4B_Jun		1	q		June	check|1|Yes (June)
+C4B_Jul	C4B_Jul		1	q		July	check|1|Yes (July)
+C4B_Aug	C4B_Aug		1	q		August	check|1|Yes (August)
+C4B_Sep	C4B_Sep		1	q		September	check|1|Yes (September)
+C4B_Oct	C4B_Oct		1	q		October	check|1|Yes (October)
+C4B_Nov	C4B_Nov		1	q		November	check|1|Yes (November)
+C4B_Dec	C4B_Dec		1	]		December	check|1|Yes (December)
+C4B_Score	C4B_Score		1	e		(C4B_Jan + C4B_Feb + C4B_Mar + C4B_Apr + C4B_May + C4B_Jun + C4B_Jul + C4B_Aug + C4B_Sep + C4B_Oct + C4B_Nov + C4B_Dec)	double
+C4B_Err	C4B_Err		(C4B_Score > 0 && C4B_Non == 1)	q;number;10;-5		For the last question, you selected `C4B_Score` month(s), but also marked <b>None</b>.  Please click <b>previous</b> to go back and fix this inconsistency.	password
+C4B_Err2	C4B_Err2		(C4B_Score == 0 && C4B_Non == 0)	q;number;10;-5		You did not select any options for the last question.  Please go back and select either <b>None</b> or the list of applicable months by clicking <b>previous</b>.	password
+C4_Jan_Err	C4_Jan_Err		1	e		(C4A_Jan == 1 && C4B_Jan == 1)	double
+C4_Feb_Err	C4_Feb_Err		1	e		(C4A_Feb == 1 && C4B_Feb == 1)	double
+C4_Mar_Err	C4_Mar_Err		1	e		(C4A_Mar == 1 && C4B_Mar == 1)	double
+C4_Apr_Err	C4_Apr_Err		1	e		(C4A_Apr == 1 && C4B_Apr == 1)	double
+C4_May_Err	C4_May_Err		1	e		(C4A_May == 1 && C4B_May == 1)	double
+C4_Jun_Err	C4_Jun_Err		1	e		(C4A_Jun == 1 && C4B_Jun == 1)	double
+C4_Jul_Err	C4_Jul_Err		1	e		(C4A_Jul == 1 && C4B_Jul == 1)	double
+C4_Aug_Err	C4_Aug_Err		1	e		(C4A_Aug == 1 && C4B_Aug == 1)	double
+C4_Sep_Err	C4_Sep_Err		1	e		(C4A_Sep == 1 && C4B_Sep == 1)	double
+C4_Oct_Err	C4_Oct_Err		1	e		(C4A_Oct == 1 && C4B_Oct == 1)	double
+C4_Nov_Err	C4_Nov_Err		1	e		(C4A_Nov == 1 && C4B_Nov == 1)	double
+C4_Dec_Err	C4_Dec_Err		1	e		(C4A_Dec == 1 && C4B_Dec == 1)	double
+C4_Err_Num	C4_Err_Num		1	e		(C4_Jan_Err + C4_Feb_Err + C4_Mar_Err + C4_Apr_Err + C4_May_Err + C4_Jun_Err + C4_Jul_Err + C4_Aug_Err + C4_Sep_Err + C4_Oct_Err + C4_Nov_Err + C4_Dec_Err)	double
+C4_Err_List	C4_Err_List		1	e		list(((C4_Jan_Err > 0) ? "January" : ""), ((C4_Feb_Err > 0) ? "February" : ""), ((C4_Mar_Err > 0) ? "March" : ""), ((C4_Apr_Err > 0) ? "April" : ""), ((C4_May_Err > 0) ? "May" : ""), ((C4_Jun_Err > 0) ? "June" : ""), ((C4_Jul_Err > 0) ? "July" : ""), ((C4_Aug_Err > 0) ? "August" : ""), ((C4_Sep_Err > 0) ? "September" : ""), ((C4_Oct_Err > 0) ? "October" : ""), ((C4_Nov_Err > 0) ? "November" : ""), ((C4_Dec_Err > 0) ? "December" : ""))	text
+C4_Err	C4_Err		(C4_Err_Num > 0)	q		For the last two questions, you indicated that <b>`C4_Err_List`</b> `(C4_Err_Num==1)?"was":"were"` both your <b>best</b> and <b>worst</b> `(C4_Err_Num==1)?"month":"months"` .  Please click <b>previous</b> to go back and fix this inconsistency.	password
+C5A_intro	C5A_intro		1	[		I tend to <b>have the least energy</b> in (select all applicable months, or <i>None</i>)	nothing
+C5A_Non	C5A_Non		1	q		<B>NONE</B>	check|1|Yes <b>(NONE)</b>
+C5A_Jan	C5A_Jan		1	q		January	check|1|Yes (January)
+C5A_Feb	C5A_Feb		1	q		February	check|1|Yes (February)
+C5A_Mar	C5A_Mar		1	q		March	check|1|Yes (March)
+C5A_Apr	C5A_Apr		1	q		April	check|1|Yes (April)
+C5A_May	C5A_May		1	q		May	check|1|Yes (May)
+C5A_Jun	C5A_Jun		1	q		June	check|1|Yes (June)
+C5A_Jul	C5A_Jul		1	q		July	check|1|Yes (July)
+C5A_Aug	C5A_Aug		1	q		August	check|1|Yes (August)
+C5A_Sep	C5A_Sep		1	q		September	check|1|Yes (September)
+C5A_Oct	C5A_Oct		1	q		October	check|1|Yes (October)
+C5A_Nov	C5A_Nov		1	q		November	check|1|Yes (November)
+C5A_Dec	C5A_Dec		1	]		December	check|1|Yes (December)
+C5A_Score	C5A_Score		1	e		(C5A_Jan + C5A_Feb + C5A_Mar + C5A_Apr + C5A_May + C5A_Jun + C5A_Jul + C5A_Aug + C5A_Sep + C5A_Oct + C5A_Nov + C5A_Dec)	double
+C5A_Err	C5A_Err		(C5A_Score > 0 && C5A_Non == 1)	q;number;10;-5		For the last question, you selected `C5A_Score` month(s), but also marked <b>None</b>.  Please click <b>previous</b> to go back and fix this inconsistency.	password
+C5A_Err2	C5A_Err2		(C5A_Score == 0 && C5A_Non == 0)	q;number;10;-5		You did not select any options for the last question.  Please go back and select either <b>None</b> or the list of applicable months by clicking <b>previous</b>.	password
+C5B_intro	C5B_intro		1	[		I tend to <b>have the most energy</b> in (select all applicable months, or <i>None</i>)	nothing
+C5B_Non	C5B_Non		1	q		<B>NONE</B>	check|1|Yes <b>(NONE)</b>
+C5B_Jan	C5B_Jan		1	q		January	check|1|Yes (January)
+C5B_Feb	C5B_Feb		1	q		February	check|1|Yes (February)
+C5B_Mar	C5B_Mar		1	q		March	check|1|Yes (March)
+C5B_Apr	C5B_Apr		1	q		April	check|1|Yes (April)
+C5B_May	C5B_May		1	q		May	check|1|Yes (May)
+C5B_Jun	C5B_Jun		1	q		June	check|1|Yes (June)
+C5B_Jul	C5B_Jul		1	q		July	check|1|Yes (July)
+C5B_Aug	C5B_Aug		1	q		August	check|1|Yes (August)
+C5B_Sep	C5B_Sep		1	q		September	check|1|Yes (September)
+C5B_Oct	C5B_Oct		1	q		October	check|1|Yes (October)
+C5B_Nov	C5B_Nov		1	q		November	check|1|Yes (November)
+C5B_Dec	C5B_Dec		1	]		December	check|1|Yes (December)
+C5B_Score	C5B_Score		1	e		(C5B_Jan + C5B_Feb + C5B_Mar + C5B_Apr + C5B_May + C5B_Jun + C5B_Jul + C5B_Aug + C5B_Sep + C5B_Oct + C5B_Nov + C5B_Dec)	double
+C5B_Err	C5B_Err		(C5B_Score > 0 && C5B_Non == 1)	q;number;10;-5		For the last question, you selected `C5B_Score` month(s), but also marked <b>None</b>.  Please click <b>previous</b> to go back and fix this inconsistency.	password
+C5B_Err2	C5B_Err2		(C5B_Score == 0 && C5B_Non == 0)	q;number;10;-5		You did not select any options for the last question.  Please go back and select either <b>None</b> or the list of applicable months by clicking <b>previous</b>.	password
+C5_Jan_Err	C5_Jan_Err		1	e		(C5A_Jan == 1 && C5B_Jan == 1)	double
+C5_Feb_Err	C5_Feb_Err		1	e		(C5A_Feb == 1 && C5B_Feb == 1)	double
+C5_Mar_Err	C5_Mar_Err		1	e		(C5A_Mar == 1 && C5B_Mar == 1)	double
+C5_Apr_Err	C5_Apr_Err		1	e		(C5A_Apr == 1 && C5B_Apr == 1)	double
+C5_May_Err	C5_May_Err		1	e		(C5A_May == 1 && C5B_May == 1)	double
+C5_Jun_Err	C5_Jun_Err		1	e		(C5A_Jun == 1 && C5B_Jun == 1)	double
+C5_Jul_Err	C5_Jul_Err		1	e		(C5A_Jul == 1 && C5B_Jul == 1)	double
+C5_Aug_Err	C5_Aug_Err		1	e		(C5A_Aug == 1 && C5B_Aug == 1)	double
+C5_Sep_Err	C5_Sep_Err		1	e		(C5A_Sep == 1 && C5B_Sep == 1)	double
+C5_Oct_Err	C5_Oct_Err		1	e		(C5A_Oct == 1 && C5B_Oct == 1)	double
+C5_Nov_Err	C5_Nov_Err		1	e		(C5A_Nov == 1 && C5B_Nov == 1)	double
+C5_Dec_Err	C5_Dec_Err		1	e		(C5A_Dec == 1 && C5B_Dec == 1)	double
+C5_Err_Num	C5_Err_Num		1	e		(C5_Jan_Err + C5_Feb_Err + C5_Mar_Err + C5_Apr_Err + C5_May_Err + C5_Jun_Err + C5_Jul_Err + C5_Aug_Err + C5_Sep_Err + C5_Oct_Err + C5_Nov_Err + C5_Dec_Err)	double
+C5_Err_List	C5_Err_List		1	e		list(((C5_Jan_Err > 0) ? "January" : ""), ((C5_Feb_Err > 0) ? "February" : ""), ((C5_Mar_Err > 0) ? "March" : ""), ((C5_Apr_Err > 0) ? "April" : ""), ((C5_May_Err > 0) ? "May" : ""), ((C5_Jun_Err > 0) ? "June" : ""), ((C5_Jul_Err > 0) ? "July" : ""), ((C5_Aug_Err > 0) ? "August" : ""), ((C5_Sep_Err > 0) ? "September" : ""), ((C5_Oct_Err > 0) ? "October" : ""), ((C5_Nov_Err > 0) ? "November" : ""), ((C5_Dec_Err > 0) ? "December" : ""))	text
+C5_Err	C5_Err		(C5_Err_Num > 0)	q		For the last two questions, you indicated that <b>`C5_Err_List`</b> `(C5_Err_Num==1)?"was":"were"` both your <b>best</b> and <b>worst</b> `(C5_Err_Num==1)?"month":"months"` .  Please click <b>previous</b> to go back and fix this inconsistency.	password
+C6A_intro	C6A_intro		1	[		I tend to <b>have the lowest level of social activity</b> in (select all applicable months, or <i>None</i>)	nothing
+C6A_Non	C6A_Non		1	q		<B>NONE</B>	check|1|Yes <b>(NONE)</b>
+C6A_Jan	C6A_Jan		1	q		January	check|1|Yes (January)
+C6A_Feb	C6A_Feb		1	q		February	check|1|Yes (February)
+C6A_Mar	C6A_Mar		1	q		March	check|1|Yes (March)
+C6A_Apr	C6A_Apr		1	q		April	check|1|Yes (April)
+C6A_May	C6A_May		1	q		May	check|1|Yes (May)
+C6A_Jun	C6A_Jun		1	q		June	check|1|Yes (June)
+C6A_Jul	C6A_Jul		1	q		July	check|1|Yes (July)
+C6A_Aug	C6A_Aug		1	q		August	check|1|Yes (August)
+C6A_Sep	C6A_Sep		1	q		September	check|1|Yes (September)
+C6A_Oct	C6A_Oct		1	q		October	check|1|Yes (October)
+C6A_Nov	C6A_Nov		1	q		November	check|1|Yes (November)
+C6A_Dec	C6A_Dec		1	]		December	check|1|Yes (December)
+C6A_Score	C6A_Score		1	e		(C6A_Jan + C6A_Feb + C6A_Mar + C6A_Apr + C6A_May + C6A_Jun + C6A_Jul + C6A_Aug + C6A_Sep + C6A_Oct + C6A_Nov + C6A_Dec)	double
+C6A_Err	C6A_Err		(C6A_Score > 0 && C6A_Non == 1)	q;number;10;-5		For the last question, you selected `C6A_Score` month(s), but also marked <b>None</b>.  Please click <b>previous</b> to go back and fix this inconsistency.	password
+C6A_Err2	C6A_Err2		(C6A_Score == 0 && C6A_Non == 0)	q;number;10;-5		You did not select any options for the last question.  Please go back and select either <b>None</b> or the list of applicable months by clicking <b>previous</b>.	password
+C6B_intro	C6B_intro		1	[		I tend to <b>have the highest level of social activity</b> in (select all applicable months, or <i>None</i>)	nothing
+C6B_Non	C6B_Non		1	q		<B>NONE</B>	check|1|Yes <b>(NONE)</b>
+C6B_Jan	C6B_Jan		1	q		January	check|1|Yes (January)
+C6B_Feb	C6B_Feb		1	q		February	check|1|Yes (February)
+C6B_Mar	C6B_Mar		1	q		March	check|1|Yes (March)
+C6B_Apr	C6B_Apr		1	q		April	check|1|Yes (April)
+C6B_May	C6B_May		1	q		May	check|1|Yes (May)
+C6B_Jun	C6B_Jun		1	q		June	check|1|Yes (June)
+C6B_Jul	C6B_Jul		1	q		July	check|1|Yes (July)
+C6B_Aug	C6B_Aug		1	q		August	check|1|Yes (August)
+C6B_Sep	C6B_Sep		1	q		September	check|1|Yes (September)
+C6B_Oct	C6B_Oct		1	q		October	check|1|Yes (October)
+C6B_Nov	C6B_Nov		1	q		November	check|1|Yes (November)
+C6B_Dec	C6B_Dec		1	]		December	check|1|Yes (December)
+C6B_Score	C6B_Score		1	e		(C6B_Jan + C6B_Feb + C6B_Mar + C6B_Apr + C6B_May + C6B_Jun + C6B_Jul + C6B_Aug + C6B_Sep + C6B_Oct + C6B_Nov + C6B_Dec)	double
+C6B_Err	C6B_Err		(C6B_Score > 0 && C6B_Non == 1)	q;number;10;-5		For the last question, you selected `C6B_Score` month(s), but also marked <b>None</b>.  Please click <b>previous</b> to go back and fix this inconsistency.	password
+C6_Jan_Err	C6_Jan_Err		1	e		(C6A_Jan == 1 && C6B_Jan == 1)	double
+C6_Feb_Err	C6_Feb_Err		1	e		(C6A_Feb == 1 && C6B_Feb == 1)	double
+C6_Mar_Err	C6_Mar_Err		1	e		(C6A_Mar == 1 && C6B_Mar == 1)	double
+C6_Apr_Err	C6_Apr_Err		1	e		(C6A_Apr == 1 && C6B_Apr == 1)	double
+C6_May_Err	C6_May_Err		1	e		(C6A_May == 1 && C6B_May == 1)	double
+C6_Jun_Err	C6_Jun_Err		1	e		(C6A_Jun == 1 && C6B_Jun == 1)	double
+C6_Jul_Err	C6_Jul_Err		1	e		(C6A_Jul == 1 && C6B_Jul == 1)	double
+C6_Aug_Err	C6_Aug_Err		1	e		(C6A_Aug == 1 && C6B_Aug == 1)	double
+C6_Sep_Err	C6_Sep_Err		1	e		(C6A_Sep == 1 && C6B_Sep == 1)	double
+C6_Oct_Err	C6_Oct_Err		1	e		(C6A_Oct == 1 && C6B_Oct == 1)	double
+C6_Nov_Err	C6_Nov_Err		1	e		(C6A_Nov == 1 && C6B_Nov == 1)	double
+C6_Dec_Err	C6_Dec_Err		1	e		(C6A_Dec == 1 && C6B_Dec == 1)	double
+C6_Err_Num	C6_Err_Num		1	e		(C6_Jan_Err + C6_Feb_Err + C6_Mar_Err + C6_Apr_Err + C6_May_Err + C6_Jun_Err + C6_Jul_Err + C6_Aug_Err + C6_Sep_Err + C6_Oct_Err + C6_Nov_Err + C6_Dec_Err)	double
+C6_Err_List	C6_Err_List		1	e		list(((C6_Jan_Err > 0) ? "January" : ""), ((C6_Feb_Err > 0) ? "February" : ""), ((C6_Mar_Err > 0) ? "March" : ""), ((C6_Apr_Err > 0) ? "April" : ""), ((C6_May_Err > 0) ? "May" : ""), ((C6_Jun_Err > 0) ? "June" : ""), ((C6_Jul_Err > 0) ? "July" : ""), ((C6_Aug_Err > 0) ? "August" : ""), ((C6_Sep_Err > 0) ? "September" : ""), ((C6_Oct_Err > 0) ? "October" : ""), ((C6_Nov_Err > 0) ? "November" : ""), ((C6_Dec_Err > 0) ? "December" : ""))	text
+C6_Err	C6_Err		(C6_Err_Num > 0)	q		For the last two questions, you indicated that <b>`C6_Err_List`</b> `(C6_Err_Num==1)?"was":"were"` both your <b>best</b> and <b>worst</b> `(C6_Err_Num==1)?"month":"months"` .  Please click <b>previous</b> to go back and fix this inconsistency.	password
+C6B_Err2	C6B_Err2		(C6B_Score == 0 && C6B_Non == 0)	q;number;10;-5		You did not select any options for the last question.  Please go back and select either <b>None</b> or the list of applicable months by clicking <b>previous</b>.	password
+CscrJanA	CscrJanA		1	e		(C1A_Jan + C2A_Jan + C3A_Jan + C4A_Jan + C5A_Jan + C6A_Jan)	nothing
+CscrJanB	CscrJanB		1	e		(C1B_Jan + C2B_Jan + C3B_Jan + C4B_Jan + C5B_Jan + C6B_Jan)	nothing
+CscrFebA	CscrFebA		1	e		(C1A_Feb + C2A_Feb + C3A_Feb + C4A_Feb + C5A_Feb + C6A_Feb)	nothing
+CscrFebB	CscrFebB		1	e		(C1B_Feb + C2B_Feb + C3B_Feb + C4B_Feb + C5B_Feb + C6B_Feb)	nothing
+CscrMarA	CscrMarA		1	e		(C1A_Mar + C2A_Mar + C3A_Mar + C4A_Mar + C5A_Mar + C6A_Mar)	nothing
+CscrMarB	CscrMarB		1	e		(C1B_Mar + C2B_Mar + C3B_Mar + C4B_Mar + C5B_Mar + C6B_Mar)	nothing
+CscrAprA	CscrAprA		1	e		(C1A_Apr + C2A_Apr + C3A_Apr + C4A_Apr + C5A_Apr + C6A_Apr)	nothing
+CscrAprB	CscrAprB		1	e		(C1B_Apr + C2B_Apr + C3B_Apr + C4B_Apr + C5B_Apr + C6B_Apr)	nothing
+CscrMayA	CscrMayA		1	e		(C1A_May + C2A_May + C3A_May + C4A_May + C5A_May + C6A_May)	nothing
+CscrMayB	CscrMayB		1	e		(C1B_May + C2B_May + C3B_May + C4B_May + C5B_May + C6B_May)	nothing
+CscrJunA	CscrJunA		1	e		(C1A_Jun + C2A_Jun + C3A_Jun + C4A_Jun + C5A_Jun + C6A_Jun)	nothing
+CscrJunB	CscrJunB		1	e		(C1B_Jun + C2B_Jun + C3B_Jun + C4B_Jun + C5B_Jun + C6B_Jun)	nothing
+CscrJulA	CscrJulA		1	e		(C1A_Jul + C2A_Jul + C3A_Jul + C4A_Jul + C5A_Jul + C6A_Jul)	nothing
+CscrJulB	CscrJulB		1	e		(C1B_Jul + C2B_Jul + C3B_Jul + C4B_Jul + C5B_Jul + C6B_Jul)	nothing
+CscrAugA	CscrAugA		1	e		(C1A_Aug + C2A_Aug + C3A_Aug + C4A_Aug + C5A_Aug + C6A_Aug)	nothing
+CscrAugB	CscrAugB		1	e		(C1B_Aug + C2B_Aug + C3B_Aug + C4B_Aug + C5B_Aug + C6B_Aug)	nothing
+CscrSepA	CscrSepA		1	e		(C1A_Sep + C2A_Sep + C3A_Sep + C4A_Sep + C5A_Sep + C6A_Sep)	nothing
+CscrSepB	CscrSepB		1	e		(C1B_Sep + C2B_Sep + C3B_Sep + C4B_Sep + C5B_Sep + C6B_Sep)	nothing
+CscrOctA	CscrOctA		1	e		(C1A_Oct + C2A_Oct + C3A_Oct + C4A_Oct + C5A_Oct + C6A_Oct)	nothing
+CscrOctB	CscrOctB		1	e		(C1B_Oct + C2B_Oct + C3B_Oct + C4B_Oct + C5B_Oct + C6B_Oct)	nothing
+CscrNovA	CscrNovA		1	e		(C1A_Nov + C2A_Nov + C3A_Nov + C4A_Nov + C5A_Nov + C6A_Nov)	nothing
+CscrNovB	CscrNovB		1	e		(C1B_Nov + C2B_Nov + C3B_Nov + C4B_Nov + C5B_Nov + C6B_Nov)	nothing
+CscrDecA	CscrDecA		1	e		(C1A_Dec + C2A_Dec + C3A_Dec + C4A_Dec + C5A_Dec + C6A_Dec)	nothing
+CscrDecB	CscrDecB		1	e		(C1B_Dec + C2B_Dec + C3B_Dec + C4B_Dec + C5B_Dec + C6B_Dec)	nothing
+CscrNonA	CscrNonA		1	e		(C1A_Non + C2A_Non + C3A_Non + C4A_Non + C5A_Non + C6A_Non)	nothing
+CscrNonB	CscrNonB		1	e		(C1B_Non + C2B_Non + C3B_Non + C4B_Non + C5B_Non + C6B_Non)	nothing
+Dintro	Dintro		1	[		<b>PART 4.  MORE ABOUT POSSIBLE WINTER SYMPTOMS ...</b><p><b><i>In comparison to other times of the year, during the winter months, which -- if any -- of the following symptoms tend to be present?</i></b></p>	nothing
+D1	D1		1	q		I tend to sleep longer hours (napping included).	list|1|yes|0|no
+D2	D2		1	q		I tend to have trouble waking up in the morning.	list|1|yes|0|no
+D3	D3		1	q		I tend to have low daytime energy, feeling tired most of the time.	list|1|yes|0|no
+D4	D4		1	q		I tend to feel worse, overall, in the late evening than in the morning.	list|1|yes|0|no
+D5	D5		1	q		I tend to have a distinct temporary slump in mood or energy in the afternoon.	list|1|yes|0|no
+D6	D6		1	q		I tend to crave more sweets and starches.	list|1|yes|0|no
+D7	D7		1	q		I tend to eat more sweets and starches, whether or not I crave them.	list|1|yes|0|no
+D8	D8		1	q		I tend to crave sweets, but mostly in the afternoon and evening.	list|1|yes|0|no
+D9	D9		1	]		I tend to gain more weight than in the summer.	list|1|yes|0|no
+Dscore	Dscore		1	e		count(D1,D2,D3,D4,D5,D6,D7,D8,D9)	nothing
+MDcrit1	MDcrit1		1	e		(A4==1)	double
+MDcrit2	MDcrit2		1	e		(A5==1)	double
+MDcrit3	MDcrit3		1	e		(Ascore >=5 && count(A4,A5,A9)>0)	double
+MDcrit4	MDcrit4		1	e		(count(A1,A2,A3,A4,A5,A6,A7,A8)>=4 && (Ascore < 5) && (A4 == 1 || A5 == 1))	double
+MDcrit5	MDcrit5		1	e		(count(A1,A2,A3,A6,A7,A8) > 0 && count(MDcrit3,MDcrit4)==0)	double
+MDcrit6	MDcrit6		1	e		(count(A4,A5,A9)==0 && count(A1,A2,A3,A6,A7,A8) < 4)	double
+PIDSfeedback	PIDSfeedback		1	[		<div align='center'><b>Here Is Your Personalized Feedback (`CompletionDate`)</b><br /><img name='print' src='`__IMAGE_FILES_DIR__`sendtoprinter.gif' onmouseup='javascript:window.print();'></div>	nothing
+ReportA	ReportA		1	q		<b>Part 1. SYMPTOMS OF DEPRESSION.  Altogether, you marked `Ascore` problems</b>.	nothing
+ReportA_MDcrit1	ReportA_MDcrit1		(MDcrit1==1)	q		One of the problems was "finding little interest or little pleasure in doings things," which is one sign of a clinically significant major depressive disorder.	nothing
+ReportA_MDcrit2	ReportA_MDcrit2		(MDcrit2==1)	q		One of the problems was "feeling down, depressed, or hopeless," which is one sign of a clinically significant major depressive disorder.	nothing
+ReportA_MDcrit3	ReportA_MDcrit3		(MDcrit3==1)	q		Considering your entire symptom pattern, it is possible that you experienced one or more clinically significant major depressive episodes over the past year.	nothing
+ReportA_MDcrit4	ReportA_MDcrit4		(MDcrit4==1)	q		Considering the entire symptom pattern, it is possible that you experienced one or more clinically significant minor depressive episodes over the past year.	nothing
+ReportA_MDcrit5	ReportA_MDcrit5		(MDcrit5==1)	q		Considering the entire symptom pattern, it appears likely that you experienced some minor symptoms of depression, but that they fall short of psychiatric clinical significance.	nothing
+ReportA_MDcrit6	ReportA_MDcrit6		(MDcrit6==1)	q		This suggests that you did not experience a clinically significant depression in the past year.	nothing
+ReportA_gt_5	ReportA_gt_5		Ascore >= 5	q		Since you reported 5 or more problems, it is possible that you have had a major depressive disorder for which you should consider seeking help.  You may have experienced some of these problems for less than two weeks -- if so, your problem is probably not a "major" depressive disorder (as clinically defined), but still may be serious enough to merit consultation with a therapist, and possible treatment.	nothing
+ReportA_lt_5	ReportA_lt_5		(Ascore > 0 && Ascore < 5)	q		Even if you marked only one or two problems, you may want to consult with a psychiatrist, psychologist, social worker, or other mental health professional if the problems worry you or interfere with your daily activities.	nothing
+ReportA_duration	ReportA_duration		Ascore > 0	q		To determine whether the problem might be seasonal, consider Parts 2 and 3 below.	nothing
+ReportB	ReportB		1	q		<b>Part 2. DEGREE OF SEASONAL VARIATION.  Your total score was `Bscore`</b>.	nothing
+ReportB_lt_6	ReportB_lt_6		Bscore < 6	q		Since your total score is less than 6, you fall within the "nonseasonal" range.  You probably do not have seasonal affective disorder (SAD).  If your score on Part 1 was high, however, it is still possible that you have experienced a depression that merits the attention and guidance of a mental health professional.	nothing
+ReportB_mid	ReportB_mid		(Bscore > 6 && Bscore < 12)	q		Since your score on falls between 7 and 11, you may have a mild version of SAD for which seasonal changes are noticeable, and possibly even quite bothersome, but are probably not overwhelmingly difficult.	nothing
+ReportB_high	ReportB_high		(Bscore >=12)	q		Since your score is 12 or more, SAD that is clinically significant is increasingly likely. But you still need to consider which months pose most problems, as shown in Part 3.	nothing
+ReportC	ReportC		1	q		<b>Part 3. BEST AND WORST MONTHS Scores:</b><table width="100%" border="1"><tr><td>&nbsp;</td><td>Jan</td><td>Feb</td><td>Mar</td><td>Apr</td><td>May</td><td>Jun</td><td>Jul</td><td>Aug</td><td>Sep</td><td>Oct</td><td>Nov</td><td>Dec</td><td>NONE</td></tr><tr><td>A</td><td>`CscrJanA`</td><td>`CscrFebA`</td><td>`CscrMarA`</td><td>`CscrAprA`</td><td>`CscrMayA`</td><td>`CscrJunA`</td><td>`CscrJulA`</td><td>`CscrAugA`</td><td>`CscrSepA`</td><td>`CscrOctA`</td><td>`CscrNovA`</td><td>`CscrDecA`</td><td>`CscrNonA`</td></tr><tr><td>B</td><td>`CscrJanB`</td><td>`CscrFebB`</td><td>`CscrMarB`</td><td>`CscrAprB`</td><td>`CscrMayB`</td><td>`CscrJunB`</td><td>`CscrJulB`</td><td>`CscrAugB`</td><td>`CscrSepB`</td><td>`CscrOctB`</td><td>`CscrNovB`</td><td>`CscrDecB`</td><td>`CscrNonB`</td></tr></table>	nothing
+ReportC3	ReportC3		1	q		<p>People with fall or winter depression tend to score 4 or more per month in a series of 3-5 months beginning anywhere from September to January, as would be noted in Column A. For months outside that grouping the score tends to be zero, or nearly zero. In Column B, the same people will usually score 4 or more points per month over a series of 3-5 months beginning anywhere from March to June. Some people show a different pattern, with scores split between Columns A and B during both winter and summer months. For example, they may feel worst and socialize least during the summer, especially July and August; during the same time period, they may eat least, lose most weight, and sleep least. In winter, they may feel best and socialize most, yet still tend to eat most, gain most weight, and sleep most. Such people may experience seasonal depression of the summer type, and treatment recommendations may well differ from those for winter depression. Some people show relatively high scores in the fall and winter months in Column A (winter depression), but there is still a remaining scatter of good and bad months throughout the year. Such a pattern may indicate a 'winter worsening' of symptoms, rather than clear-cut SAD. Recommendations for winter treatment might be similar to those for winter-SAD, although there may be a need for multiple treatment approaches. Some people experience depression in the winter as well as in the summer, but they feel fine in the spring and the fall. Their summer depression is usually not accompanied by oversleeping and overeating, in contrast with the winter. This is a special case of SAD, for which different treatments might be appropriate in the opposite seasons. Even people who experience only winter depression sometimes feel summertime slumps in mood and energy when the weather is rainy or dark for several days. They often find relief by brief use of their winter treatment during these periods.</p>	nothing
+ReportD	ReportD		1	q		<b>Part 4.  SOME SPECIFIC PHYSICAL SYMPTOMS ASSOCIATED WITH DEPRESSION.  Your score was `Dscore`</b>.	nothing
+ReportD_gt_0	ReportD_gt_0		Dscore > 0	q		Since you reported some of these tendencies, you have experienced winter symptoms that may respond to light therapy and various medications, regardless of whether or not you have depressed mood. The higher your score in Part 4, the more likely you are to have 'classic' winter-SAD. It is possible, however, to be depressed in winter <i>without</i> these symptoms -- or even with <i>opposite</i> symptoms such as reduced sleep and appetite -- if so, a therapist might recommend a different treatment from that for 'classic' SAD.	nothing
+Notes	Notes		1	q		<b>NOTES</b><p>Part 1 was adapted from the <i>Prime-MD Clinician Evaluation Guide</i>, developed by Robert L. Spitzer, MD, and Janet B.W. Williams, DSW, New York Psychiatric Institute and Department of Psychiatry, Columbia University.  Parts 2 and 3 were adapted from the <i>Seasonal Pattern Assessment Questionnaire</i> developed by Normal E. Rosenthal, MD, Gary J. Bradt, and Thomas A. Wehr, MD, National Institutes of Mental Health.  Preparation of the PIDS was sponsored in part by Grant MH42930 from the National Institutes of Mental Health.</p>	nothing
+Printme	Printme		1	q		<img name='print' src='`__IMAGE_FILES_DIR__`sendtoprinter.gif' onmouseup='javascript:window.print();'>	nothing
+GotoScores	GotoScores		1	]		Press <b>next</b> to print all of the answers you gave and to get more information about Depression and SAD.	nothing
+ScoresIntro	ScoresIntro		1	[		<div align='center'><b>Here Are the All of the Answers You Entered (`CompletionDate`)</b><br /><img name='print' src='`__IMAGE_FILES_DIR__`sendtoprinter.gif' onmouseup='javascript:window.print();'></div>	nothing
+ScoresA	ScoresA		1	q		<b>Part 1.  SOME QUESTIONS ABOUT DEPRESSION.</b>  Where there two weeks or more ...<br/><table width="100%" border="1"><tr><td>`getActionText(A1)`</td><td>`getAnsOption(A1)`</td></tr><tr><td>`getActionText(A2)`</td><td>`getAnsOption(A2)`</td></tr><tr><td>`getActionText(A3)`</td><td>`getAnsOption(A3)`</td></tr><tr><td>`getActionText(A4)`</td><td>`getAnsOption(A4)`</td></tr><tr><td>`getActionText(A5)`</td><td>`getAnsOption(A5)`</td></tr><tr><td>`getActionText(A6)`</td><td>`getAnsOption(A6)`</td></tr><tr><td>`getActionText(A7)`</td><td>`getAnsOption(A7)`</td></tr><tr><td>`getActionText(A8)`</td><td>`getAnsOption(A8)`</td></tr><tr><td>`getActionText(A9)`</td><td>`getAnsOption(A9)`</td></tr><tr><td><b>Score</b></td><td>`Ascore`</td></tr></table>	nothing
+ScoresB	ScoresB		1	q		<b>Part 2.  HOW SEASONAL A PERSON ARE YOU?</b><br/><table width="100%" border="1"><tr><td>`getActionText(B1)`</td><td>`getAnsOption(B1)`</td></tr><tr><td>`getActionText(B2)`</td><td>`getAnsOption(B2)`</td></tr><tr><td>`getActionText(B3)`</td><td>`getAnsOption(B3)`</td></tr><tr><td>`getActionText(B4)`</td><td>`getAnsOption(B4)`</td></tr><tr><td>`getActionText(B5)`</td><td>`getAnsOption(B5)`</td></tr><tr><td>`getActionText(B6)`</td><td>`getAnsOption(B6)`</td></tr><tr><td>`getActionText(B7)`</td><td>`getAnsOption(B7)`</td></tr><tr><td><b>Score</b></td><td>`Bscore`</td></tr></table>	nothing
+ScoresC	ScoresC		1	q		<b>Part 3.  BEST AND WORST MONTHS</b><br/><table width="100%" border="1"><tr><td>&nbsp;</td><td>Jan</td><td>Feb</td><td>Mar</td><td>Apr</td><td>May</td><td>Jun</td><td>Jul</td><td>Aug</td><td>Sep</td><td>Oct</td><td>Nov</td><td>Dec</td><td>NONE</td></tr><tr><td>Feel Worst</td><td>`C1A_Jan`</td><td>`C1A_Feb`</td><td>`C1A_Mar`</td><td>`C1A_Apr`</td><td>`C1A_May`</td><td>`C1A_Jun`</td><td>`C1A_Jul`</td><td>`C1A_Aug`</td><td>`C1A_Sep`</td><td>`C1A_Oct`</td><td>`C1A_Nov`</td><td>`C1A_Dec`</td><td>`C1A_Non`</td></tr><tr><td>Feel Best</td><td>`C1B_Jan`</td><td>`C1B_Feb`</td><td>`C1B_Mar`</td><td>`C1B_Apr`</td><td>`C1B_May`</td><td>`C1B_Jun`</td><td>`C1B_Jul`</td><td>`C1B_Aug`</td><td>`C1B_Sep`</td><td>`C1B_Oct`</td><td>`C1B_Nov`</td><td>`C1B_Dec`</td><td>`C1B_Non`</td></tr><tr><td>Eat Most</td><td>`C2A_Jan`</td><td>`C2A_Feb`</td><td>`C2A_Mar`</td><td>`C2A_Apr`</td><td>`C2A_May`</td><td>`C2A_Jun`</td><td>`C2A_Jul`</td><td>`C2A_Aug`</td><td>`C2A_Sep`</td><td>`C2A_Oct`</td><td>`C2A_Nov`</td><td>`C2A_Dec`</td><td>`C2A_Non`</td></tr><tr><td>Eat Least</td><td>`C2B_Jan`</td><td>`C2B_Feb`</td><td>`C2B_Mar`</td><td>`C2B_Apr`</td><td>`C2B_May`</td><td>`C2B_Jun`</td><td>`C2B_Jul`</td><td>`C2B_Aug`</td><td>`C2B_Sep`</td><td>`C2B_Oct`</td><td>`C2B_Nov`</td><td>`C2B_Dec`</td><td>`C2B_Non`</td></tr><tr><td>Gain Most Weight</td><td>`C3A_Jan`</td><td>`C3A_Feb`</td><td>`C3A_Mar`</td><td>`C3A_Apr`</td><td>`C3A_May`</td><td>`C3A_Jun`</td><td>`C3A_Jul`</td><td>`C3A_Aug`</td><td>`C3A_Sep`</td><td>`C3A_Oct`</td><td>`C3A_Nov`</td><td>`C3A_Dec`</td><td>`C3A_Non`</td></tr><tr><td>Lose Most Weight</td><td>`C3B_Jan`</td><td>`C3B_Feb`</td><td>`C3B_Mar`</td><td>`C3B_Apr`</td><td>`C3B_May`</td><td>`C3B_Jun`</td><td>`C3B_Jul`</td><td>`C3B_Aug`</td><td>`C3B_Sep`</td><td>`C3B_Oct`</td><td>`C3B_Nov`</td><td>`C3B_Dec`</td><td>`C3B_Non`</td></tr><tr><td>Sleep Most</td><td>`C4A_Jan`</td><td>`C4A_Feb`</td><td>`C4A_Mar`</td><td>`C4A_Apr`</td><td>`C4A_May`</td><td>`C4A_Jun`</td><td>`C4A_Jul`</td><td>`C4A_Aug`</td><td>`C4A_Sep`</td><td>`C4A_Oct`</td><td>`C4A_Nov`</td><td>`C4A_Dec`</td><td>`C4A_Non`</td></tr><tr><td>Sleep Least</td><td>`C4B_Jan`</td><td>`C4B_Feb`</td><td>`C4B_Mar`</td><td>`C4B_Apr`</td><td>`C4B_May`</td><td>`C4B_Jun`</td><td>`C4B_Jul`</td><td>`C4B_Aug`</td><td>`C4B_Sep`</td><td>`C4B_Oct`</td><td>`C4B_Nov`</td><td>`C4B_Dec`</td><td>`C4B_Non`</td></tr><tr><td>Least Energy</td><td>`C5A_Jan`</td><td>`C5A_Feb`</td><td>`C5A_Mar`</td><td>`C5A_Apr`</td><td>`C5A_May`</td><td>`C5A_Jun`</td><td>`C5A_Jul`</td><td>`C5A_Aug`</td><td>`C5A_Sep`</td><td>`C5A_Oct`</td><td>`C5A_Nov`</td><td>`C5A_Dec`</td><td>`C5A_Non`</td></tr><tr><td>Most Energy</td><td>`C5B_Jan`</td><td>`C5B_Feb`</td><td>`C5B_Mar`</td><td>`C5B_Apr`</td><td>`C5B_May`</td><td>`C5B_Jun`</td><td>`C5B_Jul`</td><td>`C5B_Aug`</td><td>`C5B_Sep`</td><td>`C5B_Oct`</td><td>`C5B_Nov`</td><td>`C5B_Dec`</td><td>`C5B_Non`</td></tr><tr><td>Least Social Activity</td><td>`C6A_Jan`</td><td>`C6A_Feb`</td><td>`C6A_Mar`</td><td>`C6A_Apr`</td><td>`C6A_May`</td><td>`C6A_Jun`</td><td>`C6A_Jul`</td><td>`C6A_Aug`</td><td>`C6A_Sep`</td><td>`C6A_Oct`</td><td>`C6A_Nov`</td><td>`C6A_Dec`</td><td>`C6A_Non`</td></tr><tr><td>Most Social Activity</td><td>`C6B_Jan`</td><td>`C6B_Feb`</td><td>`C6B_Mar`</td><td>`C6B_Apr`</td><td>`C6B_May`</td><td>`C6B_Jun`</td><td>`C6B_Jul`</td><td>`C6B_Aug`</td><td>`C6B_Sep`</td><td>`C6B_Oct`</td><td>`C6B_Nov`</td><td>`C6B_Dec`</td><td>`C6B_Non`</td></tr><tr><td><b>Scores-A</b></td><td>`CscrJanA`</td><td>`CscrFebA`</td><td>`CscrMarA`</td><td>`CscrAprA`</td><td>`CscrMayA`</td><td>`CscrJunA`</td><td>`CscrJulA`</td><td>`CscrAugA`</td><td>`CscrSepA`</td><td>`CscrOctA`</td><td>`CscrNovA`</td><td>`CscrDecA`</td><td>`CscrNonA`</td></tr><tr><td><b>Scores-B</b></td><td>`CscrJanB`</td><td>`CscrFebB`</td><td>`CscrMarB`</td><td>`CscrAprB`</td><td>`CscrMayB`</td><td>`CscrJunB`</td><td>`CscrJulB`</td><td>`CscrAugB`</td><td>`CscrSepB`</td><td>`CscrOctB`</td><td>`CscrNovB`</td><td>`CscrDecB`</td><td>`CscrNonB`</td></tr></table>	nothing
+ScoresD	ScoresD		1	q		<b>Part 4.  SOME SPECIFIC PHYSICAL SYMPTOMS ASSOCIATED WITH DEPRESSION.</b>  In winter ...<br/><table width="100%" border="1"><tr><td>`getActionText(D1)`</td><td>`getAnsOption(D1)`</td></tr><tr><td>`getActionText(D2)`</td><td>`getAnsOption(D2)`</td></tr><tr><td>`getActionText(D3)`</td><td>`getAnsOption(D3)`</td></tr><tr><td>`getActionText(D4)`</td><td>`getAnsOption(D4)`</td></tr><tr><td>`getActionText(D5)`</td><td>`getAnsOption(D5)`</td></tr><tr><td>`getActionText(D6)`</td><td>`getAnsOption(D6)`</td></tr><tr><td>`getActionText(D7)`</td><td>`getAnsOption(D7)`</td></tr><tr><td>`getActionText(D8)`</td><td>`getAnsOption(D8)`</td></tr><tr><td>`getActionText(D9)`</td><td>`getAnsOption(D9)`</td></tr><tr><td><b>Score</b></td><td>`Dscore`</td></tr></table>	nothing
+Printme2	Printme2		1	q		<img name='print' src='`__IMAGE_FILES_DIR__`sendtoprinter.gif' onmouseup='javascript:window.print();'><br/>NOTE:  We are assuring your privacy.  As soon as you click <b>next</b>, all your answers will be erased from our online scoring system.	nothing
+Finish	Finish		1	]		<p>For further information about SAD and its treatments, click <b>next</b> to go to the website of the Center for Environmental Therapeutics (http://www.cet.org).</p>	nothing
