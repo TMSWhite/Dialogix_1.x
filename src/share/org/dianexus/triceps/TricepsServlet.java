@@ -671,17 +671,17 @@ if (Triceps.AUTHORABLE) {
 					errors.print("<tr><td>" + n.getSourceLine() + "</td><td>" + (n.getLocalName()) + "</td>");
 					errors.print("<td>" + n.getDependencies() + "</td><td>");
 
-					errors.print(pe.hasDependenciesErrors() ? pe.getDependenciesErrors() : "&nbsp;");
+					errors.print(pe.hasDependenciesErrors() ? ("<font color='red'>" + pe.getDependenciesErrors() + "</font>") : "&nbsp;");
 					errors.print("</td><td>" + Node.ACTION_TYPES[n.getQuestionOrEvalType()] + "</td><td>" + n.getQuestionOrEval() + "</td><td>");
 
-					errors.print(pe.hasQuestionOrEvalErrors() ? pe.getQuestionOrEvalErrors() : "&nbsp;");
+					errors.print(pe.hasQuestionOrEvalErrors() ? ("<font color='red'>" + pe.getQuestionOrEvalErrors() + "</font>") : "&nbsp;");
 					errors.print("</td><td>");
 
 					if (!pe.hasNodeParseErrors()) {
 						errors.print("&nbsp;");
 					}
 					else {
-						errors.print(pe.getNodeParseErrors());
+						errors.print("<font color='red'>" + pe.getNodeParseErrors() + "</font>");
 					}
 					errors.print("</td><td>");
 
@@ -689,11 +689,11 @@ if (Triceps.AUTHORABLE) {
 						errors.print("&nbsp;");
 					}
 					else {
-						errors.print(pe.getNodeNamingErrors());
+						errors.print("<font color='red'>" + pe.getNodeNamingErrors() + "</font>");
 					}
 
-					errors.print("<td>" + ((pe.hasAnswerChoicesErrors()) ? pe.getAnswerChoicesErrors() : "&nbsp;") + "</td>");
-					errors.print("<td>" + ((pe.hasReadbackErrors()) ? pe.getReadbackErrors() : "&nbsp;") + "</td>");
+					errors.print("<td>" + ((pe.hasAnswerChoicesErrors()) ? ("<font color='red'>" + pe.getAnswerChoicesErrors() + "</font>"): "&nbsp;") + "</td>");
+					errors.print("<td>" + ((pe.hasReadbackErrors()) ? ("<font color='red'>" + pe.getReadbackErrors() + "</font>") : "&nbsp;") + "</td>");
 
 					errors.print("</tr>");
 				}
@@ -703,14 +703,14 @@ if (Triceps.AUTHORABLE) {
 				errors.print("<font color='red'>" +
 					triceps.get("The_following_flow_errors_were_found") + "</font>");
 				errors.print("<table cellpadding='2' cellspacing='1' width='100%' border='1'><tr><td>");
-				errors.print(schedule.getErrors());
+				errors.print("<font color='red'>" + schedule.getErrors() + "</font>");
 				errors.print("</td></tr></table>");
 			}
 			if (triceps.getEvidence().hasErrors()) {
 				errors.print("<font color='red'>" +
 					triceps.get("The_following_data_access_errors_were") + "</font>");
 				errors.print("<table cellpadding='2' cellspacing='1' width='100%' border='1'><tr><td>");
-				errors.print(triceps.getEvidence().getErrors());
+				errors.print("<font color='red'>" + triceps.getEvidence().getErrors() + "</font>");
 				errors.print("</td></tr></table>");
 			}
 }
@@ -910,11 +910,15 @@ if (Triceps.AUTHORABLE) {
 						sb.append(triceps.getQuestionStr(node));
 					}
 					sb.append("</td></tr><tr>");
+					
 					if (showQuestionNum) {
 						sb.append("<td>&nbsp;</td>");
 					}
-					sb.append("<td width='1%' NOWRAP>" + clickableOptions + "</td>");
+					sb.append("<td colspan='2' bgcolor='lightgrey'>");
 					sb.append(node.prepareChoicesAsHTML(datum,errMsg,autogenOptionNums));
+					sb.append(errMsg);
+					sb.append("</td>");					
+					sb.append("<td width='1%' NOWRAP>" + clickableOptions + "</td>");
 					break;
 				default:
 					sb.append("<td>");
@@ -929,8 +933,8 @@ if (Triceps.AUTHORABLE) {
 					else {
 						sb.append(triceps.getQuestionStr(node));
 					}
-					sb.append("</td><td width='1%' NOWRAP>" + clickableOptions + "</td>");
 					sb.append("<td>" + node.prepareChoicesAsHTML(datum,autogenOptionNums) + errMsg + "</td>");
+					sb.append("</td><td width='1%' NOWRAP>" + clickableOptions + "</td>");
 					break;
 			}
 
