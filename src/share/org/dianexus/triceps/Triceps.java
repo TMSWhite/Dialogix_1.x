@@ -1,25 +1,49 @@
 package org.dianexus.triceps;
 
-import java.lang.*;
-import java.util.*;
-import java.text.*;
-import java.io.*;
-import java.net.*;
+/*import java.lang.*;*/
+/*import java.util.*;*/
+/*import java.text.*;*/
+/*import java.io.*;*/
+/*import java.net.*;*/
+/*import java.util.zip.*;*/
+/*import java.util.jar.*;*/
 
-/* Triceps
- */
-public class Triceps implements VersionIF {
-	public static final boolean AUTHORABLE = true;
-	public static final String VERSION_MAJOR = "1.3";
-	public static final String VERSION_MINOR = "5";
-	public static final String VERSION_NAME = "Triceps version " + VERSION_MAJOR + "." + VERSION_MINOR;
+import java.util.Date;
+import java.lang.String;
+import java.util.Random;
+import java.util.Locale;
+import java.util.ResourceBundle;
+import java.util.HashMap;
+import java.io.File;
+import java.util.Enumeration;
+import java.util.Vector;
+import java.util.jar.JarOutputStream;
+import java.text.DateFormat;
+import java.text.DecimalFormat;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipException;
+import java.util.jar.JarEntry;
+import java.io.UnsupportedEncodingException;
+import java.util.StringTokenizer;
+import java.util.MissingResourceException;
+import java.text.SimpleDateFormat;
+import java.io.FileNotFoundException;
+import java.lang.SecurityException;
 
-	public static final int ERROR = 1;
-	public static final int OK = 2;
-	public static final int AT_END = 3;
-	public static final int WORKING_DIR = 1;
-	public static final int COMPLETED_DIR = 2;
-	public static final int FLOPPY_DIR = 3;
+
+/*public*/ class Triceps implements VersionIF {
+	private static final String DATAFILE_PREFIX = "tri";
+	private static final String DATAFILE_SUFFIX = ".dat";
+	private static final String EVENTFILE_SUFFIX = ".evt";
+	
+	/*public*/ static final int ERROR = 1;
+	/*public*/ static final int OK = 2;
+	/*public*/ static final int AT_END = 3;
+	/*public*/ static final int WORKING_DIR = 1;
+	/*public*/ static final int COMPLETED_DIR = 2;
+	/*public*/ static final int FLOPPY_DIR = 3;
 
 	private Schedule nodes = null;
 	private Evidence evidence = null;
@@ -36,6 +60,8 @@ public class Triceps implements VersionIF {
 	private boolean isValid = false;
 	private Random random = new Random();
 	private String tempPassword = null;
+	Logger dataLogger = Logger.NULL;	
+	private Logger eventLogger = Logger.NULL;
 
 
 	/** formerly from Lingua */
@@ -49,7 +75,7 @@ public class Triceps implements VersionIF {
 	private static final HashMap numFormats = new HashMap();
 	private static final String DEFAULT = "null";
 
-	public static final Triceps NULL = new Triceps();
+	/*public*/ static final Triceps NULL = new Triceps();
 
 	private Triceps() {
 		this(null,null,null,null);
@@ -57,91 +83,144 @@ public class Triceps implements VersionIF {
 	}
 
 
-	public Triceps(String scheduleLoc, String workingFilesDir, String completedFilesDir, String floppyDir) {
+	/*public*/ Triceps(String scheduleLoc, String workingFilesDir, String completedFilesDir, String floppyDir) {
 		/* initialize required variables */
 		parser = new Parser();
 		setLocale(null);	// the default
 		errorLogger = new Logger();
-		setSchedule(scheduleLoc,workingFilesDir,completedFilesDir,floppyDir);
+		if (scheduleLoc != null) {
+			createDataLogger(workingFilesDir,null);
+		}
+		isValid = init(scheduleLoc,workingFilesDir,completedFilesDir,floppyDir);
+	}
+	
+	private boolean init(String scheduleLoc, String workingFilesDir, String completedFilesDir, String floppyDir) {
+		evidence = new Evidence(this);
+		return setSchedule(scheduleLoc,workingFilesDir,completedFilesDir,floppyDir);
+	}
+	
+	/*public*/ void deleteDataLoggers() {
+		dataLogger.delete();
+		dataLogger = Logger.NULL;
+		eventLogger.delete();
+		eventLogger = Logger.NULL;
+	}
+	
+	
+	/*public*/ void createDataLogger(String dir, String name) {
+if (DEPLOYABLE) {		
+		try {
+			File tempDataFile = null;
+			File tempEventFile = null;
+			
+			if (name == null) {
+				tempDataFile = File.createTempFile(DATAFILE_PREFIX, DATAFILE_SUFFIX, new File(dir));
+				tempEventFile = new File(tempDataFile.toString() + EVENTFILE_SUFFIX);
+			}
+			else {
+				tempDataFile = new File(name);
+				tempEventFile = new File(name + EVENTFILE_SUFFIX);
+			}
+			if (!tempDataFile.toString().equals(dataLogger.getFilename())) {
+				dataLogger.delete();
+			}
+			if (!tempEventFile.toString().equals(eventLogger.getFilename())) {
+				eventLogger.delete();
+			}
+			
+			dataLogger = new Logger(Logger.UNIX_EOL,false,tempDataFile);
+			eventLogger = new Logger(Logger.UNIX_EOL,false,tempEventFile);
+		}
+		catch (Throwable t) {
+if (DEBUG) Logger.writeln("##Triceps.createDataLogger()-unable to create temp file" + t.getMessage());
+		}
+}	
+		if (dataLogger == null) {
+			dataLogger = Logger.NULL;
+if (DEBUG) Logger.writeln("##Triceps.createDataLogger()->writer is null");			
+	}
+		if (eventLogger == null) {
+			eventLogger = Logger.NULL;
+if (DEBUG) Logger.writeln("##Triceps.createEventLogger()->writer is null");			
+		}	
 	}
 
-	public void setSchedule(String scheduleLoc, String workingFilesDir, String completedFilesDir, String floppyDir) {
+	/*public*/ boolean setSchedule(String scheduleLoc, String workingFilesDir, String completedFilesDir, String floppyDir) {
+		if (scheduleLoc == null) {
+			nodes = Schedule.NULL;
+			return false;
+		}
+		
 		nodes = new Schedule(this, scheduleLoc);
 		setLanguage(null);	// the default until overidden
 
 		nodes.setReserved(Schedule.WORKING_DIR,workingFilesDir);
 		nodes.setReserved(Schedule.COMPLETED_DIR,completedFilesDir);
 		nodes.setReserved(Schedule.FLOPPY_DIR,floppyDir);
-
-		if (!nodes.init()) {
-			setError(nodes.getErrors());
-		}
-
-		resetEvidence(false);
+		
 		createTempPassword();
 
-		isValid = true;
+		if (nodes.init()) {
+			return true;
+		}
+		else {
+			setError(nodes.getErrors());
+			return true;
+		}
 	}
 
-	public boolean isValid() { return isValid; }
+	/*public*/ boolean isValid() { return isValid; }
 
-	public boolean reloadSchedule() {
-		return loadDatafile(null);
-	}
-
-	public boolean loadDatafile(String name) {
+	/*public*/ boolean reloadSchedule() {
 if (AUTHORABLE) {
 		Schedule oldNodes = nodes;
 		Evidence oldEvidence = evidence;
-
 		boolean ok = false;
-
-		if (name != null) {
-			nodes = new Schedule(this, name);
-		}
-		else {
-			nodes = new Schedule(this, nodes.getScheduleSource());
-		}
-
-		if (!nodes.init()) {
+		
+		ok = init(oldNodes.getReserved(Schedule.SCHEDULE_SOURCE), 
+			oldNodes.getReserved(Schedule.WORKING_DIR), 
+			oldNodes.getReserved(Schedule.COMPLETED_DIR), 
+			oldNodes.getReserved(Schedule.FLOPPY_DIR));
+			
+		if (!ok) {
+if (DEBUG) Logger.writeln("##Unable to reload schedule");			
 			nodes = oldNodes;
+			evidence = oldEvidence;
 			return false;
 		}
-
-		resetEvidence(false);
-
+		
 		for (int i=0;i<oldNodes.size();++i) {
 			Node oldNode = oldNodes.getNode(i);
 			Node newNode = evidence.getNode(oldNode);	// get newNode with same name or concept as old ones
 			if (newNode != null) {
-				evidence.set(newNode, oldEvidence.getDatum(oldNode),oldNode.getTimeStampStr());
+				evidence.set(newNode, oldEvidence.getDatum(oldNode),oldNode.getTimeStampStr(),false);	// don't record this, since already recorded
 			}
 		}
 
-		/* data/evidence is loaded from working file; but the nodes are from the schedule soruce directory */
+		/* data/evidence is loaded from working file; but the nodes are from the schedule source directory */
 		nodes.overloadReserved(oldNodes);
 }
 		return true;
 	}
 
-	public Datum getDatum(Node n) {
+	/*public*/ Datum getDatum(Node n) {
 		return evidence.getDatum(n);
 	}
 
-	public Date getStartTime() {
+	/*public*/ Date getStartTime() {
 		return startTime;
 	}
 
-	public String getStartTimeStr() {
+	/*public*/ String getStartTimeStr() {
 		return startTimeStr;
 	}
-	public String getStopTimeStr() {
+	/*public*/ String getStopTimeStr() {
 		return stopTimeStr;
 	}
 
-	public String getScheduleErrors() { return nodes.getErrors(); }
+	/*public*/ String getScheduleErrors() { return nodes.getErrors(); }
 
-	public Enumeration getQuestions() {
+	/*public*/ Enumeration getQuestions() {
 		Vector e = new Vector();
 		int braceLevel  = 0;
 		int actionType;
@@ -190,7 +269,7 @@ if (AUTHORABLE) {
 		return e.elements();
 	}
 
-	public String getQuestionStr(Node q) {
+	/*public*/ String getQuestionStr(Node q) {
 		/* recompute the min and max ranges, if necessary - must be done before premature abort (if invalid entry)*/
 
 		String s;
@@ -224,7 +303,7 @@ if (AUTHORABLE) {
 		return q.getQuestionAsAsked();
 	}
 
-	public int gotoFirst() {
+	/*public*/ int gotoFirst() {
 		currentStep = 0;
 		numQuestions = 0;
 		int ok = gotoNext();
@@ -232,8 +311,8 @@ if (AUTHORABLE) {
 		return ok;
 	}
 
-	public int gotoStarting() {
-		gotoFirst();	// to set firstStep for determining minimum step number
+	/*public*/ int gotoStarting() {
+//		gotoFirst();	// to set firstStep for determining minimum step number
 		currentStep = Integer.parseInt(nodes.getReserved(Schedule.STARTING_STEP));
 		if (currentStep < 0)
 			currentStep = 0;
@@ -241,7 +320,7 @@ if (AUTHORABLE) {
 		return gotoNext();
 	}
 
-	public int gotoNext() {
+	/*public*/ int gotoNext() {
 		Node node;
 		int braceLevel = 0;
 		int actionType;
@@ -264,7 +343,6 @@ if (AUTHORABLE) {
 
 				/* The current state should be saved in the background after the next set of questions is retrieved.
 					It is up to the calling program to call toTSV() to save the state */
-
 				return AT_END;
 			}
 			if ((node = nodes.getNode(step)) == null) {
@@ -295,8 +373,7 @@ if (AUTHORABLE) {
 				evidence.set(node, Datum.getInstance(this,Datum.NA));	// closing an open block, so set value to NA
 				if (braceLevel < 0) {
 					node.setError(get("extra_closing_brace"));
-					return OK;	// otherwise won't be able to progress past the dangling closing brace!
-//					return ERROR;
+					return ERROR;
 				}
 			}
 			else if (actionType == Node.EVAL) {
@@ -338,15 +415,22 @@ if (AUTHORABLE) {
 			}
 			++step;
 		} while (true);
-		currentStep = step;
+		
 		numQuestions = 0;
-
-		/* The current state should be saved in the background after the next set of questions is retrieved.
-			It is up to the calling program to call toTSV() to save the state */
+		
+		if (currentStep != step) {
+			currentStep = step;
+	
+			/* The current state should be saved in the background after the next set of questions is retrieved.
+				It is up to the calling program to call toTSV() to save the state */
+			nodes.setReserved(Schedule.STARTING_STEP,Integer.toString(currentStep));
+			dataLogger.flush();
+		}
+					
 		return OK;
 	}
 
-	public int gotoNode(Object val) {
+	/*public*/ int gotoNode(Object val) {
 		int step = currentStep;
 
 		Node n = evidence.getNode(val);
@@ -364,7 +448,7 @@ if (AUTHORABLE) {
 		}
 	}
 
-	public int gotoPrevious() {
+	/*public*/ int gotoPrevious() {
 		Node node;
 		int braceLevel = 0;
 		int actionType;
@@ -417,7 +501,13 @@ if (AUTHORABLE) {
 				return ERROR;
 			}
 		}
-		currentStep = step;
+		if (currentStep != step) {
+			currentStep = step;
+			
+			nodes.setReserved(Schedule.STARTING_STEP,Integer.toString(currentStep));
+			dataLogger.flush();
+		}
+		
 		return OK;
 	}
 
@@ -433,16 +523,19 @@ if (AUTHORABLE) {
 		stopTimeStr = formatDate(stopTime,Datum.TIME_MASK);
 	}
 
-	public void resetEvidence(boolean toUnasked) {
+	/*public*/ void resetEvidence(boolean toUnasked) {
 		startTimer(new Date(System.currentTimeMillis()));	// use current time
-		evidence = new Evidence(this,toUnasked);
+		evidence.reset();
 	}
 
-	public void resetEvidence() {
+	/*public*/ void resetEvidence() {
 		resetEvidence(true);
 	}
 
-	public boolean storeValue(Node q, String answer, String comment, String special, boolean adminMode) {
+	/*public*/ boolean storeValue(Node q, String answer, String comment, String special, boolean adminMode) {
+		boolean ok = false;
+		Datum d = null;
+		
 		if (q == null) {
 			setError(get("node_does_not_exist"));
 			return false;
@@ -453,7 +546,6 @@ if (AUTHORABLE) {
 				answer = "0";	// unchecked defaults to false
 			}
 		}
-		Datum d;
 
 		if (comment != null) {
 			q.setComment(comment);
@@ -466,8 +558,10 @@ if (AUTHORABLE) {
 					evidence.set(q,d);
 					return true;
 				}
-				setError(get("unknown_special_datatype"));
-				return false;
+				else {
+					setError(get("unknown_special_datatype"));
+					return false;
+				}
 			}
 			else {
 				setError(get("entry_into_admin_mode_disallowed"));
@@ -481,39 +575,41 @@ if (AUTHORABLE) {
 		}
 		else {
 			d = new Datum(this, answer,q.getDatumType(),q.getMask()); // use expected value type
-		}
-
-		/* check for type error */
-		if (!d.exists()) {
-			String s = d.getError();
-			if (s.length() == 0) {
-				q.setError("<- " + get("answer_this_question"));
+			/* check for type error */
+			
+			if (!d.exists()) {
+				String s = d.getError();
+				if (s.length() == 0) {
+					q.setError("<- " + get("answer_this_question"));
+				}
+				else {
+					q.setError("<- " + s);
+				}
+				d = Datum.getInstance(this,Datum.UNASKED);
+				ok = false;
 			}
 			else {
-				q.setError("<- " + s);
+				/* check if out of range */
+				if (!q.isWithinRange(d)) {
+					d = Datum.getInstance(this,Datum.UNASKED);
+					ok = false;	// shouldn't wording of error be done here, not in Node?
+				}
+				else {
+					ok = true;
+				}
 			}
-			evidence.set(q,Datum.getInstance(this,Datum.UNASKED));
-			return false;
-		}
-
-		/* check if out of range */
-		if (!q.isWithinRange(d)) {
-			evidence.set(q,Datum.getInstance(this,Datum.UNASKED));
-			return false;	// shouldn't wording of error be done here, not in Node?
-		}
-		else {
-			evidence.set(q, d);
-			return true;
+			evidence.set(q,d);
+			return ok;			
 		}
 	}
+	
+	/*public*/ int size() { return nodes.size(); }
 
-	public int size() { return nodes.size(); }
-
-	public String toString(Node n) {
+	/*public*/ String toString(Node n) {
 		return toString(n,false);
 	}
 
-	public String toString(Node n, boolean showReserved) {
+	/*public*/ String toString(Node n, boolean showReserved) {
 		Datum d = getDatum(n);
 		if (d == null)
 			return "null";
@@ -521,7 +617,7 @@ if (AUTHORABLE) {
 			return d.stringVal(showReserved);
 	}
 
-	public boolean isSet(Node n) {
+	/*public*/ boolean isSet(Node n) {
 		Datum d = getDatum(n);
 		if (d == null || d.isType(Datum.UNASKED))
 			return false;
@@ -529,7 +625,7 @@ if (AUTHORABLE) {
 			return true;
 	}
 
-	public Vector collectParseErrors() {
+	/*public*/ Vector collectParseErrors() {
 		/* Simply cycle through nodes, processing dependencies & actions */
 
 		Node n = null;
@@ -634,27 +730,123 @@ if (AUTHORABLE) {
 		return parseErrors;
 	}
 
-	public boolean saveWorkingInfo(String name) {
-		String dir = nodes.getReserved(Schedule.WORKING_DIR);
-		boolean ok = toTSV(dir,name);
-		return ok;
-	}
-
-	public boolean saveWorkingInfo() {
-		return saveWorkingInfo(nodes.getReserved(Schedule.FILENAME));
-	}
-
-	public boolean saveCompletedInfo() {
-		String name = nodes.getReserved(Schedule.FILENAME);
-		boolean ok = toTSV(nodes.getReserved(Schedule.COMPLETED_DIR),name);
-		if (ok) {
-			ok = deleteFile(nodes.getReserved(Schedule.WORKING_DIR),name) && ok;
+	/*public*/ boolean saveCompletedInfo() {
+if (DEPLOYABLE) {
+		/* create jar or zip file of data and events */
+		String filename = null;
+		String filenameA = null;
+		FileOutputStream fos = null;
+		FileOutputStream fosA = null;
+		JarOutputStream jos = null;
+		JarOutputStream josA = null;
+		
+		try {
+			filename = nodes.getReserved(Schedule.COMPLETED_DIR) + nodes.getReserved(Schedule.FILENAME) + ".jar";
+			fos = new FileOutputStream(filename);
 		}
-		return ok;
+		catch (FileNotFoundException e) {
+			setError(get("error_writing_to") + filename + ": " + e.getMessage());
+			return false;
+		}
+		catch (SecurityException e) {
+			setError(get("error_writing_to") + filename + ": " + e.getMessage());
+			return false;
+		}
+		
+		try {
+			filenameA = nodes.getReserved(Schedule.FLOPPY_DIR) + nodes.getReserved(Schedule.FILENAME) + ".jar";
+			fosA = new FileOutputStream(filenameA);			
+		}
+		catch (FileNotFoundException e) {
+			setError(get("error_writing_to") + filenameA + ": " + e.getMessage());
+		}
+		catch (SecurityException e) {
+			setError(get("error_writing_to") + filenameA + ": " + e.getMessage());
+		}
+		
+		try {
+			jos = new JarOutputStream(fos);
+		}
+		catch (IOException e) {
+			setError(get("error_writing_to") + filename + ": " + e.getMessage());
+			if (fos != null) { try { fos.close(); } catch (Throwable t) { ; } }
+			return false;
+		}
+		
+		try {
+			if (fosA != null) {
+				josA = new JarOutputStream(fosA);
+			}
+		}
+		catch (IOException e) {
+			setError(get("error_writing_to") + filename + ": " + e.getMessage());
+			if (fosA != null) { try { fosA.close(); } catch (Throwable t) { ; } }
+		}
+		
+		if (!writeData(jos,josA,dataLogger,DATAFILE_SUFFIX,filename))
+			return false;
+		if (!writeData(jos,josA,eventLogger,DATAFILE_SUFFIX + EVENTFILE_SUFFIX,filename))
+			return false;
+			
+		if (jos != null) { try { jos.close(); } catch (Throwable t) { ; } }
+		if (josA != null) { try { josA.close(); } catch (Throwable t) { ; } }
+		deleteDataLoggers();
+}
+		return true;
 	}
+	
+	private boolean writeData(JarOutputStream jos, JarOutputStream josA, Logger logger, String extension, String filename) {
+if (DEPLOYABLE) {
+		String data = null;
+		ZipEntry ze = null;
+		Throwable err = null;
 
-	public boolean saveToFloppy() {
-		return toTSV(nodes.getReserved(Schedule.FLOPPY_DIR),nodes.getReserved(Schedule.FILENAME));
+		logger.flush();
+		data = logger.toString();
+		
+		try {
+			ze = new JarEntry(nodes.getReserved(Schedule.FILENAME) + extension);
+		}
+		catch (NullPointerException e) {
+			err = e;
+		}
+		catch (IllegalArgumentException e) {
+			err = e;
+		}
+		
+		try {
+			byte[] bytes = data.getBytes();
+			jos.putNextEntry(ze);
+			jos.write(bytes,0,bytes.length);
+			if (josA != null) {
+				josA.putNextEntry(ze);
+				josA.write(bytes,0,bytes.length);
+			}
+		}
+		catch (UnsupportedEncodingException e) {
+			err = e;
+		}
+		catch (ZipException e) {
+			err = e;
+		}
+		catch (IOException e) {
+			err = e;
+		}
+	
+		if (err != null) {
+			setError(get("error_writing_to") + filename + ": " + err.getMessage());
+			if (jos != null) { try { jos.close(); } catch (Throwable t) { ; } }
+			if (josA != null) { try { josA.close(); } catch (Throwable t) { ; } }
+		}
+		
+		return (err == null);
+}
+		return false;
+	}
+	
+
+	/*public*/ boolean saveToFloppy() {
+		return false;
 	}
 
 	private boolean deleteFile(String dir, String targetName) {
@@ -671,90 +863,15 @@ if (DEBUG) Logger.writeln("##SecurityException @ Triceps.deleteFile()" + e.getMe
 			setError(msg);
 		}
 		if (!ok)
-			Logger.writeln("##delete(" + filename + ") -> " + ok);
+if (DEBUG)	Logger.writeln("##delete(" + filename + ") -> " + ok);
 		return ok;
 	}
 
-	private boolean toTSV(String dir, String targetName) {
-		String filename = dir + targetName;
-		Writer fw = null;
-		boolean ok = false;
-
-		stopTimer();
-
-		fw = nodes.getWriter(filename);
-		ok = writeTSV(fw);
-
-		if (!ok) {
-			setError(get("error_writing_to") + filename);
-		}
-		if (fw != null) {
-			try { fw.close(); } catch (IOException t) { }
-		}
-		if (!ok)
-			Logger.writeln("##save(" + filename + ") -> " + ok);
-		return ok;
-	}
-
-	private boolean writeTSV(Writer out) {
-		Node n;
-		Datum d;
-		String ans;
-
-		if (out == null)
-			return false;
-
-
-		try {
-			/* Write header information */
-			/* set save file so can resume at same position */
-			nodes.setReserved(Schedule.STARTING_STEP,Integer.toString(currentStep));
-			nodes.toTSV(out);
-
-			/* Write comments saying when started and stopped.  If multiply resumed, will list these several times */
-			out.write("COMMENT " + "Schedule: " + nodes.getReserved(Schedule.LOADED_FROM) + "\n");
-			out.write("COMMENT " + "Started: " + getStartTimeStr() + "\n");
-			out.write("COMMENT " + "Stopped: " + getStopTimeStr() + "\n");
-
-			for (int i=0;i<size();++i) {
-				n = nodes.getNode(i);
-				if (n == null)
-					continue;
-
-				d = evidence.getDatum(n);
-				if (d == null) {
-					ans = "";	// null values displayed as empty string
-				}
-				else {
-					ans = d.stringVal(true);
-				}
-				String comment = n.getComment();
-				if (comment == null)
-					comment = "";
-
-                out.write(n.toTSV() + "\t");
-                out.write(n.getAnswerLanguageNum() + "\t");
-                out.write(n.getQuestionAsAsked() + "\t");
-                out.write(ans + "\t");
-                out.write(comment + "\t") ;
-                out.write(n.getTimeStampStr() + "\n");
-			}
-			out.flush();
-			return true;
-		}
-		catch (IOException e) {
-if (DEBUG) Logger.writeln("##IOException @ Triceps.toTSV()" + e.getMessage());
-			String msg = get("Unable_to_write_schedule_file") + e.getMessage();
-			setError(msg);
-			return false;
-		}
-	}
-
-	public String getTitle() {
+	/*public*/ String getTitle() {
 		return nodes.getReserved(Schedule.TITLE);
 	}
 
-	public String getPasswordForAdminMode() {
+	/*public*/ String getPasswordForAdminMode() {
 		String s = nodes.getReserved(Schedule.PASSWORD_FOR_ADMIN_MODE);
 		if (s == null || s.trim().length() == 0)
 			return null;
@@ -762,30 +879,28 @@ if (DEBUG) Logger.writeln("##IOException @ Triceps.toTSV()" + e.getMessage());
 			return s;
 	}
 
-	public String getIcon() { return nodes.getReserved(Schedule.ICON); }
-	public String getHeaderMsg() { return nodes.getReserved(Schedule.HEADER_MSG); }
+	/*public*/ String getIcon() { return nodes.getReserved(Schedule.ICON); }
+	/*public*/ String getHeaderMsg() { return nodes.getReserved(Schedule.HEADER_MSG); }
 
-	public void setPasswordForAdminMode(String s) { nodes.setReserved(Schedule.PASSWORD_FOR_ADMIN_MODE,s); }
-
-	public Datum evaluateExpr(String expr) {
+	/*public*/ Datum evaluateExpr(String expr) {
 if (AUTHORABLE) {
 		return parser.parse(this,expr);
 } else { return null; }
 	}
 
-	public String getFilename() { return nodes.getReserved(Schedule.FILENAME); }
+	/*public*/ String getFilename() { return nodes.getReserved(Schedule.FILENAME); }
 
-	public boolean setLanguage(String language) {
+	/*public*/ boolean setLanguage(String language) {
 		return nodes.setReserved(Schedule.CURRENT_LANGUAGE,language);
 	}
-	public int getLanguage() { return nodes.getLanguage(); }
+	/*public*/ int getLanguage() { return nodes.getLanguage(); }
 
-	public String createTempPassword() {
+	/*public*/ String createTempPassword() {
 		tempPassword = Long.toString(random.nextLong());
 		return tempPassword;
 	}
 
-	public boolean isTempPassword(String s) {
+	/*public*/ boolean isTempPassword(String s) {
 		String temp = tempPassword;
 		createTempPassword();	// reset it
 
@@ -794,19 +909,23 @@ if (AUTHORABLE) {
 		return s.equals(temp);
 	}
 
-	private void setError(String s) { errorLogger.println(s); }
-	public boolean hasErrors() { return (errorLogger.size() > 0); }
-	public String getErrors() { return errorLogger.toString(); }
+	private void setError(String s) { 
+if (DEBUG) Logger.writeln("##" + s);		
+		errorLogger.println(s); 
+	}
+	/*public*/ boolean hasErrors() { return (errorLogger.size() > 0); }
+	/*public*/ String getErrors() { return errorLogger.toString(); }
 
-	public Schedule getSchedule() { return nodes; }
-	public Evidence getEvidence() { return evidence; }
-	public Parser getParser() { return parser; }
+	/*public*/ Schedule getSchedule() { return nodes; }
+	/*public*/ Evidence getEvidence() { return evidence; }
+	/*public*/ Parser getParser() { return parser; }
 
-	public boolean isAtBeginning() { return (currentStep <= firstStep); }
-	public boolean isAtEnd() { return (currentStep >= size()); }
-	public int getCurrentStep() { return currentStep; }
+	/*public*/ boolean isAtBeginning() { return (currentStep <= firstStep); }
+	/*public*/ boolean isAtEnd() { return (currentStep >= size()); }
+	/*public*/ int getCurrentStep() { return currentStep; }
 
-	public void processEventTimings(String src) {
+	/*public*/ void processEventTimings(String src) {
+if (DEPLOYABLE) {		
 		if (src == null) {
 			return;
 		}
@@ -815,19 +934,21 @@ if (AUTHORABLE) {
 
 		while(lines.hasMoreTokens()) {
 			String s = lines.nextToken();
-			Logger.writeln(s);
+			eventLogger.println(s);
 		}
+		eventLogger.flush();	// so that committed to disk
+}		
 	}
 
 	/* Formerly from Lingua */
 
-	public static Locale getLocale(String lang, String country, String extra) {
+	/*public*/ static Locale getLocale(String lang, String country, String extra) {
 		return new Locale((lang == null) ? "" : lang,
 			(country == null) ? "" : country,
 			(extra == null) ? "" : extra);
 	}
 
-	public void setLocale(Locale loc) {
+	/*public*/ void setLocale(Locale loc) {
 		locale = (loc == null) ? defaultLocale : loc;
 		loadBundle();
 	}
@@ -841,7 +962,7 @@ if (DEBUG) Logger.writeln("##error loading resources '" + BUNDLE_NAME + "': " + 
 		}
 	}
 
-	public String get(String localizeThis) {
+	/*public*/ String get(String localizeThis) {
 		if (bundle == null || localizeThis == null) {
 			return "";
 		}
@@ -923,7 +1044,7 @@ if (DEBUG) Logger.writeln("##error creating DecimalFormat for locale " + locale.
 		}
 	}
 
-	public Number parseNumber(Object obj, String mask) {
+	/*public*/ Number parseNumber(Object obj, String mask) {
 		Number num = null;
 
 		if (obj == null || obj instanceof Date) {
@@ -963,7 +1084,7 @@ if (DEBUG) Logger.writeln("##ParseException @ Triceps.parseNumber()" + e.getMess
 		return num;
 	}
 
-	public Date parseDate(Object obj, String mask) {
+	/*public*/ Date parseDate(Object obj, String mask) {
 		Date date = null;
 		if (obj == null) {
 			date = null;
@@ -992,7 +1113,7 @@ if (DEBUG) Logger.writeln("##Error parsing date " + obj + " with mask " + mask);
 		return date;
 	}
 
-	public boolean parseBoolean(Object obj) {
+	/*public*/ boolean parseBoolean(Object obj) {
 		if (obj == null) {
 			return false;
 		}
@@ -1018,7 +1139,7 @@ if (DEBUG) Logger.writeln("##Error parsing date " + obj + " with mask " + mask);
 	}
 
 
-	public String formatNumber(Object obj, String mask) {
+	/*public*/ String formatNumber(Object obj, String mask) {
 		String s = null;
 
 		if (obj == null) {
@@ -1069,7 +1190,7 @@ if (DEBUG) Logger.writeln("##IllegalArgumentException @ Triceps.formatNumber()" 
 		return s;
 	}
 
-	public String formatDate(Object obj, String mask) {
+	/*public*/ String formatDate(Object obj, String mask) {
 		if (obj == null) {
 			return null;
 		}
