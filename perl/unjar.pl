@@ -84,36 +84,57 @@ sub unjarall {
 	foreach (@files) {
 		# unjar to temp directory; then determine which instrument belong to; then move to that new directory
 		next if (-d $_);
-		my $srcname = $_;
+		my $srcjar = $_;
+		
 		&doit("$Prefs->{JAR}  xvf \"$_\"");
 		foreach (glob("*.err")) {
 			unlink $_ unless (-d $_);
 		}
 		
-		my @files = glob("*");
-		my $instrument_name = &moveDataFiles($srcname,@files);
-		foreach (@files) {
-			unlink $_ unless (-d $_);
+		my $numFiles;
+		$numFiles = &separateMergedFile(glob("*.dat.evt"));
+		$numFiles = &separateMergedFile(glob("*.dat"));
+		
+		my @datfiles = glob("*.dat *.");
+		my $instrument_name;
+		foreach (@datfiles) {
+			my $srcname = $_;
+			my @srcfiles = glob("$srcname*");
+			$instrument_name = &moveDataFiles($srcname,@srcfiles);
+			
+			foreach (@srcfiles) {
+				unlink $_ unless (-d $_);
+			}
 		}
 		
 		# move jar files to the appropriate directory for easier maintenance
-		my $dstdir = "$Prefs->{JAR_FILES}/$instrument_name";
+		my $dstdir;
+		if ($numFiles == 1) {
+			$dstdir = "$Prefs->{JAR_FILES}/$instrument_name";
+		}
+		else {
+			$dstdir = "$Prefs->{JAR_FILES}/mixed";
+		}
+		
 		$dstdir =~ s/\*\.jar//g;	# remove "*.jar" from path 
 		unless (-d $dstdir) {
 			mkdir($dstdir, 0777);
 		}
 
-		my $msg = "copy \"$srcname\" \"$dstdir\"";
+		my $msg = "copy \"$srcjar\" \"$dstdir\"";
 		# convert to dos format
 		$msg =~ s/\/+/\\/g;
 		&doit($msg);
-		unlink $srcname;
+		unlink $srcjar;
 	}
 	&Dialogix::Utils::mychdir($Prefs->{PERL_SCRIPTS_PATH});
 }
 
 sub moveWorkingFiles {
 	&Dialogix::Utils::mychdir($Prefs->{UNFINISHED_DIR});
+	
+	&separateMergedFiles(glob("*.dat *.dat.evt"));
+
 	my @files = glob("*.dat *.");
 	
 	foreach (@files) {
@@ -145,6 +166,9 @@ sub moveDataFiles {
 	my @files = @_;
 	
 	if ($srcname =~ /^.+[\\\/](.+)(\.(jar|txt|dat|dat\.evt))$/) {
+		$srcname = $1;
+	}
+	elsif ($srcname =~ /^(.+)(\.(jar|txt|dat|dat\.evt))$/) {
 		$srcname = $1;
 	}
 	else {
@@ -222,4 +246,133 @@ sub removeErrFiles {
 sub sched2sas {
 	my $command = "perl $Prefs->{SCHED2SAS} $conf_file $Prefs->{INSTRUMENT_FILE}";
 	&doit($command);
+}
+
+
+sub separateMergedFiles {
+	my @files = @_;
+	
+	foreach my $file (@files) {
+		&separateMergedFile($file);
+	}
+}
+
+sub separateMergedFile {
+	my $file = shift;
+	
+	if (-d $file) {
+		return 0;
+	}
+	
+	unless (open (IN, "<$file")) {
+		print "WARNING: unable to open $file to check for merged contents\n";
+		return 0;
+	}
+	my @lines = (<IN>);
+	close(IN);
+	
+	# If it is a .dat file, then a second instance of __TRICEPS_FILE_TYPE__ will mean that another file is appended
+	# If it is a .dat.evt file, then a second instance of "Log file started on" means that the instrument was resumed.
+	# for dat.evt, if there is a second instance of /^1			sent_request/, this is now a second file	
+	
+	my $basename = '';
+	
+	if ($file =~ /^(.+)\.dat/) {
+		$basename = $1;
+	}
+	
+	my @cutpoints;
+	if ($file =~ /\.dat$/) {
+		# check whether there are multiple files present
+		for (my $i=0;$i <= $#lines;++$i) {
+			if ($lines[$i] =~ /__TRICEPS_FILE_TYPE__/) {
+				push @cutpoints, $i;
+			}
+		}
+		# also note the end of the file
+		push @cutpoints, ($#lines + 1);
+		
+		if ($#cutpoints == 1) {
+			# then there is only one file -- keep it as is
+			print "CLEAN-OK: File $file contains a single file.\n";
+			return 1;
+		}
+		else {
+			# create a new file for each duplicate portion
+			print "CLEAN-WARNING: File $file contains $#cutpoints concatenated data files!\n";
+			for (my $j=1;$j <= $#cutpoints; ++$j) {
+				# create new file
+				if (!(open (OUT, ">$basename-$j.dat"))) {
+					print "ERROR: unable to unmerge file to $basename-$j.dat\n";
+				}
+				else {
+					for (my $k=$cutpoints[$j-1]; $k < $cutpoints[$j]; ++$k) {
+						print OUT $lines[$k];
+					}
+					close (OUT);
+					print "NOTE: unmerged portion $j of $file to $basename-$j.dat\n";
+				}
+			}
+			print "NOTE: removed $file\n";
+			unlink $file;
+			
+			return $#cutpoints;
+		}
+	}
+	elsif ($file =~ /\.dat\.evt$/) {
+		# check whether there are multiple files present
+		for (my $i=0;$i <= $#lines;++$i) {
+			if ($lines[$i] =~ /^1\t\t\tsent_request/) {
+				push @cutpoints, $i;
+			}
+		}
+		# also note the end of the file
+		push @cutpoints, ($#lines + 1);
+				
+		if ($#cutpoints == 1) {
+			# then there is only one file -- keep it as is
+			print "CLEAN-OK: File $file contains a single file.\n";
+			return 1;
+		}
+		else {
+			# create a new file for each duplicate portion
+			print "CLEAN-NOTE: File $file contains $#cutpoints concatenated event files!\n";
+			for (my $j=1;$j <= $#cutpoints; ++$j) {
+				# create new file
+				if (!(open (OUT, ">$basename-$j.dat.evt"))) {
+					print "CLEAN-ERROR: unable to unmerge file to $basename-$j.dat.evt\n";
+				}
+				else {
+					for (my $k=($cutpoints[$j-1]-2); $k < $cutpoints[$j]; ++$k) {
+						# Evt files start one or two lines before the first sent_request line, depending upon the version of Dialogix/Triceps
+						if ($k < $cutpoints[$j-1]) {
+							next if ($k < 0);
+							if ($lines[$k] =~ /^\*\*/) {
+								print OUT $lines[$k];
+							}
+						}
+						elsif ($k >= ($cutpoints[$j]-2)) {
+							# don't print the final lines that show the start of a new section 
+							if ($lines[$k] !~ /^\*\*/) {
+								print OUT $lines[$k];
+							}
+						}
+						else {
+							print OUT $lines[$k];
+						}
+					}
+					close (OUT);
+					print "NOTE: unmerged portion $j of $file to $basename-$j.dat.evt\n";
+				}
+			}
+			print "NOTE: removed $file\n";
+			unlink $file;
+			
+			return $#cutpoints;
+		}
+	}
+	else {
+		print "CLEAN-ERROR: File $file didn't match known separateMergedFile() patterns";
+		return 0;
+	}
 }
