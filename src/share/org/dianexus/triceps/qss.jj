@@ -46,63 +46,30 @@ public class Qss {
 
 PARSER_END(Qss)
 
-TOKEN_MGR_DECLS :
-{
-	private /*static*/ final void imageReplace(int start, int end, String msg) {
-		StringBuffer sb = new StringBuffer();
-		String old = image.toString();
-		sb.append(old.substring(0,start));
-		sb.append(msg);
-		sb.append(old.substring(end,old.length()));
-		image = sb;
-	}
-}
 
-
-MORE :
+TOKEN :
 {
-  "\"" : WithinString
-| "\'" : WithinCharacter
-}
-
-<WithinString> TOKEN :
-{
-		<STRING_LITERAL: "\""> { 
-			imageReplace(1,image.length()-1,image.toString());
-		}: DEFAULT
-}
-
-<WithinString> MORE :
-{
-	"\\n" { imageReplace(image.length()-2,image.length(),"\n"); }
-|	"\\r" { imageReplace(image.length()-2,image.length(),"\r"); }
-|	"\\\\" { imageReplace(image.length()-2,image.length(),"\\"); }
-|	"\\t" { imageReplace(image.length()-2,image.length(),"\t"); }
-|	"\\f" { imageReplace(image.length()-2,image.length(),"\f"); }
-|	"\\b" { imageReplace(image.length()-2,image.length(),"\b"); }
-|	"\\\"" { imageReplace(image.length()-2,image.length(),"\""); }
-|	"\\\'" { imageReplace(image.length()-2,image.length(),"\'"); }
-|	<~["\n","\r"]> 
-}
-
-<WithinCharacter> TOKEN :
-{
-		<CHARACTER_LITERAL: "\'"> { 
-			imageReplace(1,image.length()-1,image.toString());
-		}: DEFAULT
-}
-
-<WithinCharacter> MORE :
-{
-	"\\n" { imageReplace(image.length()-2,image.length(),"\n"); }
-|	"\\r" { imageReplace(image.length()-2,image.length(),"\r"); }
-|	"\\\\" { imageReplace(image.length()-2,image.length(),"\\"); }
-|	"\\t" { imageReplace(image.length()-2,image.length(),"\t"); }
-|	"\\f" { imageReplace(image.length()-2,image.length(),"\f"); }
-|	"\\b" { imageReplace(image.length()-2,image.length(),"\b"); }
-|	"\\\"" { imageReplace(image.length()-2,image.length(),"\""); }
-|	"\\\'" { imageReplace(image.length()-2,image.length(),"\'"); }
-|	<~["\n","\r"]> 
+  < CHARACTER_LITERAL:
+      "'"
+      (   (~["'","\\","\n","\r"])
+        | ("\\"
+            ( ["n","t","b","r","f","\\","'","\""]
+            )
+          )
+      )*
+      "'"
+  >
+|
+  < STRING_LITERAL:
+      "\""
+      (   (~["\"","\\","\n","\r"])
+        | ("\\"
+            ( ["n","t","b","r","f","\\","'","\""]
+            )
+          )
+      )*
+      "\""
+  >
 }
 
 TOKEN : /* OPERATORS */
@@ -385,7 +352,7 @@ void StringList(): { java.util.Vector v = new java.util.Vector(); }
 			}
 			sb.append(((Datum) v.elementAt(i)).StringVal());
 		}
-		stack.push(new Datum(sb.toString()));
+		stack.push(new Datum(sb.toString(),Datum.STRING));
 	}
 }
 
@@ -421,11 +388,41 @@ void Constant() : { Token t; }
 {
 	((t = <INTEGER_LITERAL>) | (t = <FLOATING_POINT_LITERAL>))
 	{   
-		stack.push(new Datum(t.image));
+		stack.push(new Datum(t.image,Datum.DOUBLE));
 	}
 |	((t = <STRING_LITERAL>) | (t = <CHARACTER_LITERAL>))
 	{
-		stack.push(new Datum(t.image));
+		// replace special characters before storing value
+		StringBuffer sb = new StringBuffer();
+		char c;
+		
+		try {
+			for (int i=1;i<t.image.length()-1;++i) {
+				c = t.image.charAt(i);
+				if (c == '\\') {
+					c = t.image.charAt(++i);
+					switch (c) {
+						case 'b': sb.append('\b'); break;
+						case 'f': sb.append('\f'); break;					
+						case 'n': sb.append('\n'); break;
+						case 'r': sb.append('\n'); break;
+						case 't': sb.append('\t'); break;
+						case '\'': sb.append('\''); break;
+						case '\"': sb.append('\"'); break;
+						case '\\': sb.append('\\'); break;
+						default: sb.append(c); break;
+					}
+				}
+				else {
+					sb.append(c);
+				}
+			}	
+		}
+		catch (IndexOutOfBoundsException e) {
+			System.out.println("error parsing string: " + e.getMessage());
+		}
+			
+		stack.push(new Datum(sb.toString(),Datum.STRING));
 	}
 	
 }
@@ -437,7 +434,7 @@ void Description() : { Token t; }
 		if (data.containsKey(t.image)) {
 			try {
 				Node node = data.getNode(t.image);
-				stack.push(new Datum(node.getDescription()));
+				stack.push(new Datum(node.getDescription(),Datum.STRING));
 			}
 			catch (Exception e) {
 				stack.push(new Datum(Datum.INVALID));

@@ -2,71 +2,49 @@
 public interface QssConstants {
 
   int EOF = 0;
-  int STRING_LITERAL = 3;
-  int CHARACTER_LITERAL = 13;
-  int PLUS = 23;
-  int MINUS = 24;
-  int MULTIPLY = 25;
-  int DIVIDE = 26;
-  int MODULUS = 27;
-  int AND = 28;
-  int OR = 29;
-  int XOR = 30;
-  int NOT = 31;
-  int GT = 32;
-  int GE = 33;
-  int EQ = 34;
-  int NEQ = 35;
-  int LT = 36;
-  int LE = 37;
-  int ANDAND = 38;
-  int OROR = 39;
-  int LP = 40;
-  int RP = 41;
-  int COUNT = 42;
-  int LIST = 43;
-  int DESC = 44;
-  int UNSET = 45;
-  int DOT = 46;
-  int COMMA = 47;
-  int SEMICOLON = 48;
-  int INTEGER_LITERAL = 52;
-  int DECIMAL_LITERAL = 53;
-  int HEX_LITERAL = 54;
-  int OCTAL_LITERAL = 55;
-  int FLOATING_POINT_LITERAL = 56;
-  int EXPONENT = 57;
-  int ID = 58;
-  int EOL = 59;
+  int CHARACTER_LITERAL = 1;
+  int STRING_LITERAL = 2;
+  int PLUS = 3;
+  int MINUS = 4;
+  int MULTIPLY = 5;
+  int DIVIDE = 6;
+  int MODULUS = 7;
+  int AND = 8;
+  int OR = 9;
+  int XOR = 10;
+  int NOT = 11;
+  int GT = 12;
+  int GE = 13;
+  int EQ = 14;
+  int NEQ = 15;
+  int LT = 16;
+  int LE = 17;
+  int ANDAND = 18;
+  int OROR = 19;
+  int LP = 20;
+  int RP = 21;
+  int COUNT = 22;
+  int LIST = 23;
+  int DESC = 24;
+  int UNSET = 25;
+  int DOT = 26;
+  int COMMA = 27;
+  int SEMICOLON = 28;
+  int INTEGER_LITERAL = 32;
+  int DECIMAL_LITERAL = 33;
+  int HEX_LITERAL = 34;
+  int OCTAL_LITERAL = 35;
+  int FLOATING_POINT_LITERAL = 36;
+  int EXPONENT = 37;
+  int ID = 38;
+  int EOL = 39;
 
   int DEFAULT = 0;
-  int WithinString = 1;
-  int WithinCharacter = 2;
 
   String[] tokenImage = {
     "<EOF>",
-    "\"\\\"\"",
-    "\"\\\'\"",
-    "\"\\\"\"",
-    "\"\\\\n\"",
-    "\"\\\\r\"",
-    "\"\\\\\\\\\"",
-    "\"\\\\t\"",
-    "\"\\\\f\"",
-    "\"\\\\b\"",
-    "\"\\\\\\\"\"",
-    "\"\\\\\\\'\"",
-    "<token of kind 12>",
-    "\"\\\'\"",
-    "\"\\\\n\"",
-    "\"\\\\r\"",
-    "\"\\\\\\\\\"",
-    "\"\\\\t\"",
-    "\"\\\\f\"",
-    "\"\\\\b\"",
-    "\"\\\\\\\"\"",
-    "\"\\\\\\\'\"",
-    "<token of kind 22>",
+    "<CHARACTER_LITERAL>",
+    "<STRING_LITERAL>",
     "\"+\"",
     "\"-\"",
     "\"*\"",

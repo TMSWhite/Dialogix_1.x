@@ -4,6 +4,17 @@ import java.io.*;
 
 
 public class Node implements Serializable {
+	public static final int UNKNOWN = -1;
+	public static final int RADIO = 0;
+	public static final int CHECK = 1;
+	public static final int COMBO = 2;
+	public static final int DATE = 3;
+	public static final int MONTH = 4;
+	public static final int TEXT = 5;
+	public static final int DOUBLE=6;
+	private static final String QUESTION_TYPES[] = {"radio", "check", "combo", "date", "month", "text", "double" };
+	private static final int DATA_TYPES[] = { Datum.DOUBLE, Datum.DOUBLE, Datum.DOUBLE, Datum.DATE, Datum.MONTH, Datum.STRING, Datum.STRING };
+	
 	private String concept = "";
 	private String description = "";
 	private int step = 0;
@@ -12,101 +23,165 @@ public class Node implements Serializable {
 	private String questionRef = ""; // name within DISC
 	private String actionType = "";
 	private String action = "";
-	private String answerType = "";
+	private int answerType = UNKNOWN;
+	private int datumType = Datum.INVALID;
 	private String answerOptions = "";
 	
 	// loading from extended Schedule with default answers
 	// XXX hack - Node shouldn't know values of evidence - Schedule should know how to load itself.
-//	private transient String debugQuestion = null;
 	private transient String debugAnswer = null;
 	
-	private static final String TAB = "     ";
-	private static final int ITAB = (int)TAB.charAt(0);
-
-		/* N.B. need this obtuse way of checking for adjacent TABs from tokenizer - no other way seems to work */
+	/* N.B. need this obtuse way of checking for adjacent TABs from tokenizer - no other way seems to work */
+	/* XXX - there is no reliable way to tokenize tab delimited files - constantly dropped null values - 
+	so must have dummy variables in empty columns */
 
 	public Node(int step, String tsv) {
 		String token;
-		boolean lastWasTab = true; // so that if first was tab, will recognize that a token is missing
 		int count = 0;
 		try {
-			StringTokenizer st = new StringTokenizer(tsv, "\t", false);
+			StringTokenizer st = new StringTokenizer(tsv, "\t");
 			this.step = step;
 			count = st.countTokens();
-			int j = 0;
 			
-			/* If there are no adjacent tabs in a line, then this fails to work.  It is not clear why.
-				Hack for now: no longer return tabs.  Since navigation.txt no longer has adjacent tabs, this
-				is working */
-			for (int i = 0; i < count; ++i) {
-				token = st.nextToken();
-				// this is the only way to tell whether the token returned is a TAB - TAB.equals(token) doesn't work!
-				if ((int)token.charAt(0) == ITAB) {
-					if (lastWasTab || i == (count - 1)) {
-						token = null; // ensures that adjacent tabs, or conceptless nodes get set correctly
-					}
-					else {
-						lastWasTab = true;
-						continue;
-					}
-				}
-				else {
-					lastWasTab = false;
-				}
-				if (token == null)
-					token = "";
-				switch (++j) {
-					case 1:
-						concept = token;
-						break;
-					case 2:
-						description = token;
-						break;
-					case 3:
-						if (token.charAt(0) == '_') {
-							stepName = token;
-						}
-						else {
-							stepName = "_" + token;
-						}
-						break; // assumes, for now, that input is number without underscore
-					case 4:
-						dependencies = token;
-						break;
-					case 5:
-						questionRef = token;
-						break;
-					case 6:
-						actionType = token;
-						break;
-					case 7:
-						action = token;
-						break;
-					case 8: 
-						answerOptions = token;
-						int index = answerOptions.indexOf(";");
-						if (index != -1) {
-							answerType = answerOptions.substring(0, index);
-						}
-						else answerType = answerOptions;
-						break;
-					case 9: 
-						debugAnswer = token;
-						break;
+			concept = st.nextToken();
+			description = st.nextToken();
+			stepName = st.nextToken();
+			if (stepName.charAt(0) != '_') {
+				stepName = "_" + stepName;
+			}
+			dependencies = st.nextToken();
+			questionRef = st.nextToken();
+			actionType = st.nextToken();
+			action = st.nextToken();
+			answerOptions = st.nextToken();
+
+			int index = answerOptions.indexOf(";");
+			if (index != -1) {
+				token = answerOptions.substring(0, index);
+			}
+			else {
+				token = answerOptions;
+			}
+						
+//			System.out.println("actionType=" + actionType + ",action=" + action + ",answerType=" + token + ",answerOptions=" + answerOptions);
+						
+			for (int z=0;z<QUESTION_TYPES.length;++z) {
+				if (token.equalsIgnoreCase(QUESTION_TYPES[z])) {
+					answerType = z;
+					datumType = DATA_TYPES[z];
+					break;
 				}
 			}
-			if (j < 8) {
-				System.out.println("Error tokenizing line " + step + " (" + j + "/8 tokens found)");
+			if (!"e".equals(actionType) && answerType == UNKNOWN) {
+				System.out.println("Unknown data type (" + token + ") on line " + step);
 			}
+			
+			debugAnswer = st.nextToken();
 		}
 		catch(Exception e) {
-			System.out.println("Error tokenizing line " + step + " (" + count + "/8 tokens)" + e.getMessage());
+			if (count < 8) {
+				System.out.println("Error tokenizing line " + step + " (" + count + "/8 tokens found)" + e.getMessage());
+			}			
 		}
 	}
+	
+	public boolean parseTSV(String src) {
+		switch (answerType) {
+			case RADIO:
+				break;
+			case CHECK:
+				break;
+			case COMBO:
+				break;
+			case DATE:
+				break;
+			case MONTH:
+				break;
+			case TEXT:
+				break;
+			case DOUBLE:
+				break;
+		}
+		return true;
+	}
+	
+	public String prepareChoicesAsHTML(Datum datum) {
+		StringTokenizer ans;
+		StringBuffer sb = new StringBuffer();
+		String val;
+		String msg;
+		String defaultValue = "";
+		
+		try {
+			ans = new StringTokenizer(answerOptions, ";");
+			ans.nextToken();	// discard the answerType
+			switch (answerType) {
+			case RADIO:	// will store integers
+				while (ans.hasMoreTokens()) { // for however many radio buttons there are
+					val = ans.nextToken();
+					msg = ans.nextToken();
+					sb.append("<input type='radio'" + "name='" + getName() + "' " + "value=" + val + 
+						(DatumMath.eq(datum,new Datum(val,Datum.DOUBLE)).booleanVal() ? " CHECKED" : "") + ">" + msg + "<br>");
+				}
+				break;
+			case CHECK:
+				while (ans.hasMoreTokens()) { // for however many check boxes there are
+					val = ans.nextToken();
+					msg = ans.nextToken();
+					sb.append("<input type='checkbox'" + "name='" + getName() + "' " + "value=" + val + 
+						(DatumMath.eq(datum, new Datum(val,Datum.DOUBLE)).booleanVal() ? " CHECKED" : "") + ">" + msg + "<br>");
+				}		
+				break;
+			case COMBO:	// stores string as value
+				sb.append("<select name='" + getName() + "'>");
+				while (ans.hasMoreTokens()) { 
+					val = ans.nextToken();
+					msg = ans.nextToken();
+					sb.append("<option value='" + val + "'" + 
+						(DatumMath.eq(datum, new Datum(val,Datum.STRING)).booleanVal() ? " SELECTED" : "") + ">" + msg + "</option>");
+				}
+				sb.append("</select>");		
+				break;
+			case DATE:	// stores Date type
+				if (datum != null) {
+					Date date = datum.dateVal();
+					if (date != null)
+						defaultValue = Datum.mdy.format(date);
+				}
+				sb.append("Date (MM/dd/yyyy - e.g. 7/4/1982): <input type='text' name='" + getName() + "' value='" + defaultValue + "'>");
+				break;
+			case MONTH: // stores Month type
+				if (datum != null)
+					defaultValue = datum.monthVal();			
+				sb.append("Month (e.g. February): <input type='text' name='" + getName() + "' value='" + defaultValue + "'>");
+				break;
+			case TEXT:	// stores Text type
+				if (datum != null)
+					defaultValue = datum.StringVal();
+				sb.append("<input type='text' name='" + getName() + "' value='" + defaultValue + "'>");
+				break;
+			case DOUBLE:	// stores Double type
+				if (datum != null)
+					defaultValue = datum.StringVal();
+				sb.append("<input type='text' name='" + getName() + "' value='" + defaultValue + "'>");
+				break;
+			}
+		}
+		catch (NullPointerException e) {
+			System.out.println("Error tokenizing answer options: " + e);
+		}
+		catch (NoSuchElementException e) {
+			System.out.println("Error tokenizing answer options: " + e);
+		}
+		return sb.toString();
+	}
+	
+	
 	public String getAction() { return action; }
 	public String getActionType() { return actionType; }
 	public String getAnswerOptions() { return answerOptions; }
-	public String getAnswerType() { return answerType; }
+	public int getAnswerType() { return answerType; }
+	public int getDatumType() { return datumType; }
 	public String getConcept() { return concept; }
 	public String getDependencies() { return dependencies; }
 	public String getDescription() { return description; }
@@ -122,7 +197,7 @@ public class Node implements Serializable {
 		return "Node (" + step + "): <B>" + stepName + "</B><BR>\n" + "Concept: <B>" + concept + "</B><BR>\n" +
 			"Description: <B>" + description + "</B><BR>\n" + "Dependencies: <B>" + dependencies + "</B><BR>\n" +
 			"Question Reference: <B>" + questionRef + "</B><BR>\n" + "Action Type: <B>" + actionType + "</B><BR>\n" +
-			"Action: <B>" + action + "</B><BR>\n" + "AnswerType: <B>" + answerType + "</B><BR>\n" + "AnswerOptions: <B>" +
+			"Action: <B>" + action + "</B><BR>\n" + "AnswerType: <B>" + QUESTION_TYPES[answerType] + "</B><BR>\n" + "AnswerOptions: <B>" +
 			answerOptions + "</B><BR>\n";
 	}
 	

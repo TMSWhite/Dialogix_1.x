@@ -63,25 +63,6 @@ public class TricepsServlet extends HttpServlet {
 		out.println("<BR>");
 		out.println("<input type='SUBMIT' name='directive' value='restore-from-TSV'>" +
 			"<input type='text' name='restore-from-TSV'>");		
-		// FIXME - query/iterate for list of stored schedules
-/*
-		out.println("<select name='restoreFrom'>");
-		Cookie cookies[] = req.getCookies();
-		
-		boolean found = false;
-		for (int i=0;i<cookies.length;++i) {
-			System.out.println(cookies[i].getName() + "->" + cookies[i].getValue());
-			if (cookies[i].getName().equalsIgnoreCase(SUSPENDED)) {
-				out.println(cookies[i].getValue());	// adds the option list
-				found = true;
-				break;
-			}
-		}
-		if (!found) {
-			out.println("<option value=''>*none available*");
-		}		
-		out.println("							 </select>");
-*/
 		out.println("<BR><input type='SUBMIT' name='directive' value='RESTORE'>");
 		out.println("</pre>");
 		out.println("</body>");
@@ -232,37 +213,6 @@ public class TricepsServlet extends HttpServlet {
 			ok = triceps.save(file);
 			if (ok) {
 				out.println("<B>Interview saved successfully as " + name + " (" + file + ")</B><HR>");
-				/*
-				try {
-					String restore = "<option value='" + file + "'>" + name + "\n";
-					
-					Cookie cookies[] = req.getCookies();
-					
-					boolean found = false;
-					if (cookies == null) {
-						res.addCookie(new Cookie(SUSPENDED,restore));
-					}
-					else {					
-						for (int i=0;i<cookies.length;++i) {
-							if (cookies[i].getName().equalsIgnoreCase(SUSPENDED)) {
-								String previous = cookies[i].getValue();
-								cookies[i].setMaxAge(0);	// deletes current cookie
-								res.addCookie(new Cookie(SUSPENDED,previous + restore));
-								found = true;
-								break;
-							}
-						}
-					}
-					if (!found) {
-						System.out.println("creating new cookie to store filenames");
-						res.addCookie(new Cookie(SUSPENDED,restore));
-					}
-					out.println("Saved filenames to cookie<BR>");
-				}
-				catch (IllegalArgumentException e) {
-					out.println("Unable to save list of filenames to cookie");
-				}
-				*/
 			}
 			// re-ask same question
 		}
@@ -312,7 +262,6 @@ public class TricepsServlet extends HttpServlet {
 		if (!ok) {
 			Enumeration errs = triceps.getErrors();
 			if (errs.hasMoreElements()) {
-//				out.println("ERROR(S):<BR>");
 				while (errs.hasMoreElements()) {
 					out.println("<B>" + (String) errs.nextElement() + "</B><BR>");
 				}
@@ -325,7 +274,6 @@ public class TricepsServlet extends HttpServlet {
 	/**
 	 * This method assembles the displayed question and answer options
 	 * and formats them in HTML for return to the client browser.
-	 * XXX - parsing should not be done here - await re-write for better modularization
 	 */
 	private void queryUser() {
 		// if parser internal to Schedule, should have method access it, not directly
@@ -340,71 +288,9 @@ public class TricepsServlet extends HttpServlet {
 			if (count == 0) {
 				out.println("<B>Question " + node.getQuestionRef() + "</B>: " + triceps.getQuestionStr(node) + "<br>\n");
 			}
-			
-			// display the answer options
-			StringTokenizer ans;
-			// separate display from servlet
-			// IO parser
-			// HTML formatting for a question or collection of questions
 			Datum datum = triceps.getDatum(node);
-			try {
-				String defaultValue = "";
-				try {
-					defaultValue = datum.StringVal();
-					if (null == defaultValue)
-						defaultValue = "";
-				}
-				catch(Exception e) {}
-				ans = new StringTokenizer(node.getAnswerOptions(), ";");
-				String answerType = ans.nextToken();
-				if (answerType.equals("radio")) {
-					while (ans.hasMoreTokens()) { // for however many radio buttons there are
-						String v = ans.nextToken();
-						String msg = ans.nextToken();
-						out.println("<input type='radio'" + "name='" + node.getName() + "' " + "value=" + v + (DatumMath.eq(datum,
-							new Datum(v)).booleanVal() ? " CHECKED" : "") + ">" + msg + "<br>");
-					}
-				}
-				if (answerType.equals("check")) {
-					while (ans.hasMoreTokens()) { // for however many check boxes there are
-
-						// Add the CHECKED attribute to indicate a default choice 
-
-						String v = ans.nextToken();
-						String msg = ans.nextToken();
-						out.println("<input type='checkbox'" + "name='" + node.getName() + "' " + "value=" + v + (DatumMath.eq(datum,
-							new Datum(v)).booleanVal() ? " CHECKED" : "") + ">" + msg + "<br>");
-					}
-				}
-				if (answerType.equals("combo")) {
-					out.println("<select name='" + node.getName() + "'>");
-					while (ans.hasMoreTokens()) { // for however many check boxes there are
-
-						// Add the CHECKED attribute to indicate a default choice 
-
-						String v = ans.nextToken();
-						String msg = ans.nextToken();
-						out.println("<option value='" + v + "'" + (DatumMath.eq(datum,
-							new Datum(v)).booleanVal() ? " SELECTED" : "") + ">" + msg + "</option>");
-					}
-					out.println("</select>");
-				}
-				if (answerType.equals("date")) {
-					out.println("Date: <input type='text' name='" + node.getName() + "' value='" + defaultValue + "'>");
-				}
-				if (answerType.equals("age")) {
-					out.println("Age: <input type='text' name='" + node.getName() + "' value='" + defaultValue + "'>");
-				}
-				if (answerType.equals("grade")) {
-					out.println("Grade: <input type='text' name='" + node.getName() + "' value='" + defaultValue + "'>");
-				}
-				if (answerType.equals("text")) {
-					out.println("Type your answer: <input type='text' name='" + node.getName() + "' value='" + defaultValue + "'>");
-				}
-			}
-			catch(Exception e) {
-				System.out.println("Error tokenizing answer options...." + e.getMessage());
-			}
+			
+			out.println(node.prepareChoicesAsHTML(datum));
 		}
 
 		// Navigation buttons

@@ -1,12 +1,28 @@
 import java.lang.*;
 import java.util.*;
+import java.text.*;
 
 /** This class provides the basic logic and mathematical functions for relating objects of type datum. */
 public class DatumMath {
+	private static final SimpleDateFormat month2num = new SimpleDateFormat("M");
 
 	/** This method returns the sum of two Datum objects of type double. */
 	static Datum add(Datum a, Datum b) {
-		return new Datum(a.doubleVal() + b.doubleVal());
+		switch (a.type()) {
+			default:
+				return new Datum(a.doubleVal() + b.doubleVal());
+			case Datum.MONTH: 
+				try {
+					int val = Integer.parseInt(month2num.format(a.dateVal()));
+					val += (int) b.doubleVal();
+					Date d = month2num.parse("" + val);
+					return new Datum(Datum.month.format(d),Datum.MONTH);
+				}
+				catch (java.text.ParseException e) {
+					System.out.println(e);
+					return new Datum(Datum.INVALID);
+				}
+		}
 	}
 	static Datum and(Datum a, Datum b) {
 		return new Datum(a.longVal() & b.longVal());
@@ -17,10 +33,10 @@ public class DatumMath {
 	/** This method concatenates two Datum objects of type String and returns the resulting Datum object. */
 	static Datum concat(Datum a, Datum b) {
 		try {
-			return new Datum(a.StringVal().concat(b.StringVal()));
+			return new Datum(a.StringVal().concat(b.StringVal()),Datum.STRING);
 		}
 		catch(NullPointerException e) {
-			return new Datum(a.StringVal());
+			return new Datum(a.StringVal(),Datum.STRING);
 		}
 	}
 	/**
@@ -152,7 +168,21 @@ public class DatumMath {
 	}
 	/** This method returns the difference between two Datum objects of type double. */
 	static Datum subtract(Datum a, Datum b) {
-		return new Datum(a.doubleVal() - b.doubleVal());
+		switch (a.type()) {
+			default:
+				return new Datum(a.doubleVal() - b.doubleVal());
+			case Datum.MONTH: 
+				try {
+					int val = Integer.parseInt(month2num.format(a.dateVal()));
+					val -= (int) b.doubleVal();
+					Date d = month2num.parse("" + val);
+					return new Datum(Datum.month.format(d),Datum.MONTH);
+				}
+				catch (java.text.ParseException e) {
+					System.out.println(e);
+					return new Datum(Datum.INVALID);
+				}
+		}
 	}
 	static Datum xor(Datum a, Datum b) {
 		return new Datum(a.longVal() ^ b.longVal());

@@ -108,7 +108,7 @@ public class Triceps implements Serializable {
 					return true;	
 				}
 				else if ("e".equals(node.getActionType())) {	// evaluate evidence, set the Datum for this node, and loop to next node
-					evidence.set(node, new Datum(parser.StringVal(evidence, node.getAction())));
+					evidence.set(node, new Datum(parser.StringVal(evidence, node.getAction()),node.getDatumType())); // what data type?
 				}
 			}
 			else {	// the node is inactive and the datum value is "not applicable"
@@ -179,7 +179,7 @@ public class Triceps implements Serializable {
 			if (init == null || init.equals(NULL))
 				continue;
 			
-			evidence.set(n,new Datum(init));	// set an initial value for the node
+			evidence.set(n,new Datum(init,node.getDatumType()));	// set an initial value for the node
 		}
 		return true;
 	}
@@ -203,7 +203,7 @@ public class Triceps implements Serializable {
 	public boolean storeValue(Node q, String answer) {
 		try {	// set answer to the value returned with the "name" of the node
 			if (answer == null) {
-				if ("check".equals(q.getAnswerType())) {
+				if (q.getAnswerType() == Node.CHECK) {
 					answer = "0";
 				}
 			}
@@ -218,7 +218,11 @@ public class Triceps implements Serializable {
 		}
 		else {	// got a proper answer -- handle it
 			if (currentStep >= 0 && q != null) {
-				Datum d = new Datum(answer);
+				Datum d = new Datum(answer,q.getDatumType()); // use expected value type
+				if (d.isInvalid()) {
+					errors.push(d.getError());
+					return false;
+				}
 				evidence.set(q, d);
 			}
 			return true;
