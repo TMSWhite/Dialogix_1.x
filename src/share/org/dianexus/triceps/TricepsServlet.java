@@ -80,6 +80,7 @@ public class TricepsServlet extends HttpServlet implements VersionIF {
 	ServletConfig config = null;
 	TricepsEngine tricepsEngine = null;
 	String sessionID = null;
+	int accessCount = 0;
 
 	
 	public void init(ServletConfig config) throws ServletException {
@@ -375,6 +376,8 @@ if (DEBUG) Logger.printStackTrace(e);
 	boolean logPageHit(HttpServletRequest req, String msg) {
 		StringBuffer sb = new StringBuffer();
 		String workingFile = null;
+		++accessCount;
+
 		try {
 			workingFile = tricepsEngine.getTriceps().dataLogger.getFilename().replace('\\','/');
 		}
@@ -382,18 +385,61 @@ if (DEBUG) Logger.printStackTrace(e);
 			workingFile = "null";
 		}
 		
-		sb.append("INSERT INTO pagehits (currentIP, username, sessionID, workingFile, javaObject, browser, instrumentName, currentStep, lastAction, statusMsg) VALUES (");
-		sb.append("'").append(req.getRemoteAddr()).append("'");
+		String currentStep = (tricepsEngine == null) ? "null" : tricepsEngine.getCurrentStep();
+		
+		sb.append("INSERT INTO pagehits (accessCount, currentIP, username, sessionID, workingFile, javaObject, browser, instrumentName, currentStep, lastAction, statusMsg) VALUES (");
+		sb.append("'").append(accessCount).append("'");
+		sb.append(", '").append(req.getRemoteAddr()).append("'");
 		sb.append(", '").append(req.getParameter(LOGIN_USERNAME)).append("'");	
 		sb.append(", '").append((sessionID == null) ? "null" : sessionID).append("'");
 		sb.append(", '").append(workingFile).append("'");
 		sb.append(", '").append((tricepsEngine == null) ? "null" : tricepsEngine.getHashCode()).append("'");
 		sb.append(", '").append(req.getHeader(USER_AGENT)).append("'");
 		sb.append(", '").append((tricepsEngine == null) ? "null" : tricepsEngine.getInstrumentName().replace('\\','/')).append("'");
-		sb.append(", '").append((tricepsEngine == null) ? "null" : tricepsEngine.getCurrentStep()).append("'");
+		sb.append(", '").append(currentStep).append("'");
 		sb.append(", '").append(req.getParameter("DIRECTIVE")).append("'");
 		sb.append(", '").append(msg).append("'");
 		sb.append(")");
-		return writeToDB(sb.toString());
+		
+		/* Also want to log raw input parameters to a separate database */
+		try {
+			if (ds == null) throw new Exception("Unable to access DataSource");
+			
+	        Connection conn = ds.getConnection();
+	        
+	        if (conn == null) throw new Exception("Unable to connect to database");	// really need a way to report that there are database problems!
+	        
+	        Statement stmt = conn.createStatement();
+	        int pageHitID = stmt.executeUpdate(sb.toString());
+	        
+	        /* now log the raw input */
+	        stmt.clearBatch();
+	        
+			java.util.Enumeration params = req.getParameterNames();
+			
+			while(params.hasMoreElements()) {
+				String param = (String) params.nextElement();
+				String vals[] = req.getParameterValues(param);
+				for (int i=0;i<vals.length;++i) {
+					sb = new StringBuffer("INSERT INTO pageHitDetails (accessCount, currentIP, currentStep, param, value) VALUES (");
+					sb.append("'").append(accessCount).append("'");
+					sb.append(", '").append(req.getRemoteAddr()).append("'");
+					sb.append(", '").append(currentStep).append("'");
+					sb.append(", '").append(param).append("'");
+					sb.append(", '").append(vals[i].replace('\\','/').replace('\'','_')).append("')");
+					stmt.addBatch(sb.toString());
+				}
+			}
+			stmt.executeBatch();
+	
+	        conn.close();
+	        
+			return true;
+		}
+		catch (Throwable t) {
+			Logger.writeln("SQL-ERROR on: " + sb.toString());
+			Logger.writeln(t.getMessage());
+			return false;
+		}		
 	}	
 }
