@@ -317,7 +317,7 @@ public class TricepsServlet extends HttpServlet {
 		sb.append("	<td width='1%'><img src='" + HELP_T_ICON + "' alt='" + triceps.get("Help") + "' align='top' border='0' onMouseUp='evHandler(event);help(\"_TOP_\",\"" + helpURL + "\");'></td>");
 		sb.append("</tr>");
 		sb.append("</table>");
-		sb.append("<hr>");
+//		sb.append("<hr>");
 
 		return sb.toString();
 	}
@@ -717,7 +717,9 @@ public class TricepsServlet extends HttpServlet {
 
 
 		/* Show any accumulated errors */
-		errors.print(triceps.getErrors());
+		if (triceps.hasErrors()) {
+			errors.print(triceps.getErrors());
+		}
 
 		nodes = triceps.getQuestions();
 		int errCount = 0;
@@ -772,6 +774,7 @@ public class TricepsServlet extends HttpServlet {
 //				triceps.setSchedule(name,workingFilesDir,completedFilesDir,floppyDir);
 //			}
 //			else {
+				triceps.finalize();
 				triceps = new Triceps(name,workingFilesDir,completedFilesDir,floppyDir);
 //			}
 		}
