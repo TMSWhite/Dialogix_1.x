@@ -921,8 +921,11 @@ if (DEPLOYABLE) {
 				}
 				case COMPARETO:
 					return new Datum(triceps,datum.stringVal().compareTo(getParam(params.elementAt(1)).stringVal()));
-				case COMPARETOIGNORECASE:
-					return new Datum(triceps,datum.stringVal().compareToIgnoreCase(getParam(params.elementAt(1)).stringVal()));
+				case COMPARETOIGNORECASE:  {
+					String src = datum.stringVal().toLowerCase();
+					String dst = getParam(params.elementAt(1)).stringVal().toLowerCase();
+					return new Datum(triceps,src.compareTo(dst));
+				}
 				case ENDSWITH:
 					return new Datum(triceps,datum.stringVal().endsWith(getParam(params.elementAt(1)).stringVal()));
 				case INDEXOF:
@@ -1172,9 +1175,11 @@ if (DEBUG) Logger.writeln("##SecurityException @ Evidence.fileExists()" + e.getM
 				case TAN:
 					return new Datum(triceps, Math.tan(datum.doubleVal()));				
 				case TODEGREES:
-					return new Datum(triceps, Math.toDegrees(datum.doubleVal()));				
+//					return new Datum(triceps, Math.toDegrees(datum.doubleVal()));				
+					return new Datum(triceps, Double.NaN);			
 				case TORADIANS:
-					return new Datum(triceps, Math.toRadians(datum.doubleVal()));				
+//					return new Datum(triceps, Math.toRadians(datum.doubleVal()));				
+					return new Datum(triceps, Double.NaN);			
 				case PI:
 					return new Datum(triceps, Math.PI);			
 				case E:	
