@@ -768,6 +768,8 @@ public class TricepsServlet extends HttpServlet {
 		else {
 			triceps = new Triceps(name);
 		}
+		triceps.getSchedule().setReserved(Schedule.WORKING_DIR,workingFilesDir);
+		triceps.getSchedule().setReserved(Schedule.COMPLETED_DIR,completedFilesDir);
 		return triceps.isValid();
 	}
 
@@ -961,12 +963,18 @@ public class TricepsServlet extends HttpServlet {
 		/* If something has been set as Refused, Unknown, etc, allow going forward without additional headache */
 
 		if (showAdminModeIcons || okToShowAdminModeIcons || isSpecial) {
-			sb.append("<img name='" + inputName + "_REFUSED_ICON" + "' src='" + ((isRefused) ? REFUSED_T_ICON : REFUSED_F_ICON) +
-				"' align='top' border='0' alt='" + triceps.get("Set_as_Refused") + "' onMouseUp='evHandler(event);markAsRefused(\"" + inputName + "\");'>");
-			sb.append("<img name='" + inputName + "_UNKNOWN_ICON" + "' src='" + ((isUnknown) ? UNKNOWN_T_ICON : UNKNOWN_F_ICON) +
-				"' align='top' border='0' alt='" + triceps.get("Set_as_Unknown") + "' onMouseUp='evHandler(event);markAsUnknown(\"" + inputName + "\");'>");
-			sb.append("<img name='" + inputName + "_NOT_UNDERSTOOD_ICON" + "' src='" + ((isNotUnderstood) ? NOT_UNDERSTOOD_T_ICON : NOT_UNDERSTOOD_F_ICON) +
-				"' align='top' border='0' alt='" + triceps.get("Set_as_Not_Understood") + "' onMouseUp='evHandler(event);markAsNotUnderstood(\"" + inputName + "\");'>");
+			if (triceps.isAllowRefused() || isRefused) {
+				sb.append("<img name='" + inputName + "_REFUSED_ICON" + "' src='" + ((isRefused) ? REFUSED_T_ICON : REFUSED_F_ICON) +
+					"' align='top' border='0' alt='" + triceps.get("Set_as_Refused") + "' onMouseUp='evHandler(event);markAsRefused(\"" + inputName + "\");'>");
+			}
+			if (triceps.isAllowUnknown() || isUnknown) {
+				sb.append("<img name='" + inputName + "_UNKNOWN_ICON" + "' src='" + ((isUnknown) ? UNKNOWN_T_ICON : UNKNOWN_F_ICON) +
+					"' align='top' border='0' alt='" + triceps.get("Set_as_Unknown") + "' onMouseUp='evHandler(event);markAsUnknown(\"" + inputName + "\");'>");
+			}
+			if (triceps.isAllowNotUnderstood() || isNotUnderstood) {
+				sb.append("<img name='" + inputName + "_NOT_UNDERSTOOD_ICON" + "' src='" + ((isNotUnderstood) ? NOT_UNDERSTOOD_T_ICON : NOT_UNDERSTOOD_F_ICON) +
+					"' align='top' border='0' alt='" + triceps.get("Set_as_Not_Understood") + "' onMouseUp='evHandler(event);markAsNotUnderstood(\"" + inputName + "\");'>");
+			}
 		}
 
 		if (sb.length() == 0) {
@@ -1061,77 +1069,91 @@ public class TricepsServlet extends HttpServlet {
 		StringBuffer sb = new StringBuffer();
 		sb.append("<script  type=\"text/javascript\"> <!--\n");
 				
-		sb.append("var startTime = new Date();\n");
 		sb.append("var val = null;\n");
 		sb.append("var name = null;\n");
 		sb.append("var msg = null;\n");
-		sb.append("var el = null;\n");
-		sb.append("var evH = null;\n");
-		sb.append("var ans = null;\n");
 		
-		sb.append("function keyHandler(e) {\n");
-		sb.append("	now = new Date();\n");
-		sb.append("	val = String.fromCharCode(e.which) + ',' + e.target.value;\n");
-		sb.append("	name = e.target.name;\n");
-		sb.append("	msg = name + ',' + e.target.type + ',' + e.type + ',' + now.getTime() + ',' + (now.getTime() - startTime.getTime()) + ',' + val + '|';\n");
-		sb.append("	document.myForm.EVENT_TIMINGS.value += msg;\n");
-		sb.append("	return true;\n");
-		sb.append("}\n");		
+		if (triceps.isRecordEvents()) {
+			sb.append("var startTime = new Date();\n");
+			sb.append("var el = null;\n");
+			sb.append("var evH = null;\n");
+			sb.append("var ans = null;\n");
+			
+			sb.append("function keyHandler(e) {\n");
+			sb.append("	now = new Date();\n");
+			sb.append("	val = String.fromCharCode(e.which) + ',' + e.target.value;\n");
+			sb.append("	name = e.target.name;\n");
+			sb.append("	msg = name + ',' + e.target.type + ',' + e.type + ',' + now.getTime() + ',' + (now.getTime() - startTime.getTime()) + ',' + val + '|';\n");
+			sb.append("	document.myForm.EVENT_TIMINGS.value += msg;\n");
+			sb.append("	return true;\n");
+			sb.append("}\n");		
+			
+			sb.append("function submitHandler(e) {\n");
+			sb.append("	now = new Date();\n");
+			sb.append("	val = ',';\n");
+			sb.append("	name = e.target.value;\n");
+			sb.append("	msg = name + ',' + e.target.type + ',' + e.type + ',' + now.getTime() + ',' + (now.getTime() - startTime.getTime()) + ',' + val + '|';\n");
+			sb.append("	document.myForm.EVENT_TIMINGS.value += msg;\n");
+			sb.append("	return true;\n");
+			sb.append("}\n");
+	
+			sb.append("function selectHandler(e) {\n");
+			sb.append("	now = new Date();\n");
+			sb.append("	val = e.target.options[e.target.selectedIndex].value + ',' + e.target.options[e.target.selectedIndex].text;\n");
+			sb.append("	name = e.target.name;\n");
+			sb.append("	msg = name + ',' + e.target.type + ',' + e.type + ',' + now.getTime() + ',' + (now.getTime() - startTime.getTime()) + ',' + val + '|';\n");
+			sb.append("	document.myForm.EVENT_TIMINGS.value += msg;\n");
+			sb.append("	return true;\n");
+			sb.append("}\n");
+		}
 		
-		sb.append("function submitHandler(e) {\n");
-		sb.append("	now = new Date();\n");
-		sb.append("	val = ',';\n");
-		sb.append("	name = e.target.value;\n");
-		sb.append("	msg = name + ',' + e.target.type + ',' + e.type + ',' + now.getTime() + ',' + (now.getTime() - startTime.getTime()) + ',' + val + '|';\n");
-		sb.append("	document.myForm.EVENT_TIMINGS.value += msg;\n");
-		sb.append("	return true;\n");
-		sb.append("}\n");
-
-		sb.append("function selectHandler(e) {\n");
-		sb.append("	now = new Date();\n");
-		sb.append("	val = e.target.options[e.target.selectedIndex].value + ',' + e.target.options[e.target.selectedIndex].text;\n");
-		sb.append("	name = e.target.name;\n");
-		sb.append("	msg = name + ',' + e.target.type + ',' + e.type + ',' + now.getTime() + ',' + (now.getTime() - startTime.getTime()) + ',' + val + '|';\n");
-		sb.append("	document.myForm.EVENT_TIMINGS.value += msg;\n");
-		sb.append("	return true;\n");
-		sb.append("}\n");
-		
+			
 		sb.append("function evHandler(e) {\n");
-		sb.append("	now = new Date();\n");
-		sb.append("	val = ',' + e.target.value;\n");
-		sb.append("	name = e.target.name;\n");
-		sb.append("	msg = name + ',' + e.target.type + ',' + e.type + ',' + now.getTime() + ',' + (now.getTime() - startTime.getTime()) + ',' + val + '|';\n");
-		sb.append("	document.myForm.EVENT_TIMINGS.value += msg;\n");
+			
+		if (triceps.isRecordEvents()) {
+			sb.append("	now = new Date();\n");
+			sb.append("	val = ',' + e.target.value;\n");
+			sb.append("	name = e.target.name;\n");
+			sb.append("	msg = name + ',' + e.target.type + ',' + e.type + ',' + now.getTime() + ',' + (now.getTime() - startTime.getTime()) + ',' + val + '|';\n");
+			sb.append("	document.myForm.EVENT_TIMINGS.value += msg;\n");
+		}
+		
 		sb.append("	return true;\n");
 		sb.append("}\n");
-		
-		sb.append("window.captureEvents(Event.Load);\n");
-		sb.append("window.onLoad = evHandler;\n");
+			
+		if (triceps.isRecordEvents()) {
+			sb.append("window.captureEvents(Event.Load);\n");
+			sb.append("window.onLoad = evHandler;\n");
+		}
 
 		sb.append("function init() {\n");
+
+		if (triceps.isRecordEvents()) {
+			sb.append("	for (var i=0;i<document.myForm.elements.length;++i) {\n");
+			sb.append("		el = document.myForm.elements[i];\n");
+			sb.append("		evH = evHandler;\n");
+			sb.append("		if (el.options) { evH = selectHandler; }\n");
+			sb.append("		else if (el.type == 'submit') { evH = submitHandler; }\n");
+			sb.append("		el.onBlur = evH;\n");
+			sb.append("		el.onChange = evH;\n");
+			sb.append("		el.onClick = evH;\n");
+			sb.append("		el.onFocus = evH;\n");
+			sb.append("		el.onKeyPress = keyHandler;\n");
+//			sb.append("		el.onSelect = evH;\n");
+			sb.append("	}\n");
+			sb.append("	for (var k=0;k<document.images.length;++k){\n");
+			sb.append("		el = document.images[k];\n");
+//			sb.append("		el.onKeyUp = keyHandler;\n");
+			sb.append("		el.onMouseUp = evHandler;\n");
+//			sb.append("		el.onClick = evHandler;\n");
+			sb.append("	}\n");
+		}
+		
 
 		if (firstFocus != null) {
 			sb.append("	document.myForm." + firstFocus + ".focus();\n");
 		}
-		
-		sb.append("	for (var i=0;i<document.myForm.elements.length;++i) {\n");
-		sb.append("		el = document.myForm.elements[i];\n");
-		sb.append("		evH = evHandler;\n");
-		sb.append("		if (el.options) { evH = selectHandler; }\n");
-		sb.append("		else if (el.type == 'submit') { evH = submitHandler; }\n");
-		sb.append("		el.onBlur = evH;\n");
-		sb.append("		el.onChange = evH;\n");
-		sb.append("		el.onClick = evH;\n");
-		sb.append("		el.onFocus = evH;\n");
-		sb.append("		el.onKeyPress = keyHandler;\n");
-//		sb.append("		el.onSelect = evH;\n");
-		sb.append("	}\n");
-		sb.append("	for (var k=0;k<document.images.length;++k){\n");
-		sb.append("		el = document.images[k];\n");
-//		sb.append("		el.onKeyUp = keyHandler;\n");
-		sb.append("		el.onMouseUp = evHandler;\n");
-//		sb.append("		el.onClick = evHandler;\n");
-		sb.append("	}\n");
+				
 		sb.append("}\n");
 		sb.append("function setAdminModePassword(name) {\n");
 		sb.append("	ans = prompt('" +
