@@ -1102,7 +1102,8 @@ if (AUTHORABLE) {
 		schedule.setReserved(Schedule.SCHEDULE_DIR,scheduleSrcDir);
 		schedule.setReserved(Schedule.BROWSER_TYPE, userAgent);
 		schedule.setReserved(Schedule.IP_ADDRESS,((req == null) ? null : req.getRemoteAddr()));
-		triceps.eventLogger.println("***\t" + schedule.getReserved(Schedule.IP_ADDRESS) + "\t" + userAgent);
+		schedule.setReserved(Schedule.CONNECTION_TYPE,((req == null) ? null : (req.isSecure() ? "HTTPS" : "HTTP")));
+		triceps.eventLogger.println("***\t" + schedule.getReserved(Schedule.IP_ADDRESS) + "\t" + userAgent + "\t" + ((req == null) ? "null" : (req.isSecure() ? "HTTPS" : "HTTP")));
 		return triceps.isValid();
 	}
 	

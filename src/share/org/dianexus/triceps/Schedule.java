@@ -83,6 +83,7 @@ import java.io.FileReader;
 	/*public*/ static final int SHOW_SAVE_TO_FLOPPY_IN_ADMIN_MODE = 58;
 	/*public*/ static final int WRAP_ADMIN_ICONS = 59;
 	/*public*/ static final int DISALLOW_COMMENTS = 60;
+	/*public*/ static final int CONNECTION_TYPE = 61;
 
 	private static final String DEFAULT_LANGUAGE = "en_US";
 	/*public*/ static final String TRICEPS_DATA_FILE = "DATA";
@@ -150,7 +151,8 @@ import java.io.FileReader;
 		"__ALWAYS_SHOW_ADMIN_ICONS__",
 		"__SHOW_SAVE_TO_FLOPPY_IN_ADMIN_MODE__",
 		"__WRAP_ADMIN_ICONS__",
-		"__DISALLOW_COMMENTS__"
+		"__DISALLOW_COMMENTS__",
+		"__CONNECTION_TYPE__"
 	};
 
 	private Date startTime = null;
@@ -260,6 +262,7 @@ import java.io.FileReader;
 		setReserved(SHOW_SAVE_TO_FLOPPY_IN_ADMIN_MODE,"false");
 		setReserved(WRAP_ADMIN_ICONS,"false");
 		setReserved(DISALLOW_COMMENTS,"false");
+		setReserved(CONNECTION_TYPE,"HTTP");
 	}
 		
 	/*public*/ boolean init(boolean log) {
@@ -692,7 +695,12 @@ if (DEPLOYABLE) {
 		}
 }
 	}
-	
+
+	/*public*/ void writeAllReserved() {
+		for (int i=0;i<RESERVED_WORDS.length;++i) {
+			writeReserved(i);
+		}
+	}
 
 	/*public*/ boolean overloadReserved(Schedule oldNodes) {
 		/* FIXME - need to use String Objects for reserved words, not integers, otherwise subject to re-ordering! */
@@ -782,6 +790,7 @@ if (DEPLOYABLE) {
 			case SHOW_SAVE_TO_FLOPPY_IN_ADMIN_MODE: s = Boolean.valueOf(value.trim()).toString(); break;
 			case WRAP_ADMIN_ICONS: s = Boolean.valueOf(value.trim()).toString(); break;
 			case DISALLOW_COMMENTS: s = Boolean.valueOf(value.trim()).toString(); break;
+			case CONNECTION_TYPE: if (expert) s = value.trim(); break;
 			default: return false;
 		}
 		
