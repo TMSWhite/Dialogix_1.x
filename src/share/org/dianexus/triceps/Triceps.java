@@ -310,7 +310,7 @@ public class Triceps implements Serializable {
 	public boolean storeValue(Node q, String answer) {
 		try {	// set answer to the value returned with the "name" of the node
 			if (answer == null) {
-				if (q.getAnswerType() == Node.CHECK) {
+				if (q.getAnswerType() == Node.CHECK || q.getAnswerType() == Node.NOTHING) {
 					answer = "0";
 				}
 			}

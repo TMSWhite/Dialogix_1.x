@@ -54,7 +54,7 @@ public class TricepsServlet extends HttpServlet {
 		out.println("Start a new interview:		<select name='schedule'>");
 		out.println("							  <option value='ADHD.txt' selected>ADHD");
 		out.println("							  <option value='EatDis.txt'>Eating Disorders");
-		out.println("                             <option value='fake.txt'>fake");
+		out.println("                             <option value='MiHeart.txt'>MiHeart");
 		out.println("							</select>");
 		out.println("<BR><input type='SUBMIT' name='directive' value='START'>\n");
 		out.println("<BR>OR<BR>");
@@ -236,7 +236,7 @@ public class TricepsServlet extends HttpServlet {
 			if (expr != null) {
 				Datum datum = triceps.parser.parse(triceps.evidence, expr);
 				
-				out.println("<TABLE WIDTH='100%' CELLPADDING='0' CELLSPACING='0' BORDER=1>");
+				out.println("<TABLE WIDTH='100%' CELLPADDING='2' CELLSPACING='1' BORDER=1>");
 				out.println("<TR><TD>Equation</TD><TD><B>" + expr + "</B></TD><TD>Type</TD><TD><B>" + Datum.TYPES[datum.type()] + "</B></TD></TR>");
 				out.println("<TR><TD>String</TD><TD><B>" + datum.stringVal() + "</B></TD><TD>boolean</TD><TD><B>" + datum.booleanVal() + "</B></TD></TR>");
 				out.println("<TR><TD>double</TD><TD><B>" + datum.doubleVal() + "</B></TD><TD>long</TD><TD><B>" + datum.longVal() + "</B></TD></TR>");
@@ -305,7 +305,7 @@ public class TricepsServlet extends HttpServlet {
 		
 		Enumeration questionNames = triceps.getQuestions();
 		
-		out.println("<TABLE CELLPADDING='0' CELLSPACING='0' WIDTH='100%' border='1'>");
+		out.println("<TABLE CELLPADDING='2' CELLSPACING='1' WIDTH='100%' border='1'>");
 		for(int count=0;questionNames.hasMoreElements();++count) {
 			Node node = (Node) questionNames.nextElement();
 			Datum datum = triceps.getDatum(node);
@@ -350,7 +350,7 @@ public class TricepsServlet extends HttpServlet {
 		// Complete printout of what's been collected per node
 		out.println("<hr>");
 		out.println("<H4>CURRENT QUESTION(s)</H4>");
-		out.println("<TABLE CELLPADDING='0' CELLSPACING='0'  WIDTH='100%' BORDER='1'>");
+		out.println("<TABLE CELLPADDING='2' CELLSPACING='1'  WIDTH='100%' BORDER='1'>");
 		questionNames = triceps.getQuestions();
 			
 		while(questionNames.hasMoreElements()) {
@@ -369,7 +369,7 @@ public class TricepsServlet extends HttpServlet {
 		
 		out.println("<hr>");
 		out.println("<H4>EVIDENCE AREA</H4>");
-		out.println("<TABLE CELLPADDING='0' CELLSPACING='0'  WIDTH='100%' BORDER='1'>");
+		out.println("<TABLE CELLPADDING='2' CELLSPACING='1'  WIDTH='100%' BORDER='1'>");
 		for (int i = triceps.size()-1; i >= 0; i--) {
 			Node n = triceps.getNode(i);
 			if (!triceps.isSet(n))

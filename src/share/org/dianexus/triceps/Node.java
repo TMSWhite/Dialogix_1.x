@@ -12,9 +12,10 @@ public class Node implements Serializable {
 	public static final int MONTH = 4;
 	public static final int TEXT = 5;
 	public static final int DOUBLE=6;
-	private static final String QUESTION_TYPES[] = {"radio", "check", "combo", "date", "month", "text", "double" };
-	private static final int DATA_TYPES[] = { Datum.DOUBLE, Datum.DOUBLE, Datum.STRING, Datum.DATE, Datum.MONTH, Datum.STRING, Datum.STRING };
-	private static final String QUESTION_MASKS[] = { "", "", "", " (e.g. 7/23/1982)", " (e.g. February)", "", "" };
+	public static final int NOTHING=7;	// do nothing
+	private static final String QUESTION_TYPES[] = {"radio", "check", "combo", "date", "month", "text", "double", "nothing" };
+	private static final int DATA_TYPES[] = { Datum.DOUBLE, Datum.DOUBLE, Datum.DOUBLE, Datum.DATE, Datum.MONTH, Datum.STRING, Datum.STRING, Datum.STRING};
+	private static final String QUESTION_MASKS[] = { "", "", "", " (e.g. 7/23/1982)", " (e.g. February)", "", "", ""};
 	
 	private String concept = "";
 	private String description = "";
@@ -75,6 +76,8 @@ public class Node implements Serializable {
 			}
 			if (!"e".equals(actionType) && answerType == UNKNOWN) {
 				System.out.println("Unknown data type (" + token + ") on line " + step);
+				answerType = NOTHING;
+				datumType = DATA_TYPES[answerType];
 			}
 			
 			debugAnswer = st.nextToken();
@@ -101,6 +104,8 @@ public class Node implements Serializable {
 			case TEXT:
 				break;
 			case DOUBLE:
+				break;
+			case NOTHING:
 				break;
 		}
 		return true;
@@ -166,6 +171,9 @@ public class Node implements Serializable {
 				if (datum != null && datum.exists())
 					defaultValue = datum.stringVal();
 				sb.append("<input type='text' name='" + getName() + "' value='" + defaultValue + "'>");
+				break;
+			default:
+			case NOTHING:
 				break;
 			}
 		}
