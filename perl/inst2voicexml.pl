@@ -16,6 +16,7 @@ my $CONVERT2XML = 0;
 my $CREATETIDY = 0;
 my $VALIDATEXML = 0;
 my $RECURSEDIRS = 0;
+my $CREATEVOICEXML = 0;
 my $CALCDIFFS = 0;
 my @FILEGLOB = ('*');
 
@@ -53,10 +54,10 @@ my $dataTypes = {
 &main;
 
 sub main {
-	if ($#ARGV != 4) {
-		die "usage\ninst2xml.pl <convert2xml> <createTidy> <validateXML> <calcDiffs> <recurseDirs>\n";
+	if ($#ARGV != 5) {
+		die "usage\ninst2xml.pl <convert2xml> <createTidy> <validateXML> <calcDiffs> <recurseDirs> <createVoiceXMl>\n";
 	}
-	($CONVERT2XML, $CREATETIDY, $VALIDATEXML, $CALCDIFFS, $RECURSEDIRS) = @ARGV;
+	($CONVERT2XML, $CREATETIDY, $VALIDATEXML, $CALCDIFFS, $RECURSEDIRS, $CREATEVOICEXML) = @ARGV;
 	
 	my $srcdir = Cwd::cwd();
 	print "[$srcdir]\n";
@@ -335,6 +336,97 @@ sub write_xml {
 			print OUT "	<nesting>$line->{'qoreval'}->{'nesting'}</nesting>\n";
 			print OUT "	<dataType>$line->{'dataType'}</dataType>\n";
 			print OUT "	<displayType>$line->{'displayType'}</displayType>\n";
+			print OUT "	<validation>\n";
+			print OUT "		<castto>$line->{'qoreval'}->{'returntype'}</castto>\n";
+			print OUT "		<min>$line->{'qoreval'}->{'min'}</min>\n";
+			print OUT "		<max>$line->{'qoreval'}->{'max'}</max>\n";
+			print OUT "		<mask>$line->{'qoreval'}->{'mask'}</mask>\n";
+			print OUT "		<regex>$line->{'qoreval'}->{'regex'}</regex>\n";
+			if ($line->{'qoreval'}->{'num_extras'} > 0) {
+				print OUT "		<extras count=\"$line->{'qoreval'}->{'num_extras'}\">\n";
+				my $rextras = $line->{'qoreval'}->{'extras'};
+				my @extras = @$rextras;
+				foreach my $extra (@extras) {
+					print OUT "			<value>$extra</value>\n";
+				}
+				print OUT "		</extras>\n";
+			}
+			else {
+				print OUT "		<extras count=\"0\"/>\n";
+			}
+			print OUT "	</validation>\n";
+			print OUT "	<hows count=\"$line->{'num_hows'}\">\n";
+			my $rhows = $line->{'hows'};
+			my @hows = @$rhows;
+			my $hcount = 0;
+			foreach my $how (@hows) {
+				++$hcount;
+				print OUT "		<how index=\"$hcount\" lang=\"$langs[$hcount-1]\">\n";
+				print OUT "			<readback>$how->{'readback'}</readback>\n";
+				print OUT "			<helpURL>$how->{'helpURL'}</helpURL>\n";
+				print OUT "			<actionExp>$how->{'action'}->{'action_exp'}</actionExp>\n";
+				my $num_options = $how->{'answerChoices'}->{'num_options'};
+				if ($num_options > 0) {
+					my $roptions = $how->{'answerChoices'}->{'options'};
+					my @options = @$roptions;
+					
+					print OUT "			<options count=\"$num_options\">\n";
+					foreach my $option (@options) {
+						print OUT "				<option index=\"$option->{'option_counter'}\">\n";
+						print OUT "					<msg>$option->{'option_msg'}</msg>\n";
+						print OUT "					<val>$option->{'option_val'}</val>\n";
+						print OUT "				</option>\n";
+					}
+					print OUT "			</options>\n";
+				}
+				else {
+					print OUT "			<options count=\"0\"/>\n";
+				}
+				print OUT "		</how>\n";
+			}
+			print OUT "	</hows>\n";
+		}
+		print OUT "</$type>\n";
+	}
+	
+	print OUT "</dialogix_instrument>\n";
+	close (OUT);
+}
+
+
+sub write_voicexml {
+	my ($base,$filename,$rlangs,$rlines) = @_;
+	my @langs = @$rlangs;
+	my @lines = @$rlines;
+	
+	open (OUT,">$filename.vxml") or die "unable to write VoiceXML to $filename.vxml\n";
+	
+	#write XML header
+	print OUT qq|<?xml version="1.0"?>|, "\n";
+	print OUT qq|<vxml version="2.0" xmlns="http://www.w3.org/2001/vxml">|, "\n";
+	
+	print OUT qq|<!-- dialogix_instrument src="$base" -->|, "\n";
+	print OUT "<form>\n";
+	
+	my $linenum = 0;
+	foreach my $line (@lines) {
+		# try to cheat by working recursively?
+		my $type = lc($line->{'line_type'});
+		++$linenum;
+		
+		print OUT "<!-- $type linenum=\"$linenum\" -->\n";
+		if ($type eq 'reserved') {
+			print OUT "	<!-- RESERVED $line->{'resname' = $line->{'resval'}  -->\n";
+		}
+		elsif ($type eq 'comment') {
+			print OUT "	<!-- COMMENT $line->{'comment'} -->\n";
+		}
+		else {
+			if ($line->{'qoreval'}->{'actionType'} ne 'eval') {
+				print OUT "<field name=\"$line->{'uniqueName'}\">\n";
+				print OUT "	<prompt>
+			}
+
 			print OUT "	<validation>\n";
 			print OUT "		<castto>$line->{'qoreval'}->{'returntype'}</castto>\n";
 			print OUT "		<min>$line->{'qoreval'}->{'min'}</min>\n";

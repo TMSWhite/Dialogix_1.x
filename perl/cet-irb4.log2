@@ -1,0 +1,5 @@
+perl /cvs2/Dialogix/perl/dat2sas.pl cet-irb4.conf
+/data/cet-irb4/instrument/AutoMEQ-SA-v3.0-(AutoMEQ-SA-irb)/AutoMEQ-SA-irb, /data/cet-irb4/unjar/AutoMEQ-SA-v3.0-(AutoMEQ-SA-irb)/*.dat
+creating __DISCARD__-complete.tsv
+creating __MAIN__-complete.tsv
+creating __NOTHING__-complete.tsv
