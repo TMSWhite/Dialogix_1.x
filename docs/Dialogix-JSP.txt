@@ -1,5 +1,107 @@
-JSP / Taglibs and Dialogix
+Goal:  Separating content from logic in Dialogix
+Strategies:  JSP vs. Velocity vs. XSLT
+	XSLT:
+		-requires much maintenance, and expertise to make the initial transforms
+		-performance will be slow -- e.g. Cocoon
+		-would be needed if the focus were on PDF, although Velocity may work even there
+		-might be needed for voice output
+	JSP:
+		-difficult to edit and maintain, especially since there are embedded mathematical expressions
+		-taglibs are still imature, and don't support extensive functionality.  They are also harder to read in code
+		-tabligs are just a way of accessing Java statements, nad Velocity will do this
+		-error reporting in JSP is lousy
+	Velocity:
+		-easy to edit the templates and debug
+		-supports nested templates and macros (e.g. loading formatting parameters for given input and output elements
+		-fast
+		-open source and small, so we can maintain it if needed
+		-the math functions are limited, but we have our own equation parser that deals with special data types, so don't need theirs
+	Conclusion
+		-Use Velocity
+		
+=======================
+Modeling:  What are the object and workflow?
 
+Pages
+	Login
+		-a command -- always forwards to somewhere else (so that if no login required, or person authenticated, bypasses this)
+	Error
+		-customized messages
+		-differing levels of details (e.g. showing line numbers and stack traces or just general feedback)
+		
+Sections
+	Header
+	Title
+	Navigation
+		-next / previous / jump-to
+		-show sections available / completed
+		-show percent done / left
+	Messages
+		-e.g. error, how many questions left
+	Admin
+		-buttons for development
+	Footer
+	
+Classes
+	Item (formerly Node)
+		-initialize via hashtable or XML
+		-(avoid having a hard-wired reader?)
+		-display of contents should be via Velocity macro, not in-lined
+		-read-only? (so that data stored elsewhere) - so only getter methods exposed
+		-use interface with subclasses so that can migrate to EJB or direct DB lookups if desired
+			-getItem("byName")
+			-getValue(Context,"name") - so that can change the multi-lingual model more easily?
+		-could also assume that all getters return Strings, pre-formatted to the Locale needs
+	Section? ([] How many levels of granularity do I want / need?)
+		-contains logically related items (e.g. get age, and branch to "done" if age < 5) -- so that sections can be more easily moved
+	DisplayGroup (formerly part of a Schedule delimited by brackets]
+		Item(s)
+		Template? (so don't always have to look the same)
+		-would this allow repeats?
+		-[] allow protection (e.g. have some values be read-only, or even hidden (e.g. pre-fill parameters)
+	ProcessingGroup
+		-e.g. collection of evaluation nodes
+		-[] should there just be a "Group" that may or may not display based upon its content?
+	Module
+		-Relevance (since entire modules may be irrelevant)
+		-isActive (so that administrators can select which modeules to use -- e.g. for PRISM)
+		Group+
+		Instrument+
+			-select whether outer context(s) should be visible? e.g. when debugging, want to know that a variable is absent
+		Template?
+		-allow it to forward data elsewhere (so that doesn't return)		
+	Instrument (formerly Schedule)
+		Config (formerly reserved words?)
+		Context+
+	Context
+		-can call another instrument and pass it the current data as read-only
+		-[] should a sub-instrument be able to set the value of a parent?  If so, would need to be aware of it, which makes no sense.
+	Usage (formerly a mix of Evidence, Schedule, Triceps, TricepsEngine, etc.)
+		Instrument
+		Database
+		User
+	Constants (formerly in VersionIF and others)
+		-datatypes
+		-messages?
+	Database (formerly Evidence)
+		-should there be several scoping levels?
+		-can use Velocity-like hashtables to store values and pass copies to a sub-context
+		-should be abstracted so that 
+	Rules?
+		-collection of listeners for rules that have broader scope
+		-e.g. "do until 5 in a row correct", or "if 4 errors in a row going forwards, go backwards until have 5 in a row correct"
+		-e.g. "end if age < 5" (although this could be done in-line -- if age < 5, then "return" out of that section
+	User (not formerly modeled)
+		-login name / password
+		-sequestered demographics?
+		-role(s)
+	
+Filters
+	XMLTidy
+		-run this once the entire content is generated, rather than on each section -- otherwise should use writer pool to avoid out of memory error
+	
+
+=======================
 (1) Authentication
 	(a) Needs
 		- only authorized access
