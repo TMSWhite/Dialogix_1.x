@@ -209,6 +209,7 @@ if (DEBUG) Logger.printStackTrace(new Throwable("##INVALID Datum"));
 
 		if (obj == null && !isSpecial(t)) {
 if (DEBUG) Logger.writeln("##null obj passed to Datum.init()");
+if (DEBUG) Logger.printStackTrace(new Throwable("##null obj passed to Datum.init()"));
 			t = INVALID;
 		}
 
