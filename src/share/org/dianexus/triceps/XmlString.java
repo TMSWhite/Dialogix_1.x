@@ -1,7 +1,7 @@
 import java.util.*;
 import java.io.*;
 
-public class XmlString extends Object {
+public final class XmlString extends Object {
 	public static final XmlString NULL = new XmlString(null,null);
 
 	private static final Hashtable ENTITIES = new Hashtable();

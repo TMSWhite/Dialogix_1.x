@@ -3,7 +3,7 @@ import java.util.*;
 import java.io.*;
 
 
-public class ParseError  {
+public final class ParseError  {
 	Node node = null;
 	String dependenciesErrors = null;
 	String actionErrors = null;

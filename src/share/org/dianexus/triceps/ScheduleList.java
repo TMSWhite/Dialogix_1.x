@@ -1,7 +1,7 @@
 import java.io.*;
 import java.util.*;
 
-public class ScheduleList {
+public final class ScheduleList {
 	private Vector schedules = new Vector();
 	private String sourceDir = null;
 	private Logger logger = new Logger();
