@@ -24,9 +24,6 @@ public class TricepsServlet extends HttpServlet {
 	public static String NOT_UNDERSTOOD_T_ICON = null;
 	public static String NOT_UNDERSTOOD_F_ICON = null;
 
-	private static int cycle = 0;
-
-	private Triceps triceps = Triceps.NULL;
 	private HttpServletRequest req;
 	private HttpServletResponse res;
 	private PrintWriter out;
@@ -53,7 +50,10 @@ public class TricepsServlet extends HttpServlet {
 	private boolean allowComments = false;
 
 	private String directive = null;	// the default
-	private int currentLanguage = 0;
+	private Lingua lingua = null;
+	private Triceps triceps = null;
+	private boolean isloaded = getNewTricepsInstance(null);	// this must come last - sets Triceps and Lingua values
+	
 
 	/**
 	 * This method runs only when the servlet is first loaded by the
@@ -127,7 +127,7 @@ public class TricepsServlet extends HttpServlet {
 
 			triceps = (Triceps) session.getValue("triceps");
 			if (triceps == null) {
-				triceps = Triceps.NULL;
+				isloaded = getNewTricepsInstance(null);
 			}
 
 			res.setContentType("text/html");
@@ -140,30 +140,30 @@ public class TricepsServlet extends HttpServlet {
 			processPreFormDirectives();
 			processHidden();
 
-			form = new XmlString(triceps.lingua, createForm());
+			form = new XmlString(lingua, createForm());
 
 			out.println(header());	// must be processed AFTER createForm, otherwise setFocus() doesn't work
-			new XmlString(triceps.lingua, getCustomHeader(),out);
+			new XmlString(lingua, getCustomHeader(),out);
 
 			if (info.size() > 0) {
 				out.println("<B>");
-				new XmlString(triceps.lingua, info.toString(),out);
+				new XmlString(lingua, info.toString(),out);
 				out.println("</B><HR>");
 			}			
 			if (errors.size() > 0) {
 				out.println("<B>");
-				new XmlString(triceps.lingua, errors.toString(),out);
+				new XmlString(lingua, errors.toString(),out);
 				out.println("</B><HR>");
 			}
 			
 			if (form.hasErrors() && developerMode) {
-				new XmlString(triceps.lingua, "<b>" + form.getErrors() + "</b>",out);
+				new XmlString(lingua, "<b>" + form.getErrors() + "</b>",out);
 			}
 
 			out.println(form.toString());
 
 			if (!isSplashScreen) {
-				new XmlString(triceps.lingua, generateDebugInfo(),out);
+				new XmlString(lingua, generateDebugInfo(),out);
 			}
 
 			out.println(footer());	// should not be parsed
@@ -173,33 +173,33 @@ public class TricepsServlet extends HttpServlet {
 			/* Store appropriate stuff in the session */
 			session.putValue("triceps", triceps);
 
-			if (triceps.lingua.get("next").equals(directive)) {
+			if (lingua.get("next").equals(directive)) {
 				triceps.toTSV(workingFilesDir);
 			}
 		}
 		catch (Throwable t) {
-			Logger.writeln(triceps.lingua.get("unexpected_error") + t.getMessage());
+			Logger.writeln(lingua.get("unexpected_error") + t.getMessage());
 			Logger.printStackTrace(t);
 		}
 	}
 
 	private void processPreFormDirectives() {
 		/* setting language doesn't use directive parameter */
-		if (triceps != Triceps.NULL) {
+		if (triceps.isValid()) {
 			String language = req.getParameter("LANGUAGE");
 			if (language != null && language.trim().length() > 0) {
 				triceps.setLanguage(language.trim());
 				directive = "refresh current";
 			}
 		}
-
-		if (triceps == Triceps.NULL)
+		else {
 			return;
+		}
 
 
 		/* Want to evaluate expression before doing rest so can see results of changing global variable values */
-		if (triceps.lingua.get("evaluate_expr").equals(directive)) {
-			String expr = req.getParameter(triceps.lingua.get("evaluate_expr"));
+		if (lingua.get("evaluate_expr").equals(directive)) {
+			String expr = req.getParameter(lingua.get("evaluate_expr"));
 			if (expr != null) {
 				Datum datum = triceps.evaluateExpr(expr);
 
@@ -212,7 +212,7 @@ public class TricepsServlet extends HttpServlet {
 				errors.print("<TR><TD>date</TD><TD><B>" + datum.dateVal() + "</B></TD><TD>month</TD><TD><B>" + datum.monthVal() + "</B></TD></TR>");
 				errors.print("</TABLE>");
 
-				errors.print(triceps.parser.getErrors());
+				errors.print(triceps.getParser().getErrors());
 			}
 			else {
 				errors.println("empty expression");
@@ -221,7 +221,7 @@ public class TricepsServlet extends HttpServlet {
 	}
 
 	private void setGlobalVariables() {
-		if (triceps != Triceps.NULL) {
+		if (triceps.isValid()) {
 			debugMode = triceps.isDebugMode();
 			developerMode = triceps.isDeveloperMode();
 			showQuestionNum = triceps.isShowQuestionRef();
@@ -245,7 +245,7 @@ public class TricepsServlet extends HttpServlet {
 
 	private void processHidden() {
 		/* Has side-effects - so must occur before createForm() */
-		if (triceps == Triceps.NULL)
+		if (!triceps.isValid())
 			return;
 
 		String settingAdminMode = req.getParameter("PASSWORD_FOR_ADMIN_MODE");
@@ -257,7 +257,7 @@ public class TricepsServlet extends HttpServlet {
 					okToShowAdminModeIcons = true;	// so allow AdminModeIcons to be displayed
 				}
 				else {
-					info.println(triceps.lingua.get("incorrect_password_for_admin_mode"));
+					info.println(lingua.get("incorrect_password_for_admin_mode"));
 				}
 			}
 			directive = "refresh current";	// so that will set the admin mode password
@@ -271,19 +271,19 @@ public class TricepsServlet extends HttpServlet {
 		/** Process requests to change developerMode-type status **/
 		if (directive != null) {
 			/* Toggle these values, as requested */
-			if (directive.startsWith(triceps.lingua.get("turn_developerMode"))) {
+			if (directive.startsWith(lingua.get("turn_developerMode"))) {
 				developerMode = !developerMode;
-				triceps.nodes.setReserved(Schedule.DEVELOPER_MODE, String.valueOf(developerMode));
+				triceps.getSchedule().setReserved(Schedule.DEVELOPER_MODE, String.valueOf(developerMode));
 				directive = "refresh current";
 			}
-			else if (directive.startsWith(triceps.lingua.get("turn_debugMode"))) {
+			else if (directive.startsWith(lingua.get("turn_debugMode"))) {
 				debugMode = !debugMode;
-				triceps.nodes.setReserved(Schedule.DEBUG_MODE, String.valueOf(debugMode));
+				triceps.getSchedule().setReserved(Schedule.DEBUG_MODE, String.valueOf(debugMode));
 				directive = "refresh current";
 			}
-			else if (directive.startsWith(triceps.lingua.get("turn_showQuestionNum"))) {
+			else if (directive.startsWith(lingua.get("turn_showQuestionNum"))) {
 				showQuestionNum = !showQuestionNum;
-				triceps.nodes.setReserved(Schedule.SHOW_QUESTION_REF, String.valueOf(showQuestionNum));
+				triceps.getSchedule().setReserved(Schedule.SHOW_QUESTION_REF, String.valueOf(showQuestionNum));
 				directive = "refresh current";
 			}
 		}
@@ -296,19 +296,19 @@ public class TricepsServlet extends HttpServlet {
 		sb.append("<TR>");
 		sb.append("<TD WIDTH='1%'>");
 
-		String logo = (!isSplashScreen && triceps != Triceps.NULL) ? triceps.getIcon() : logoIcon;
+		String logo = (!isSplashScreen && triceps.isValid()) ? triceps.getIcon() : logoIcon;
 		if (logo.trim().equals("")) {
 			sb.append("&nbsp;");
 		}
 		else {
 			sb.append("<IMG NAME='icon' SRC='" + (imageFilesDir + logo) + "' ALIGN='top' BORDER='0'" +
 				((!isSplashScreen) ? " onMouseDown='javascript:setAdminModePassword();'":"") + 
-				((!isSplashScreen) ? (" ALT='" + triceps.lingua.get("LogoMessage") + "'") : "") +
+				((!isSplashScreen) ? (" ALT='" + lingua.get("LogoMessage") + "'") : "") +
 				">");
 		}
 		sb.append("	</TD>");
-		sb.append("	<TD ALIGN='left'><FONT SIZE='5'><B>" + ((triceps != Triceps.NULL && !isSplashScreen) ? triceps.getHeaderMsg() : "Triceps") + "</B></FONT></TD>");
-		sb.append("	<TD WIDTH='1%'><IMG SRC='" + HELP_T_ICON + "' ALT='" + triceps.lingua.get("Help") + "' ALIGN='top' BORDER='0' onMouseDown='javascript:help(\"" + helpURL + "\");'></TD>");
+		sb.append("	<TD ALIGN='left'><FONT SIZE='5'><B>" + ((triceps.isValid() && !isSplashScreen) ? triceps.getHeaderMsg() : "Triceps") + "</B></FONT></TD>");
+		sb.append("	<TD WIDTH='1%'><IMG SRC='" + HELP_T_ICON + "' ALT='" + lingua.get("Help") + "' ALIGN='top' BORDER='0' onMouseDown='javascript:help(\"" + helpURL + "\");'></TD>");
 		sb.append("</TR>");
 		sb.append("</TABLE>");
 		sb.append("<HR>");
@@ -332,10 +332,10 @@ public class TricepsServlet extends HttpServlet {
 		String title = null;
 
 		try {
-			ScheduleList interviews = new ScheduleList(triceps.lingua, dir);
+			ScheduleList interviews = new ScheduleList(lingua, dir);
 
 			if (interviews.hasErrors()) {
-				errors.println(triceps.lingua.get("error_getting_list_of_available_interviews"));
+				errors.println(lingua.get("error_getting_list_of_available_interviews"));
 				errors.print(interviews.getErrors());
 			}
 			else {
@@ -358,14 +358,14 @@ public class TricepsServlet extends HttpServlet {
 						}
 					}
 					catch (Throwable t) {
-						errors.println(triceps.lingua.get("unexpected_error") + t.getMessage());
+						errors.println(lingua.get("unexpected_error") + t.getMessage());
 						Logger.printStackTrace(t);
 					}
 				}
 			}
 		}
 		catch (Throwable t) {
-			errors.println(triceps.lingua.get("unexpected_error") + t.getMessage());
+			errors.println(lingua.get("unexpected_error") + t.getMessage());
 			Logger.printStackTrace(t);
 		}
 		return names;
@@ -427,7 +427,7 @@ public class TricepsServlet extends HttpServlet {
 			}
 		}
 		catch (Throwable t) {
-			errors.println(triceps.lingua.get("error_building_sorted_list_of_interviews") + t.getMessage());
+			errors.println(lingua.get("error_building_sorted_list_of_interviews") + t.getMessage());
 			Logger.printStackTrace(t);
 		}
 
@@ -458,14 +458,14 @@ public class TricepsServlet extends HttpServlet {
 	}
 
 	private String languageButtons() {
-		if (isSplashScreen || triceps == Triceps.NULL || !triceps.isAllowLanguageSwitching())
+		if (isSplashScreen || !triceps.isValid() || !triceps.isAllowLanguageSwitching())
 			return "";
 
 		StringBuffer sb = new StringBuffer();
 
 		/* language switching section */
-		if (!isSplashScreen && triceps != Triceps.NULL) {
-			Vector languages = triceps.nodes.getLanguages();
+		if (!isSplashScreen && triceps.isValid()) {
+			Vector languages = triceps.getSchedule().getLanguages();
 			if (languages.size() > 1) {
 				sb.append("<TABLE WIDTH='100%' BORDER='0'><TR><TD ALIGN='center'>");
 				for (int i=0;i<languages.size();++i) {
@@ -488,41 +488,40 @@ public class TricepsServlet extends HttpServlet {
 		Enumeration nodes;
 
 		// get the POSTed directive (start, back, next, help, suspend, etc.)	- default is opening screen
-		if (directive == null || triceps.lingua.get("select_new_interview").equals(directive)) {
+		if (directive == null || lingua.get("select_new_interview").equals(directive)) {
 			/* Construct splash screen */
 			isSplashScreen = true;
 			triceps.setLanguage(null);	// the default
 
 			sb.append("<TABLE CELLPADDING='2' CELLSPACING='2' BORDER='1'>");
-			sb.append("<TR><TD>" + triceps.lingua.get("please_select_an_interview") + "</TD>");
+			sb.append("<TR><TD>" + lingua.get("please_select_an_interview") + "</TD>");
 			sb.append("<TD>");
 
 			/* Build the list of available interviews */
 			sb.append(selectFromInterviewsInDir("schedule",scheduleSrcDir,false));
 
 			sb.append("</TD>");
-			sb.append("<TD><input type='SUBMIT' name='directive' value='" + triceps.lingua.get("START") + "'></TD>");
+			sb.append("<TD><input type='SUBMIT' name='directive' value='" + lingua.get("START") + "'></TD>");
 			sb.append("</TR>");
 
 			/* Build the list of suspended interviews */
-			sb.append("<TR><TD>" + triceps.lingua.get("or_restore_an_interview_in_progress") + "</TD>");
+			sb.append("<TR><TD>" + lingua.get("or_restore_an_interview_in_progress") + "</TD>");
 			sb.append("<TD>");
 
 			sb.append(selectFromInterviewsInDir("RestoreSuspended",workingFilesDir,true));
 
 			if (developerMode) {
-				sb.append("<input type='text' name='" + triceps.lingua.get("RESTORE") + "'>");
+				sb.append("<input type='text' name='" + lingua.get("RESTORE") + "'>");
 			}
 			sb.append("</TD>");
-			sb.append("<TD><input type='SUBMIT' name='directive' value='" + triceps.lingua.get("RESTORE") + "'></TD>");
+			sb.append("<TD><input type='SUBMIT' name='directive' value='" + lingua.get("RESTORE") + "'></TD>");
 			sb.append("</TR></TABLE>");
 
 			return sb.toString();
 		}
-		else if (directive.equals(triceps.lingua.get("START"))) {
+		else if (directive.equals(lingua.get("START"))) {
 			// load schedule
-			triceps = new Triceps(req.getParameter("schedule"));
-			ok = triceps.isValid();
+			ok = getNewTricepsInstance(req.getParameter("schedule"));
 
 			if (!ok) {
 				directive = null;
@@ -535,7 +534,7 @@ public class TricepsServlet extends HttpServlet {
 			ok = ok && ((gotoMsg = triceps.gotoStarting()) == Triceps.OK);	// don't proceed if prior error
 			// ask question
 		}
-		else if (directive.equals(triceps.lingua.get("RESTORE"))) {
+		else if (directive.equals(lingua.get("RESTORE"))) {
 			String restore;
 
 			restore = req.getParameter("RESTORE");
@@ -549,13 +548,12 @@ public class TricepsServlet extends HttpServlet {
 
 
 			// load schedule
-			triceps = new Triceps(restore);
-			ok = triceps.isValid();
+			ok = getNewTricepsInstance(restore);
 
 			if (!ok) {
 				directive = null;
 
-				errors.println(triceps.lingua.get("unable_to_find_or_access_schedule") + " '" + restore + "'");
+				errors.println(lingua.get("unable_to_find_or_access_schedule") + " '" + restore + "'");
 				return processDirective();
 			}
 			// re-check developerMode options - they aren't set via the hidden options, since a new copy of Triceps created
@@ -565,8 +563,8 @@ public class TricepsServlet extends HttpServlet {
 
 			// ask question
 		}
-		else if (directive.equals(triceps.lingua.get("jump_to"))) {
-			gotoMsg = triceps.gotoNode(req.getParameter(triceps.lingua.get("jump_to")));
+		else if (directive.equals(lingua.get("jump_to"))) {
+			gotoMsg = triceps.gotoNode(req.getParameter(lingua.get("jump_to")));
 			ok = (gotoMsg == Triceps.OK);
 			// ask this question
 		}
@@ -574,30 +572,30 @@ public class TricepsServlet extends HttpServlet {
 			ok = true;
 			// re-ask the current question
 		}
-		else if (directive.equals(triceps.lingua.get("restart_clean"))) { // restart from scratch
+		else if (directive.equals(lingua.get("restart_clean"))) { // restart from scratch
 			triceps.resetEvidence();
 			ok = ((gotoMsg = triceps.gotoFirst()) == Triceps.OK);	// don't proceed if prior error
 			// ask first question
 		}
-		else if (directive.equals(triceps.lingua.get("reload_questions"))) { // debugging option
+		else if (directive.equals(lingua.get("reload_questions"))) { // debugging option
 			ok = triceps.reloadSchedule();
 			if (ok) {
-				info.println(triceps.lingua.get("schedule_restored_successfully"));
+				info.println(lingua.get("schedule_restored_successfully"));
 			}
 			// re-ask current question
 		}
-		else if (directive.equals(triceps.lingua.get("save_to"))) {
-			String name = req.getParameter(triceps.lingua.get("save_to"));
+		else if (directive.equals(lingua.get("save_to"))) {
+			String name = req.getParameter(lingua.get("save_to"));
 			ok = triceps.toTSV(workingFilesDir,name);
 			if (ok) {
-				info.println(triceps.lingua.get("interview_saved_successfully_as") + (workingFilesDir + name));
+				info.println(lingua.get("interview_saved_successfully_as") + (workingFilesDir + name));
 			}
 		}
-		else if (directive.equals(triceps.lingua.get("show_Syntax_Errors"))) {
+		else if (directive.equals(lingua.get("show_Syntax_Errors"))) {
 			Vector pes = triceps.collectParseErrors();
 
 			if (pes == null || pes.size() == 0) {
-				info.println(triceps.lingua.get("no_syntax_errors_found"));
+				info.println(lingua.get("no_syntax_errors_found"));
 			}
 			else {
 				Vector syntaxErrors = new Vector();
@@ -616,7 +614,7 @@ public class TricepsServlet extends HttpServlet {
 
 					if (i == 0) {
 						errors.print("<FONT color='red'>" +
-							triceps.lingua.get("The_following_syntax_errors_were_found") + (n.getSourceFile()) + "</FONT>");
+							lingua.get("The_following_syntax_errors_were_found") + (n.getSourceFile()) + "</FONT>");
 						errors.print("<TABLE CELLPADDING='2' CELLSPACING='1' WIDTH='100%' border='1'>");
 						errors.print("<TR><TD>line#</TD><TD>name</TD><TD>Dependencies</TD><TD><B>Dependency Errors</B></TD><TD>Action Type</TD><TD>Action</TD><TD><B>Action Errors</B></TD><TD><B>Node Errors</B></TD><TD><B>Naming Errors</B></TD><TD><B>AnswerChoices Errors</B></TD><TD><B>Readback Errors</B></TD></TR>");
 					}
@@ -652,22 +650,22 @@ public class TricepsServlet extends HttpServlet {
 				}
 				errors.print("</TABLE><HR>");
 			}
-			if (triceps.nodes.hasErrors()) {
+			if (triceps.getSchedule().hasErrors()) {
 				errors.print("<FONT color='red'>" +
-					triceps.lingua.get("The_following_flow_errors_were_found") + "</FONT>");
+					lingua.get("The_following_flow_errors_were_found") + "</FONT>");
 				errors.print("<TABLE CELLPADDING='2' CELLSPACING='1' WIDTH='100%' border='1'><TR><TD>");
-				errors.print(triceps.nodes.getErrors());
+				errors.print(triceps.getSchedule().getErrors());
 				errors.print("</TD></TR></TABLE>");
 			}
-			if (triceps.evidence.hasErrors()) {
+			if (triceps.getEvidence().hasErrors()) {
 				errors.print("<FONT color='red'>" +
-					triceps.lingua.get("The_following_data_access_errors_were") + "</FONT>");
+					lingua.get("The_following_data_access_errors_were") + "</FONT>");
 				errors.print("<TABLE CELLPADDING='2' CELLSPACING='1' WIDTH='100%' border='1'><TR><TD>");
-				errors.print(triceps.evidence.getErrors());
+				errors.print(triceps.getEvidence().getErrors());
 				errors.print("</TD></TR></TABLE>");
 			}
 		}
-		else if (directive.equals(triceps.lingua.get("next"))) {
+		else if (directive.equals(lingua.get("next"))) {
 			// store current answer(s)
 			Enumeration questionNames = triceps.getQuestions();
 
@@ -691,25 +689,25 @@ public class TricepsServlet extends HttpServlet {
 				boolean savedOK;
 				String filename = triceps.getFilename();
 
-				info.println(triceps.lingua.get("the_interview_is_completed"));
+				info.println(lingua.get("the_interview_is_completed"));
 				triceps.toTSV(workingFilesDir,filename);
 				savedOK = triceps.toTSV(completedFilesDir,filename);
 				ok = savedOK && ok;
 				if (savedOK) {
-					info.println(triceps.lingua.get("interview_saved_successfully_as") + (completedFilesDir + filename));
+					info.println(lingua.get("interview_saved_successfully_as") + (completedFilesDir + filename));
 				}
 
 				savedOK = triceps.toTSV(floppyDir,filename);
 				ok = savedOK && ok;
 				if (savedOK) {
-					info.println(triceps.lingua.get("interview_saved_successfully_as") + (floppyDir + filename));
+					info.println(lingua.get("interview_saved_successfully_as") + (floppyDir + filename));
 				}
 			}
 
 			// don't goto next if errors
 			// ask question
 		}
-		else if (directive.equals(triceps.lingua.get("previous"))) {
+		else if (directive.equals(lingua.get("previous"))) {
 			// don't store current
 			// goto previous
 			gotoMsg = triceps.gotoPrevious();
@@ -727,7 +725,7 @@ public class TricepsServlet extends HttpServlet {
 			Node n = (Node) nodes.nextElement();
 			if (n.hasRuntimeErrors()) {
 				if (++errCount == 1) {
-					info.println(triceps.lingua.get("please_answer_the_questions_listed_in") + "<FONT color='red'>" + triceps.lingua.get("RED") + "</FONT>" + triceps.lingua.get("before_proceeding"));
+					info.println(lingua.get("please_answer_the_questions_listed_in") + "<FONT color='red'>" + lingua.get("RED") + "</FONT>" + lingua.get("before_proceeding"));
 				}
 				if (n.focusableArray()) {
 					firstFocus = n.getLocalName() + "[0]";
@@ -758,11 +756,17 @@ public class TricepsServlet extends HttpServlet {
 			firstFocus = "directive[0]";	// try to focus on Next button if nothing else available
 		}
 
-		firstFocus = (new XmlString(triceps.lingua, firstFocus)).toString();	// make sure properly formatted
+		firstFocus = (new XmlString(lingua, firstFocus)).toString();	// make sure properly formatted
 
 		sb.append(queryUser());
 
 		return sb.toString();
+	}
+	
+	private boolean getNewTricepsInstance(String name) {
+		triceps = new Triceps(name);
+		lingua = triceps.getLingua();
+		return triceps.isValid();
 	}
 
 	/**
@@ -773,11 +777,11 @@ public class TricepsServlet extends HttpServlet {
 		// if parser internal to Schedule, should have method access it, not directly
 		StringBuffer sb = new StringBuffer();
 
-		if (triceps == Triceps.NULL)
+		if (!triceps.isValid())
 			return "";
 
 		if (debugMode && developerMode) {
-			sb.append(triceps.lingua.get("QUESTION_AREA"));
+			sb.append(lingua.get("QUESTION_AREA"));
 		}
 
 		Enumeration questionNames = triceps.getQuestions();
@@ -846,7 +850,7 @@ public class TricepsServlet extends HttpServlet {
 						sb.append("<TD>&nbsp;</TD>");
 					}
 					sb.append("<TD WIDTH='1%' NOWRAP>" + clickableOptions + "</TD>");
-					sb.append(node.prepareChoicesAsHTML(triceps.parser,triceps.evidence,datum,errMsg,autogenOptionNums));
+					sb.append(node.prepareChoicesAsHTML(triceps.getParser(),triceps.getEvidence(),datum,errMsg,autogenOptionNums));
 					break;
 				default:
 					sb.append("<TD>");
@@ -862,15 +866,15 @@ public class TricepsServlet extends HttpServlet {
 						sb.append(triceps.getQuestionStr(node));
 					}
 					sb.append("</TD><TD WIDTH='1%' NOWRAP>" + clickableOptions + "</TD>");
-					sb.append("<TD>" + node.prepareChoicesAsHTML(triceps.parser,triceps.evidence,datum,autogenOptionNums) + errMsg + "</TD>");
+					sb.append("<TD>" + node.prepareChoicesAsHTML(triceps.getParser(),triceps.getEvidence(),datum,autogenOptionNums) + errMsg + "</TD>");
 					break;
 			}
 
 			sb.append("</TR>");
 		}
 		sb.append("<TR><TD COLSPAN='" + ((showQuestionNum) ? 4 : 3) + "' ALIGN='center'>");
-		sb.append("<input type='SUBMIT' name='directive' value='" + triceps.lingua.get("next") + "'>");
-		sb.append("<input type='SUBMIT' name='directive' value='" + triceps.lingua.get("previous") + "'>");
+		sb.append("<input type='SUBMIT' name='directive' value='" + lingua.get("next") + "'>");
+		sb.append("<input type='SUBMIT' name='directive' value='" + lingua.get("previous") + "'>");
 
 		if (allowEasyBypass || okToShowAdminModeIcons) {
 			/* enables TEMP_ADMIN_MODE going forward for one screen */
@@ -881,18 +885,18 @@ public class TricepsServlet extends HttpServlet {
 
 		if (developerMode) {
 			sb.append("<TR><TD COLSPAN='" + ((showQuestionNum) ? 4 : 3 ) + "' ALIGN='center'>");
-			sb.append("<input type='SUBMIT' name='directive' value='" + triceps.lingua.get("select_new_interview") + "'>");
-			sb.append("<input type='SUBMIT' name='directive' value='" + triceps.lingua.get("restart_clean") + "'>");
-			sb.append("<input type='SUBMIT' name='directive' value='" + triceps.lingua.get("jump_to") + "' size='10'>");
-			sb.append("<input type='text' name='" + triceps.lingua.get("jump_to") + "'>");
-			sb.append("<input type='SUBMIT' name='directive' value='" + triceps.lingua.get("save_to") + "'>");
-			sb.append("<input type='text' name='" + triceps.lingua.get("save_to") + "'>");
+			sb.append("<input type='SUBMIT' name='directive' value='" + lingua.get("select_new_interview") + "'>");
+			sb.append("<input type='SUBMIT' name='directive' value='" + lingua.get("restart_clean") + "'>");
+			sb.append("<input type='SUBMIT' name='directive' value='" + lingua.get("jump_to") + "' size='10'>");
+			sb.append("<input type='text' name='" + lingua.get("jump_to") + "'>");
+			sb.append("<input type='SUBMIT' name='directive' value='" + lingua.get("save_to") + "'>");
+			sb.append("<input type='text' name='" + lingua.get("save_to") + "'>");
 			sb.append("</TD></TR>");
 			sb.append("<TR><TD COLSPAN='" + ((showQuestionNum) ? 4 : 3 ) + "' ALIGN='center'>");
-			sb.append("<input type='SUBMIT' name='directive' value='" + triceps.lingua.get("reload_questions") + "'>");
-			sb.append("<input type='SUBMIT' name='directive' value='" + triceps.lingua.get("show_Syntax_Errors") + "'>");
-			sb.append("<input type='SUBMIT' name='directive' value='" + triceps.lingua.get("evaluate_expr") + "'>");
-			sb.append("<input type='text' name='" + triceps.lingua.get("evaluate_expr") + "'>");
+			sb.append("<input type='SUBMIT' name='directive' value='" + lingua.get("reload_questions") + "'>");
+			sb.append("<input type='SUBMIT' name='directive' value='" + lingua.get("show_Syntax_Errors") + "'>");
+			sb.append("<input type='SUBMIT' name='directive' value='" + lingua.get("evaluate_expr") + "'>");
+			sb.append("<input type='text' name='" + lingua.get("evaluate_expr") + "'>");
 			sb.append("</TD></TR>");
 		}
 
@@ -906,7 +910,7 @@ public class TricepsServlet extends HttpServlet {
 	private String buildClickableOptions(Node node, String inputName, boolean isSpecial) {
 		StringBuffer sb = new StringBuffer();
 
-		if (triceps == Triceps.NULL)
+		if (!triceps.isValid())
 			return "";
 
 		Datum datum = triceps.getDatum(node);
@@ -929,7 +933,7 @@ public class TricepsServlet extends HttpServlet {
 		String helpURL = node.getHelpURL();
 		if (helpURL != null && helpURL.trim().length() != 0) {
 			sb.append("<IMG SRC='" + HELP_T_ICON +
-				"' ALIGN='top' BORDER='0' ALT='" + triceps.lingua.get("Help") + "' onMouseDown='javascript:help(\"" + helpURL + "\");'>");
+				"' ALIGN='top' BORDER='0' ALT='" + lingua.get("Help") + "' onMouseDown='javascript:help(\"" + helpURL + "\");'>");
 		}
 		else {
 			// don't show help icon if no help is available?
@@ -939,11 +943,11 @@ public class TricepsServlet extends HttpServlet {
 		if (showAdminModeIcons || okToShowAdminModeIcons || allowComments) {
 			if (comment != null && comment.trim().length() != 0) {
 				sb.append("<IMG NAME='" + inputName + "_COMMENT_ICON" + "' SRC='" + COMMENT_T_ICON +
-					"' ALIGN='top' BORDER='0' ALT='" + triceps.lingua.get("Add_a_Comment") + "' onMouseDown='javascript:comment(\"" + inputName + "\");'>");
+					"' ALIGN='top' BORDER='0' ALT='" + lingua.get("Add_a_Comment") + "' onMouseDown='javascript:comment(\"" + inputName + "\");'>");
 			}
 			else  {
 				sb.append("<IMG NAME='" + inputName + "_COMMENT_ICON" + "' SRC='" + COMMENT_F_ICON +
-					"' ALIGN='top' BORDER='0' ALT='" + triceps.lingua.get("Add_a_Comment") + "' onMouseDown='javascript:comment(\"" + inputName + "\");'>");
+					"' ALIGN='top' BORDER='0' ALT='" + lingua.get("Add_a_Comment") + "' onMouseDown='javascript:comment(\"" + inputName + "\");'>");
 			}
 		}
 
@@ -951,11 +955,11 @@ public class TricepsServlet extends HttpServlet {
 
 		if (showAdminModeIcons || okToShowAdminModeIcons || isSpecial) {
 			sb.append("<IMG NAME='" + inputName + "_REFUSED_ICON" + "' SRC='" + ((isRefused) ? REFUSED_T_ICON : REFUSED_F_ICON) +
-				"' ALIGN='top' BORDER='0' ALT='" + triceps.lingua.get("Set_as_Refused") + "' onMouseDown='javascript:markAsRefused(\"" + inputName + "\");'>");
+				"' ALIGN='top' BORDER='0' ALT='" + lingua.get("Set_as_Refused") + "' onMouseDown='javascript:markAsRefused(\"" + inputName + "\");'>");
 			sb.append("<IMG NAME='" + inputName + "_UNKNOWN_ICON" + "' SRC='" + ((isUnknown) ? UNKNOWN_T_ICON : UNKNOWN_F_ICON) +
-				"' ALIGN='top' BORDER='0' ALT='" + triceps.lingua.get("Set_as_Unknown") + "' onMouseDown='javascript:markAsUnknown(\"" + inputName + "\");'>");
+				"' ALIGN='top' BORDER='0' ALT='" + lingua.get("Set_as_Unknown") + "' onMouseDown='javascript:markAsUnknown(\"" + inputName + "\");'>");
 			sb.append("<IMG NAME='" + inputName + "_NOT_UNDERSTOOD_ICON" + "' SRC='" + ((isNotUnderstood) ? NOT_UNDERSTOOD_T_ICON : NOT_UNDERSTOOD_F_ICON) +
-				"' ALIGN='top' BORDER='0' ALT='" + triceps.lingua.get("Set_as_Not_Understood") + "' onMouseDown='javascript:markAsNotUnderstood(\"" + inputName + "\");'>");
+				"' ALIGN='top' BORDER='0' ALT='" + lingua.get("Set_as_Not_Understood") + "' onMouseDown='javascript:markAsNotUnderstood(\"" + inputName + "\");'>");
 		}
 
 		if (sb.length() == 0) {
@@ -969,18 +973,19 @@ public class TricepsServlet extends HttpServlet {
 	private String generateDebugInfo() {
 		StringBuffer sb = new StringBuffer();
 		// Complete printout of what's been collected per node
-		if (triceps == Triceps.NULL)
+		if (!triceps.isValid())
 			return "";
 
 		if (developerMode && debugMode) {
 			sb.append("<hr>");
-			sb.append(triceps.lingua.get("CURRENT_QUESTIONS"));
+			sb.append(lingua.get("CURRENT_QUESTIONS"));
 			sb.append("<TABLE CELLPADDING='2' CELLSPACING='1'  WIDTH='100%' BORDER='1'>");
 			Enumeration questionNames = triceps.getQuestions();
+			Evidence evidence = triceps.getEvidence();
 
 			while(questionNames.hasMoreElements()) {
 				Node n = (Node) questionNames.nextElement();
-				Datum d = triceps.evidence.getDatum(n);
+				Datum d = evidence.getDatum(n);
 				sb.append("<TR>");
 				sb.append("<TD>" + n.getExternalName() + "</TD>");
 				if (d.isSpecial()) {
@@ -989,7 +994,7 @@ public class TricepsServlet extends HttpServlet {
 				else {
 					sb.append("<TD><B>" + triceps.toString(n,true) + "</B></TD>");
 				}
-				sb.append("<TD>" + Datum.getTypeName(triceps.lingua,n.getDatumType()) + "</TD>");
+				sb.append("<TD>" + Datum.getTypeName(lingua,n.getDatumType()) + "</TD>");
 				sb.append("<TD>" + n.getLocalName() + "</TD>");
 				sb.append("<TD>" + n.getConcept() + "</TD>");
 				sb.append("<TD>" + n.getDependencies() + "</TD>");
@@ -1001,7 +1006,7 @@ public class TricepsServlet extends HttpServlet {
 
 
 			sb.append("<hr>");
-			sb.append(triceps.lingua.get("EVIDENCE_AREA"));
+			sb.append(lingua.get("EVIDENCE_AREA"));
 			sb.append("<TABLE CELLPADDING='2' CELLSPACING='1'  WIDTH='100%' BORDER='1'>");
 			for (int i = triceps.size()-1; i >= 0; i--) {
 				Node n = triceps.getNode(i);
@@ -1017,7 +1022,7 @@ public class TricepsServlet extends HttpServlet {
 				else {
 					sb.append("<TD><B>" + triceps.toString(n,true) + "</B></TD>");
 				}
-				sb.append("<TD>" +  Datum.getTypeName(triceps.lingua,n.getDatumType()) + "</TD>");
+				sb.append("<TD>" +  Datum.getTypeName(lingua,n.getDatumType()) + "</TD>");
 				sb.append("<TD>" + n.getLocalName() + "</TD>");
 				sb.append("<TD>" + n.getConcept() + "</TD>");
 				sb.append("<TD>" + n.getDependencies() + "</TD>");
@@ -1035,9 +1040,9 @@ public class TricepsServlet extends HttpServlet {
 			StringBuffer sb = new StringBuffer();
 
 			sb.append("<TR><TD COLSPAN='" + ((showQuestionNum) ? 4 : 3 ) + "' ALIGN='center'>");
-			sb.append("<input type='SUBMIT' name='directive' value='" + triceps.lingua.get("turn_developerMode") + ((developerMode) ? triceps.lingua.get("OFF") : triceps.lingua.get("ON")) + "'>");
-			sb.append("<input type='SUBMIT' name='directive' value='" + triceps.lingua.get("turn_debugMode") + ((debugMode) ? triceps.lingua.get("OFF") : triceps.lingua.get("ON") )+ "'>");
-			sb.append("<input type='SUBMIT' name='directive' value='" + triceps.lingua.get("turn_showQuestionNum") + ((showQuestionNum) ? triceps.lingua.get("OFF") : triceps.lingua.get("ON")) + "'>");
+			sb.append("<input type='SUBMIT' name='directive' value='" + lingua.get("turn_developerMode") + ((developerMode) ? lingua.get("OFF") : lingua.get("ON")) + "'>");
+			sb.append("<input type='SUBMIT' name='directive' value='" + lingua.get("turn_debugMode") + ((debugMode) ? lingua.get("OFF") : lingua.get("ON") )+ "'>");
+			sb.append("<input type='SUBMIT' name='directive' value='" + lingua.get("turn_showQuestionNum") + ((showQuestionNum) ? lingua.get("OFF") : lingua.get("ON")) + "'>");
 			sb.append("</TD></TR>");
 			return sb.toString();
 		}
@@ -1059,7 +1064,7 @@ public class TricepsServlet extends HttpServlet {
 		sb.append("}\n");
 		sb.append("function setAdminModePassword(name) {\n");
 		sb.append("	var ans = prompt('" +
-			triceps.lingua.get("Enter_password_for_Administrative_Mode") +
+			lingua.get("Enter_password_for_Administrative_Mode") +
 				"','');\n");
 		sb.append("	if (ans == null || ans == '') return;\n");
 		sb.append("	document.myForm.PASSWORD_FOR_ADMIN_MODE.value = ans;\n");
@@ -1111,7 +1116,7 @@ public class TricepsServlet extends HttpServlet {
 		sb.append("	if (!name) name = actionName;\n");
 		sb.append("	if (!name) return;\n");
 		sb.append("	var ans = prompt('" +
-			triceps.lingua.get("Enter_a_comment_for_this_question") +
+			lingua.get("Enter_a_comment_for_this_question") +
 				"',document.myForm.elements[name + '_COMMENT'].value);\n");
 		sb.append("	if (ans == null) return;\n");
 		sb.append("	document.myForm.elements[name + '_COMMENT'].value = ans;\n");
@@ -1132,7 +1137,7 @@ public class TricepsServlet extends HttpServlet {
 		StringBuffer sb = new StringBuffer();
 		String title = null;
 
-		if (isSplashScreen || triceps == Triceps.NULL) {
+		if (isSplashScreen || !triceps.isValid()) {
 			title = "Triceps";
 		}
 		else {
