@@ -6,10 +6,11 @@
 
 require_once("conn_dialogix.php");
 
-$authenticated=0;
 $failed_authentication=0;
-$Cookiename="psychinformatics_nyspi_org_Dialogix";
 $statusMessage = '';
+// If hitting the login page, reset the username and authentication variables
+$_COOKIE['dgx_authenticated'] = 0;
+$_COOKIE['dgx_username'] = '';
 
 extract($_POST);
 
@@ -36,7 +37,7 @@ if (isset($UserID) && isset($Password)) {
 	//make unique session id and store it in Database
 	  $timer = md5(time());
 	  $sid = $UserID . "+" . $timer;
-	  SetCookie($Cookiename,$sid); //Set Cookie to expire at end of session
+	  SetCookie("$Cookiename",$sid); //Set Cookie to expire at end of session
 	  $query = "update AuthenticatedUsers set sid='$timer' where UserID='$UserID'";
 //	  echo "$query\n";
 	
@@ -44,7 +45,8 @@ if (isset($UserID) && isset($Password)) {
 	  	DialogixError("Unable to update database" . mysql_error());
 	  }
 	  $statusMessage .= "($query) succeeded, and Authenticated!<br>";
-	  $authenticated = 1;
+	  $_COOKIE['dgx_authenticated']=1;
+	  $_COOKIE['dgx_username']=$UserID;
   }
 }
 else if (isset($_COOKIE["$Cookiename"])) {
@@ -58,7 +60,9 @@ else if (isset($_COOKIE["$Cookiename"])) {
   $statusMessage .= "($query) succeeded<br>";
 
   if (mysql_num_rows( $dbq ) == 1) {
-  	$authenticated = 1;
+  	$_COOKIE['dgx_authenticated']=1;
+	$_COOKIE['dgx_username']=$sidarray[0];
+  	
     $statusMessage .= "Successfully Authenticated!<br>";
 
   }
@@ -67,8 +71,7 @@ else {
 	$statusMessage .= "Could not find cookie<BR>";
 }
 
-if ($authenticated == 0) {
-//	echo "<HTML><HEAD><TITLE>Login Page</TITLE></HEAD><BODY>";
+if (!($_COOKIE['dgx_authenticated'] == 1)) {
 	include("Dialogix_Table_PartA.php");
 
 //	echo "$statusMessage\n";
@@ -88,13 +91,8 @@ if ($authenticated == 0) {
 	echo "<Input Type='submit' Value='Submit'>";
 	echo "</DIV>";
 	echo "</FORM>";
-	/*
-	print_r($_COOKIE);
-	print_r($HTTP_COOKIE_VARS);
-	*/
 	include("Dialogix_Table_PartB.php");
 	
-//	echo "</BODY></HTML>";
 	exit;
 }
 ?>

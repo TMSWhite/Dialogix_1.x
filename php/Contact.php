@@ -2,8 +2,8 @@
 
 <div style="text-align: center;"><br>
 <img
-src="http://psychinformatics.nyspi.org:8080/images/dialogoSmall.jpg"
-align="bottom" border="0" height="40" width="89"> <br>
+src="http://psychinformatics.nyspi.org:8080/images/dialogo.jpg"
+align="bottom" border="0" height="81" width="180"> <br>
 <font size="5">a System for Rapidly </font><i><font size="5">Developing</font></i><font
 size="5">, </font><i><font size="5">Deploying</font></i><font size="5">,
 and </font><i><font size="5">Analyzing</font></i><font size="5">
@@ -15,7 +15,7 @@ Center for Information Technology and Evaluation Research<br>
 New York State Office of Mental Health<br>
 330 Fifth Ave, 9th Floor<br>
 212-330-6358<br>
-<a href="mailto:coevtmw@omh.state.ny.us">coevtmw@omh.state.ny.us</a><br>
+<a href="mailto:coevtmw@omh.state.ny.us">TomWhite@omh.state.ny.us</a><br>
 <a href="http://www.tomwhitemd.com/">Homepage</a>
 </div>
 <p>

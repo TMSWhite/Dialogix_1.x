@@ -1,5 +1,7 @@
 <?php 
 
+require_once("globals.inc.php");
+
 $host = "127.0.0.1";
 $user = "dialogix";
 $password = "#aka#Triceps#";

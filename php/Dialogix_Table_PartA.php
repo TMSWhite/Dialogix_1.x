@@ -1,4 +1,4 @@
-<!-- Start of Table -->
+<?php require_once("globals.inc.php"); ?>
 <!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
 <html>
 <head>
@@ -17,7 +17,19 @@
  <a href="http://psychinformatics.nyspi.org/Dialogix/Collaborations.php">Collaborations</a><br>
  <a href="http://psychinformatics.nyspi.org/Dialogix/Instruments.php">Instruments</a><br>
  <a href="http://psychinformatics.nyspi.org/Dialogix/Publications.php">Publications</a><br>
- <a href="http://psychinformatics.nyspi.org/Dialogix/InstrumentSearch.php">Administration</a><br>
  <a href="http://psychinformatics.nyspi.org/Dialogix/Contact.php">Contact</a><br>
+<br>
+<hr>
+<?php if ($_COOKIE['dgx_authenticated'] == 1)  { ?>
+Welcome, <i><?php echo $_COOKIE['dgx_username']; ?></i>
+<hr>
+Review:</br>
+ <a href="http://psychinformatics.nyspi.org/Dialogix/UserManual.php">User Manual</a><br>
+ <a href="http://psychinformatics.nyspi.org/Dialogix/InstrumentSearch.php">Data</a><br>
+ <a href="http://psychinformatics.nyspi.org/Dialogix/InstrumentDetails.php">Instruments</a><br>
+ <a href="http://psychinformatics.nyspi.org/Dialogix/Logout.php">Logout</a><br>
+<?php } else { ?>
+ <a href="http://psychinformatics.nyspi.org/Dialogix/Login.php">Login</a><br>
+<?php } ?>
 </td>
 <td style="vertical-align: top;">

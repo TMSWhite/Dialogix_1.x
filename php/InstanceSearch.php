@@ -2,7 +2,7 @@
 
 <?php
 
-extract($_GET);
+// extract($_GET);
 
 if(!isset($_GET['InstrumentName'])) {
 	DialogixError("Must specify an instrument name");
