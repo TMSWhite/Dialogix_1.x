@@ -54,6 +54,8 @@ public class Node  {
 	public static final String PARSE_RANGE_TYPE_STRS[] = { "", "parse min value", "parse max value", "parse both min and max values" };
 
 	private static final int MAX_TEXT_LEN_FOR_COMBO = 60;
+	private static final int MAX_ITEMS_IN_LIST = 20;
+	
 
 	private String concept = "";
 	private String description = "";
@@ -93,6 +95,8 @@ public class Node  {
 	private String defaultAnswer = null;
 	private String defaultAnswerTimeStampStr = null;
 	private String questionAsAsked = "";
+	private Date timeStamp = null;
+	private String timeStampStr = null;
 
 	public Node(int sourceLine, String sourceFile, String tsv) {
 		String token;
@@ -132,9 +136,11 @@ public class Node  {
 				default:	break;	// discard any extras
 			}
 		}
+		/*
 		if (field < 6 || field > 10) {
 			setParseError("Expected 8-11 tokens; found " + (field + 1));
 		}
+		*/
 
 		/* Fix step names */
 		try {
@@ -559,7 +565,7 @@ public class Node  {
 					choices.append("</option>");
 				}
 				sb.append("\n<select name='" + Node.encodeHTML(getName()) + "'" +
-					((answerType == LIST) ? " size = '" + Math.min(6,totalLines+1) + "'" : "") +
+					((answerType == LIST) ? " size = '" + Math.min(MAX_ITEMS_IN_LIST,totalLines+1) + "'" : "") +
 					">");
 				sb.append("\n<option value=''" + 
 					((nothingSelected) ? " SELECTED" : "") +	// so that focus is properly shifted on List box
@@ -581,7 +587,7 @@ public class Node  {
 			case PASSWORD:	// stores Text type
 				if (datum != null && datum.exists())
 					defaultValue = datum.stringVal();
-				sb.append("<input type='password' name='" + Node.encodeHTML(getName()) + "'>");
+				sb.append("<input type='password' onfocus='javascript:select()' name='" + Node.encodeHTML(getName()) + "'>");
 				break;
 			case DOUBLE:	// stores Double type
 				if (datum != null && datum.exists())
@@ -679,6 +685,8 @@ public class Node  {
 	public String getMaxStr() { return maxStr; }
 
 	public boolean focusable() { return (answerType != UNKNOWN && answerType != NOTHING); }
+	public boolean focusableArray() { return (answerType == RADIO || answerType == RADIO_HORIZONTAL || answerType == CHECK); }
+	
 
 	public void setParseError(String error) {
 		parseErrors.addElement(error);
@@ -750,4 +758,36 @@ public class Node  {
 	static public String encodeHTML(String s) {
 		return encodeHTML(s,false);
 	}
+	
+		
+	public String getTimeStampStr() { return timeStampStr; }
+	public Date getTimeStamp() { return timeStamp; }
+		
+		
+	public void setTimeStamp() {
+		timeStamp = new Date(System.currentTimeMillis());
+		timeStampStr = Datum.format(timeStamp,Datum.DATE,Datum.TIME_MASK);
+	}
+		
+	public void setTimeStamp(String t) {
+		if (t == null) {
+			setTimeStamp();
+			return;
+		}
+			
+		Date time = null;
+		try {
+			time = Datum.TIME_MASK.parse(t);
+		}
+		catch (java.text.ParseException e) {
+			setParseError("Error parsing time " + e.getMessage());
+		}
+		if (time == null) {
+			setTimeStamp();
+		}
+		else {
+			timeStamp = time;
+			timeStampStr = t;
+		}
+	}	
 }
