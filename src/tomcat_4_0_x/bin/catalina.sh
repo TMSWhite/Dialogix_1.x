@@ -79,6 +79,8 @@ else
   exit 1
 fi
 
+JSSE_HOME="$CATALINA_HOME"/common
+
 # Add on extra jar files to CLASSPATH
 if [ -n "$JSSE_HOME" ]; then
   CLASSPATH="$CLASSPATH":"$JSSE_HOME"/lib/jcert.jar:"$JSSE_HOME"/lib/jnet.jar:"$JSSE_HOME"/lib/jsse.jar
@@ -108,6 +110,7 @@ echo "Using CATALINA_BASE:   $CATALINA_BASE"
 echo "Using CATALINA_HOME:   $CATALINA_HOME"
 echo "Using CATALINA_TMPDIR: $CATALINA_TMPDIR"
 echo "Using JAVA_HOME:       $JAVA_HOME"
+echo "Using CLASSPATH:       $CLASSPATH"
 
 if [ "$1" = "jpda" ] ; then
   if [ -z "$JPDA_TRANSPORT" ]; then
