@@ -32,6 +32,7 @@ public class Schedule  {
 	public static final int RECORD_EVENTS = 22;
 	public static final int WORKING_DIR = 23;
 	public static final int COMPLETED_DIR = 24;
+	public static final int FLOPPY_DIR = 25;
 	
 	private static final String DEFAULT_LANGUAGE = "en_US";
 
@@ -61,6 +62,7 @@ public class Schedule  {
 		"__RECORD_EVENTS__",
 		"__WORKING_DIR__",
 		"__COMPLETED_DIR__",
+		"__FLOPPY_DIR__",
 	};
 
 	private Date startTime = null;
@@ -121,6 +123,7 @@ public class Schedule  {
 		setReserved(RECORD_EVENTS,"false");
 		setReserved(WORKING_DIR,".");
 		setReserved(COMPLETED_DIR,".");
+		setReserved(FLOPPY_DIR,".");
 	}
 
 	public boolean init() {
@@ -340,7 +343,8 @@ public class Schedule  {
 			case ALLOW_DONT_UNDERSTAND: s = Boolean.valueOf(value.trim()).toString(); break;
 			case RECORD_EVENTS: s = Boolean.valueOf(value.trim()).toString(); break;
 			case WORKING_DIR: s = value; break;
-			case COMPLETED_DIR: s = value; break;			
+			case COMPLETED_DIR: s = value; break;		
+			case FLOPPY_DIR: s = value; break;	
 			default: return false;
 		}
 		if (s != null) {
