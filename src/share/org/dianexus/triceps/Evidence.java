@@ -214,7 +214,8 @@ public class Evidence  {
 			System.err.println("Node does not exist");
 			return;
 		}
-
+		
+		val.setName(node.getLocalName());
 		((Value) values.elementAt(i)).setDatum(val,time);
 	}
 
@@ -235,6 +236,7 @@ public class Evidence  {
 		int i = getNodeIndex(name);
 		if (i == -1) {
 			i = size();	// append to end
+			val.setName(name);
 			Value value = new Value(name,val);
 			values.addElement(value);
 			aliases.put(name, new Integer(i));
@@ -243,7 +245,12 @@ public class Evidence  {
 			setError(errmsg);
 		}
 		else {
-			((Value) values.elementAt(i)).setDatum(val,null);
+			Value v = (Value) values.elementAt(i);
+			Node n = v.getNode();
+			if (n != null) {
+				val.setName(n.getLocalName());
+			}
+			v.setDatum(val,null);
 		}
 	}
 
@@ -313,12 +320,13 @@ public class Evidence  {
 
 			switch(funcNum) {
 				case DESC	: {
+					String nodeName = datum.getName();
 					Node node = null;
-					if (o instanceof String && ((node = getNode(o)) != null)) {
-						return new Datum(node.getReadback(),Datum.STRING);
+					if (nodeName == null || ((node = getNode(nodeName)) == null)) {
+						setError("unknown node " + nodeName, line, column);
+						return Datum.INVALID_DATUM;
 					}
-					setError("unknown node " + o, line, column);
-					return Datum.INVALID_DATUM;
+					return new Datum(node.getReadback(),Datum.STRING);
 				}
 				case ISINVALID:
 					return new Datum(datum.isType(Datum.INVALID));
@@ -359,7 +367,7 @@ public class Evidence  {
 				case NOW			 :
 					return new Datum(new Date(System.currentTimeMillis()),Datum.DATE);
 				case STARTTIME	   :
-					return new Datum(startTime,Datum.DATE);
+					return new Datum(startTime,Datum.TIME);
 				case COUNT		   :	// unlimited number of parameters
 				{
 					long count=0;
