@@ -958,7 +958,9 @@ if (AUTHORABLE) {
 			}
 		}
 		if (firstFocus == null) {
-			firstFocus = "next";	// try to focus on Next button if nothing else available
+			if (schedule.getBooleanReserved(Schedule.SET_DEFAULT_FOCUS)) {
+				firstFocus = "next";	// try to focus on Next button if nothing else available
+			}
 		}
 
 		if (firstFocus != null) {
