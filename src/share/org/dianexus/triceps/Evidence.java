@@ -108,7 +108,7 @@ public class Evidence  {
 		/* then assign the user-defined words */
 		for (int i = 0; i < size; ++i, ++idx) {
 			node = schedule.getNode(i);
-			value = new Value(node, Datum.getInstance(Datum.UNASKED),node.getAnswerTimeStampStr());
+			value = new Value(node, Datum.UNASKED_DATUM,node.getAnswerTimeStampStr());
 
 			values.addElement(value);
 
@@ -135,7 +135,7 @@ public class Evidence  {
 					However, each node must have non-overlapping aliases with other nodes */
 					aliases.put(alias,o);	// restore overwritten alias?
 					Node prevNode = ((Value) values.elementAt(pastIndex)).getNode();
-					n.setParseError("Duplicate alias <B>" + Node.encodeHTML(alias) + "</B> previously used for node <B>" + Node.encodeHTML(prevNode.getLocalName()) + "</B> on line " + prevNode.getSourceLine());
+					n.setParseError(alias + " previously used on line " + prevNode.getSourceLine());
 				}
 			} catch (Throwable t) {
 				System.err.println("Unexpected error: " + t.getMessage());
@@ -275,7 +275,7 @@ public class Evidence  {
 
 	private Datum getParam(Object o) {
 		if (o == null)
-			return Datum.getInstance(Datum.INVALID);
+			return Datum.INVALID_DATUM;
 		else if (o instanceof String)
 			return getDatum(o);
 		else
@@ -291,7 +291,7 @@ public class Evidence  {
 			if (func == null) {
 				/* then not found - could consider calling JavaBean! */
 				setError("unsupported function " + name, line, column);
-				return Datum.getInstance(Datum.INVALID);
+				return Datum.INVALID_DATUM;
 			}
 
 			int funcNum = func.intValue();
@@ -299,7 +299,7 @@ public class Evidence  {
 
 			if (!(UNLIMITED.equals(numParams) || params.size() == numParams.intValue())){
 				setError("function " + name + "() expects " + numParams + " parameter(s)", line, column);
-				return Datum.getInstance(Datum.INVALID);
+				return Datum.INVALID_DATUM;
 			}
 
 			Object o = null;
@@ -318,7 +318,7 @@ public class Evidence  {
 						return new Datum(node.getReadback(),Datum.STRING);
 					}
 					setError("unknown node " + o, line, column);
-					return Datum.getInstance(Datum.INVALID);
+					return Datum.INVALID_DATUM;
 				}
 				case ISINVALID:
 					return new Datum(datum.isType(Datum.INVALID));
@@ -407,7 +407,7 @@ public class Evidence  {
 		catch (Throwable t) {
 			setError("unexpected error running function " + name + " - " + t.getMessage(), line, column);
 		}
-		return Datum.getInstance(Datum.INVALID);
+		return Datum.INVALID_DATUM;
 	}
 
 	private void setError(String s) {

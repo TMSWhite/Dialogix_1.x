@@ -11,15 +11,15 @@ public class DatumMath {
 	static Datum hasError(Datum a, Datum b) {
 		// This function needs to be reconsidered as to the proper way to handle error propagation
 		if (a.isType(Datum.INVALID) || (b != null && b.isType(Datum.INVALID))) {
-			return Datum.getInstance(Datum.INVALID);
+			return Datum.INVALID_DATUM;
 		}
 		/*
 		if (a.isType(Datum.REFUSED) || (b != null && b.isType(Datum.REFUSED))) {
-			return Datum.getInstance(Datum.REFUSED);
+			return Datum.REFUSED_DATUM;
 		}
 		// Do NOT throw an error message if try to access a NA datatype?
 		if (a.isType(Datum.NA) || (b != null && b.isType(Datum.NA))) {
-			return Datum.getInstance(Datum.INVALID);
+			return Datum.NA_DATUM;
 		}
 		*/
 		return null;	// to indicate that there is no error that needs propagating
@@ -136,7 +136,7 @@ public class DatumMath {
 			return new Datum(a.doubleVal() / b.doubleVal());
 		}
 		catch(ArithmeticException e) {
-			return Datum.getInstance(Datum.INVALID);
+			return Datum.INVALID_DATUM;
 		}
 	}
 	/**
@@ -352,7 +352,7 @@ public class DatumMath {
 			return new Datum(a.doubleVal() % b.doubleVal());
 		}
 		catch(ArithmeticException e) {
-			return Datum.getInstance(Datum.INVALID);
+			return Datum.INVALID_DATUM;
 		}
 	}
 	/** This method returns the product of two Datum objects of type double. */
