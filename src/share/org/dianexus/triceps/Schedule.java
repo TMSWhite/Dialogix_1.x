@@ -210,19 +210,31 @@ import java.io.FileReader;
 	}
 		
 	/*public*/ boolean init() {
-		boolean ok = true;
+		boolean ok = init2();
+if (DEBUG) {
+		String source = null;
+		SourceInfo si = null;
+		if (scheduleSource != null && ((si = scheduleSource.getSourceInfo()) != null)) {
+			source = si.getSource();
+		}
+		Logger.writeln("##@@Schedule.load(" + source + ")-> " + ((ok) ? "SUCCESS" : "FAILURE"));
+}		
+		return ok;
+	}
 		
+	private boolean init2() {
 		nodes = new Vector();
 		evidence.createReserved();
 		evidence.initReserved();
 		
-		ok = load();
-		
-if (DEBUG) Logger.writeln("##@@Schedule.load()-> " + ((ok) ? "SUCESS" : "FAILURE"));
-
-		ok = bracesMatch() && ok;
-		ok = prepareDataLogging() && ok;
-		isLoaded = ok;
+		if (!load())
+			return false;
+		if (!bracesMatch())
+			return false;
+		if (!prepareDataLogging())
+			return false;
+			
+		isLoaded = true;
 		
 		setReserved(START_TIME,triceps.formatDate(new Date(System.currentTimeMillis()),Datum.TIME_MASK));
 		if (getReserved(FILENAME) == null) {
@@ -234,10 +246,16 @@ if (DEBUG) Logger.writeln("##@@Schedule.load()-> " + ((ok) ? "SUCESS" : "FAILURE
 	
 	private boolean parseHeaders() {
 		int reservedCount = 0;
-		Vector lines = scheduleSource.getHeaders();
+		Vector lines=null;
+		String line=null;
+		int lineNum = 1;
 		
-		for (int i=0;i<lines.size();++i) {
-			if (parseReserved(i, source, (String) lines.elementAt(i))) {
+		lines = scheduleSource.getHeaders();
+		for (int i=0;i<lines.size();++i,++lineNum) {
+			line = (String) lines.elementAt(i);
+			if (!line.startsWith("RESERVED"))
+				continue;
+			if (parseReserved(lineNum, source, line)) {
 				++reservedCount;
 			}
 		}
@@ -246,6 +264,24 @@ if (DEBUG) Logger.writeln("##@@Schedule.load()-> " + ((ok) ? "SUCESS" : "FAILURE
 		
 		if (fileType == null || fileType.equals(TRICEPS_UNKNOWN_FILE))
 			return false;
+			
+		isDatafile = TRICEPS_DATA_FILE.equals(fileType);
+		
+		if (isDatafile) {
+if (DEPLOYABLE) {			
+			// will have many RESERVED lines interspersed - needed for knowing FILENAME, TITLE_FOR_PICKLIST, etc.
+			lines = scheduleSource.getBody();
+			for (int i=0;i<lines.size();++i,++lineNum) {
+				line = (String) lines.elementAt(i);
+				if (!line.startsWith("RESERVED"))
+					continue;
+				if (parseReserved(lineNum, source, line)) {
+					++reservedCount;
+				}
+			}
+}			
+		}
+
 		return (reservedCount > 0);
 	}
 
@@ -254,13 +290,11 @@ if (DEBUG) Logger.writeln("##@@Schedule.load()-> " + ((ok) ? "SUCESS" : "FAILURE
 		isDatafile = TRICEPS_DATA_FILE.equals(getReserved(TRICEPS_FILE_TYPE));
 		
 		if (isDatafile) {
-/*
-if (DEBUG) Logger.writeln("##@@Schedule.load(DATA)");
+//if (DEBUG) Logger.writeln("##@@Schedule.load(DATA)");
 			if (!loadDataHeaders(scheduleSource)) {
 if (DEBUG) Logger.writeln("##@@Error loading dataHeaders");				
 				return false;
 			}
-*/
 			// load schedule
 			if (!loadSchedule(ScheduleSource.getInstance(getReserved(SCHEDULE_SOURCE)))) {
 if (DEBUG) Logger.writeln("##@@Error loading schedule");				
@@ -278,24 +312,28 @@ if (DEBUG) Logger.writeln("##@@Error loading dataBody");
 	}
 	
 	private boolean loadDataHeaders(ScheduleSource ss) {
-if (DEBUG) Logger.writeln("##@@Schedule.loadDataHeaders()");
+//if (DEBUG) Logger.writeln("##@@Schedule.loadDataHeaders()");
 		if (ss == null || !ss.isValid()) {
 			return false;
 		}
 				// overload data
 		Vector lines = ss.getHeaders();
 		String source = ss.getSourceInfo().getSource();
-		int lineNum = 0;
+		String line = null;
+		int lineNum = 1;
 		
 		for (int i=0;i<lines.size();++i,++lineNum) {
-			if (!parseReserved(lineNum,source,(String) lines.elementAt(i)))
+			line = (String) lines.elementAt(i);
+			if (line.startsWith("COMMENT"))
+				continue;
+			if (!parseReserved(lineNum,source,line))
 				return false;
 		}
 		return true;
 	}
 	
 	private boolean loadDataBody(ScheduleSource ss) {
-if (DEBUG) Logger.writeln("##@@Schedule.loadDataBody()");
+//if (DEBUG) Logger.writeln("##@@Schedule.loadDataBody()");
 		// overload data
 		if (ss == null || !ss.isValid()) {
 			return false;
@@ -303,14 +341,16 @@ if (DEBUG) Logger.writeln("##@@Schedule.loadDataBody()");
 		
 		Vector lines = ss.getBody();
 		String source = ss.getSourceInfo().getSource();
-		int lineNum = 0;
+		int lineNum = 1 + ss.getHeaders().size();
 		String line=null;
 		
 		for (int i=0;i<lines.size();++i,++lineNum) {
 			line = (String) lines.elementAt(i);
+			if (line.startsWith("COMMENT"))
+				continue;
 			if (line.startsWith("RESERVED")) {
-if (DEBUG) Logger.writeln("##**Schedule.parseReserved(" + i + "," + line + ")");
-				if (!parseReserved(i,source,line))
+//if (DEBUG) Logger.writeln("##**Schedule.parseReserved(" + lineNum + "," + line + ")");
+				if (!parseReserved(lineNum,source,line))
 					return false;
 			}
 			else {
@@ -322,23 +362,30 @@ if (DEBUG) Logger.writeln("##**Schedule.parseReserved(" + i + "," + line + ")");
 	}	
 	
 	private boolean loadSchedule(ScheduleSource ss) {
-if (DEBUG) Logger.writeln("##@@Schedule.loadSchedule()");
+//if (DEBUG) Logger.writeln("##@@Schedule.loadSchedule()");
 		if (ss == null || !ss.isValid()) {
 			return false;
 		}
 			
 		Vector lines = ss.getHeaders();
 		String source = ss.getSourceInfo().getSource();
+		String line=null;
 
-		int lineNum = 0;
+		int lineNum = 1;
 		boolean ok = false;
 		for (int i=0;i<lines.size();++i,++lineNum) {
-			ok = parseReserved(i,source,(String) lines.elementAt(i));
+			line = (String) lines.elementAt(i);
+			if (line.startsWith("COMMENT"))
+				continue;
+			ok = parseReserved(lineNum,source,line);
 if (!AUTHORABLE) if (!ok) return false;	
 		}
 		lines = ss.getBody();
 		for (int i=0;i<lines.size();++i,++lineNum) {
-			Node node = new Node(triceps, lineNum, source, (String) lines.elementAt(i), languageCount);
+			line = (String) lines.elementAt(i);
+			if (line.startsWith("COMMENT"))
+				continue;
+			Node node = new Node(triceps, lineNum, source, line, languageCount);
 if (!AUTHORABLE) {
 			if (node.hasParseErrors()) {
 				return false;	// schedule must be fully debugged before deployment, otherwise won't load
@@ -353,7 +400,6 @@ if (!AUTHORABLE) {
 	}
 	
 	private boolean bracesMatch() {
-if (AUTHORABLE) {
 		/* check for mismatching braces */
 		int braceLevel = 0;
 		Node node = null;
@@ -368,33 +414,38 @@ if (AUTHORABLE) {
 					break;
 				case Node.EVAL:
 					if (braceLevel > 0)
-						setError(triceps.get("evaluations_disallowed_within_block") + node.getSourceLine());
+if (AUTHORABLE)			setError(triceps.get("evaluations_disallowed_within_block") + node.getSourceLine());
 					break;
 				case Node.GROUP_OPEN:
 					if (++braceLevel > 1) {
-						setError(triceps.get("starting_nested_group_at_line") + node.getSourceLine());
+if (AUTHORABLE)			setError(triceps.get("starting_nested_group_at_line") + node.getSourceLine());
 					}
 					break;
 				case Node.GROUP_CLOSE:
 					if (--braceLevel < 0) {
-						setError(triceps.get("extra_closing_brace_at_line") + node.getSourceLine());
+if (AUTHORABLE)			setError(triceps.get("extra_closing_brace_at_line") + node.getSourceLine());
 					}
 					break;
 				case Node.BRACE_OPEN:
 				case Node.BRACE_CLOSE:
 				case Node.CALL_SCHEDULE:
-					setError(node.getQuestionOrEvalTypeField() + triceps.get("not_yet_suppported___line") + node.getSourceLine());
+if (AUTHORABLE)		setError(node.getQuestionOrEvalTypeField() + triceps.get("not_yet_suppported___line") + node.getSourceLine());
 					break;
 				default:
-					setError(triceps.get("unknown_actionType_at_line") + node.getSourceLine());
-					break;
+if (AUTHORABLE)	{	setError(triceps.get("unknown_actionType_at_line") + node.getSourceLine()); break; }
+else				return false;
 			}
 		}
 		if (braceLevel > 0) {
+if (AUTHORABLE) {		// so that schedules with flow errors don't load in Interviewer Mode
 			setError(triceps.get("missing") + braceLevel + triceps.get("closing_braces"));
-			return false;
-		}
+			return true;
 }
+else {
+			setError("syntax error");
+			return false;
+}
+		}
 		return true;
 	}
 	
