@@ -102,7 +102,7 @@ public class Logger implements VersionIF {
 
 			if (out != null) {
 				out.write(msg);
-				flush();
+				out.flush();
 			}
 			if (sb != null) {
 				sb.append(msg);
