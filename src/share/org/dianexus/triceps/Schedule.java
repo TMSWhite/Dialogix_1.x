@@ -19,19 +19,19 @@ public class Schedule  {
 	public static final int AUTOGEN_OPTION_NUM = 9;
 	public static final int DEVELOPER_MODE = 10;
 	public static final int DEBUG_MODE = 11;
-	public static final int START_TIME = 12;	
+	public static final int START_TIME = 12;
 	public static final int FILENAME = 13;
 	public static final int SHOW_INVISIBLE_OPTIONS = 14;
-	
+
 	public static final String[] RESERVED_WORDS = {
-		"__TITLE__", "__ICON__", "__HEADER_MSG__", "__STARTING_STEP__", 
+		"__TITLE__", "__ICON__", "__HEADER_MSG__", "__STARTING_STEP__",
 		"__PASSWORD_FOR_REFUSED__", "__PASSWORD_FOR_UNKNOWN__", "__PASSWORD_FOR_NOT_UNDERSTOOD__",
 		"__LANGUAGES__",
-		"__SHOW_QUESTION_REF__", "__AUTOGEN_OPTION_NUM__", 
+		"__SHOW_QUESTION_REF__", "__AUTOGEN_OPTION_NUM__",
 		"__DEVELOPER_MODE__", "__DEBUG_MODE__",
 		"__START_TIME__", "__FILENAME__", "__SHOW_INVISIBLE_OPTIONS__"
 	};
-	
+
 	private String title = null;
 	private Integer startingStep = null;
 	private Date startTime = null;
@@ -48,8 +48,8 @@ public class Schedule  {
 	private int languageCount = 0;
 	private Vector languages = null;
 	private int currentLanguage = 0;
-	
-	
+
+
 	private Vector nodes = new Vector();
 	private Vector comments = new Vector();
 	private Hashtable reserved = new Hashtable();
@@ -57,7 +57,7 @@ public class Schedule  {
 	public Schedule() {
 		setDefaultReserveds();
 	}
-	
+
 	public void setDefaultReserveds() {
 		setReserved(TITLE,"Triceps System");
 		setReserved(STARTING_STEP,"0");
@@ -73,7 +73,7 @@ public class Schedule  {
 		setReserved(DEVELOPER_MODE,"false");
 		setReserved(DEBUG_MODE,"false");
 		setReserved(LANGUAGES,"English");
-		setReserved(SHOW_INVISIBLE_OPTIONS,"true");
+		setReserved(SHOW_INVISIBLE_OPTIONS,"false");
 	}
 
 	public boolean load(BufferedReader br, String filename) {
@@ -91,7 +91,7 @@ public class Schedule  {
 				++line;
 				if (fileLine.trim().equals(""))
 					continue;
-					
+
 				if (fileLine.startsWith("COMMENT")) {
 					comments.addElement(fileLine);
 					continue;
@@ -135,7 +135,7 @@ public class Schedule  {
 	public int size() {
 		return nodes.size();
 	}
-	
+
 	private void parseReserved(int line, String filename, String fileLine) {
 		StringTokenizer ans = new StringTokenizer(fileLine,"\t",true);
 		int field = 0;
@@ -167,7 +167,7 @@ public class Schedule  {
 		}
 		if (name == null || value == null)
 			return;
-		
+
 		int resIdx=-1;
 		for (int i=0;i<RESERVED_WORDS.length;++i) {
 			if (RESERVED_WORDS[i].equals(name)) {
@@ -175,12 +175,12 @@ public class Schedule  {
 				break;
 			}
 		}
-		
+
 		if (!setReserved(resIdx, value)) {
-			System.err.println("unrecognized reserved word " + name + " on line " + line + " of file " + filename); 
+			System.err.println("unrecognized reserved word " + name + " on line " + line + " of file " + filename);
 		}
 	}
-		
+
 	public boolean setReserved(int resIdx, String value) {
 		String s;
 		switch (resIdx) {
@@ -204,7 +204,7 @@ public class Schedule  {
 		reserved.put(RESERVED_WORDS[resIdx], s);
 		return true;
 	}
-	
+
 	public String getReserved(int resIdx) {
 		if (resIdx >= 0 && resIdx < RESERVED_WORDS.length) {
 			return (String) reserved.get(RESERVED_WORDS[resIdx]);
@@ -212,72 +212,72 @@ public class Schedule  {
 		else
 			return null;
 	}
-		
+
 	private String setAutoGenOptionNum(String s) {
 		Boolean b = Boolean.valueOf(s);
 		autoGenOptionNum = b.booleanValue();
 		return b.toString();
 	}
 	public boolean isAutoGenOptionNum() { return autoGenOptionNum; }
-	
-	private String setPasswordForRefused(String s) { 
-		passwordForRefused = s; 
+
+	private String setPasswordForRefused(String s) {
+		passwordForRefused = s;
 		return s;
 	}
-	private String setPasswordForUnknown(String s) { 
-		passwordForUnknown = s; 
+	private String setPasswordForUnknown(String s) {
+		passwordForUnknown = s;
 		return s;
 	}
-	private String setPasswordForNotUnderstood(String s) { 
-		passwordForNotUnderstood = s; 
+	private String setPasswordForNotUnderstood(String s) {
+		passwordForNotUnderstood = s;
 		return s;
 	}
-	private String setShowInvisibleOptions(String s) { 
+	private String setShowInvisibleOptions(String s) {
 		Boolean b = Boolean.valueOf(s);
 		autoGenOptionNum = b.booleanValue();
 		return b.toString();
-	}		
+	}
 	private String setIcon(String s) {
 		icon = s;
 		return s;
 	}
-	
+
 	private String setHeaderMsg(String s) {
 		headerMsg = s;
 		return s;
 	}
-	
-	private String setTitle(String s) { 
+
+	private String setTitle(String s) {
 		if (s == null)
 			title = "";
 		else
 			title = s;
-			
+
 		return title;
 	}
-	
+
 	private String setShowQuestionRef(String s) {
 		Boolean b = Boolean.valueOf(s);
 		showQuestionRef = b.booleanValue();
 		return b.toString();
 	}
 	public boolean isShowQuestionRef() { return showQuestionRef; }
-	
+
 	private String setDeveloperMode(String s) {
 		Boolean b = Boolean.valueOf(s);
 		developerMode = b.booleanValue();
 		return b.toString();
 	}
 	public boolean isDeveloperMode() { return developerMode; }
-	
+
 	private String setDebugMode(String s) {
 		Boolean b = Boolean.valueOf(s);
 		debugMode = b.booleanValue();
 		return b.toString();
 	}
 	public boolean isDebugMode() { return debugMode; }
-	
-	private String setStartingStep(String s) { 
+
+	private String setStartingStep(String s) {
 		try {
 			startingStep = new Integer(s);
 		}
@@ -287,14 +287,14 @@ public class Schedule  {
 		}
 		return startingStep.toString();
 	}
-	
+
 	private String setStartTime(Date t) {
 		startTime = t;
 		String str = Datum.TIME_MASK.format(startTime);
 		reserved.put(RESERVED_WORDS[START_TIME], str);
 		return str;
 	}
-	
+
 	private String setStartTime(String t) {
 		Date time = null;
 		try {
@@ -308,18 +308,18 @@ public class Schedule  {
 		}
 		return setStartTime(time);
 	}
-	
+
 	private String setFilename(String value) {
 		filename = value;
 		return filename;
 	}
-	
+
 	private String setLanguages(String value) {
 		StringBuffer sb = new StringBuffer();
 		if (value == null) {
 			return setLanguages("English");
 		}
-		
+
 		languageCount = 0;
 		languages = new Vector();
 		StringTokenizer ans = new StringTokenizer(value,"|");
@@ -345,11 +345,11 @@ public class Schedule  {
 		}
 		return sb.toString();
 	}
-	
+
 	public Vector getLanguages() {
 		return languages;
 	}
-	
+
 	public boolean setLanguage(String s) {
 		if (s == null) {
 			currentLanguage = 0;
@@ -366,12 +366,12 @@ public class Schedule  {
 		System.err.println("Tried to switch to unsupported language " + s);
 		return false;
 	}
-	
+
 	public int getLanguage() { return currentLanguage; }
-	
+
 	public void toTSV(Writer out) {
 		Enumeration keys = reserved.keys();
-		
+
 		for (int i=0;i<RESERVED_WORDS.length;++i) {
 			String s = RESERVED_WORDS[i];
 			try {
@@ -381,7 +381,7 @@ public class Schedule  {
 				System.err.println("Error writing to " + out + ": " + t.getMessage());
 			}
 		}
-		
+
 		for (int i=0;i<comments.size();++i) {
 			try {
 				out.write((String) comments.elementAt(i) + "\n");
