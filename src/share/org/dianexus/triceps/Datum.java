@@ -24,6 +24,10 @@ public class Datum  {
 	private static final Double SAMPLE_NUMBER = new Double(123.456);
 	public static final String TYPES[] = { "*UNKNOWN*", "*NOT APPLICABLE*", "*REFUSED*", "*INVALID*", 
 		"Number", "String", "Date", "Time", "Year", "Month", "Day", "Weekday", "Hour", "Minute", "Second", "Month_Num" };
+	private static Datum NA_DATUM = null;
+	private static Datum UNKNOWN_DATUM = null;
+	private static Datum REFUSED_DATUM = null;
+	private static Datum INVALID_DATUM = null;
 		
 	private static final SimpleDateFormat defaultDateFormat = new SimpleDateFormat("MM/dd/yyyy");
 	private static final SimpleDateFormat defaultMonthFormat = new SimpleDateFormat("MMMM");
@@ -51,8 +55,6 @@ public class Datum  {
 	private String sVal = TYPES[type];
 	private double dVal = Double.NaN;
 	private boolean bVal = false;
-	private Date timeStamp = null;
-	private String timeStampStr = null;
 	private Date date = null;
 	private Format mask = null;
 	private String error = null;
@@ -62,16 +64,40 @@ public class Datum  {
 		dVal = d;
 		bVal = (Double.isNaN(d) || (d == 0)) ? false : true;
 		sVal = (bVal) ? Double.toString(d) : "";
-		setTimeStamp();
 	}
 	
-	public Datum(int i) {
+	public static Datum getInstance(int i) {
+		switch(i) {
+			case NA: 
+				if (Datum.NA_DATUM == null) {
+					Datum.NA_DATUM = new Datum(NA);
+				}
+				return Datum.NA_DATUM;
+			case UNKNOWN: 
+				if (Datum.UNKNOWN_DATUM == null) {
+					Datum.UNKNOWN_DATUM = new Datum(UNKNOWN);
+				}
+				return Datum.UNKNOWN_DATUM;
+			case REFUSED: 
+				if (Datum.REFUSED_DATUM == null) {
+					Datum.REFUSED_DATUM = new Datum(REFUSED);
+				}
+				return Datum.REFUSED_DATUM;
+			default:
+			case INVALID: 
+				if (Datum.INVALID_DATUM == null) {
+					Datum.INVALID_DATUM = new Datum(INVALID);
+				}
+				return Datum.INVALID_DATUM;
+		}
+	}
+	
+	private Datum(int i) {
 		type = i;
 		sVal = null;
 		bVal = false;
 		dVal = Double.NaN;
 		date = null;
-		setTimeStamp();
 
 		switch (i) {
 			case NA:
@@ -91,7 +117,6 @@ public class Datum  {
 		dVal = (double)l;
 		bVal = (l == 0) ? false : true;
 		sVal = Long.toString(l);
-		setTimeStamp();
 	}
 	public Datum(Datum val) {
 		dVal = val.doubleVal();
@@ -100,7 +125,6 @@ public class Datum  {
 		date = val.date;
 		type = val.type();
 		mask = val.getMask();
-		setTimeStamp();
 	}
 
 	public Datum(Date d, int t) {
@@ -314,7 +338,6 @@ public class Datum  {
 				error = "Internal error: Unexpected data format: " + type;
 				break;
 		}
-		setTimeStamp();
 	}
 
 	public Datum(boolean b) {
@@ -322,7 +345,6 @@ public class Datum  {
 		dVal = (b ? 1 : 0);
 		bVal = b;
 		sVal = (b ? "1" : "0");
-		setTimeStamp();
 	}
 
 	public String stringVal() {
@@ -348,8 +370,6 @@ public class Datum  {
 	public String timeVal() { if (date == null) return ""; return Datum.format(date,Datum.TIME); }
 	public long longVal() { return (long)dVal; }
 	public int type() { return type; }
-	public Date getTimeStamp() { return timeStamp; }
-	public String getTimeStampStr() { return timeStampStr; }
 	public Format getMask() { return mask; }
 	public void setMask(Format mask) { this.mask = mask; }
 
@@ -600,28 +620,6 @@ public class Datum  {
 			case STRING:
 			case REFUSED:
 				return "";	// no formatting string to contrain input
-		}
-	}
-	
-	private void setTimeStamp() {
-		timeStamp = new Date(System.currentTimeMillis());
-		timeStampStr = Datum.format(timeStamp,Datum.DATE,Datum.TIME_MASK);
-	}
-	
-	public void setTimeStamp(String t) {
-		Date time = null;
-		try {
-			time = TIME_MASK.parse(t);
-		}
-		catch (java.text.ParseException e) {
-			System.out.println("Error parsing time " + e.getMessage());
-		}
-		if (time == null) {
-			setTimeStamp();
-		}
-		else {
-			timeStamp = time;
-			timeStampStr = t;
 		}
 	}
 }
