@@ -7,8 +7,8 @@ public class Datum implements Serializable {
 	static final int DOUBLE = 1;
 	static final int STRING = 2;
 	static final int UNCERTAIN = 3; 	// can ask, but answer not known
-	static final int REFUSED = 4; 	// can ask, but can't get answer
-	static final int NA = 5; 			// don't need to ask - not applicable
+	static final int REFUSED = 4;	// can ask, but can't get answer
+	static final int NA = 5;			// don't need to ask - not applicable
 	static final int INVALID = 6;		// if an exception occurs - so propagated
 	String sVal;
 	double dVal;

@@ -3,14 +3,18 @@ import java.util.*;
 import java.io.*;
 
 /**
- * Contains data generated at each node.  Such data are produced either by the person running the interview in response to
+ * Contains data generated at each node.  Such data are produced either 
+ * by the person running the interview in response to
  * questions, or by the system evaluating previously stored evidence
+ * TODO:
+ *	output in various formats - e.g. flat file
+ *	restore from various formats? - e.g. XML, ObjectStream
+ *	who should maintain aliases? - is evidence self knowing, or is that Triceps' role?
  */
 public class Evidence implements Serializable {
 	Hashtable aliases;
 	Vector data;
 	Vector nodes;
-	Integer lastNode;
 	int size;
 
 	public Evidence(int size) {
@@ -36,12 +40,10 @@ public class Evidence implements Serializable {
 			this.data = ev.data;
 			this.nodes = ev.nodes;
 			this.size = ev.size;
-			this.lastNode = ev.lastNode;
-			System.out.println("Restored interview from " + filename);
-
+			System.out.println("Restored evidence from " + filename);
 		}
 		catch (IOException e) {
-			System.out.println("There's some error " + e + "restoring interview from " + filename +".");
+			System.out.println("There's some error " + e + "getting evidence from " + filename +".");
 		}
 	}
 
@@ -52,10 +54,10 @@ public class Evidence implements Serializable {
 			out.writeObject(this);
 			out.flush();
 			out.close();
-			System.out.println("Saved interview to " + filename);
+			System.out.println("Saved evidence to " + filename);
 		}
 		catch (IOException e) {
-			System.out.println("Error saving interview to " + filename + ":  " + e);
+			System.out.println(e);
 		}
 	}
 		
@@ -97,10 +99,22 @@ public class Evidence implements Serializable {
 			return null;
 		}
 		Object o = nodes.elementAt(i.intValue());
-		if (o instanceof Node)
+		if (o instanceof Node) {
 			return (Node)o;
+		}
+		
 		else
 			return null;
+	}
+	
+	public int getStep(Node n) {
+		if (n == null)
+			return -1;
+		if (nodes.contains(n)) {
+			return nodes.indexOf(n);
+		} else {
+			return -1;
+		}
 	}
 	
 	public void set(Node node, Datum val) {
@@ -118,7 +132,6 @@ public class Evidence implements Serializable {
 		aliases.put(node.getConcept(), i);
 		aliases.put(node.getName(), i);
 		aliases.put(node.getQuestionRef(), i);
-		lastNode = i;
 	}
 	
 	public void set(String name, Datum val) {
@@ -138,7 +151,6 @@ public class Evidence implements Serializable {
 			nodes.setElementAt(name, i.intValue());
 		}
 		aliases.put(name, i);
-		lastNode = i;
 	}
 	
 	public int size() {

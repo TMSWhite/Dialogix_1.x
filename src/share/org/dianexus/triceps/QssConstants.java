@@ -28,82 +28,85 @@ public interface QssConstants {
   int DESC = 44;
   int UNSET = 45;
   int DOT = 46;
-  int INTEGER_LITERAL = 50;
-  int DECIMAL_LITERAL = 51;
-  int HEX_LITERAL = 52;
-  int OCTAL_LITERAL = 53;
-  int FLOATING_POINT_LITERAL = 54;
-  int EXPONENT = 55;
-  int ID = 56;
-  int EOL = 57;
+  int COMMA = 47;
+  int SEMICOLON = 48;
+  int INTEGER_LITERAL = 52;
+  int DECIMAL_LITERAL = 53;
+  int HEX_LITERAL = 54;
+  int OCTAL_LITERAL = 55;
+  int FLOATING_POINT_LITERAL = 56;
+  int EXPONENT = 57;
+  int ID = 58;
+  int EOL = 59;
 
   int DEFAULT = 0;
   int WithinString = 1;
   int WithinCharacter = 2;
 
   String[] tokenImage = {
-	"<EOF>",
-	"\"\\\"\"",
-	"\"\\\'\"",
-	"\"\\\"\"",
-	"\"\\\\n\"",
-	"\"\\\\r\"",
-	"\"\\\\\\\\\"",
-	"\"\\\\t\"",
-	"\"\\\\f\"",
-	"\"\\\\b\"",
-	"\"\\\\\\\"\"",
-	"\"\\\\\\\'\"",
-	"<token of kind 12>",
-	"\"\\\'\"",
-	"\"\\\\n\"",
-	"\"\\\\r\"",
-	"\"\\\\\\\\\"",
-	"\"\\\\t\"",
-	"\"\\\\f\"",
-	"\"\\\\b\"",
-	"\"\\\\\\\"\"",
-	"\"\\\\\\\'\"",
-	"<token of kind 22>",
-	"\"+\"",
-	"\"-\"",
-	"\"*\"",
-	"\"/\"",
-	"\"%\"",
-	"\"&\"",
-	"\"|\"",
-	"\"^\"",
-	"\"!\"",
-	"\">\"",
-	"\">=\"",
-	"\"==\"",
-	"\"!=\"",
-	"\"<\"",
-	"\"<=\"",
-	"\"&&\"",
-	"\"||\"",
-	"\"(\"",
-	"\")\"",
-	"\"count\"",
-	"\"list\"",
-	"\"desc\"",
-	"\"unset\"",
-	"\".\"",
-	"\" \"",
-	"\"\\t\"",
-	"\"\\r\"",
-	"<INTEGER_LITERAL>",
-	"<DECIMAL_LITERAL>",
-	"<HEX_LITERAL>",
-	"<OCTAL_LITERAL>",
-	"<FLOATING_POINT_LITERAL>",
-	"<EXPONENT>",
-	"<ID>",
-	"\"\\n\"",
-	"\"=\"",
-	"\"?\"",
-	"\":\"",
-	"\",\"",
+    "<EOF>",
+    "\"\\\"\"",
+    "\"\\\'\"",
+    "\"\\\"\"",
+    "\"\\\\n\"",
+    "\"\\\\r\"",
+    "\"\\\\\\\\\"",
+    "\"\\\\t\"",
+    "\"\\\\f\"",
+    "\"\\\\b\"",
+    "\"\\\\\\\"\"",
+    "\"\\\\\\\'\"",
+    "<token of kind 12>",
+    "\"\\\'\"",
+    "\"\\\\n\"",
+    "\"\\\\r\"",
+    "\"\\\\\\\\\"",
+    "\"\\\\t\"",
+    "\"\\\\f\"",
+    "\"\\\\b\"",
+    "\"\\\\\\\"\"",
+    "\"\\\\\\\'\"",
+    "<token of kind 22>",
+    "\"+\"",
+    "\"-\"",
+    "\"*\"",
+    "\"/\"",
+    "\"%\"",
+    "\"&\"",
+    "\"|\"",
+    "\"^\"",
+    "\"!\"",
+    "\">\"",
+    "\">=\"",
+    "\"==\"",
+    "\"!=\"",
+    "\"<\"",
+    "\"<=\"",
+    "\"&&\"",
+    "\"||\"",
+    "\"(\"",
+    "\")\"",
+    "\"count\"",
+    "\"list\"",
+    "\"desc\"",
+    "\"unset\"",
+    "\".\"",
+    "\",\"",
+    "\";\"",
+    "\" \"",
+    "\"\\t\"",
+    "\"\\r\"",
+    "<INTEGER_LITERAL>",
+    "<DECIMAL_LITERAL>",
+    "<HEX_LITERAL>",
+    "<OCTAL_LITERAL>",
+    "<FLOATING_POINT_LITERAL>",
+    "<EXPONENT>",
+    "<ID>",
+    "\"\\n\"",
+    "\"=\"",
+    "\"?\"",
+    "\":\"",
   };
 
 }

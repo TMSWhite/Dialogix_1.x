@@ -4,23 +4,16 @@ import javax.servlet.*;
 import javax.servlet.http.*;
 
 /**
- *   This is the central engine that iterates through the nodes 
+ *	 This is the central engine that iterates through the nodes 
  *	in a schedule producing, e.g., an interview. It also organizes 
  *	the connection to the display. In the first version, this is 
  *	an http response as defined in the JSDK.
  */
 public class TricepsServlet extends HttpServlet {
-	private Qss parser = new Qss();
-	private Schedule nodes;
-	private String infoMessage = null;
-	private int step;
-	private Node node = null;
-	private Evidence evidence;
-	private boolean forward;
+	private Triceps triceps;
 	private HttpServletRequest req;
 	private HttpServletResponse res;
 	private PrintWriter out;
-	private String schedToUse = "ADHD.txt";	// default value for now
 
 	/**
 	 * This method runs only when the servlet is first loaded by the
@@ -30,7 +23,6 @@ public class TricepsServlet extends HttpServlet {
 	 */
 	public void init(ServletConfig config) throws ServletException {
 		super.init(config);
-//		loadSchedule(schedToUse);
 	}
 
 	public void destroy() {
@@ -43,34 +35,32 @@ public class TricepsServlet extends HttpServlet {
 	 * invoke the POST method on further requests.
 	 */
 	public void doGet(HttpServletRequest req, HttpServletResponse res) throws ServletException, IOException {
-//		doPost(req, res);
-
 		HttpSession session = req.getSession(true);
 		res.setContentType("text/html");
 		out = res.getWriter();
+		
 		out.println("<html>");
 		out.println("<body bgcolor='white'>");
 		out.println("<head>");
 		out.println("<title>TRICEPS SYSTEM</title>");
- 		out.println("</head>");
+		out.println("</head>");
 		out.println("<body>");
 		out.println("<H2>TRICEPS SYSTEM</H2>");
 		out.println("<hr>Please provide the following information to proceed. <br>");
 		out.println("<form method='POST' action='" + HttpUtils.getRequestURL(req) + "'>");
 		out.println("<pre>");
-		out.println("The system currently supports one schedule.");
-		out.println("Select a schedule:	<select name='schedule'>");
-		out.println("							<option selected>ADHD.txt");
-		out.println("							<option>EatDis.txt");
+		out.println("Start a new interview:		<select name='schedule'>");
+		out.println("							  <option value='ADHD.txt' selected>ADHD");
+		out.println("							  <option value='EatDis.txt'>Eating Disorders");
+		out.println("                             <option value='fake.txt'>fake");
 		out.println("							</select>");
-//		out.println("The system currently only starts a new interview.");
-		out.println("Select an interview:	<select name='interview'>");
-		out.println("								<option selected>new");
-//		out.println("								<option> test-completed");
-		out.println("								<option> test-suspended");
-		out.println("								</select>");
-		out.println("<hr>");
-		out.println("<input type='SUBMIT' name='directive' value='START'>		<input type='RESET'>");
+		out.println("<BR><input type='SUBMIT' name='directive' value='START'>\n");
+		out.println("<BR>OR<BR>");
+		out.println("Restore an old interview:	<select name='restoreFrom'>");
+		// FIXME - query/iterate for list of stored schedules
+		out.println("								<option value='/tmp/test-suspended'> test-suspended");
+		out.println("							 </select>");
+		out.println("<BR><input type='SUBMIT' name='directive' value='RESTORE'>");
 		out.println("</pre>");
 		out.println("</body>");
 		out.println("</html>");
@@ -84,10 +74,8 @@ public class TricepsServlet extends HttpServlet {
 		this.req = req;
 		this.res = res;
 		HttpSession session = req.getSession(true);
-
-		node = (Node)session.getValue("currentNode");			// retrieve the node stored in the session
-		evidence = (Evidence)session.getValue("evidence");		// retrieve the evidence stored in the session
-		schedToUse = (String)session.getValue("schedToUse");	// retrieve the schedule used in this session
+		
+		triceps = (Triceps) session.getValue("triceps");
 
 		res.setContentType("text/html");
 		out = res.getWriter();
@@ -95,22 +83,24 @@ public class TricepsServlet extends HttpServlet {
 		out.println("<body bgcolor='white'>");
 		out.println("<head>");
 		out.println("<title>TRICEPS SYSTEM -- Diagnostic Interview Schedule for Children</title>");
- 		out.println("</head>");
+		out.println("</head>");
 		out.println("<body>");
 		
 		/* This is the meat. */
-		doit();
+		try {
+			processDirective(req.getParameter("directive"));
+		}
+		catch (Exception e) {
+			System.out.println(e.getMessage());
+			e.printStackTrace();
+		}
 		
 		out.println("</body>");
 		out.println("</html>");
 		
 		/* Store appropriate stuff in the session */
-		if (node != null)
-			session.putValue("currentNode", node);
-		if (evidence != null)
-			session.putValue("evidence", evidence);
-		if (schedToUse != null)
-			session.putValue("schedToUse", schedToUse);
+		if (triceps != null)
+			session.putValue("triceps", triceps);
 	}
 	/**
 	 * This method basically gets the next node in the schedule, checks the activation
@@ -118,264 +108,185 @@ public class TricepsServlet extends HttpServlet {
 	 * invokes queryUser(), otherwise, it evaluates the evidence and moves to
 	 * the next node.
 	 */
-	private void doit() {
-		try {
-			String answer = null;	// reset to nothing each time
-			infoMessage = null; 		// reset to nothing each time
-
-			/* check what the user selected and do it */
-
-			// get the POSTed directive (start, back, forward, help, suspend, etc.)
-			String directive = req.getParameter("directive");
-			if (directive.equals("START")) {		// very first question -- set everything up
-				directive = "forward"; 				// to avoid null pointer exception
-				forward = true;
-				step = -1; 								// will increment to 0 below - allows bypassing of first question, if necessary
-				
-				/* get the right Schedule */
-				schedToUse = req.getParameter("schedule");
-				loadSchedule(schedToUse);
-				
-				/* prepare the Evidence -- either new or retrieved */
-				if ("test-suspended".equals(req.getParameter("interview"))) {
-					try {
-						FileInputStream fis = new FileInputStream("/tmp/test-suspended");
-						ObjectInputStream ois = new ObjectInputStream(fis);
-						evidence = (Evidence) ois.readObject();
-						ois.close();
-						System.out.println("Restored interview from /tmp/test-suspended");
-					}
-					catch (IOException e) {
-						System.out.println("Error restoring interview: " + e);
-					}
-					// gotta get the last node stored in the evidence
-					if (evidence == null) evidence = new Evidence(nodes.size());
-					else node = evidence.getNode("_400");	// XXX
-				}
-				else if ("new".equals(req.getParameter("interview"))) {
-					evidence = new Evidence(nodes.size());	//  initialize the Evidence object
-				}
-			}
-			else if (directive.equals("jump-to")) {		// debugging option
-				String dest = req.getParameter("jump-to");
-				Node next = evidence.getNode(dest);		// jumps to a node in the evidence, not the schedule!!
-				if (next == null) {
-					infoMessage = "Unable to jump to Node " + dest + ": not found";
-					queryUser();		// re-display current node
-					return;
-				}
-				else {
-					node = next;
-					queryUser();		// re-display current node
-					return;
-				}
-			}
-			else if (directive.equals("clear evidence")) { // restart from scratch
-				evidence = new Evidence(nodes.size());
-				step = -1;
-				directive = "forward";
-			}
-			else if (directive.equals("reload questions")) { // debugging option
-				loadSchedule(schedToUse);
-				queryUser();	// re-display current node
-				return;
-			}
-			else if (directive.equals("suspend")) {		// gotta go -- be back later :-)
-				String status = "suspended";
-				infoMessage = "Suspending interview.....";
-				evidence.save("/tmp/test-" + status);
-				queryUser();	// re-display current node  ****** this should change!!!
-				return;
-			}
-			else if (directive.equals("help")) {		
-				infoMessage = getHelp();
-				queryUser();	// re-display current node
-				return;
-			}
-			else if (directive.equals("forward")) {
-				forward = true;
-			}
-			else if (directive.equals("backward")) {
-				forward = false;
+	private void processDirective(String directive) {
+		boolean ok = true;
+		
+		// get the POSTed directive (start, back, forward, help, suspend, etc.)
+		if (directive == null) {
+			out.println("Invalid directive");
+			return;
+		} 
+		else if (directive.equals("START")) {
+			// load schedule
+			triceps = new Triceps();
+			ok = triceps.setSchedule("http://" + req.getServerName() + "/" + req.getParameter("schedule"));
+			if (!ok) {
+				ok = triceps.setSchedule(new File("c:/cvs2/triceps/docs/" + req.getParameter("schedule")));
 			}
 			
-			/* OK -- if the flow's still here, either move forward or backward through the nodes */
-			if (forward) {
-				if (node != null) {	// if a node was stored in the session (as currentNode) then --
-					try {					// set answer to the value returned with the "name" of the node
-						answer = req.getParameter(node.getName());
-						if (answer == null) {
-							if ("check".equals(node.getAnswerType())) {
-								answer = "0";
-							}
-						}
-					}
-					catch(NullPointerException e) {
-						e.printStackTrace();
-					}
+			if (!ok) {
+				try {
+					this.doGet(req,res);
 				}
-				if ((answer == null || answer.equals("")) && step >= 0) {
-					infoMessage = "<bold>You cannot proceed without answering.</bold>";
+				catch (ServletException e) {
 				}
-				else {	// got a proper answer -- handle it
-					if (step >= 0 && node != null) {
-						Datum d = new Datum(answer);
-						evidence.set(node, d);
-					}
-					while (true) {		// loop forward through nodes -- break to query user or to end
-						if (++step >= nodes.size()) {	// then the schedule is complete
-							String status = "completed";
-							// store evidence here
-							infoMessage = "The interview is completed.";
-							evidence.save("/tmp/test-" + status);				
-							// close the session
-							// session.invalidate();
-							break;
-						}
-						if ((node = nodes.getNode(step)) == null)		// just in case something wierd happens
-							break;
-						
-						/* Active or inactive */
-						if (parser.booleanVal(evidence, node.getDependencies())) { // the node is active and requires action
+				catch (IOException e) {
+				}
+				return;
+			}
+				
+			ok = ok && triceps.gotoFirst();
 
-							/* get answer from user or from evidence */
-							if (node.getActionType().equals("q")) {	// queryUser()
-								break;	
-							}
-							else if (node.getActionType().equals("e")) {	// evaluate evidence, set the Datum for this node, and loop to next node
-								evidence.set(node, new Datum(parser.StringVal(evidence, node.getAction())));
-							}
-						}
-						else {	// the node is inactive and the datum value is "not applicable"
-
-							/* store in evidence a "not applicable" Datum for this node*/
-							evidence.set(node, new Datum(Datum.NA));
-						}
-					} // end while loop
-				}	// end handling of proper answer
-			}	// end forward directive
-
-			else {	/* backwards */
-
-				// evidence.unset(node);
-				while (true) {		// loop back through nodes -- break to query user
-					if (--step < 0) {
-						infoMessage = "<bold>You can't back up any further.</bold>";
-						step = 0;
-						break;
-					}
-					if ((node = nodes.getNode(step)) == null)
-						break;
-					//              evidence.unset(node);
-					if (node.getActionType().equals("e")) {
-
-						/* then can skip this going backwards */
-						continue;
-					}
-					if (parser.booleanVal(evidence, node.getDependencies())) {
-
-						/* if meets the criteria to ask this question ... */
-						if (node.getActionType().equals("q")) {
-							break;
-						}
-					}
+			// ask question
+		} 
+		else if (directive.equals("RESTORE")) {
+			triceps = Triceps.restore(req.getParameter("restoreFrom"));
+			// check for errors (should probably throw them)
+			// ask question
+		} 
+		else if (directive.equals("jump-to")) {	
+			ok = triceps.gotoNode(req.getParameter("jump-to"));
+			// ask this question
+		}
+		else if (directive.equals("clear evidence")) { // restart from scratch
+			ok = triceps.resetEvidence();
+			ok = ok && triceps.gotoFirst();
+			// ask first question
+		}
+		else if (directive.equals("reload questions")) { // debugging option
+			ok = triceps.reloadSchedule();
+			if (ok) {
+				out.println("<B>Interview restored successfully</B><HR>");
+			}
+			// re-ask current question
+		}
+		else if (directive.equals("suspend")) {		// XXX gotta go -- be back later :-)
+			ok = triceps.save("/tmp/test-suspended");
+			if (ok) {
+				out.println("<B>Interview saved successfully</B><HR>");
+			}
+			// re-ask same question
+		}
+		else if (directive.equals("help")) {	// FIXME
+			out.println("<B>No help currently available</B><HR>");
+			// re-ask same question
+		}
+		else if (directive.equals("forward")) {
+			// store current answer(s)
+			Enumeration questionNames = triceps.getQuestions();
+			
+			while(questionNames.hasMoreElements()) {
+				Node q = (Node) questionNames.nextElement();
+				
+				ok = triceps.storeValue(q, req.getParameter(q.getName())) && ok;	// parse all possible errors
+			}
+			// goto next
+			ok = ok && triceps.gotoNext();	// don't goto next if errors
+			// ask question
+		}
+		else if (directive.equals("backward")) {
+			// don't store current
+			// goto previous
+			ok = triceps.gotoPrevious();
+			// ask question
+		}
+		if (!ok) {
+			Enumeration errs = triceps.getErrors();
+			if (errs.hasMoreElements()) {
+//				out.println("ERROR(S):<BR>");
+				while (errs.hasMoreElements()) {
+					out.println("<B>" + (String) errs.nextElement() + "</B><BR>");
 				}
 			}
-
-			/* this is where the breaks fall :-) */			
-			queryUser();
-
-		} catch(Exception e) { System.out.println(e.getMessage()); e.printStackTrace(); }
-	}
-
-	/**
-	 * For diagnostics -- dumps the evidence to stdout and to the infoMessage variable for display
-	 */
-	private String getHelp() {
-		System.out.println(evidence.toString());
-		return node.toString();
-	}
-
-	/**
-	 * This method loads all the nodes that comprise a Schedule. Currently,
-	 * these are represented as tuples in a tab-delimited
-	 * spreadsheet file called "navigation.txt".
-	 */
-	public void loadSchedule(String sched) {
-		nodes = new Schedule("http://" + req.getServerName() + "/" + sched);
+			out.println("<HR>");
+		}
+		queryUser();
 	}
 
 	/**
 	 * This method assembles the displayed question and answer options
 	 * and formats them in HTML for return to the client browser.
+	 * XXX - parsing should not be done here - await re-write for better modularization
 	 */
 	private void queryUser() {
-		out.println("<form method='POST' action='" + HttpUtils.getRequestURL(req) + "'>");
+		// if parser internal to Schedule, should have method access it, not directly
+		out.println("<form method='POST' action='" + HttpUtils.getRequestURL(req) + "'");
 		out.println("<H4>QUESTION AREA</H4>");
-		out.println("<B>Question " + node.getQuestionRef() + "</B>: " + parser.parseJSP(evidence, node.getAction()) + "<br>");
-		// display the answer options
-		StringTokenizer ans;
-		Datum datum = evidence.getDatum(node);
-		try {
-			String defaultValue = "";
+		
+		Enumeration questionNames = triceps.getQuestions();
+			
+		for(int count=0;questionNames.hasMoreElements();++count) {
+			Node node = (Node) questionNames.nextElement();
+			
+			if (count == 0) {
+				out.println("<B>Question " + node.getQuestionRef() + "</B>: " + triceps.getQuestionStr(node) + "<br>\n");
+			}
+			
+			// display the answer options
+			StringTokenizer ans;
+			// separate display from servlet
+			// IO parser
+			// HTML formatting for a question or collection of questions
+			Datum datum = triceps.getDatum(node);
 			try {
-				defaultValue = datum.StringVal();
-				if (null == defaultValue)
-					defaultValue = "";
-			}
-			catch(Exception e) {}
-			ans = new StringTokenizer(node.getAnswerOptions(), ";");
-			String answerType = ans.nextToken();
-			if (answerType.equals("radio")) {
-				while (ans.hasMoreTokens()) { // for however many radio buttons there are
-					String v = ans.nextToken();
-					String msg = ans.nextToken();
-					out.println("<input type='radio'" + "name='" + node.getName() + "' " + "value=" + v + (DatumMath.eq(datum,
-						new Datum(v)).booleanVal() ? " CHECKED" : "") + ">" + msg + "<br>");
+				String defaultValue = "";
+				try {
+					defaultValue = datum.StringVal();
+					if (null == defaultValue)
+						defaultValue = "";
+				}
+				catch(Exception e) {}
+				ans = new StringTokenizer(node.getAnswerOptions(), ";");
+				String answerType = ans.nextToken();
+				if (answerType.equals("radio")) {
+					while (ans.hasMoreTokens()) { // for however many radio buttons there are
+						String v = ans.nextToken();
+						String msg = ans.nextToken();
+						out.println("<input type='radio'" + "name='" + node.getName() + "' " + "value=" + v + (DatumMath.eq(datum,
+							new Datum(v)).booleanVal() ? " CHECKED" : "") + ">" + msg + "<br>");
+					}
+				}
+				if (answerType.equals("check")) {
+					while (ans.hasMoreTokens()) { // for however many check boxes there are
+
+						// Add the CHECKED attribute to indicate a default choice 
+
+						String v = ans.nextToken();
+						String msg = ans.nextToken();
+						out.println("<input type='checkbox'" + "name='" + node.getName() + "' " + "value=" + v + (DatumMath.eq(datum,
+							new Datum(v)).booleanVal() ? " CHECKED" : "") + ">" + msg + "<br>");
+					}
+				}
+				if (answerType.equals("combo")) {
+					out.println("<select name='" + node.getName() + "'>");
+					while (ans.hasMoreTokens()) { // for however many check boxes there are
+
+						// Add the CHECKED attribute to indicate a default choice 
+
+						String v = ans.nextToken();
+						String msg = ans.nextToken();
+						out.println("<option value='" + v + "'" + (DatumMath.eq(datum,
+							new Datum(v)).booleanVal() ? " SELECTED" : "") + ">" + msg + "</option>");
+					}
+					out.println("</select>");
+				}
+				if (answerType.equals("date")) {
+					out.println("Date: <input type='text' name='" + node.getName() + "' value='" + defaultValue + "'>");
+				}
+				if (answerType.equals("age")) {
+					out.println("Age: <input type='text' name='" + node.getName() + "' value='" + defaultValue + "'>");
+				}
+				if (answerType.equals("grade")) {
+					out.println("Grade: <input type='text' name='" + node.getName() + "' value='" + defaultValue + "'>");
+				}
+				if (answerType.equals("text")) {
+					out.println("Type your answer: <input type='text' name='" + node.getName() + "' value='" + defaultValue + "'>");
 				}
 			}
-			if (answerType.equals("check")) {
-				while (ans.hasMoreTokens()) { // for however many check boxes there are
-
-					/* Add the CHECKED attribute to indicate a default choice */
-
-					String v = ans.nextToken();
-					String msg = ans.nextToken();
-					out.println("<input type='checkbox'" + "name='" + node.getName() + "' " + "value=" + v + (DatumMath.eq(datum,
-						new Datum(v)).booleanVal() ? " CHECKED" : "") + ">" + msg + "<br>");
-				}
-			}
-			if (answerType.equals("combo")) {
-				out.println("<select name='" + node.getName() + "'>");
-				while (ans.hasMoreTokens()) { // for however many check boxes there are
-
-					/* Add the CHECKED attribute to indicate a default choice */
-
-					String v = ans.nextToken();
-					String msg = ans.nextToken();
-					out.println("<option value='" + v + "'" + (DatumMath.eq(datum,
-						new Datum(v)).booleanVal() ? " SELECTED" : "") + ">" + msg + "</option>");
-				}
-				out.println("</select>");
-			}
-			if (answerType.equals("date")) {
-				out.println("Date: <input type='text' name='" + node.getName() + "' value='" + defaultValue + "'>");
-			}
-			if (answerType.equals("age")) {
-				out.println("Age: <input type='text' name='" + node.getName() + "' value='" + defaultValue + "'>");
-			}
-			if (answerType.equals("grade")) {
-				out.println("Grade: <input type='text' name='" + node.getName() + "' value='" + defaultValue + "'>");
-			}
-			if (answerType.equals("text")) {
-				out.println("Type your answer: <input type='text' name='" + node.getName() + "' value='" + defaultValue + "'>");
+			catch(Exception e) {
+				System.out.println("Error tokenizing answer options...." + e.getMessage());
 			}
 		}
-		catch(Exception e) {
-			System.out.println("Error tokenizing answer options...." + e.getMessage());
-		}
-		if (infoMessage != null)
-			out.println("<br><B>" + infoMessage + "</B><br>");
 
 		// Navigation buttons
 		out.println("<hr>");
@@ -394,20 +305,27 @@ public class TricepsServlet extends HttpServlet {
 
 		// Node info area
 		out.println("<hr>");
-		out.println("<H4>NODE INFORMATION AREA</H4>" + node.toString());
 		
+		questionNames = triceps.getQuestions();
+			
+		for(int count=0;questionNames.hasMoreElements();++count) {
+			Node node = (Node) questionNames.nextElement();
+		
+			out.println("<H4>NODE INFORMATION AREA</H4>" + node.toString());
+		}
+
 		// Complete printout of what's been collected per node
 		out.println("<hr>");
 		out.println("<H4>EVIDENCE AREA</H4>");
 		out.println("<TABLE CELLPADDING='0' CELLSPACING='0' BORDER='1'>");
-		for (int i = nodes.size()-1; i >= 0; i--) {
-			Node n = nodes.getNode(i);
-			if (evidence.toString(n) == "null")
+		for (int i = triceps.size()-1; i >= 0; i--) {
+			Node n = triceps.getNode(i);
+			if (triceps.toString(n) == "null")	// XXX 
 				continue;
 			out.println("<TR>" + 
 				"<TD>" + (i + 1) + "</TD>" + 
 				"<TD>" + n.getQuestionRef() + "</TD>" +
-				"<TD><B>" + evidence.toString(n) + "</B></TD>" +
+				"<TD><B>" + triceps.toString(n) + "</B></TD>" +
 				"<TD>" + n.getName() + "</TD>" +
 				"<TD>" + n.getConcept() + "</TD>" +
 				"<TD>" + n.getDependencies() + "</TD>" +

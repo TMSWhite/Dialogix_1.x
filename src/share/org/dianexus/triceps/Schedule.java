@@ -4,51 +4,85 @@ import java.io.*;
 import java.net.*;
 
 /**
- * Schedule holds a collection of nodes.  At present it is
- * iterated by a directed, sequential traversal of the nodes.
- * This order is externally imposed at present.
- * In future, the iteration of nodes might not require an external
- * ordering but be a function of the logical dependencies between nodes.
- */
-public class Schedule {
-	private Vector nodes = new Vector();
+ * Schedule holds a collection of nodes.
+ * TODO:
+ *	know how to read from URL
+ *	implemented as Object Pool
+ *	delegate how to read from various file formats (CSV, XML, ...)
+*/
+public class Schedule implements Serializable {
+	private Vector nodes;
 
-	public Schedule(String src) {
+	public Schedule() {
+		nodes = new Vector();
+	}
+	
+	public boolean load(File file) {
+		if (file == null)
+			return false;
 		try {
-			URL url = new URL(src);
-			InputStream is = url.openStream();
 			int count = 0;
 			String fileLine;
-			BufferedReader br = new BufferedReader(new InputStreamReader(is));
+			BufferedReader br = new BufferedReader(new FileReader(file));
 			while ((fileLine = br.readLine()) != null) {
 				Node node = new Node(count, fileLine);
 				++count;
 				nodes.addElement(node);
 			}
-			System.out.println("Read " + count + " nodes from " + src);
 			br.close();
-		}
-		catch(MalformedURLException e) {
-			System.out.println("Malformed url '" + src + "':" + e.getMessage());
+			System.out.println("Read " + count + " nodes from " + file);
+			return true;
 		}
 		catch(IOException e) {
-			System.out.println("An error occurred reading from '" + src + "':" + e.getMessage());
-		}
-		catch(Exception e) {
-			System.out.println("Exception: " + e.getMessage());
+			System.out.println("Error reading " + file);
+			return false;
 		}
 	}
+	
+	public boolean load(URL url) {
+		boolean err = false;
+		try {
+			InputStream is = url.openStream();
+			int count = 0;
+			String fileLine;
+			BufferedReader br = new BufferedReader(new InputStreamReader(is));
+			while ((fileLine = br.readLine()) != null) {
+				if (count == 0 && 
+					(fileLine.indexOf("<h1>") != -1) || 
+					(fileLine.indexOf("<html>") != -1)) {
+					err = true;
+					break;
+				}
+				Node node = new Node(count, fileLine);
+				++count;
+				nodes.addElement(node);
+			}
+			br.close();
+			if (err) {
+				System.out.println("Unable to access " + url.toExternalForm());
+				return false;
+			}
+			System.out.println("Read " + count + " nodes from " + url);
+			return true;
+		}
+		catch(IOException e) {
+			System.out.println("Error reading " + url.toExternalForm());
+			return false;
+		}
+	}
+	
 	public Node getNode(int index) {
 		if (index < 0) {
 			System.out.println("Node[" + index + "] does't exist");
 			return null;
 		}
-		if (index > nodes.size()) {
-			System.out.println("Node[" + index + "/" + nodes.size() + "] doesn't exist");
+		if (index > size()) {
+			System.out.println("Node[" + index + "/" + size() + "] doesn't exist");
 			return null;
 		}
 		return (Node)nodes.elementAt(index);
 	}
+	
 	public int size() {
 		return nodes.size();
 	}

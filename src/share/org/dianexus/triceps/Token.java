@@ -49,6 +49,14 @@ public class Token {
   public Token specialToken;
 
   /**
+   * Returns the image.
+   */
+  public final String toString()
+  {
+     return image;
+  }
+
+  /**
    * Returns a new Token object, by default. However, if you want, you
    * can create and return subclass objects based on the value of ofKind.
    * Simply add the cases to the switch for all those special cases.
@@ -62,16 +70,10 @@ public class Token {
    */
   public static final Token newToken(int ofKind)
   {
-	 switch(ofKind)
-	 {
-	   default : return new Token();
-	 }
-  }  
-  /**
-   * Returns the image.
-   */
-  public final String toString()
-  {
-	 return image;
-  }  
+     switch(ofKind)
+     {
+       default : return new Token();
+     }
+  }
+
 }
