@@ -826,6 +826,10 @@
 			<LI>[ ] get/set values =&gt; Context.DAO
 			<LI>[ ] get/set node values =&gt; Context.InstrumentAO?
 			<LI>[ ] write headers and starting values =&gt; Context.?? -- initialize an instance
+			<LI>[ ] Need Results object (or can DAO do this, or are there several levels for this)
+			<UL>
+				<LI>store data and events to generic database
+			</UL>
 		</UL>
 		<LI>EvidenceIO.java
 		<UL>
@@ -877,41 +881,175 @@
 		</UL>
 		<LI>Node.java
 		<UL>
-			<LI>Datatypes
-			<LI>QuestionTypes
-			<LI>One row per item
-			<LI>linked to AnswerChoices hashtable
+			<LI>DisplayTypes (maps to DataTypes)
+			<LI>QuestionTypes (and ActionTypes)
+			<LI>One row per item, linked to AnswerChoices hashtable
 			<LI>parses a source line from Excel, generating node with multi-language support (by index)
-			<LI>buildOrList (why?)
-			<LI>getSampleInputString()
+			<LI>buildOrList (debug message to show allowable data values)
+			<LI>getSampleInputString() -- [ ] should this be in properties?
 			<LI>prepareChoicesAsHtml() -- [ ] make modular, e.g. VelocityMacro, would need access to Node content and current
 			data values; ideally with XML way to map style to template
 			<LI>isWithinRange() -- [ ] validate elsewhere, since generates custom error message?
-			<LI>record errors
+			<LI>record parse and syntax errors -- [ ] Error checker should visit each node for this?
 			<LI>output to TSV or XML
-			<LI>get values
+			<LI>get Bean properties
+			<LI>[ ] convert to read-only Bean for Velocity access?
 		</UL>
 		<LI>ParseError.java
-		<LI>ParseException.java
+		<UL>
+			<LI>Obsolete
+			<LI>[ ] Instead, create ErrorChecker which visits each node and equation and records errors
+			<LI>[ ] Would want ErrorChecker accessible via Velocity as Bean?
+			<LI>[ ] Should it store error information to database?
+		</UL>
+		<LI>ParseException.java [DONE =&gt; DialogixParser.jjt]
 		<LI>Parser.java
+		<UL>
+			<LI>Interface to DialogixParser
+			<LI>parses Strings to return boolean, String, double, Datum [ ] Move to DialogixParser?
+			<LI>parseJSP (parsing nested equations): [ ] Move to DialogixParser?
+		</UL>
 		<LI>QSortAlgorithm.java
+		<UL>
+			<LI>exclusively used to sort list of instruments [ ] remove? Collections must have this
+		</UL>
 		<LI>Qss.java
+		<UL>
+			<LI>=&gt; DialogixParser.jjt
+		</UL>
 		<LI>qss.jj
+		<UL>
+			<LI>=&gt; DialogixParser.jjt
+		</UL>
 		<LI>QssConstants.java
+		<UL>
+			<LI>=&gt; DialogixParser.jjt
+		</UL>
 		<LI>QssTokenManager.java
+		<UL>
+			<LI>=&gt; DialogixParser.jjt
+		</UL>
 		<LI>Schedule.java
+		<UL>
+			<LI>Flow: Initialize Triceps, Evidence, reserveds; load schedule, check validity, parse headers
+			<LI>Defines reserved words. [ ] cant they be moved to proper support class based upon function?
+			<UL>
+				<LI>Instrument Model {languages, author, version, name,
+				<LI>Runtime {filename, workingdir, completeddir, redirectOnFinish, browser, ip, displaycount
+				<LI>Navigation {starting step, current step, allow refused/unasked,
+				<LI>Authoring {debug, developer
+				<LI>Cosmetics {title, icon, header_msg, icons, field_width,
+			</UL>
+			<LI>setReserved() - calls all support functions, tightly coupled with other functions
+			<UL>
+				<LI>lots of code to catch number format errors. [ ] replace with schema validation?
+			</UL>
+			<LI>parserReserved(), writeReserved()
+			<LI>recalculateInNewLanguage() -- only needed for Eval nodes
+			<LI>loadSchedule() - from file. [ ] allow load from DB
+			<LI>bracesMatch()
+			<LI>parseNode() [ ] move this to Node or NodeIO that reads from data source and uses Node internally?
+			<LI>getNode(index)
+		</UL>
 		<LI>ScheduleList.java
+		<UL>
+			<LI>Find all schedules in a directory, detecting changes
+			<LI>[ ] replace this with study-specific DB query for instrument metadata
+		</UL>
 		<LI>ScheduleSource.java
+		<UL>
+			<LI>Reads individual schedules from .txt or .jar files
+			<LI>[ ] replace with instrument specific DB query
+		</UL>
 		<LI>SourceInfo.java
+		<UL>
+			<LI>Helper function for ScheduleSource -- obsolete
+		</UL>
 		<LI>Token.java
+		<UL>
+			<LI>=&gt; DialogixParser.jjt
+		</UL>
 		<LI>TokenMgrError.java
+		<UL>
+			<LI>=&gt; DialogixParser.jjt
+		</UL>
 		<LI>Triceps.java
+		<UL>
+			<LI>Supported functionality
+			<UL>
+				<LI>parser
+				<LI>data logger
+				<LI>event logger
+				<LI>locale
+				<LI>schedule
+			</UL>
+			<LI>Navigation
+			<UL>
+				<LI>gotoFirst(), gotoStarting(), jumpToNode(),suspendToFloppy(), gotoNext(), gotoPrevious()
+				<LI>collectNextNodeSet(), collectPreviousNodeSet()
+				<LI>getRelevantNodes()
+			</UL>
+			<LI>DataIO
+			<UL>
+				<LI>getDatum(node)
+				<LI>getStartTime()
+				<LI>getQuestionStr(Node) - with formatting
+			</UL>
+			<LI>Debugging
+			<UL>
+				<LI>collectParseErrors(), size(), isSet(Node)
+				<LI>isBlockOK() -- whether a node-set has balanced open/close braces
+				<LI>reloadSchedule (with any needed changes, but keeping current data)
+				<LI>resetEvidence() -- clear databuffer
+			</UL>
+			<LI>Logging
+			<UL>
+				<LI>processEventTimings() -- sends data to event logger
+				<LI>storeValue(Node,answer,comment,special) -- does validation, then stores. [ ] Move to ??
+				<LI>record response latency
+			</UL>
+			<LI>Locale =&gt; Context?
+		</UL>
 		<LI>TricepsEngine.java
+		<UL>
+			<LI>Functions
+			<UL>
+				<LI>init all reserved variables, directories
+				<LI>process post/get
+				<LI>processDirective() -- responds to all navigation and debugging commands like Controller
+				<LI>makes all HTML and Javascript
+				<LI>set extra parameters from login database (if have username/password)
+				<LI>make XML version
+				<LI>queryUser() -- assembles subcomponents into page
+			</UL>
+			<LI>[ ] Move all to JSP or equivalent?
+		</UL>
 		<LI>TricepsServlet.java
+		<UL>
+			<LI>Invalidate sessions
+			<LI>init DB
+			<LI>logPageHit() -- logs to DB
+			<LI>
+		</UL>
 		<LI>Value.java
+		<UL>
+			<LI>Support function for Evidence - maps Datum to Node within Schedule, allowing for multiple aliases
+			<LI>[ ] replace with DAO?
+		</UL>
 		<LI>VersionIF.java
+		<UL>
+			<LI>[ ] make obsolete -- move study specific parameters to config, not hard-compiled
+		</UL>
 		<LI>XMLAttrEncoder.java
+		<UL>
+			<LI>=&gt; utils/XMLAttrEncoder
+			<LI>converts strings so XML doesn't think they are commands
+		</UL>
 		<LI>XmlString.java
+		<UL>
+			<LI>HTML-Tidy, but selectively removes unwanted tags, always matches braces
+			<LI>[ ] if keep, accept a Writer, instead of using StringBuffer (probably source of memory leak)
+		</UL>
 	</UL>
 	<LI>Porlets
 	<UL>
@@ -920,7 +1058,11 @@
 		<LI>How does it support context -- local Portal parameters, Locale, look &amp; feel - should I be using that model?
 		<LI>How does it support data sources -- can I use their style?
 		<LI>WSRP -- Web Services for Report Portlets
-		<LI>Support versioning -- how?  Can I use this for versions of instruments?
+		<LI>Support versioning -- how? Can I use this for versions of instruments?
+	</UL>
+	<LI>Cocoon
+	<UL>
+		<LI>
 	</UL>
 </UL>
 
