@@ -553,6 +553,8 @@ public class Triceps {
 		String actionErrors;
 		Vector nodeErrors;
 		boolean hasErrors;
+		
+		parser.resetErrorCount();
 
 		for (int i=0;i<size();++i) {
 			n = nodes.getNode(i);
@@ -783,7 +785,6 @@ public class Triceps {
 	
 	private void setError(String s) {
 		errors.addElement(s);
-System.err.println(s);
 	}
 	
 	private void setError(Vector v) {
