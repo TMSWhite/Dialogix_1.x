@@ -34,7 +34,14 @@ rem -- try to launch browser, using default locations and names --
 set _NETSCAPE_="C:\Program Files\Netscape\Communicator\Program\netscape.exe"
 set _IE_="C:\Program Files\Internet Explorer\IEXPLORE.EXE"
 
-rem -- start server --
+rem -- set Tomcat  variables --
+set TOMCAT_HOME=@@DIALOGIX.HOME@@
+set TOMCAT_INSTALL=@@DIALOGIX.HOME@@
+set CATALINA_BASE=@@DIALOGIX.HOME@@
+set CATALINA_HOME=@@DIALOGIX.HOME@@
+set CATALINA_TMPDIR=@@DIALOGIX.HOME@@\temp
+
+@rem -- start server --
 cd @@DIALOGIX.HOME@@\bin
 start /MIN startup.bat %1 %2
 cd @@DIALOGIX.HOME@@
@@ -47,10 +54,12 @@ if exist %_IE_% goto launch_IE
 
 :launch_netscape
 %_NETSCAPE_% -browser "http://127.0.0.1:@@HTTP.PORT@@/@@DIALOGIX.START_DIR@@/"
+@REM %_NETSCAPE_% -browser "https://127.0.0.1:@@HTTPS.PORT@@/@@DIALOGIX.START_DIR@@/"
 goto cleanup
 
 :launch_IE
 %_IE_% "http://127.0.0.1:@@HTTP.PORT@@/@@DIALOGIX.START_DIR@@/"
+@REM %_IE_% "https://127.0.0.1:@@HTTPS.PORT@@/@@DIALOGIX.START_DIR@@/"
 goto cleanup
 
 :cleanup
@@ -59,5 +68,3 @@ set _IE_=
 set JAVA_HOME=
 set PATH=%_PATH%
 set _PATH=
-
-exit
