@@ -37,7 +37,7 @@ public class TricepsServlet extends HttpServlet {
 	}
 
 	/**
-	 * This method is invoked when a simple URL request is made to the servlet.
+	 * This method is invoked when an initial URL request is made to the servlet.
 	 * It initializes a session and prepares a response to the client that will
 	 * invoke the POST method on further requests.
 	 */
@@ -58,15 +58,15 @@ public class TricepsServlet extends HttpServlet {
 		out.println("<form method='POST' action='http://localhost/triceps/servlet/TricepsServlet'>");
 		out.println("<pre>");
 		out.println("The system currently supports one schedule.");
-		out.println("Select a schedule:			<select name='schedule'>");
-		out.println("									<option selected>navigation.txt");
-//		out.println("									<option navigation2.txt");
-		out.println("									</select>");
-		out.println("Select an interview:		<select name='interview'>");
-		out.println("									<option selected>new");
-//		out.println("									<option> test-completed");
-		out.println("									<option> test-suspended");
-		out.println("									</select>");
+//		out.println("Select a schedule:	<select name='schedule'>");
+//		out.println("							<option selected>navigation.txt");
+//		out.println("							<option navigation2.txt");
+//		out.println("							</select>");
+		out.println("Select an interview:	<select name='interview'>");
+		out.println("								<option selected>new");
+//		out.println("								<option> test-completed");
+		out.println("								<option> test-suspended");
+		out.println("								</select>");
 		out.println("<hr>");
 		out.println("<input type='SUBMIT' name='directive' value='START'>		<input type='RESET'>");
 		out.println("</pre>");
@@ -113,18 +113,16 @@ public class TricepsServlet extends HttpServlet {
 			String answer = null;	// reset to nothing each time
 			infoMessage = null; 		// reset to nothing each time
 
+			/* check what the user selected and do it */
 
-			/* check what the user selected and handle it */
-
-			// get the posted directive (back, forward, help, suspend)
+			// get the POSTed directive (start, back, forward, help, suspend, etc.)
 			String directive = req.getParameter("directive");
-			if (directive.equals("START")) {
-				// very first question -- set everything up
+			if (directive.equals("START")) {		// very first question -- set everything up
+				directive = "forward"; 				// to avoid null pointer exception
 				forward = true;
-				directive = "forward"; // to avoid null pointer exception
 				step = -1; // so that increments back to 0 - allows bypassing of first question, if necessary
 				
-				/* prepare the Evidence */
+				/* prepare the Evidence -- either new or retrieved */
 				if ("test-suspended".equals(req.getParameter("interview"))) {
 					evidence = new Evidence("/tmp/test-suspended");
 				}
@@ -132,39 +130,38 @@ public class TricepsServlet extends HttpServlet {
 					evidence = new Evidence(nodes.size());	//  initialize the Evidence object
 				}
 			}
-			if (directive.equals("jump-to")) {
+			else if (directive.equals("jump-to")) {		// debugging option
 				answer = req.getParameter("jump-to");
 				Node next = evidence.getNode(answer);
 				if (next == null) {
 					infoMessage = "Unable to jump to Node " + answer + ": not found";
-					queryUser();
+					queryUser();		// re-display current node
 					return;
 				}
 				else {
 					node = next;
-					queryUser();
+					queryUser();		// re-display current node
 					return;
-					//  forward = true; // fall through to skipping eval elements
 				}
 			}
-			else if (directive.equals("clear evidence")) {
+			else if (directive.equals("clear evidence")) { // restart from scratch
 				evidence = new Evidence(nodes.size());
 				step = -1;
-				forward = true;
+				directive = "forward";
 			}
-			else if (directive.equals("reload questions")) {
+			else if (directive.equals("reload questions")) { // debugging option
 				loadSchedule();
-				queryUser();
+				queryUser();	// re-display current node
 				return;
 			}
-			else if (directive.equals("suspend")) {
+			else if (directive.equals("suspend")) {		// gotta go -- be back later :-)
 				infoMessage = suspendInterview(evidence);
-				queryUser();
+				queryUser();	// re-display current node  ****** this should change!!!
 				return;
 			}
-			else if (directive.equals("help")) {
+			else if (directive.equals("help")) {		
 				infoMessage = getHelp();
-				queryUser();
+				queryUser();	// re-display current node
 				return;
 			}
 			else if (directive.equals("forward")) {
@@ -173,9 +170,11 @@ public class TricepsServlet extends HttpServlet {
 			else if (directive.equals("backward")) {
 				forward = false;
 			}
+			
+			/* OK -- if the flow's still here, either move forward or backward through the nodes */
 			if (forward) {
-				if (node != null) {	// check to make sure the node exists
-					try {
+				if (node != null) {	// if a node was stored in the session (as currentNode) then --
+					try {					// set answer to the value returned with the "name" of the node
 						answer = req.getParameter(node.getName());
 						if (answer == null) {
 							if ("check".equals(node.getAnswerType())) {
@@ -195,40 +194,41 @@ public class TricepsServlet extends HttpServlet {
 						Datum d = new Datum(answer);
 						evidence.set(node, d);
 					}
-					while (true) {
-						if (++step >= nodes.size()) {
-							infoMessage = "Interview Completed...";
+					while (true) {		// loop forward through nodes -- break to query user or to end
+						if (++step >= nodes.size()) {	// then the schedule is complete
+							infoMessage = "<bold>Interview Completed...</bold>";
+							// store evidence here
 							break;
 						}
-						if ((node = nodes.getNode(step)) == null)
+						if ((node = nodes.getNode(step)) == null)		// just in case something wierd happens
 							break;
+						
+						/* Active or inactive */
 						if (parser.booleanVal(evidence, node.getDependencies())) { // the node is active and requires action
 
-							/* if meets the criteria to ask this question ... */
-
-							if (node.getActionType().equals("q")) {	// then break down to queryUser()
+							/* get answer from user or from evidence */
+							if (node.getActionType().equals("q")) {	// queryUser()
 								break;	
 							}
-							else if (node.getActionType().equals("e")) {	// evaluate the action string, set the evidence, and loop to next node
+							else if (node.getActionType().equals("e")) {	// evaluate evidence, set the Datum for this node, and loop to next node
 								evidence.set(node, new Datum(parser.StringVal(evidence, node.getAction())));
 							}
 						}
 						else {	// the node is inactive and the datum value is "not applicable"
 
-							/* store in evidence a not applicable Datum for this node*/
+							/* store in evidence a "not applicable" Datum for this node*/
 							evidence.set(node, new Datum(Datum.NA));
 						}
 					} // end while loop
 				}	// end handling of proper answer
 			}	// end forward directive
 
-			else {
-				/* backwards */
+			else {	/* backwards */
 
 				// evidence.unset(node);
-				while (true) {
+				while (true) {		// loop back through nodes -- break to query user
 					if (--step < 0) {
-						infoMessage = "You can't back up any further";
+						infoMessage = "<bold>You can't back up any further.</bold>";
 						step = 0;
 						break;
 					}
@@ -250,7 +250,7 @@ public class TricepsServlet extends HttpServlet {
 				}
 			}
 
-			/* this is where the break above falls to */			
+			/* this is where the breaks fall :-) */			
 			queryUser();
 
 		} catch(Exception e) { System.out.println(e.getMessage()); e.printStackTrace(); }
@@ -279,7 +279,7 @@ public class TricepsServlet extends HttpServlet {
 	 */
 	private void queryUser() {
 		out.println("<form method='POST' action='http://localhost/triceps/servlet/TricepsServlet'>");
-		out.println("<H4>QUESTION AREA</H4><BR>");
+		out.println("<H4>QUESTION AREA</H4>");
 		out.println("<B>Question " + node.getQuestionRef() + "</B>: " + parser.parseJSP(evidence, node.getAction()) + "<br>");
 		// display the answer options
 		StringTokenizer ans;
@@ -343,16 +343,17 @@ public class TricepsServlet extends HttpServlet {
 			System.out.println("Error tokenizing answer options...." + e.getMessage());
 		}
 		if (infoMessage != null)
-			out.println("<B>" + infoMessage + "</B><br>");
+			out.println("<br><B>" + infoMessage + "</B><br>");
 
 		// Navigation buttons
 		out.println("<hr>");
-		out.println("<H4>NAVIGATION AREA</H4><BR>");
+		out.println("<H4>NAVIGATION AREA</H4>");
 		out.println("<input type='SUBMIT' name='directive' value='backward'>");
 		out.println("<input type='SUBMIT' name='directive' value='forward'>");
 		out.println("<input type='SUBMIT' name='directive' value='help'>");
 		out.println("<input type='SUBMIT' name='directive' value='suspend'>");
 		out.println("<BR>");
+		// the following buttons are for debugging
 		out.println("<input type='SUBMIT' name='directive' value='jump-to'>");
 		out.println("<input type='text' name='jump-to'>");
 		out.println("<input type='SUBMIT' name='directive' value='clear evidence'>");
@@ -361,11 +362,11 @@ public class TricepsServlet extends HttpServlet {
 
 		// Node info area
 		out.println("<hr>");
-		out.println("<H4>NODE INFORMATION AREA</H4><BR>" + node.toString());
+		out.println("<H4>NODE INFORMATION AREA</H4>" + node.toString());
 
 		// Complete printout of what's been collected per node
 		out.println("<hr>");
-		out.println("<H4>EVIDENCE AREA</H4> <BR>");
+		out.println("<H4>EVIDENCE AREA</H4>");
 		for (int i = 0; i < nodes.size(); i++) {
 			Node n = nodes.getNode(i);
 			if (evidence.toString(n) == "null")
