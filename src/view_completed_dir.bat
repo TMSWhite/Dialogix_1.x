@@ -1,2 +1,0 @@
-explorer "@@COMPLETED.DIR@@"
-exit
