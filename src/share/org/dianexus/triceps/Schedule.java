@@ -50,6 +50,9 @@ public class Schedule implements VersionIF  {
 	public static final int SCHED_VERSION_MAJOR = 38;
 	public static final int SCHED_VERSION_MINOR = 39;
 	public static final int SCHED_HELP_URL = 40;
+	public static final int HELP_ICON = 41;
+	public static final int ACTIVE_BUTTON_PREFIX = 42;
+	public static final int ACTIVE_BUTTON_SUFFIX = 43;
 
 	private static final String DEFAULT_LANGUAGE = "en_US";
 
@@ -95,6 +98,9 @@ public class Schedule implements VersionIF  {
 		"__SCHED_VERSION_MAJOR__",
 		"__SCHED_VERSION_MINOR__",
 		"__SCHED_HELP_URL__",
+		"__HELP_ICON__",
+		"__ACTIVE_BUTTON_PREFIX__",
+		"__ACTIVE_BUTTON_SUFFIX__",
 	};
 
 	private Date startTime = null;
@@ -158,22 +164,25 @@ public class Schedule implements VersionIF  {
 		setReserved(ALLOW_DONT_UNDERSTAND,"true");
 		setReserved(RECORD_EVENTS,"true");
 		setReserved(IMAGE_FILES_DIR,null,true);
-		setReserved(COMMENT_ICON_ON,null);
-		setReserved(COMMENT_ICON_OFF,null);
-		setReserved(REFUSED_ICON_ON,null);
-		setReserved(REFUSED_ICON_OFF,null);
-		setReserved(UNKNOWN_ICON_ON,null);
-		setReserved(UNKNOWN_ICON_OFF,null);
-		setReserved(DONT_UNDERSTAND_ICON_ON,null);
-		setReserved(DONT_UNDERSTAND_ICON_OFF,null);
+		setReserved(COMMENT_ICON_ON,"comment_true.gif");
+		setReserved(COMMENT_ICON_OFF,"comment_false.gif");
+		setReserved(REFUSED_ICON_ON,"refused_true.gif");
+		setReserved(REFUSED_ICON_OFF,"refused_false.gif");
+		setReserved(UNKNOWN_ICON_ON,"unknown_true.gif");
+		setReserved(UNKNOWN_ICON_OFF,"unknown_false.gif");
+		setReserved(DONT_UNDERSTAND_ICON_ON,"not_understood_true.gif");
+		setReserved(DONT_UNDERSTAND_ICON_OFF,"not_understood_false.gif");
 		setReserved(TRICEPS_VERSION_MAJOR, VERSION_MAJOR,true);
 		setReserved(TRICEPS_VERSION_MINOR, VERSION_MINOR,true);
 		setReserved(SCHED_AUTHORS,null);
 		setReserved(SCHED_VERSION_MAJOR,null);
 		setReserved(SCHED_VERSION_MINOR,null);
 		setReserved(SCHED_HELP_URL,null);
+		setReserved(HELP_ICON,"help_true.gif");
+		setReserved(ACTIVE_BUTTON_PREFIX,"${");
+		setReserved(ACTIVE_BUTTON_SUFFIX,"}$");
 	}
-
+		
 	public boolean init() {
 		nodes = new Vector();
 		comments = new Vector();
@@ -422,6 +431,9 @@ if (DEBUG) Logger.writeln("##IOException @ Schedule.load()" + e.getMessage());
 			case SCHED_VERSION_MAJOR: s = value; break;
 			case SCHED_VERSION_MINOR: s = value; break;
 			case SCHED_HELP_URL: s = value; break;
+			case HELP_ICON: s = value; break;
+			case ACTIVE_BUTTON_PREFIX: s = value; break;
+			case ACTIVE_BUTTON_SUFFIX: s = value; break;
 			default: return false;
 		}
 		if (s != null) {
@@ -664,6 +676,7 @@ if (DEBUG) Logger.writeln("##IOException @ Schedule.toTSV()" + e.getMessage());
 				}
 			}
 			else {
+if (DEBUG) Logger.writeln("##Null Filename @ Schedule.getReader()");
 				setError(triceps.get("error_null_filename"));
 			}
 		}
@@ -736,6 +749,7 @@ if (DEBUG) Logger.writeln("##IOException @ Schedule.getReader()" + e.getMessage(
 				ok = true;
 			}
 			else {
+if (DEBUG) Logger.writeln("##Null Filename @ Schedule.getWriter()");
 				setError(triceps.get("error_null_filename"));
 			}
 		}
