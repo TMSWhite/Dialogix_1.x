@@ -488,6 +488,34 @@ if (DEBUG) Logger.writeln("##Throwable @ Servlet.getSortedNames()" + t.getMessag
 		}
 	}
 	
+	/*public*/ String getInstrumentName() {
+		if (schedule == null || schedule == Schedule.NULL) {
+			return " null";
+		}
+		else {
+			String token=null;
+			StringTokenizer st = new StringTokenizer(schedule.getReserved(Schedule.SCHEDULE_SOURCE),"/\\:");	// for *n*x, DOS, and Mac
+			int count = st.countTokens();
+			StringBuffer sb = new StringBuffer(" ");
+			
+			for (int i=1;i<=count;++i) {
+				token = st.nextToken();
+				if (i == (count-3)) {
+					sb.append(token).append("/");
+				}
+				if (i == count) {
+					sb.append(token);
+				}
+			}
+			return sb.toString();
+		}
+	}
+	
+	/*public*/ String getHashCode() {
+		return Integer.toHexString(this.hashCode()) + "." +
+			Integer.toHexString(triceps.hashCode());
+	}
+	
 	/*public*/ String getCurrentStep() {
 		if (schedule == null || schedule == Schedule.NULL) {
 			return " null";
