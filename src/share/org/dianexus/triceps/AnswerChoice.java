@@ -55,7 +55,7 @@ if (XML) {
 		String val = XMLAttrEncoder.encode(getValue());
 		
 		for (int i=0;i<v.size();++i) {
-			sb.append("<ac val=\"");
+			sb.append("		<ac val=\"");
 			sb.append(val);
 			sb.append("\" key=\"");
 			sb.append((i==0) ? key : " ");	// the accelerator key - only accelerate the first of a multi-line option
@@ -63,7 +63,7 @@ if (XML) {
 			sb.append((selected && i==0) ? "1" : "0");	// only mark the first instance as selected
 			sb.append("\">");
 			sb.append((new XmlString(null,(String) v.elementAt(i))).toString());	// can have embedded markup
-			sb.append("</ac>");
+			sb.append("</ac>\n");
 		}
 }		
 		return sb.toString();
@@ -72,11 +72,11 @@ if (XML) {
 	/*public*/ static String toXML(String emptyVal, boolean selected) {
 		StringBuffer sb = new StringBuffer();
 if (XML) {		
-		sb.append("<ac val=\"\" key=\"\" on=\"");
+		sb.append("		<ac val=\"\" key=\"\" on=\"");
 		sb.append((selected) ? "1" : "0");	// only mark the first instance as selected
 		sb.append("\">");
 		sb.append(XMLAttrEncoder.encode(emptyVal));
-		sb.append("</ac>");
+		sb.append("</ac>\n");
 }		
 		return sb.toString();
 	}

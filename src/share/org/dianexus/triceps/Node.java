@@ -830,8 +830,6 @@ if (XML) {
 		int count=0;
 		boolean nothingSelected = true;
 		
-		boolean isSpecial = (datum.isRefused() || datum.isUnknown() || datum.isNotUnderstood());
-		
 		ask.append("<node name=\"");
 		ask.append(getLocalName());
 		ask.append("\" concept=\"");
@@ -840,28 +838,30 @@ if (XML) {
 		ask.append(XMLAttrEncoder.encode(getExternalName()));
 		ask.append("\" comment=\"");
 		ask.append(XMLAttrEncoder.encode(getComment()));
-		ask.append("\" special=\"");
-		ask.append((isSpecial) ? triceps.toString(this,true) : "");
+		ask.append("\" refused=\"" + (datum.isRefused() ? "1" : "0") +
+					"\" unknown=\"" + (datum.isUnknown() ? "1" : "0") +
+					"\" huh=\"" + (datum.isNotUnderstood() ? "1" : "0"));
 		ask.append("\" help=\"");
 		ask.append(XMLAttrEncoder.encode(getHelpURL()));
 		ask.append("\" err=\"");
 		ask.append(XMLAttrEncoder.encode(getRuntimeErrors()));
-		ask.append("\"><ask>");
+		ask.append("\">\n	<ask>");
 		ask.append((new XmlString(triceps,triceps.getQuestionStr(this))).toString());	// can have embedded markup
-		ask.append("</ask><listen>");
+		ask.append("	</ask>\n	<listen>\n");
 		
 		switch(answerType) {
 		case RADIO:
+		case RADIO_HORIZONTAL:
 		case CHECK:
 			ans = getAnswerChoices().elements();
-			sb.append("<multi type=\"" + QUESTION_TYPES[answerType] + "\">");
+			sb.append("	<multi type=\"" + QUESTION_TYPES[answerType] + "\">\n");
 			while (ans.hasMoreElements()) { // for however many choices there are
 				++count;
 				ac = (AnswerChoice) ans.nextElement();
 				ac.parse(triceps);
 				sb.append(ac.toXML(isSelected(datum,ac), -1, (autogen) ? Integer.toString(count) : ac.getValue()));
 			}
-			sb.append("</multi>");
+			sb.append("	</multi>\n");
 			break;
 		case COMBO:	
 		case LIST:
@@ -879,10 +879,10 @@ if (XML) {
 			StringBuffer acs = sb;
 			sb = new StringBuffer();
 			
-			sb.append("<multi type=\"" + QUESTION_TYPES[answerType] + "\">");
+			sb.append("	<multi type=\"" + QUESTION_TYPES[answerType] + "\">\n");
 			sb.append(AnswerChoice.toXML(triceps.get("select_one_of_the_following"),nothingSelected));
 			sb.append(acs);
-			sb.append("</multi>");
+			sb.append("	</multi>\n");
 			break;
 		default:
 		case TEXT:
@@ -891,14 +891,15 @@ if (XML) {
 		case DOUBLE:
 			if (datum != null && datum.exists())
 				defaultValue = datum.stringVal();
-			sb.append("<mono type=\"" + QUESTION_TYPES[answerType] + "\" val=\"" + XMLAttrEncoder.encode(defaultValue) + "\"/>");
+			sb.append("	<mono type=\"" + QUESTION_TYPES[answerType] + "\" val=\"" + XMLAttrEncoder.encode(defaultValue) + "\"/>\n");
 			break;
 		case NOTHING:
+			sb.append("	<mono type=\"nothing\"/>\n");
 			break;
 		}
 		
 		ask.append(sb);
-		ask.append("</listen></node>");
+		ask.append("	</listen>\n</node>\n");
 }	//XML	
 		return ask.toString();
 	}
