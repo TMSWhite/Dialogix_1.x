@@ -7,17 +7,19 @@ import java.net.*;
  * Schedule holds a collection of nodes.
 */
 public class Schedule  {
-	public static final int TITLE = 0;
-	public static final int STARTING_STEP = 1;
-	public static final int START_TIME = 2;
+	private static final int TITLE = 0;
+	private static final int STARTING_STEP = 1;
+	private static final int START_TIME = 2;
+	private static final int PASSWORD_FOR_REFUSED = 3;
 	
-	public static final String[] RESERVED_WORDS = {
-		"__TITLE__", "__STARTING_STEP__", "__START_TIME__"
+	private static final String[] RESERVED_WORDS = {
+		"__TITLE__", "__STARTING_STEP__", "__START_TIME__", "__PASSWORD_FOR_REFUSED__"
 	};
 	
-	private String title = "";
+	private String title = "Triceps System";
 	private Integer startingStep = new Integer(0);
 	private Date startTime = null;
+	private String passwordForRefused = null;	// disabled by default
 	
 	private Vector nodes = new Vector();
 	private Vector comments = new Vector();
@@ -132,9 +134,16 @@ public class Schedule  {
 			case TITLE: setTitle(value); break;
 			case STARTING_STEP: setStartingStep(value); break;
 			case START_TIME: setStartTime(value); break;
+			case PASSWORD_FOR_REFUSED: setPasswordForRefused(value); break;
 			default: System.out.println("unrecognized reserved word " + name + " on line " + line + " of file " + filename); break;
 		}
 	}
+	
+	public void setPasswordForRefused(String s) { 
+		passwordForRefused = s; 
+		reserved.put(RESERVED_WORDS[PASSWORD_FOR_REFUSED],s);
+	}
+	public String getPasswordForRefused() { return passwordForRefused; }
 	
 	public void setTitle(String s) { 
 		if (s == null)
@@ -169,6 +178,10 @@ public class Schedule  {
 		if (time != null) {
 			startTime = time;
 			reserved.put(RESERVED_WORDS[START_TIME],t);
+		}
+		else {
+			startTime = new Date(System.currentTimeMillis());
+			reserved.put(RESERVED_WORDS[START_TIME],Datum.TIME_MASK.format(startTime));
 		}
 	}
 	public Date getStartTime() { return startTime; }
