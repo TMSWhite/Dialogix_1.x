@@ -214,24 +214,24 @@ if (DEBUG) Logger.writeln("##IOException @ new XMLString()" + e.getMessage());
 				String endTag = tag.substring(1,tag.length());
 
 				if (st.hasMoreTokens()) {
-					error(triceps.get("ending_tags_may_not_have_attribute_value_pairs") + asElement(element));
+if (AUTHORABLE)	error(triceps.get("ending_tags_may_not_have_attribute_value_pairs") + asElement(element));
 					return false;
 				}
 				if (UNARY_TAGS.containsKey(endTag)) {
-					error(triceps.get("unary_tags_may_not_have_closing_tags") + asElement(element));
+if (AUTHORABLE)	error(triceps.get("unary_tags_may_not_have_closing_tags") + asElement(element));
 					return false;
                 }
                 if (!BINARY_TAGS.containsKey(endTag)) {
-					error(triceps.get("invalid_end_tag") + asElement(element));
+if (AUTHORABLE)	error(triceps.get("invalid_end_tag") + asElement(element));
 					return false;
 				}
                 if (DISALLOWED_TAGS.containsKey(endTag)) {
-                	error(triceps.get("disallowed_for_security_reasons") + asElement(element));
+if (AUTHORABLE)	error(triceps.get("disallowed_for_security_reasons") + asElement(element));
                 	return false;
                 }
 
 				if (!tagStack.contains(endTag)) {
-					error(triceps.get("rejecting_mismatched_endTag") + asElement(element));
+if (AUTHORABLE)	error(triceps.get("rejecting_mismatched_endTag") + asElement(element));
 					return false;
 				}
 
@@ -250,7 +250,7 @@ if (DEBUG) Logger.writeln("##IOException @ new XMLString()" + e.getMessage());
 			}
 
 			if (DISALLOWED_TAGS.containsKey(tag)) {
-				error(triceps.get("disallowed_for_security_reasons") + asElement(element));
+if (AUTHORABLE)	error(triceps.get("disallowed_for_security_reasons") + asElement(element));
 				return false;
 			}
 
@@ -283,7 +283,7 @@ if (DEBUG) Logger.writeln("##IOException @ new XMLString()" + e.getMessage());
 						break;
 					case EQUALS_SIGN:
 						if (!"=".equals(token)) {
-							error(triceps.get("expected_equals_sign") + asElement(element));
+if (AUTHORABLE)	error(triceps.get("expected_equals_sign") + asElement(element));
 							return false;
 						}
 						which = START_OF_STRING;
@@ -291,7 +291,7 @@ if (DEBUG) Logger.writeln("##IOException @ new XMLString()" + e.getMessage());
 					case START_OF_STRING:
 						quoteChar = token;
 						if (!("\"".equals(quoteChar) || "\'".equals(quoteChar))) {
-							error(triceps.get("expected_start_of_a_string") + asElement(element));
+if (AUTHORABLE)	error(triceps.get("expected_start_of_a_string") + asElement(element));
 							return false;
 						}
 						withinEscape = false;
@@ -324,13 +324,13 @@ if (DEBUG) Logger.writeln("##IOException @ new XMLString()" + e.getMessage());
 				return true;
 			}
 			else {
-				error(triceps.get("prematurely_terminated_element") + parsingPosition[which] + " " + asElement(element));
+if (AUTHORABLE)	error(triceps.get("prematurely_terminated_element") + parsingPosition[which] + " " + asElement(element));
 				return false;	// unterminated attribute-value pairs
 			}
 		}
 		catch (Throwable t) {
 if (DEBUG) Logger.writeln("##Throwable @ XMLString.isValidElement()" + t.getMessage());
-			error(triceps.get("prematurely_terminated_element") + parsingPosition[which] + " " + asElement(element));
+if (AUTHORABLE)	error(triceps.get("prematurely_terminated_element") + parsingPosition[which] + " " + asElement(element));
 			return false;
 		}
 	}
@@ -387,7 +387,7 @@ if (DEBUG) Logger.writeln("##IOException @ XMLString.insertMissingEndTags()" + e
 				break;
 			}
 			else {
-				error(triceps.get("inserting_missing_endTag_for") + asElement(t));
+if (AUTHORABLE)	error(triceps.get("inserting_missing_endTag_for") + asElement(t));
 			}
 		}
 	}
@@ -422,7 +422,7 @@ if (DEBUG) Logger.writeln("##IOException @ XMLString.insertMissingEndTags()" + e
 								}
 							}
 							else {
-								error(triceps.get("no_closing_right_angle_bracket"));
+if (AUTHORABLE)	error(triceps.get("no_closing_right_angle_bracket"));
 								dst.write(LT);
 								column += LT.length();
 							}
@@ -480,7 +480,7 @@ if (DEBUG) Logger.writeln("##IOException @ XMLString.encodeHTML()" + e.getMessag
 		char[] chars = token.toCharArray();
 		for (int i=0;i<chars.length;++i) {
 			if (!(Character.isLetterOrDigit(chars[i]) || chars[i] == '_')) {
-				error(triceps.get("name_contains_invalid_character") + chars[i]);
+if (AUTHORABLE)	error(triceps.get("name_contains_invalid_character") + chars[i]);
 				return false;
 			}
 		}
