@@ -74,9 +74,28 @@ if (DEBUG) Logger.writeln("##ScheduleSource(" + src + ") is not accessible, or h
 	private boolean load() {
 		if (DEPLOYABLE && sourceInfo.getSource().endsWith(".jar")) {
 			// load from Jar file
+/*			
+			boolean ok = false;
+			
+			FileInputStream fis = null;
+			JarInputStream jis = null;
+			
+			try {
+				FileInputStream fis = new FileInputStream(sourceInfo.getSource());
+				JarInputStream jis = new JarInputStream(fis);
+				JarEntry je = jis.getNextJarEntry();
+				
+			}
+			catch (Exception e) {
+if (DEBUG) Logger.writeln("##ScheduleSource.load(" + sourceInfo.getSource() + ")-> " + e.getMessage());
+			}
+			if (jis != null) try { jis.close(); jis = null; fis = null; } catch(Throwable t) { }
+			if (fis != null) try { fis.close(); fis = null; } catch(Throwable t) { }
+*/			
 			return false;
 		}
-		else if (AUTHORABLE && (sourceInfo.getSource().endsWith(".txt") || sourceInfo.getSource().endsWith(".dat"))) {
+//		else if (AUTHORABLE && (sourceInfo.getSource().endsWith(".txt") || sourceInfo.getSource().endsWith(".dat"))) {
+		else if ((AUTHORABLE || DEPLOYABLE) && (sourceInfo.getSource().endsWith(".txt") || sourceInfo.getSource().endsWith(".dat"))) {
 			// load from text file
 			boolean pastHeaders = false;
 			BufferedReader br = null;

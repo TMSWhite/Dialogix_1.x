@@ -130,8 +130,8 @@ Logger.java
   added getInputStream() method - closes existing file, returns FileInputStream for it
 
 
-<<changes from version 2.40a to 
-<<9/11/00
+<<changes from version 2.40a to 2.50
+<<10/05/00
 
 Schedule.java
   added saveAsJar()
@@ -141,18 +141,21 @@ TricepsServlet.java
   added sign_schedule
     - if (AUTHORABLE), calls saveAsJar()
     
-TricepsBundle.properties
-  added strings for signing schedules
+dat2sas.pl
+  updated to reflect new data file format
+  now takes command line arguments for uniqueID, modulePattern, and discardPattern
+  values = '.' for each of these patterns avoids them being used
+  non-modularized, non-discarded variables stored in __MAIN__.sas
+  BUG? - if SAS is really limited to 500 columns, this script doesn't check for overflow
+  BUG? - values stored as URLencoded - a problem? - ensures that tabs and new-lines properly handled on input into SAS
   
-DEPLOYMENT - Major reorganization of CVS directory structure
-  Tomcat
-    - updated web.xml files
-    - removed extraneous files
-    - removed /webapps/triceps directory
-  Studies
-    - each has its own subdirectory within tomcat/webapps
-    - each has a WEB-INF subdirectory, which is protected from web-browsing (so can contain secure data)
-    - all study specific html files should be put in the study sub-directory
-  Images
-    - stored in shared directory:  webapps/images
-    
+server.xml
+  changed default ports from 8080 -> 8297 and from 8007 -> 8305 (Ajp12Connector)
+  [this will avoid simple Robots]
+  
+Look & Feel
+  New index.htm page for all studies, using trilogo.jpg created by Kathy Gordon
+  This page links to individual studies
+  All data saved in /triceps/dist/tomcat/webapps/STUDY/Web-Inf/{working|completed} directories
+  Available schedules found in /triceps/dist/tomcat/webapps/STUDY/Web-Inf/schedules directories
+  
