@@ -98,7 +98,13 @@ import java.io.File;
 	private static final int FORMAT_NUMBER = 69;
 	private static final int PARSE_NUMBER = 70;
 	private static final int FORMAT_DATE = 71;			
-	private static final int PARSE_DATE = 72;		
+	private static final int PARSE_DATE = 72;
+	private static final int GET_CONCEPT = 73;
+	private static final int GET_LOCAL_NAME = 74;
+	private static final int GET_EXTERNAL_NAME = 75;
+	private static final int GET_DEPENDENCIES = 76;
+	private static final int GET_ACTION_TEXT = 77;
+
 	
 	private static final Object FUNCTION_ARRAY[][] = {
 		{ "desc",				ONE,		new Integer(DESC) },
@@ -174,6 +180,11 @@ import java.io.File;
 		{ "parseNumber",		TWO,		new Integer(PARSE_NUMBER) },
 		{ "formatDate",			TWO,		new Integer(FORMAT_DATE) },
 		{ "parseDate",			TWO,		new Integer(PARSE_DATE) },
+		{ "getConcept",			ONE,		new Integer(GET_CONCEPT) },
+		{ "getLocalName",		ONE,		new Integer(GET_LOCAL_NAME) },
+		{ "getExternalName",	ONE,		new Integer(GET_EXTERNAL_NAME) },
+		{ "getDependencies",	ONE,		new Integer(GET_DEPENDENCIES) },
+		{ "getActionText",		ONE,		new Integer(GET_ACTION_TEXT) },
 	};
 
 	private static final Hashtable FUNCTIONS = new Hashtable();
@@ -1112,6 +1123,56 @@ if (DEBUG) Logger.writeln("##SecurityException @ Evidence.fileExists()" + e.getM
 					return new Datum(triceps, triceps.formatDate(datum.dateVal(), getParam(params.elementAt(1)).stringVal()), Datum.STRING);
 				case PARSE_DATE:
 					return new Datum(triceps, triceps.parseDate(datum.stringVal(), getParam(params.elementAt(1)).stringVal()), Datum.DATE, getParam(params.elementAt(1)).stringVal());
+				case GET_CONCEPT:
+				{
+					String nodeName = datum.getName();
+					Node node = null;
+					if (nodeName == null || ((node = getNode(nodeName)) == null)) {
+						setError(triceps.get("unknown_node") + nodeName, line, column,null);
+						return Datum.getInstance(triceps,Datum.INVALID);
+					}
+					return new Datum(triceps, node.getConcept(), Datum.STRING);
+				}				
+				case GET_LOCAL_NAME:
+				{
+					String nodeName = datum.getName();
+					Node node = null;
+					if (nodeName == null || ((node = getNode(nodeName)) == null)) {
+						setError(triceps.get("unknown_node") + nodeName, line, column,null);
+						return Datum.getInstance(triceps,Datum.INVALID);
+					}
+					return new Datum(triceps, node.getLocalName(), Datum.STRING);
+				}								
+				case GET_EXTERNAL_NAME:
+				{
+					String nodeName = datum.getName();
+					Node node = null;
+					if (nodeName == null || ((node = getNode(nodeName)) == null)) {
+						setError(triceps.get("unknown_node") + nodeName, line, column,null);
+						return Datum.getInstance(triceps,Datum.INVALID);
+					}
+					return new Datum(triceps, node.getExternalName(), Datum.STRING);
+				}							
+				case GET_DEPENDENCIES:
+				{
+					String nodeName = datum.getName();
+					Node node = null;
+					if (nodeName == null || ((node = getNode(nodeName)) == null)) {
+						setError(triceps.get("unknown_node") + nodeName, line, column,null);
+						return Datum.getInstance(triceps,Datum.INVALID);
+					}
+					return new Datum(triceps, node.getDependencies(), Datum.STRING);
+				}							
+				case GET_ACTION_TEXT:		
+				{
+					String nodeName = datum.getName();
+					Node node = null;
+					if (nodeName == null || ((node = getNode(nodeName)) == null)) {
+						setError(triceps.get("unknown_node") + nodeName, line, column,null);
+						return Datum.getInstance(triceps,Datum.INVALID);
+					}
+					return new Datum(triceps, node.getQuestionOrEval(), Datum.STRING);
+				}													
 			}
 		}
 		catch (Throwable t) {
