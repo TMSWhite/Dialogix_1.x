@@ -35,10 +35,6 @@
             org.apache.jasper.runtime.JspServlet
         </servlet-class>
 
-        <init-param>
-            <param-name>jspCompilerPlugin</param-name>
-            <param-value>org.apache.jasper.compiler.JikesJavaCompiler</param-value>
-        </init-param>
 
 	<load-on-startup>
             -2147483646

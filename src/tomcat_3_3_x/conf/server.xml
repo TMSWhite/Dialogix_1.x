@@ -76,8 +76,6 @@
         <!-- you can add javaCompiler="jikes" -->
         <JspInterceptor keepGenerated="true"
 			largeFile="false"
-			useJspServlet="false"
-			javaCompiler="jikes"
 			/>
         
         <StaticInterceptor listings="true"
