@@ -84,13 +84,13 @@ if (DEBUG) Logger.writeln("##ScheduleSource(" + src + ") is not accessible, or h
 	private boolean load() {
 		String name = sourceInfo.getSource();
 		
-		if ((DEPLOYABLE || DEMOABLE) && name.endsWith(".jar")) {
+		if ((DEPLOYABLE || DEMOABLE) && name.toLowerCase().endsWith(".jar")) {
 			return readFromJar();
 		}
-		else if (AUTHORABLE && name.endsWith(".txt")) {
+		else if (AUTHORABLE && name.toLowerCase().endsWith(".txt")) {
 			return readFromAscii();
 		}
-		else if (name.endsWith(".dat")) {
+		else if (name.toLowerCase().endsWith(".dat")) {
 			return readFromAscii();
 		}
 		else {

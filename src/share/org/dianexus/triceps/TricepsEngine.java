@@ -891,7 +891,7 @@ if (AUTHORABLE) {
 					
 					for (int i=0;i<list.length;++i) {
 						File file = list[i];
-						if (file.getName().endsWith(".jar")) {
+						if (file.getName().toLowerCase().endsWith(".jar")) {
 							String name = file.getName();
 							ok = JarWriter.NULL.copyFile(sourceDir + name, workingFilesDir + name);
 							if (JarWriter.NULL.hasErrors()) {

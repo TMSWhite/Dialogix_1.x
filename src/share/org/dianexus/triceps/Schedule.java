@@ -418,8 +418,8 @@ if (DEBUG) Logger.writeln("##@@Error loading dataBody");
 			return false;
 		}
 		
-		if ((AUTHORABLE && ss.getSrcName().endsWith(".txt")) ||
-			((DEPLOYABLE || DEMOABLE) && ss.getSrcName().endsWith(".jar"))
+		if ((AUTHORABLE && ss.getSrcName().toLowerCase().endsWith(".txt")) ||
+			((DEPLOYABLE || DEMOABLE) && ss.getSrcName().toLowerCase().endsWith(".jar"))
 			) { 
 			; 
 		}

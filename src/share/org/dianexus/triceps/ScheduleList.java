@@ -66,7 +66,7 @@ import java.util.Enumeration;
 		for (int i=0;i<files.length;++i) {
 			File f = new File(dir.toString() + "/" + files[i]);
 			try {
-				if (f.getName().endsWith(".jar") && f.canRead()) {
+				if (f.getName().toLowerCase().endsWith(".jar") && f.canRead()) {
 					// unjar file and remove it
 					unjar(f);
 					f.delete();	// delete regardless of whether successfully unjared
