@@ -5,20 +5,20 @@
 
 package org.dianexus.triceps;
 
-import org.apache.oro.text.*;
-import org.apache.oro.text.awk.*;
-import org.apache.oro.text.regex.*;
+//import org.apache.oro.text.*;
+//import org.apache.oro.text.awk.*;
+//import org.apache.oro.text.regex.*;
 
 class InputValidator implements VersionIF {
-	static final PatternCompiler compiler = new Perl5Compiler();
-	static final PatternMatcher matcher = new Perl5Matcher();
+//	static final PatternCompiler compiler = new Perl5Compiler();
+//	static final PatternMatcher matcher = new Perl5Matcher();
 	static final InputValidator	NULL	= new InputValidator();
 	static final String VALIDATION_TYPE_PERL	= "PERL5";
 	
 	private String pattern = null;
 	private boolean	valid = false;
 	private String err = null;
-	private Pattern compiledPattern = null;
+//	private Pattern compiledPattern = null;
 	
 	
 	/** private constructors */
@@ -53,6 +53,7 @@ class InputValidator implements VersionIF {
 	
 	/** test whether the pattern is valid */
 	private void compile() {
+		/*
 		try {
 			compiledPattern = compiler.compile(pattern,Perl5Compiler.DEFAULT_MASK);	// Perl5Compiler.CASE_INSENSITIVE_MASK
 			valid = true;
@@ -63,7 +64,9 @@ class InputValidator implements VersionIF {
 if (DEBUG) Logger.writeln(err);
 			valid = false;
 		}
-//if (DEBUG) Logger.writeln("InputValidator - m/" + getPattern() + "/ -> " + isValid() + " " + getErrors());
+		*/
+		valid = false;
+if (DEBUG) Logger.writeln("InputValidator - m/" + getPattern() + "/ -> " + isValid() + " " + getErrors());
 	}
 	
 	/** test whether string s matches the pattern */
@@ -74,11 +77,14 @@ if (DEBUG) Logger.writeln(err);
 		if (!isValid()) {
 			return false;	// should really return an error
 		}
+		/*
 		if (matcher.matches(s,compiledPattern)) {
 			return true;
 		}
 		else {
 			return false;
 		}
+		*/
+		return false;
 	}
 }

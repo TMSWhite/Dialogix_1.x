@@ -30,6 +30,7 @@ public class TricepsServlet extends HttpServlet implements VersionIF {
 	public void init(ServletConfig config) throws ServletException {
 		super.init(config);
 		this.config = config;
+		Logger.init(config.getInitParameter("dialogix.dir"));
 	}
 
 	public void destroy() {
@@ -102,7 +103,7 @@ if (DEBUG) Logger.printStackTrace(t);
 			tricepsEngine = new TricepsEngine(config);
 		}
 		
-		logAccess(req);
+		logAccess(req, " OK");
 		
 		/* is this an expired session? */
 		if (session.isNew() && "POST".equals(req.getMethod())) {
@@ -122,7 +123,7 @@ if (DEBUG) Logger.printStackTrace(t);
 		
 		/* disable session if completed */
 		if (tricepsEngine.isFinished()) {
-			logAccess(req);
+			logAccess(req, " FINISHED");
 			Logger.writeln("...instrument finished.  Discarding session " + sessionID);
 			try {
 				session.invalidate();
@@ -133,14 +134,14 @@ if (DEBUG) Logger.printStackTrace(t);
 		}
 	}
 	
-	private void logAccess(HttpServletRequest req) {
+	private void logAccess(HttpServletRequest req, String msg) {
 if (DEBUG) {	
 	/* standard Apache log format (after the #@# prefix for easier extraction) */
 	Logger.writeln("#@#(" + req.getParameter("DIRECTIVE") + ") [" + new Date(System.currentTimeMillis()) + "] " + 
 		sessionID + 
 		((WEB_SERVER) ? (" " + req.getRemoteAddr() + " \"" +
 		req.getHeader(USER_AGENT) + "\" \"" + req.getHeader(ACCEPT_LANGUAGE) + "\" \"" + req.getHeader(ACCEPT_CHARSET) + "\"") : "") +
-		((tricepsEngine != null) ? tricepsEngine.getScheduleStatus() : ""));
+		((tricepsEngine != null) ? tricepsEngine.getScheduleStatus() : "") + msg);
 		
 // User-Agent = Mozilla/4.73 [en] (Win98; U)
 // Accept-Language = en
@@ -168,7 +169,7 @@ if (DEBUG && false) {
 	
 
 	private void errorPage(HttpServletRequest req, HttpServletResponse res) {
-		logAccess(req);
+		logAccess(req, " UNSUPPORTED BROWSER");
 		try {
 			res.setContentType("text/html");
 			PrintWriter out = res.getWriter();
@@ -198,7 +199,7 @@ if (DEBUG) Logger.printStackTrace(t);
 	}
 	
 	private void expiredSessionErrorPage(HttpServletRequest req, HttpServletResponse res) {
-		logAccess(req);
+		logAccess(req, " EXPIRED SESSION");
 		try {
 			res.setContentType("text/html");
 			PrintWriter out = res.getWriter();

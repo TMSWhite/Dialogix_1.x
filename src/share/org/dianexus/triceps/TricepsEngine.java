@@ -53,6 +53,7 @@ public class TricepsEngine implements VersionIF {
 	private String activeSuffix = "";
 	private String inactivePrefix = "";
 	private String inactiveSuffix = "";
+	private String dialogix_dir = "";
 
 	/* hidden variables */
 	private boolean debugMode = false;
@@ -85,29 +86,33 @@ public class TricepsEngine implements VersionIF {
 	}
 		 
 	public void init(ServletConfig config) {
-		String s;
-
-		s = config.getInitParameter("scheduleSrcDir");
-		if (s != null)
-			scheduleSrcDir = s.trim();
-		s = config.getInitParameter("workingFilesDir");
-		if (s != null)
-			workingFilesDir = s.trim();
-		s = config.getInitParameter("completedFilesDir");
-		if (s != null)
-			completedFilesDir = s.trim();
-		s = config.getInitParameter("imageFilesDir");
-		if (s != null) 
-			imageFilesDir = s.trim();
-		s = config.getInitParameter("logoIcon");
-		if (s != null)
-			logoIcon = s.trim();
-		s = config.getInitParameter("floppyDir");
-		if (s != null)
-			floppyDir = s.trim();
-		s = config.getInitParameter("helpURL");
-		if (s != null)
-			helpURL = s.trim();
+		dialogix_dir = getInitParam(config,"dialogix.dir");	// must be first
+		scheduleSrcDir = getInitParam(config,"scheduleSrcDir");
+		workingFilesDir = getInitParam(config,"workingFilesDir");
+		completedFilesDir = getInitParam(config,"completedFilesDir");
+		imageFilesDir = getInitParam(config,"imageFilesDir");
+		logoIcon = getInitParam(config,"logoIcon");
+		floppyDir = getInitParam(config,"floppyDir");
+		helpURL = getInitParam(config,"helpURL");
+	}
+	
+	private String getInitParam(ServletConfig config, String which) {
+		String s = config.getInitParameter(which);
+		
+		// use ant-like variable name substitution?  No -- too hard for now -- simply assume that all dirs can be relative to deployment location
+		
+		if (s == null) {
+			return "";
+		}
+		s = s.trim();
+		s = s.replace('\\','/');	// so that uses unix file separators
+		if (s.charAt(0) == '/' || which.indexOf("Dir") == -1) {
+			return s;
+		}
+		else {
+			// relative to dialogix.dir
+			return dialogix_dir + s;
+		}
 	}
 	
 	/*public*/ String getIcon(int which) {
@@ -685,7 +690,7 @@ if (DISPLAY_WORKING) {
 		}
 		else if (directive.equals("START")) {
 			// load schedule
-			ok = getNewTricepsInstance(req.getParameter("schedule"));
+			ok = getNewTricepsInstance(getSchedule(req.getParameter("schedule")));
 
 			if (!ok) {
 				directive = null;
@@ -701,7 +706,7 @@ if (DISPLAY_WORKING) {
 		else if (directive.equals("RESTORE")) {
 			String restore;
 
-			restore = req.getParameter("RestoreSuspended");
+			restore = getSchedule(req.getParameter("RestoreSuspended"));
 			if (restore == null || restore.trim().length()==0) {
 				directive = null;
 				return processDirective();
@@ -1276,7 +1281,7 @@ if (XML) {
 		result.append("<?xml-stylesheet href=\"triceps.xsl\" type=\"text/xsl\"?>\n");
 		result.append("<?cocoon-process type=\"xslt\"?>\n");
 			
-		String file = "/usr/local/xml/test.xml";
+		String file = dialogix_dir + "../logs/test.xml";
 		try {
 			result.append(responseXML());
 			
@@ -1932,5 +1937,19 @@ if (DEPLOYABLE) {
 	
 	public boolean isFinished() {
 		return (!isActive);
+	}
+	
+	private String getSchedule(String which) {
+		if (which == null || which.trim() == "") {
+			return null;
+		}
+		String s = which.replace('\\','/');	// use unix separators
+		
+		if (s.indexOf(dialogix_dir) == -1) {
+			return dialogix_dir + s;	// assumes proper separator characters, and that all schedule names converted properly
+		}
+		else {
+			return s;	// already includes full path
+		}
 	}
 }

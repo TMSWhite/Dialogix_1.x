@@ -157,6 +157,7 @@ import java.util.StringTokenizer;
 	private Triceps triceps = Triceps.NULL;
 	private int lineNum = 1;
 	private int column = 1;
+	private char lastChar = ' ';	// used to determine whether need to add blank space between <td> tags
 
     /*public*/ XmlString(Triceps lang, String src) {
     	triceps = (lang == null) ? Triceps.NULL : lang;
@@ -385,9 +386,11 @@ if (DEBUG) Logger.writeln("##IOException @ XMLString.prettyPrint()" + e.getMessa
 			String t = (String) tagStack.elementAt(i);
 			String tagToPrint = "</" + t + ">";
 
-			if ("td".equals(t)) {
+/*
+			if ("td".equals(t) && lastChar != '>') {
 				tagToPrint = NBSP + tagToPrint;	// just in case, since Netscape doesn't deal well with empty Table cells
 			}
+*/
 
 			if (TAGS_AFFECTED_BY_WHITESPACE.containsKey(t)) {
 				if ("option".equals(t)) {
@@ -565,6 +568,20 @@ if ((AUTHORABLE || DEBUG))	error(triceps.get("name_contains_invalid_character") 
 		}
 		sb.append(">");
 		return sb.toString();
+	}
+	
+	private void dst_write(char c) throws IOException {
+		lastChar = c;
+		dst.write(c);
+	}
+	
+	private void dst_write(String s) throws IOException {
+		if (s == null || s.length() == 0) {
+			return;
+		}
+		
+		lastChar = s.charAt(s.length()-1);
+		dst.write(s);
 	}
 }
 

@@ -18,21 +18,12 @@ import java.io.InputStream;
 
 /* Inner class for logging - this is needed to support localization of error messages */
 /*public*/ class Logger implements VersionIF {
-	/*public*/ static final Logger NULL = new Logger(null,null,true);
+	/*public*/ static Logger NULL = new Logger(null,null,true);
 
 	private static PrintWriter STDERR = null;
-	private static String STDERR_DIR = "/usr/local/dialogix/logs/";
-	static final String STDERR_NAME = STDERR_DIR + "Triceps.log.err";
-
-	static {
-		try {
-			STDERR = new PrintWriter(new FileWriter(STDERR_NAME,true),true);	// append to log by default
-			writeln("**" + VERSION_NAME + " Log file started on " + new Date(System.currentTimeMillis()));
-		}
-		catch (IOException e) {
-			System.err.println("unable to create '" + STDERR_NAME + "'");
-		}
-	}
+	private static String STDERR_DIR = ".";
+	static final String STDERR_FILENAME = "Dialogix.log.err";
+	static String STDERR_NAME = STDERR_DIR + STDERR_FILENAME;
 
 	/*public*/ static final String DOS_EOL = "\n\r";
 	/*public*/ static final String MAC_EOL = "\r";
@@ -265,5 +256,23 @@ if (DEBUG) Logger.writeln("Logger.getInputStream(" + getFilename() + ")->" + e.g
 if (DEBUG) Logger.writeln("Logger.getInputStream(" + STDERR_NAME + ")->" + e.getMessage());
 			return null;			
 		}
-	}		
+	}
+	
+	static void init(String dir) {
+		if (dir == null) {
+			dir = "";
+		}
+		STDERR_DIR = dir;
+		STDERR_NAME = STDERR_DIR + "../logs/" + STDERR_FILENAME;
+		
+		try {
+			STDERR = new PrintWriter(new FileWriter(STDERR_NAME,true),true);	// append to log by default
+			writeln("**" + VERSION_NAME + " Log file started on " + new Date(System.currentTimeMillis()));
+		}
+		catch (IOException e) {
+			System.err.println("unable to create '" + STDERR_NAME + "'");
+		}
+		
+		NULL = new Logger(null,null,true);	// reset the default value
+	}
 }
