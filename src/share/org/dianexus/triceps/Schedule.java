@@ -15,7 +15,6 @@ import java.util.NoSuchElementException;
 import java.util.Locale;
 import java.io.File;
 import java.io.FileReader;
-import java.net.URLDecoder;
 import java.io.ByteArrayInputStream;
 
 /*public*/ class Schedule implements VersionIF  {
@@ -515,12 +514,12 @@ if (DEPLOYABLE) {
 
 			switch(field) {
 				case 0: break;
-				case 1: localName = Node.EMPTY_NODE.fixExcelisms(s); break;
-				case 2: answerLanguageNum = Node.EMPTY_NODE.fixExcelisms(s); break;
-				case 3: timeStamp = Node.EMPTY_NODE.fixExcelisms(s); break;
+				case 1: localName = ExcelDecoder.decode(s); break;
+				case 2: answerLanguageNum = ExcelDecoder.decode(s); break;
+				case 3: timeStamp = ExcelDecoder.decode(s); break;
 				case 4: break; // don't reload questionAsAsked
-				case 5: ans = URLDecoder.decode(Node.EMPTY_NODE.fixExcelisms(s)); break;
-				case 6: comment = URLDecoder.decode(Node.EMPTY_NODE.fixExcelisms(s)); break;
+				case 5: ans = InputDecoder.decode(ExcelDecoder.decode(s)); break;
+				case 6: comment = InputDecoder.decode(ExcelDecoder.decode(s)); break;
 			}
 		}
 		
@@ -598,8 +597,8 @@ else node.setParseError("syntax error");
 
 			switch(field) {
 				case 0: break;
-				case 1: name = Node.EMPTY_NODE.fixExcelisms(s); break;
-				case 2: value = Node.EMPTY_NODE.fixExcelisms(s); break;
+				case 1: name = ExcelDecoder.decode(s); break;
+				case 2: value = ExcelDecoder.decode(s); break;
 				default: break;
 			}
 		}

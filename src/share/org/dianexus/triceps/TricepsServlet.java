@@ -940,7 +940,7 @@ if (AUTHORABLE) {
 					break;
 				case Node.RADIO_HORIZONTAL:
 					sb.append("<td colspan='3'>");
-					sb.append("<input type='hidden' name='" + (inputName + "_COMMENT") + "' value='" + Node.EMPTY_NODE.attEncode(node.getComment()) + "'>");
+					sb.append("<input type='hidden' name='" + (inputName + "_COMMENT") + "' value='" + XMLAttrEncoder.encode(node.getComment()) + "'>");
 					sb.append("<input type='hidden' name='" + (inputName + "_SPECIAL") + "' value='" +
 						((isSpecial) ? (triceps.toString(node,true)) : "") +
 						"'>");
@@ -964,7 +964,7 @@ if (AUTHORABLE) {
 					break;
 				default:
 					sb.append("<td>");
-					sb.append("<input type='hidden' name='" + (inputName + "_COMMENT") + "' value='" + Node.EMPTY_NODE.attEncode(node.getComment()) + "'>");
+					sb.append("<input type='hidden' name='" + (inputName + "_COMMENT") + "' value='" + XMLAttrEncoder.encode(node.getComment()) + "'>");
 					sb.append("<input type='hidden' name='" + (inputName + "_SPECIAL") + "' value='" +
 						((isSpecial) ? (triceps.toString(node,true)) : "") +
 						"'>");

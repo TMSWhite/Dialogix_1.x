@@ -10,7 +10,6 @@ import java.util.Date;
 import java.util.GregorianCalendar;
 import java.util.Calendar;
 import java.io.File;
-import java.net.URLEncoder;
 
 /*public*/ class Evidence implements VersionIF  {
 	private static final int FUNCTION_INDEX = 2;
@@ -408,9 +407,9 @@ if (DEPLOYABLE) {
 		sb.append("\t");
 		sb.append(q.getQuestionAsAsked());
 		sb.append("\t");
-		sb.append(URLEncoder.encode(ans));	
+		sb.append(InputEncoder.encode(ans));	
 		sb.append("\t");
-		sb.append(URLEncoder.encode(comment));
+		sb.append(InputEncoder.encode(comment));
 		triceps.dataLogger.println(sb.toString());
 }		
 	}

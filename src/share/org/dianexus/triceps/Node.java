@@ -9,12 +9,9 @@ import java.util.Date;
 import java.util.StringTokenizer;
 import java.util.NoSuchElementException;
 import java.util.Enumeration;
-import java.net.URLEncoder;
 import java.text.DecimalFormat;
 
 /*public*/ class Node implements VersionIF  {
-	/*public*/ static final Node EMPTY_NODE = new Node();
-
 	/*public*/ static final int BADTYPE = 0;
 	/*public*/ static final int NOTHING=1;	// do nothing
 	/*public*/ static final int RADIO = 2;
@@ -63,14 +60,6 @@ import java.text.DecimalFormat;
 	private static final String INTRA_OPTION_LINE_BREAK = "<br>";
 
 	private static final Vector EMPTY_VECTOR = new Vector();
-	private static DecimalFormat ATT_ENTITY_FORMAT = null;
-	
-	static {
-		try {
-			ATT_ENTITY_FORMAT = new DecimalFormat("'&#'000';'");
-		}
-		catch (IllegalArgumentException e) { }
-	}
 
 	/* These are the columns in the flat file database */
 	private String conceptName = "";
@@ -161,21 +150,21 @@ else setParseError("syntax error");
 
 			switch(field) {
 				/* there should be one copy of each of these */
-				case 0: conceptName = fixExcelisms(s); break;
-				case 1: localName = fixExcelisms(s); break;
-				case 2: externalName = fixExcelisms(s); break;
-				case 3: dependencies= fixExcelisms(s); break;
-				case 4: questionOrEvalTypeField = fixExcelisms(s); break;
+				case 0: conceptName = ExcelDecoder.decode(s); break;
+				case 1: localName = ExcelDecoder.decode(s); break;
+				case 2: externalName = ExcelDecoder.decode(s); break;
+				case 3: dependencies= ExcelDecoder.decode(s); break;
+				case 4: questionOrEvalTypeField = ExcelDecoder.decode(s); break;
 				/* there are as many copies of each of these are there are languages */
-				case 5: readback.addElement(fixExcelisms(s)); break;
-				case 6: questionOrEval.addElement(fixExcelisms(s)); break;
-				case 7: answerChoicesStr.addElement(fixExcelisms(s)); break;
-				case 8: helpURL.addElement(fixExcelisms(s)); break;
+				case 5: readback.addElement(ExcelDecoder.decode(s)); break;
+				case 6: questionOrEval.addElement(ExcelDecoder.decode(s)); break;
+				case 7: answerChoicesStr.addElement(ExcelDecoder.decode(s)); break;
+				case 8: helpURL.addElement(ExcelDecoder.decode(s)); break;
 				/* there are as many copies of each of these are there are answers - rudimentary support for arrays? */
 				case 9: {
 					int i = 0;
 					try {
-						i = Integer.parseInt(fixExcelisms(s));
+						i = Integer.parseInt(ExcelDecoder.decode(s));
 					}
 					catch (NumberFormatException t) {
 if (DEBUG) Logger.writeln("##NumberFormatException @ Node.languageNum" + t.getMessage());
@@ -191,10 +180,10 @@ else setParseError("syntax error");
 					answerLanguageNum = i;
 				}
 					break;
-				case 10: questionAsAsked = fixExcelisms(s); break;
-				case 11: answerGiven = fixExcelisms(s); break;
-				case 12: comment = fixExcelisms(s); break;
-				case 13: answerTimeStampStr = fixExcelisms(s); break;
+				case 10: questionAsAsked = ExcelDecoder.decode(s); break;
+				case 11: answerGiven = ExcelDecoder.decode(s); break;
+				case 12: comment = ExcelDecoder.decode(s); break;
+				case 13: answerTimeStampStr = ExcelDecoder.decode(s); break;
 				default: break;	// ignore extras
 			}
 		}
@@ -232,30 +221,6 @@ else setParseError("syntax error");
   		if (datumType == Datum.INVALID) {
 if (AUTHORABLE)			setParseError(triceps.get("invalid_dataType"));
 		else setParseError("syntax error");
-		}
-	}
-
-	/*public*/ String fixExcelisms(String s) {
-		/* Fix Excel-isms, in which strings with internal quotes have all quotes replaced with double quotes (\"\"), and
-			whole string surrounded by quotes.
-			XXX - this requires assumption that if a field starts AND stops with a quote, then probably an excel-ism
-		*/
-
-		if (s.startsWith("\"") && s.endsWith("\"")) {
-			StringBuffer sb = new StringBuffer();
-
-			int start=1;
-			int stop=0;
-			while ((stop = s.indexOf("\"\"",start)) != -1) {
-				sb.append(s.substring(start,stop));
-				sb.append("\"");
-				start = stop+2;
-			}
-			sb.append(s.substring(start,s.length()-1));
-			return sb.toString();
-		}
-		else {
-			return s;
 		}
 	}
 
@@ -675,21 +640,21 @@ else setParseError("syntax error");
 				defaultValue = datum.stringVal();
 			sb.append("<input type='text'" +
 				" onfocus='evHandler(event);select();'" +
-				" name='" + getLocalName() + "' value='" + attEncode(defaultValue) + "'>");
+				" name='" + getLocalName() + "' value='" + XMLAttrEncoder.encode(defaultValue) + "'>");
 			break;
 		case MEMO:
 			if (datum != null && datum.exists())
 				defaultValue = datum.stringVal();
 			sb.append("<textarea rows='5'" +
 				" onfocus='evHandler(event);select();'" +
-				" name='" + getLocalName() + "'>" + attEncode(defaultValue) + "</textarea>");
+				" name='" + getLocalName() + "'>" + XMLAttrEncoder.encode(defaultValue) + "</textarea>");
 			break;
 		case PASSWORD:	// stores Text type
 			if (datum != null && datum.exists())
 				defaultValue = datum.stringVal();
 			sb.append("<input type='password'" +
 				" onfocus='evHandler(event);select();'" +
-				" name='" + getLocalName() + "' value='" + attEncode(defaultValue) + "'>");
+				" name='" + getLocalName() + "' value='" + XMLAttrEncoder.encode(defaultValue) + "'>");
 			break;
 		case DOUBLE:	// stores Double type
 			if (datum != null && datum.exists())
@@ -726,35 +691,6 @@ else setParseError("syntax error");
 		return sb.toString();
 	}
 	
-	/*public*/ String attEncode(String s) {
-		// prevent early termination of value, and protect against control characters
-		// XXX this needs to be extended to support Unicode gracefully
-		StringBuffer sb = new StringBuffer();
-		char[] chars = s.toCharArray();
-		char c;
-		
-		for (int i=0;i<chars.length;++i) {
-			c = chars[i];
-			if (Character.isISOControl(c) || c == '\'' || c == '<' || c == '>' || c == '"' || c == '&') {
-				sb.append(attEntityFormat(c));
-			}
-			else {
-				sb.append(c);
-			}
-		}
-		return sb.toString();
-	}
-	
-	private String attEntityFormat(char c) {
-		try {
-			return ATT_ENTITY_FORMAT.format((long) (c & 0x00ff));	// must strip high byte for HTML
-		}
-		catch (Throwable t) {
-if (DEBUG) Logger.writeln("##Node.attEntityFormat()" + t.getMessage());
-			return "";
-		}
-	}
-
 	/*public*/ boolean isWithinRange(Datum d) {
 		boolean err = false;
 

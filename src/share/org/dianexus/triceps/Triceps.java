@@ -27,7 +27,6 @@ import java.util.MissingResourceException;
 import java.text.SimpleDateFormat;
 import java.io.FileNotFoundException;
 import java.lang.SecurityException;
-import java.net.URLEncoder;
 import java.io.InputStream;
 import java.io.FileInputStream;
 
@@ -892,7 +891,7 @@ if (DEPLOYABLE) {
 					continue;
 				}
 				if (tokenCount >= 5) {
-					eventLogger.print(URLEncoder.encode(token));
+					eventLogger.print(InputEncoder.encode(token));
 				}
 				else {
 					eventLogger.print(token);

@@ -191,3 +191,19 @@ BUGFIX
 TEST
 -semi-completed Adult and Youth BYS study files saved, restored, and re-saved, and compared (TkDiff)
 -no errorrs detected
+
+<<changes from version 2.7.1 to 3.0.0
+
+Reorganization & Documentation
+  XMLAttrEncoder 
+    - to prevent premature termination of XML attributes by filtering their contents through an XML Entity encoder
+    - replaces Node.EMPTY_NODE.attrEncode()
+  InputEncoder 
+    - to prevent bad input characters from corrupting the system, and to ensure that no whitespace would hinder tab delimited format
+    - replaces URLEncoder()
+  InputDecoder 
+    - to decode InputEncoded data
+    - replaces URLDecoder()
+  ExcelDecoder 
+    - to convert from Excel encoded strings to consistent Java String format
+    - replaces Node.EMPTY_NODE.fixExcelisms()
