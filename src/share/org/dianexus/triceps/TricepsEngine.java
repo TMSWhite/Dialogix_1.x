@@ -51,6 +51,7 @@ public class TricepsEngine implements VersionIF {
 	private boolean allowUnknown = false;
 	private boolean allowNotUnderstood = false;
 	private boolean allowLanguageSwitching = false;
+	private boolean allowJumpTo = false;
 
 	private String directive = null;	// the default
 	private Triceps triceps = Triceps.NULL;
@@ -207,7 +208,7 @@ if (AUTHORABLE) {
 			allowUnknown = schedule.getBooleanReserved(Schedule.ALLOW_UNKNOWN);
 			allowNotUnderstood = schedule.getBooleanReserved(Schedule.ALLOW_DONT_UNDERSTAND);
 			allowLanguageSwitching = schedule.getBooleanReserved(Schedule.ALLOW_LANGUAGE_SWITCHING);
-
+			allowJumpTo = schedule.getBooleanReserved(Schedule.ALLOW_JUMP_TO);
 		}
 		else {
 			debugMode = false;
@@ -221,6 +222,7 @@ if (AUTHORABLE) {
 			allowUnknown = false;
 			allowNotUnderstood = false;
 			allowLanguageSwitching = false;
+			allowJumpTo = false;
 		}
 		allowEasyBypass = false;
 		okPasswordForTempAdminMode = false;
@@ -596,11 +598,11 @@ if (DEPLOYABLE) {
 			// ask question
 		}
 		else if (directive.equals("jump_to")) {
-if (AUTHORABLE) {
-			gotoMsg = triceps.gotoNode(req.getParameter("jump_to_data"));
-			ok = (gotoMsg == Triceps.OK);
-			// ask this question
-}
+			if ((AUTHORABLE && developerMode) || allowJumpTo) {
+				gotoMsg = triceps.gotoNode(req.getParameter("jump_to_data"));
+				ok = (gotoMsg == Triceps.OK);
+				// ask this question
+			}
 		}
 		else if ("refresh current".equals(directive)) {
 			ok = true;
@@ -845,7 +847,7 @@ if (AUTHORABLE) {
 		if (!triceps.isValid())
 			return "";
 
-		if (debugMode && developerMode) {
+		if (debugMode && developerMode && AUTHORABLE) {
 			sb.append(triceps.get("QUESTION_AREA"));
 		}
 
@@ -947,9 +949,12 @@ if (AUTHORABLE) {
 		}
 	
 		if (!triceps.isAtBeginning()) {
-//if (!triceps.isAtEnd()) {
 			sb.append(buildSubmit("previous"));
-//}			
+		}
+	
+		if (allowJumpTo || (developerMode && AUTHORABLE)) {
+			sb.append(buildSubmit("jump_to"));
+			sb.append("<input type='text' name='jump_to_data' size='10'>");
 		}
 
 		if (allowEasyBypass || okToShowAdminModeIcons) {
@@ -964,8 +969,6 @@ if (AUTHORABLE) {
 			sb.append("<tr><td colspan='" + ((showQuestionNum) ? 4 : 3 ) + "' align='center'>");
 			sb.append(buildSubmit("select_new_interview"));
 			sb.append(buildSubmit("restart_clean"));
-			sb.append(buildSubmit("jump_to"));
-			sb.append("<input type='text' name='jump_to_data' size='10'>");
 			sb.append(buildSubmit("save_to"));
 			sb.append("<input type='text' name='save_to_data' size='10'>");
 			sb.append("</td></tr>");

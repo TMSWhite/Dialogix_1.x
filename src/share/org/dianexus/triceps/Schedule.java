@@ -65,8 +65,7 @@ import java.io.ByteArrayInputStream;
 	/*public*/ static final int TRICEPS_FILE_TYPE = 44;
 	/*public*/ static final int DISPLAY_COUNT = 45;
 	/*public*/ static final int SCHEDULE_DIR = 46;
-	/*public*/ static final int ALLOW_JUMP_TO_MODULE = 47;
-	/*public*/ static final int MODULE=48;
+	/*public*/ static final int ALLOW_JUMP_TO = 47;
 
 	private static final String DEFAULT_LANGUAGE = "en_US";
 	/*public*/ static final String TRICEPS_DATA_FILE = "DATA";
@@ -121,8 +120,7 @@ import java.io.ByteArrayInputStream;
 		"__TRICEPS_FILE_TYPE__",
 		"__DISPLAY_COUNT__",
 		"__SCHEDULE_DIR__",
-		"__ALLOW_JUMP_TO_MODULE__",
-		"__MODULE__",
+		"__ALLOW_JUMP_TO__",
 	};
 
 	private Date startTime = null;
@@ -218,8 +216,7 @@ import java.io.ByteArrayInputStream;
 		setReserved(ACTIVE_BUTTON_SUFFIX,"»»");
 		setReserved(DISPLAY_COUNT,"0");
 		setReserved(SCHEDULE_DIR,"");
-		setReserved(ALLOW_JUMP_TO_MODULE,"false");
-		setReserved(MODULE,"");
+		setReserved(ALLOW_JUMP_TO,"false");
 	}
 		
 	/*public*/ boolean init() {
@@ -718,8 +715,7 @@ if (DEPLOYABLE) {
 			case TRICEPS_FILE_TYPE: if (expert) s = setTricepsFileType(value); break;
 			case DISPLAY_COUNT: if (expert) s = setDisplayCount(value); break;
 			case SCHEDULE_DIR: if (expert) s = value; break;
-			case ALLOW_JUMP_TO_MODULE: s = Boolean.valueOf(value.trim()).toString(); break;
-			case MODULE: s = value;
+			case ALLOW_JUMP_TO: s = Boolean.valueOf(value.trim()).toString(); break;
 			default: return false;
 		}
 		
