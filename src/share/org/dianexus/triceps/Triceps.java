@@ -182,7 +182,7 @@ public class Triceps {
 				numQuestions = 0;
 				
 				/* Before advancing any further, save to completed files dir */
-				toTSV(getCompletedFilesDir() + startTimeStr);		
+//				toTSV(getCompletedFilesDir() + startTimeStr);		// no, have the servlet do this after sending next question
 				
 				return AT_END;
 			}
@@ -200,18 +200,18 @@ public class Triceps {
 					}
 					else {
 						++braceLevel;	// XXX:  skip this entire section 
-						evidence.set(node, new Datum(Datum.NA));	// and set all of this brace's values to NA
+						evidence.set(node, Datum.getInstance(Datum.NA));	// and set all of this brace's values to NA
 					}
 //					if (parser.hasErrors()) { Vector v=parser.getErrors(); for (int c=0;c<v.size();++c) { errors.addElement(v.elementAt(c)); }  }
 				}
 				else {
 					++braceLevel;	// skip this inner block
-					evidence.set(node, new Datum(Datum.NA));	// set all of this brace's values to NA
+					evidence.set(node, Datum.getInstance(Datum.NA));	// set all of this brace's values to NA
 				}
 			}
 			else if (actionType == Node.GROUP_CLOSE) {
 				--braceLevel;	// close an open block
-				evidence.set(node, new Datum(Datum.NA));	// closing an open block, so set value to NA
+				evidence.set(node, Datum.getInstance(Datum.NA));	// closing an open block, so set value to NA
 				if (braceLevel < 0) {
 					node.setError("Extra closing brace");
 					return ERROR;
@@ -219,35 +219,35 @@ public class Triceps {
 			}
 			else if (actionType == Node.EVAL) {
 				if (braceLevel > 0) {
-					evidence.set(node, new Datum(Datum.NA));	// NA if internal to a brace when going forwards
+					evidence.set(node, Datum.getInstance(Datum.NA));	// NA if internal to a brace when going forwards
 				}
 				else {
 					if (parser.booleanVal(evidence, node.getDependencies())) {
 						evidence.set(node, new Datum(parser.stringVal(evidence, node.getAction()),node.getDatumType(),node.getMask()));
 					}
 					else {
-						evidence.set(node, new Datum(Datum.NA));	// if doesn't satisfy dependencies, store NA
+						evidence.set(node, Datum.getInstance(Datum.NA));	// if doesn't satisfy dependencies, store NA
 					}
 //					if (parser.hasErrors()) { Vector v=parser.getErrors(); for (int c=0;c<v.size();++c) { errors.addElement(v.elementAt(c)); }  }
 				}
 			}
 			else if (actionType == Node.QUESTION) {
 				if (braceLevel > 0) {
-					evidence.set(node, new Datum(Datum.NA));	// NA if internal to a brace when going forwards
+					evidence.set(node, Datum.getInstance(Datum.NA));	// NA if internal to a brace when going forwards
 				}
 				else {
 					if (parser.booleanVal(evidence, node.getDependencies())) {
 						break;	// ask this question
 					}
 					else {
-						evidence.set(node, new Datum(Datum.NA));	// if doesn't satisfy dependencies, store NA
+						evidence.set(node, Datum.getInstance(Datum.NA));	// if doesn't satisfy dependencies, store NA
 					}
 //					if (parser.hasErrors()) { Vector v=parser.getErrors(); for (int c=0;c<v.size();++c) { errors.addElement(v.elementAt(c)); }  }
 				}
 			}
 			else {
 				node.setError("Invalid action type");
-				evidence.set(node, new Datum(Datum.NA));
+				evidence.set(node, Datum.getInstance(Datum.NA));
 				return ERROR;
 			}
 			++step;
@@ -256,7 +256,7 @@ public class Triceps {
 		numQuestions = 0;
 		
 		/* Before advancing any further, save a scratch file */
-		toTSV(getWorkingFilesDir() + startTimeStr);
+//		toTSV(getWorkingFilesDir() + startTimeStr);	// no, have the servlet do this after returning reply?
 		
 		return OK;
 	}
@@ -367,30 +367,25 @@ public class Triceps {
 			init = n.getDefaultAnswer();
 
 			if (init == null || init.length() == 0 || init.equals(NULL)) {
-				d = new Datum(Datum.UNKNOWN);
+				d = Datum.getInstance(Datum.UNKNOWN);
 			}
 			else if (init.equals(Datum.TYPES[Datum.UNKNOWN])) {
-				d = new Datum(Datum.UNKNOWN);
+				d = Datum.getInstance(Datum.UNKNOWN);
 			}
 			else if (init.equals(Datum.TYPES[Datum.NA])) {
-				d = new Datum(Datum.NA);
+				d = Datum.getInstance(Datum.NA);
 			}
 			else if (init.equals(Datum.TYPES[Datum.INVALID])) {
-				d = new Datum(Datum.INVALID);
+				d = Datum.getInstance(Datum.INVALID);
 			}
 			else if (init.equals(Datum.TYPES[Datum.REFUSED])) {
-				d = new Datum(Datum.REFUSED);
+				d = Datum.getInstance(Datum.REFUSED);
 			}
 			else {
 				d = new Datum(init,n.getDatumType(),n.getMask());
 			}
 			
 			evidence.set(n,d);
-			
-			String timeStampStr = n.getDefaultAnswerTimeStampStr();
-			if (timeStampStr != null) {
-				d.setTimeStamp(timeStampStr);
-			}
 		}
 		
 		/* Set (or re-set) the start time for the schedule */
@@ -413,7 +408,7 @@ public class Triceps {
 
 		if (answer == null || answer.trim().equals("")) {
 			if (bypass) {
-				evidence.set(q,new Datum(Datum.REFUSED));
+				evidence.set(q,Datum.getInstance(Datum.REFUSED));
 				return true;
 			}
 			if (q.getAnswerType() == Node.CHECK) {
@@ -423,7 +418,7 @@ public class Triceps {
 		Datum d;
 		
 		if (q.getAnswerType() == Node.NOTHING && q.getActionType() != Node.EVAL) {
-			d = new Datum(Datum.NA);
+			d = Datum.getInstance(Datum.NA);
 		}
 		else {
 			d = new Datum(answer,q.getDatumType(),q.getMask()); // use expected value type
@@ -432,13 +427,13 @@ public class Triceps {
 		/* check for type error */
 		if (!d.exists()) {
 			q.setError("<- " + d.getError());
-			evidence.set(q,new Datum(Datum.UNKNOWN));
+			evidence.set(q,Datum.getInstance(Datum.UNKNOWN));
 			return false;
 		}
 
 		/* check if out of range */
 		if (!q.isWithinRange(d)) {
-			evidence.set(q,new Datum(Datum.UNKNOWN));
+			evidence.set(q,Datum.getInstance(Datum.UNKNOWN));
 			return false;	// shouldn't wording of error be done here, not in Node?
 		}
 		else {
@@ -557,6 +552,10 @@ public class Triceps {
 		}
 		return parseErrors;
 	}
+	
+	public boolean toTSV() {
+		return toTSV(getWorkingFilesDir() + startTimeStr);
+	}
 
 	public boolean toTSV(String filename) {
 		FileWriter fw = null;
@@ -614,7 +613,7 @@ public class Triceps {
 					ans = d.stringVal(true);
 				}
 
-				out.write(n.toTSV() + "\t" + n.getQuestionAsAsked() + "\t" + ans + "\t" + d.getTimeStampStr() + "\n");
+				out.write(n.toTSV() + "\t" + n.getQuestionAsAsked() + "\t" + ans + "\t" + n.getTimeStampStr() + "\n");
 			}
 			out.flush();
 			return true;
@@ -694,7 +693,24 @@ public class Triceps {
 					try { br.close(); } catch (Exception e) {}
 				}
 			}
-		}			
+		}
+		if (!ok) {
+			StringBuffer sb = new StringBuffer();
+			if (url != null) {
+				sb.append(url.toString());
+			}
+			if (file != null) {
+				if (sb.length() > 0) {
+					sb.append(" and ");
+				}
+				sb.append(file.toString());
+			}
+			if (sb.length() == 0) {
+				sb.append("[filename=" + filename + "], [optionalFilePrefix=" + optionalFilePrefix + "]");
+			}
+				
+			System.out.println("Error accessing or reading from " + sb.toString());
+		}		
 		
 		return null;
 	}
