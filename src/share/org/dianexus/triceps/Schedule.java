@@ -81,16 +81,18 @@ public class Schedule  {
 				++count;
 				nodes.addElement(node);
 			}
-			System.out.println("Read " + count + " nodes from " + filename);
+			System.err.println("Read " + count + " nodes from " + filename);
 			return (!err);
 		}
-		catch(IOException e) {
-			System.out.println("Unable to access " + filename);
+		catch(Throwable t) {
+			System.err.println("Unable to access " + filename + ": " + t.getMessage());
 			return false;
 		}
 		finally {
 			if (br != null) {
-				try { br.close(); } catch (Exception e) {}
+				try { br.close(); } catch (Throwable t) {
+					System.err.println("Error closing file:" + t.getMessage());
+				}
 			}
 			setStartTime(startTime);
 		}
@@ -98,11 +100,11 @@ public class Schedule  {
 
 	public Node getNode(int index) {
 		if (index < 0) {
-			System.out.println("Node[" + index + "] does't exist");
+			System.err.println("Node[" + index + "] does't exist");
 			return null;
 		}
 		if (index > size()) {
-			System.out.println("Node[" + index + "/" + size() + "] doesn't exist");
+			System.err.println("Node[" + index + "/" + size() + "] doesn't exist");
 			return null;
 		}
 		return (Node)nodes.elementAt(index);
@@ -123,7 +125,7 @@ public class Schedule  {
 			try {
 				s = ans.nextToken();
 			}
-			catch (Exception e) {
+			catch (NoSuchElementException e) {
 			}
 
 			if (s.equals("\t")) {
@@ -139,7 +141,7 @@ public class Schedule  {
 			}
 		}
 		if (field != 2) {
-			System.out.println("wrong number of tokens for RESERVED syntax (RESERVED\\tname\\tvalue\\n) on line " + line + " of file " + filename);
+			System.err.println("wrong number of tokens for RESERVED syntax (RESERVED\\tname\\tvalue\\n) on line " + line + " of file " + filename);
 		}
 		if (name == null || value == null)
 			return;
@@ -153,7 +155,7 @@ public class Schedule  {
 		}
 		
 		if (!setReserved(resIdx, value)) {
-			System.out.println("unrecognized reserved word " + name + " on line " + line + " of file " + filename); 
+			System.err.println("unrecognized reserved word " + name + " on line " + line + " of file " + filename); 
 		}
 	}
 		
@@ -222,7 +224,7 @@ public class Schedule  {
 			startingStep = new Integer(s);
 		}
 		catch(NumberFormatException e) {
-			System.out.println(e);
+			System.err.println("Invalid number for starting step: " + e.getMessage());
 			startingStep = new Integer(0);
 		}
 		return startingStep.toString();
@@ -241,7 +243,7 @@ public class Schedule  {
 			time = Datum.TIME_MASK.parse(t);
 		}
 		catch (java.text.ParseException e) {
-			System.out.println("Error parsing time " + e.getMessage());
+			System.err.println("Error parsing time " + e.getMessage());
 		}
 		if (time == null) {
 			time = new Date(System.currentTimeMillis());
@@ -263,14 +265,18 @@ public class Schedule  {
 			try {
 				out.write("RESERVED\t" + s + "\t" + reserved.get(s).toString() + "\n");
 			}
-			catch (IOException e) {}
+			catch (Throwable t) {
+				System.err.println("Error writing to " + out + ": " + t.getMessage());
+			}
 		}
 		
 		for (int i=0;i<comments.size();++i) {
 			try {
 				out.write((String) comments.elementAt(i) + "\n");
 			}
-			catch (IOException e) {}
+			catch (Throwable t) {
+				System.err.println("Error writing to " + out + ": " + t.getMessage());
+			}
 		}
 	}
 }

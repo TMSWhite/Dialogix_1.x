@@ -74,8 +74,10 @@ public class Triceps {
 				evidence.set(newNode, oldEvidence.getDatum(oldNode),oldNode.getTimeStampStr());
 			}
 		}
-		catch (Exception e) {
-			errors.addElement("Error reloading schedule - number of nodes probably changed");
+		catch (Throwable t) {
+			String msg = "Error reloading schedule - number of nodes probably changed: " + t.getMessage();
+			errors.addElement(Node.encodeHTML(msg));
+			System.err.println(msg);
 			return false;
 		}
 		
@@ -593,13 +595,17 @@ public class Triceps {
 			boolean ok = writeTSV(fw);
 			return ok;
 		}
-		catch (Exception e) {
-			errors.addElement("error writing to " + Node.encodeHTML(filename) + ": " + e);
+		catch (Throwable t) {
+			String msg = "error writing to " + filename + ": " + t.getMessage();
+			errors.addElement(Node.encodeHTML(msg));
+			System.err.println(msg);
 			return false;
 		}
 		finally {
 			if (fw != null) {
-				try { fw.close(); } catch (Exception e) {}
+				try { fw.close(); } catch (Throwable t) {
+					System.err.println("Error closing writer: " + t.getMessage());
+				}
 			}
 		}
 	}
@@ -642,8 +648,10 @@ public class Triceps {
 			out.flush();
 			return true;
 		}
-		catch (IOException e) {
-			errors.addElement("Unable to write schedule file: " + Node.encodeHTML(e.getMessage()));
+		catch (Throwable t) {
+			String msg = "Unable to write schedule file: " + t.getMessage();
+			errors.addElement(Node.encodeHTML(msg));
+			System.err.println(msg);
 			return false;
 		}
 	}
@@ -658,17 +666,16 @@ public class Triceps {
 		/* If not a URL, then try reading from a file */
 		try {
 			String fileSrc = ((optionalFilePrefix != null) ? optionalFilePrefix : "") + fname;
-			System.err.println(fileSrc);
 			if (fileSrc != null) {
 				file = new File(fileSrc);
 				if (!file.exists() || !file.isFile() || !file.canRead()) {
 					ok = false;
-					System.err.println("Error - file doesn't exist; isn't a file, or is unreadable");
+					System.err.println("Error - file '" + fileSrc + "' doesn't exist; isn't a file, or is unreadable");
 				}
 				else {
 					br = new BufferedReader(new FileReader(file));
 					ok = true;
-					System.err.println("success");
+					System.err.println("successfully read from " + fileSrc);
 				}
 			}
 			else {
@@ -684,7 +691,9 @@ public class Triceps {
 			}
 			else {
 				if (br != null) {
-					try { br.close(); } catch (Exception e) {}
+					try { br.close(); } catch (Throwable t) {
+						System.err.println("error closing reader: " + t.getMessage());
+					}
 				}
 			}
 		}
@@ -725,7 +734,9 @@ public class Triceps {
 			}
 			else {
 				if (br != null) {
-					try { br.close(); } catch (Exception e) {}
+					try { br.close(); } catch (Throwable t) {
+						System.err.println("error closing reader: " + t.getMessage());
+					}
 				}
 			}
 		}		

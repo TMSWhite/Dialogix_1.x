@@ -81,7 +81,7 @@ public class Evidence  {
 	public Node getNode(Object val) {
 		Integer i = (Integer) aliases.get(val);
 		if (i == null) {
-			System.out.println("Node not found: " + val);
+			System.err.println("Node not found: " + val);
 			return null;
 		}
 		return ((Value) values.elementAt(i.intValue())).getNode();
@@ -99,18 +99,18 @@ public class Evidence  {
 
 	public void set(Node node, Datum val, String time) {
 		if (node == null) {
-			System.out.println("null Node");
+			System.err.println("null Node");
 			return;
 		}
 		if (val == null) {
-			System.out.println("null Datum");
+			System.err.println("null Datum");
 			return;
 		}
 		int i;
 		
 		i = getStep(node);
 		if (i == -1) {
-			System.out.println("Node does not exist");
+			System.err.println("Node does not exist");
 			return;
 		}
 		
@@ -123,11 +123,11 @@ public class Evidence  {
 
 	public void set(String name, Datum val) {
 		if (name == null) {
-			System.out.println("null Node name");
+			System.err.println("null Node name");
 			return;
 		}
 		if (val == null) {
-			System.out.println("null Datum");
+			System.err.println("null Datum");
 			return;
 		}
 		

@@ -113,7 +113,7 @@ public class Node  {
 			try {
 				s = ans.nextToken();
 			}
-			catch (Exception e) {
+			catch (NoSuchElementException e) {
 				setParseError("nextToken: " + e.getMessage());
 			}
 
@@ -195,7 +195,7 @@ public class Node  {
 			try {
 				s = ans.nextToken();
 			}
-			catch (Exception e) {}
+			catch (NoSuchElementException e) {}
 
 			if (";".equals(s)) {
 				++field;
@@ -378,7 +378,7 @@ public class Node  {
 		try {
 			token = ans.nextToken();
 		}
-		catch (Exception e) {}
+		catch (NoSuchElementException e) {}
 
 		for (int z=0;z<QUESTION_TYPES.length;++z) {
 			if (token.equalsIgnoreCase(QUESTION_TYPES[z])) {
@@ -417,7 +417,7 @@ public class Node  {
 					try {
 						s = ans.nextToken();
 					}
-					catch (Exception e) {}
+					catch (NoSuchElementException e) {}
 
 					if (";".equals(s)) {
 						++field;
@@ -633,7 +633,7 @@ public class Node  {
 		boolean err = false;
 		
 /*
-		System.out.println("(" + minStr + "|" + ((minDatum != null) ? Datum.format(minDatum,mask) : "") +
+		System.err.println("(" + minStr + "|" + ((minDatum != null) ? Datum.format(minDatum,mask) : "") +
 			"," + d.stringVal() +
 			"," + maxStr + "|" + ((maxDatum != null) ? Datum.format(maxDatum,mask) : "") + ")");
 */			
@@ -790,8 +790,7 @@ public class Node  {
 				}
 			}
 		}
-		catch (Throwable t) {
-			/* ArrayIndexOutOfBounds */
+		catch (ArrayIndexOutOfBoundsException e) {
 		}
 		finally {
 			String ans = dst.toString();
@@ -830,7 +829,7 @@ public class Node  {
 		}
 		catch (java.text.ParseException e) {
 			setParseError("Error parsing time " + e.getMessage());
-			System.out.println("error parsing time " + e.getMessage());
+			System.err.println("error parsing time " + e.getMessage());
 		}
 		if (time == null) {
 			setTimeStamp();
