@@ -1,0 +1,186 @@
+###################################################################
+# Auto generated configuration. Dated: Thu Jan 17 17:34:38 EST 2002
+###################################################################
+
+#
+# Default worker to be used through our mappings
+#
+default.worker=ajp12
+
+#
+# Root context mounts for Tomcat
+#
+/servlet/*=$(default.worker)
+/*.jsp=$(default.worker)
+
+#########################################################
+# Auto configuration for the /BYS context starts.
+#########################################################
+
+#
+# The following line mounts all JSP file and the /servlet/ uri to tomcat
+#
+/BYS/servlet/*=$(default.worker)
+/BYS/*.jsp=$(default.worker)
+
+#
+# If you want tomcat to serve all the resources (including static) that
+# are part of the /BYS context, uncomment the following line
+#
+# /BYS/*=$(default.worker)
+#######################################################
+# Auto configuration for the /BYS context ends.
+#######################################################
+
+#########################################################
+# Auto configuration for the /CET context starts.
+#########################################################
+
+#
+# The following line mounts all JSP file and the /servlet/ uri to tomcat
+#
+/CET/servlet/*=$(default.worker)
+/CET/*.jsp=$(default.worker)
+
+#
+# If you want tomcat to serve all the resources (including static) that
+# are part of the /CET context, uncomment the following line
+#
+# /CET/*=$(default.worker)
+#######################################################
+# Auto configuration for the /CET context ends.
+#######################################################
+
+#########################################################
+# Auto configuration for the /CIC context starts.
+#########################################################
+
+#
+# The following line mounts all JSP file and the /servlet/ uri to tomcat
+#
+/CIC/servlet/*=$(default.worker)
+/CIC/*.jsp=$(default.worker)
+
+#
+# If you want tomcat to serve all the resources (including static) that
+# are part of the /CIC context, uncomment the following line
+#
+# /CIC/*=$(default.worker)
+#######################################################
+# Auto configuration for the /CIC context ends.
+#######################################################
+
+#########################################################
+# Auto configuration for the /Demos context starts.
+#########################################################
+
+#
+# The following line mounts all JSP file and the /servlet/ uri to tomcat
+#
+/Demos/servlet/*=$(default.worker)
+/Demos/*.jsp=$(default.worker)
+
+#
+# If you want tomcat to serve all the resources (including static) that
+# are part of the /Demos context, uncomment the following line
+#
+# /Demos/*=$(default.worker)
+#######################################################
+# Auto configuration for the /Demos context ends.
+#######################################################
+
+#########################################################
+# Auto configuration for the /images context starts.
+#########################################################
+
+#
+# The following line mounts all JSP file and the /servlet/ uri to tomcat
+#
+/images/servlet/*=$(default.worker)
+/images/*.jsp=$(default.worker)
+
+#
+# If you want tomcat to serve all the resources (including static) that
+# are part of the /images context, uncomment the following line
+#
+# /images/*=$(default.worker)
+#######################################################
+# Auto configuration for the /images context ends.
+#######################################################
+
+#########################################################
+# Auto configuration for the /outcomes context starts.
+#########################################################
+
+#
+# The following line mounts all JSP file and the /servlet/ uri to tomcat
+#
+/outcomes/servlet/*=$(default.worker)
+/outcomes/*.jsp=$(default.worker)
+
+#
+# If you want tomcat to serve all the resources (including static) that
+# are part of the /outcomes context, uncomment the following line
+#
+# /outcomes/*=$(default.worker)
+#######################################################
+# Auto configuration for the /outcomes context ends.
+#######################################################
+
+#########################################################
+# Auto configuration for the /Prefs context starts.
+#########################################################
+
+#
+# The following line mounts all JSP file and the /servlet/ uri to tomcat
+#
+/Prefs/servlet/*=$(default.worker)
+/Prefs/*.jsp=$(default.worker)
+
+#
+# If you want tomcat to serve all the resources (including static) that
+# are part of the /Prefs context, uncomment the following line
+#
+# /Prefs/*=$(default.worker)
+#######################################################
+# Auto configuration for the /Prefs context ends.
+#######################################################
+
+#########################################################
+# Auto configuration for the /Test context starts.
+#########################################################
+
+#
+# The following line mounts all JSP file and the /servlet/ uri to tomcat
+#
+/Test/servlet/*=$(default.worker)
+/Test/*.jsp=$(default.worker)
+
+#
+# If you want tomcat to serve all the resources (including static) that
+# are part of the /Test context, uncomment the following line
+#
+# /Test/*=$(default.worker)
+#######################################################
+# Auto configuration for the /Test context ends.
+#######################################################
+
+#########################################################
+# Auto configuration for the /Tutorials context starts.
+#########################################################
+
+#
+# The following line mounts all JSP file and the /servlet/ uri to tomcat
+#
+/Tutorials/servlet/*=$(default.worker)
+/Tutorials/*.jsp=$(default.worker)
+
+#
+# If you want tomcat to serve all the resources (including static) that
+# are part of the /Tutorials context, uncomment the following line
+#
+# /Tutorials/*=$(default.worker)
+#######################################################
+# Auto configuration for the /Tutorials context ends.
+#######################################################
+
