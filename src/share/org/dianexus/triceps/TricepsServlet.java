@@ -105,7 +105,7 @@ if (DEBUG) {
 	/* standard Apache log format (after the #@# prefix for easier extraction) */
 	Logger.writeln("#@#(" + req.getParameter("DIRECTIVE") + ") " + 
 		sessionID + 
-		((WEB_SERVER) ? (req.getRemoteAddr() + " - [" + new Date(System.currentTimeMillis()) + "] \"" +
+		((WEB_SERVER) ? (" " + req.getRemoteAddr() + " - [" + new Date(System.currentTimeMillis()) + "] \"" +
 		req.getMethod() + " " + req.getRequestURI() + "\" \"" +
 		req.getHeader(USER_AGENT) + "\" \"" + req.getHeader(ACCEPT_LANGUAGE) + "\" \"" + req.getHeader(ACCEPT_CHARSET) + "\"") : "") +
 		((tricepsEngine != null) ? tricepsEngine.getScheduleStatus() : ""));
