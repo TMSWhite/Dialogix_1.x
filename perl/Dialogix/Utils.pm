@@ -87,11 +87,12 @@ sub whichInstrument($) {
 	my ($title, $version_major, $version_minor);
 	my $triceps_major = 0;
 	my $triceps_minor = 0;
+	my $languages = 'en';
 	my $type = 'DATA';	# if unlabeled, assume that it is data
 	my $timestamp = 0;
 	my $numvars = 0;
 	my $varlist = '';
-	my $varhash;
+#	my $varhash;
 	while (<IN>) {
 		++$count;
 		my @vals = split(/\t/);
@@ -138,6 +139,11 @@ sub whichInstrument($) {
 					$triceps_minor = $1;
 				}		
 			}
+			elsif ($vals[1] eq '__LANGUAGES__') {
+				if ($vals[2] =~ /^\s*(.*)\s*$/) {
+					$languages = $1;
+				}
+			}				
 			elsif ($vals[1] eq '__CURRENT_LANGUAGE__' && $type eq 'DATA') {
 				last;	# break out of while loop
 			}
@@ -146,14 +152,14 @@ sub whichInstrument($) {
 			if ($type eq 'DATA') {
 				# this is a variable declaration
 				if ($vals[0] !~ /^COMMENT|RESERVED/i and $vals[1] !~ /^\s*$/) {
-					$varhash->{$vals[1]} = $numvars;
+#					$varhash->{$vals[1]} = $numvars;
 					++$numvars;
 					$varlist .= "$vals[1]";
 				}
 			}
 			elsif ($type eq 'SCHEDULE') {
 				if ($vals[0] !~ /^COMMENT/i and $vals[1] !~ /^\s*$/) {
-					$varhash->{$vals[1]} = $numvars;
+#					$varhash->{$vals[1]} = $numvars;
 					++$numvars;
 					$varlist .= "$vals[1]";
 				}
@@ -179,7 +185,7 @@ sub whichInstrument($) {
 	}
 	
 	if (($filename =~ /^\s*$/) || ($title =~ /^\s*$/)) {
-		return ($UNKNOWN_INST,$UNKNOWN_INST,$timestamp,$when,$varhash);
+		return ($UNKNOWN_INST,$UNKNOWN_INST,$timestamp,$when,$title,"$version_major.$version_minor",$languages,$numvars,$varmd5);	#,$varhash);
 	}
 	else {
 #		my $name = "$title-v$version_major.$version_minor-($filename)";
@@ -189,7 +195,7 @@ sub whichInstrument($) {
 		
 		$name =~ s/\.\././g;
 		$name =~ s/[\\\/:\*\?\"<>\|\s]/_/g;	# remove spaces and characters disallowed in Windows folder names
-		return ($filename,$name,$timestamp,$when,$varhash);
+		return ($filename,$name,$timestamp,$when,$title,"$version_major.$version_minor",$languages,$numvars,$varmd5);	#,$varhash);
 	}
 }
 

@@ -68,11 +68,11 @@ CREATE TABLE Dialogix.RawData2 (
   Comment text,
   PRIMARY KEY  (RawDataID)
 ) TYPE=MyISAM;	
-	
-insert into Dialogix.RawData2
+
+create table Dialogix.RawData2 as
 select a.RawDataID,
 	b.ID as InstrumentNum,
-	c.ID as InstanceNum,
+	a.InstanceName,
 	a.VarNum,
 	a.GroupNum,
 	a.DisplayNum,
@@ -83,6 +83,31 @@ select a.RawDataID,
 	a.Answer,
 	a.QuestionAsAsked,
 	a.Comment
-from Dialogix.RawData a, Dialogix.UniqueInstruments b, Dialogix.UniqueInstances c
-where a.InstrumentName = b.InstrumentName and
-	a.InstanceName = c.InstanceName;
+from Dialogix.RawData a, Dialogix.UniqueInstruments b
+where a.InstrumentName = b.InstrumentName;
+	
+create table Dialogix.RawData3 as
+select b.RawDataID,
+	b.InstrumentNum,
+	c.ID as InstanceNum,
+	b.VarNum,
+	b.GroupNum,
+	b.DisplayNum,
+	b.LangNum,
+	b.WhenAsMS,
+	b.TimeStamp,
+	b.AnswerType,
+	b.Answer,
+	b.QuestionAsAsked,
+	b.Comment
+from Dialogix.RawData2 b, Dialogix.UniqueInstances c
+where b.InstanceName = c.InstanceName;	
+
+drop table if exists Instances;
+
+create table Instances as
+select InstrumentName, InstanceName, min(TimeStamp) as StartDate, max(TimeStamp) as EndDate, max(DisplayNum) as NumPagesViewed,
+	(max(TimeStamp) - min(TimeStamp)) as Duration
+from Dialogix.RawData
+group by InstanceName
+order by InstrumentName, StartDate;

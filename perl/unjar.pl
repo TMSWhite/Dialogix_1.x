@@ -181,7 +181,7 @@ sub moveDataFiles {
 		$srcname = $_;
 	}
 	
-	my ($filename,$inst,$timestamp,$when,$varhash) = &Dialogix::Utils::whichInstrument($files[0]);	# assume that they are all from the same same data prefix
+	my ($filename,$inst,$timestamp,$when,$title,$version,$languages,$numvars,$varmd5) = &Dialogix::Utils::whichInstrument($files[0]);	# assume that they are all from the same same data prefix
 	print "$files[0] => $inst\n";
 	my $locdir = $inst;
 	my $dstdir = "$Prefs->{UNJAR_DIR}/$locdir";
@@ -280,7 +280,7 @@ sub removeErrFiles {
 
 sub sched2sas {
 	my $command = "perl $Prefs->{SCHED2SAS} $conf_file $Prefs->{INSTRUMENT_FILE}";
-	&doit($command);
+	&doit_warn($command);
 }
 
 

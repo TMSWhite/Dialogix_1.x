@@ -65,21 +65,7 @@ sub main {
 	
 	&load_instrument($instrument);
 	
-	# Create list of commands for bulk-loading data into Mysql
-	my $loadCommandsExists = 0;
-	if (-e 'DialogixLoadCommands.sql') {
-		$loadCommandsExists = 1;
-	}
-	open (LOAD_COMMANDS, ">>DialogixLoadCommands.sql") or die "Unable to append to DialogixLoadCommands.sql";
-	if ($loadCommandsExists == 0) {
-		print LOAD_COMMANDS qq|LOAD DATA LOCAL INFILE '/home/tmw/data0_for_mysql/DialogixRawData.mysql_data' INTO TABLE `Dialogix.RawData` FIELDS TERMINATED BY '\\t' ESCAPED BY '\\\\' LINES TERMINATED BY '\\r\\n';| . "\n";
-	}
-	my $tablename = $instrument_name;
-	$tablename =~ s/\W/_/g;
-	print LOAD_COMMANDS qq|LOAD DATA LOCAL INFILE '/home/tmw/data0_for_mysql/${instrument_name}.specific.mysql_data' INTO TABLE `Dialogix.${tablename}` FIELDS TERMINATED BY '\\t' ESCAPED BY '\\\\' LINES TERMINATED BY '\\r\\n';| . "\n";
-	close (LOAD_COMMANDS);
-	
-#	return;	# to only write the loadfile statements
+	&makeAllMySqlLoadCommands;
 	
 	if (-e "DialogixRawData.mysql_data") {
 		open (GENERIC, ">>DialogixRawData.mysql_data") or die "Unable to append to DialogixRawData.mysql_data";
@@ -105,6 +91,23 @@ sub main {
 	close (GENERIC);
 	close (SPECIFIC_DATA);
 	close (SPECIFIC_ALLTABLES)
+}
+
+sub makeAllMySqlLoadCommands {
+	# Create list of commands for bulk-loading data into Mysql
+	# Kludge -- assumes that 
+	my $loadCommandsExists = 0;
+	if (-e 'DialogixLoadCommands.sql') {
+		$loadCommandsExists = 1;
+	}
+	open (LOAD_COMMANDS, ">>DialogixLoadCommands.sql") or die "Unable to append to DialogixLoadCommands.sql";
+	if ($loadCommandsExists == 0) {
+		print LOAD_COMMANDS qq|LOAD DATA LOW_PRIORITY LOCAL INFILE '/home/tmw/data0_for_mysql/DialogixRawData.mysql_data' INTO TABLE Dialogix.RawData FIELDS TERMINATED BY '\\t' ESCAPED BY '\\\\' LINES TERMINATED BY '\\r\\n';| . "\n";
+	}
+	my $tablename = $instrument_name;
+	$tablename =~ s/\W/_/g;
+	print LOAD_COMMANDS qq|LOAD DATA LOW_PRIORITY LOCAL INFILE '/home/tmw/data0_for_mysql/${instrument_name}.specific.mysql_data' INTO TABLE Dialogix.${tablename} FIELDS TERMINATED BY '\\t' ESCAPED BY '\\\\' LINES TERMINATED BY '\\r\\n';| . "\n";
+	close (LOAD_COMMANDS);
 }
 
 sub CreateTablesForDialogixRawData {

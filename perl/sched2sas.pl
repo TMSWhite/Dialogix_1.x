@@ -351,7 +351,7 @@ sub transform_schedule {
 
 sub determine_full_instrument_name {
 	my $file = shift;
-	my ($filename,$inst,$timestamp,$when,$varhash) = &Dialogix::Utils::whichInstrument($file);
+	my ($filename,$inst,$timestamp,$when,$title,$version,$languages,$numvars,$varmd5) = &Dialogix::Utils::whichInstrument($file);
 	return $inst;
 }
 
@@ -453,9 +453,10 @@ sub transform_schedule_sub {
 	open (STEPS, ">$sched_root.steps") or die "unable to open $sched_root.steps";
 	print STEPS "Display\tFirstStep\tQlen\tAlen\tTlen\tNumSteps\tNames\n";
 	open (MYSQL, ">$sched_root.mysql_inst") or die "unable to open $sched_root.mysql_inst";
-	print MYSQL "StepNum\tConcept\tVarName\tQType\tQLen\tALen\tAType\tc8name\tqa_md5\tDisplayNum" .
-		"\tDisplayName\tRelevance\tActionType\tReadback\tActionPhrase\tAnswerOptions\n";
-
+	print MYSQL "StepNum\tVarName\tc8name\tDisplayName\tDisplayGroup" .
+			"\tConcept\tRelevance\tActionType\tValidation\tAnswerType\tisMessage" .
+			"\tActionPhrase\tAnswerOptions\tReadback\tQlen\tAlen\tqa_md5\tDefault\n";
+			
 	
 	my $in_block = 0;
 	my ($first, $tqlen, $talen) = (0,0,0);
@@ -477,9 +478,27 @@ sub transform_schedule_sub {
 		print NODES "$n{'step'}\t$n{'concept'}\t$n{'name'}\t$n{'type'}\t$n{'qlen'}\t$n{'alen'}\t$n{'atype'}\t$n{'c8name'}\t$n{'qa_md5'}\t" .
 			sprintf($schedDisplayFmt,$count) . "\n";
 			
-		print MYSQL "$n{'step'}\t$n{'concept'}\t$n{'name'}\t$n{'type'}\t$n{'qlen'}\t$n{'alen'}\t$n{'atype'}\t$n{'c8name'}\t$n{'qa_md5'}\t" .
+#		print MYSQL "StepNum\tConcept\tVarName\tQType\tQLen\tALen\tAType\tc8name\tqa_md5\tDisplayNum" .
+#			"\tDisplayName\tRelevance\tActionType\tReadback\tActionPhrase\tAnswerOptions\n";
+#		
+#		print MYSQL "$n{'step'}\t$n{'concept'}\t$n{'name'}\t$n{'type'}\t$n{'qlen'}\t$n{'alen'}\t$n{'atype'}\t$n{'c8name'}\t$n{'qa_md5'}\t" .
+#			sprintf($schedDisplayFmt,$count) . 
+#			"\t$n{'displayName'}\t$n{'relevance'}\t$n{'actionType'}\t$n{'readback'}\t$n{'actionPhrase'}\t$n{'answerOptions'}\n";
+			
+		my @actionTypeParts = split(/;/,$n{'actionType'});
+		my $actionTypeOnly = $actionTypeParts[0];
+		shift(@actionTypeParts);
+		my $validation = join(';',@actionTypeParts);
+		my $isMessage = 0;
+		if ($n{'atype'} eq 'nothing' and $actionTypeOnly !~ /e/i) {
+			$isMessage = 1;
+		}
+
+		print MYSQL "$n{'step'}\t$n{'name'}\t$n{'c8name'}\t$n{'displayName'}\t" .
 			sprintf($schedDisplayFmt,$count) . 
-			"\t$n{'displayName'}\t$n{'relevance'}\t$n{'actionType'}\t$n{'readback'}\t$n{'actionPhrase'}\t$n{'answerOptions'}\n";
+			"\t$n{'concept'}\t$n{'relevance'}\t$actionTypeOnly\t$validation\t$n{'atype'}\t$isMessage\t" .
+			"$n{'actionPhrase'}\t$n{'answerOptions'}\t$n{'readback'}\t$n{'qlen'}\t$n{'alen'}\t$n{'qa_md5'}\t\n";
+			
 		
 		#calculate the membership and size of display screens
 		
@@ -506,7 +525,7 @@ sub transform_schedule_sub {
 			undef @names;
 		}
 	}
-	
+	close (MYSQL);
 	close (NODES);
 	close (STEPS);
 	
