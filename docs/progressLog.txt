@@ -334,3 +334,22 @@ Reorganization & Documentation
 
 << changes from 2.8.9 to 2.8.9a
   BUGFIX - now does ignoreCase() test for file extensions
+  
+<< changes from 2.8.9a to 2.9.0
+  BUGFIX - 'e' lines weren't saving properly to log file -- had no language #, which caused failure to reload
+  BUGFIX - combo boxes not displaying proper selected value (but list boxes are!)
+  Enhancement - adding Triceps.log.err to jar files - can be copious when restoring from suspended, but zips well
+  Enhancement - show name of file that can't be restored (in case of error restoring)
+  BUGFIX - getAnsOption() from Evidence not parsing message or value
+  WARNING! - conditional assignment stores all values! should not evaluate non-visited options?  OR, warn of behavior!
+  BUGFIX - fixed session timeout problem introduced in Tomcat 3.2.1
+  Enhancement - upgraded to Tomcat 3.2.3
+  
+  TODO
+    Warn about undoing static changes - not properly supported
+    Warn about conditional assignment side effects
+    Warn about && / || conditional assignment side effects
+    refactor
+    check for Uencode on restoring interviews
+    check for version incompatabilities when restoring
+    add support for regular expressions
