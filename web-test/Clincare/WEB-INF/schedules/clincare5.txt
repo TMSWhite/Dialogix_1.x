@@ -157,7 +157,7 @@ ATRB15	ATUNDN		(ATSUM==1)	]		As a result of --------- do any of these chores or 
 HELP1	HLPHD		1	q		HELP	nothing
 HELP2	HLPSUM		1	[		Summary: Was personal assistance received because health interfered with carrying out tasks?	list|"?"|?|0|No|1|Helped
 HELP3	HLPQST		(HLPSUM==1)	q		Who is/are the helper(s)? What do they do? How often do they do it? For how long? Where does your helper live?	nothing
-HELP4	HLPER		(HLPSUM==1)	q		Helper(s)	list|"?"|?|1|Spouse|2|Child|3Other informall4|Other formal
+HELP4	HLPER		(HLPSUM==1)	q		Helper(s)	list|"?"|?|1|Spouse|2|Child|3|Other informal|4|Other formal
 HELP5	HLPDYSPER		(HLPSUM==1)	q		Days per week	list|"?"|?|1|1|2|2|3|3|4|4|5|5|6|6|7|7
 HELP6	HLPHRSPR		(HLPSUM==1)	q		Hours per week	list|"?"|?|1|1-4|2|5-8|3|9-20|4|21-40|5|41-60|6|61-96|7|97-168
 HELP7	HLPLVIN		(HLPSUM==1)	]		Days per week on which 24 hour help is in-house.	list|"?"|?|1|1|2|2|3|3|4|4|5|5|6|6|7|7

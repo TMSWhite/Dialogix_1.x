@@ -12,8 +12,6 @@ RESERVED	__ALLOW_REFUSED__	true
 RESERVED	__ALLOW_UNKNOWN__	false
 RESERVED	__PASSWORD_FOR_ADMIN_MODE__	admin
 RESERVED	__LANGUAGES__	en_US
-RESERVED	__SUSPEND_TO_FLOPPY__	true
-RESERVED	__JUMP_TO_FIRST_UNASKED__	true
 	q1		1	q		Welcome to the first <b>Dialogix</b> tutorial, written by <a href="mailto:thomas.white@dmi.columbia.edu">Thomas White</a>.<br><br>Over the next 5 minutes, you will learn how to use Dialogix.<br><br>Please press the <b>next</b> button below to continue.<br><br>If the text is too <u>small</u>, hold down the <b>Ctrl</b> key and press type the <b>]</b> key to make the text larger.<br>If the text is too <u>large</u>, hold down the <b>Ctrl</b> key and press type the <b>[</b> key to make the text smaller.	nothing
 	q2		1	q		As you can see, Dialogix is a web-based program.  It is optimized to run under Netscape Navigator, version 4.7 or higher.<br><br>You can return to previous slides at any time using the <b>previous</b> button below.<br><br>  (You can either click on buttons with the mouse, or use the <b>Tab</b> key to get to it, then press the <b>Enter</b> key to activate it)	nothing
 	name		1	q		Dialogix uses web-based forms to ask questions.<br><br>For example, please enter your <u>first name</u> to the right, then <b>Tab</b> to the <b>next</b> button.and press <b>Enter</b><br><br>If you don't answer a question, you will be told to <b>Please answer the question(s) listed in  <font color='red'>RED </font>before proceeding</b>, and Dialogix will tell you what sort of answer it expects (Try it!)	text

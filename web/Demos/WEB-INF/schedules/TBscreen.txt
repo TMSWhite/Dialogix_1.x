@@ -76,7 +76,7 @@ COMMENT
 	TST_positive_under_5		(TST_positive == 1) && (age < 5)	q		Since your patient is younger than 5 years old and has a positive TST this must be reported to the Health Department.  Call (212) 788-4162.	nothing	
 	active_TB_suspected		(TST_positive == 1) || (recent_exposure_under_5 == 1) || (recent_exposure_HIV == 1)	q		Do you suspect or have you confirmed that your patient has active TB?	list|0|no|1|yes|3|Unknown	
 	report_active_TB		(active_TB_suspected == 1)	q		To report a case of suspected or confirmed TB disease to the Health Department, call (212) 788-4162.	nothing	
-	should_treat_LTBI		((TST_positive == 1) || (recent_exposure_under_5 == 1) || (recent_exposure_HIV == 1)) && !(active_TB_suspected == 1)	e		[(TST_positive == 1) || (recent_exposure_HIV == 1) || ((HIV == 1) && (previous_TB_untreated == 1)) || (recent_exposure_under_5 ==1)] && !(active_TB_suspected == 1) && !(suspect_MDRTB == 1)	nothing	
+	should_treat_LTBI		((TST_positive == 1) || (recent_exposure_under_5 == 1) || (recent_exposure_HIV == 1)) && !(active_TB_suspected == 1)	e		[(TST_positive == 1) || (recent_exposure_HIV == 1) || ((HIV == 1) && (previous_TB_untreated == 1)) || (recent_exposure_under_5 ==1)] && !(active_TB_suspected == 1)	nothing	
 	report_LTBI		((TST_positive == 1) || (recent_exposure_under_5 == 1) || (recent_exposure_HIV == 1)) && !(active_TB_suspected == 1)	q		This qualifies as a case of latent tuberculosis infection.  We will now proceed to Step 4.	nothing	
 COMMENT								
 	Intro_4		(should_treat_LTBI == 1)	[		<b>Step 4:  Give treatment for Latent TB Infection</b><br><br>The next series of questions will help determine the regimen that is best.	nothing	
