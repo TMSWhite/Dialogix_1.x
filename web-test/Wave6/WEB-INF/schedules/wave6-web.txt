@@ -9,7 +9,7 @@ RESERVED	__DEVELOPER_MODE__	TRUE
 RESERVED	__DEBUG_MODE__	TRUE					
 RESERVED	__SCHED_AUTHORS__	"Kathy Gordon for Patricia Cohen, Ph.D."					
 RESERVED	__SCHED_VERSION_MAJOR__	3					
-RESERVED	__SCHED_VERSION_MINOR__	0.4					
+RESERVED	__SCHED_VERSION_MINOR__	0.5					
 RESERVED	__SHOW_ADMIN_ICONS__	TRUE					
 RESERVED	__SUSPEND_TO_FLOPPY__	FALSE					
 RESERVED	__REFUSED_ICON_OFF__	PreferNotToAnswer-Unchecked.gif					
@@ -266,9 +266,9 @@ ND26a	ND26a	ND26a	1	q		Now I am going to ask you some more general questions abo
 QOL/Social/185	Q185	Q185	1	[		How often have you felt lonely or cut off from people in the last month?	list|1|never|2|seldom|3|sometimes|4|often|5|always
 QOL/Social/186	Q186	Q186	1	q		How satisfied are you with your relationships with your closest friends?         	list|1|not satisfied|2|somewhat satisfied|3|pretty satisfied|4|completely satisfied
 QOL/Social/187	Q187	Q187	1	]		How satisfied are you with how often you see your closest friends? Would you like to see them...     	list|1|less often|2|about as often as now|3|more often|4|a lot more often
-QOL/Social/188	Q188	Q188	1	[		"How many relatives do you have that you are close with, not counting any relatives who live with you?"	list|1|none|2|1|3|2 - 4|4|5 or more
+QOL/Social/188	Q188	Q188	1	q		"How many relatives do you have that you are close with, not counting any relatives who live with you?"	list|1|none|2|1|3|2 - 4|4|5 or more
 QOL/Social/189	Q189	Q189	Q188>1	q		"How many times in the last month have you visited, spoken with, or received letters from them?          "	list|1|none|2|1-3 times|3|4 - 10 times|4|more than ten times
-QOL/Social/190	Q190	Q190	1	]		"Do you see as much of your relatives as you would like to, or  would you like to see them...     "	list|1|less often|2|about as often as now|3|more often|4|a lot more often
+QOL/Social/190	Q190	Q190	1	q		"Do you see as much of your relatives as you would like to, or  would you like to see them...     "	list|1|less often|2|about as often as now|3|more often|4|a lot more often
 QOL/Social/200	Q200	Q200	1	[		"Do you sing or play a musical instrument regularly? IF YES, About how often?"	list|1|no|2|once a month or less|3|2 - 3 times a month|4|once a week|5|2 - 4 times a week|6|daily or nearly daily
 QOL/Social/201	Q201	Q201	1	q		"Do you paint, draw, carve or do any other visual art or craft? IF YES, About how often?          "	list|1|no|2|once a month or less|3|2 - 3 times a month|4|once a week|5|2 - 4 times a week|6|daily or nearly daily
 QOL/Social/202	Q202	Q202	1	]		"Do you do projects around the house, like building, remodeling, painting, sewing or gardening? IF YES, About how often?       "	list|1|no|2|once a month or less|3|2 - 3 times a month|4|once a week|5|2 - 4 times a week|6|daily or nearly daily
@@ -1769,7 +1769,7 @@ Scid2/assess/Histrionic/F70b	Siif70	Siif70	Sii70>0&& ND797>2&&ND798<5	]		"Subjec
 	ND802	ND802	1	e		"count( Siif66==3,(Siif67==3||Siif68==3),Siif69==3,Siif70==3,Siif71==3,Siif72==3,Cf82==32,(falt8==3||falt9==3))"	nothing
 Altobservation/histrionic/cr5	ND803		C82>2&& ND801>2&&ND802<5	[		"You said that it often happens that you are very happy one minute, but very sad the next."	nothing
 Altobservation/histrionic/cr5a	ND804		C82>2&& ND801>2&&ND802<5	q		****	nothing
-Altobservation/histrionic/cr5b	Cf82	Cf82	C82>2&& ND801>2&&ND802<5	]		Subject displays rapidly 	"list|1|No clear evidence of symptom presence|2|Subthreshold in duration, pervasiveness, intensity or quality|3|Meets criteria"
+Altobservation/histrionic/cr5b	Cf82	Cf82	C82>2&& ND801>2&&ND802<5	]		Subject displays rapidly shifting and shallow expression of emotions. 	"list|1|No clear evidence of symptom presence|2|Subthreshold in duration, pervasiveness, intensity or quality|3|Meets criteria"
 	ND805		1	e		"count( Siif66==3,(Siif67==3||Siif68==3),Siif69==3,Siif70==3,Sii71,Sii72,(C82>2),(Alt8==3||Alt9))"	nothing
 	ND806		1	e		"count( Siif66==3,(Siif67==3||Siif68==3),Siif69==3,Siif70==3,Siif71==3,Siif72==3,Cf82==3,(falt8==3||falt9==3))"	nothing
 Altobservation/8	ndalt15		Alt8>0 && ND805>2 && ND806<5	[		You said that you find it easy to express a strong opinion but hard to explain why you feel that way.	nothing
