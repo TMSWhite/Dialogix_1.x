@@ -290,3 +290,22 @@ Reorganization & Documentation
 << changes from version 2.8.3 to 2.8.4
   Added ability to suspend to floppy, error messages when fails to save, and jump_to_first_unasked
   update_dat.pl now translates among all three Triceps file formats
+
+<< changes from version 2.8.4 to 2.8.5
+  Evidence:  added navigation functions, mean(), and stddev()
+  JarWriter:  fail if src has 0 size, of if dst is larger than src
+  Node:  move "please answer this question" above answer options, instead of below
+  Schedule:  added option to add redirect page to end of interview
+    allow swapping of next and previous buttons
+    added ANSWER_OPTION_FIELD_WIDTH feature
+    added check to make sure that signed/saved file is > 0 size
+  Triceps:  once data loggers are deleted, don't resave the file - else can overwrite existing data!
+  TricepsEngine:  changed javascript so that button >> cursors appear to right of next and left of previous
+    fixed layout - now only shows Comment/Refused column when needed
+    now only show question num column when needed
+    added option to add redirect page to end of interview
+    allow swapping of next and previous buttons
+    removed requirement for Cookies
+    only delete workingdir files if saves to completed and floppy correctly
+  TricepsServlet:  change logging to show schedule & line # at each step ; and to log even when not in WEB_SERVER mode
+    show sessionID on log line
