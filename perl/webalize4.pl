@@ -51,8 +51,8 @@ use Archive::Tar;
 
 my (%ips, %browsers, %sessions, %ip2host, @dates);
 
-my $src_dir = "../logs";
-my $dst_dir = "../webalizer";
+my $src_dir = "/data/cet2/logs";
+my $dst_dir = "/data/cet2/webalizer";
 my $JAR =  "/jdk1.3/bin/jar";	# path to jar program (will be different on Unix)
 
 &main;
@@ -164,6 +164,7 @@ sub skipThis {
 	return 1 if ($ip eq '156.111.178.193');	# piwhite
 	return 1 if ($ip eq '156.111.80.79');	# new piwhite
 	return 1 if ($ip eq '156.111.80.78');	# new mine
+	return 1 if ($ip eq '198.190.230.66');	# OMH
 	return 1 if ($schedule ne 'MU-InfoSurvey/musecsurvey.jar');	# only look at MU for now
 	return 0;
 }
