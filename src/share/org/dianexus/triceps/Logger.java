@@ -10,7 +10,8 @@ public class Logger {
 	
 	static {
 		try {
-			STDERR = new PrintWriter(new FileWriter(STDERR_NAME));
+			STDERR = new PrintWriter(new FileWriter(STDERR_NAME,true),true);	// append to log by default
+			writeln("**Log file started on " + new Date(System.currentTimeMillis()));
 		}
 		catch (IOException e) {
 			System.err.println("unable to create '" + STDERR_NAME + "'");
@@ -123,7 +124,6 @@ public class Logger {
 			System.err.print(s);
 			if (eol)
 				System.err.print(DOS_EOL);
-			System.err.flush();
 		}
 	}
 	
@@ -134,7 +134,6 @@ public class Logger {
 		}
 		else {
 			t.printStackTrace(System.err);
-			System.err.flush();
 		}
 	}
 
