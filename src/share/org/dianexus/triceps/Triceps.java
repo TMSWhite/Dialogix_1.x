@@ -780,13 +780,14 @@ if (AUTHORABLE) {
 		return parseErrors;
 	}
 
-	/*public*/ String saveCompletedInfo() {
+	/*public*/ String saveCompletedInfo(String subdir) {
 if (DEPLOYABLE) {
 		if (dataLogger == Logger.NULL || eventLogger == Logger.NULL) {
 			setError("Triceps.saveCompletedInfo:  data and/or event loggers already closed");			
 			return null;	// indicates that info was already logged, or some more fundamental error occurred
 		}
-		String name = saveAsJar(nodes.getReserved(Schedule.FILENAME));
+
+		String name = saveAsJar(subdir, nodes.getReserved(Schedule.FILENAME));
 		if (name != null) {
 			return name;
 		}
@@ -796,11 +797,53 @@ if (DEPLOYABLE) {
 		return null;		
 	}
 	
-	private String saveAsJar(String fn) {
+	public boolean createDir(String subdir) {
+		if ("".equals(subdir) || ".".equals(subdir)) {
+			return true;	// indicates that writing to current directory
+		}
+		
+		File dir = new File(subdir);
+		try {
+			if (!dir.isDirectory()) {
+				if (dir.isFile()) {
+					setError("unable to create directory with the same name as a file: " + subdir);
+					return false;
+				}
+				else {
+					if (!dir.mkdir()) {
+						setError("unable to create directory " + subdir);
+						return false;
+					}
+				}
+			}
+			if (!dir.canWrite()) {
+				setError("unable to write to directory " + subdir);
+				return false;
+			}
+			if (!dir.canRead()) {
+				setError("unable to read from directory " + subdir);
+				return false;
+			}
+			return true;
+					
+		}
+		catch (Exception e) {
+			setError("Triceps.testDir:  " + e.getMessage());
+			return false;
+		}
+	}
+	
+	private String saveAsJar(String subdir, String fn) {
 if (DEPLOYABLE) {
 		/* create jar or zip file of data and events */
 		JarWriter jf = null;
-		String name = nodes.getReserved(Schedule.COMPLETED_DIR) + fn + ".jar";
+		
+		String sourceDir = nodes.getReserved(Schedule.COMPLETED_DIR) + subdir;
+		String name = sourceDir + fn + ".jar";
+		
+		if (!createDir(sourceDir)) {
+			return null;
+		}
 		
 		jf = JarWriter.getInstance(name);
 		
@@ -823,11 +866,21 @@ if (DEPLOYABLE) {
 		return null;		
 	}
 	
-	/*public*/ String copyCompletedToFloppy() {
+	/*public*/ String copyCompletedToFloppy(String subdir) {
+		// change this so that copies to a:\suspended directory
 		String name = nodes.getReserved(Schedule.FILENAME) + ".jar";
-		String floppyDir = nodes.getReserved(Schedule.FLOPPY_DIR) + name;
+		String sourceDir = nodes.getReserved(Schedule.COMPLETED_DIR) + subdir;
+		String floppyDir = nodes.getReserved(Schedule.FLOPPY_DIR) + subdir;
 		
-		boolean ok = JarWriter.NULL.copyFile(nodes.getReserved(Schedule.COMPLETED_DIR) + name, floppyDir);
+		if (!createDir(sourceDir)) {
+			return null;
+		}
+		
+		if (!createDir(floppyDir)) {
+			return null;
+		}
+		
+		boolean ok = JarWriter.NULL.copyFile(sourceDir + name, floppyDir + name);
 		if (JarWriter.NULL.hasErrors()) {
 			setError(JarWriter.NULL.getErrors());
 		}
