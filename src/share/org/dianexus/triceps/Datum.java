@@ -26,12 +26,13 @@ public class Datum  {
 	private static final Double SAMPLE_NUMBER = new Double(123.456);
 	public static final String TYPES[] = { "*UNASKED*", "*NOT APPLICABLE*", "*REFUSED*", "*INVALID*", "*UNKNOWN*", "*NOT UNDERSTOOD*",
 		"Number", "String", "Date", "Time", "Year", "Month", "Day", "Weekday", "Hour", "Minute", "Second", "Month_Num" };
-	private static Datum NA_DATUM = null;
-	private static Datum UNKNOWN_DATUM = null;
-	private static Datum REFUSED_DATUM = null;
-	private static Datum INVALID_DATUM = null;
-	private static Datum UNASKED_DATUM = null;
-	private static Datum NOT_UNDERSTOOD_DATUM = null;
+		
+	public static final Datum NA_DATUM = new Datum(NA);
+	public static final Datum UNKNOWN_DATUM = new Datum(UNKNOWN);
+	public static final Datum REFUSED_DATUM = new Datum(REFUSED);
+	public static final Datum INVALID_DATUM = new Datum(INVALID);
+	public static final Datum UNASKED_DATUM = new Datum(UNASKED);
+	public static final Datum NOT_UNDERSTOOD_DATUM = new Datum(NOT_UNDERSTOOD);
 
 	private static final SimpleDateFormat defaultDateFormat = new SimpleDateFormat("MM/dd/yyyy");
 	private static final SimpleDateFormat defaultMonthFormat = new SimpleDateFormat("MMMM");
@@ -68,42 +69,6 @@ public class Datum  {
 		dVal = d;
 		bVal = (Double.isNaN(d) || (d == 0)) ? false : true;
 		sVal = (!Double.isNaN(d)) ? Double.toString(d) : null;
-	}
-
-	public static Datum getInstance(int i) {
-		switch(i) {
-			case NA:
-				if (Datum.NA_DATUM == null) {
-					Datum.NA_DATUM = new Datum(NA);
-				}
-				return Datum.NA_DATUM;
-			case UNKNOWN:
-				if (Datum.UNKNOWN_DATUM == null) {
-					Datum.UNKNOWN_DATUM = new Datum(UNKNOWN);
-				}
-				return Datum.UNKNOWN_DATUM;
-			case REFUSED:
-				if (Datum.REFUSED_DATUM == null) {
-					Datum.REFUSED_DATUM = new Datum(REFUSED);
-				}
-				return Datum.REFUSED_DATUM;
-			case UNASKED:
-				if (Datum.UNASKED_DATUM == null) {
-					Datum.UNASKED_DATUM = new Datum(UNASKED);
-				}
-				return Datum.UNASKED_DATUM;
-			case NOT_UNDERSTOOD:
-				if (Datum.NOT_UNDERSTOOD_DATUM == null) {
-					Datum.NOT_UNDERSTOOD_DATUM = new Datum(NOT_UNDERSTOOD);
-				}
-				return Datum.NOT_UNDERSTOOD_DATUM;
-			default:
-			case INVALID:
-				if (Datum.INVALID_DATUM == null) {
-					Datum.INVALID_DATUM = new Datum(INVALID);
-				}
-				return Datum.INVALID_DATUM;
-		}
 	}
 
 	private Datum(int i) {
