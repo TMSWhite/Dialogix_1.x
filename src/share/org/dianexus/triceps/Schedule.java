@@ -77,6 +77,7 @@ import java.io.ByteArrayInputStream;
 	/*public*/ static final int JUMP_TO_FIRST_UNASKED = 51;
 	/*public*/ static final int REDIRECT_ON_FINISH_URL= 52;
 	/*public*/ static final int REDIRECT_ON_FINISH_MSG = 53;
+	/*public*/ static final int SWAP_NEXT_AND_PREVIOUS = 54;
 
 	private static final String DEFAULT_LANGUAGE = "en_US";
 	/*public*/ static final String TRICEPS_DATA_FILE = "DATA";
@@ -138,6 +139,7 @@ import java.io.ByteArrayInputStream;
 		"__JUMP_TO_FIRST_UNASKED__",
 		"__REDIRECT_ON_FINISH_URL__",
 		"__REDIRECT_ON_FINISH_MSG__",
+		"__SWAP_NEXT_AND_PREVIOUS__",
 	};
 
 	private Date startTime = null;
@@ -240,6 +242,7 @@ import java.io.ByteArrayInputStream;
 		setReserved(JUMP_TO_FIRST_UNASKED,"false");
 		setReserved(REDIRECT_ON_FINISH_URL,"");
 		setReserved(REDIRECT_ON_FINISH_MSG,"");
+		setReserved(SWAP_NEXT_AND_PREVIOUS,"false");
 		
 	}
 		
@@ -741,6 +744,7 @@ if (DEPLOYABLE) {
 			case JUMP_TO_FIRST_UNASKED: if (expert) s = Boolean.valueOf(value.trim()).toString(); break;
 			case REDIRECT_ON_FINISH_URL: if (expert) s = value.trim(); break;
 			case REDIRECT_ON_FINISH_MSG: if (expert) s = value.trim(); break;
+			case SWAP_NEXT_AND_PREVIOUS: s = Boolean.valueOf(value.trim()).toString(); break;
 			default: return false;
 		}
 		

@@ -871,7 +871,9 @@ if (AUTHORABLE) {
 			firstFocus = "next";	// try to focus on Next button if nothing else available
 		}
 
-		firstFocus = (new XmlString(triceps, firstFocus)).toString();	// make sure properly formatted
+		if (firstFocus != null) {
+			firstFocus = (new XmlString(triceps, firstFocus)).toString();	// make sure properly formatted
+		}
 
 		sb.append(queryUser());
 		
@@ -1272,13 +1274,23 @@ if (XML) {
 		}
 		
 		sb.append("<tr><td colspan='" + (colpad+2) + "' align='center'>");
-
-		if (!triceps.isAtEnd()) {
-			sb.append(buildSubmit("next"));
+		
+		if (schedule.getBooleanReserved(Schedule.SWAP_NEXT_AND_PREVIOUS)) {
+			if (!triceps.isAtBeginning()) {
+				sb.append(buildSubmit("previous"));
+			}
+			if (!triceps.isAtEnd()) {
+				sb.append(buildSubmit("next"));
+			}
 		}
-	
-		if (!triceps.isAtBeginning()) {
-			sb.append(buildSubmit("previous"));
+		else {
+			if (!triceps.isAtEnd()) {
+				sb.append(buildSubmit("next"));
+			}
+		
+			if (!triceps.isAtBeginning()) {
+				sb.append(buildSubmit("previous"));
+			}			
 		}
 		if (allowJumpTo || (developerMode && AUTHORABLE)) {
 			sb.append(buildSubmit("jump_to"));
