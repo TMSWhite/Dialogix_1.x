@@ -24,13 +24,16 @@
 	</TR>
 </TABLE>
 </P>
-<form>
 <P ALIGN="CENTER"><FONT SIZE="6">Children in the Community - Wave 6 - Web Version</FONT></P>
 
 <P ALIGN="CENTER">Implemented using the Dialogix System</P>
 
+<form>
 <DIV ALIGN="CENTER">
 	<P><INPUT type='button' name='start' value="Click here to start (or resume) your interview" onclick="window.top.open('/Wave6/servlet/Dialogix','Wave6','resizable=yes,scrollbars=yes,status=yes')">
+</DIV>
+<DIV ALIGN="CENTER">
+	<P><INPUT type='button' name='start' value="Click here to start (or resume) your interview using the secure server" onclick="window.top.open('https://@@DEPLOY.HOSTNAME@@:@@HTTPS.PORT@@/Wave6/servlet/Dialogix','Wave6','resizable=yes,scrollbars=yes,status=yes')">
 </DIV>
 </form>
 
