@@ -10,7 +10,7 @@ package org.dianexus.triceps;
  * You can modify this class to customize your error reporting
  * mechanisms so long as you retain the public fields.
  */
-public class ParseException extends Exception implements VersionIF{
+/*public*/ class ParseException extends Exception implements VersionIF{
 
   /**
    * This constructor is used by the method "generateParseException"
@@ -24,7 +24,7 @@ public class ParseException extends Exception implements VersionIF{
    * print the error message in the form:
    *     ParseException: <result of getMessage>
    */
-  public ParseException(Token currentTokenVal,
+  /*public*/ ParseException(Token currentTokenVal,
                         int[][] expectedTokenSequencesVal,
                         String[] tokenImageVal
                        )
@@ -46,12 +46,12 @@ public class ParseException extends Exception implements VersionIF{
    * these constructors.
    */
 
-  public ParseException() {
+  /*public*/ ParseException() {
     super();
     specialConstructor = false;
   }
 
-  public ParseException(String message) {
+  /*public*/ ParseException(String message) {
     super(message);
     specialConstructor = false;
   }
@@ -68,21 +68,21 @@ public class ParseException extends Exception implements VersionIF{
    * this object has been created due to a parse error, the token
    * followng this token will (therefore) be the first error token.
    */
-  public Token currentToken;
+  /*public*/ Token currentToken;
 
   /**
    * Each entry in this array is an array of integers.  Each array
    * of integers represents a sequence of tokens (by their ordinal
    * values) that is expected at this point of the parse.
    */
-  public int[][] expectedTokenSequences;
+  /*public*/ int[][] expectedTokenSequences;
 
   /**
    * This is a reference to the "tokenImage" array of the generated
    * parser within which the parse error occurred.  This array is
    * defined in the generated ...Constants interface.
    */
-  public String[] tokenImage;
+  /*public*/ String[] tokenImage;
 
   /**
    * This method has the standard behavior when this object has been

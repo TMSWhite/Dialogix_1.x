@@ -6,13 +6,13 @@ package org.dianexus.triceps;
  * contain only ASCII characters (without unicode processing).
  */
 
-public final class ASCII_CharStream implements VersionIF
+/*public*/ final class ASCII_CharStream implements VersionIF
 {
-  public static final boolean staticFlag = false;
+  /*public*/ static final boolean staticFlag = false;
   int bufsize;
   int available;
   int tokenBegin;
-  public int bufpos = -1;
+  /*public*/ int bufpos = -1;
   private int bufline[];
   private int bufcolumn[];
 
@@ -123,7 +123,7 @@ public final class ASCII_CharStream implements VersionIF
      }
   }
 
-  public final char BeginToken() throws java.io.IOException
+  /*public*/ final char BeginToken() throws java.io.IOException
   {
      tokenBegin = -1;
      char c = readChar();
@@ -172,7 +172,7 @@ public final class ASCII_CharStream implements VersionIF
      bufcolumn[bufpos] = column;
   }
 
-  public final char readChar() throws java.io.IOException
+  /*public*/ final char readChar() throws java.io.IOException
   {
      if (inBuf > 0)
      {
@@ -194,7 +194,7 @@ public final class ASCII_CharStream implements VersionIF
    * @see #getEndColumn
    */
 
-  public final int getColumn() {
+  /*public*/ final int getColumn() {
      return bufcolumn[bufpos];
   }
 
@@ -203,34 +203,34 @@ public final class ASCII_CharStream implements VersionIF
    * @see #getEndLine
    */
 
-  public final int getLine() {
+  /*public*/ final int getLine() {
      return bufline[bufpos];
   }
 
-  public final int getEndColumn() {
+  /*public*/ final int getEndColumn() {
      return bufcolumn[bufpos];
   }
 
-  public final int getEndLine() {
+  /*public*/ final int getEndLine() {
      return bufline[bufpos];
   }
 
-  public final int getBeginColumn() {
+  /*public*/ final int getBeginColumn() {
      return bufcolumn[tokenBegin];
   }
 
-  public final int getBeginLine() {
+  /*public*/ final int getBeginLine() {
      return bufline[tokenBegin];
   }
 
-  public final void backup(int amount) {
+  /*public*/ final void backup(int amount) {
 
     inBuf += amount;
     if ((bufpos -= amount) < 0)
        bufpos += bufsize;
   }
 
-  public ASCII_CharStream(java.io.Reader dstream, int startline,
+  /*public*/ ASCII_CharStream(java.io.Reader dstream, int startline,
   int startcolumn, int buffersize)
   {
     inputStream = dstream;
@@ -243,12 +243,12 @@ public final class ASCII_CharStream implements VersionIF
     bufcolumn = new int[buffersize];
   }
 
-  public ASCII_CharStream(java.io.Reader dstream, int startline,
+  /*public*/ ASCII_CharStream(java.io.Reader dstream, int startline,
                                                            int startcolumn)
   {
      this(dstream, startline, startcolumn, 4096);
   }
-  public void ReInit(java.io.Reader dstream, int startline,
+  /*public*/ void ReInit(java.io.Reader dstream, int startline,
   int startcolumn, int buffersize)
   {
     inputStream = dstream;
@@ -267,34 +267,34 @@ public final class ASCII_CharStream implements VersionIF
     bufpos = -1;
   }
 
-  public void ReInit(java.io.Reader dstream, int startline,
+  /*public*/ void ReInit(java.io.Reader dstream, int startline,
                                                            int startcolumn)
   {
      ReInit(dstream, startline, startcolumn, 4096);
   }
-  public ASCII_CharStream(java.io.InputStream dstream, int startline,
+  /*public*/ ASCII_CharStream(java.io.InputStream dstream, int startline,
   int startcolumn, int buffersize)
   {
      this(new java.io.InputStreamReader(dstream), startline, startcolumn, 4096);
   }
 
-  public ASCII_CharStream(java.io.InputStream dstream, int startline,
+  /*public*/ ASCII_CharStream(java.io.InputStream dstream, int startline,
                                                            int startcolumn)
   {
      this(dstream, startline, startcolumn, 4096);
   }
 
-  public void ReInit(java.io.InputStream dstream, int startline,
+  /*public*/ void ReInit(java.io.InputStream dstream, int startline,
   int startcolumn, int buffersize)
   {
      ReInit(new java.io.InputStreamReader(dstream), startline, startcolumn, 4096);
   }
-  public void ReInit(java.io.InputStream dstream, int startline,
+  /*public*/ void ReInit(java.io.InputStream dstream, int startline,
                                                            int startcolumn)
   {
      ReInit(dstream, startline, startcolumn, 4096);
   }
-  public final String GetImage()
+  /*public*/ final String GetImage()
   {
      if (bufpos >= tokenBegin)
         return new String(buffer, tokenBegin, bufpos - tokenBegin + 1);
@@ -303,7 +303,7 @@ public final class ASCII_CharStream implements VersionIF
                               new String(buffer, 0, bufpos + 1);
   }
 
-  public final char[] GetSuffix(int len)
+  /*public*/ final char[] GetSuffix(int len)
   {
      char[] ret = new char[len];
 
@@ -319,7 +319,7 @@ public final class ASCII_CharStream implements VersionIF
      return ret;
   }
 
-  public void Done()
+  /*public*/ void Done()
   {
      buffer = null;
      bufline = null;
@@ -329,7 +329,7 @@ public final class ASCII_CharStream implements VersionIF
   /**
    * Method to adjust line and column numbers for the start of a token.<BR>
    */
-  public void adjustBeginLineColumn(int newLine, int newCol)
+  /*public*/ void adjustBeginLineColumn(int newLine, int newCol)
   {
      int start = tokenBegin;
      int len;

@@ -1,11 +1,13 @@
 package org.dianexus.triceps;
 
-import java.lang.*;
-import java.util.*;
-import java.text.Format;
+/*import java.lang.*;*/
+/*import java.util.*;*/
+/*import java.text.Format;*/
+import java.util.Date;
+import java.util.GregorianCalendar;
+import java.util.Calendar;
 
-/** This class provides the basic logic and mathematical functions for relating objects of type datum. */
-public final class DatumMath implements VersionIF {
+/*public*/ final class DatumMath implements VersionIF {
 	static Datum hasError(Datum a, Datum b) {
 		// This function needs to be reconsidered as to the proper way to handle error propagation
 		if (a.isType(Datum.INVALID) || (b != null && b.isType(Datum.INVALID))) {

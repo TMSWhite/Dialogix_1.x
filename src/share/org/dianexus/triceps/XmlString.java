@@ -1,10 +1,16 @@
 package org.dianexus.triceps;
 
-import java.util.*;
-import java.io.*;
+/*import java.util.*;*/
+/*import java.io.*;*/
+import java.util.Hashtable;
+import java.io.Writer;
+import java.util.Vector;
+import java.io.StringWriter;
+import java.io.IOException;
+import java.util.StringTokenizer;
 
-public final class XmlString implements VersionIF {
-	public static final XmlString NULL = new XmlString(null,null);
+/*public*/ final class XmlString implements VersionIF {
+	/*public*/ static final XmlString NULL = new XmlString(null,null);
 
 	private static final Hashtable ENTITIES = new Hashtable();
 	private static final Hashtable BINARY_TAGS = new Hashtable();
@@ -146,7 +152,7 @@ public final class XmlString implements VersionIF {
 	private int lineNum = 1;
 	private int column = 1;
 
-    public XmlString(Triceps lang, String src) {
+    /*public*/ XmlString(Triceps lang, String src) {
     	triceps = (lang == null) ? Triceps.NULL : lang;
     	if (src == null)
     		return;
@@ -160,7 +166,7 @@ if (DEBUG) Logger.writeln("##IOException @ new XMLString()" + e.getMessage());
 		}
     }
 
-    public XmlString(Triceps lang, String src, Writer out) {
+    /*public*/ XmlString(Triceps lang, String src, Writer out) {
     	triceps = (lang == null) ? Triceps.NULL : lang;
     	if (src == null || out == null)
     		return;
@@ -473,10 +479,10 @@ if (DEBUG) Logger.writeln("##IOException @ XMLString.encodeHTML()" + e.getMessag
 		logger.println(s,lineNum,column);
 	}
 
-	public boolean hasErrors() { return (logger.size() > 0); }
-	public String getErrors() { return logger.toString(); }
+	/*public*/ boolean hasErrors() { return (logger.size() > 0); }
+	/*public*/ String getErrors() { return logger.toString(); }
 
-	public boolean isNMTOKEN(String token) {
+	/*public*/ boolean isNMTOKEN(String token) {
 		char[] chars = token.toCharArray();
 		for (int i=0;i<chars.length;++i) {
 			if (!(Character.isLetterOrDigit(chars[i]) || chars[i] == '_')) {
@@ -487,7 +493,7 @@ if (AUTHORABLE)	error(triceps.get("name_contains_invalid_character") + chars[i])
 		return true;
 	}
 
-	public boolean isEntity(String entity) {
+	/*public*/ boolean isEntity(String entity) {
 		if (ENTITIES.containsKey(entity)) {
 			return true;
 		}

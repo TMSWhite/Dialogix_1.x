@@ -5,26 +5,26 @@ package org.dianexus.triceps;
  * Describes the input token stream.
  */
 
-public class Token implements VersionIF {
+/*public*/ class Token implements VersionIF {
 
   /**
    * An integer that describes the kind of this token.  This numbering
    * system is determined by JavaCCParser, and a table of these numbers is
    * stored in the file ...Constants.java.
    */
-  public int kind;
+  /*public*/ int kind;
 
   /**
    * beginLine and beginColumn describe the position of the first character
    * of this token; endLine and endColumn describe the position of the
    * last character of this token.
    */
-  public int beginLine, beginColumn, endLine, endColumn;
+  /*public*/ int beginLine, beginColumn, endLine, endColumn;
 
   /**
    * The string image of the token.
    */
-  public String image;
+  /*public*/ String image;
 
   /**
    * A reference to the next regular (non-special) token from the input
@@ -34,7 +34,7 @@ public class Token implements VersionIF {
    * token.  Otherwise, see below for a description of the contents of
    * this field.
    */
-  public Token next;
+  /*public*/ Token next;
 
   /**
    * This field is used to access special tokens that occur prior to this
@@ -48,7 +48,7 @@ public class Token implements VersionIF {
    * immediately follow it (without an intervening regular token).  If there
    * is no such token, this field is null.
    */
-  public Token specialToken;
+  /*public*/ Token specialToken;
 
   /**
    * Returns the image.
@@ -70,7 +70,7 @@ public class Token implements VersionIF {
    * to the following switch statement. Then you can cast matchedToken
    * variable to the appropriate type and use it in your lexical actions.
    */
-  public static final Token newToken(int ofKind)
+  /*public*/ static final Token newToken(int ofKind)
   {
      switch(ofKind)
      {

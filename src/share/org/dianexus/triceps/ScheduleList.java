@@ -1,15 +1,17 @@
 package org.dianexus.triceps;
 
-import java.io.*;
-import java.util.*;
+/*import java.io.*;*/
+/*import java.util.*;*/
+import java.util.Vector;
+import java.io.File;
 
-public final class ScheduleList implements VersionIF {
+/*public*/ final class ScheduleList implements VersionIF {
 	private Vector schedules = new Vector();
 	private String sourceDir = null;
 	private Logger logger = new Logger();
 	private Triceps triceps = Triceps.NULL;
 
-    public ScheduleList(Triceps lang, String sourceDir) {
+    /*public*/ ScheduleList(Triceps lang, String sourceDir) {
      	triceps = (lang == null) ? Triceps.NULL : lang;
 	   	this.sourceDir = sourceDir;
 	    File dir = new File(sourceDir);
@@ -42,9 +44,9 @@ public final class ScheduleList implements VersionIF {
 		triceps.setLocale(null);	// set it to the default
     }
 
-	public boolean hasErrors() { return (logger.size() > 0); }
-	public String getErrors() { return logger.toString(); }
+	/*public*/ boolean hasErrors() { return (logger.size() > 0); }
+	/*public*/ String getErrors() { return logger.toString(); }
 
-    public Vector getSchedules() { return schedules; }
+    /*public*/ Vector getSchedules() { return schedules; }
 
 }

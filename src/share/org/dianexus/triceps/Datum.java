@@ -1,31 +1,33 @@
 package org.dianexus.triceps;
 
-import java.util.*;
-import java.lang.*;
-import java.io.*;
-import java.text.*;
+/*import java.util.*;*/
+/*import java.lang.*;*/
+/*import java.io.*;*/
+/*import java.text.*;*/
+import java.util.HashMap;
+import java.util.Date;
 
-public final class Datum implements VersionIF  {
+/*public*/ final class Datum implements VersionIF  {
 	private static final int FIRST_DATUM_TYPE = 0;
-	public static final int UNASKED = 0;		// haven't asked
-	public static final int NA = 1;				// don't need to ask - not applicable
-	public static final int REFUSED = 2;		// question asked, but subject refuses to answer
-	public static final int INVALID = 3;		// if an exception occurs - so propagated
-	public static final int UNKNOWN = 4;		// subject indicates that they don't know the answer
-	public static final int NOT_UNDERSTOOD = 5;
-	public static final int NUMBER = 6;
-	public static final int STRING = 7;
-	public static final int DATE = 8;
-	public static final int TIME = 9;
-	public static final int YEAR = 10;
-	public static final int MONTH = 11;
-	public static final int DAY = 12;
-	public static final int WEEKDAY = 13;
-	public static final int HOUR = 14;
-	public static final int MINUTE = 15;
-	public static final int SECOND = 16;
-	public static final int MONTH_NUM = 17;
-	public static final int DAY_NUM = 18;
+	/*public*/ static final int UNASKED = 0;		// haven't asked
+	/*public*/ static final int NA = 1;				// don't need to ask - not applicable
+	/*public*/ static final int REFUSED = 2;		// question asked, but subject refuses to answer
+	/*public*/ static final int INVALID = 3;		// if an exception occurs - so propagated
+	/*public*/ static final int UNKNOWN = 4;		// subject indicates that they don't know the answer
+	/*public*/ static final int NOT_UNDERSTOOD = 5;
+	/*public*/ static final int NUMBER = 6;
+	/*public*/ static final int STRING = 7;
+	/*public*/ static final int DATE = 8;
+	/*public*/ static final int TIME = 9;
+	/*public*/ static final int YEAR = 10;
+	/*public*/ static final int MONTH = 11;
+	/*public*/ static final int DAY = 12;
+	/*public*/ static final int WEEKDAY = 13;
+	/*public*/ static final int HOUR = 14;
+	/*public*/ static final int MINUTE = 15;
+	/*public*/ static final int SECOND = 16;
+	/*public*/ static final int MONTH_NUM = 17;
+	/*public*/ static final int DAY_NUM = 18;
 	private static final int LAST_DATUM_TYPE = 18;
 
 	private static final Date SAMPLE_DATE = new Date(System.currentTimeMillis());
@@ -45,9 +47,9 @@ public final class Datum implements VersionIF  {
 	private static final String defaultSecondFormat = "s";
 	private static final String defaultNumberFormat = null;	// so that Triceps pretty-prints it.
 
-	public static final String defaultMonthNumFormat = "M";
-	public static final String defaultDayNumFormat = "D";
-	public static final String TIME_MASK = "yyyy.MM.dd..HH.mm.ss";
+	/*public*/ static final String defaultMonthNumFormat = "M";
+	/*public*/ static final String defaultDayNumFormat = "D";
+	/*public*/ static final String TIME_MASK = "yyyy.MM.dd..HH.mm.ss";
 
 	private int type = INVALID;
 	private String sVal = null;
@@ -59,10 +61,10 @@ public final class Datum implements VersionIF  {
 	Triceps triceps = null;	// need package level access in DatumMath
 	private static final HashMap SPECIAL_DATA = new HashMap();
 
-	public Datum(Triceps lang, double d) { init(lang, new Double(d), NUMBER, null); }
-	public Datum(Triceps lang, long l) { init(lang, new Long(l), NUMBER, null); }
+	/*public*/ Datum(Triceps lang, double d) { init(lang, new Double(d), NUMBER, null); }
+	/*public*/ Datum(Triceps lang, long l) { init(lang, new Long(l), NUMBER, null); }
 
-	public static Datum getInstance(Triceps lang, int i) {
+	/*public*/ static Datum getInstance(Triceps lang, int i) {
 if (i == INVALID) {
 if (DEBUG) Logger.printStackTrace(new Throwable("##INVALID Datum"));
 }
@@ -82,7 +84,7 @@ if (DEBUG) Logger.printStackTrace(new Throwable("##INVALID Datum"));
 		type = i;
 	}
 
-	public Datum(Datum val, String name) {
+	/*public*/ Datum(Datum val, String name) {
 		dVal = val.dVal;
 		sVal = val.sVal;
 		date = val.date;
@@ -99,27 +101,27 @@ if (DEBUG) Logger.printStackTrace(new Throwable("##INVALID Datum"));
 	}
 
 
-	public Datum(Datum val) {
+	/*public*/ Datum(Datum val) {
 		this(val,null);
 	}
 
-	public Datum(Triceps lang, Date d, int t) {
+	/*public*/ Datum(Triceps lang, Date d, int t) {
 		this(lang,d,t,Datum.getDefaultMask(t));
 	}
 
-	public Datum(Triceps lang, Date d, int t, String mask) {
+	/*public*/ Datum(Triceps lang, Date d, int t, String mask) {
 		init(lang,d,t,mask);
 	}
 
-	public Datum(Triceps lang, String s, int t) {
+	/*public*/ Datum(Triceps lang, String s, int t) {
 		init(lang,s,t,Datum.getDefaultMask(t));
 	}
 
-	public Datum(Triceps lang, String s, int t, String mask) {
+	/*public*/ Datum(Triceps lang, String s, int t, String mask) {
 		init(lang,s,t,mask);
 	}
 
-	public Datum cast(int newType, String newMask) {
+	/*public*/ Datum cast(int newType, String newMask) {
 		/* Cast a value from one type to another */
 
 		if (this.type == newType && this.mask == newMask) {
@@ -292,17 +294,17 @@ if (DEBUG) Logger.printStackTrace(new Throwable("##null obj passed to Datum.init
 		}
 	}
 
-	public Datum(Triceps lang, boolean b) {
+	/*public*/ Datum(Triceps lang, boolean b) {
     	triceps = (lang == null) ? Triceps.NULL : lang;
 
 		type = NUMBER;
 		dVal = (b ? 1 : 0);
 	}
 
-	public String stringVal() { return stringVal(false,mask); }
-	public String stringVal(boolean showReserved) { return stringVal(showReserved,mask); }
+	/*public*/ String stringVal() { return stringVal(false,mask); }
+	/*public*/ String stringVal(boolean showReserved) { return stringVal(showReserved,mask); }
 
-	public String stringVal(boolean showReserved, String mask) {
+	/*public*/ String stringVal(boolean showReserved, String mask) {
 		switch(type) {
 			case TIME:
 			case MONTH:
@@ -342,7 +344,7 @@ if (DEBUG) Logger.writeln("##stringVal(" + showReserved + "," + mask + ") -> inv
 		}
 	}
 
-	public boolean booleanVal() {
+	/*public*/ boolean booleanVal() {
 		if (isNumeric()) {
 			return (Double.isNaN(dVal) || (dVal == 0)) ? false : true;
 		}
@@ -354,35 +356,35 @@ if (DEBUG) Logger.writeln("##stringVal(" + showReserved + "," + mask + ") -> inv
 		}
 	}
 
-	public double doubleVal() { return dVal; }
-	public Date dateVal() { return date; }
-	public String monthVal() { if (date == null) return ""; return format(date,Datum.MONTH); }
-	public String timeVal() { if (date == null) return ""; return format(date,Datum.TIME); }
-	public int type() { return type; }
-	public String getMask() { return mask; }
+	/*public*/ double doubleVal() { return dVal; }
+	/*public*/ Date dateVal() { return date; }
+	/*public*/ String monthVal() { if (date == null) return ""; return format(date,Datum.MONTH); }
+	/*public*/ String timeVal() { if (date == null) return ""; return format(date,Datum.TIME); }
+	/*public*/ int type() { return type; }
+	/*public*/ String getMask() { return mask; }
 
-//	public void setName(String name) { variableName = name; }
-	public String getName() { return variableName; }
+//	/*public*/ void setName(String name) { variableName = name; }
+	/*public*/ String getName() { return variableName; }
 
-	public boolean isValid() {
+	/*public*/ boolean isValid() {
 		return (isType(type) && type != INVALID);
 	}
 
-	public boolean exists() {
+	/*public*/ boolean exists() {
 		/* not only must it be valid, but STRING vals must be non-null */
 		return (type != UNASKED && isValid() && ((type == STRING) ? !sVal.equals("") : true));
 	}
 
-	public boolean isSpecial() { return (type >= UNASKED && type <= NOT_UNDERSTOOD); }
-	static public boolean isSpecial(int t) { return (t >= UNASKED && t <= NOT_UNDERSTOOD); }
-	public boolean isNumeric() { return (!Double.isNaN(dVal)); }
-	public boolean isDate() { return (date != null); }
-	static public boolean isDate(int t) { return (t >= DATE && t <= DAY_NUM); }
-	public boolean isRefused() { return (type == REFUSED); }
-	public boolean isUnknown() { return (type == UNKNOWN); }
-	public boolean isNotUnderstood() { return (type == NOT_UNDERSTOOD); }
+	/*public*/ boolean isSpecial() { return (type >= UNASKED && type <= NOT_UNDERSTOOD); }
+	static /*public*/ boolean isSpecial(int t) { return (t >= UNASKED && t <= NOT_UNDERSTOOD); }
+	/*public*/ boolean isNumeric() { return (!Double.isNaN(dVal)); }
+	/*public*/ boolean isDate() { return (date != null); }
+	static /*public*/ boolean isDate(int t) { return (t >= DATE && t <= DAY_NUM); }
+	/*public*/ boolean isRefused() { return (type == REFUSED); }
+	/*public*/ boolean isUnknown() { return (type == UNKNOWN); }
+	/*public*/ boolean isNotUnderstood() { return (type == NOT_UNDERSTOOD); }
 
-	public boolean isType(int t) {
+	/*public*/ boolean isType(int t) {
 		switch(t) {
 			case TIME:
 			case MONTH:
@@ -417,7 +419,7 @@ if (DEBUG) Logger.writeln("##stringVal(" + showReserved + "," + mask + ") -> inv
 		}
 	}
 
-	static public boolean isValidType(int t) {
+	static /*public*/ boolean isValidType(int t) {
 		switch(t) {
 			case UNASKED:
 			case NA:
@@ -445,7 +447,7 @@ if (DEBUG) Logger.writeln("##stringVal(" + showReserved + "," + mask + ") -> inv
 	}
 
 
-	public String getError() {
+	/*public*/ String getError() {
 		if (error == null)
 			return "";
 
@@ -454,11 +456,11 @@ if (DEBUG) Logger.writeln("##stringVal(" + showReserved + "," + mask + ") -> inv
 		return temp;
 	}
 
-	public String getExampleFormatStr(String mask, int t) {
+	/*public*/ String getExampleFormatStr(String mask, int t) {
 		return getExampleFormatStr(triceps, mask, t);
 	}
 
-	static public String getExampleFormatStr(Triceps lang, String mask, int t) {
+	static /*public*/ String getExampleFormatStr(Triceps lang, String mask, int t) {
 		switch (t) {
 			case MONTH:
 			case DATE:
@@ -492,7 +494,7 @@ if (DEBUG) Logger.writeln("##stringVal(" + showReserved + "," + mask + ") -> inv
 		}
 	}
 
-	static public String getDefaultMask(int t) {
+	static /*public*/ String getDefaultMask(int t) {
 		switch (t) {
 			case MONTH:
 				return defaultMonthFormat;
@@ -531,11 +533,11 @@ if (DEBUG) Logger.writeln("##stringVal(" + showReserved + "," + mask + ") -> inv
 		return null;
 	}
 
-	public String format(Datum d, String mask) {
+	/*public*/ String format(Datum d, String mask) {
 		return format(triceps, d, d.type(), mask);
 	}
 
-	static public String format(Triceps lang, Object o, int type, String mask) {
+	static /*public*/ String format(Triceps lang, Object o, int type, String mask) {
 		String s;
 
 		switch (type) {
@@ -590,13 +592,13 @@ if (DEBUG) Logger.writeln("##stringVal(" + showReserved + "," + mask + ") -> inv
 		return Datum.getTypeName(lang,INVALID);
 	}
 
-	public String format(Object o, int t) {
+	/*public*/ String format(Object o, int t) {
 		return format(triceps, o,t,Datum.getDefaultMask(t));
 	}
 
-	public String getTypeName() { return getTypeName(triceps,type); }
+	/*public*/ String getTypeName() { return getTypeName(triceps,type); }
 
-	static public String getSpecialName(int t) {
+	static /*public*/ String getSpecialName(int t) {
 		switch (t) {
 			// must have static strings for reserved words so that correctly parsed from data files
 			case UNASKED:
@@ -611,7 +613,7 @@ if (DEBUG) Logger.writeln("##stringVal(" + showReserved + "," + mask + ") -> inv
 		}
 	}
 
-	static public String getTypeName(Triceps lang, int t) {
+	static /*public*/ String getTypeName(Triceps lang, int t) {
 		switch (t) {
 			// must have static strings for reserved words so that correctly parsed from data files
 			case UNASKED:
@@ -641,7 +643,7 @@ if (DEBUG) Logger.writeln("##stringVal(" + showReserved + "," + mask + ") -> inv
 		}
 	}
 
-	static public Datum parseSpecialType(Triceps lang, String s) {
+	static /*public*/ Datum parseSpecialType(Triceps lang, String s) {
 		if (s == null || s.trim().length() == 0)
 			return null;	// not a special datatype
 
@@ -652,7 +654,7 @@ if (DEBUG) Logger.writeln("##stringVal(" + showReserved + "," + mask + ") -> inv
 		return null;	// not a special datumType
 	}
 
-	static public int parseDatumType(String s) {
+	static /*public*/ int parseDatumType(String s) {
 		if (s == null)
 			return -1;
 

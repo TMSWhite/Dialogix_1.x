@@ -1,11 +1,17 @@
 package org.dianexus.triceps;
 
-import java.util.*;
-import java.io.*;
+/*import java.util.*;*/
+/*import java.io.*;*/
+import java.io.PrintWriter;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.io.File;
+import java.io.Writer;
+import java.util.Date;
 
 /* Inner class for logging - this is needed to support localization of error messages */
-public class Logger implements VersionIF {
-	public static final Logger NULL = new Logger(null,null,true);
+/*public*/ class Logger implements VersionIF {
+	/*public*/ static final Logger NULL = new Logger(null,null,true);
 
 	private static PrintWriter STDERR = null;
 	private static final String STDERR_NAME = "Triceps.log.err";
@@ -20,10 +26,10 @@ public class Logger implements VersionIF {
 		}
 	}
 
-	public static final String DOS_EOL = "\n\r";
-	public static final String MAC_EOL = "\r";
-	public static final String UNIX_EOL = "\n";
-	public static final String HTML_EOL = "<br>";
+	/*public*/ static final String DOS_EOL = "\n\r";
+	/*public*/ static final String MAC_EOL = "\r";
+	/*public*/ static final String UNIX_EOL = "\n";
+	/*public*/ static final String HTML_EOL = "<br>";
 
 	private File file = null;
 	private Writer out = null;
@@ -35,13 +41,13 @@ public class Logger implements VersionIF {
 	private boolean discard = false;
 
 
-	public Logger() { this(null,HTML_EOL,false); }
-	public Logger(String eol) { this(null,eol,false); }
+	/*public*/ Logger() { this(null,HTML_EOL,false); }
+	/*public*/ Logger(String eol) { this(null,eol,false); }
 
-	public Logger(File out) { this(HTML_EOL,false,out); }
-	public Logger(File out, String eol) { this(eol,false,out); }
+	/*public*/ Logger(File out) { this(HTML_EOL,false,out); }
+	/*public*/ Logger(File out, String eol) { this(eol,false,out); }
 
-	public Logger(String eol, boolean discard, File w) {
+	/*public*/ Logger(String eol, boolean discard, File w) {
 		this.discard = discard;
 		file = w;
 		openFile();
@@ -63,9 +69,9 @@ public class Logger implements VersionIF {
 		}
 	}
 
-	public Logger(Writer out) { this(out,HTML_EOL,false); }
-	public Logger(Writer out, String eol) { this(out,eol,false); }
-	public Logger(Writer w, String eol, boolean discard) {
+	/*public*/ Logger(Writer out) { this(out,HTML_EOL,false); }
+	/*public*/ Logger(Writer out, String eol) { this(out,eol,false); }
+	/*public*/ Logger(Writer w, String eol, boolean discard) {
 		this.discard = discard;
 		out = w;
 		this.eol = ((eol == null) ? HTML_EOL : eol);
@@ -73,18 +79,18 @@ public class Logger implements VersionIF {
 	}
 
 
-	public void setAlsoLogToStderr(boolean ok) { alsoLogToStderr = ok; }
-	public boolean isAlsoLogToStderr() { return alsoLogToStderr; }
+	/*public*/ void setAlsoLogToStderr(boolean ok) { alsoLogToStderr = ok; }
+	/*public*/ boolean isAlsoLogToStderr() { return alsoLogToStderr; }
 
-	public String getEol() { return eol; }
-	public void setEol(String eol) { this.eol = ((eol == null) ? HTML_EOL : eol); }
-	public Writer getWriter() { return out; }
-	public void setWriter(Writer w) { out = w; }
+	/*public*/ String getEol() { return eol; }
+	/*public*/ void setEol(String eol) { this.eol = ((eol == null) ? HTML_EOL : eol); }
+	/*public*/ Writer getWriter() { return out; }
+	/*public*/ void setWriter(Writer w) { out = w; }
 
-	public void print(String s) { write(s,0,0,false); }
-	public void print(String s, int line, int column) { write(s,line,column,false); }
-	public void println(String s) { write(s,0,0,true); }
-	public void println(String s, int line, int column) { write(s,line,column,true); }
+	/*public*/ void print(String s) { write(s,0,0,false); }
+	/*public*/ void print(String s, int line, int column) { write(s,line,column,false); }
+	/*public*/ void println(String s) { write(s,0,0,true); }
+	/*public*/ void println(String s, int line, int column) { write(s,line,column,true); }
 
 	private void write(String s, int line, int column, boolean addEol) {
 		if (discard)
@@ -116,10 +122,10 @@ public class Logger implements VersionIF {
 		}
 	}
 
-	public static void writeln(String s) { Logger.write(s,true); }
-	public static void write(String s) { Logger.write(s,false); }
+	/*public*/ static void writeln(String s) { Logger.write(s,true); }
+	/*public*/ static void write(String s) { Logger.write(s,false); }
 
-	public static void write(String s, boolean eol) {
+	/*public*/ static void write(String s, boolean eol) {
 		if (STDERR != null) {
 			STDERR.write(s);
 			if (eol)
@@ -133,7 +139,7 @@ public class Logger implements VersionIF {
 		}
 	}
 
-	public static void printStackTrace(Throwable t) {
+	/*public*/ static void printStackTrace(Throwable t) {
 		if (STDERR != null) {
 			t.printStackTrace(STDERR);
 			STDERR.flush();
@@ -143,9 +149,9 @@ public class Logger implements VersionIF {
 		}
 	}
 
-	public int size() { return callCount; }
+	/*public*/ int size() { return callCount; }
 
-	public void reset() {
+	/*public*/ void reset() {
 		callCount = 0;
 		errCount = 0;
 		if (!discard) {
@@ -155,7 +161,7 @@ public class Logger implements VersionIF {
 
 	public String toString() { return toString(true); }
 
-	public String toString(boolean erase) {
+	/*public*/ String toString(boolean erase) {
 		String temp = "";
 
 		if (sb != null) {
@@ -167,7 +173,7 @@ public class Logger implements VersionIF {
 		return temp;
 	}
 
-	public void flush() {
+	/*public*/ void flush() {
 		try {
 			if (out != null) {
 				out.flush();
@@ -183,7 +189,7 @@ public class Logger implements VersionIF {
 		}
 	}
 
-	public void close() {
+	/*public*/ void close() {
 		try {
 			if (out != null)
 				out.close();
@@ -193,7 +199,7 @@ public class Logger implements VersionIF {
 		}
 	}
 
-	public boolean delete() {
+	/*public*/ boolean delete() {
 		close();
 		try {
 			if (file != null)
@@ -206,7 +212,7 @@ public class Logger implements VersionIF {
 		return true;
 	}
 	
-	public String getFilename() { 
+	/*public*/ String getFilename() { 
 		if (file != null) {
 			return file.toString();
 		}
