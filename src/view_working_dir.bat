@@ -1,0 +1,2 @@
+explorer "@@WORKING.DIR@@"
+exit

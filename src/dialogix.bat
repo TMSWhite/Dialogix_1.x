@@ -33,9 +33,9 @@ set _IE_="C:\Program Files\Internet Explorer\IEXPLORE.EXE"
 
 rem -- start server --
 cd bin
-start /MIN startup.bat
+start /MIN startup.bat %1 %2
 cd ..
-sleep 15
+REM sleep 6
 
 rem -- start browser, giving preference to Netscape --
 

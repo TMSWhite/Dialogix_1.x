@@ -394,13 +394,23 @@
     </copy>	
     
     <copy todir="${tomcat.home}">
-    	<fileset dir="src" includes="*.ico"/>
+    	<fileset dir="src">
+    		<include name="*.ico"/>
+    	</fileset>
+    </copy>
+    
+    <copy todir="${tomcat.home}">
+    	<fileset dir="src/Win98">
+    		<include name="*.pif" if="using.win98"/>
+    	</fileset>
     </copy>
     
     <copy  todir="${tomcat.home}" filtering="true">
 	    <fileset dir="src">
 	    	<include name="dialogix.bat" />
 	    	<include name="README.txt" />
+	    	<include name="view_working_dir.bat" />
+	    	<include name="view_completed_dir.bat" />
 	    </fileset>
        <filterset begintoken="@@" endtoken="@@">
          <filter token="DIALOGIX.START_DIR" value="${dialogix.start_dir}"/>
@@ -412,10 +422,12 @@
          <filter token="LICENSE.PRINCIPAL_INVESTIGATOR" value="${LICENSE.PRINCIPAL_INVESTIGATOR}"/>
          <filter token="LICENSE.GRANT_NAME" value="${LICENSE.GRANT_NAME}"/>
          <filter token="LICENSE.GRANT_TITLE" value="${LICENSE.GRANT_TITLE}"/>
-		 <filter token="DIALOGIX.HOME" value="${DIALOGIX.HOME}"/>
+		   <filter token="DIALOGIX.HOME" value="${DIALOGIX.HOME}"/>
          <filter token="LICENSE.PACKAGE_DIR" value="${LICENSE.PACKAGE_DIR}"/>
-		 <filter token="ARCHIVE.DIR" value="${ARCHIVE.DIR}"/>
-		 <filter token="ZIP.NAME" value="${zip.name}"/>
+		   <filter token="ARCHIVE.DIR" value="${ARCHIVE.DIR}"/>
+		   <filter token="ZIP.NAME" value="${zip.name}"/>
+			<filter token="WORKING.DIR" value="${WORKING.DIR}"/>
+			<filter token="COMPLETED.DIR" value="${COMPLETED.DIR}"/>		 
        </filterset>
     </copy>	
     
@@ -443,9 +455,9 @@
     <mkdir dir="${dist.home}"/>
     
     <!-- Create application Zip file -->
-    <!--
     <zip zipfile="${dist.home}/${zip.name}.zip"
          basedir="/">
+      <include name="${zip.basedir}/*"/>
 		<include name="${zip.basedir}/archive/**"/>
 		<include name="${zip.basedir}/bin/**"/>
 		<include name="${zip.basedir}/conf/**"/>
@@ -456,15 +468,15 @@
 		<include name="${win98.desktop}/Dialogix/**" if="using.win98"/>    																																																																																																																								
 		<include name="${win2000.desktop}/Dialogix/**" if="using.win2000"/>																																																																																																																																										
     </zip>
-    -->
     
     <!-- Create INNO installer script -->
     
     <mkdir dir="${dist.home}/${zip.name}"/>
     
-    <copy  todir="${dist.home}/${zip.name}" filtering="true">
+    <copy  todir="${dist.home}/${zip.name}" filtering="true" flatten="true">
 	    <fileset dir="src">
-	    	<include name="Dialogix-install-script.iss" />
+	    	<include name="Win98/Dialogix-install-script.iss" if="using.win98"/>
+	    	<include name="Win2000/Dialogix-install-script.iss" if="using.win2000"/>
 	    </fileset>
        <filterset begintoken="@@" endtoken="@@">
 		 <filter token="DIALOGIX.HOME" value="${DIALOGIX.HOME}"/>
@@ -475,10 +487,11 @@
          <filter token="LICENSE.STUDY_ICON" value="${LICENSE.STUDY_ICON}"/>
          <filter token="LICENSE.PRINCIPAL_INVESTIGATOR" value="${LICENSE.PRINCIPAL_INVESTIGATOR}"/>
          <filter token="LICENSE.GRANT_NAME" value="${LICENSE.GRANT_NAME}"/>
-         <filter token="LICENSE.GRANT_TITLE" value="${LICENSE.GRANT_TITLE}"/>         
+         <filter token="LICENSE.GRANT_TITLE" value="${LICENSE.GRANT_TITLE}"/>                  
        </filterset>
     </copy>
     <move file="${dist.home}/${zip.name}/Dialogix-install-script.iss" tofile="${dist.home}/${zip.name}/${zip.name}-install-script.iss"/>
+    
     
 	<exec dir="${dist.home}/${zip.name}" executable="C:\Program Files\Inno Setup 2\Compil32.exe" os="Windows 2000">
 		<arg line="/cc ${zip.name}-install-script.iss"/>
@@ -686,7 +699,19 @@
     	<path>
     		<pathelement location="${floppy.dir}"/>
     	</path>
+    </pathconvert>
+    
+    <pathconvert targetos="windows" property="WORKING.DIR">
+    	<path>
+    		<pathelement location="${tomcat.home}/webapps/${dialogix.package_name}/WEB-INF/working"/>
+    	</path>
     </pathconvert>    
+    
+    <pathconvert targetos="windows" property="COMPLETED.DIR">
+    	<path>
+    		<pathelement location="${tomcat.home}/webapps/${dialogix.package_name}/WEB-INF/completed"/>
+    	</path>
+    </pathconvert>            
   </target>
   
 

@@ -34,6 +34,8 @@ Name: "{group}\Dialogix"; Filename: "{app}\dialogix.bat"; WorkingDir: "{app}"; I
 Name: "{group}\Dialogix on the Web"; Filename: "{app}\dialogix.url"
 Name: "{userdesktop}\Dialogix"; Filename: "{app}\dialogix.bat"; WorkingDir: "{app}"; IconFilename: "{app}\dialogix.ico"; MinVersion: 4,4; Tasks: desktopicon
 Name: "{userappdata}\Microsoft\Internet Explorer\Quick Launch\Dialogix"; Filename: "{app}\dialogix.bat"; IconFilename: "{app}\dialogix.ico"; WorkingDir: "{app}"; MinVersion: 4,4; Tasks: quicklaunchicon
+Name: "{group}\View Working Files"; Filename: "{app}\view_working_dir.bat"; WorkingDir: "{app}"; IconFilename: "{app}\folder.ico"
+Name: "{group}\View Completed Files"; Filename: "{app}\view_completed_dir.bat"; WorkingDir: "{app}"; IconFilename: "{app}\folder.ico"
 
 [Run]
 Filename: "{app}\dialogix.bat"; Description: "Launch Dialogix"; Flags: shellexec postinstall skipifsilent runminimized
