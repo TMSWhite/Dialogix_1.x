@@ -3,7 +3,7 @@ import java.lang.*;
 import java.io.*;
 import java.text.*;
 
-public class Datum  {
+public final class Datum  {
 	private static final int FIRST_DATUM_TYPE = 0;
 	public static final int UNASKED = 0;		// haven't asked
 	public static final int NA = 1;				// don't need to ask - not applicable
@@ -76,8 +76,8 @@ public class Datum  {
 		triceps = lang;
 		type = i;
 	}
-
-	public Datum(Datum val) {
+	
+	public Datum(Datum val, String name) {
 		dVal = val.dVal;
 		sVal = val.sVal;
 		date = val.date;
@@ -85,7 +85,17 @@ public class Datum  {
 		mask = val.mask;
 		triceps = val.triceps;
 		error = val.error;
-		variableName = val.variableName;
+		if (name != null) {
+			variableName = name;
+		}
+		else {
+			variableName = val.variableName;
+		}
+	}
+	
+
+	public Datum(Datum val) {
+		this(val,null);
 	}
 
 	public Datum(Triceps lang, Date d, int t) {
@@ -189,7 +199,7 @@ public class Datum  {
 	private void init(Triceps lang, Object obj, int t, String maskStr) {
     	triceps = (lang == null) ? Triceps.NULL : lang;
 		
-		if (obj == null) {
+		if (obj == null && !isSpecial(t)) {
 			t = INVALID;
 		}
 		
@@ -250,9 +260,10 @@ public class Datum  {
 			case REFUSED:
 			case INVALID:
 			case NA:
-				break;
-			default:
-				type = INVALID;
+			case UNASKED:
+			case NOT_UNDERSTOOD:
+			case UNKNOWN:
+				type = t;
 				break;
 		}
 		if (type == INVALID) {
@@ -308,10 +319,8 @@ public class Datum  {
 			case STRING:
 				return sVal;
 			default:
-				if (showReserved)
-					return getTypeName(triceps,INVALID);
-				else
-					return "";
+Logger.writeln("stringVal(" + showReserved + "," + mask + ") -> invalid type " + type);			
+				return getTypeName(triceps,INVALID);
 			case INVALID:
 			case NA:
 			case UNKNOWN:
@@ -344,7 +353,7 @@ public class Datum  {
 	public int type() { return type; }
 	public String getMask() { return mask; }
 
-	public void setName(String name) { variableName = name; }
+//	public void setName(String name) { variableName = name; }
 	public String getName() { return variableName; }
 
 	public boolean isValid() {
