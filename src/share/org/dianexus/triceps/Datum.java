@@ -33,7 +33,7 @@ import java.util.Date;
 	private static final Date SAMPLE_DATE = new Date(System.currentTimeMillis());
 	private static final Double SAMPLE_NUMBER = new Double(12345.678);
 
-	private static final String SPECIAL_TYPES[] = { "*UNASKED*", "*N/A*", "*REFUSED*", "*INVALID*", "*UNKNOWN*", "*HUH?*" };
+	private static final String SPECIAL_TYPES[] = { "*UNASKED*", "*NA*", "*REFUSED*", "*INVALID*", "*UNKNOWN*", "*HUH*" };
 	private static final String DATUM_TYPES[] = { "number", "string", "date", "time", "year", "month", "day", "weekday", "hour", "minute", "second", "month_num", "day_num" };
 
 	private static final String defaultDateFormat = "MM/dd/yyyy";
