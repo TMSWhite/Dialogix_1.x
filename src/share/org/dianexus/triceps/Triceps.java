@@ -17,14 +17,10 @@ import java.util.Hashtable;
 import java.io.File;
 import java.util.Enumeration;
 import java.util.Vector;
-import java.util.jar.JarOutputStream;
 import java.text.DateFormat;
 import java.text.DecimalFormat;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.util.zip.ZipEntry;
-import java.util.zip.ZipException;
-import java.util.jar.JarEntry;
 import java.io.UnsupportedEncodingException;
 import java.util.StringTokenizer;
 import java.util.MissingResourceException;
@@ -751,7 +747,7 @@ if (AUTHORABLE) {
 
 	/*public*/ boolean saveCompletedInfo() {
 if (DEPLOYABLE) {		
-		if (saveAsJar(nodes.getReserved(Schedule.FILENAME) + ".jar")) {
+		if (saveAsJar(nodes.getReserved(Schedule.FILENAME))) {
 			deleteDataLoggers();
 			return true;
 		}
@@ -763,189 +759,29 @@ if (DEPLOYABLE) {
 	private boolean saveAsJar(String fn) {
 if (DEPLOYABLE) {
 		/* create jar or zip file of data and events */
-		String filename = null;
-		FileOutputStream fos = null;
-		JarOutputStream jos = null;
+		JarFile jf = null;
 		
-		try {
-			filename = nodes.getReserved(Schedule.COMPLETED_DIR) + fn;
-			fos = new FileOutputStream(filename);
-		}
-		catch (FileNotFoundException e) {
-			setError(get("error_writing_to") + filename + ": " + e.getMessage());
-			return false;
-		}
-		catch (SecurityException e) {
-			setError(get("error_writing_to") + filename + ": " + e.getMessage());
-			return false;
-		}
+		jf = JarFile.getInstance(nodes.getReserved(Schedule.COMPLETED_DIR) + fn + ".jar");
 		
-		try {
-			jos = new JarOutputStream(fos);
-		}
-		catch (Throwable e) {	// IOException
-			setError(get("error_writing_to") + filename + ": " + e.getMessage());
-			if (fos != null) try { fos.close(); } catch (Throwable t) { 
-if (DEBUG) Logger.writeln("##Triceps.saveAsJar()->error closing: " + t.getMessage());
-			} 
+		if (jf == null)
 			return false;
-		}
-		
+			
 		boolean ok = false;
+		ok = jf.addEntry(fn + DATAFILE_SUFFIX, dataLogger.getInputStream());
+		ok = jf.addEntry(fn + EVENTFILE_SUFFIX, eventLogger.getInputStream()) && ok;
+		jf.close();
 		
-		ok = addJarEntry(jos,getInputStream(dataLogger),nodes.getReserved(Schedule.FILENAME) + DATAFILE_SUFFIX);
-		ok = addJarEntry(jos,getInputStream(eventLogger),nodes.getReserved(Schedule.FILENAME) + EVENTFILE_SUFFIX) && ok;
-		
-		if (jos != null) try { jos.close(); } catch (Throwable t) { 
-if (DEBUG) Logger.writeln("##Triceps.saveAsJar()->error closing: " + t.getMessage());
-		}
 		return ok;
-}
-		return true;
-	}
-	
-	/*public*/ boolean addJarEntry(JarOutputStream jos, InputStream is, String name) {
-if (DEPLOYABLE) {
-		ZipEntry ze = null;
-		Throwable err = null;
-		
-		if (jos == null || is == null || name == null) {
-Logger.writeln("##Triceps.addJarEntry(" + jos + "," + is + "," + name + ")->null parameter");			
-			return false;
-		}
-			
-		try {
-			ze = new JarEntry(name);
-		}
-		catch (Exception e) {
-if (DEBUG) Logger.writeln("##Triceps.addJarEntry()->" + e.getMessage());	// NullPointerException or IllegalArgumentException			
-			return false;
-		}
-		
-		try {
-			jos.putNextEntry(ze);
-			
-			byte[] buf = new byte[1000];
-			int bytesRead = 0;
-			
-			while((bytesRead = is.read(buf)) != -1) {
-				jos.write(buf,0,bytesRead);
-			}
-		}
-		catch (UnsupportedEncodingException e) {
-			err = e;
-		}
-		catch (ZipException e) {
-			err = e;
-		}
-		catch (IOException e) {
-			err = e;
-		}
-		catch (Throwable t) {
-			err = t;
-		}
-		if (err != null) {
-if (DEBUG) Logger.writeln("##Triceps.addJarEntry()->" + err.getMessage());	// NullPointerException or IllegalArgumentException			
-			return false;
-		}
-		try { is.close(); } catch (Throwable e) { 
-if (DEBUG) Logger.writeln("##Triceps.addJarEntry()->error closing is" + e.getMessage());
-		}
-		return true;
-}
-		return true;
-	}
-	
-	/*public*/ InputStream getInputStream(Logger logger) {
-if (DEPLOYABLE) {
-		String filename = null;
-		
-		if (logger == null || ((filename = logger.getFilename()) == null)) {
-if (DEBUG) Logger.writeln("##Triceps.getInputStream(" + logger + "," + filename + ")-> null parameter");	
-			return null;
-		}
-		try {
-			logger.close();
-			FileInputStream fis= new FileInputStream(filename);
-			return fis;
-		}
-		catch (Exception e) {
-if (DEBUG) Logger.writeln("Triceps.getInputStream(" + filename + ")->" + e.getMessage());
-			return null;			
-		}
-}
-		return null;		
-	}
-	
-	/*public*/ boolean copyFile(String src, String dst) {
-if (DEPLOYABLE) {
-		if (src == null || dst == null)
-			return false;
-			
-		Throwable err = null;
-		FileInputStream fis = null;
-		FileOutputStream fos = null;
-			
-		try {
-			fis = new FileInputStream(src);
-			fos = new FileOutputStream(dst);
-			
-			byte[] buf = new byte[1000];
-			int bytesRead = 0;
-			
-			while((bytesRead = fis.read(buf)) != -1) {
-				fos.write(buf,0,bytesRead);
-			}
-		}
-		catch (FileNotFoundException e) {
-			err = e;
-		}
-		catch (SecurityException e) {
-			err = e;
-		}
-		catch (IOException e) {
-			err = e;
-		}
-		
-		if (fis != null) try { fis.close(); } catch (Throwable t) { ; }
-		if (fos != null) try { fos.close(); } catch (Throwable t) { ; }		
-		
-		if (err != null) {
-if (DEBUG) Logger.writeln("##Triceps.copyFile(" + src + ")->(" + dst + "): " + err.getMessage());
-			return false;
-		}
-		return true;
-}
-		return false;
-	}
-	
-	/*public*/ boolean saveToFloppy() {
-if (DEPLOYABLE) {		
-		String name = nodes.getReserved(Schedule.FILENAME) + ".jar";
-		
-		return copyFile(nodes.getReserved(Schedule.COMPLETED_DIR) + name, nodes.getReserved(Schedule.FLOPPY_DIR) + name);
 }
 		return false;		
 	}
 	
-	/*public*/ boolean deleteFile(String dir, String targetName) {
-		String filename = dir + targetName;
-		boolean ok = false;
-
-		try {
-			File f = new File(filename);
-			ok = f.delete();
-		}
-		catch (SecurityException e) {
-if (DEBUG) Logger.writeln("##SecurityException @ Triceps.deleteFile()" + e.getMessage());
-			String msg = get("error_deleting") + filename + ": " + e.getMessage();
-			setError(msg);
-		}
-		if (!ok)
-if (DEBUG)	Logger.writeln("##delete(" + filename + ") -> " + ok);
-		return ok;
+	/*public*/ boolean saveToFloppy() {
+		String name = nodes.getReserved(Schedule.FILENAME) + ".jar";
+		
+		return JarFile.NULL.copyFile(nodes.getReserved(Schedule.COMPLETED_DIR) + name, nodes.getReserved(Schedule.FLOPPY_DIR) + name);
 	}
-
+	
 	/*public*/ String getTitle() {
 		return nodes.getReserved(Schedule.TITLE);
 	}
