@@ -10,21 +10,18 @@ package org.dianexus.triceps;
 /*import java.util.*;*/
 import java.util.Stack;
 import java.util.EmptyStackException;
-import java.util.Hashtable;
 
 /*public*/ class Qss implements VersionIF, QssConstants {
     private Stack stack;
     private Triceps triceps;
     Logger debugLogger = Logger.NULL;   // Parser directly assigns this value
     Logger errorLogger = Logger.NULL;   // Parser directly assigns this value
-    private Hashtable undoInfo = null;  // stores prior values of ASSIGNed variables
 
         /*public*/ Datum parse(Triceps tri) {
                 triceps = tri;
         Datum d = null;
 
                 try {
-                        init();
                         stack = new Stack();
                         Statement();
                         d = (Datum) stack.pop();
@@ -47,23 +44,6 @@ if (DEBUG) Logger.writeln("##TokenMgrError @ Qss.parse()" + e.getMessage());
                 }
 
                 return ((d != null) ? d : Datum.getInstance(triceps,Datum.INVALID));
-        }
-
-        private void init() {
-                undoInfo = new Hashtable();
-        }
-
-        /*public*/ Hashtable getUndoInfo() {
-                return undoInfo;
-        }
-
-        private void storeUndo(String tokenName) {
-                Object val = undoInfo.get(tokenName);
-                if (val == null) {
-                	try {
-                        undoInfo.put(tokenName,triceps.getEvidence().getDatum(tokenName));      // store original value mapped to name
-                    } catch (NullPointerException e) { /* ignore it */ }
-                }
         }
 
         /*public*/ void resetErrorCount() {
@@ -275,7 +255,6 @@ if (DEBUG) {
                     t = token;
     jj_consume_token(ASSIGN);
     ConditionalExpression();
-                storeUndo(t.image);
                 binaryOp(ASSIGN,stack.pop(), new Datum(triceps, t.image,Datum.STRING));
   }
 

@@ -330,9 +330,8 @@ if (DEBUG) Logger.writeln("##Unable to reload schedule");
 		q.setQuestionAsAsked(parser.parseJSP(this, q.getQuestionOrEval()) + q.getSampleInputString());
 		return q.getQuestionAsAsked();
 	}
-	
+
 	/*public*/ int gotoFirst() {
-		nodes.resetStepHistory();
 		currentStep = 0;
 		numQuestions = 0;
 		int ok = gotoNext();
@@ -412,7 +411,6 @@ if (DEBUG) Logger.writeln("##Unable to reload schedule");
 				else {
 					if (parser.booleanVal(this, node.getDependencies())) {
 						Datum datum = parser.parse(this, node.getQuestionOrEval());
-						node.setUndoInfo(parser.getUndoInfo());
 //						node.setDatumType(datum.type());
 						int type = node.getDatumType();
 						if (type != Datum.STRING && type != datum.type()) {
@@ -484,8 +482,7 @@ if (DEBUG) Logger.writeln("##Unable to reload schedule");
 		int actionType;
 		int step = currentStep;
 		int currentLanguage = nodes.getLanguage();
-		int previousStep = nodes.getPreviousStep();
-		
+
 		while (true) {
 			if (--step < 0) {
 				if (braceLevel < 0)
@@ -501,17 +498,7 @@ if (DEBUG) Logger.writeln("##Unable to reload schedule");
 //			node.setAnswerLanguageNum(currentLanguage);	// do this going backwards?
 
 			if (actionType == Node.EVAL) {
-				// reset values when going backwards
-				Hashtable undoInfo = node.getUndoInfo();
-				if (undoInfo != null) {
-					Enumeration keys = undoInfo.keys();
-					while (keys.hasMoreElements()) {
-						String key = (String) keys.nextElement();
-						Datum val = (Datum) undoInfo.get(key);
-						evidence.set(evidence.getNode(key),val);	// so that writes to log file
-//if (DEBUG)	Logger.writeln("#*# " + key + "=>" + val.stringVal());
-					}
-				}
+				;	// skip these going backwards, but don't reset values when going backwards
 			}
 			else if (actionType == Node.GROUP_CLOSE) {
 				--braceLevel;
@@ -522,18 +509,19 @@ if (DEBUG) Logger.writeln("##Unable to reload schedule");
 					setError(get("extra_opening_brace"));
 					return ERROR;
 				}
-				if (braceLevel == 0) {
-					if (step == previousStep) {
-						break;	// ask this block of questions
-					}
+				if (braceLevel == 0 && parser.booleanVal(this, node.getDependencies())) {
+					break;	// ask this block of questions
 				}
 				else {
 					// try the next question
 				}
 			}
 			else if (actionType == Node.QUESTION) {
-				if (step == previousStep) {
+				if (braceLevel == 0 && parser.booleanVal(this, node.getDependencies())) {
 					break;	// ask this block of questions
+				}
+				else {
+					// else within a brace, or not applicable, so skip it.
 				}
 			}
 			else {
@@ -866,7 +854,7 @@ if (DEBUG) Logger.writeln("##" + s);
 	/*public*/ Evidence getEvidence() { return evidence; }
 	/*public*/ Parser getParser() { return parser; }
 
-	/*public*/ boolean isAtBeginning() { return ((currentStep <= firstStep) || !nodes.hasPreviousStep()); }
+	/*public*/ boolean isAtBeginning() { return (currentStep <= firstStep); }
 	/*public*/ boolean isAtEnd() { return (currentStep >= size()); }
 	/*public*/ int getCurrentStep() { return currentStep; }
 
