@@ -357,7 +357,7 @@ public class Datum  {
 	}
 	
 	public boolean isSpecial() { return (type >= UNASKED && type <= NOT_UNDERSTOOD); }
-	static public boolean isSpecical(int t) { return (t >= UNASKED && t <= NOT_UNDERSTOOD); }
+	static public boolean isSpecial(int t) { return (t >= UNASKED && t <= NOT_UNDERSTOOD); }
 	public boolean isNumeric() { return (!Double.isNaN(dVal)); }
 	public boolean isDate() { return (date != null); }
 	static public boolean isDate(int t) { return (t >= DATE && t <= DAY_NUM); }
