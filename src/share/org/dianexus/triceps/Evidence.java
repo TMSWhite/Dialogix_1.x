@@ -7,39 +7,43 @@ import java.net.*;
  * Contains data generated at each node.  Such data are produced either
  * by the person running the interview in response to
  * questions, or by the system evaluating previously stored evidence
- * TODO:
- *	who should maintain aliases? - is evidence self knowing, or is that Triceps' role?
  */
 public class Evidence  {
 	Hashtable aliases;
-	Vector data;	// stores the Datum values associated with a node
-	Vector nodes;	// stores the references to the nodes - at identical indices to the data Vector
-	Schedule schedule = null;
-	int size;
+	Vector values;
+	Schedule schedule;
 
 	public Evidence(Schedule schedule) {
-		aliases = new Hashtable();
-		data = new Vector(size);
-		nodes = new Vector(size);
+		int size=schedule.size();
 		this.schedule = schedule;
-		size = schedule.size();
-
+		
+		aliases = new Hashtable();
+		values = new Vector(size);
+		
 		Node node;
-		int i;
-		for (i = 0; i < size; ++i) {
-			data.addElement(Datum.getInstance(Datum.UNKNOWN));
+		Value value;
+		int val=0;
+		
+		/* first assign the reserved words */
+		for (val=0;val<Schedule.RESERVED_WORDS.length;++val) {
+			value = new Value(Schedule.RESERVED_WORDS[val],new Datum(schedule.getReserved(val),Datum.STRING),val);
+			values.addElement(value);
+			aliases.put(Schedule.RESERVED_WORDS[val],new Integer(val));
+		}
+		
+		/* then assign the user-defined words */
+		for (int i = 0; i < size; ++i, ++val) {
 			node = schedule.getNode(i);
-			if (node == null) {
-				System.out.println("Inaccessible node # " + i);
-				nodes.addElement(null);
-				continue;
-			}
-			nodes.addElement(node);
-			Integer j = new Integer(i);
+			value = new Value(node, Datum.getInstance(Datum.UNKNOWN),node.getDefaultAnswerTimeStampStr());
+			
+			values.addElement(value);
+
+			Integer j = new Integer(val);
 
 			addAlias(node,node.getConcept(),j);
 			addAlias(node,node.getName(),j);
 			addAlias(node,node.getQuestionRef(),j);
+			aliases.put(node,j);
 		}
 	}
 
@@ -55,124 +59,92 @@ public class Evidence  {
 				/* Allow a single node to try to set the same alias for itself multiple times.
 				However, each node must have non-overlapping aliases with other nodes */
 				aliases.put(alias,o);	// restore overwritten alias?
-				Node prevNode = schedule.getNode(pastIndex);
+				Node prevNode = ((Value) values.elementAt(pastIndex)).getNode();
 				n.setParseError("Duplicate alias <B>" + Node.encodeHTML(alias) + "</B> previously used for node <B>" + Node.encodeHTML(prevNode.getName()) + "</B> on line " + prevNode.getSourceLine());
-//				prevNode.setParseError("Node '" + n.getName() + "' is trying to steal your alias '" + alias + "'");
 			}
 		}
 	}
 
-/*
-	public Evidence(int size) {
-		schedule = null;
-		this.size = size;
-		aliases = new Hashtable();
-		data = new Vector(size);
-		nodes = new Vector(size);
-		for (int i = 0; i < size; ++i) {
-			data.addElement(null);
-			nodes.addElement(null);
-		}
-	}
-*/
-
 	public boolean containsKey(Object val) {
 		if (val == null)
 			return false;
-		if (val instanceof String)
-			return aliases.containsKey(val);
-		if (val instanceof Node)
-			return aliases.containsKey(((Node)val).getName());
-		return false;
+		return aliases.containsKey(val);
 	}
 
 	public Datum getDatum(Object val) {
-		if (!containsKey(val))
-			return null;
-		Integer i = null;
-		if (val instanceof String)
-			i = (Integer)aliases.get(val);
-		if (val instanceof Node)
-			i = (Integer)aliases.get(((Node)val).getName());
+		Integer i = (Integer) aliases.get(val);
 		if (i == null)
 			return null;
-		return (Datum)data.elementAt(i.intValue());
+		return ((Value) values.elementAt(i.intValue())).getDatum();
 	}
 
 	public Node getNode(Object val) {
-		if (!containsKey(val)) {
+		Integer i = (Integer) aliases.get(val);
+		if (i == null) {
 			System.out.println("Node not found: " + val);
 			return null;
 		}
-		Integer i = null;
-		if (val instanceof String)
-			i = (Integer)aliases.get(val);
-		if (val instanceof Node)
-			i = (Integer)aliases.get(((Node)val).getName());
-		if (i == null) {
-			System.out.println("Index for Node not found: " + val);
-			return null;
-		}
-		Object o = nodes.elementAt(i.intValue());
-		if (o instanceof Node) {
-			return (Node)o;
-		}
-
-		else
-			return null;
+		return ((Value) values.elementAt(i.intValue())).getNode();
 	}
 
-	public int getStep(Node n) {
+	public int getStep(Object n) {
 		if (n == null)
 			return -1;
-		return nodes.indexOf(n);	// returns -1 if !nodes.contains(n)
+		Object o = aliases.get(n);
+		if (o == null)
+			return -1;
+		else
+			return ((Integer) o).intValue();
 	}
 
-	public void set(Node node, Datum val) {
-		if (node == null || val == null) {
-			System.out.println("null value for node or val");
+	public void set(Node node, Datum val, String time) {
+		if (node == null) {
+			System.out.println("null Node");
 			return;
 		}
-		Integer i;
+		if (val == null) {
+			System.out.println("null Datum");
+			return;
+		}
+		int i;
 		
-		i = new Integer(getStep(node));
-		if (i.intValue() == -1) {
-			System.out.println("Node does not exist within evidence");
+		i = getStep(node);
+		if (i == -1) {
+			System.out.println("Node does not exist");
 			return;
 		}
-
-		data.setElementAt(val, i.intValue());
-		node.setTimeStamp();
-		/*
-		nodes.setElementAt(node, i.intValue());
-		aliases.put(node.getConcept(), i);
-		aliases.put(node.getName(), i);
-		aliases.put(node.getQuestionRef(), i);
-		*/
+		
+		((Value) values.elementAt(i)).setDatum(val,time);
 	}
+	
+	public void set(Node node, Datum val) {
+		set(node,val,null);
+	}	
 
 	public void set(String name, Datum val) {
-		if (name == null || val == null) {
-			System.out.println("null value for name or val");
+		if (name == null) {
+			System.out.println("null Node name");
 			return;
 		}
-		Integer i;
-		i = (Integer)aliases.get(name);
-		if (i == null) {
-			i = new Integer(data.size());
-			data.addElement(val);
-			nodes.addElement(name);
-			aliases.put(name, i);
+		if (val == null) {
+			System.out.println("null Datum");
+			return;
+		}
+		
+		int i = getStep(name);
+		if (i == -1) {
+			i = size();	// append to end
+			Value value = new Value(name,val);
+			values.addElement(value);
+			aliases.put(name, new Integer(i));
 		}
 		else {
-			data.setElementAt(val, i.intValue());
-			((Node) nodes.elementAt(i.intValue())).setTimeStamp();
-//			nodes.setElementAt(name, i.intValue());
+			((Value) values.elementAt(i)).setDatum(val,null);
 		}
 	}
 
 	public int size() {
-		return data.size();
+		return values.size();
 	}
 
 	public String toXML() {
@@ -198,20 +170,63 @@ public class Evidence  {
 	public void unset(Node node) {
 		if (node == null)
 			return;
-		Integer i = (Integer)aliases.remove(node.getConcept());
-		aliases.remove(node.getName());
-		aliases.remove(node.getQuestionRef());
+		Integer i = (Integer)aliases.remove(node);
+		
 		if (i != null) {
-			data.setElementAt(null, i.intValue());
-			nodes.setElementAt(null, i.intValue());
+			aliases.remove(node.getConcept());
+			aliases.remove(node.getName());
+			aliases.remove(node.getQuestionRef());
+			
+			values.setElementAt(new Value(), i.intValue());
 		}
 	}
 
 	public void unset(String name) {
 		Integer i = (Integer)aliases.remove(name);
 		if (i != null) {
-			data.setElementAt(null, i.intValue());
-			nodes.setElementAt(null, i.intValue());
+			values.setElementAt(new Value(), i.intValue());
 		}
+	}
+	
+	class Value {
+		Node	node=null;
+		Datum	datum=null;
+		Date	timeStamp=null;
+		String	timeStampStr=null;
+		int reserved = -1;
+			
+		Value() {
+		}
+		
+		Value(Node n, Datum d, String time) {
+			node = n;
+			datum = d;
+			if (time != null && time.trim().length() > 0) {
+				n.setTimeStamp(time);
+			}
+		}
+		
+		Value(String s, Datum d) {
+			// no associated node - so a temporary variable
+			datum = d;
+		}
+		
+		Value(String s, Datum d, int reserved) {
+			datum = d;
+			this.reserved = reserved;
+		}
+		
+		Node getNode() { return node; }
+		
+		void setDatum(Datum d, String time) { 
+			datum = d; 
+			if (node != null)
+				node.setTimeStamp(time);
+				
+			if (reserved >= 0) {
+				schedule.setReserved(reserved,d.stringVal());
+			}
+		}
+		Datum getDatum() { return datum; }
 	}
 }
