@@ -73,6 +73,11 @@ else if (isset($_COOKIE["$Cookiename"])) {
 	  	$_COOKIE['dgx_authenticated']=1;
 		$_COOKIE['dgx_username']=$sidarray[0];
 	    $statusMessage .= "Successfully Authenticated!<br>";
+	    
+		  $query = "update AuthenticatedUsers set LastAccess=$time where UserID='$sidarray[0]'";
+		  if ( !($dbq = mysql_query($query))) {
+		  	DialogixError("Unable to update database" . mysql_error());
+		  }	    
 	}
   }
 }
