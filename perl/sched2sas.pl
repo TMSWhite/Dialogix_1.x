@@ -14,6 +14,7 @@
 use strict;
 
 use File::Basename;
+use Dialogix::Utils;
 
 # levelType assumes wither nominal or scale -- many may be ordinal, but impossible to tell from data file -- should be a field
 my $levelTypes = {
@@ -67,28 +68,45 @@ my $formats = {
 	radio2 => 'F8.0',
 	radio3 => 'F8.0',
 	second => 'date|ss',
-	text => 'A50',
+	text => 'A100',
 	time => 'TIME5.3',
 	weekday => 'WKDAY',	# since name of weekday
 	year => 'date|yyyy',	
 };
 
-my (@gargs, $modulePrefix, $discardPrefix, $resultsDir, $sortby, $varnameFromColumn);
+# formats reference SPSS data types -- the date formats have not been validated yet
+my $supportsMissing = {
+	check => 1,
+	combo => 1,
+	combo2 => 1,
+	date => 1,
+	day => 0,
+	day_num => 1,
+	double => 1,
+	hour => 1,
+	list => 1,
+	list2 => 1,
+	memo => 1,
+	minute => 1,
+	month => 1,
+	month_num => 1,
+	nothing => 1,
+	password => 1,
+	radio => 1,
+	radio2 => 1,
+	radio3 => 1,
+	second => 1,
+	text => 1,
+	time => 0,
+	weekday => 1,
+	year => 1,
+};
+
+my (@gargs,$Prefs,$conf_file);
 my (%modules);
 @gargs = @ARGV;
-$sortby = shift(@gargs);
-$varnameFromColumn = shift(@gargs);	# if 0, then use concept field; if 1, use internalName; if 2, then use externalName
-$modulePrefix = shift(@gargs);
-$discardPrefix = shift(@gargs);
-$resultsDir = shift(@gargs);
+$conf_file = shift(@gargs);
 
-my ($NA, $REFUSED, $UNKNOWN, $HUH, $INVALID, $UNASKED);
-$NA = shift(@gargs);
-$REFUSED = shift(@gargs);
-$UNKNOWN = shift(@gargs);
-$HUH = shift(@gargs);
-$INVALID = shift(@gargs);
-$UNASKED = shift(@gargs);
 my $missingListForNums='()';
 my $missingListForStrings='()';
 my $missingValLabelsForStrings='';
@@ -99,8 +117,11 @@ my %c8name2vars = ();
 &main;
 
 sub main {
-#	print "modularize = $modulePrefix\n";
 	# process all files on the command line
+	
+	$Prefs = &Dialogix::Utils::readDialogixPrefs($conf_file);
+	&Dialogix::Utils::mychdir($Prefs->{INSTRUMENT_DIR});
+	
 	&compileMissingValueList;
 	
 	foreach(@gargs) {
@@ -118,38 +139,38 @@ sub compileMissingValueList {
 	my $num_missing;
 
 	my $val = '';
-	if ($NA ne '*' && $NA ne '.') {
-		if ($NA =~ /^[0-9]+$/) { $val = $NA; } else { $val = "\"$NA\""; }
+	if ($Prefs->{NA} ne '*' && $Prefs->{NA} ne '.') {
+		if ($Prefs->{NA} =~ /^[0-9]+$/) { $val = $Prefs->{NA}; } else { $val = "\"$Prefs->{NA}\""; }
 		push @missings, $val;
 		$num_missing .= "\t$val \"*NA*\"\n";
-		$str_missing .= "\t\"$NA\" \"*NA*\"\n";
+		$str_missing .= "\t\"$Prefs->{NA}\" \"*NA*\"\n";
 	}
-	if ($REFUSED ne '*' && $REFUSED ne '.') {
-		if ($REFUSED =~ /^[0-9]+$/) { $val = $REFUSED; } else { $val = "\"$REFUSED\""; }
+	if ($Prefs->{REFUSED} ne '*' && $Prefs->{REFUSED} ne '.') {
+		if ($Prefs->{REFUSED} =~ /^[0-9]+$/) { $val = $Prefs->{REFUSED}; } else { $val = "\"$Prefs->{REFUSED}\""; }
 		push @missings, $val;
 		$num_missing .= "\t$val \"*REFUSED*\"\n";
-		$str_missing .= "\t\"$REFUSED\" \"*REFUSED*\"\n";
+		$str_missing .= "\t\"$Prefs->{REFUSED}\" \"*REFUSED*\"\n";
 	}
-	if ($UNKNOWN ne '*' && $UNKNOWN ne '.') {
-		if ($UNKNOWN =~ /^[0-9]+$/) { $val = $UNKNOWN; } else { $val = "\"$UNKNOWN\""; }
+	if ($Prefs->{UNKNOWN} ne '*' && $Prefs->{UNKNOWN} ne '.') {
+		if ($Prefs->{UNKNOWN} =~ /^[0-9]+$/) { $val = $Prefs->{UNKNOWN}; } else { $val = "\"$Prefs->{UNKNOWN}\""; }
 		push @missings, $val;
 		$num_missing .= "\t$val \"*UNKNOWN*\"\n";
-		$str_missing .= "\t\"$UNKNOWN\" \"*UNKNOWN*\"\n";
-	}	if ($HUH ne '*' && $HUH ne '.') {
-		if ($HUH =~ /^[0-9]+$/) { $val = $HUH; } else { $val = "\"$HUH\""; }
+		$str_missing .= "\t\"$Prefs->{UNKNOWN}\" \"*UNKNOWN*\"\n";
+	}	if ($Prefs->{HUH} ne '*' && $Prefs->{HUH} ne '.') {
+		if ($Prefs->{HUH} =~ /^[0-9]+$/) { $val = $Prefs->{HUH}; } else { $val = "\"$Prefs->{HUH}\""; }
 		push @missings, $val;
 		$num_missing .= "\t$val \"*HUH*\"\n";
-		$str_missing .= "\t\"$HUH\" \"*HUH*\"\n";
-	}	if ($INVALID ne '*' && $INVALID ne '.') {
-		if ($INVALID =~ /^[0-9]+$/) { $val = $INVALID; } else { $val = "\"$INVALID\""; }
+		$str_missing .= "\t\"$Prefs->{HUH}\" \"*HUH*\"\n";
+	}	if ($Prefs->{INVALID}  ne '*' && $Prefs->{INVALID}  ne '.') {
+		if ($Prefs->{INVALID}  =~ /^[0-9]+$/) { $val = $Prefs->{INVALID} ; } else { $val = "\"$Prefs->{INVALID} \""; }
 		push @missings, $val;
 		$num_missing .= "\t$val \"*INVALID*\"\n";
-		$str_missing .= "\t\"$INVALID\" \"*INVALID*\"\n";
-	}	if ($UNASKED ne '*' && $UNASKED ne '.') {
-		if ($UNASKED =~ /^[0-9]+$/) { $val = $UNASKED; } else { $val = "\"$UNASKED\""; }
+		$str_missing .= "\t\"$Prefs->{INVALID} \" \"*INVALID*\"\n";
+	}	if ($Prefs->{UNASKED} ne '*' && $Prefs->{UNASKED} ne '.') {
+		if ($Prefs->{UNASKED} =~ /^[0-9]+$/) { $val = $Prefs->{UNASKED}; } else { $val = "\"$Prefs->{UNASKED}\""; }
 		push @missings, $val;
 		$num_missing .= "\t$val \"*UNASKED*\"\n";
-		$str_missing .= "\t\"$UNASKED\" \"*UNASKED*\"\n";
+		$str_missing .= "\t\"$Prefs->{UNASKED}\" \"*UNASKED*\"\n";
 	}	
 	$missingListForNums = "(" . join(',',@missings) . ")";
 	$missingListForStrings = "(\"" . join("\",\"",@missings) . "\")";
@@ -235,8 +256,8 @@ sub transform_schedule {
 	%c8name2vars = ();
 	
 	my $varnameColumn = 1;
-	if ($varnameFromColumn =~ /^[012]$/) {
-		$varnameColumn = $varnameFromColumn;
+	if ($Prefs->{VARNAME_FROM_COLUMN} =~ /^[012]$/) {
+		$varnameColumn = $Prefs->{VARNAME_FROM_COLUMN};
 	}
 	
 	#initialize reserved variable names
@@ -245,7 +266,7 @@ sub transform_schedule {
 	}
 	
 	foreach my $line (@lines) {
-		my ($atype, $ansMap, $atext, $alen, $isString, $level, $format);
+		my ($atype, $ansMap, $atext, $alen, $isString, $isNum, $level, $format);
 
 		chomp($line);
 		next if ($line =~ /^\s*((RESERVED)|(COMMENT))/);
@@ -262,16 +283,16 @@ sub transform_schedule {
 		my $question = &deExcelize($vals[6]);
 		my $ansOptions = &deExcelize($vals[7]);
 		my $type = lc($vals[4]);		
-		($atype, $ansMap, $atext, $alen, $isString, $level, $format) = &cat_ans($ansOptions);
+		($atype, $ansMap, $atext, $alen, $isString, $isNum, $level, $format) = &cat_ans($ansOptions);
 		
 		
-		if ($discardPrefix ne '*' && $vals[1] =~ /^$discardPrefix/) {
+		if ($Prefs->{discardVarsMatchingPattern} ne '*' && $vals[1] =~ /^$Prefs->{discardVarsMatchingPattern}$/) {
 			$module = "__DISCARD__";
 		}
 		elsif ($atype eq 'nothing' && $type !~ /^e/i) {
 			$module = "__NOTHING__";
 		}
-		elsif ($modulePrefix ne '*' && $vals[1] =~ /^($modulePrefix)/) {
+		elsif ($Prefs->{modularizeByPrefix} ne '*' && $vals[1] =~ /^($Prefs->{modularizeByPrefix})/) {
 			$module = $1;
 		}
 		else {
@@ -291,6 +312,7 @@ sub transform_schedule {
 			atype => $atype,
 			amap => $ansMap,
 			isString => $isString,
+			isNum => $isNum,
 			level => $level,
 			format => $format,
 			module => $module,
@@ -368,7 +390,7 @@ sub transform_schedule {
 }
 
 sub createSPSSforPerVar {
-	my $file="$resultsDir/__PerVar__";
+	my $file="$Prefs->{RESULTS_DIR}/__PerVar__";
 	$file =~ s/\//\\/g;	
 
 	open (SPSS, ">$file.sps") or die "uanble to open $file.sps";
@@ -385,7 +407,7 @@ sub createSPSSforPerVar {
  	print SPSS "/FIRSTCASE = 2\n";
  	print SPSS "/IMPORTCASE = ALL\n";
  	print SPSS "/VARIABLES =\n";	
- 	print SPSS "UniqueID A15\n";
+ 	print SPSS "UniqueID A50\n";
  	print SPSS "dispCnt F8.2\n";
  	print SPSS "numQs F8.2\n";
  	print SPSS "whichQ F8.2\n";
@@ -454,7 +476,7 @@ sub createSPSSforPathStepSummary {
 	my $arg = shift;
 	my @stepLabels = @$arg;
 	
-	my $file="$resultsDir/pathstep-summary";
+	my $file="$Prefs->{RESULTS_DIR}/pathstep-summary";
 	$file =~ s/\//\\/g;	
 
 	open (SPSS, ">$file.sps") or die "uanble to open $file.sps";
@@ -471,8 +493,8 @@ sub createSPSSforPathStepSummary {
  	print SPSS "/FIRSTCASE = 2\n";
  	print SPSS "/IMPORTCASE = ALL\n";
  	print SPSS "/VARIABLES =\n";
- 	print SPSS "UniqueID A15\n";
-  	print SPSS "Title A20\n";
+ 	print SPSS "UniqueID A50\n";
+  	print SPSS "Title A50\n";
  	print SPSS "Version A8\n";
  	print SPSS "Finished F8.2\n";
  	print SPSS "tDur TIME11.2\n";
@@ -525,7 +547,7 @@ sub createSPSSforPerScreen {
 	my $arg = shift;
 	my @stepLabels = @$arg;
 	
-	my $file="$resultsDir/__PerScreen__";
+	my $file="$Prefs->{RESULTS_DIR}/__PerScreen__";
 	$file =~ s/\//\\/g;	
 
 	open (SPSS, ">$file.sps") or die "uanble to open $file.sps";
@@ -533,7 +555,7 @@ sub createSPSSforPerScreen {
 	print SPSS "\n/**********************************************/\n";
 	print SPSS "/* __PerScreen__ */\n";
 	print SPSS "/**********************************************/\n\n";
-	
+
 	print SPSS "GET DATA  /TYPE = TXT\n";
  	print SPSS "/FILE = '$file.tsv'\n";
  	print SPSS "/DELCASE = LINE\n";
@@ -542,7 +564,7 @@ sub createSPSSforPerScreen {
  	print SPSS "/FIRSTCASE = 2\n";
  	print SPSS "/IMPORTCASE = ALL\n";
  	print SPSS "/VARIABLES =\n";
- 	print SPSS "UniqueID A15\n";
+ 	print SPSS "UniqueID A50\n";
  	print SPSS "DispCnt F8.2\n"; 
  	print SPSS "Group F8.2\n";
  	print SPSS "When TIME11.2\n";
@@ -550,11 +572,11 @@ sub createSPSSforPerScreen {
  	print SPSS "Alen F8.2\n";
  	print SPSS "Tlen F8.2\n";
  	print SPSS "NumQs F8.2\n";
- 	print SPSS "tDurSec F8.2\n"; 
+  	print SPSS "Title A50\n";
+ 	print SPSS "Version A8\n";
+  	print SPSS "tDurSec F8.2\n"; 
  	print SPSS "tTimevsQ F16.5\n"; 
  	print SPSS "tTimevsT F16.5\n";  	
-  	print SPSS "Title A20\n";
- 	print SPSS "Version A8\n";
  	print SPSS "ServSec F8.2\n";
  	print SPSS "LoadSec F8.2\n";
  	print SPSS "DispSec F8.2\n";
@@ -616,7 +638,7 @@ sub createSPSSforPathStepTiming {
 	my $arg = shift;
 	my @stepLabels = @$arg;
 
-	my $file="$resultsDir/pathstep-timing";
+	my $file="$Prefs->{RESULTS_DIR}/pathstep-timing";
 	$file =~ s/\//\\/g;	
 
 	open (SPSS, ">$file.sps") or die "uanble to open $file.sps";
@@ -633,7 +655,7 @@ sub createSPSSforPathStepTiming {
  	print SPSS "/FIRSTCASE = 2\n";
  	print SPSS "/IMPORTCASE = ALL\n";
  	print SPSS "/VARIABLES =\n";
- 	print SPSS "UniqueID A15\n";
+ 	print SPSS "UniqueID A50\n";
  	print SPSS "DispCnt F8.2\n";
  	print SPSS "Group F8.2\n";
  	print SPSS "When TIME11.2\n";
@@ -645,7 +667,7 @@ sub createSPSSforPathStepTiming {
  	print SPSS "tDurSec F8.2\n";
  	print SPSS "tTimevsQ F16.5\n";
  	print SPSS "tTimevsT F16.5\n";
- 	print SPSS "Title A20\n";
+ 	print SPSS "Title A50\n";
  	print SPSS "Version A8\n";
  	print SPSS ".\n";
  	
@@ -691,7 +713,7 @@ sub createSPSSdictionaries {
 	foreach (sort(keys(%modules))) {
 		print "creating dictionary for module $_\n";
 		
-		my $file="$resultsDir/$_";
+		my $file="$Prefs->{RESULTS_DIR}/$_";
 		$file =~ s/\//\\/g;
 			
 		&createSPSSdictionary($_,$file,$sched_root,$nodes);
@@ -701,12 +723,12 @@ sub createSPSSdictionaries {
 }
 
 sub createSPSSforValidModules {
-	my $all_spss_file = "$resultsDir/all_spss.sps";
+	my $all_spss_file = "$Prefs->{RESULTS_DIR}/all_spss.sps";
 	
 	open (SPSS, ">$all_spss_file") or die "unable to open $all_spss_file";
 	foreach (sort(keys(%modules))) {
 		next if (/^(__NOTHING__)|(__DISCARD__)$/);
-		my $file="$resultsDir/$_-summary.sps";
+		my $file="$Prefs->{RESULTS_DIR}/$_-summary.sps";
 		open (IN, "<$file") or die "unable to open $file";
 		my @lines = (<IN>);
 		foreach (@lines) { 
@@ -715,7 +737,7 @@ sub createSPSSforValidModules {
 		}
 		close (IN);
 		
-		$file="$resultsDir/$_-complete.sps";
+		$file="$Prefs->{RESULTS_DIR}/$_-complete.sps";
 		open (IN, "<$file") or die "unable to open $file";
 		my @lines = (<IN>);
 		foreach (@lines) { 
@@ -737,7 +759,7 @@ sub createSPSSdictionary {
 	my @freqVars;
 	my $sortfn;
 	
-	if ($sortby eq 'sortby_order_asked') {
+	if ($Prefs->{SORTBY} eq 'sortby_order_asked') {
 		print "Using sortby='sortby_order_asked'\n";
 		$sortfn = \&sortbyOrderAsked;
 	}
@@ -761,11 +783,11 @@ sub createSPSSdictionary {
 	print SPSS "/FIRSTCASE = 2\n";		# 4\n";
 	print SPSS "/IMPORTCASE = ALL\n";
 	print SPSS "/VARIABLES =\n";
-	print SPSS "\tUniqueID A15\n";
+	print SPSS "\tUniqueID A50\n";
 	print SPSS "\tFinished F8.0\n";
 	print SPSS "\tStartDat ADATE10\n";
 	print SPSS "\tStopDate ADATE10\n";
-	print SPSS "\tTitle A25\n";
+	print SPSS "\tTitle A50\n";
 	print SPSS "\tVersion A8\n";
 	
 	
@@ -798,7 +820,7 @@ sub createSPSSdictionary {
 			# then has a data dictionary
 			print SPSS "VALUE LABELS $n{'c8name'}\n";
 			print SPSS $missingValLabelsForStrings	if $n{'isString'};
-			print SPSS $missingValLabelsForNums		unless $n{'isString'};
+			print SPSS $missingValLabelsForNums		if $n{'isNum'};
 
 			my %amap = %{ $n{'amap'} };
 			foreach my $key (sort(keys(%amap))) {
@@ -811,7 +833,7 @@ sub createSPSSdictionary {
 	
 		print SPSS "VARIABLE LEVEL $n{'c8name'} ($n{'level'}).\n";
 		print SPSS "FORMATS $n{'c8name'} ($n{'format'}).\n";
-		print SPSS "MISSING VALUES $n{'c8name'} $missingListForNums.\n"		unless ($n{'isString'});
+		print SPSS "MISSING VALUES $n{'c8name'} $missingListForNums.\n"		if ($n{'isNum'});
 		print SPSS "MISSING VALUES $n{'c8name'} $missingListForStrings.\n"	if ($n{'isString'});
 		print SPSS "\n";
 
@@ -860,12 +882,12 @@ sub createSPSSdictionary {
 	print SPSS "/FIRSTCASE = 2\n";		#4\n";
 	print SPSS "/IMPORTCASE = ALL\n";
 	print SPSS "/VARIABLES =\n";
-	print SPSS "\tUniqueID A15\n";
+	print SPSS "\tUniqueID A50\n";
 	print SPSS "\tFinished F8.0\n"; ##
 	print SPSS "\tc8name A8\n";
 	print SPSS "\tLanguage F8.2\n";
 	print SPSS "\tVersion A8\n";
-	print SPSS "\tAnswers A100\n";
+	print SPSS "\tAnswers A254\n";
 	print SPSS "\tDispCnts A20\n";
 	print SPSS "\tDirectns A20\n";
 	print SPSS "\tVisits F8.2\n";
@@ -980,7 +1002,7 @@ sub qlen {
 
 sub cat_ans {
 	my $arg = shift;
-	my (@vals, $atype, $count, $text, %ansMap, $isString, $level, $format);
+	my (@vals, $atype, $count, $text, %ansMap, $isString, $isNum, $level, $format);
 	
 	if ($arg !~ /\|/) {
 		# then double, date, etc.
@@ -1032,7 +1054,15 @@ sub cat_ans {
 			$format = 'A8';	# must be short enough that can do frequency analyses
 		}
 	}
-	return ($atype, \%ansMap, $text, length($text), $isString, $level, $format);
+	
+	$isNum = !$isString;
+	# dates and times do not support missing values!?
+	if (!$supportsMissing->{$atype}) {
+		$isString = 0;
+		$isNum = 0;
+	}
+	
+	return ($atype, \%ansMap, $text, length($text), $isString, $isNum, $level, $format);
 }
 
 sub strip_html {

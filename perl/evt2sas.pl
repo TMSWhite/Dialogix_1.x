@@ -7,21 +7,30 @@
 #   each line has 8 tab-delimited values
 #   the column layout is:
 #     displayCount varName actionType eventType timestamp duration value1 value2
+# TODO
+#  recursively process subdirectories?
 
 use strict;
+use Dialogix::Utils;
 
-if ($#ARGV < 2) {
-	print "Usage:\nperl evt2sas.pl uniqueID discardVarsMatchingPattern *.evt\n";
+
+if ($#ARGV != 0) {
+	print "Usage:\nperl evt2sas.pl <config_file>\n";
 	exit(0);
 }
 
+my $conf_file = shift;
+my $Prefs = &Dialogix::Utils::readDialogixPrefs($conf_file);
+&Dialogix::Utils::mychdir($Prefs->{INSTRUMENT_DIR});
+
 my ($uniqueID, $discardPrefix,@gargs,$filename,$instrument);
 my (%huidStep2path, %sched_nodes);
-@gargs = @ARGV;
 
-$instrument = shift(@gargs);
-$uniqueID = shift(@gargs);
-$discardPrefix = shift(@gargs);
+$instrument = "$Prefs->{INSTRUMENT_DIR}/$Prefs->{INSTRUMENT}";
+$uniqueID = $Prefs->{UNIQUE_ID};
+$discardPrefix = $Prefs->{discardVarsMatchingPattern};
+@gargs = split(/ /,$Prefs->{EVT_FILES});
+&Dialogix::Utils::mychdir($Prefs->{RESULTS_DIR});
 
 my ($varName, %vars, %varInfo, @vals);
 my ($networkDelay, $turnaroundTime, $displayTime, $networkSendTime, $loadTime, $clientReceiveTS, $serverSendTS, $serverTime);
@@ -30,8 +39,15 @@ my ($lastTS, $loadTS, $lastLoadTS, $loadDiff);
 my ($name, $type, $focus, $blur, $change, $click, $keypress, $mouseup, $totalTime, $inputTime, $answered, $skipped);
 my ($huid);
 
-&load_instrument_nodes($instrument);
+&main;
 
+sub main {
+	# FIXME -- this needs to be better consolidated
+	&load_instrument_nodes($instrument);
+	&do_evt2sas;
+}
+
+sub do_evt2sas {
 
 # this section is dependent upon dat2sas.pl's section for pathstep-timing.tsv -- reads directly from it!
 open(PATHSTEP,"<pathstep-timing.tsv") or die("unable to open 'pathstep-timing.tsv'");
@@ -41,8 +57,12 @@ foreach (@lines) {
 	chomp;
 	my @vars = split(/\t/);
 	
+	# ORDER IN pathstep-timing.tsv
+	#	UniqueID	DispCnt	Group	When	tDur	Qlen	Alen	Tlen	NumQs	tDurSec	TimevsQ	TimevsT	Title	Version
+	# ORDER DESIRED BY evt2sas
 	# Group When Qlen Alen Tlen NumQs Title Version tDurSec tTimeVsQ tTimeVsT:  keyed on "huid.dispCnt"
-	$huidStep2path{"$vars[0].$vars[1]"} = "$vars[2]\t$vars[3]\t$vars[5]\t$vars[6]\t$vars[7]\t$vars[8]\t$vars[9]\t$vars[10]\t$vars[11]\t$vars[12]\t$vars[13]";
+	$huidStep2path{"$vars[0].$vars[1]"} = "$vars[2]\t$vars[3]\t$vars[5]\t$vars[6]\t$vars[7]\t$vars[8]\t$vars[12]\t$vars[13]\t$vars[9]\t$vars[10]\t$vars[11]";
+#	$huidStep2path{"$vars[0].$vars[1]"} = "$vars[2]\t$vars[3]\t$vars[5]\t$vars[6]\t$vars[7]\t$vars[8]\t$vars[9]\t$vars[10]\t$vars[11]\t$vars[12]\t$vars[13]";
 }
 
 open(PERVAR,">__PerVar__.tsv")	or die("unable to write to '__PerVar__.tsv'");
@@ -51,7 +71,7 @@ print PERVAR "\tAtype\tAlen\tQlen\tTlen\tqTimevsT\tiTimevsA\n";
 
 open(PERSCREEN,">__PerScreen__.tsv")	or die("unable to write to '__PerScreen__.tsv'");
 #print PERSCREEN "UniqueID\tdispCnt\tservSec\tloadSec\tdispSec\tturnSec\tntwkSec\tntwkSend\tntwkRecv\tloadDate\tloadTime\tloadDiff\n";
-print PERSCREEN "UniqueID\tdispCnt\tGroup\tWhen\tQlen\tAlen\tTlen\tNumQs\ttDurSec\ttTimevsQ\ttTimevsT\tTitle\tVersion\tservSec\tloadSec\tdispSec\tturnSec\tntwkSec\tdTimevsQ\tdTimevsT\n";
+print PERSCREEN "UniqueID\tdispCnt\tGroup\tWhen\tQlen\tAlen\tTlen\tNumQs\tTitle\tVersion\tDurSec\ttTimevsQ\ttTimevsT\tservSec\tloadSec\tdispSec\tturnSec\tntwkSec\tdTimevsQ\tdTimevsT\n";
 
 foreach(@gargs) {
 	my @files = glob($_);
@@ -177,6 +197,8 @@ foreach(@gargs) {
 }
 close(PERVAR);
 close(PERSCREEN);
+
+} # end of &do_evt2sas
 
 sub printVarInfo {
 	# then have moved onto a next display block - collate data

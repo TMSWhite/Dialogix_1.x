@@ -36,37 +36,48 @@
 
 use IO::File;
 use strict;
+use Dialogix::Utils;
 
-if ($#ARGV < 10) {
-	print "Usage:\nperl dat2sas.pl sortby instrument uniqueID modularizeByPrefix discardVarsMatchingPattern NA REFUSED UNKNOWN HUH INVALID UNASKED *.dat\n";
-	print "e.g. perl dat2sas.pl sortby_order_asked AdultBYS FullHUID \"[A-Za-z]+\" \"ND.*\" 9999 8888 7777 6666 5555 4444 *.dat\n";
+if ($#ARGV != 0) {
+	print "Usage:\nperl dat2sas.pl <config_file>\n";
 	exit(0);
 }
 
+my $conf_file = shift;
+my $Prefs = &Dialogix::Utils::readDialogixPrefs($conf_file);
+&Dialogix::Utils::mychdir($Prefs->{RESULTS_DIR});
+
 my $MAX_PREV = 27;
 
-my ($instrument, %sched, %sched_nodes);
-my ($uniqueID, $modulePrefix, $discardPrefix,@gargs,$filename,$sortby);
-my ($NA, $REFUSED, $UNKNOWN, $HUH, $INVALID, $UNASKED);
-@gargs = @ARGV;
+my (%sched, %sched_nodes);
 my (@pathLog,@pathHash,@pathByStep);
 my (@stepOrder, @stepDirection);	# make global for faster processing by &computeVarHistory?
 
-$sortby = shift(@gargs);
-$instrument = shift(@gargs);
-$uniqueID = shift(@gargs);
-$modulePrefix = shift(@gargs);
-$discardPrefix = shift(@gargs);
+&main;
 
-$NA = shift(@gargs);
-$REFUSED = shift(@gargs);
-$UNKNOWN = shift(@gargs);
-$HUH = shift(@gargs);
-$INVALID = shift(@gargs);
-$UNASKED = shift(@gargs);
+sub main {
+	my @dat_file_globs = split(/ /,$Prefs->{DAT_FILES});
+	my $instrument = "$Prefs->{INSTRUMENT_DIR}/$Prefs->{INSTRUMENT}";
+	
+	print "$instrument, $Prefs->{DAT_FILES}\n";
+	
+	&load_instrument($instrument);
+	&process_files(\@dat_file_globs);
+	&processPath;
+}
 
-&load_instrument($instrument);
 
+sub processPath {
+	&processPathHash;
+	&showPathLog;
+	&pathTotals;
+	&pathByStep;
+}
+
+sub process_files {
+	my $garg_ref = shift;
+	my @gargs = @$garg_ref;
+	
 foreach(@gargs) {
 	my @files = glob($_);
 
@@ -178,17 +189,17 @@ foreach(@gargs) {
 			
 			++$count;
 			
-			if ($uniqueID ne '*' && $vals[1] =~ /^$uniqueID$/) {
+			if ($Prefs->{UNIQUE_ID} ne '*' && $vals[1] =~ /^$Prefs->{UNIQUE_ID}$/) {
 				$huid = $vals[5];
 			}
 			
-			if ($discardPrefix ne '*' && $vals[1] =~ /^$discardPrefix/) {
+			if ($Prefs->{discardVarsMatchingPattern} ne '*' && $vals[1] =~ /^$Prefs->{discardVarsMatchingPattern}$/) {
 				$module = "__DISCARD__";
 			}
 			elsif ($sched_nodes{$vals[1]}{'atype'} eq 'nothing' && $sched_nodes{$vals[1]}{'type'} !~ /^e/i) {	# an instructional question
 				$module = "__NOTHING__";
 			}
-			elsif ($modulePrefix ne '*' && $vals[1] =~ /^($modulePrefix)/) {
+			elsif ($Prefs->{modularizeByPrefix} ne '*' && $vals[1] =~ /^($Prefs->{modularizeByPrefix})/) {
 				$module = $1;
 			}
 			else {
@@ -275,7 +286,7 @@ foreach(@gargs) {
 		
 		# use default filename, if necessary
 		my $filebase = &calc_huid($filename);
-		if ($filebase =~ /^tri[0-9]+$/) {
+		if ($filebase =~ /tri[0-9]+$/) {
 			$finished = 0;
 		}
 		else {
@@ -304,7 +315,7 @@ foreach(@gargs) {
 				# file doesn't exist yet, so create it with the proper column headings
 				print { $fh } "UniqueID\tFinished\tStartDat\tStopDate\tTitle\tVersion";
 				
-				if ($sortby eq 'sortby_order_asked') {
+				if ($Prefs->{SORTBY} eq 'sortby_order_asked') {
 					foreach my $arg (sort { $a->{'count'} <=> $b->{'count'} } values(%data)) {
 						my %datum = %{ $arg };					
 						next unless ($key eq $datum{'module'});
@@ -330,7 +341,7 @@ foreach(@gargs) {
 		}
 		
 		# foreach variable, print it in row form to the appropriate file
-		if ($sortby eq 'sortby_order_asked') {
+		if ($Prefs->{SORTBY} eq 'sortby_order_asked') {
 			foreach my $key (sort { $a->{'count'} <=> $b->{'count'} } values(%data)) {
 				my %datum = %{ $key };		
 				next unless defined(%datum);
@@ -383,8 +394,7 @@ foreach(@gargs) {
 		}
 	}
 }
-
-&processPath;
+}	# end of &process_files
 
 sub computeVarHistory {
 	# determine path taken through answers to variables
@@ -453,15 +463,6 @@ sub computeVarHistory {
 		"\t$visits\t$prevs\t$repeats\t$nexts\t$changes\t$retains\t$na2ok\t$ok2na\t$ok2ok\t$nonAns";
 		
 	return $msg;
-}
-
-
-
-sub processPath {
-	&processPathHash;
-	&showPathLog;
-	&pathTotals;
-	&pathByStep;
 }
 
 sub pathByStep {
@@ -548,12 +549,12 @@ sub load_instrument_nodes {
 sub fixSpecialAnswers {
 	my $arg = &fixAns(shift);
 	
-	if ($NA ne '*' && $arg eq '*NA*') { return $NA; }
-	elsif ($REFUSED ne '*' && $arg eq '*REFUSED*') { return $REFUSED; }
-	elsif ($UNKNOWN ne '*' && $arg eq '*UNKNOWN*') { return $UNKNOWN; }
-	elsif ($HUH ne '*' && $arg eq '*HUH*') { return $HUH; }
-	elsif ($INVALID ne '*' && $arg eq '*INVALID*') { return $INVALID; }
-	elsif ($UNASKED ne '*' && $arg eq '*UNASKED*') { return $UNASKED; }	
+	if ($Prefs->{NA} ne '*' && $arg eq '*NA*') { return $Prefs->{NA}; }
+	elsif ($Prefs->{REFUSED} ne '*' && $arg eq '*REFUSED*') { return $Prefs->{REFUSED}; }
+	elsif ($Prefs->{UNKNOWN} ne '*' && $arg eq '*UNKNOWN*') { return $Prefs->{UNKNOWN}; }
+	elsif ($Prefs->{HUH} ne '*' && $arg eq '*HUH*') { return $Prefs->{HUH}; }
+	elsif ($Prefs->{INVALID} ne '*' && $arg eq '*INVALID*') { return $Prefs->{INVALID}; }
+	elsif ($Prefs->{UNASKED} ne '*' && $arg eq '*UNASKED*') { return $Prefs->{UNASKED}; }	
 	else { return $arg; }
 }
 
@@ -768,7 +769,7 @@ sub IPtype {
 
 sub badInstrument {
 	my $inst = shift;
-	return 1 unless $inst eq $instrument;
+	return 1 unless $inst eq "$Prefs->{INSTRUMENT_DIR}/$Prefs->{INSTRUMENT}";
 	return 0;
 }
 

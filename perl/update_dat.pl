@@ -59,8 +59,8 @@
 
 use strict;
 use Time::Local;
+use Dialogix::Utils;
 
-my $varMapInfoFile = "";
 
 #global variables
 my $conversionStyle = '>2.5';
@@ -71,10 +71,15 @@ my %copyToDirs;
 my $studyType = '';
 my %varMap;
 
+my $conf_file = shift;
+my $Prefs = &Dialogix::Utils::readDialogixPrefs($conf_file);
+&Dialogix::Utils::mychdir($Prefs->{UNJAR_DIR});
+
 &main;
 
 sub main {
-	$varMapInfoFile = shift(@ARGV);
+	# FIXME -- needs to recursively process all directories within UNJAR_DIR
+
 	&loadVarMaps;
 	
 	foreach(@ARGV) {
@@ -286,7 +291,7 @@ sub moveToWorking {
 
 sub loadVarMaps {
 	# read in variable name translations
-	open (SRC,"$varMapInfoFile")	or die "unable to open $varMapInfoFile";
+	open (SRC,"$Prefs->{VARMAP_INFO_FILE}")	or die "unable to open $Prefs->{VARMAP_INFO_FILE}";
 	my @lines = (<SRC>);
 	close (SRC);
 	
