@@ -282,3 +282,7 @@ Reorganization & Documentation
     affected files:  Node.java, TricepsEngine.java, TricepsServlet.java
   Opera
     tested - still doesn't work - generates error messages like e.* is not an object - seems to be a JavaScript event model problem.
+  Logging
+    added IP_ADDRESS and BROWSER_TYPE to .dat and .evt logs.
+    this allows detection of change in source location and event storage format
+    affected files:  Schedule.java, Triceps.java, TricepsEngine.java

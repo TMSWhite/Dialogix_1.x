@@ -64,12 +64,12 @@ import java.io.FileInputStream;
 	private Random random = new Random();
 	private String tempPassword = null;
 	Logger dataLogger = Logger.NULL;	
-	private Logger eventLogger = Logger.NULL;
+	Logger eventLogger = Logger.NULL;
 	private int displayCount = -1;	// count the number of times data has been sent 
 	private String displayCountStr = null;
 	private long timeSent = 0;
 	private long timeReceived = 0;
-
+	
 	/** formerly from Lingua */
 	private static final Locale defaultLocale = Locale.getDefault();
 	private ResourceBundle bundle = null;

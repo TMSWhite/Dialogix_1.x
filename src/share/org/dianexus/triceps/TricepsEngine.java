@@ -31,12 +31,13 @@ public class TricepsEngine implements VersionIF {
 	static final int BROWSER_OPERA = 4;
 	static final int BROWSER_OTHER = 0;
 	private int browserType = BROWSER_OTHER;
+	private String userAgent = "";
 
 	private Logger errors = new Logger();
 	private Logger info = new Logger();
 
-	private HttpServletRequest req;
-	private HttpServletResponse res;
+	private HttpServletRequest req=null;
+	private HttpServletResponse res=null;
 	private String firstFocus = null;
 
 	private String scheduleSrcDir = "";
@@ -859,6 +860,9 @@ if (AUTHORABLE) {
 		schedule = triceps.getSchedule();
 		schedule.setReserved(Schedule.IMAGE_FILES_DIR,imageFilesDir);
 		schedule.setReserved(Schedule.SCHEDULE_DIR,scheduleSrcDir);
+		schedule.setReserved(Schedule.BROWSER_TYPE, userAgent);
+		schedule.setReserved(Schedule.IP_ADDRESS,((req == null) ? null : req.getRemoteAddr()));
+		triceps.eventLogger.println("***\t" + schedule.getReserved(Schedule.IP_ADDRESS) + "\t" + userAgent);
 		return triceps.isValid();
 	}
 	
@@ -968,7 +972,7 @@ if (XML) {
 	}
 	
 	private void whichBrowser() {
-		String userAgent = req.getHeader(USER_AGENT);
+		userAgent = req.getHeader(USER_AGENT);
 		if ((userAgent.indexOf("Mozilla/4") != -1)) {
 			if (userAgent.indexOf("MSIE") != -1) {
 				browserType = BROWSER_MSIE;

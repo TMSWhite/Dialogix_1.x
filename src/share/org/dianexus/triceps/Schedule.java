@@ -71,6 +71,8 @@ import java.io.ByteArrayInputStream;
 	/*public*/ static final int DISPLAY_COUNT = 45;
 	/*public*/ static final int SCHEDULE_DIR = 46;
 	/*public*/ static final int ALLOW_JUMP_TO = 47;
+	/*public*/ static final int BROWSER_TYPE = 48;
+	/*public*/ static final int IP_ADDRESS = 49;
 
 	private static final String DEFAULT_LANGUAGE = "en_US";
 	/*public*/ static final String TRICEPS_DATA_FILE = "DATA";
@@ -126,6 +128,8 @@ import java.io.ByteArrayInputStream;
 		"__DISPLAY_COUNT__",
 		"__SCHEDULE_DIR__",
 		"__ALLOW_JUMP_TO__",
+		"__BROWSER_TYPE__",
+		"__IP_ADDRESS__",
 	};
 
 	private Date startTime = null;
@@ -222,6 +226,8 @@ import java.io.ByteArrayInputStream;
 		setReserved(DISPLAY_COUNT,"0");
 		setReserved(SCHEDULE_DIR,"");
 		setReserved(ALLOW_JUMP_TO,"false");
+		setReserved(BROWSER_TYPE,null);
+		setReserved(IP_ADDRESS,null);
 	}
 		
 	/*public*/ boolean init() {
@@ -716,6 +722,8 @@ if (DEPLOYABLE) {
 			case DISPLAY_COUNT: if (expert) s = setDisplayCount(value); break;
 			case SCHEDULE_DIR: if (expert) s = value; break;
 			case ALLOW_JUMP_TO: s = Boolean.valueOf(value.trim()).toString(); break;
+			case BROWSER_TYPE: if (expert) s = value; break;
+			case IP_ADDRESS: if (expert) s = value; break;
 			default: return false;
 		}
 		
