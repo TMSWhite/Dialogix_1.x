@@ -3,6 +3,33 @@
 # (2) password
 # (3) filename -- so can restore from existing file
 # (4) instrument name -- so can create one from scratch
+# (5) status -- whether this is a working file is "unstarted", "working", "completed"
 
-guest	guest	guest	Wave6\WEB-INF\schedules\wave6-qol-web.txt
-irb	irb	irb	Wave6\WEB-INF\schedules\wave6-sa-web.txt
+guest	guest	guest	Wave6\WEB-INF\schedules\nothing.jar	unstarted
+gaftree	gaftree	gaftree	Wave6\WEB-INF\schedules\GAFTree.jar	unstarted
+gaftree1	gaftree1	gaftree	Wave6\WEB-INF\schedules\GAFTree.jar	unstarted
+gaftree2	gaftree2	gaftree	Wave6\WEB-INF\schedules\GAFTree.jar	unstarted
+gaftree3	gaftree3	gaftree	Wave6\WEB-INF\schedules\GAFTree.jar	unstarted
+gaftree4	gaftree4	gaftree	Wave6\WEB-INF\schedules\GAFTree.jar	unstarted
+gaftree5	gaftree5	gaftree	Wave6\WEB-INF\schedules\GAFTree.jar	unstarted
+gaftree6	gaftree6	gaftree	Wave6\WEB-INF\schedules\GAFTree.jar	unstarted
+gaftree7	gaftree7	gaftree	Wave6\WEB-INF\schedules\GAFTree.jar	unstarted
+gaftree8	gaftree8	gaftree	Wave6\WEB-INF\schedules\GAFTree.jar	unstarted
+qol	qol	qol	Wave6\WEB-INF\schedules\wave6-qol-web.jar	unstarted
+qol1	qol1	qol	Wave6\WEB-INF\schedules\wave6-qol-web.jar	unstarted
+qol2	qol2	qol	Wave6\WEB-INF\schedules\wave6-qol-web.jar	unstarted
+qol3	qol3	qol	Wave6\WEB-INF\schedules\wave6-qol-web.jar	unstarted
+qol4	qol4	qol	Wave6\WEB-INF\schedules\wave6-qol-web.jar	unstarted
+qol5	qol5	qol	Wave6\WEB-INF\schedules\wave6-qol-web.jar	unstarted
+qol6	qol6	qol	Wave6\WEB-INF\schedules\wave6-qol-web.jar	unstarted
+qol7	qol7	qol	Wave6\WEB-INF\schedules\wave6-qol-web.jar	unstarted
+qol8	qol8	qol	Wave6\WEB-INF\schedules\wave6-qol-web.jar	unstarted
+sa	sa	sa	Wave6\WEB-INF\schedules\wave6-sa-web.jar	unstarted
+sa1	sa1	sa	Wave6\WEB-INF\schedules\wave6-sa-web.jar	unstarted
+sa2	sa2	sa	Wave6\WEB-INF\schedules\wave6-sa-web.jar	unstarted
+sa3	sa3	sa	Wave6\WEB-INF\schedules\wave6-sa-web.jar	unstarted
+sa4	sa4	sa	Wave6\WEB-INF\schedules\wave6-sa-web.jar	unstarted
+sa5	sa5	sa	Wave6\WEB-INF\schedules\wave6-sa-web.jar	unstarted
+sa6	sa6	sa	Wave6\WEB-INF\schedules\wave6-sa-web.jar	unstarted
+sa7	sa7	sa	Wave6\WEB-INF\schedules\wave6-sa-web.jar	unstarted
+sa8	sa8	sa	Wave6\WEB-INF\schedules\wave6-sa-web.jar	unstarted

@@ -1552,4 +1552,11 @@ if (DEBUG) {
 		}
 }		
 	}
+
+	void shutdown() {
+		/* graceful shutdown */
+		closeDataLogger();
+	}
 }
+
+

@@ -253,7 +253,7 @@
             <Parameter name="socketFactory" 
                 value="org.apache.tomcat.net.SSLSocketFactory" />
             <Parameter name="keystore"
-            		value="@@SSL.KEYSTORE@@" />
+                  value="@@TOMCAT.HOME@@/@@SSL.KEYSTORE@@" />
             <Parameter name="keypass"
             		value="@@SSL.KEYPASS@@" />
         </Connector>

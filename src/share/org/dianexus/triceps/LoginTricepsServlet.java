@@ -82,12 +82,7 @@ if (DEBUG) Logger.printStackTrace(t);
 			/* If session is expired, give appropriiate error page */
 			if ("POST".equals(req.getMethod())) {
 				expiredSessionErrorPage(req,res);
-				try {
-					session.invalidate();	// so that retrying same session gives same message
-				}
-				catch (java.lang.IllegalStateException e) {
-					Logger.writeln(e.getMessage());
-	 			}
+				shutdown(req,"post-expired session");
 				return;
 			}
 			/* if new, require login */
@@ -185,6 +180,11 @@ if (DEBUG) Logger.printStackTrace(t);
 	
 	void loginPage(HttpServletRequest req, HttpServletResponse res, String message) {
 		logAccess(req, " LOGIN - " + message);
+		
+		if (tricepsEngine != null) {
+			/* then this is an error condition -- must reset state and reload instrument from where left off */
+			shutdown(req,"at start of loginPage, when tricepsEngine = null");	// graceful exit;
+		}
 		
 		try {
 			res.setContentType("text/html");
@@ -285,13 +285,12 @@ if (DEBUG) Logger.printStackTrace(t);
 	}
 	
 	void okPage(HttpServletRequest req, HttpServletResponse res, String hiddenLoginToken) {
-		HttpSession session = req.getSession(true);	// must alreay exist by this stage
+		HttpSession session = req.getSession();	// must alreay exist by this stage
 		
 		sessionID = session.getId();
-		String fullSessionID = TRICEPS_ENGINE + "." + sessionID;
 		String restoreFile = null;	// means that the file has already been loaded.  If non-null, asks the system to load it.
 		
-		tricepsEngine = (TricepsEngine) session.getAttribute(fullSessionID);
+		tricepsEngine = (TricepsEngine) session.getAttribute(TRICEPS_ENGINE);
 		
 		
 		/* Now ensure that using proper instrument for this authenticated subject */
@@ -351,14 +350,14 @@ if (DEBUG) Logger.printStackTrace(t);
 if (DEBUG) Logger.printStackTrace(t);
 		}
 		
-		session.setAttribute(fullSessionID, tricepsEngine);
+		session.setAttribute(TRICEPS_ENGINE, tricepsEngine);
 		
 		/* disable session if completed */
 		if (tricepsEngine.isFinished()) {
 			logAccess(req, " FINISHED");
 			Logger.writeln("...instrument finished.  Discarding session " + sessionID);
 			try {
-				session.invalidate();
+				shutdown(req,"post-FINISHED");
 				loginRecord.setStatusCompleted();
 				loginRecords.updateLoginInfo();
 			}

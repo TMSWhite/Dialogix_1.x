@@ -18,7 +18,7 @@ del dianexus.keystore
 @echo Generate keystore and self-signed key
 @echo =====================================
 
-%JAVA_HOME%\bin\keytool -keystore dianexus.keystore -keypass aka##triceps -storepass aka##triceps -genkey -alias tomcat -keyalg RSA -dname "CN=piwhite.cpmc.columbia.edu, OU=Department of Medical Informatics, O=Columbia University, L=New York, ST=New York, C=US"
+%JAVA_HOME%\bin\keytool -keystore dianexus.keystore -keypass aka##triceps -storepass aka##triceps -genkey -alias tomcat -keyalg RSA -dname "CN=www.dianexus.org, OU=Department of Medical Informatics, O=Columbia University, L=New York, ST=New York, C=US" -validity 1825
 
 @echo =====================================
 @echo Create a certificate signing request

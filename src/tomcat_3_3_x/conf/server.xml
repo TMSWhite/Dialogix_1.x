@@ -211,7 +211,7 @@
          -->
          @@SSL.COMMENT_START@@
         <Http10Connector  port="@@HTTPS.PORT@@" secure="true" 
-        		keystore="@@SSL.KEYSTORE@@"
+        		keystore="@@TOMCAT.HOME@@/@@SSL.KEYSTORE@@"
         		keypass="@@SSL.KEYPASS@@"
         		/>
         	@@SSL.COMMENT_END@@

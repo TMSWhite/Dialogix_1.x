@@ -373,6 +373,7 @@
          <filter token="SSL.COMMENT_END" value="${SSL.COMMENT_END}"/>
          <filter token="SSL.KEYSTORE" value="${SSL.KEYSTORE}"/>
          <filter token="SSL.KEYPASS" value="${SSL.KEYPASS}"/>
+         <filter token="TOMCAT.HOME" value="${tomcat.home}"/>
        </filterset>
      </copy>       
 

@@ -96,26 +96,20 @@ if (DEBUG) Logger.printStackTrace(t);
 		}
 		
 		sessionID = session.getId();
-		String fullSessionID = TRICEPS_ENGINE + "." + sessionID;
 		
-		tricepsEngine = (TricepsEngine) session.getAttribute(fullSessionID);
+		/* is this an expired session? */
+		if (session.isNew() && "POST".equals(req.getMethod())) {
+			expiredSessionErrorPage(req,res);
+			shutdown(req,"post-expired session");
+			return;
+		}		
+		
+		tricepsEngine = (TricepsEngine) session.getAttribute(TRICEPS_ENGINE);
 		if (tricepsEngine == null) {
 			tricepsEngine = new TricepsEngine(config);
 		}
 		
 		logAccess(req, " OK");
-		
-		/* is this an expired session? */
-		if (session.isNew() && "POST".equals(req.getMethod())) {
-			expiredSessionErrorPage(req,res);
-			try {
-				session.invalidate();	// so that retrying same session gives same message
-			}
-			catch (java.lang.IllegalStateException e) {
-				Logger.writeln(e.getMessage());
- 			}
-			return;
-		}
 		
 		try {
 			res.setContentType("text/html");
@@ -130,18 +124,13 @@ if (DEBUG) Logger.printStackTrace(t);
 if (DEBUG) Logger.printStackTrace(t);
 		}			
 		
-		session.setAttribute(fullSessionID, tricepsEngine);
+		session.setAttribute(TRICEPS_ENGINE, tricepsEngine);
 		
 		/* disable session if completed */
 		if (tricepsEngine.isFinished()) {
 			logAccess(req, " FINISHED");
 			Logger.writeln("...instrument finished.  Discarding session " + sessionID);
-			try {
-				session.invalidate();
-			}
-			catch (java.lang.IllegalStateException e) {
-				Logger.writeln(e.getMessage());
-			}
+			shutdown(req,"post-FINISHED");
 		}
 	}
 	
@@ -245,5 +234,30 @@ if (DEBUG) Logger.printStackTrace(t);
 		catch (Throwable t) {
 if (DEBUG) Logger.printStackTrace(t);
 		}		
+	}
+	
+	void shutdown(HttpServletRequest req, String msg) {
+		/* want to invalidate sessions -- even though this confuses the log issue on who is accessing from where, multiple sessions can indicate problems with user interface */
+		
+		Logger.writeln("Shutdown session: " + msg);
+		
+		if (tricepsEngine != null) {
+			tricepsEngine.getTriceps().shutdown();
+		}
+		tricepsEngine = null;
+		
+		HttpSession session = req.getSession();
+		if (session != null) {
+			session.removeAttribute(TRICEPS_ENGINE);
+		}
+		try {
+			session.invalidate();	// so that retrying same session gives same message
+		}
+		catch (java.lang.IllegalStateException e) {
+			Logger.writeln(e.getMessage());
+		}
+		
+		/* Finally, create a new session so that session so that it is available, and so that session time-outs can be detected */
+		session = req.getSession(true);
 	}
 }
