@@ -74,6 +74,7 @@ public class TricepsEngine implements VersionIF {
 	private Triceps triceps = Triceps.NULL;
 	private Schedule schedule = Schedule.NULL;	// triceps.getSchedule()
 	private boolean isloaded = false;
+	private int colpad=2;
 
 	public TricepsEngine(ServletConfig config) {
 		init(config);
@@ -1128,9 +1129,30 @@ if (XML) {
 			sb.append(triceps.get("QUESTION_AREA"));
 		}
 
-		Enumeration questionNames = triceps.getQuestions();
+		Enumeration questionNames = null;
 		String color;
 		String errMsg;
+		
+		/* pre-assess whether there are any special icons needed for the final column */
+		boolean	needSpecialOptions = false;
+		
+		if (okToShowAdminModeIcons || allowComments) {
+			needSpecialOptions = true;
+		}
+		else {
+			questionNames = triceps.getQuestions();
+			for(int count=0;questionNames.hasMoreElements();++count) {
+				Node node = (Node) questionNames.nextElement();
+				Datum datum = triceps.getDatum(node);	
+				if (datum.isRefused() || datum.isUnknown() || datum.isNotUnderstood()) {
+					needSpecialOptions = true;
+					break;
+				}
+			}
+		}
+		colpad = (showQuestionNum ? 1 : 0) + (needSpecialOptions ? 1 : 0);
+
+		questionNames = triceps.getQuestions();
 
 		sb.append("<table cellpadding='2' cellspacing='1' width='100%' border='1'>");
 		for(int count=0;questionNames.hasMoreElements();++count) {
@@ -1169,7 +1191,7 @@ if (XML) {
 
 			switch(node.getAnswerType()) {
 				case Node.RADIO_HORIZONTAL:
-					sb.append("<td colspan='3'>");
+					sb.append("<td colspan='" + (2 + (needSpecialOptions ? 1 : 0)) + "'>");
 					sb.append("<input type='hidden' name='" + (inputName + "_COMMENT") + "' value='" + XMLAttrEncoder.encode(node.getComment()) + "'>");
 					sb.append("<input type='hidden' name='" + (inputName + "_SPECIAL") + "' value='" +
 						((isSpecial) ? (triceps.toString(node,true)) : "") +
@@ -1190,7 +1212,9 @@ if (XML) {
 					sb.append(node.prepareChoicesAsHTML(datum,errMsg,autogenOptionNums));
 					sb.append(errMsg);
 					sb.append("</td>");
-					sb.append("<td width='1%' NOWRAP>" + clickableOptions + "</td>");
+					if (needSpecialOptions) {
+						sb.append("<td width='1%' NOWRAP>" + clickableOptions + "</td>");
+					}
 					break;
 				default:
 					if (node.getAnswerType() == Node.NOTHING) {
@@ -1210,16 +1234,20 @@ if (XML) {
 					else {
 						sb.append(triceps.getQuestionStr(node));
 					}
+					sb.append("</td>");
 					if (node.getAnswerType() != Node.NOTHING) {
 						sb.append("<td>" + node.prepareChoicesAsHTML(datum,autogenOptionNums) + errMsg + "</td>");
 					}
-					sb.append("</td><td width='1%' NOWRAP>" + clickableOptions + "</td>");
+					if (needSpecialOptions) {
+						sb.append("<td width='1%' NOWRAP>" + clickableOptions + "</td>");
+					}
 					break;
 			}
 
 			sb.append("</tr>");
 		}
-		sb.append("<tr><td colspan='" + ((showQuestionNum) ? 4 : 3) + "' align='center'>");
+		
+		sb.append("<tr><td colspan='" + (colpad+2) + "' align='center'>");
 
 		if (!triceps.isAtEnd()) {
 			sb.append(buildSubmit("next"));
@@ -1248,13 +1276,13 @@ if (XML) {
 
 if (AUTHORABLE) {
 		if (developerMode) {
-			sb.append("<tr><td colspan='" + ((showQuestionNum) ? 4 : 3 ) + "' align='center'>");
+			sb.append("<tr><td colspan='" + (colpad+2) + "' align='center'>");
 			sb.append(buildSubmit("select_new_interview"));
 			sb.append(buildSubmit("restart_clean"));
 			sb.append(buildSubmit("save_to"));
 			sb.append("<input type='text' name='save_to_data' size='10' " + listEventHandlers("text") + ">");
 			sb.append("</td></tr>");
-			sb.append("<tr><td colspan='" + ((showQuestionNum) ? 4 : 3 ) + "' align='center'>");
+			sb.append("<tr><td colspan='" + (colpad+2) + "' align='center'>");
 			sb.append(buildSubmit("reload_questions"));
 			sb.append(buildSubmit("show_Syntax_Errors"));
 			sb.append(buildSubmit("evaluate_expr"));
@@ -1449,7 +1477,7 @@ if (AUTHORABLE) {
 		if (developerMode) {
 			StringBuffer sb = new StringBuffer();
 
-			sb.append("<tr><td colspan='" + ((showQuestionNum) ? 4 : 3 ) + "' align='center'>");
+			sb.append("<tr><td colspan='" + (colpad+2) + "' align='center'>");
 			sb.append(buildSubmit("turn_developerMode"));
 			sb.append(buildSubmit("turn_debugMode"));
 			sb.append(buildSubmit("turn_showQuestionNum"));
