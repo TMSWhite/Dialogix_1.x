@@ -40,7 +40,7 @@ set CLASSPATH=%CLASSPATH%;%TL%\dialogix.jar;%TL%\jakarta-oro.jar
 REM == CLASSPATH FOR JAVAMAIL (send only) ==
 REM set CLASSPATH=%CLASSPATH%;%TL%\activation.jar;%TL%\mailapi.jar;%TL%\smtp.jar
 REM == CLASSPATH FOR CLOUDSCAPE ==
-REM set CLASSPATH=%CLASSPATH%;%TL%\cloudscape.jar
+set CLASSPATH=%CLASSPATH%;%TL%\cloudscape.jar
 
 echo Using CLASSPATH=%CLASSPATH%
 
