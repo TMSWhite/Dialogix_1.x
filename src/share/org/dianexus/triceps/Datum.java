@@ -5,22 +5,21 @@ import java.text.*;
 
 public class Datum implements Serializable {
 	public static final int UNKNOWN = 0;		// haven't asked
-	public static final int DOUBLE = 1;
-	public static final int STRING = 2;
-	public static final int UNCERTAIN = 3; 	// can ask, but answer not known
-	public static final int REFUSED = 4;	// can ask, but can't get answer
-	public static final int NA = 5;			// don't need to ask - not applicable
-	public static final int INVALID = 6;		// if an exception occurs - so propagated
-	public static final int DATE = 7;
-	public static final int MONTH = 8;
+	public static final int NA = 1;				// don't need to ask - not applicable
+	public static final int INVALID = 2;		// if an exception occurs - so propagated	
+	public static final int DOUBLE = 3;
+	public static final int STRING = 4;
+	public static final int DATE = 5;
+	public static final int MONTH = 6;
+	public static final String TYPES[] = { "*UNKNOWN*", "*NOT APPLICABLE*", "*INVALID*", "DOUBLE", "STRING", "DATE", "MONTH" };
 	
 	public static final SimpleDateFormat mdy = new SimpleDateFormat("MM/dd/yyyy");
 	public static final SimpleDateFormat month = new SimpleDateFormat("MMMM");
 	
-	private String sVal;
-	private double dVal;
-	private boolean bVal;
 	private int type = UNKNOWN;
+	private String sVal = TYPES[type];
+	private double dVal = Double.NaN;
+	private boolean bVal = false;
 	private Date timestamp = null;
 	private Date date = null;
 	private String error = null;
@@ -33,31 +32,24 @@ public class Datum implements Serializable {
 		timestamp = new Date(System.currentTimeMillis());
 	}
 	public Datum(int i) {
-		switch (i) {
-			case UNCERTAIN:
-			case REFUSED:
-			case NA:
-				type = i;
-				sVal = "Not applicable.";
-				bVal = false;
-				dVal = Double.NaN;
-				break;
-			case INVALID:
-				type = i;
-				sVal = "";
-				bVal = false;
-				dVal = Double.NaN;
-				break;
-			default:
-				error = "Invalid Datum - expected one of INVALID, UNCERTAIN, REFUSED, NA";
-				type = INVALID;
-				sVal = "";
-				bVal = false;
-				dVal = Double.NaN;
-				break;
-		}
+		type = i;
+		sVal = null;
+		bVal = false;
+		dVal = Double.NaN;
 		date = null;
 		timestamp = new Date(System.currentTimeMillis());
+		
+		switch (i) {
+			case NA:
+			case UNKNOWN:
+				break;
+			default:
+				error = "Invalid Datum - expected one of INVALID, UNKNOWN or NA";
+				/* fall through */			
+			case INVALID:
+				type = INVALID;
+				break;
+		}
 	}
 	public Datum(long l) {
 		type = DOUBLE;
@@ -69,7 +61,7 @@ public class Datum implements Serializable {
 	public Datum(Datum val) {
 		dVal = val.doubleVal();
 		bVal = val.booleanVal();
-		sVal = val.StringVal();
+		sVal = val.stringVal();
 		date = val.date;
 		type = val.type();
 		timestamp = new Date(System.currentTimeMillis());
@@ -131,7 +123,7 @@ public class Datum implements Serializable {
 		sVal = (b ? "1" : "0");
 		timestamp = new Date(System.currentTimeMillis());
 	}
-	public String StringVal() { return sVal; }
+	public String stringVal() { if (exists()) return sVal; else return TYPES[type]; }
 	public boolean booleanVal() { return bVal; }
 	public double doubleVal() { return dVal; }
 	public Date dateVal() { return date; }
@@ -140,6 +132,10 @@ public class Datum implements Serializable {
 	public int type() { return type; }
 	public Date getTimeStamp() { return timestamp; }
 	public boolean isInvalid() { return (type == INVALID); }
+	public boolean isUnknown() { return (type == UNKNOWN); }
+	public boolean isNA() { return (type == NA); }
+	public boolean exists() { return !(isInvalid() || isUnknown() || isNA()); }
+	
 	
 	public String getError() {
 		if (error == null)

@@ -507,7 +507,7 @@ public class Qss implements QssConstants {
 
                 /* Remove null strings from list */
                 for (int i=0;i<v.size();) {
-                        if (((Datum) v.elementAt(i)).StringVal().length() == 0) {
+                        if (((Datum) v.elementAt(i)).stringVal().length() == 0) {
                                 v.removeElementAt(i);
                         }
                         else {
@@ -524,7 +524,7 @@ public class Qss implements QssConstants {
                                         sb.append(" and ");
                                 }
                         }
-                        sb.append(((Datum) v.elementAt(i)).StringVal());
+                        sb.append(((Datum) v.elementAt(i)).stringVal());
                 }
                 stack.push(new Datum(sb.toString(),Datum.STRING));
   }

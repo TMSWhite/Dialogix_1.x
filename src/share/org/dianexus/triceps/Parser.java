@@ -25,8 +25,8 @@ public class Parser {
 		return parse(ev, exp).booleanVal();
 	}
 	
-	public String StringVal(Evidence ev, String exp) {
-		return parse(ev, exp).StringVal();
+	public String stringVal(Evidence ev, String exp) {
+		return parse(ev, exp).stringVal();
 	}
 	
 	public double doubleVal(Evidence ev, String exp) {
@@ -59,7 +59,7 @@ public class Parser {
 			}
 			else {
 				if (inside) {
-					sb.append(StringVal(ev,s));
+					sb.append(stringVal(ev,s));
 				}
 				else {
 					sb.append(s);

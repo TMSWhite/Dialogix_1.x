@@ -5,20 +5,19 @@ import java.net.*;
 
 /* Triceps
  * TODO:
- *	Qss needs to be re-entrant or synchronized - done
+ *  if gotoXXX returns false, will currentStep be reset?
  */
- 
 public class Triceps implements Serializable {
 	private static final String NULL = "not set";	// a default value to represent null in config files
 	
 	private Object scheduleURL = null;
 	private Schedule nodes = null;
-	private Evidence evidence = null;
-	static private transient Parser parser = new Parser();
+	public Evidence evidence = null;	// XXX - should be private - made public for debugging from TricepsServlet
+	static public transient Parser parser = new Parser();	// XXX - should not be public - only making it so for debugging
 	
 	private Stack errors = new Stack();
-	private int currentStep;
-	private Node node = null;
+	private int currentStep=0;
+	private int numQuestions=0;	// so know how many to skip for compount question
 
 	public Triceps() {
 	}
@@ -69,57 +68,140 @@ public class Triceps implements Serializable {
 	
 	public Enumeration getQuestions() {
 		Vector e = new Vector();
+		int braceLevel  = 0;
+		String actionType;
+		Node node;
+		int step = currentStep;
 		
 		// should loop over available questions
-		e.addElement(node);
+		do {
+			if (step >= size()) {
+				if (braceLevel > 0) {
+					errors.push("missing " + braceLevel + " closing brace(s)");
+				}
+				break;
+			}
+			node = nodes.getNode(step++);
+			actionType = node.getActionType();
+			e.addElement(node);	// add regardless of type
+			
+			if ("[".equals(actionType)) {
+				++braceLevel;
+			}
+			else if ("e".equals(actionType)) {
+				errors.push("Should not have expression evaluations within a query block (brace level " + braceLevel);
+				break;
+			}
+			else if ("]".equals(actionType)) {
+				--braceLevel;
+				if (braceLevel < 0) {
+					errors.push("Extra closing brace");
+					break;
+				}
+			}
+			else if ("q".equals(actionType)) {
+			}
+			else {
+				errors.push("Invalid action type: " + actionType);
+				break;				
+			}
+		} while (braceLevel > 0);
+		
+		numQuestions = e.size();	// what about error conditions?
 		return e.elements();
 	}
 	
 	public String getQuestionStr(Node q) {
-		return parser.parseJSP(evidence, q.getAction());
+		return parser.parseJSP(evidence, q.getAction()) + q.getQuestionMask();
 	}
 	
 	public boolean gotoFirst() {
-		currentStep = -1;
+		currentStep = 0;
+		numQuestions = 0;
 		return gotoNext();
 	}
 	
 	public boolean gotoNext() {
-		while (true) {		// loop forward through nodes -- break to query user or to end
-			if (++currentStep >= nodes.size()) {	// then the schedule is complete
-				// store evidence here
-				errors.push("The interview is completed.");
-				try {
-					evidence.save("/tmp/test-completed");		
-				} catch (java.io.IOException e) {
-					System.out.println(e);
+		Node node;
+		int braceLevel = 0;
+		String actionType;
+		int step = currentStep + numQuestions;
+		
+		do {		// loop forward through nodes -- break to query user or to end
+			if (step >= size()) {	// then the schedule is complete
+				if (braceLevel > 0) {
+					errors.push("Missing " + braceLevel + " closing brace(s)");
 				}
-				
+				errors.push("The interview is completed.");
 				return false;	// XXX - need better message passing		
 			}
-			if ((node = nodes.getNode(currentStep)) == null)		// just in case something wierd happens
+			if ((node = nodes.getNode(step)) == null) {
+				errors.push("Invalid node at step " + step);
 				return false;
+			}
+				
+			actionType = node.getActionType();
 			
-			/* Active or inactive */
-			if (parser.booleanVal(evidence, node.getDependencies())) { // the node is active and requires action
-
-				/* get answer from user or from evidence */
-				if ("q".equals(node.getActionType())) {	// queryUser()
-					return true;	
+			if ("[".equals(actionType)) {
+				if (braceLevel == 0) {
+					if (parser.booleanVal(evidence, node.getDependencies())) {
+						break;	// this is the first node of a block
+					}
+					else {
+						++braceLevel;	// skip this entire section
+					}
 				}
-				else if ("e".equals(node.getActionType())) {	// evaluate evidence, set the Datum for this node, and loop to next node
-					evidence.set(node, new Datum(parser.StringVal(evidence, node.getAction()),node.getDatumType())); // what data type?
+				else {
+					++braceLevel;	// skip this inner block
 				}
 			}
-			else {	// the node is inactive and the datum value is "not applicable"
-
-				/* store in evidence a "not applicable" Datum for this node*/
-				evidence.set(node, new Datum(Datum.NA));
+			else if ("]".equals(actionType)) {
+				--braceLevel;	// close an open block
+				if (braceLevel < 0) {
+					errors.push("Extra closing brace");
+					return false;
+				}
 			}
-		} // end while loop		
+			else if ("e".equals(actionType)) {
+				if (braceLevel > 0) {
+					evidence.set(node, new Datum(Datum.NA));	// NA if internal to a brace?
+				}
+				else {
+					if (parser.booleanVal(evidence, node.getDependencies())) {
+						evidence.set(node, new Datum(parser.stringVal(evidence, node.getAction()),node.getDatumType()));
+					}
+					else {
+						evidence.set(node, new Datum(Datum.NA));	// if doesn't satisfy dependencies, store NA
+					}
+				}
+			}
+			else if ("q".equals(actionType)) {
+				if (braceLevel > 0) {
+					;	// skip over it, keeping current value - looking for end of block
+				}
+				else {
+					if (parser.booleanVal(evidence, node.getDependencies())) {
+						break;	// ask this question
+					}
+					else {
+						evidence.set(node, new Datum(Datum.NA));	// if doesn't satisfy dependencies, store NA
+					}
+				}
+			}
+			else {
+				errors.push("Unknown actionType " + actionType);
+				return false;
+			}
+			++step;
+		} while (true);
+		currentStep = step;
+		numQuestions = 0;
+		return true;
 	}
 	
 	public boolean gotoNode(Object val) {
+		int step = currentStep;
+		
 		Node n = evidence.getNode(val);
 		if (n == null) {
 			errors.push("Unknown node: " + val);
@@ -131,55 +213,80 @@ public class Triceps implements Serializable {
 			return false;
 		} else {
 			currentStep = result;
-			node = n;
 			return true;
 		}
 	}
 		
 	public boolean gotoPrevious() {
-		while (true) {		// loop back through nodes -- break to query user
-			if (--currentStep < 0) {
+		Node node;
+		int braceLevel = 0;
+		String actionType;
+		int step = currentStep;
+		
+		while (true) {
+			if (--step < 0) {
+				if (braceLevel < 0) 
+					errors.push("Missing " + braceLevel + " openining braces");
+					
 				errors.push("You can't back up any further.");
-				currentStep = 0;
 				return false;	// XXX need better messaging system
 			}
-			if ((node = nodes.getNode(currentStep)) == null)
+			if ((node = nodes.getNode(step)) == null)
 				return false;
 				
-			if ("e".equals(node.getActionType())) {
-
-				/* then can skip this going backwards */
-				continue;
+			actionType = node.getActionType();
+				
+			if ("e".equals(actionType)) {
+				;	// skip these going backwards?
+//				evidence.set(node,new Datum(Datum.NA));	// reset evaluations when going backwards
 			}
-			if (parser.booleanVal(evidence, node.getDependencies())) {
-
-				/* if meets the criteria to ask this question ... */
-				if ("q".equals(node.getActionType())) {
-					return true;
+			else if ("]".equals(actionType)) {
+				--braceLevel;
+			}
+			else if ("[".equals(actionType)) {
+				++braceLevel;
+				if (braceLevel > 0) {
+					errors.push("extra opening brace");
+					return false;
+				}
+				if (braceLevel == 0 && parser.booleanVal(evidence, node.getDependencies())) {
+					break;	// ask this block of questions
 				}
 			}
+			else if ("q".equals(actionType)) {
+				if (braceLevel == 0 && parser.booleanVal(evidence, node.getDependencies())) {
+					break;	// ask this block of questions
+				}
+				// else within a brace, or not applicable, so skip it.
+			}
+			else {
+				errors.push("invalid actionType " + actionType);
+				return false;				
+			}
 		}
+		currentStep = step;
+		return true;
 	}
 	
 	public boolean resetEvidence() {
-		evidence = new Evidence(nodes.size());
+		evidence = new Evidence(nodes);
 		return true;
 	}
 	
 	private boolean setDebugEvidence() {
 		Node n;
 		String init;
-		for (int i=0;i<nodes.size();++i) {
+		for (int i=0;i<size();++i) {
 			n = nodes.getNode(i);
 			if (n == null)
 				continue;
 			
 			init = n.getDebugAnswer();
 			
-			if (init == null || init.equals(NULL))
+			if (init == null || init.equals(NULL) || init.equals(Datum.TYPES[Datum.UNKNOWN]))
 				continue;
 			
-			evidence.set(n,new Datum(init,node.getDatumType()));	// set an initial value for the node
+			evidence.set(n,new Datum(init,n.getDatumType()));	// set an initial value for the node
 		}
 		return true;
 	}
@@ -260,7 +367,15 @@ public class Triceps implements Serializable {
 		if (d == null)
 			return "null";
 		else
-			return d.StringVal();
+			return d.stringVal();
+	}
+	
+	public boolean isSet(Node n) {
+		Datum d = getDatum(n);
+		if (d == null || d.isUnknown())
+			return false;
+		else
+			return true;
 	}
 	
 	public String evidenceToXML() {
@@ -272,7 +387,7 @@ public class Triceps implements Serializable {
 		Node n;
 		Datum d;
 		
-		for (int i=0;i<nodes.size();++i) {
+		for (int i=0;i<size();++i) {
 			n = nodes.getNode(i);
 			if (n == null)
 				continue;
@@ -281,7 +396,7 @@ public class Triceps implements Serializable {
 			if (d == null)
 				continue;
 				
-			sb.append(" <datum name='" + n.getName() + "' value='" + d.StringVal() + "'/>\n");
+			sb.append(" <datum name='" + n.getName() + "' value='" + d.stringVal() + "'/>\n");
 		}
 		sb.append("</Evidence>\n");
 		return sb.toString();
@@ -311,7 +426,7 @@ public class Triceps implements Serializable {
 			return false;
 			
 		try {
-			for (int i=0;i<nodes.size();++i) {
+			for (int i=0;i<size();++i) {
 				n = nodes.getNode(i);
 				if (n == null)
 					continue;
@@ -321,7 +436,7 @@ public class Triceps implements Serializable {
 					ans = NULL;
 				}
 				else {
-					ans = d.StringVal();
+					ans = d.stringVal();
 				}
 					
 				out.write(n.toTSV() + "\t" + ans + "\n");

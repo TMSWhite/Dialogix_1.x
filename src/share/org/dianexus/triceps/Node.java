@@ -13,7 +13,8 @@ public class Node implements Serializable {
 	public static final int TEXT = 5;
 	public static final int DOUBLE=6;
 	private static final String QUESTION_TYPES[] = {"radio", "check", "combo", "date", "month", "text", "double" };
-	private static final int DATA_TYPES[] = { Datum.DOUBLE, Datum.DOUBLE, Datum.DOUBLE, Datum.DATE, Datum.MONTH, Datum.STRING, Datum.STRING };
+	private static final int DATA_TYPES[] = { Datum.DOUBLE, Datum.DOUBLE, Datum.STRING, Datum.DATE, Datum.MONTH, Datum.STRING, Datum.STRING };
+	private static final String QUESTION_MASKS[] = { "", "", "", " (e.g. 7/23/1982)", " (e.g. February)", "", "" };
 	
 	private String concept = "";
 	private String description = "";
@@ -134,6 +135,7 @@ public class Node implements Serializable {
 				break;
 			case COMBO:	// stores string as value
 				sb.append("<select name='" + getName() + "'>");
+				sb.append("<option>");	// first choice is empty
 				while (ans.hasMoreTokens()) { 
 					val = ans.nextToken();
 					msg = ans.nextToken();
@@ -148,21 +150,21 @@ public class Node implements Serializable {
 					if (date != null)
 						defaultValue = Datum.mdy.format(date);
 				}
-				sb.append("Date (MM/dd/yyyy - e.g. 7/4/1982): <input type='text' name='" + getName() + "' value='" + defaultValue + "'>");
+				sb.append("<input type='text' name='" + getName() + "' value='" + defaultValue + "'>");
 				break;
 			case MONTH: // stores Month type
-				if (datum != null)
+				if (datum != null && datum.exists())
 					defaultValue = datum.monthVal();			
-				sb.append("Month (e.g. February): <input type='text' name='" + getName() + "' value='" + defaultValue + "'>");
+				sb.append("<input type='text' name='" + getName() + "' value='" + defaultValue + "'>");
 				break;
 			case TEXT:	// stores Text type
-				if (datum != null)
-					defaultValue = datum.StringVal();
+				if (datum != null && datum.exists())
+					defaultValue = datum.stringVal();
 				sb.append("<input type='text' name='" + getName() + "' value='" + defaultValue + "'>");
 				break;
 			case DOUBLE:	// stores Double type
-				if (datum != null)
-					defaultValue = datum.StringVal();
+				if (datum != null && datum.exists())
+					defaultValue = datum.stringVal();
 				sb.append("<input type='text' name='" + getName() + "' value='" + defaultValue + "'>");
 				break;
 			}
@@ -188,6 +190,7 @@ public class Node implements Serializable {
 	public String getName() { return stepName; }
 	public String getQuestionRef() { return questionRef; }
 	public String getDebugAnswer() { return debugAnswer; }
+	public String getQuestionMask() { return QUESTION_MASKS[answerType]; }
 	public int getStep() { return step; }
 	
 	/**

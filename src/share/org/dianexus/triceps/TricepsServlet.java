@@ -58,12 +58,14 @@ public class TricepsServlet extends HttpServlet {
 		out.println("							</select>");
 		out.println("<BR><input type='SUBMIT' name='directive' value='START'>\n");
 		out.println("<BR>OR<BR>");
+/*
 		out.println("<input type='SUBMIT' name='directive' value='restore-from-object'>" + 
 			"<input type='text' name='restore-from-object'>");
 		out.println("<BR>");
-		out.println("<input type='SUBMIT' name='directive' value='restore-from-TSV'>" +
-			"<input type='text' name='restore-from-TSV'>");		
-		out.println("<BR><input type='SUBMIT' name='directive' value='RESTORE'>");
+*/
+		out.println("<input type='SUBMIT' name='directive' value='restore from:'>" +
+			"<input type='text' name='restore from:'>");		
+//		out.println("<BR><input type='SUBMIT' name='directive' value='RESTORE'>");
 		out.println("</pre>");
 		out.println("</body>");
 		out.println("</html>");
@@ -142,6 +144,7 @@ public class TricepsServlet extends HttpServlet {
 
 			// ask question
 		} 
+/*
 		else if (directive.equals("restore-from-object")) {
 			String restore = req.getParameter("restore-from-object");
 			restore = restore + "." + req.getRemoteUser() + "." + req.getRemoteHost() + ".suspend";
@@ -164,8 +167,9 @@ public class TricepsServlet extends HttpServlet {
 				// ask question
 			}
 		} 
-		else if (directive.equals("restore-from-TSV")) {
-			String restore = req.getParameter("restore-from-TSV");
+*/
+		else if (directive.equals("restore from:")) {
+			String restore = req.getParameter("restore from:");
 			restore = restore + "." + req.getRemoteUser() + "." + req.getRemoteHost() + ".tsv";
 			
 			// load schedule
@@ -191,11 +195,11 @@ public class TricepsServlet extends HttpServlet {
 			// ask question			
 		}
 			
-		else if (directive.equals("jump-to")) {	
-			ok = triceps.gotoNode(req.getParameter("jump-to"));
+		else if (directive.equals("jump to:")) {	
+			ok = triceps.gotoNode(req.getParameter("jump to:"));
 			// ask this question
 		}
-		else if (directive.equals("clear evidence")) { // restart from scratch
+		else if (directive.equals("clear all and re-start")) { // restart from scratch
 			ok = triceps.resetEvidence();
 			ok = ok && triceps.gotoFirst();
 			// ask first question
@@ -207,7 +211,8 @@ public class TricepsServlet extends HttpServlet {
 			}
 			// re-ask current question
 		}
-		else if (directive.equals("suspend-as-object-to")) {		// XXX gotta go -- be back later :-)
+		/*
+		else if (directive.equals("suspend-as-object-to")) {		
 			String name = req.getParameter("suspend-as-object-to");
 			String file = name + "." + req.getRemoteUser() + "." + req.getRemoteHost() + ".suspend";
 			ok = triceps.save(file);
@@ -216,8 +221,9 @@ public class TricepsServlet extends HttpServlet {
 			}
 			// re-ask same question
 		}
-		else if (directive.equals("suspend-as-TSV-to")) {		// XXX gotta go -- be back later :-)
-			String name = req.getParameter("suspend-as-TSV-to");
+		*/
+		else if (directive.equals("save to:")) {		
+			String name = req.getParameter("save to:");
 			String file = name + "." + req.getRemoteUser() + "." + req.getRemoteHost() + ".tsv";
 			
 			ok = triceps.toTSV(file);
@@ -225,17 +231,34 @@ public class TricepsServlet extends HttpServlet {
 				out.println("<B>Interview saved successfully as " + name + " (" + file + ")</B><HR>");
 			}
 		}
+		else if (directive.equals("evaluate expr:")) {
+			String expr = req.getParameter("evaluate expr:");
+			if (expr != null) {
+				Datum datum = triceps.parser.parse(triceps.evidence, expr);
+				
+				out.println("<TABLE WIDTH='100%' CELLPADDING='0' CELLSPACING='0' BORDER=1>");
+				out.println("<TR><TD>Equation</TD><TD><B>" + expr + "</B></TD><TD>Type</TD><TD><B>" + Datum.TYPES[datum.type()] + "</B></TD></TR>");
+				out.println("<TR><TD>String</TD><TD><B>" + datum.stringVal() + "</B></TD><TD>boolean</TD><TD><B>" + datum.booleanVal() + "</B></TD></TR>");
+				out.println("<TR><TD>double</TD><TD><B>" + datum.doubleVal() + "</B></TD><TD>long</TD><TD><B>" + datum.longVal() + "</B></TD></TR>");
+				out.println("<TR><TD>date</TD><TD><B>" + datum.dateVal() + "</B></TD><TD>month</TD><TD><B>" + datum.monthVal() + "</B></TD></TR>");
+				out.println("</TABLE>");
+			}
+		}	
+/*
 		else if (directive.equals("help")) {	// FIXME
 			out.println("<B>No help currently available</B><HR>");
 			// re-ask same question
 		}
+*/
+/*
 		else if (directive.equals("show evidence as XML (unordered, duplicated)")) {
 			out.println("<B>Use 'Show Source' to see data in Evidence as XML</B><BR>");
 			out.println("<!--\n" + triceps.evidenceToXML() + "\n-->");
 			out.println("<HR>");
 			// re-ask same question
 		}
-		else if (directive.equals("show schedule as XML (ordered)")) {
+*/
+		else if (directive.equals("show XML")) {
 			out.println("<B>Use 'Show Source' to see data in Schedule as XML</B><BR>");
 			out.println("<!--\n" + triceps.toXML() + "\n-->");
 			out.println("<HR>");			
@@ -281,41 +304,38 @@ public class TricepsServlet extends HttpServlet {
 		out.println("<H4>QUESTION AREA</H4>");
 		
 		Enumeration questionNames = triceps.getQuestions();
-			
+		
+		out.println("<TABLE CELLPADDING='0' CELLSPACING='0' WIDTH='100%' border='1'>");
 		for(int count=0;questionNames.hasMoreElements();++count) {
 			Node node = (Node) questionNames.nextElement();
-			
-			if (count == 0) {
-				out.println("<B>Question " + node.getQuestionRef() + "</B>: " + triceps.getQuestionStr(node) + "<br>\n");
-			}
 			Datum datum = triceps.getDatum(node);
 			
-			out.println(node.prepareChoicesAsHTML(datum));
+			out.println("	<TR>");
+			out.println("		<TD><B>" + node.getQuestionRef() + "</B></TD>");
+			out.println("		<TD>" + triceps.getQuestionStr(node) + "</TD>");
+			out.println("		<TD>" + node.prepareChoicesAsHTML(datum) + "</TD>");
+			out.println("	</TR>");
 		}
-
-		// Navigation buttons
-		out.println("<hr>");
-		out.println("<H4>NAVIGATION AREA</H4>");
-		out.println("<input type='SUBMIT' name='directive' value='backward'>");
+		out.println("	<TR><TD COLSPAN='3' ALIGN='center'>");
 		out.println("<input type='SUBMIT' name='directive' value='forward'>");
-		out.println("<input type='SUBMIT' name='directive' value='help'>");
-		out.println("<BR>");
-		out.println("<input type='SUBMIT' name='directive' value='suspend-as-object-to'>");
-		out.println("<input type='text' name='suspend-as-object-to'>");
-		out.println("<BR>");
-		out.println("<input type='SUBMIT' name='directive' value='suspend-as-TSV-to'>");
-		out.println("<input type='text' name='suspend-as-TSV-to'>");		
-		out.println("<BR>");
-		// the following buttons are for debugging
-		out.println("<input type='SUBMIT' name='directive' value='jump-to'>");
-		out.println("<input type='text' name='jump-to'>");
-		out.println("<input type='SUBMIT' name='directive' value='clear evidence'>");
-		out.println("<input type='SUBMIT' name='directive' value='reload questions'>");
-		out.println("<BR>");
-		out.println("<input type='SUBMIT' name='directive' value='show evidence as XML (unordered, duplicated)'>");
-		out.println("<input type='SUBMIT' name='directive' value='show schedule as XML (ordered)'>");		
+		out.println("<input type='SUBMIT' name='directive' value='backward'>");
+		out.println("<input type='SUBMIT' name='directive' value='jump to:'>");
+		out.println("<input type='text' name='jump to:'>");
+		out.println("<input type='SUBMIT' name='directive' value='save to:'>");
+		out.println("<input type='text' name='save to:'>");				
+		out.println("	</TD></TR>");
+		out.println("	<TR><TD COLSPAN='3' ALIGN='center'>");
+		out.println("<input type='SUBMIT' name='directive' value='reload questions'>");		
+		out.println("<input type='SUBMIT' name='directive' value='show XML'>");	
+		out.println("<input type='SUBMIT' name='directive' value='clear all and re-start'>");
+		out.println("<input type='SUBMIT' name='directive' value='evaluate expr:'>");
+		out.println("<input type='text' name='evaluate expr:'>");
+		out.println("	</TR></TD>");		
+		out.println("</TABLE>");
+
 		out.println("</form>");
 
+/*
 		// Node info area
 		out.println("<hr>");
 		
@@ -326,14 +346,33 @@ public class TricepsServlet extends HttpServlet {
 		
 			out.println("<H4>NODE INFORMATION AREA</H4>" + node.toString());
 		}
-
+*/
 		// Complete printout of what's been collected per node
 		out.println("<hr>");
+		out.println("<H4>CURRENT QUESTION(s)</H4>");
+		out.println("<TABLE CELLPADDING='0' CELLSPACING='0'  WIDTH='100%' BORDER='1'>");
+		questionNames = triceps.getQuestions();
+			
+		while(questionNames.hasMoreElements()) {
+			Node n = (Node) questionNames.nextElement();
+			out.println("<TR>" + 
+				"<TD>" + n.getQuestionRef() + "</TD>" +
+				"<TD><B>" + triceps.toString(n) + "</B></TD>" +
+				"<TD>" + n.getName() + "</TD>" +
+				"<TD>" + n.getConcept() + "</TD>" +
+				"<TD>" + n.getDependencies() + "</TD>" +
+				"<TD>" + n.getAction() + "</TD>" +
+				"</TR>\n");			
+		}		
+		out.println("</TABLE>");
+		
+		
+		out.println("<hr>");
 		out.println("<H4>EVIDENCE AREA</H4>");
-		out.println("<TABLE CELLPADDING='0' CELLSPACING='0' BORDER='1'>");
+		out.println("<TABLE CELLPADDING='0' CELLSPACING='0'  WIDTH='100%' BORDER='1'>");
 		for (int i = triceps.size()-1; i >= 0; i--) {
 			Node n = triceps.getNode(i);
-			if (triceps.toString(n) == "null")	// XXX 
+			if (!triceps.isSet(n))
 				continue;
 			out.println("<TR>" + 
 				"<TD>" + (i + 1) + "</TD>" + 

@@ -16,52 +16,46 @@ public class Evidence implements Serializable {
 	Hashtable aliases;
 	Vector data;
 	Vector nodes;
+	Schedule schedule = null;
 	int size;
 
-	public Evidence(int size) {
+	public Evidence(Schedule schedule) {
 		aliases = new Hashtable();
 		data = new Vector(size);
 		nodes = new Vector(size);
+		this.schedule = schedule;
+		size = schedule.size();
+		
+		Node node;
+		int i;
+		for (i = 0; i < size; ++i) {
+			data.addElement(new Datum(Datum.UNKNOWN));
+			node = schedule.getNode(i);
+			if (node == null) {
+				System.out.println("Inaccessible node # " + i);
+				nodes.addElement(null);
+				continue;
+			}
+			nodes.addElement(node);
+			Integer j = new Integer(i);
+			aliases.put(node.getConcept(), j);
+			aliases.put(node.getName(), j);
+			aliases.put(node.getQuestionRef(), j);			
+		}
+	}
+	
+	public Evidence(int size) {
+		schedule = null;
 		this.size = size;
+		aliases = new Hashtable();
+		data = new Vector(size);
+		nodes = new Vector(size);
 		for (int i = 0; i < size; ++i) {
 			data.addElement(null);
 			nodes.addElement(null);
 		}
-	}
+	}	
 
-	public Evidence (String filename) throws IOException,ClassNotFoundException {
-		ObjectInputStream in = null;
-		Evidence ev = null;
-		try {
-			FileInputStream fis = new FileInputStream(filename);
-			in = new ObjectInputStream(fis);
-			ev = (Evidence) in.readObject();
-			in.close();
-			this.aliases = ev.aliases;
-			this.data = ev.data;
-			this.nodes = ev.nodes;
-			this.size = ev.size;
-			System.out.println("Restored evidence from " + filename);
-		}
-		catch (IOException e) {
-			System.out.println("There's some error " + e + "getting evidence from " + filename +".");
-		}
-	}
-
-	public void save(String filename) throws IOException {
-		try {
-			FileOutputStream fos = new FileOutputStream(filename);
-			ObjectOutputStream out = new ObjectOutputStream(fos);
-			out.writeObject(this);
-			out.flush();
-			out.close();
-			System.out.println("Saved evidence to " + filename);
-		}
-		catch (IOException e) {
-			System.out.println(e);
-		}
-	}
-		
 	public boolean containsKey(Object val) {
 		if (val == null)
 			return false;
@@ -175,7 +169,7 @@ public class Evidence implements Serializable {
 		if (d == null)
 			return "null";
 		else
-			return d.StringVal();
+			return d.stringVal();
 	}
 	
 	public void unset(Node node) {

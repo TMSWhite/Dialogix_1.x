@@ -33,10 +33,10 @@ public class DatumMath {
 	/** This method concatenates two Datum objects of type String and returns the resulting Datum object. */
 	static Datum concat(Datum a, Datum b) {
 		try {
-			return new Datum(a.StringVal().concat(b.StringVal()),Datum.STRING);
+			return new Datum(a.stringVal().concat(b.stringVal()),Datum.STRING);
 		}
 		catch(NullPointerException e) {
-			return new Datum(a.StringVal(),Datum.STRING);
+			return new Datum(a.stringVal(),Datum.STRING);
 		}
 	}
 	/**
@@ -64,7 +64,7 @@ public class DatumMath {
 	 */
 	static Datum eq(Datum a, Datum b) {
 		try {
-			if ((a.StringVal().compareTo(b.StringVal()) == 0) || (a.doubleVal() == b.doubleVal()))
+			if ((a.stringVal().compareTo(b.stringVal()) == 0) || (a.doubleVal() == b.doubleVal()))
 				return new Datum(true);
 			else
 				return new Datum(false);
@@ -78,7 +78,7 @@ public class DatumMath {
 	 */
 	static Datum ge(Datum a, Datum b) {
 		try {
-			if ((a.StringVal().compareTo(b.StringVal()) >= 0) || (a.doubleVal() >= b.doubleVal()))
+			if ((a.stringVal().compareTo(b.stringVal()) >= 0) || (a.doubleVal() >= b.doubleVal()))
 				return new Datum(true);
 			else
 				return new Datum(false);
@@ -91,7 +91,7 @@ public class DatumMath {
 	 */
 	static Datum gt(Datum a, Datum b) {
 		try {
-			if ((a.StringVal().compareTo(b.StringVal()) > 0) || (a.doubleVal() > b.doubleVal()))
+			if ((a.stringVal().compareTo(b.stringVal()) > 0) || (a.doubleVal() > b.doubleVal()))
 				return new Datum(true);
 			else
 				return new Datum(false);
@@ -105,7 +105,7 @@ public class DatumMath {
 	 */
 	static Datum le(Datum a, Datum b) {
 		try {
-			if ((a.StringVal().compareTo(b.StringVal()) <= 0) || (a.doubleVal() <= b.doubleVal()))
+			if ((a.stringVal().compareTo(b.stringVal()) <= 0) || (a.doubleVal() <= b.doubleVal()))
 				return new Datum(true);
 			else
 				return new Datum(false);
@@ -116,7 +116,7 @@ public class DatumMath {
 	/** This method returns a Datum of type boolean upon comparing two Datum objects of type String or double for less than. */
 	static Datum lt(Datum a, Datum b) {
 		try {
-			if ((a.StringVal().compareTo(b.StringVal()) < 0) || (a.doubleVal() < b.doubleVal()))
+			if ((a.stringVal().compareTo(b.stringVal()) < 0) || (a.doubleVal() < b.doubleVal()))
 				return new Datum(true);
 			else
 				return new Datum(false);
@@ -147,7 +147,7 @@ public class DatumMath {
 	 */
 	static Datum neq(Datum a, Datum b) {
 		try {
-			if ((a.StringVal().compareTo(b.StringVal()) != 0) || (a.doubleVal() != b.doubleVal()))
+			if ((a.stringVal().compareTo(b.stringVal()) != 0) || (a.doubleVal() != b.doubleVal()))
 				return new Datum(true);
 			else
 				return new Datum(false);
