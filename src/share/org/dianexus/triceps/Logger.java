@@ -8,6 +8,8 @@ import java.io.IOException;
 import java.io.File;
 import java.io.Writer;
 import java.util.Date;
+import java.io.FileInputStream;
+import java.io.InputStream;
 
 /* Inner class for logging - this is needed to support localization of error messages */
 /*public*/ class Logger implements VersionIF {
@@ -231,4 +233,19 @@ if (DEBUG) Logger.writeln("##Logger.write(" + getFilename() + ") - had to re-ope
 		}
 		return null;
 	}
+	
+	/*public*/ InputStream getInputStream() {
+		if (file == null)
+			return null;
+		
+		try {
+			close();
+			FileInputStream fis = new FileInputStream(getFilename());
+			return fis;
+		}
+		catch (Exception e) {
+if (DEBUG) Logger.writeln("Logger.getInputStream(" + getFilename() + ")->" + e.getMessage());
+			return null;			
+		}
+	}	
 }
