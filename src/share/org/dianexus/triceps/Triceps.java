@@ -10,8 +10,6 @@ public class Triceps {
 	public static final int OK = 2;
 	public static final int AT_END = 3;
 
-	static private final Vector EMPTY_LIST = new Vector();
-
 	public	Schedule nodes = null;
 	public	Evidence evidence = null;	// XXX should be private - made public for Node.prepareChoicesAsHTML(parser,...)
 	public	Parser parser = new Parser();	// XXX should be private - made public for Node.prepareChoicesAsHTML(parser,...)
@@ -101,6 +99,8 @@ public class Triceps {
 	public String getStopTimeStr() {
 		return stopTimeStr;
 	}
+	
+	public Vector getScheduleErrors() { return nodes.getErrors(); }
 
 	public Vector getErrors() {
 		/* when there is an error in getting or parsing a node */
@@ -546,13 +546,16 @@ public class Triceps {
 	public Vector collectParseErrors() {
 		/* Simply cycle through nodes, processing dependencies & actions */
 
-		Node n;
-		Datum d;
+		Node n = null;
+		Datum d = null;
 		Vector parseErrors = new Vector();
-		String dependenciesErrors;
-		String actionErrors;
-		Vector nodeErrors;
-		boolean hasErrors;
+		String dependenciesErrors = null;
+		String actionErrors = null;
+		String answerChoicesErrors = null;
+		String readbackErrors = null;
+		Vector nodeParseErrors = null;
+		Vector nodeNamingErrors = null;
+		boolean hasErrors = false;
 		
 		parser.resetErrorCount();
 
@@ -562,9 +565,12 @@ public class Triceps {
 				continue;
 
 			hasErrors = false;
-			dependenciesErrors = "";
-			actionErrors = "";
-			nodeErrors = EMPTY_LIST;
+			dependenciesErrors = null;
+			actionErrors = null;
+			answerChoicesErrors = null;
+			readbackErrors = null;
+			nodeParseErrors = null;
+			nodeNamingErrors = null;
 
 			parser.booleanVal(evidence, n.getDependencies());
 
@@ -596,6 +602,11 @@ public class Triceps {
 				parser.stringVal(evidence, s);
 			}
 			
+			if (parser.hasErrors()) {
+				hasErrors = true;
+				actionErrors = parser.getErrors();
+			}
+			
 			Vector v = n.getAnswerChoices();
 			if (v != null) {
 				for (int j=0;j<v.size();++j) {
@@ -607,19 +618,28 @@ public class Triceps {
 
 			if (parser.hasErrors()) {
 				hasErrors = true;
-				actionErrors = parser.getErrors();
+				answerChoicesErrors = parser.getErrors();
 			}
 
-			if (n.hasErrors()) {
+			if (n.hasParseErrors()) {
 				hasErrors = true;
-				nodeErrors = n.getErrors();
+				nodeParseErrors = n.getParseErrors();
 			}
-			else {
-				nodeErrors = EMPTY_LIST;
+			if (n.hasNamingErrors()) {
+				hasErrors = true;
+				nodeNamingErrors = n.getNamingErrors();
+			}
+			
+			if (n.getReadback() != null) {
+				parser.parseJSP(evidence,n.getReadback());
+			}
+			if (parser.hasErrors()) {
+				hasErrors = true;
+				readbackErrors = parser.getErrors();
 			}
 
 			if (hasErrors) {
-				parseErrors.addElement(new ParseError(n, dependenciesErrors, actionErrors, nodeErrors));
+				parseErrors.addElement(new ParseError(n, dependenciesErrors, actionErrors, answerChoicesErrors, readbackErrors, nodeParseErrors, nodeNamingErrors));
 			}
 		}
 		return parseErrors;
