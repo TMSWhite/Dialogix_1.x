@@ -41,13 +41,14 @@ public class TricepsServlet extends HttpServlet {
 	/* hidden variables */
 	private boolean debugMode = false;
 	private boolean developerMode = false;
-	private boolean okPasswordForRefused = false;
-	private boolean okPasswordForUnknown = false;
-	private boolean okPasswordForNotUnderstood = false;
+	private boolean okToShowAdminModeIcons = false;	// allows AdminModeIcons to be visible
+	private boolean okPasswordForTempAdminMode = false;	// allows AdminModeIcon values to be accepted
 	private boolean showQuestionNum = false;
-	private boolean showInvisibleOptions = false;
+	private boolean showAdminModeIcons = false;
 	private boolean autogenOptionNums = true;	// default is to make reading options easy
 	private boolean isSplashScreen = false;
+	private boolean allowEasyBypass = false;	// means that a special value is present, so enable the possibility of okPasswordForTempAdminMode
+	private boolean allowComments = false;
 
 	private String directive = null;	// the default
 	private StringBuffer errors = new StringBuffer();
@@ -210,13 +211,6 @@ public class TricepsServlet extends HttpServlet {
 			}
 		}
 		
-		if (directive == null || "select new interview".equals(directive)) {
-				isSplashScreen = true;
-		}
-		else {
-			isSplashScreen = false;
-		}
-		
 		if (triceps == null)
 			return;
 
@@ -250,80 +244,51 @@ public class TricepsServlet extends HttpServlet {
 			debugMode = triceps.isDebugMode();
 			developerMode = triceps.isDeveloperMode();
 			showQuestionNum = triceps.isShowQuestionRef();
-			showInvisibleOptions = triceps.isShowInvisibleOptions();
+			showAdminModeIcons = triceps.isShowAdminModeIcons();
 			autogenOptionNums = triceps.isAutoGenOptionNum();
+			allowComments = triceps.isAllowComments();
 		}
 		else {
 			debugMode = false;
 			developerMode = false;
 			showQuestionNum = false;
-			showInvisibleOptions = false;
+			showAdminModeIcons = false;
 			autogenOptionNums = true;
+			allowComments = false;
 		}
+		allowEasyBypass = false;
+		okPasswordForTempAdminMode = false;	
+		okToShowAdminModeIcons = false;
+		isSplashScreen = false;
 	}
 
 	private String processHidden() {
 		StringBuffer sb = new StringBuffer();
 
-		String settingAsRefused = null;
-		String settingAsUnknown = null;
-		String settingAsNotUnderstood = null;
-		okPasswordForRefused = false;	// the default value
-		okPasswordForUnknown = false;	// the default value
-		okPasswordForNotUnderstood = false;
-
 		if (triceps != null) {
 			/* Refusals only aply once Triceps has been initialized */
-			settingAsRefused = req.getParameter("PASSWORD_FOR_REFUSED");
-			if (settingAsRefused != null && !settingAsRefused.equals("")) {
+			String settingAdminMode = req.getParameter("PASSWORD_FOR_ADMIN_MODE");
+			if (settingAdminMode != null && !settingAdminMode.trim().equals("")) {
 				/* if try to enter a password, make sure that doesn't reset the form if password fails */
-				if (triceps.getPasswordForRefused() == null) {
-					sb.append("You are not allowed to *REFUSE* to answer any questions<BR>");
-				}
-				else {
-					if (triceps.getPasswordForRefused().equals(settingAsRefused)) {
-						okPasswordForRefused = true;
+				String passwd = triceps.getPasswordForAdminMode();
+				if (passwd != null) {
+					if (passwd.trim().equals(settingAdminMode.trim())) {
+						okToShowAdminModeIcons = true;	// so allow AdminModeIcons to be displayed
 					}
 					else {
-						sb.append("Incorrect password to *REFUSE* to answer these questions<BR>");
+						sb.append("Incorrect password to enter Administrative Mode<BR>");
 					}
 				}
+				directive = "refresh current";	// so that will set the admin mode password
 			}
-			settingAsUnknown = req.getParameter("PASSWORD_FOR_UNKNOWN");
-			if (settingAsUnknown != null && !settingAsUnknown.equals("")) {
-				/* if try to enter a password, make sure that doesn't reset the form if password fails */
-				if (triceps.getPasswordForUnknown() == null) {
-					sb.append("You are not allowed to set any answers as *UNKNOWN*<BR>");
-				}
-				else {
-					if (triceps.getPasswordForUnknown().equals(settingAsUnknown)) {
-						okPasswordForUnknown = true;
-					}
-					else {
-						sb.append("Incorrect password to set these answers as *UNKNOWN*<BR>");
-					}
-				}
-			}
-			settingAsNotUnderstood = req.getParameter("PASSWORD_FOR_NOT_UNDERSTOOD");
-			if (settingAsNotUnderstood != null && !settingAsNotUnderstood.equals("")) {
-				/* if try to enter a password, make sure that doesn't reset the form if password fails */
-				if (triceps.getPasswordForNotUnderstood() == null) {
-					sb.append("You are not allowed to set any answers as *NOT UNDERSTOOD*<BR>");
-				}
-				else {
-					if (triceps.getPasswordForNotUnderstood().equals(settingAsNotUnderstood)) {
-						okPasswordForNotUnderstood = true;
-					}
-					else {
-						sb.append("Incorrect password to set these answers as *NOT UNDERSTOOD*<BR>");
-					}
-				}
+			
+			if (triceps.isTempPassword(req.getParameter("TEMP_ADMIN_MODE_PASSWORD"))) {
+				// enables the password for this session only
+				okPasswordForTempAdminMode = true;	// allow AdminModeIcon values to be accepted
 			}
 		}
 
-		sb.append("<input type='HIDDEN' name='PASSWORD_FOR_REFUSED' value=''>\n");	// must manually bypass each time
-		sb.append("<input type='HIDDEN' name='PASSWORD_FOR_UNKNOWN' value=''>\n");	// must manually bypass each time
-		sb.append("<input type='HIDDEN' name='PASSWORD_FOR_NOT_UNDERSTOOD' value=''>\n");	// must manually bypass each time
+		sb.append("<input type='HIDDEN' name='PASSWORD_FOR_ADMIN_MODE' value=''>\n");	// must manually bypass each time
 		sb.append("<input type='HIDDEN' name='LANGUAGE' value=''>\n");	// must manually bypass each time
 
 
@@ -362,7 +327,7 @@ public class TricepsServlet extends HttpServlet {
 			sb.append("&nbsp;");
 		}
 		else {
-			sb.append("			<IMG NAME='icon' SRC='" + Node.encodeHTML(imageFilesDir + logo) + "' ALIGN='top' BORDER='0' onMouseDown='javascript:showMain(event);' ALT='Logo'>\n");
+			sb.append("			<IMG NAME='icon' SRC='" + Node.encodeHTML(imageFilesDir + logo) + "' ALIGN='top' BORDER='0' onMouseDown='javascript:setAdminModePassword();' ALT='Logo'>\n");
 		}
 		sb.append("	</TD>\n");
 		sb.append("	<TD ALIGN='left'><FONT SIZE='5'><B>" + Node.encodeHTML((triceps != null) ? triceps.getHeaderMsg() : "Triceps System") + "</B></FONT></TD>\n");
@@ -495,6 +460,7 @@ public class TricepsServlet extends HttpServlet {
 		// get the POSTed directive (start, back, next, help, suspend, etc.)	- default is opening screen
 		if (directive == null || "select new interview".equals(directive)) {
 			/* Construct splash screen */
+			isSplashScreen = true;
 
 			sb.append("<TABLE CELLPADDING='2' CELLSPACING='2' BORDER='1'>\n");
 			sb.append("<TR><TD>Please select an interview/questionnaire from the pull-down list:  </TD>\n");
@@ -674,7 +640,7 @@ public class TricepsServlet extends HttpServlet {
 				String comment = req.getParameter(q.getLocalName() + "_COMMENT");
 				String special = req.getParameter(q.getLocalName() + "_SPECIAL");
 
-				status = triceps.storeValue(q, answer, comment, special, okPasswordForRefused, okPasswordForUnknown, okPasswordForNotUnderstood);
+				status = triceps.storeValue(q, answer, comment, special, (okPasswordForTempAdminMode || showAdminModeIcons));
 				ok = status && ok;
 
 			}
@@ -816,8 +782,11 @@ public class TricepsServlet extends HttpServlet {
 			}
 
 			String inputName = Node.encodeHTML(node.getLocalName());
-
-			String clickableOptions = buildClickableOptions(node,inputName);
+			
+			boolean isSpecial = (datum.exists() && !datum.isType(Datum.STRING) && !datum.isType(Datum.NA));
+			allowEasyBypass = allowEasyBypass || isSpecial;	// if a value has already been refused, make it easy to re-refuse it
+			
+			String clickableOptions = buildClickableOptions(node,inputName,isSpecial);
 
 			switch(node.getAnswerType()) {
 				case Node.NOTHING:
@@ -827,7 +796,7 @@ public class TricepsServlet extends HttpServlet {
 					sb.append("		<TD COLSPAN='3'>\n");
 					sb.append("			<input type='HIDDEN' name='" + Node.encodeHTML(inputName + "_COMMENT") + "' value='" + Node.encodeHTML(node.getComment()) + "'>\n");
 					sb.append("			<input type='HIDDEN' name='" + Node.encodeHTML(inputName + "_SPECIAL") + "' value='" +
-						((!datum.isType(Datum.STRING)) ? Node.encodeHTML(triceps.toString(node,true),true) : "") +
+						((isSpecial) ? Node.encodeHTML(triceps.toString(node,true),true) : "") +
 						"'>\n");
 					sb.append("			<input type='HIDDEN' name='" + Node.encodeHTML(inputName + "_HELP") + "' value='" + Node.encodeHTML(node.getHelpURL()) + "'>\n");
 					sb.append("		<FONT" + color + ">" + Node.encodeHTML(triceps.getQuestionStr(node)) + "</FONT></TD>\n");
@@ -835,14 +804,14 @@ public class TricepsServlet extends HttpServlet {
 					if (showQuestionNum) {
 						sb.append("<TD>&nbsp;</TD>");
 					}
-					sb.append("	<TD WIDTH='1%' NOWRAP>\n" + clickableOptions + "\n</TD>\n");
+					sb.append("	<TD WIDTH='1%' NOWRAP>" + clickableOptions + "</TD>\n");
 					sb.append(node.prepareChoicesAsHTML(triceps.parser,triceps.evidence,datum,errMsg,autogenOptionNums));
 					break;
 				default:
 					sb.append("		<TD>\n");
 					sb.append("			<input type='HIDDEN' name='" + Node.encodeHTML(inputName + "_COMMENT") + "' value='" + Node.encodeHTML(node.getComment()) + "'>\n");
 					sb.append("			<input type='HIDDEN' name='" + Node.encodeHTML(inputName + "_SPECIAL") + "' value='" +
-						((!datum.isType(Datum.STRING)) ? Node.encodeHTML(triceps.toString(node,true),true) : "") +
+						((isSpecial) ? Node.encodeHTML(triceps.toString(node,true),true) : "") +
 						"'>\n");
 					sb.append("			<input type='HIDDEN' name='" + Node.encodeHTML(inputName + "_HELP") + "' value='" + Node.encodeHTML(node.getHelpURL()) + "'>\n");
 					sb.append("		<FONT" + color + ">" + Node.encodeHTML(triceps.getQuestionStr(node)) + "</FONT></TD>\n");
@@ -856,6 +825,11 @@ public class TricepsServlet extends HttpServlet {
 		sb.append("	<TR><TD COLSPAN='" + ((showQuestionNum) ? 4 : 3) + "' ALIGN='center'>\n");
 		sb.append("<input type='SUBMIT' name='directive' value='next'>\n");
 		sb.append("<input type='SUBMIT' name='directive' value='previous'>");
+		
+		if (allowEasyBypass || okToShowAdminModeIcons) {
+			/* enables TEMP_ADMIN_MODE going forward for one screen */
+			sb.append("<input type='HIDDEN' name='TEMP_ADMIN_MODE_PASSWORD' value='" + triceps.createTempPassword() + "'>\n");
+		}
 
 		sb.append("	</TD></TR>\n");
 
@@ -884,7 +858,7 @@ public class TricepsServlet extends HttpServlet {
 		return sb.toString();
 	}
 
-	private String buildClickableOptions(Node node, String inputName) {
+	private String buildClickableOptions(Node node, String inputName, boolean isSpecial) {
 		StringBuffer sb = new StringBuffer();
 
 		Datum datum = triceps.getDatum(node);
@@ -915,22 +889,26 @@ public class TricepsServlet extends HttpServlet {
 		}
 
 		String comment = Node.encodeHTML(node.getComment());
-		if (comment != null && comment.trim().length() != 0) {
-			sb.append("<IMG NAME='" + inputName + "_COMMENT_ICON" + "' SRC='" + COMMENT_T_ICON +
-				"' ALIGN='top' BORDER='0' ALT='Add a Comment' onMouseDown='javascript:comment(\"" + inputName + "\");'>\n");
+		if (showAdminModeIcons || okToShowAdminModeIcons || allowComments) {
+			if (comment != null && comment.trim().length() != 0) {
+				sb.append("<IMG NAME='" + inputName + "_COMMENT_ICON" + "' SRC='" + COMMENT_T_ICON +
+					"' ALIGN='top' BORDER='0' ALT='Add a Comment' onMouseDown='javascript:comment(\"" + inputName + "\");'>\n");
+			}
+			else  {
+				sb.append("<IMG NAME='" + inputName + "_COMMENT_ICON" + "' SRC='" + COMMENT_F_ICON +
+					"' ALIGN='top' BORDER='0' ALT='Add a Comment' onMouseDown='javascript:comment(\"" + inputName + "\");'>\n");
+			}
 		}
-		else if (showInvisibleOptions) {
-			sb.append("<IMG NAME='" + inputName + "_COMMENT_ICON" + "' SRC='" + COMMENT_F_ICON +
-				"' ALIGN='top' BORDER='0' ALT='Add a Comment' onMouseDown='javascript:comment(\"" + inputName + "\");'>\n");
-		}
+		
+		/* If something has been set as Refused, Unknown, etc, allow going forward without additional headache */
 
-		if (showInvisibleOptions) {
+		if (showAdminModeIcons || okToShowAdminModeIcons || isSpecial) {
 			sb.append("<IMG NAME='" + inputName + "_REFUSED_ICON" + "' SRC='" + ((isRefused) ? REFUSED_T_ICON : REFUSED_F_ICON) +
-				"' ALIGN='top' BORDER='0' ALT='Set as Refused' onMouseDown='javascript:setRefusedPassword(\"" + inputName + "\");'>\n");
+				"' ALIGN='top' BORDER='0' ALT='Set as Refused' onMouseDown='javascript:markAsRefused(\"" + inputName + "\");'>\n");
 			sb.append("<IMG NAME='" + inputName + "_UNKNOWN_ICON" + "' SRC='" + ((isUnknown) ? UNKNOWN_T_ICON : UNKNOWN_F_ICON) +
-				"' ALIGN='top' BORDER='0' ALT='Set as Unknown' onMouseDown='javascript:setUnknownPassword(\"" + inputName + "\");'>\n");
+				"' ALIGN='top' BORDER='0' ALT='Set as Unknown' onMouseDown='javascript:markAsUnknown(\"" + inputName + "\");'>\n");
 			sb.append("<IMG NAME='" + inputName + "_NOT_UNDERSTOOD_ICON" + "' SRC='" + ((isNotUnderstood) ? NOT_UNDERSTOOD_T_ICON : NOT_UNDERSTOOD_F_ICON) +
-				"' ALIGN='top' BORDER='0' ALT='Set as Not Understood' onMouseDown='javascript:setNotUnderstoodPassword(\"" + inputName + "\");'>\n");
+				"' ALIGN='top' BORDER='0' ALT='Set as Not Understood' onMouseDown='javascript:markAsNotUnderstood(\"" + inputName + "\");'>\n");
 		}
 		
 		if (sb.length() == 0) {
@@ -945,7 +923,7 @@ public class TricepsServlet extends HttpServlet {
 		StringBuffer sb = new StringBuffer();
 		// Complete printout of what's been collected per node
 
-		if (debugMode) {
+		if (developerMode && debugMode) {
 			sb.append("<hr>\n");
 			sb.append("<H4>CURRENT QUESTION(s)</H4>\n");
 			sb.append("<TABLE CELLPADDING='2' CELLSPACING='1'  WIDTH='100%' BORDER='1'>\n");
@@ -1021,80 +999,23 @@ public class TricepsServlet extends HttpServlet {
 		sb.append("<META HTTP-EQUIV='Content-Type' CONTENT='text/html;CHARSET=iso-8859-1'>\n");
 		sb.append("<title>" + ((triceps == null) ? "TRICEPS SYSTEM" : triceps.getTitle()) + "</title>\n");
 
-		/* JavaScript for popup menus */
 		sb.append("<SCRIPT  type=\"text/javascript\"> <!--\n");
-//			sb.append("var xNow, yNow, popup, main, n, ie;\n");
-//		sb.append("var helpTarget, actionTarget, commentTarget;\n");
 		sb.append("var actionName = null;\n");
 		sb.append("\n");
 		sb.append("function init() {\n");
-//		sb.append("	n = (document.layers) ? 1:0;\n");
-//		sb.append("	ie = (document.all) ? 1:0;\n");
-//		sb.append("	if (n) { popup = document.layers['POPUPDIV'];\n	main = document.layers['MAINDIV']; }\n");
-//		sb.append("	if (ie) { popup = document.all['POPUPDIV'].style;\n	main = document.layers['MAINDIV'].style; }\n");
-//		sb.append("	popup.onmouseout = hidePopup;\n");
-//		sb.append("	main.onmouseout = hideMain;\n");
 
 		if (firstFocus != null) {
 			sb.append("	document.myForm." + firstFocus + ".focus();\n");
 		}
 
 		sb.append("}\n");
-		sb.append("function showPopup(name,e) {\n");
-		sb.append("	actionName = name;\n");
-//		sb.append("	actionTarget = document.myForm.elements[name];\n");
-//		sb.append(" if (actionTarget.length && actionTarget.length > 0) { actionTarget = actionTarget[0]; }\n");
-//		sb.append("	commentTarget = document.myForm.elements[name + '_COMMENT'];\n");
-//		sb.append("	helpTarget = document.myForm.elements[name + '_HELP'];\n");
-//		sb.append("	specialTarget = document.myForm.elements[name + '_SPECIAL'];\n");
-//		sb.append("	if (n) {xNow=e.pageX; yNow=e.pageY}\n");
-//		sb.append("	if (ie) {xNow=event.x; yNow=event.y}\n");
-//		sb.append("	popup.left = xNow+3-popup.clip.width\n");
-//		sb.append("	popup.top = yNow-3;\n");
-//		sb.append("	if (n) { popup.visibility = 'show'; }\n");
-//		sb.append("	else if (ie) { popup.visibility = 'showing'; }\n");
+		sb.append("function setAdminModePassword(name) {\n");
+		sb.append("	var ans = prompt('Enter password to enter Administrative Mode','');\n");
+		sb.append("	if (ans == null || ans == '') return;\n");
+		sb.append("	document.myForm.PASSWORD_FOR_ADMIN_MODE.value = ans;\n");
+		sb.append("	document.myForm.submit();\n");
 		sb.append("}\n");
-		sb.append("function hidePopup(name) {\n");
-		sb.append("	if (!name) name = actionName;\n");
-//		sb.append("	if (n) { popup.visibility = 'hide'; }\n");
-//		sb.append("	else if (ie) { popup.visibility = 'hidden'; }\n");
-		sb.append("	document.myForm.elements[name].focus();\n");
-		sb.append("}\n");
-		sb.append("function showMain(e) {\n");
-		sb.append("	actionName = null;\n");
-//		sb.append("	actionTarget = null;\n");
-//		sb.append("	helpTarget = null;\n");
-//		sb.append("	specialTarget = null;\n");
-//		sb.append("	if (n) {xNow=e.pageX; yNow=e.pageY}\n");
-//		sb.append("	if (ie) {xNow=event.x; yNow=event.y}\n");
-//		sb.append("	main.left = xNow-3;\n");
-//		sb.append("	main.top = yNow-3;\n");
-//		sb.append("	if (n) { main.visibility = 'show'; }\n");
-//		sb.append("	else if (ie) { main.visibility = 'showing'; }\n");
-		sb.append("}\n");
-		sb.append("function hideMain() {\n");
-//		sb.append("	if (n) { main.visibility = 'hide'; }\n");
-//		sb.append("	else if (ie) { main.visibility = 'hidden'; }\n");
-		sb.append("}\n");
-		sb.append("function setRefusedPassword(name) {\n");
-		sb.append("	var ans = prompt('Enter password to *REFUSE* to answer this question',document.myForm.PASSWORD_FOR_REFUSED.value);\n");
-		sb.append("	if (ans == null) return;\n");
-		sb.append("	document.myForm.PASSWORD_FOR_REFUSED.value = ans;\n");
-		sb.append("	answerRefused(name);\n");
-		sb.append("}\n");
-		sb.append("function setUnknownPassword(name) {\n");
-		sb.append("	var ans = prompt('Enter password to indicate that the answer is *UNKNOWN*',document.myForm.PASSWORD_FOR_UNKNOWN.value);\n");
-		sb.append("	if (ans == null) return;\n");
-		sb.append("	document.myForm.PASSWORD_FOR_UNKNOWN.value = ans;\n");
-		sb.append("	answerUnknown(name);\n");
-		sb.append("}\n");
-		sb.append("function setNotUnderstoodPassword(name) {\n");
-		sb.append("	var ans = prompt('Enter password to indicate that the answer is *NOT UNDERSTOOD*',document.myForm.PASSWORD_FOR_NOT_UNDERSTOOD.value);\n");
-		sb.append("	if (ans == null) return;\n");
-		sb.append("	document.myForm.PASSWORD_FOR_NOT_UNDERSTOOD.value = ans;\n");
-		sb.append("	questionNotUnderstood(name);\n");
-		sb.append("}\n");
-		sb.append("function answerRefused(name) {\n");
+		sb.append("function markAsRefused(name) {\n");
 		sb.append("	if (!name) name = actionName;\n");
 		sb.append("	if (!name) return;\n");
 		sb.append("	var val = document.myForm.elements[name + '_SPECIAL'];\n");
@@ -1107,7 +1028,7 @@ public class TricepsServlet extends HttpServlet {
 		sb.append("		document.myForm.elements[name + '_UNKNOWN_ICON'].src = '" + UNKNOWN_F_ICON + "';\n");
 		sb.append("		document.myForm.elements[name + '_NOT_UNDERSTOOD_ICON'].src = '" + NOT_UNDERSTOOD_F_ICON + "';\n");
 		sb.append("	}\n}\n");
-		sb.append("function answerUnknown(name) {\n");
+		sb.append("function markAsUnknown(name) {\n");
 		sb.append("	if (!name) name = actionName;\n");
 		sb.append("	if (!name) return;\n");
 		sb.append("	var val = document.myForm.elements[name + '_SPECIAL'];\n");
@@ -1120,7 +1041,7 @@ public class TricepsServlet extends HttpServlet {
 		sb.append("		document.myForm.elements[name + '_UNKNOWN_ICON'].src = '" + UNKNOWN_T_ICON + "';\n");
 		sb.append("		document.myForm.elements[name + '_NOT_UNDERSTOOD_ICON'].src = '" + NOT_UNDERSTOOD_F_ICON + "';\n");
 		sb.append("	}\n}\n");
-		sb.append("function questionNotUnderstood(name) {\n");
+		sb.append("function markAsNotUnderstood(name) {\n");
 		sb.append("	if (!name) name = actionName;\n");
 		sb.append("	if (!name) return;\n");
 		sb.append("	var val = document.myForm.elements[name + '_SPECIAL'];\n");
@@ -1135,7 +1056,6 @@ public class TricepsServlet extends HttpServlet {
 		sb.append("	}\n}\n");
 		sb.append("function help(target) {\n");
 		sb.append("	if (target != null && target.length != 0) {	window.open(target,'__HELP__'); }\n");
-//		sb.append("	else if (helpTarget && helpTarget.value.length != 0) {	window.open(helpTarget.value,'__HELP__'); }\n");
 		sb.append("}\n");
 		sb.append("function comment(name) {\n");
 		sb.append("	if (!name) name = actionName;\n");
@@ -1155,35 +1075,6 @@ public class TricepsServlet extends HttpServlet {
 
 		sb.append("</head>\n");
 		sb.append("<body bgcolor='white' onload='javascript:init();'>\n");
-
-/*
-		sb.append("<DIV NAME=\"POPUPDIV\" STYLE=\"Layer-Background-Color : silver; position : absolute; visibility : hidden\">\n");
-		sb.append("	<A HREF=\"javascript:help();hidePopup();\">Help</A><BR>\n");
-		sb.append("	<A HREF=\"javascript:comment();hidePopup();\">Add&nbsp;Comment</A><BR>\n");
-		sb.append("	<A HREF=\"javascript:answerUnknown();hidePopup();\">Mark&nbsp;as&nbsp;Unknown</A><BR>\n");
-		sb.append("	<A HREF=\"javascript:answerNotUnderstood();hidePopup();\">Mark&nbsp;as&nbsp;Not&nbsp;Understood</A><BR>\n");
-		sb.append("	<A HREF=\"javascript:answerRefused();hidePopup();\">Mark&nbsp;as&nbsp;Refused</A>\n");
-		sb.append("</DIV>\n");
-
-		sb.append("<DIV NAME=\"MAINDIV\" STYLE=\"Layer-Background-Color : silver; position : absolute; visibility : hidden\">\n");
-
-		if (triceps != null) {
-
-			Vector languages = triceps.nodes.getLanguages();
-			if (languages.size() > 1) {
-				sb.append("<TABLE WIDTH='100%' BORDER='0'><TR>\n");
-				for (int i=0;i<languages.size();++i) {
-					String language = (String) languages.elementAt(i);
-					sb.append("	<A HREF=\"javascript:setLanguage('" + language + "');hideMain();\">Language:&nbsp;" + language + "</A><BR>\n");
-				}
-				sb.append("</TR></TABLE>\n");
-			}
-			sb.append("	<A HREF=\"javascript:setUnknownPassword();hideMain();\">Enter&nbsp;password&nbsp;for&nbsp;Unknown</A><BR>\n");
-			sb.append("	<A HREF=\"javascript:setNotUnderstoodPassword();hideMain();\">Mark&nbsp;as&nbsp;Not&nbsp;Understood</A><BR>\n");
-			sb.append("	<A HREF=\"javascript:setRefusedPassword();hideMain();\">Enter&nbsp;password&nbsp;for&nbsp;Refused</A>\n");
-		}
-		sb.append("</DIV>\n");
-*/
 
 		return sb.toString();
 	}
