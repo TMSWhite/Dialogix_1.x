@@ -781,7 +781,7 @@ else setParseError("syntax error");
 		parseErrors.println(error);
 	}
 	/*public*/ void setError(String error) {
-		runtimeErrors.print(error);
+		runtimeErrors.print(error + "<br/>");
 	}
 
 	/*public*/ String getErrors() {

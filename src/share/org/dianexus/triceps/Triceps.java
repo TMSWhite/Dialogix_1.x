@@ -630,10 +630,10 @@ if (DEBUG) Logger.writeln("##Unable to reload schedule");
 			if (!d.exists()) {
 				String s = d.getError();
 				if (s.length() == 0) {
-					q.setError("<- " + get("answer_this_question"));
+					q.setError(get("answer_this_question"));	// remove arrow - might bias towards a certain answer
 				}
 				else {
-					q.setError("<- " + s);
+					q.setError(s);	// remove arrow - might bias answer
 				}
 				d = Datum.getInstance(this,Datum.UNASKED);
 				ok = false;

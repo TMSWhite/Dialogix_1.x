@@ -1214,8 +1214,8 @@ if (XML) {
 						sb.append("<td>&nbsp;</td>");
 					}
 					sb.append("<td colspan='2' bgcolor='lightgrey'>");
-					sb.append(node.prepareChoicesAsHTML(datum,errMsg,autogenOptionNums));
 					sb.append(errMsg);
+					sb.append(node.prepareChoicesAsHTML(datum,errMsg,autogenOptionNums));
 					sb.append("</td>");
 					if (needSpecialOptions) {
 						sb.append("<td width='1%' NOWRAP>" + clickableOptions + "</td>");
@@ -1241,7 +1241,7 @@ if (XML) {
 					}
 					sb.append("</td>");
 					if (node.getAnswerType() != Node.NOTHING) {
-						sb.append("<td>" + node.prepareChoicesAsHTML(datum,autogenOptionNums) + errMsg + "</td>");
+						sb.append("<td>" + errMsg + node.prepareChoicesAsHTML(datum,autogenOptionNums) + "</td>");
 					}
 					if (needSpecialOptions) {
 						sb.append("<td width='1%' NOWRAP>" + clickableOptions + "</td>");
