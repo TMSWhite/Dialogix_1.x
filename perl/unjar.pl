@@ -138,6 +138,7 @@ sub unjarall {
 	
 	foreach (@files) {
 		# unjar to temp directory; then determine which instrument belong to; then move to that new directory
+		next if (-d $_);
 		my $srcname = $_;
 		&doit("$Prefs->{JAR}  xvf \"$_\"");
 		foreach (glob("*.err")) {
@@ -170,6 +171,7 @@ sub moveWorkingFiles {
 	my @files = glob("*.dat *.");
 	
 	foreach (@files) {
+		next if (-d $_);
 		my $srcname = $_;
 		my $instrument_name = &moveDataFiles($_,glob("$srcname*"));
 		
@@ -181,6 +183,7 @@ sub moveWorkingFiles {
 		}
 		
 		foreach my $file (glob("$srcname*")) {
+			next if (-d $_);
 			my $msg = "copy \"$file\" \"$dstdir\"";
 			# convert to dos format
 			$msg =~ s/\/+/\\/g;
