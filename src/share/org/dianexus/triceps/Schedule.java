@@ -255,6 +255,7 @@ import java.io.FileReader;
 		boolean ok = init2(log);
 if (DEBUG) {	// && false
 		Logger.writeln("##@@Schedule.load(" + getReserved(SCHEDULE_SOURCE) + ")-> " + ((ok) ? "SUCCESS" : "FAILURE"));
+		if (!ok) setError(triceps.get("unable_to_find_or_access_schedule") + " '" + getReserved(SCHEDULE_SOURCE) + "'");
 }		
 		return ok;
 	}
@@ -567,7 +568,10 @@ if (DEPLOYABLE) {
 		
 		val = evidence.getValue(localName);
 		if (val == null) {
-if (DEBUG) Logger.writeln("##Schedule.parseNode(" + tsv + ")-unknown Value");
+if (DEBUG) { 
+	setError("Unknown variable '" + localName + "'");
+	Logger.writeln("##Schedule.parseNode(" + tsv + ")-unknown Value");
+}
 			return false;
 		}
 		
@@ -587,7 +591,12 @@ if (DEBUG) Logger.writeln("##Schedule.parseNode(" + tsv + ")-unknown Value");
 		
 			int langNum = 0;
 			try {
-				langNum = Integer.parseInt(answerLanguageNum);
+				if (answerLanguageNum != null) {	// should only be null if saved via Evidence.set() from 'e' nodes
+					langNum = Integer.parseInt(answerLanguageNum);
+				}
+				else {
+					Logger.writeln("!! null answerLangNum @ " + tsv);
+				}
 			}
 			catch (NumberFormatException t) {
 if (DEBUG) Logger.writeln("##NumberFormatException @ Evidence.parseNode" + t.getMessage());
@@ -1018,7 +1027,7 @@ if (DEBUG) Logger.writeln("##NoSuchElementException @ Schedule.setLanguages()" +
 	/*public*/ int getLanguage() { return currentLanguage; }
 	
 	private void setError(String s) { 
-if (DEBUG) Logger.writeln("##Schedule.setError()" + s);
+if (DEBUG) Logger.writeln("##Schedule.setError() " + s);
 		errorLogger.println(s); 
 	}
 	/*public*/ boolean hasErrors() { return (errorLogger.size() > 0); }
