@@ -595,11 +595,11 @@ public class Node  {
 		return true;
 	}
 	
-	public String prepareChoicesAsHTML(Datum datum, boolean autogen) {
-		return prepareChoicesAsHTML(datum,"",autogen);
+	public String prepareChoicesAsHTML(Parser parser, Evidence ev, Datum datum, boolean autogen) {
+		return prepareChoicesAsHTML(parser, ev, datum,"",autogen);
 	}
 
-	public String prepareChoicesAsHTML(Datum datum, String errMsg, boolean autogen) {
+	public String prepareChoicesAsHTML(Parser parser, Evidence ev, Datum datum, String errMsg, boolean autogen) {
 		/* errMsg is a hack - only applies to RADIO_HORIZONTAL */
 		StringBuffer sb = new StringBuffer();
 		String defaultValue = "";
@@ -612,6 +612,7 @@ public class Node  {
 				ans = getAnswerChoices().elements();
 				while (ans.hasMoreElements()) { // for however many radio buttons there are
 					ac = (AnswerChoice) ans.nextElement();
+					ac.parse(parser,ev);
 					sb.append("<input type='radio' name='" + Node.encodeHTML(getLocalName()) + "' " + "value='" + Node.encodeHTML(ac.getValue()) + "'" +
 						(DatumMath.eq(datum,new Datum(ac.getValue(),DATA_TYPES[answerType])).booleanVal() ? " CHECKED" : "") + ">" + Node.encodeHTML(ac.getMessage()) + "<br>");
 				}
@@ -629,6 +630,7 @@ public class Node  {
 					sb.append("\n<TR>");
 					while (ans.hasMoreElements()) { // for however many radio buttons there are
 						ac = (AnswerChoice) ans.nextElement();
+						ac.parse(parser,ev);
 						sb.append("\n<TD VALIGN='top' WIDTH='" + pct.toString() + "%'>");
 						sb.append("<input type='radio' name='" + Node.encodeHTML(getLocalName()) + "' " + "value='" + Node.encodeHTML(ac.getValue()) + "'" +
 							(DatumMath.eq(datum,new Datum(ac.getValue(),DATA_TYPES[answerType])).booleanVal() ? " CHECKED" : "") + ">" + Node.encodeHTML(ac.getMessage()));
@@ -646,6 +648,7 @@ public class Node  {
 				ans = getAnswerChoices().elements();
 				while (ans.hasMoreElements()) { // for however many radio buttons there are
 					ac = (AnswerChoice) ans.nextElement();
+					ac.parse(parser,ev);
 					sb.append("<input type='checkbox' name='" + Node.encodeHTML(getLocalName()) + "' " + "value='" + Node.encodeHTML(ac.getValue()) + "'" +
 						(DatumMath.eq(datum, new Datum(ac.getValue(),DATA_TYPES[answerType])).booleanVal() ? " CHECKED" : "") + ">" + Node.encodeHTML(ac.getMessage()) + "<br>");
 				}
@@ -660,6 +663,7 @@ public class Node  {
 				boolean nothingSelected = true;
 				while (ans.hasMoreElements()) { // for however many radio buttons there are
 					ac = (AnswerChoice) ans.nextElement();
+					ac.parse(parser,ev);
 					++optionNum;
 
 					String option = ac.getMessage();

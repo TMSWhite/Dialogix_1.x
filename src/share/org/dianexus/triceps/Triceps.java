@@ -16,9 +16,9 @@ public class Triceps {
 
 	private String scheduleURL = null;
 	private String scheduleUrlPrefix = null;
-	public Schedule nodes = new Schedule();	// XXX should this be allowed to be public?
-	private Evidence evidence = null;
-	private Parser parser = new Parser();
+	public	Schedule nodes = new Schedule();	// XXX should this be allowed to be public?
+	public	Evidence evidence = null;	// XXX should be private - made public for Node.prepareChoicesAsHTML(parser,...)
+	public	Parser parser = new Parser();	// XXX should be private - made public for Node.prepareChoicesAsHTML(parser,...)
 
 	private Vector errors = new Vector();
 	private static String fileAccessError = null;

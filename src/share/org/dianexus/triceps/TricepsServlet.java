@@ -825,7 +825,7 @@ public class TricepsServlet extends HttpServlet {
 						sb.append("<TD>&nbsp;</TD>");
 					}
 					sb.append("	<TD WIDTH='1%' NOWRAP>\n" + clickableOptions + "\n</TD>\n");
-					sb.append(node.prepareChoicesAsHTML(datum,errMsg,triceps.nodes.isAutoGenOptionNum()));
+					sb.append(node.prepareChoicesAsHTML(triceps.parser,triceps.evidence,datum,errMsg,triceps.nodes.isAutoGenOptionNum()));
 					break;
 				default:
 					sb.append("		<TD>\n");
@@ -836,7 +836,7 @@ public class TricepsServlet extends HttpServlet {
 					sb.append("			<input type='HIDDEN' name='" + Node.encodeHTML(inputName + "_HELP") + "' value='" + Node.encodeHTML(node.getHelpURL()) + "'>\n");
 					sb.append("		<FONT" + color + ">" + Node.encodeHTML(triceps.getQuestionStr(node)) + "</FONT></TD>\n");
 					sb.append("	<TD WIDTH='1%' NOWRAP>\n" + clickableOptions + "\n</TD>\n");
-					sb.append("		<TD>" + node.prepareChoicesAsHTML(datum,triceps.nodes.isAutoGenOptionNum()) + errMsg + "</TD>\n");
+					sb.append("		<TD>" + node.prepareChoicesAsHTML(triceps.parser,triceps.evidence,datum,triceps.nodes.isAutoGenOptionNum()) + errMsg + "</TD>\n");
 					break;
 			}
 
