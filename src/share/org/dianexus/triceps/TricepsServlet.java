@@ -335,7 +335,7 @@ System.err.println("got here 11");
 					sb.append(msg);
 					System.err.println(msg);
 				}
-				finally {
+//				finally {
 System.err.println("got here 12");
 					if (br != null) {
 						try { br.close(); } catch (Throwable t) {
@@ -343,7 +343,8 @@ System.err.println("got here 12");
 						}
 					}
 System.err.println("got here 13");
-				}
+//				}
+System.err.println("got here 13a");				
 
 				/* Now build the list of uncompleted interviews */
 
