@@ -13,7 +13,7 @@ public class Logger implements VersionIF {
 	static {
 		try {
 			STDERR = new PrintWriter(new FileWriter(STDERR_NAME,true),true);	// append to log by default
-			writeln("**Log file started on " + new Date(System.currentTimeMillis()));
+			writeln("**" + VERSION_NAME + " Log file started on " + new Date(System.currentTimeMillis()));
 		}
 		catch (IOException e) {
 			System.err.println("unable to create '" + STDERR_NAME + "'");
