@@ -3,6 +3,7 @@
 package Dialogix::Utils;
 
 use strict;
+use Digest::MD5 qw(md5_hex);
 
 BEGIN {
     use Exporter   ();
@@ -71,6 +72,8 @@ sub whichInstrument($) {
 	#	(1) filename -- the name of the file containing the instrument, without the path descriptors
 	#	(2) uniquename -- which contains the title, and version information of the instrument
 	#	(3) timestamp -- when the file was created
+	#	(4) # variables
+	#	(5) MD5 Hash of ordered variable names
 	#
 	my $UNKNOWN_INST = '_unknown_';
 	my $datfile = shift;
@@ -86,6 +89,8 @@ sub whichInstrument($) {
 	my $triceps_minor = 0;
 	my $type = 'DATA';	# if unlabeled, assume that it is data
 	my $timestamp = 0;
+	my $numvars = 0;
+	my $varlist = '';
 	while (<IN>) {
 		++$count;
 #		last if ($count > 50);	# don't go beyond reasonable header section length
@@ -132,10 +137,23 @@ sub whichInstrument($) {
 				if ($vals[2] =~ /^\s*(.*)\s*$/) {
 					$triceps_minor = $1;
 				}		
-			}			
+			}
+			elsif ($vals[1] eq '__CURRENT_LANGUAGE__') {
+				last;	# break out of while loop
+			}
+		}
+		else {
+			# this is a variable declaration
+			if ($vals[5] eq '*UNASKED*') {
+				++$numvars;
+				$varlist .= '$vals[1]';
+			}
 		}
 	}
 	close (IN);
+	
+	# Calculate MD5 hash of $varlist;
+	my $varhash = md5_hex($varlist);
 	
 	my	$triceps_version = "$triceps_major.$triceps_minor";
 	$triceps_version =~ s/\.\././g;	# remove adjacent periods
@@ -154,7 +172,9 @@ sub whichInstrument($) {
 		return ($UNKNOWN_INST,$UNKNOWN_INST,$timestamp,$when);
 	}
 	else {
-		my $name = "$title-v$version_major.$version_minor-($filename)";
+#		my $name = "$title-v$version_major.$version_minor-($filename)";
+		my $name = "${filename}_v$version_major.${version_minor}_n${numvars}_$varhash";
+		
 		$name =~ s/\.\././g;
 		$name =~ s/[\\\/:\*\?\"<>\|\s]/_/g;	# remove spaces and characters disallowed in Windows folder names
 		return ($filename,$name,$timestamp,$when);
@@ -203,7 +223,9 @@ sub readDialogixPrefs($) {
 		# cleanup               
 		removeEvtFiles => 0,		
 		removeErrFiles => 0,		
-		removeDatFiles => 0,		
+		removeDatFiles => 0,	
+		# COPY => 'cp -fp',	
+		COPY => 'copy',
 	};
 	
 	my $Prefs = &readPrefs($Defaults,$conf_file);

@@ -67,7 +67,7 @@ sub checkDir {
 		}
 		if ($required != -1) {
 			print "creating dir '$dir'\n";
-			mkdir($dir, 0777);
+			mkdir($dir, 0777) or die "unable to mkdir $dir";
 		}
 	}
 }
@@ -118,12 +118,14 @@ sub unjarall {
 		
 		$dstdir =~ s/\*\.jar//g;	# remove "*.jar" from path 
 		unless (-d $dstdir) {
-			mkdir($dstdir, 0777);
+			mkdir($dstdir, 0777) or die "unable to mkdir $dstdir";
 		}
 
-		my $msg = "copy \"$srcjar\" \"$dstdir\"";
+		my $msg = "$Prefs->{COPY} \"$srcjar\" \"$dstdir\"";
 		# convert to dos format
-		$msg =~ s/\/+/\\/g;
+		if ($Prefs->{COPY} ne 'cp -fp') {
+			$msg =~ s/\/+/\\/g;
+		}
 		&doit($msg);
 		unlink $srcjar;
 	}
@@ -146,14 +148,16 @@ sub moveWorkingFiles {
 		my $dstdir = "$Prefs->{UNFINISHED_DIR}/$instrument_name";
 		$dstdir =~ s/\/+/\//g;	# remove duplicate '/' from path
 		unless (-d $dstdir) {
-			mkdir($dstdir, 0777);
+			mkdir($dstdir, 0777) or die "unable to mkdir $dstdir";
 		}
 		
 		foreach my $file (glob("$srcname*")) {
 			next if (-d $_);
-			my $msg = "copy \"$file\" \"$dstdir\"";
+			my $msg = "$Prefs->{COPY} \"$file\" \"$dstdir\"";
 			# convert to dos format
-			$msg =~ s/\/+/\\/g;
+			if ($Prefs->{COPY} ne 'cp -fp') {
+				$msg =~ s/\/+/\\/g;
+			}
 			&doit($msg);
 			unlink $file;		
 		}
@@ -180,13 +184,20 @@ sub moveDataFiles {
 	my $locdir = $inst;
 	my $dstdir = "$Prefs->{UNJAR_DIR}/$locdir";
 	unless (-d $dstdir) {
-		mkdir($dstdir, 0777);
+		mkdir($dstdir, 0777) or die "unable to mkdir $dstdir";
 	}
 	# convert to dos format
-	$dstdir =~ s/\//\\/g;
+	if ($Prefs->{COPY} ne 'cp -fp') {
+		$dstdir =~ s/\//\\/g;
+	}
 	
 	foreach (@files) {
-		&doit("copy \"$_\" \"$dstdir\\$when-($srcname)-$_\"");
+		if ($Prefs->{COPY} ne 'cp -fp') {		
+			&doit("$Prefs->{COPY} \"$_\" \"$dstdir\\$when-($srcname)-$_\"");
+		}
+		else {
+			&doit("$Prefs->{COPY} \"$_\" \"$dstdir/$when-($srcname)-$_\"");
+		}
 	}
 	return $inst;
 }
