@@ -116,7 +116,7 @@ public class TricepsServlet extends HttpServlet {
 	 * This method is invoked when the servlet is requested with POST variables.  This is
 	 * the case after the first request, handled by doGet(), and all further requests.
 	 */
-	 
+
 	public void doPost(HttpServletRequest req, HttpServletResponse res)  {
 		try {
 			this.req = req;
@@ -134,11 +134,11 @@ public class TricepsServlet extends HttpServlet {
 			res.setContentType("text/html");
 
 			directive = req.getParameter("directive");	// XXX: directive must be set before calling processHidden
-			
+
 			processPreFormDirectives();
 
 			getGlobalVariables();
-			
+
 			hiddenStr = processHidden();
 
 			form = processDirective();
@@ -177,7 +177,7 @@ public class TricepsServlet extends HttpServlet {
 				debugInfo = generateDebugInfo();
 				sb.append(debugInfo);
 			}
-			
+
 			out = res.getWriter();
 			out.println(header());
 			out.println((new XmlString(sb.toString())).toString());
@@ -198,7 +198,7 @@ public class TricepsServlet extends HttpServlet {
 			t.printStackTrace(System.err);
 		}
 	}
-	
+
 	private void processPreFormDirectives() {
 		/* setting language doesn't use directive parameter */
 		if (triceps != null) {
@@ -208,11 +208,11 @@ public class TricepsServlet extends HttpServlet {
 				directive = "refresh current";
 			}
 		}
-		
+
 		if (triceps == null)
 			return;
 
-			
+
 		/* Want to evaluate expression before doing rest so can see results of changing global variable values */
 		if ("evaluate expr:".equals(directive)) {
 			String expr = req.getParameter("evaluate expr:");
@@ -222,7 +222,7 @@ public class TricepsServlet extends HttpServlet {
 				errors.append("<TABLE WIDTH='100%' CELLPADDING='2' CELLSPACING='1' BORDER=1>\n");
 				errors.append("<TR><TD>Equation</TD><TD><B>" + Node.encodeHTML(expr) + "</B></TD><TD>Type</TD><TD><B>" + Datum.TYPES[datum.type()] + "</B></TD></TR>\n");
 				errors.append("<TR><TD>String</TD><TD><B>" + Node.encodeHTML(datum.stringVal(true)) + "</B></TD><TD>boolean</TD><TD><B>" + datum.booleanVal() + "</B></TD></TR>\n");
-				errors.append("<TR><TD>double</TD><TD><B>" + datum.doubleVal() + "</B></TD><TD>long</TD><TD><B>" + datum.longVal() + "</B></TD></TR>\n");
+				errors.append("<TR><TD>double</TD><TD><B>" + datum.doubleVal() + "</B></TD><TD>&nbsp;</TD>&nbsp;</TD></TR>\n");
 				errors.append("<TR><TD>date</TD><TD><B>" + datum.dateVal() + "</B></TD><TD>month</TD><TD><B>" + datum.monthVal() + "</B></TD></TR>\n");
 				errors.append("</TABLE>\n");
 
@@ -235,8 +235,8 @@ public class TricepsServlet extends HttpServlet {
 				}
 			}
 		}
-	}	
-	
+	}
+
 	private void getGlobalVariables() {
 		if (triceps != null) {
 			debugMode = triceps.isDebugMode();
@@ -255,7 +255,7 @@ public class TricepsServlet extends HttpServlet {
 			allowComments = false;
 		}
 		allowEasyBypass = false;
-		okPasswordForTempAdminMode = false;	
+		okPasswordForTempAdminMode = false;
 		okToShowAdminModeIcons = false;
 		isSplashScreen = false;
 	}
@@ -279,7 +279,7 @@ public class TricepsServlet extends HttpServlet {
 				}
 				directive = "refresh current";	// so that will set the admin mode password
 			}
-			
+
 			if (triceps.isTempPassword(req.getParameter("TEMP_ADMIN_MODE_PASSWORD"))) {
 				// enables the password for this session only
 				okPasswordForTempAdminMode = true;	// allow AdminModeIcon values to be accepted
@@ -337,7 +337,7 @@ public class TricepsServlet extends HttpServlet {
 
 		return sb.toString();
 	}
-	
+
 	private String footer() {
 		StringBuffer sb = new StringBuffer();
 
@@ -345,17 +345,17 @@ public class TricepsServlet extends HttpServlet {
 		sb.append("</html>\n");
 		return sb.toString();
 	}
-	
+
 	private TreeMap getSortedNames(String dir, boolean isSuspended) {
 		TreeMap names = new TreeMap();
 		Schedule sched = null;
 		Object prevVal = null;
 		String defaultTitle = null;
 		String title = null;
-		
+
 		try {
 			ScheduleList interviews = new ScheduleList(dir);
-			
+
 			if (interviews.hasErrors()) {
 				errors.append("<B>Error getting list of available interviews:<BR>" + interviews.getErrors() + "</B>");
 			}
@@ -363,7 +363,7 @@ public class TricepsServlet extends HttpServlet {
 				Vector schedules = interviews.getSchedules();
 				for (int i=0;i<schedules.size();++i) {
 					sched = (Schedule) schedules.elementAt(i);
-					
+
 					try {
 						defaultTitle = getScheduleInfo(sched,isSuspended);
 						title = defaultTitle;
@@ -389,14 +389,14 @@ public class TricepsServlet extends HttpServlet {
 		}
 		return names;
 	}
-	
+
 	private String getScheduleInfo(Schedule sched, boolean isSuspended) {
 		if (sched == null)
 			return null;
-			
+
 		StringBuffer sb = new StringBuffer();
 		String s = null;
-		
+
 		if (isSuspended) {
 			sb.append(sched.getReserved(Schedule.TITLE_FOR_PICKLIST_WHEN_IN_PROGRESS));
 		}
@@ -413,13 +413,13 @@ public class TricepsServlet extends HttpServlet {
 				sb.append(" [" + s + "]");
 			}
 		}
-		
+
 		return sb.toString();
-	}	
-	
-	private String selectFromInterviewsInDir(String selectTarget, String dir, boolean isSuspended) {	
+	}
+
+	private String selectFromInterviewsInDir(String selectTarget, String dir, boolean isSuspended) {
 		StringBuffer sb = new StringBuffer();
-		
+
 		try {
 			TreeMap names = getSortedNames(dir,isSuspended);
 
@@ -437,7 +437,7 @@ public class TricepsServlet extends HttpServlet {
 		catch (Throwable t) {
 			errors.append("Error building sorted list of interviews: " + t.getMessage());
 		}
-		
+
 		if (sb.length() == 0)
 			return "&nbsp;";
 		else
@@ -458,27 +458,27 @@ public class TricepsServlet extends HttpServlet {
 			sb.append("<TABLE CELLPADDING='2' CELLSPACING='2' BORDER='1'>\n");
 			sb.append("<TR><TD>Please select an interview/questionnaire from the pull-down list:  </TD>\n");
 			sb.append("	<TD>\n");
-			
+
 			/* Build the list of available interviews */
 			sb.append(selectFromInterviewsInDir("schedule",scheduleSrcDir,false));
 
 			sb.append("	</TD>\n");
 			sb.append("	<TD><input type='SUBMIT' name='directive' value='START'></TD>\n");
 			sb.append("</TR>\n");
-			
+
 			/* Build the list of suspended interviews */
 			sb.append("<TR><TD>OR, restore an interview/questionnaire in progress:  </TD>\n");
 			sb.append("	<TD>\n");
-			
+
 			sb.append(selectFromInterviewsInDir("RestoreSuspended",workingFilesDir,true));
-			
+
 			if (developerMode) {
 				sb.append("<input type='text' name='RESTORE'>");
 			}
 			sb.append("	</TD>\n");
 			sb.append("	<TD><input type='SUBMIT' name='directive' value='RESTORE'></TD>\n");
 			sb.append("</TABLE>\n");
-			
+
 			return sb.toString();
 		}
 		else if (directive.equals("START")) {
@@ -490,7 +490,7 @@ public class TricepsServlet extends HttpServlet {
 				directive = null;
 				return processDirective();
 			}
-			
+
 			// re-check developerMode options - they aren't set via the hidden options, since a new copy of Triceps created
 			getGlobalVariables();
 
@@ -775,10 +775,10 @@ public class TricepsServlet extends HttpServlet {
 			}
 
 			String inputName = Node.encodeHTML(node.getLocalName());
-			
+
 			boolean isSpecial = (datum.exists() && !datum.isType(Datum.STRING) && !datum.isType(Datum.NA));
 			allowEasyBypass = allowEasyBypass || isSpecial;	// if a value has already been refused, make it easy to re-refuse it
-			
+
 			String clickableOptions = buildClickableOptions(node,inputName,isSpecial);
 
 			switch(node.getAnswerType()) {
@@ -818,7 +818,7 @@ public class TricepsServlet extends HttpServlet {
 		sb.append("	<TR><TD COLSPAN='" + ((showQuestionNum) ? 4 : 3) + "' ALIGN='center'>\n");
 		sb.append("<input type='SUBMIT' name='directive' value='next'>\n");
 		sb.append("<input type='SUBMIT' name='directive' value='previous'>");
-		
+
 		if (allowEasyBypass || okToShowAdminModeIcons) {
 			/* enables TEMP_ADMIN_MODE going forward for one screen */
 			sb.append("<input type='HIDDEN' name='TEMP_ADMIN_MODE_PASSWORD' value='" + triceps.createTempPassword() + "'>\n");
@@ -855,7 +855,7 @@ public class TricepsServlet extends HttpServlet {
 		StringBuffer sb = new StringBuffer();
 
 		Datum datum = triceps.getDatum(node);
-		
+
 		if (datum == null) {
 			return "&nbsp;";
 		}
@@ -892,7 +892,7 @@ public class TricepsServlet extends HttpServlet {
 					"' ALIGN='top' BORDER='0' ALT='Add a Comment' onMouseDown='javascript:comment(\"" + inputName + "\");'>\n");
 			}
 		}
-		
+
 		/* If something has been set as Refused, Unknown, etc, allow going forward without additional headache */
 
 		if (showAdminModeIcons || okToShowAdminModeIcons || isSpecial) {
@@ -903,7 +903,7 @@ public class TricepsServlet extends HttpServlet {
 			sb.append("<IMG NAME='" + inputName + "_NOT_UNDERSTOOD_ICON" + "' SRC='" + ((isNotUnderstood) ? NOT_UNDERSTOOD_T_ICON : NOT_UNDERSTOOD_F_ICON) +
 				"' ALIGN='top' BORDER='0' ALT='Set as Not Understood' onMouseDown='javascript:markAsNotUnderstood(\"" + inputName + "\");'>\n");
 		}
-		
+
 		if (sb.length() == 0) {
 			return "&nbsp;";
 		}

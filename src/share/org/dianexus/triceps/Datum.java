@@ -32,7 +32,7 @@ public class Datum  {
 	private static Datum INVALID_DATUM = null;
 	private static Datum UNASKED_DATUM = null;
 	private static Datum NOT_UNDERSTOOD_DATUM = null;
-		
+
 	private static final SimpleDateFormat defaultDateFormat = new SimpleDateFormat("MM/dd/yyyy");
 	private static final SimpleDateFormat defaultMonthFormat = new SimpleDateFormat("MMMM");
 	private static final SimpleDateFormat defaultTimeFormat = new SimpleDateFormat("HH:mm:ss");
@@ -43,13 +43,13 @@ public class Datum  {
 	private static final SimpleDateFormat defaultMinuteFormat = new SimpleDateFormat("m");
 	private static final SimpleDateFormat defaultSecondFormat = new SimpleDateFormat("s");
 	private static final DecimalFormat defaultNumberFormat = new DecimalFormat();
-	
+
 	public static final SimpleDateFormat defaultMonthNumFormat = new SimpleDateFormat("M");
 	public static final SimpleDateFormat TIME_MASK = new SimpleDateFormat("yyyy.MM.dd..HH.mm.ss");
-	
+
 	private static final Date epoch = new Date(0);
 	private GregorianCalendar calendar = new GregorianCalendar();
-	
+
 	/* XXX:  SimpleDateFormat.parse() buggy for WEEKDAY.  Default date is Thu 1/1/1970.  Add weekday to WEEKDAY_STR */
 	private static final String WEEKDAY_STRS[] = { "sun", "mon", "tue", "wed", "thu", "fri", "sat" };
 	private static final int CALENDAR_WEEKDAYS[] = { Calendar.SUNDAY, Calendar.MONDAY, Calendar.TUESDAY, Calendar.WEDNESDAY,
@@ -67,45 +67,45 @@ public class Datum  {
 		type = NUMBER;
 		dVal = d;
 		bVal = (Double.isNaN(d) || (d == 0)) ? false : true;
-		sVal = (bVal) ? Double.toString(d) : "";
+		sVal = (!Double.isNaN(d)) ? Double.toString(d) : null;
 	}
-	
+
 	public static Datum getInstance(int i) {
 		switch(i) {
-			case NA: 
+			case NA:
 				if (Datum.NA_DATUM == null) {
 					Datum.NA_DATUM = new Datum(NA);
 				}
 				return Datum.NA_DATUM;
-			case UNKNOWN: 
+			case UNKNOWN:
 				if (Datum.UNKNOWN_DATUM == null) {
 					Datum.UNKNOWN_DATUM = new Datum(UNKNOWN);
 				}
 				return Datum.UNKNOWN_DATUM;
-			case REFUSED: 
+			case REFUSED:
 				if (Datum.REFUSED_DATUM == null) {
 					Datum.REFUSED_DATUM = new Datum(REFUSED);
 				}
 				return Datum.REFUSED_DATUM;
-			case UNASKED: 
+			case UNASKED:
 				if (Datum.UNASKED_DATUM == null) {
 					Datum.UNASKED_DATUM = new Datum(UNASKED);
 				}
-				return Datum.UNASKED_DATUM;			
-			case NOT_UNDERSTOOD: 
+				return Datum.UNASKED_DATUM;
+			case NOT_UNDERSTOOD:
 				if (Datum.NOT_UNDERSTOOD_DATUM == null) {
 					Datum.NOT_UNDERSTOOD_DATUM = new Datum(NOT_UNDERSTOOD);
 				}
-				return Datum.NOT_UNDERSTOOD_DATUM;						
+				return Datum.NOT_UNDERSTOOD_DATUM;
 			default:
-			case INVALID: 
+			case INVALID:
 				if (Datum.INVALID_DATUM == null) {
 					Datum.INVALID_DATUM = new Datum(INVALID);
 				}
 				return Datum.INVALID_DATUM;
 		}
 	}
-	
+
 	private Datum(int i) {
 		type = i;
 		sVal = null;
@@ -126,12 +126,7 @@ public class Datum  {
 				break;
 		}
 	}
-	public Datum(long l) {
-		type = NUMBER;
-		dVal = (double)l;
-		bVal = (l == 0) ? false : true;
-		sVal = Long.toString(l);
-	}
+
 	public Datum(Datum val) {
 		dVal = val.doubleVal();
 		bVal = val.booleanVal();
@@ -160,7 +155,7 @@ public class Datum  {
 /*
 	public static Datum cast(Datum d, int t, Format mask) {
 		int type = d.type();
-		
+
 		if (d.isType(DATE)) {
 			switch (t) {
 				case DATE:
@@ -168,12 +163,12 @@ public class Datum  {
 					return new Datum(d);
 				case YEAR:
 				case MONTH:
-				case WEEKDAY:			
+				case WEEKDAY:
 				case DAY:
 				case HOUR:
 				case MINUTE:
-				case SECOND: 
-				case MONTH_NUM: 
+				case SECOND:
+				case MONTH_NUM:
 				{
 					int val = DatumMath.getCalendarField(d,t);
 					calendar.setTime(epoch);
@@ -187,15 +182,15 @@ public class Datum  {
 		else if (d.isType(STRING)) {
 		}
 		else {
-			// new data type is same as old?  INVALID, UNKNOWN, REFUSED, NA 
+			// new data type is same as old?  INVALID, UNKNOWN, REFUSED, NA
 		}
-				
+
 		switch (t) {
 			case DATE:
 			case TIME:
 			case YEAR:
 			case MONTH:
-			case WEEKDAY:			
+			case WEEKDAY:
 			case DAY:
 			case HOUR:
 			case MINUTE:
@@ -218,7 +213,7 @@ public class Datum  {
 			case NA:
 		}
 	}
-*/	
+*/
 
 	private void init(String s, int t, Format mask) {
 		dVal = Double.NaN;
@@ -257,7 +252,7 @@ public class Datum  {
 					if (ex.length() > 0)
 						ex = " (e.g. " + ex + ")";
 					error = "Please enter a " + TYPES[t] + ex;
-					sVal = "";
+					sVal = null;
 					dVal = Double.NaN;
 				}
 				bVal = (Double.isNaN(dVal) || (dVal == 0)) ? false : true;
@@ -283,9 +278,9 @@ public class Datum  {
 				for (i=0;i<WEEKDAY_STRS.length;++i) {
 					if (day.startsWith(WEEKDAY_STRS[i])) {
 						calendar.setTime(epoch);
-						
+
 						calendar.set(Calendar.DAY_OF_WEEK, CALENDAR_WEEKDAYS[i]);
-								
+
 						date = calendar.getTime();
 						type = WEEKDAY;
 						break;
@@ -381,7 +376,6 @@ public class Datum  {
 	public Date dateVal() { return date; }
 	public String monthVal() { if (date == null) return ""; return Datum.format(date,Datum.MONTH); }
 	public String timeVal() { if (date == null) return ""; return Datum.format(date,Datum.TIME); }
-	public long longVal() { return (long)dVal; }
 	public int type() { return type; }
 	public Format getMask() { return mask; }
 	public void setMask(Format mask) { this.mask = mask; }
@@ -409,7 +403,7 @@ public class Datum  {
 			case MONTH_NUM:
 				return (date != null);
 			case NUMBER:
-				return (dVal != Double.NaN);
+				return (!Double.isNaN(dVal));
 			case STRING:
 				return (sVal != null);
 			case INVALID:

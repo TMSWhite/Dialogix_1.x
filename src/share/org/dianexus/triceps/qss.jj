@@ -10,47 +10,177 @@ import java.io.*;
 import java.util.*;
 
 public class Qss {
-    /*static*/ java.util.Stack stack;
-    /*static*/ Evidence data;
-    /*static*/ Datum d = null;
-    /*static*/ Vector errors = new Vector();
+    private static final Datum INVALID = Datum.getInstance(Datum.INVALID);
+    private static final String DEFAULT_EOL = "\n\r";
 
+    private Stack stack;
+    private Evidence evidence;
+    private Writer debugWriter = null;
+    private Writer errorWriter = null;
+    private String debugEol = DEFAULT_EOL;
+    private String errorEol = DEFAULT_EOL;
+    private int errorCount = 0;
+    private boolean isDebug = false;
 
 	public Datum parse(Evidence ev) {
-		this.data = ev;
+		evidence = ev;
+    	Datum d = INVALID;
 
 		try {
-			stack = new java.util.Stack();
-
-			this.Expressions();
-
-			if (!stack.empty()) {
-				d = (Datum) stack.pop();
-			}
+			stack = new Stack();
+			Statement();
+			d = (Datum) stack.pop();
 		}
-		catch (java.util.EmptyStackException e) {
-			errors.addElement("Stack underflow");
+		catch (EmptyStackException e) {
+			error("stack underflow",token.beginLine,token.beginColumn);
 		}
 		catch (ParseException e) {
-			errors.addElement("Parse error: " + e.getMessage());
+			error(e.getMessage());
 		}
 		catch (TokenMgrError e) {
-			errors.addElement("Tokenization error: " + e.getMessage());
+			error(e.getMessage());
 		}
-		if (d == null)
+
+		if (isDebug) {
+			debug(null,d);
+		}
+
+		return d;
+	}
+
+	public boolean setDebugWriter(Writer w) { return setDebugWriter(w,null); }
+	public boolean setDebugWriter(Writer w, String eol) {
+		debugWriter = w;
+		debugEol = ((eol == null) ? DEFAULT_EOL : eol);
+		isDebug = (w != null);
+		return isDebug;
+	}
+
+	public boolean setErrorWriter(Writer w) { return setErrorWriter(w,null); }
+	public boolean setErrorWriter(Writer w, String eol) {
+		errorWriter = w;
+		errorEol = ((eol == null) ? DEFAULT_EOL : eol);
+		return (w != null);
+	}
+
+
+	private void error(String s) { error(s,0,0); }
+
+	private void error(String s, int line, int column) {
+		if (errorWriter != null) {
+			try {
+				errorWriter.write("ERR " + (++errorCount) + ") " + s +
+					((line != 0) ? (" at line " + line + ", column " + column) : "") + errorEol);
+				errorWriter.flush();
+			}
+			catch (IOException e) {
+				System.err.println(e.getMessage());
+			}
+		}
+	}
+
+	/* Prints stack trace in tab delimited format - operator, arguments, ->, answer */
+	private void debug(String s,Datum d) {
+		if (debugWriter != null) {
+			try {
+				debugWriter.write(((s != null) ? (s + "\t") : "") + "->\t" +
+					d.stringVal(true) + "\t" + d.doubleVal() + "\t" + d.dateVal() + "\t" + d.monthVal() + debugEol);
+				debugWriter.flush();
+			}
+			catch (IOException e) {
+				System.err.println(e.getMessage());
+			}
+		}
+	}
+
+
+	private String opName(int op) {
+		return tokenImage[op].substring(1,tokenImage[op].length()-1);
+	}
+
+	private void unaryOp(int op, Object arg1) {
+		Datum a = getParam(arg1);
+		Datum ans = INVALID;
+		switch(op) {
+			case PLUS: ans = a; break;
+			case MINUS: ans = DatumMath.neg(a); break;
+			case NOT: ans = DatumMath.not(a); break;
+		}
+		stack.push(ans);
+		if (isDebug) {
+			debug(opName(op) + "\t" + a.stringVal(true),ans);
+		}
+	}
+
+	private Datum getParam(Object o) {
+		if (o == null)
 			return Datum.getInstance(Datum.INVALID);
-		else
-			return d;
+		return (Datum) o;
 	}
 
-	public boolean hasErrors() {
-		return (errors.size() > 0);
+	private void binaryOp(int op, Object arg2, Object arg1) {
+		Datum a = getParam(arg1);
+		Datum b = getParam(arg2);
+		Datum ans = INVALID;
+		switch(op) {
+			case PLUS: ans = DatumMath.add(a,b); break;
+			case MINUS: ans = DatumMath.subtract(a,b); break;
+			case MULTIPLY: ans = DatumMath.multiply(a,b); break;
+			case DIVIDE: ans = DatumMath.divide(a,b); break;
+			case GT: ans = DatumMath.gt(a,b); break;
+			case GE: ans = DatumMath.ge(a,b); break;
+			case EQ: ans = DatumMath.eq(a,b); break;
+			case NEQ: ans = DatumMath.neq(a,b); break;
+			case LT: ans = DatumMath.lt(a,b); break;
+			case LE: ans = DatumMath.le(a,b); break;
+			case CONCATENATE: ans = DatumMath.concat(a,b); break;
+			case ANDAND: ans = DatumMath.andand(a,b); break;
+			case OROR: ans = DatumMath.oror(a,b); break;
+			case MODULUS: ans = DatumMath.modulus(a,b); break;
+			case XOR: ans = DatumMath.xor(a,b); break;
+			case AND: ans = DatumMath.and(a,b); break;
+			case OR: ans = DatumMath.or(a,b); break;
+			case ASSIGN: ans = b; evidence.set(a.stringVal(),b); break;
+		}
+		stack.push(ans);
+		if (isDebug) {
+			debug(opName(op) + "\t" + a.stringVal(true) + "\t" + b.stringVal(true),ans);
+		}
 	}
 
-	public Vector getErrors() {
-		Vector temp = errors;
-		errors = new Vector();
-		return temp;
+	private void trinaryOp(int op, Object arg3, Object arg2, Object arg1) {
+		Datum a = getParam(arg1);
+		Datum b = getParam(arg2);
+		Datum c = getParam(arg3);
+		Datum ans = INVALID;
+		switch(op) {
+			case QUEST: ans = DatumMath.conditional(a,b,c); break;
+		}
+		stack.push(ans);
+		if (isDebug) {
+			debug(opName(op) + "\t" + a.stringVal(true) + "\t" + b.stringVal(true) + "\t" + c.stringVal(true),ans);
+		}
+	}
+
+	private void functionOp(Token func, Stack params) {
+		Datum ans = INVALID;
+		ans = evidence.function(func.image, params, func.beginLine, func.beginColumn);
+		stack.push(ans);
+		if (isDebug) {
+			StringBuffer sb = new StringBuffer("function\t" + func.image);
+			for (int i=0;i<params.size();++i) {
+				Object o = params.elementAt(i);
+				if (o == null)
+					sb.append("\tnull");
+				else if (o instanceof Datum)
+					sb.append("\t" + ((Datum) o).stringVal(true));
+				else if (o instanceof String)
+					sb.append("\t" + (String) o);
+				else
+					sb.append("\t" + o.getClass());
+			}
+			debug(sb.toString(), ans);
+		}
 	}
 }
 
@@ -82,34 +212,53 @@ TOKEN :
   >
 }
 
-TOKEN : /* OPERATORS */
+TOKEN : /* unary operatorrs */
 {
-  		< PLUS: "+" >
-  |	< MINUS: "-" >
-  |	< MULTIPLY: "*" >
-  |	< DIVIDE: "/" >
-  |	< MODULUS: "%" >
-  |	< AND: "&" >
-  |	< OR: "|" >
-  |	< XOR: "^" >
-  |	< NOT: "!" >
-  |	< GT: ">" >
-  |	< GE: ">=" >
-  |	< EQ: "==" >
-  |	< NEQ: "!=" >
-  |	< LT: "<" >
-  |	< LE:	"<=" >
-  |	< ANDAND: "&&" >
-  |	< OROR: "||" >
-  |	< LP: "(" >
-  |	< RP: ")" >
-  |	< COUNT: "count" >
-  |	< LIST:	"list" >
-  |	< DESC:	"desc" >
-  |	< UNSET: "unset" >
-  |	< DOT: "." >
-  | < COMMA: "," >
-  | < SEMICOLON: ";" >
+	< PLUS: "+" >
+|	< MINUS: "-" >
+|	< NOT: "!" >
+
+}
+
+TOKEN : /* binary operators */
+{
+/* |	< PLUS: "+" > */
+/* |	< MINUS: "-" > */
+
+	< MULTIPLY: "*" >
+|	< DIVIDE: "/" >
+|	< GT: ">" >
+|	< GE: ">=" >
+|	< EQ: "==" >
+|	< NEQ: "!=" >
+|	< LT: "<" >
+|	< LE:	"<=" >
+|	< CONCATENATE: "." >
+|	< ANDAND: "&&" >
+|	< OROR: "||" >
+|	< MODULUS: "%" >
+|	< XOR: "^" >
+|	< AND: "&" >
+|	< OR: "|" >
+|	< ASSIGN: "=" >
+}
+
+TOKEN : /* trinary operators */
+{
+	< QUEST: "?" >
+|	< COLON: ":" >
+}
+
+TOKEN : /* separator characters */
+{
+	< COMMA: "," >
+|	< LP: "(" >
+|	< RP: ")" >
+|	< LSB: "[" >
+|	< RSB: "]" >
+|	< LCB: "{" >
+|	< RCB: "}" >
+|	< SEMICOLON: ";" >
 }
 
 SKIP :
@@ -117,7 +266,6 @@ SKIP :
   " "
 | "\t"
 | "\r"
-
 }
 
 TOKEN : /* numeric constants */
@@ -132,343 +280,230 @@ TOKEN : /* numeric constants */
 
 TOKEN : /* Function names */
 {
- 	<  ID : ["a"-"z","A"-"Z", "_"] (["a"-"z","A"-"Z","0"-"9","_"])* >
- |	< EOL: "\n" >
+	<  NMTOKEN:	["a"-"z","A"-"Z", "_"] (["a"-"z","A"-"Z","0"-"9","_"])* >
+|	< EOL: "\n" >
+}
+
+void Statement() : {}
+{
+	Expressions()
+|	<SEMICOLON>
+|	<EOL>
+|	<EOF>
 }
 
 void Expressions() : {}
 {
-	Expression() (LOOKAHEAD(2) (<COMMA> | <SEMICOLON> | <EOF>) { d = (Datum) stack.pop(); } Expression() )*
+	Expression()
+		(
+			<COMMA>  Expression()
+				{
+					Object value = stack.pop();
+					stack.pop();	/* throw away the penultimate item on the stack */
+					stack.push(value);
+				}
+		)*
 }
 
 void Expression() : {}
 {
 	LOOKAHEAD(2) AssignmentExpression()
-	| ConditionalExpression()
+|	ConditionalExpression()
 }
 
 void AssignmentExpression(): { Token t; }
 {
-    (t = <ID>) "=" ConditionalExpression()
+	<NMTOKEN> { t = token; } <ASSIGN> ConditionalExpression()
     	{
-    		Datum d = (Datum) stack.pop();
-    		data.set(t.image,d);
-    		stack.push(d);
+    		binaryOp(ASSIGN,stack.pop(), new Datum(t.image,Datum.STRING));
     	}
 }
 
 void ConditionalExpression() : {}
 {
-	LogicalORExpression() ("?" LogicalORExpression() ":" LogicalORExpression()
-	{
-		Datum c = (Datum) stack.pop();
-		Datum b = (Datum) stack.pop();
-		Datum a = (Datum) stack.pop();
-		stack.push(DatumMath.conditional(a,b,c));
-	}
-	)*
+	LogicalORExpression()
+		(
+			<QUEST> LogicalORExpression() <COLON> LogicalORExpression()
+				{ trinaryOp(QUEST,stack.pop(),stack.pop(),stack.pop()); }
+		)*
 }
 
 void LogicalORExpression() : {}
 {
-	LogicalANDExpression()	( <OROR> LogicalANDExpression()
-	{
-		Datum b = (Datum) stack.pop();
-		Datum a = (Datum) stack.pop();
-		stack.push(DatumMath.oror(a,b));
-	}
-	)*
+	LogicalANDExpression()
+		(
+			<OROR> LogicalANDExpression()
+				{ binaryOp(OROR,stack.pop(),stack.pop()); }
+		)*
 }
 
 void LogicalANDExpression() : {}
 {
-	InclusiveORExpression() ( <ANDAND> InclusiveORExpression()
-	{
-		Datum b = (Datum) stack.pop();
-		Datum a = (Datum) stack.pop();
-		stack.push(DatumMath.andand(a,b));
-	}
-	)*
+	InclusiveORExpression()
+		(
+			<ANDAND> InclusiveORExpression()
+				{ binaryOp(ANDAND,stack.pop(),stack.pop()); }
+		)*
 }
 
 void InclusiveORExpression() : {}
 {
-	ExclusiveORExpression() ( <OR> ExclusiveORExpression()
-	{
-		Datum b = (Datum) stack.pop();
-		Datum a = (Datum) stack.pop();
-		stack.push(DatumMath.or(a,b));
-	}
-	)*
+	ExclusiveORExpression()
+		(
+			<OR> ExclusiveORExpression()
+				{ binaryOp(OR,stack.pop(),stack.pop()); }
+		)*
 }
 
 void ExclusiveORExpression() : {}
 {
-	ANDExpression() ( <XOR> ANDExpression()
-	{
-		Datum b = (Datum) stack.pop();
-		Datum a = (Datum) stack.pop();
-		stack.push(DatumMath.xor(a,b));
-	}
-	)*
+	ANDExpression()
+		(
+			<XOR> ANDExpression()
+				{ binaryOp(XOR,stack.pop(),stack.pop()); }
+		)*
 }
 
 void ANDExpression() : {}
 {
-	EqualityExpression() ( LOOKAHEAD(2) <AND> EqualityExpression()
-	{
-		Datum b = (Datum) stack.pop();
-		Datum a = (Datum) stack.pop();
-		stack.push(DatumMath.and(a,b));
-	}
-	)*
+	EqualityExpression()
+		( LOOKAHEAD(2)
+			<AND> EqualityExpression()
+				{ binaryOp(AND,stack.pop(),stack.pop()); }
+		)*
 }
 
 void EqualityExpression() : { Token op; }
 {
-	RelationalExpression() ( ( <EQ> | <NEQ> ) { op = token; } RelationalExpression()
-	{
-		Datum b = (Datum) stack.pop();
-		Datum a = (Datum) stack.pop();
-	    if ( op.kind == EQ ) {
-			  stack.push(DatumMath.eq(a,b));
-			}
-	    else if (op.kind == NEQ) {
-			  stack.push(DatumMath.neq(a,b));
-		}
-	}
-	)*
+	RelationalExpression()
+		(
+			( <EQ> | <NEQ> ) { op = token; } RelationalExpression()
+				{ binaryOp(op.kind,stack.pop(),stack.pop()); }
+		)*
 }
 
 void RelationalExpression() : { Token op; }
 {
-	AdditiveExpression() ( ( <LT> | <GT> | <LE> | <GE> ) { op = token; } AdditiveExpression()
-	{
-		Datum b = (Datum) stack.pop();
-		Datum a = (Datum) stack.pop();
-	    switch(op.kind) {
-	    	case LT: stack.push(DatumMath.lt(a,b)); break;
-	    	case GT: stack.push(DatumMath.gt(a,b)); break;
-	    	case LE: stack.push(DatumMath.le(a,b)); break;
-	    	case GE: stack.push(DatumMath.ge(a,b)); break;
-	   }
-	}
-	)*
+	AdditiveExpression()
+		(
+			( <LT> | <GT> | <LE> | <GE> ) { op = token; } AdditiveExpression()
+				{ binaryOp(op.kind,stack.pop(),stack.pop()); }
+		)*
 }
 
 void AdditiveExpression() : { Token op; }
 {
-	MultiplicativeExpression() ( LOOKAHEAD(2) ( <PLUS> | <MINUS> | <DOT> ) { op = token;} MultiplicativeExpression()
-	{
-		Datum b = (Datum) stack.pop();
-		Datum a = (Datum) stack.pop();
-	    if ( op.kind == PLUS ) {
-			  stack.push(DatumMath.add(a,b));
-			}
-	    else if (op.kind == MINUS) {
-			stack.push(DatumMath.subtract(a,b));
-		}
-		else if (op.kind == DOT) {
-			stack.push(DatumMath.concat(a,b));
-		}
-	}
-	)*
+	MultiplicativeExpression()
+		( LOOKAHEAD(2)
+			( <PLUS> | <MINUS> | <CONCATENATE> ) { op = token;} MultiplicativeExpression()
+				{ binaryOp(op.kind,stack.pop(),stack.pop()); }
+		)*
 }
 
 void MultiplicativeExpression() : { Token op; }
 {
-	UnaryExpression() ( LOOKAHEAD(2) ( <MULTIPLY> | <DIVIDE> ) { op = token; } UnaryExpression()
-	{
-		Datum b = (Datum) stack.pop();
-		Datum a = (Datum) stack.pop();
-	    if ( op.kind == MULTIPLY ) {
-			  stack.push(DatumMath.multiply(a,b));
-			}
-	    else if (op.kind == DIVIDE) {
-	    	stack.push(DatumMath.divide(a,b));
-		}
-	}
-	)*
+	UnaryExpression()
+		( LOOKAHEAD(2)
+			( <MULTIPLY> | <DIVIDE> ) { op = token; } UnaryExpression()
+				{ binaryOp(op.kind,stack.pop(),stack.pop()); }
+		)*
 }
 
 void UnaryExpression() : { Token op; }
 {
-	(op = UnaryOperator()) PrimaryExpression()
-	{
-		switch(op.kind) {
-			default:
-				break;
-			case MINUS: {
-				stack.push(DatumMath.neg((Datum) stack.pop()));
-	    		break;
-	    	}
-	    	case NOT: {
-	    		stack.push(DatumMath.not((Datum) stack.pop()));
-	    		break;
-	    	}
-	    }
-	}
-	| PrimaryExpression()
+	(<PLUS> | <MINUS> | <NOT>) { op = token; } PrimaryExpression()
+		{ unaryOp(op.kind,stack.pop()); }
+|	PrimaryExpression()
 }
 
-Token UnaryOperator() : {}
+void PrimaryExpression() : { }
 {
-	( <PLUS> | <MINUS> | <NOT> ) { return token; }
-}
-
-void Count() : { long total; }
-{
-	<COUNT>
-		<LP>
-			(total = TruthTestList())
-		<RP>
-		{ stack.push(new Datum(total)); }
-}
-
-void StringList(): { java.util.Vector v = new java.util.Vector(); }
-{
-	<LIST> <LP>
-		Expression() {v.addElement(stack.pop());}
-		( "," (Expression()) {v.addElement(stack.pop());} )*
-		<RP>
-	{
-		StringBuffer sb = new StringBuffer();
-
-		/* Remove null strings from list */
-		for (int i=0;i<v.size();) {
-			if (((Datum) v.elementAt(i)).stringVal().length() == 0) {
-				v.removeElementAt(i);
-			}
-			else {
-				++i;
-			}
-		}
-
-		for (int i=0;i<v.size();++i) {
-			if (i > 0) {
-				if (i < (v.size()-1)) {
-					sb.append(", ");
-				}
-				else {
-					sb.append(" and ");
-				}
-			}
-			sb.append(((Datum) v.elementAt(i)).stringVal());
-		}
-		stack.push(new Datum(sb.toString(),Datum.STRING));
-	}
-}
-
-void PrimaryExpression() : {}
-{
-	Constant() |
-	Count() |
-	StringList() |
-	Description() |
-	Unset() |
-	Variable() |
-	<LP> Expression() <RP>
-}
-
-long TruthTestList() : { long count=0; boolean b;}
-{
-	(b = TruthTest()) { if (b) ++count; } ( "," (b = TruthTest()) { if (b) ++count; })* { return count; }
-}
-
-boolean TruthTest() : {}
-{
-	Expression() {
-		try {
-			return ((Datum) stack.pop()).booleanVal();
-		} catch (java.util.EmptyStackException e) {
-			errors.addElement(e.getMessage());
-		 }
-		return false;
-	}
-}
-
-void Constant() : { Token t; }
-{
-	((t = <INTEGER_LITERAL>) | (t = <FLOATING_POINT_LITERAL>))
-	{
-		stack.push(new Datum(t.image,Datum.NUMBER));
-	}
-|	((t = <STRING_LITERAL>) | (t = <CHARACTER_LITERAL>))
-	{
-		// replace special characters before storing value
-		StringBuffer sb = new StringBuffer();
-		char c;
-
-		try {
-			for (int i=1;i<t.image.length()-1;++i) {
-				c = t.image.charAt(i);
-				if (c == '\\') {
-					c = t.image.charAt(++i);
-					switch (c) {
-						case 'b': sb.append('\b'); break;
-						case 'f': sb.append('\f'); break;
-						case 'n': sb.append('\n'); break;
-						case 'r': sb.append('\n'); break;
-						case 't': sb.append('\t'); break;
-						case '\'': sb.append('\''); break;
-						case '\"': sb.append('\"'); break;
-						case '\\': sb.append('\\'); break;
-						default: sb.append(c); break;
-					}
-				}
-				else {
-					sb.append(c);
-				}
-			}
-		}
-		catch (IndexOutOfBoundsException e) {
-			errors.addElement("Error parsing string '" + t.image + "': "  + e.getMessage());
-		}
-
-		stack.push(new Datum(sb.toString(),Datum.STRING));
-	}
-
-}
-
-void Description() : { Token t; }
-{
-	<DESC> <LP> (t = <ID>) <RP>
-	{
-		if (data.containsKey(t.image)) {
-			try {
-				Node node = data.getNode(t.image);
-				stack.push(new Datum(node.getReadback(),Datum.STRING));
-			}
-			catch (Exception e) {
+	LOOKAHEAD(2) Function()
+|	Constant()
+|	<NMTOKEN>
+		{
+			Datum d = evidence.getDatum(token.image);
+			if (d == null) {
+				error("undefined variable '" + token.image + "'", token.beginLine, token.beginColumn);
 				stack.push(Datum.getInstance(Datum.INVALID));
 			}
+			else {
+				stack.push(d);
+			}
 		}
-		else {
-			stack.push(Datum.getInstance(Datum.INVALID));
-		}
-	}
+|	<LP> Expressions() <RP>
+|	<LCB> Expressions() <RCB>
+|	<LSB> Expressions() <RSB>
 }
 
-void Unset() : { Token t; }
+void Constant() : { }
 {
-	<UNSET> <LP> (t = <ID>) <RP>
-	{
-		data.unset(t.image);
-		stack.push(Datum.getInstance(Datum.INVALID));
-	}
+	( <INTEGER_LITERAL> |<FLOATING_POINT_LITERAL> )
+		{ stack.push(new Datum(token.image,Datum.NUMBER)); }
+|	( <STRING_LITERAL> | <CHARACTER_LITERAL> )
+		{
+			/* replace special characters before storing value */
+			StringBuffer sb = new StringBuffer();
+			char c;
+			int i=0;
+
+			try {
+				for (i=1;i<token.image.length()-1;++i) {
+					c = token.image.charAt(i);
+					if (c == '\\') {
+						c = token.image.charAt(++i);
+						switch (c) {
+							case 'b': sb.append('\b'); break;
+							case 'f': sb.append('\f'); break;
+							case 'n': sb.append('\n'); break;
+							case 'r': sb.append('\n'); break;
+							case 't': sb.append('\t'); break;
+							case '\'': sb.append('\''); break;
+							case '\"': sb.append('\"'); break;
+							case '\\': sb.append('\\'); break;
+							default: sb.append(c); break;
+						}
+					}
+					else {
+						sb.append(c);
+					}
+				}
+			}
+			catch (IndexOutOfBoundsException e) {
+				error("unterminated escaped character", token.beginLine, token.beginColumn + i);
+			}
+
+			stack.push(new Datum(sb.toString(),Datum.STRING));
+		}
 }
 
-void Variable() : {}
+void Function() : { Token t; Stack params; }
 {
-	<ID>
-	{
-		if (data.containsKey(token.image)) {
-			Datum d = data.getDatum(token.image);
-			stack.push(d);
+	<NMTOKEN> { t = token; } <LP> ( params = FunctionParameters()) <RP>
+		{
+			functionOp(t,params);
 		}
-		else {
-			errors.addElement("Undefined variable '" + token.image + "'");
-			stack.push(Datum.getInstance(Datum.INVALID));
-		}
-	}
+}
+
+Stack FunctionParameters() : { Object o; Stack params = new Stack(); }
+{
+	( o = FunctionParameter() )
+		{ params.push(o); }
+	(
+		"," ( o = FunctionParameter() )
+			{ params.push(o); }
+	)*
+		{ return params; }
+|	/* empty */
+	{ return params; }
+}
+
+Object FunctionParameter() : { }
+{
+	LOOKAHEAD(3) Function()
+		{ return stack.pop(); }
+|	LOOKAHEAD(2) <NMTOKEN>
+		{ return token.image; }
+|	Expression()
+		{ return stack.pop(); }
 }

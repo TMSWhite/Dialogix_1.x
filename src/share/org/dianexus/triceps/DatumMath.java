@@ -7,24 +7,24 @@ public class DatumMath {
 	private static final Format MONTH_AS_NUM_MASK = Datum.getDefaultMask(Datum.MONTH_NUM);
 	private static GregorianCalendar calendar = new GregorianCalendar();
 	private static GregorianCalendar gc_math = new GregorianCalendar();
-	
+
 	static Datum hasError(Datum a, Datum b) {
 		// This function needs to be reconsidered as to the proper way to handle error propagation
-		/*
 		if (a.isType(Datum.INVALID) || (b != null && b.isType(Datum.INVALID))) {
 			return Datum.getInstance(Datum.INVALID);
 		}
+		/*
 		if (a.isType(Datum.REFUSED) || (b != null && b.isType(Datum.REFUSED))) {
 			return Datum.getInstance(Datum.REFUSED);
 		}
-		// Do NOT throw an error message if try to access a NA datatype? 
+		// Do NOT throw an error message if try to access a NA datatype?
 		if (a.isType(Datum.NA) || (b != null && b.isType(Datum.NA))) {
 			return Datum.getInstance(Datum.INVALID);
 		}
 		*/
 		return null;	// to indicate that there is no error that needs propagating
 	}
-	
+
 	static int datumToCalendar(int datumType) {
 		switch (datumType) {
 			case Datum.YEAR: return Calendar.YEAR;
@@ -38,7 +38,7 @@ public class DatumMath {
 			default: return 0;	// should never get here
 		}
 	}
-	
+
 	static int getCalendarField(Datum d, int datumType) {
 		synchronized (calendar) {
 			calendar.setTime(d.dateVal());
@@ -51,7 +51,7 @@ public class DatumMath {
 		Datum d = DatumMath.hasError(a,b);
 		if (d != null)
 			return d;
-			
+
 		switch (a.type()) {
 			default:
 			case Datum.NUMBER:
@@ -61,19 +61,19 @@ public class DatumMath {
  				int val = Integer.parseInt(Datum.format(a.dateVal(),Datum.DATE,MONTH_AS_NUM_MASK));
  				val += (int) b.doubleVal();
  				Date newMonth = (new Datum("" + val, Datum.MONTH, MONTH_AS_NUM_MASK)).dateVal();
- 				return (new Datum(newMonth, Datum.MONTH));				
+ 				return (new Datum(newMonth, Datum.MONTH));
 /*
 			case Datum.DATE:
 			case Datum.TIME:
 			{
 				int field = DatumMath.datumToCalendar(b.type());
 				GregorianCalendar gc = new GregorianCalendar();	// should happen infrequently (not a garbage collection problem?)
-				
+
 				gc.setTime(a.dateVal());
 				gc.add(field, DatumMath.getCalendarField(b,field));
 				return new Datum(gc.getTime(),a.type());	// set to type of first number in expression
 			}
-//			case Datum.WEEKDAY: 
+//			case Datum.WEEKDAY:
 //			case Datum.MONTH:
 //			case Datum.YEAR:
 //			case Datum.DAY:
@@ -84,19 +84,19 @@ public class DatumMath {
 */
 		}
 	}
-	
+
 	static /* synchronized */ Datum and(Datum a, Datum b) {
 		Datum d = DatumMath.hasError(a,b);
 		if (d != null)
 			return d;
-					
-		return new Datum(a.longVal() & b.longVal());
+
+		return new Datum((double) ((long) a.doubleVal() & (long) b.doubleVal()));
 	}
 	static /* synchronized */ Datum andand(Datum a, Datum b) {
 		Datum d = DatumMath.hasError(a,b);
 		if (d != null)
 			return d;
-					
+
 		return new Datum(a.booleanVal() && b.booleanVal());
 	}
 	/** This method concatenates two Datum objects of type String and returns the resulting Datum object. */
@@ -104,7 +104,7 @@ public class DatumMath {
 		Datum d = DatumMath.hasError(a,b);
 		if (d != null)
 			return d;
-					
+
 		try {
 			return new Datum(a.stringVal().concat(b.stringVal()),Datum.STRING);
 		}
@@ -120,7 +120,7 @@ public class DatumMath {
 		Datum d = DatumMath.hasError(a,null);	// if conditional based upon a REFUSED or INVALID, always return that type
 		if (d != null)
 			return d;
-					
+
 		if (a.booleanVal())
 			return b;
 		else
@@ -131,7 +131,7 @@ public class DatumMath {
 		Datum d = DatumMath.hasError(a,b);
 		if (d != null)
 			return d;
-					
+
 		try {
 			return new Datum(a.doubleVal() / b.doubleVal());
 		}
@@ -147,15 +147,15 @@ public class DatumMath {
 		Datum d = DatumMath.hasError(a,b);
 		if (d != null)
 			return d;
-					
+
 		try {
 			switch (a.type()) {
 				case Datum.DATE:
 				case Datum.TIME:
 					return new Datum(
 						(a.dateVal().equals(b.dateVal()))
-						);				
-				case Datum.WEEKDAY: 
+						);
+				case Datum.WEEKDAY:
 				case Datum.MONTH:
 				case Datum.YEAR:
 				case Datum.DAY:
@@ -165,15 +165,17 @@ public class DatumMath {
 				case Datum.MONTH_NUM:
 					return new Datum(DatumMath.getCalendarField(a,a.type()) == DatumMath.getCalendarField(b,a.type()));
 				case Datum.STRING:
-					if (a.isType(Datum.NUMBER)) 
+					if (a.isType(Datum.NUMBER))
 						return new Datum(a.doubleVal() == b.doubleVal());
-					else	
+					else {
+//System.err.println("eq\t" + a.stringVal() + "\t" + b.stringVal() + "\t" + a.stringVal().compareTo(b.stringVal()));
 						return new Datum(a.stringVal().compareTo(b.stringVal()) == 0);
+					}
 				case Datum.NUMBER:
 					return new Datum(a.doubleVal() == b.doubleVal());
 				default:
 					return new Datum(false);
-			}			
+			}
 		}
 		catch(NullPointerException e) {}
 		return new Datum(false);
@@ -186,7 +188,7 @@ public class DatumMath {
 		Datum d = DatumMath.hasError(a,b);
 		if (d != null)
 			return d;
-					
+
 		try {
 			switch (a.type()) {
 				case Datum.DATE:
@@ -194,21 +196,23 @@ public class DatumMath {
 					return new Datum(
 						(a.dateVal().after(b.dateVal())) ||
 						(a.dateVal().equals(b.dateVal()))
-						);				
-				case Datum.WEEKDAY: 
+						);
+				case Datum.WEEKDAY:
 				case Datum.MONTH:
 				case Datum.YEAR:
 				case Datum.DAY:
 				case Datum.HOUR:
 				case Datum.MINUTE:
-				case Datum.SECOND: 
+				case Datum.SECOND:
 				case Datum.MONTH_NUM:
 					return new Datum(DatumMath.getCalendarField(a,a.type()) >= DatumMath.getCalendarField(b,a.type()));
 				case Datum.STRING:
-					if (a.isType(Datum.NUMBER)) 
+					if (a.isType(Datum.NUMBER))
 						return new Datum(a.doubleVal() >= b.doubleVal());
-					else
+					else {
+//System.err.println("ge\t" + a.stringVal() + "\t" + b.stringVal() + "\t" + a.stringVal().compareTo(b.stringVal()));
 						return new Datum(a.stringVal().compareTo(b.stringVal()) >= 0);
+					}
 				case Datum.NUMBER:
 					return new Datum(a.doubleVal() >= b.doubleVal());
 				default:
@@ -225,28 +229,30 @@ public class DatumMath {
 		Datum d = DatumMath.hasError(a,b);
 		if (d != null)
 			return d;
-					
+
 		try {
 			switch (a.type()) {
 				case Datum.DATE:
 				case Datum.TIME:
 					return new Datum(
 						(a.dateVal().after(b.dateVal()))
-						);				
-				case Datum.WEEKDAY: 
+						);
+				case Datum.WEEKDAY:
 				case Datum.MONTH:
 				case Datum.YEAR:
 				case Datum.DAY:
 				case Datum.HOUR:
 				case Datum.MINUTE:
-				case Datum.SECOND: 
+				case Datum.SECOND:
 				case Datum.MONTH_NUM:
 					return new Datum(DatumMath.getCalendarField(a,a.type()) > DatumMath.getCalendarField(b,a.type()));
 				case Datum.STRING:
-					if (a.isType(Datum.NUMBER)) 
+					if (a.isType(Datum.NUMBER))
 						return new Datum(a.doubleVal() > b.doubleVal());
-					else
+					else {
+//System.err.println("gt\t" + a.stringVal() + "\t" + b.stringVal() + "\t" + a.stringVal().compareTo(b.stringVal()));
 						return new Datum(a.stringVal().compareTo(b.stringVal()) > 0);
+					}
 				case Datum.NUMBER:
 					return new Datum(a.doubleVal() > b.doubleVal());
 				default:
@@ -264,7 +270,7 @@ public class DatumMath {
 		Datum d = DatumMath.hasError(a,b);
 		if (d != null)
 			return d;
-					
+
 		try {
 			switch (a.type()) {
 				case Datum.DATE:
@@ -272,21 +278,23 @@ public class DatumMath {
 					return new Datum(
 						(a.dateVal().before(b.dateVal())) ||
 						(a.dateVal().equals(b.dateVal()))
-						);				
-				case Datum.WEEKDAY: 
+						);
+				case Datum.WEEKDAY:
 				case Datum.MONTH:
 				case Datum.YEAR:
 				case Datum.DAY:
 				case Datum.HOUR:
 				case Datum.MINUTE:
-				case Datum.SECOND: 
+				case Datum.SECOND:
 				case Datum.MONTH_NUM:
 					return new Datum(DatumMath.getCalendarField(a,a.type()) <= DatumMath.getCalendarField(b,a.type()));
 				case Datum.STRING:
-					if (a.isType(Datum.NUMBER)) 
+					if (a.isType(Datum.NUMBER))
 						return new Datum(a.doubleVal() <= b.doubleVal());
-					else
+					else {
+//System.err.println("le\t" + a.stringVal() + "\t" + b.stringVal() + "\t" + a.stringVal().compareTo(b.stringVal()));
 						return new Datum(a.stringVal().compareTo(b.stringVal()) <= 0);
+					}
 				case Datum.NUMBER:
 					return new Datum(a.doubleVal() <= b.doubleVal());
 				default:
@@ -301,28 +309,30 @@ public class DatumMath {
 		Datum d = DatumMath.hasError(a,b);
 		if (d != null)
 			return d;
-					
+
 		try {
 			switch (a.type()) {
 				case Datum.DATE:
 				case Datum.TIME:
 					return new Datum(
 						(a.dateVal().before(b.dateVal()))
-						);				
-				case Datum.WEEKDAY: 
+						);
+				case Datum.WEEKDAY:
 				case Datum.MONTH:
 				case Datum.YEAR:
 				case Datum.DAY:
 				case Datum.HOUR:
 				case Datum.MINUTE:
-				case Datum.SECOND: 
+				case Datum.SECOND:
 				case Datum.MONTH_NUM:
 					return new Datum(DatumMath.getCalendarField(a,a.type()) < DatumMath.getCalendarField(b,a.type()));
 				case Datum.STRING:
-					if (a.isType(Datum.NUMBER)) 
+					if (a.isType(Datum.NUMBER))
 						return new Datum(a.doubleVal() < b.doubleVal());
-					else	
+					else {
+//System.err.println("lt\t" + a.stringVal() + "\t" + b.stringVal() + "\t" + a.stringVal().compareTo(b.stringVal()));
 						return new Datum(a.stringVal().compareTo(b.stringVal()) < 0);
+					}
 				case Datum.NUMBER:
 					return new Datum(a.doubleVal() < b.doubleVal());
 				default:
@@ -337,7 +347,7 @@ public class DatumMath {
 		Datum d = DatumMath.hasError(a,b);
 		if (d != null)
 			return d;
-					
+
 		try {
 			return new Datum(a.doubleVal() % b.doubleVal());
 		}
@@ -350,7 +360,7 @@ public class DatumMath {
 		Datum d = DatumMath.hasError(a,b);
 		if (d != null)
 			return d;
-					
+
 		return new Datum(a.doubleVal() * b.doubleVal());
 	}
 	/** This method returns a Datum object of type double that is the negative of the passed Datum object. */
@@ -358,7 +368,7 @@ public class DatumMath {
 		Datum d = DatumMath.hasError(a,null);
 		if (d != null)
 			return d;
-					
+
 		return new Datum(-a.doubleVal());
 	}
 	/**
@@ -369,33 +379,35 @@ public class DatumMath {
 		Datum d = DatumMath.hasError(a,b);
 		if (d != null)
 			return d;
-					
+
 		try {
 			switch (a.type()) {
 				case Datum.DATE:
 				case Datum.TIME:
 					return new Datum(!
 						(a.dateVal().equals(b.dateVal()))
-						);				
-				case Datum.WEEKDAY: 
+						);
+				case Datum.WEEKDAY:
 				case Datum.MONTH:
 				case Datum.YEAR:
 				case Datum.DAY:
 				case Datum.HOUR:
 				case Datum.MINUTE:
-				case Datum.SECOND: 
+				case Datum.SECOND:
 				case Datum.MONTH_NUM:
 					return new Datum(DatumMath.getCalendarField(a,a.type()) != DatumMath.getCalendarField(b,a.type()));
 				case Datum.STRING:
-					if (a.isType(Datum.NUMBER)) 
+					if (a.isType(Datum.NUMBER))
 						return new Datum(a.doubleVal() != b.doubleVal());
-					else
+					else {
+//System.err.println("neq\t" + a.stringVal() + "\t" + b.stringVal() + "\t" + a.stringVal().compareTo(b.stringVal()));
 						return new Datum(a.stringVal().compareTo(b.stringVal()) != 0);
+					}
 				case Datum.NUMBER:
 					return new Datum(a.doubleVal() != b.doubleVal());
 				default:
 					return new Datum(false);
-			}			
+			}
 		}
 		catch(NullPointerException e) {}
 		return new Datum(false);
@@ -405,7 +417,7 @@ public class DatumMath {
 		Datum d = DatumMath.hasError(a,null);
 		if (d != null)
 			return d;
-					
+
 		return new Datum(!a.booleanVal());
 	}
 	/** This method returns a Datum of type boolean, value true, if either of two Datum objects of type long are true. */
@@ -413,14 +425,14 @@ public class DatumMath {
 		Datum d = DatumMath.hasError(a,b);
 		if (d != null)
 			return d;
-					
-		return new Datum(a.longVal() | b.longVal());
+
+		return new Datum((double) ((long) a.doubleVal() | (long) b.doubleVal()));
 	}
 	static /* synchronized */ Datum oror(Datum a, Datum b) {
 		Datum d = DatumMath.hasError(a,b);
 		if (d != null)
 			return d;
-					
+
 		return new Datum(a.booleanVal() || b.booleanVal());
 	}
 	/** This method returns the difference between two Datum objects of type double. */
@@ -428,7 +440,7 @@ public class DatumMath {
 		Datum d = DatumMath.hasError(a,b);
 		if (d != null)
 			return d;
-					
+
 		switch (a.type()) {
 			default:
 				return new Datum(a.doubleVal() - b.doubleVal());
@@ -443,7 +455,7 @@ public class DatumMath {
 		Datum d = DatumMath.hasError(a,b);
 		if (d != null)
 			return d;
-					
-		return new Datum(a.longVal() ^ b.longVal());
+
+		return new Datum((double) ((long) a.doubleVal() ^ (long) b.doubleVal()));
 	}
 }

@@ -2,9 +2,11 @@ import java.io.*;
 import java.lang.*;
 import java.util.*;
 
-/* Wrapper to support re-entrancy for Qss - needs to take a pipe as input */
+/* Wrapper to make it easier to call Qss */
 public class Parser {
-    private Qss qss = new Qss(new StringReader(""));
+	private Qss qss = new Qss(new StringReader(""));
+	private Writer debugWriter = null;
+	private String debugEol = null;
 
 	public Parser() {
 	}
@@ -16,7 +18,7 @@ public class Parser {
 	public String stringVal(Evidence ev, String exp) {
 		return parse(ev, exp).stringVal(false);
 	}
-	
+
 	public String stringVal(Evidence ev, String exp, boolean showReserved) {
 		return parse(ev,exp).stringVal(showReserved);
 	}
@@ -25,21 +27,23 @@ public class Parser {
 		return parse(ev, exp).doubleVal();
 	}
 
-	public long longVal(Evidence ev, String exp) {
-		return parse(ev, exp).longVal();
-	}
-
 	public Datum parse(Evidence ev, String exp) {
+		debug(exp);
+
 		qss.ReInit(new StringReader(exp));
-		return qss.parse(ev);
+		Datum ans = qss.parse(ev);
+
+		debug(null);
+
+		return ans;
 	}
 
 	public boolean hasErrors() {
-		return qss.hasErrors();
+		return false;
 	}
 
 	public Vector getErrors() {
-		return qss.getErrors();
+		return null;
 	}
 
 	public String parseJSP(Evidence ev, String msg) {
@@ -47,6 +51,8 @@ public class Parser {
 		StringBuffer sb = new StringBuffer();
 		String s;
 		boolean inside = false;
+
+		debug(msg);
 
 		while(st.hasMoreTokens()) {
 			s = st.nextToken();
@@ -63,6 +69,26 @@ public class Parser {
 				}
 			}
 		}
+		debug(null);
+
 		return sb.toString();
+	}
+
+	private void debug(String s) {
+		if (debugWriter != null) {
+			try {
+				debugWriter.write(((s != null) ? s : "") + debugEol);
+			}
+			catch (IOException e) { }
+		}
+	}
+
+	public boolean setErrorWriter(Writer err) { return setErrorWriter(err,null); }
+	public boolean setErrorWriter(Writer err, String eol) { return qss.setErrorWriter(err,eol); }
+	public boolean setDebugWriter(Writer debug) { return setDebugWriter(debug,"\n\r"); }
+	public boolean setDebugWriter(Writer debug, String eol) {
+		debugWriter = debug;
+		debugEol = eol;
+		return qss.setDebugWriter(debug);
 	}
 }

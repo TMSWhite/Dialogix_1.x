@@ -6,38 +6,41 @@ public interface QssConstants {
   int STRING_LITERAL = 2;
   int PLUS = 3;
   int MINUS = 4;
-  int MULTIPLY = 5;
-  int DIVIDE = 6;
-  int MODULUS = 7;
-  int AND = 8;
-  int OR = 9;
-  int XOR = 10;
-  int NOT = 11;
-  int GT = 12;
-  int GE = 13;
-  int EQ = 14;
-  int NEQ = 15;
-  int LT = 16;
-  int LE = 17;
-  int ANDAND = 18;
-  int OROR = 19;
-  int LP = 20;
-  int RP = 21;
-  int COUNT = 22;
-  int LIST = 23;
-  int DESC = 24;
-  int UNSET = 25;
-  int DOT = 26;
-  int COMMA = 27;
-  int SEMICOLON = 28;
-  int INTEGER_LITERAL = 32;
-  int DECIMAL_LITERAL = 33;
-  int HEX_LITERAL = 34;
-  int OCTAL_LITERAL = 35;
-  int FLOATING_POINT_LITERAL = 36;
-  int EXPONENT = 37;
-  int ID = 38;
-  int EOL = 39;
+  int NOT = 5;
+  int MULTIPLY = 6;
+  int DIVIDE = 7;
+  int GT = 8;
+  int GE = 9;
+  int EQ = 10;
+  int NEQ = 11;
+  int LT = 12;
+  int LE = 13;
+  int CONCATENATE = 14;
+  int ANDAND = 15;
+  int OROR = 16;
+  int MODULUS = 17;
+  int XOR = 18;
+  int AND = 19;
+  int OR = 20;
+  int ASSIGN = 21;
+  int QUEST = 22;
+  int COLON = 23;
+  int COMMA = 24;
+  int LP = 25;
+  int RP = 26;
+  int LSB = 27;
+  int RSB = 28;
+  int LCB = 29;
+  int RCB = 30;
+  int SEMICOLON = 31;
+  int INTEGER_LITERAL = 35;
+  int DECIMAL_LITERAL = 36;
+  int HEX_LITERAL = 37;
+  int OCTAL_LITERAL = 38;
+  int FLOATING_POINT_LITERAL = 39;
+  int EXPONENT = 40;
+  int NMTOKEN = 41;
+  int EOL = 42;
 
   int DEFAULT = 0;
 
@@ -47,29 +50,32 @@ public interface QssConstants {
     "<STRING_LITERAL>",
     "\"+\"",
     "\"-\"",
+    "\"!\"",
     "\"*\"",
     "\"/\"",
-    "\"%\"",
-    "\"&\"",
-    "\"|\"",
-    "\"^\"",
-    "\"!\"",
     "\">\"",
     "\">=\"",
     "\"==\"",
     "\"!=\"",
     "\"<\"",
     "\"<=\"",
+    "\".\"",
     "\"&&\"",
     "\"||\"",
+    "\"%\"",
+    "\"^\"",
+    "\"&\"",
+    "\"|\"",
+    "\"=\"",
+    "\"?\"",
+    "\":\"",
+    "\",\"",
     "\"(\"",
     "\")\"",
-    "\"count\"",
-    "\"list\"",
-    "\"desc\"",
-    "\"unset\"",
-    "\".\"",
-    "\",\"",
+    "\"[\"",
+    "\"]\"",
+    "\"{\"",
+    "\"}\"",
     "\";\"",
     "\" \"",
     "\"\\t\"",
@@ -80,11 +86,8 @@ public interface QssConstants {
     "<OCTAL_LITERAL>",
     "<FLOATING_POINT_LITERAL>",
     "<EXPONENT>",
-    "<ID>",
+    "<NMTOKEN>",
     "\"\\n\"",
-    "\"=\"",
-    "\"?\"",
-    "\":\"",
   };
 
 }
