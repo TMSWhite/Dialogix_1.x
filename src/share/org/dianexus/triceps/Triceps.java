@@ -169,19 +169,28 @@ if (DEPLOYABLE) {
 		nodes = new Schedule(this, scheduleLoc);
 		setLanguage(null);	// the default until overidden
 
-		nodes.setReserved(Schedule.WORKING_DIR,workingFilesDir);
-		nodes.setReserved(Schedule.COMPLETED_DIR,completedFilesDir);
-		nodes.setReserved(Schedule.FLOPPY_DIR,floppyDir);
-		
 		createTempPassword();
 
-		if (nodes.init()) {
+		if (nodes.init() && setExpertValues()) {
+			nodes.setReserved(Schedule.WORKING_DIR,workingFilesDir);
+			nodes.setReserved(Schedule.COMPLETED_DIR,completedFilesDir);
+			nodes.setReserved(Schedule.FLOPPY_DIR,floppyDir);
 			return true;
 		}
 		else {
 			setError(nodes.getErrors());
 			return true;
 		}
+	}
+	
+	/** Some variables must not be modifiable from the datafile - detect tampering
+	*/
+	/*public*/ boolean setExpertValues() {
+		/* FIXME:
+			compare Triceps versions - abort if incompatible
+			compare Schedule versions - abort if incompatible
+		*/
+		return true;
 	}
 
 	/*public*/ boolean isValid() { return isValid; }

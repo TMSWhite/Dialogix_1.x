@@ -239,15 +239,19 @@ if (DEBUG && false) {
 			return false;
 		if (!prepareDataLogging())
 			return false;
+		if (!triceps.setExpertValues()) {
+		}
 			
 		isLoaded = true;
 		
 		setReserved(START_TIME,Long.toString(System.currentTimeMillis()));
+		
 		if (getReserved(FILENAME) == null) {
 			setReserved(FILENAME,getReserved(START_TIME));	// sets the default value
 		}
-		setReserved(CURRENT_LANGUAGE,getReserved(CURRENT_LANGUAGE));	// sets default language not that loaded
-		return isLoaded;
+		setReserved(CURRENT_LANGUAGE,getReserved(CURRENT_LANGUAGE));	// sets default language nowthat loaded		
+
+		return true;
 	}
 	
 	private boolean parseHeaders(String source) {
