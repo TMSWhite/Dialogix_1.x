@@ -1676,9 +1676,9 @@ Scid2/assess/Schizotypal/F59t	ND754		Siif59==3	e		ND709=ND709+1	nothing
 Scid2/assess/Schizoid/TSx	ND755		1	e		"count((Siif58==3||Sii58>0),Sii59,Sii60,Sii61,Sii62,Sii63,Sii64,Sii65,obs4==2)"	nothing
 	ND7000	ND7000	1	e		"count((Siif58==3||Sii58>0),Siif59==3,Sii60,Sii61,Sii62,Sii63,Sii64,Sii65,obs4==2)"	nothing
 	ND7001	ND7001	1	e		"count((Siif58==3||Siif58a==3),Siif59==3,Siif60==3,Siif61==3,Siif62==3,Siif63==3,Siif64==3,Siif65==3,obs4==2)"	nothing
-Scid2/assess/Schizoid/F60	ND759	Siif60	Sii60>0 &&ND7000>3&ND7001<4	[		You said `Sii60==1?'you thought':' '` you it is NOT important to you whether you have any close relationships. 	nothing
-Scid2/assess/Schizoid/F60a	ND760	Siif60	Sii60>0 &&ND7000>3&ND7001<4	q		"Does that include family, romantic partner, and friends?  Why is that- is it that you experience discomfort in a close relationship? "	nothing
-Scid2/assess/Schizoid/F60b	Siif60	Siif60	Sii60>0 &&ND7000>3&ND7001<4	]		"Subject neither desires nor enjoys close relationships, including being part of a family."	"list|1|No clear evidence of symptom presence|2|Subthreshold in duration, pervasiveness, intensity or quality|3|Meets criteria"
+Scid2/assess/Schizoid/F60	ND759	Siif60	Sii60>0 &&ND7000>3&&ND7001<4	[		You said `Sii60==1?'you thought':' '` you it is NOT important to you whether you have any close relationships. 	nothing
+Scid2/assess/Schizoid/F60a	ND760	Siif60	Sii60>0 &&ND7000>3&&ND7001<4	q		"Does that include family, romantic partner, and friends?  Why is that- is it that you experience discomfort in a close relationship? "	nothing
+Scid2/assess/Schizoid/F60b	Siif60	Siif60	Sii60>0 &&ND7000>3&&ND7001<4	]		"Subject neither desires nor enjoys close relationships, including being part of a family."	"list|1|No clear evidence of symptom presence|2|Subthreshold in duration, pervasiveness, intensity or quality|3|Meets criteria"
 Scid2/assess/Schizoid/F60t	ND761		1	e		"count((Siif58==3||Sii58>0),Siif59==3,Siif60==3,Sii61,Sii62,Sii63,Sii64,Sii65,obs4==2)"	nothing
 Scid2/assess/Schizoid/F60f	ND762		1	e		"count((Siif58==3||Siif58a==3),Siif59==3,Siif60==3,Siif61==3,Siif62==3,Siif63==3,Siif64==3,Siif65==3,obs4==2)"	nothing
 Scid2/assess/Schizoid/F61	ND763	Siif61	Sii61>0 &&ND761>3&&ND762<4	[		You said `Sii61==1?'you thought':' '` you would rather do things alone than with other people. 	nothing
