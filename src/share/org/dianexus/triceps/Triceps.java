@@ -394,6 +394,11 @@ if (AUTHORABLE) {
 		}
 
 		if (special != null && special.trim().length() > 0) {
+			if (q.getAnswerType() == Node.PASSWORD) {
+				/* 9/24/2002 - Modify this to prevent bypassing of password fields */
+				q.setError(get("passwords_cannot_be_bypassed"));
+				return false;
+			}
 			if (adminMode) {
 				d = Datum.parseSpecialType(this, special);
 				if (d != null) {

@@ -478,3 +478,7 @@ Reorganization & Documentation
 	Security
 		Added Thawte cert for www.dianexus.org
 	
+<< changes from 2.9.8 to 2.9.8.1
+	BUGFIX:
+		Passwords could be bypassed using administrator mode.  This is a security breach.  Fixed.
+		
