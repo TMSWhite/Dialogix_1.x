@@ -1,0 +1,360 @@
+RESERVED	__TRICEPS_FILE_TYPE__	SCHEDULE						
+RESERVED	__ICON__	dynamednew.gif						
+RESERVED	__DEVELOPER_MODE__	TRUE						
+RESERVED	__TITLE__	Keeping Up Estimation						
+RESERVED	__HEADER_MSG__	Keeping Up Estimation						
+RESERVED	__AUTOGEN_OPTION_NUM__	TRUE						
+RESERVED	__SHOW_ADMIN_ICONS__	FALSE						
+RESERVED	__ALLOW_COMMENTS__	FALSE						
+RESERVED	__ALLOW_DONT_UNDERSTAND__	FALSE						
+RESERVED	__ALLOW_REFUSED__	FALSE						
+RESERVED	__ALLOW_UNKNOWN__	FALSE						
+RESERVED	__ALLOW_JUMP_TO__	FALSE						
+RESERVED	__HELP_ICON__	help_true.gif						
+RESERVED	__PASSWORD_FOR_ADMIN_MODE__	bypass						
+COMMENT								
+COMMENT concept	internalName	externalName	dependencies	action type	substitution phrase	action phrase	answer options	helpURL
+Who	Who		1	[		Who are you?	radio|1|Brian S. Alper|2|Michael J. Hauan|3|Scott Kinkade|4|Daniel K. Onion|5|Bernard M. Sklar
+Article_title	Article_title		1	]		Which article are you processing? (number 1-50, or test)	text
+
+
+
+
+
+
+
+							
+							
+
+
+Intro_early	Intro_early		1	[		<B>Regarding: </B>`Article_title`<BR>	nothing
+triage	triage		1	]		How much work is warranted in summarizing this study?	list|"Alert"|critical appraisal and alert clinicians|"CritApp"|critical appraisal, but no alert|"Summary"|brief summary (bottom-line plus 1-4 lines, but no formal critical appraisal)|"One-liner"|1- or 2-line summary|"Catalog"|catalog without summary|"DROP"|no need for clinical reference|"undecided"|I would like help in guiding me through this decision
+Intro_de	Intro_de		triage=="undecided"	[		<B>Regarding: </B>`Article_title`<BR>	nothing
+Intro_data_extraction	Intro_data_extraction		triage=="undecided"	q		The following questions are here to gather some basic information for triaging this article.	nothing
+population	population		triage=="undecided"	q		What is the population studied?	text
+outcome	outcome		triage=="undecided"	q		What are the most important outcomes reported?	text
+conclusion_type	conclusion_type		triage=="undecided"	]		What type of conclusion is made?	list|"treatment"|Treatment|"prognosis"|Prognosis|"etiology"|Etiology/Harm|"diagnosis"|Diagnosis|"prevention"|Prevention|"screening"|Screening|"other"|Other
+Intro_method	Intro_method		triage=="undecided"	[		<B>Regarding: </B>`Article_title`<BR><B>Conclusion of type: </B>`conclusion_type`	nothing
+
+methodology	methodology		conclusion_type=="treatment"||conclusion_type=="etiology"||conclusion_type=="prevention"||conclusion_type=="screening"	q		What methodology is used?	list|"rct"|Randomized Controlled Trial|"cohort"|Cohort Study|"case_control"|Case Control Study|"case_series"|Case Series|"case_report"|Case Report|"systematic_review"|Systematic Review|"other_review"|Non-systematic Review|"decision"|Decision Analysis or Cost-Effectiveness Analysis|"other"|Other
+methodology	method_Dx		conclusion_type=="diagnosis"	q		What methodology is used?	list|"Dx_best"|Cohort with reference standard|"cohort_other"|Cohort without reference standard|"case_control_standard"|Case Control with reference standard|"case_control_without"|Case Control without reference standard|"rct"|Randomized Controlled Trial|"case_series"|Case Series|"case_report"|Case Report|"systematic_review"|Systematic Review|"other_review"|Non-systematic Review|"decision"|Decision Analysis or Cost-Effectiveness Analysis|"other"|Other
+methodology	method_Prog		conclusion_type=="prognosis"	q		What methodology is used?	list|"rct"|Randomized Controlled Trial|"cohort"|Cohort Study|"case_control"|Case Control Study|"case_series"|Case Series|"case_report"|Case Report|"systematic_review"|Systematic Review|"other_review"|Non-systematic Review|"decision"|Decision Analysis or Cost-Effectiveness Analysis|"other"|Other
+methodology	method_other		conclusion_type=="other"	]		What methodology is used?	list|"rct"|Randomized Controlled Trial|"cohort"|Cohort Study|"case_control"|Case Control Study|"case_series"|Case Series|"case_report"|Case Report|"systematic_review"|Systematic Review|"other_review"|Non-systematic Review|"decision"|Decision Analysis or Cost-Effectiveness Analysis|"other"|Other
+
+
+
+Intro_Rel	Intro_Rel		triage=="undecided"	[		These questions address the relevance of this article.  Remember we are in "triage" mode and deciding whether or not to read this article, so don't spend a large amount of time answering these questions.<BR><BR><B>Regarding: </B>`Article_title`<BR><B>Conclusion of type: </B>`conclusion_type`	nothing
+Rele1	Rele1		triage=="undecided"	q		How common is the "problem" or "population" being addressed? (Use your medical knowledge to estimate.  You don't have to read the article for verification.)	list|"common"|Common|"uncommon"|Uncommon but will likely represent an information need of a clinician at some time|"rare"|So rare that it will likely never be a clinically important information need|"NIQ"|Not identified quickly|"NA"|Not applicable
+
+Rele3	Rele3		triage=="undecided"	q		How feasible is the "intervention" being addressed?  (Estimate quickly based on the abstract.  You did not need to read the "exact" methods in the study for this triage step.)	list|"easy"|Easy to implement|"so-so"|Can be reasonably done but will take some effort|"hard"|Not practical|"NIQ"|Not identified quickly|"NA"|Not applicable
+
+New	New		triage=="undecided"	]		Is this "new" information?	list|"Yes"|Yes|"No"|No|"NIQ"|Not identified quickly
+Intro_Rel2	Intro_Rel2		triage=="undecided"	[		These questions address the relevance of this article.  Remember we are in "triage" mode and deciding whether or not to read this article, so don't spend a large amount of time answering these questions.<BR><BR><B>Regarding: </B>`Article_title`<BR><B>Conclusion of type: </B>`conclusion_type`	nothing
+outcome_type	outcome_type		triage=="undecided"	q		Classify the most important outcomes reported.	list|"POE"|Patient-Oriented|"doe"|Disease-Oriented (no patient-oriented outcomes)|"other_relevant"|Other Relevant outcome|"irrelevant"|Other irrelevant outcome|"NIQ"|Not identified quickly
+relevance	relevance		triage=="undecided"	]		How relevant is this study for a community medical knowledgebase? (an estimate for triage, you might change your mind after further review)	list|"very"|Extremely relevant to clinical practice|"somewhat"|Somewhat relevant to clinical practice|"minimally"|Minimally or tangentially relevant to clinical practice|"not"|Not relevant to clinical practice
+
+Intro_Val	Intro_Val		triage=="undecided"	[		These questions address the validity of this article.  Remember we are in "triage" mode and deciding whether or not to read this article, so don't spend a large amount of time answering these questions.  <BR><BR><B>Regarding: </B>`Article_title`<BR><B>Conclusion of type: </B>`conclusion_type`	nothing
+Val1	Val1		triage=="undecided"	q		Is the study methodology used the best level of evidence for addressing the study conclusion? (Simply consider the type of study at this stage, and not a critical appraisal of the study.  You don't have to read the article for verification.)	list|"Yes"|Yes|"no"|No|"NA"|Not applicable
+Val2	Val2		triage=="undecided"	q		Is the study methodology the best available level of evidence to support the study conclusion? (You can approach this in one of two ways.  Remember you are in "triage" mode and estimating this answer, not reviewing concomitant literature to know for certain.  One approach is to consider your knowledge of available or likely available literature and ask if this likely the best available information out of what currently exists.  Another approach is to consider the clinical information being studied, and the practicality of employing different study methods; and ask if this is the best study method attainable within the constraints of available resources and human safety concerns.)	list|"yes"|Yes|"maybe"|Maybe|"no"|No|"NIQ"|Not identified quickly|"NA"|Not applicable
+Val3	Val3		triage=="undecided"	]		How large is this study?  (Estimate quickly based on the abstract or a quick peek at results.  You did not need to know the "exact" number of subjects for this triage step.)	list|"large"|Large enough to provide robust data|"so-so"|Inbetween|"small"|Too small to provide reliable data|"NIQ"|Not identified quickly|"NA"|Not applicable
+
+Val1fail	Val1fail		Val1=="Yes"&&!((((conclusion_type=="treatment"||conclusion_type=="etiology"||conclusion_type=="prevention"||conclusion_type=="screening")&&methodology=="rct")||(conclusion_type=="diagnosis"&&method_Dx=="Dx_best")||(conclusion_type=="prognosis"&&method_Prog=="cohort"))||methodology=="systematic_review"||method_Dx=="systematic_review"||method_Prog=="systematic_review"||conclusion_type=="other")	q		You suggested that this article used the most valid study type (level 1 evidence) to address its conclusion.  Are you sure?	text
+Val2check	Val2check		Val1=="no"&&(((conclusion_type=="treatment"||conclusion_type=="etiology"||conclusion_type=="prevention"||conclusion_type=="screening")&&methodology=="rct")||(conclusion_type=="diagnosis"&&method_Dx=="Dx_best")||(conclusion_type=="prognosis"&&method_Prog=="cohort"))	q		You suggested that this article did not use the most valid study type (level 1 evidence) to address its conclusion.  Are you sure?	text
+Intro_Val2	Intro_Val2		triage=="undecided"	[		<B>Regarding: </B>`Article_title`<BR><B>Conclusion of type: </B>`conclusion_type`	nothing
+validity	validity		triage=="undecided"	]		How valid is this study? (an estimate of internal validity for triage, you might change your mind after further review)	list|"high"|Low likelihood of bias|"medium"|Moderate likelihood of bias|"low"|High likelihood of bias|"invalid"|Not valid
+COMMENT							
+COMMENT							
+work_assessment	work_assessment		triage=="undecided"	q		Based on your estimated relevance and validity, how much work is warranted in summarizing this study?	list|"Alert"|critical appraisal and alert clinicians|"CritApp"|critical appraisal, but no alert|"Summary"|brief summary (bottom-line plus 1-4 lines, but no formal critical appraisal)|"One-liner"|1- or 2-line summary|"Catalog"|catalog without summary|"DROP"|no need for clinical reference
+COMMENT							
+summary5	summary5		work_assessment=="Catalog"||triage=="Catalog"	[		Regarding "`Article_title`", please provide cataloguing information, e.g. "review of tsutsugamushi disease"	text
+summary4intro	summary4intro		work_assessment=="One-liner"||triage=="One-liner"	q		Regarding "`Article_title`", please provide a 1- or 2-line summary.  <BR> Examples include: <BR> "risk of perinatal HIV transmission highly dependent on maternal viral load", based on the following reference: NEJM 1999 Aug 5;341(6);385<BR>"lamivudine/zidovudine combination reduced perinatal transmission rate to 1.6% in open-label non-randomized study of 445 pregnant women, severe adverse effects and emergence of resistance to lamivudine limit the role of this combination", based on the following reference:  JAMA 2001 Apr 25;285(16);2083	nothing
+summary4	summary4		work_assessment=="One-liner"||triage=="One-liner"	q			memo
+COMMENT							
+COMMENT							
+Blstatement	Blstatement		work_assessment=="Alert"||work_assessment=="CritApp"||work_assessment=="Summary"||triage=="Alert"||triage=="CritApp"||triage=="Summary"	]		We will state the bottom-line first in the final summarization.  However, it is helpful to evaluate the article, summarize the methodology and results prior to defining the bottom-line, so we will ask for the bottom-line later.	nothing
+
+
+
+
+							
+							
+
+
+StudyType	StudyType		work_assessment=="Alert"||work_assessment=="CritApp"||triage=="Alert"||triage=="CritApp"	q		What kind of article are you wanting to critically appraise?	radio|2|Randomized Trial (Treatment)|3|Review Article|4|Cohort study (Prognosis)|5|Article about Diagnostic Tests|6|Cohort or Case-control (Harm)|7|Decision (or Cost-Effectiveness) Analysis|8|Qualitative Research
+COMMENT							
+R_care3	R_care3		StudyType==3	q		Is the article proposing to answer a specific clinical question? (Systematic reviews address a single clinical question with a systematic process for searching and evaluating the available evidence.  Overviews which broadly address a clinical topic without systematic processes can be validated only by evaluating the research that they summarize.)	list|"Yes"|Yes|"No"|No|"Unsure"|Unsure
+R3no	R3no		R_care3=="No"||R_care3=="Unsure"	q		You may wish to exit the program now as it is not designed to critically appraise overviews that do not address a specific clinical question.  If you would like to continue, click Next.	nothing
+type3	type3		StudyType==3	q		What kind of study does the article review?	radio|2|Treatment|4|Prognosis|5|Diagnostic Tests|6|Harm|7|Decision (Cost) Analysis|8|Qualitative
+
+
+
+
+
+
+
+
+
+
+
+
+
+Validity	Validity		work_assessment=="Alert"||work_assessment=="CritApp"||triage=="Alert"||triage=="CritApp"	[		We will now answer questions regarding the <I>validity</I> of the article "`Article_title`":	nothing
+random	random		StudyType==2	q		Is it a controlled trial and were the subjects randomly assigned?	list|"Yes"|Yes|"No"|No|"Unsure"|Unsure
+similar	similar		StudyType==2	q		Are the patients in the study so dissimilar to yours that the results do not apply? (Check the inclusion criteria.)	list|"Yes"|Yes|"No"|No|"Unsure"|Unsure
+question3	question3		StudyType==3	q		Did the review explicitly address a sensible clinical question?	list|"Yes"|Yes|"No"|No|"Unsure"|Unsure
+methods3	methods3		StudyType==3	q		Were the methods used to locate relevant studies comprehensive and clearly stated?	list|"Yes"|Yes|"No"|No|"Unsure"|Unsure
+cohort4	cohort4		StudyType==4	q		Was an "inception cohort" assembled? In other words, did the investigators identify a specific group of people at the time of specific interest (e.g. newly diagnosed patients) and follow them forward in time?	list|"Yes"|Yes|"No"|No|"Unsure"|Unsure
+gold5	gold5		StudyType==5	q		Was the new test compared with an acceptable "gold standard" test?	list|"Yes"|Yes|"No"|No|"Unsure"|Unsure
+blind5	blind5		StudyType==5	q		Were both tests applied in a uniformly blind manner?	list|"Yes"|Yes|"No"|No|"Unsure"|Unsure
+face5	face5		StudyType==5	q		Did clinicians face diagnostic uncertainty?  In other words, was the test performed in a group fo patients for whom the outcomes could not be predicted, ie. patients for whom the test would be used in practice?	list|"Yes"|Yes|"No"|No|"Unsure"|Unsure
+differences6	differences6		StudyType==6	q		Were there any important differences between the groups other than the exposure being studied?  Would the control group be expected to differ in ways other than the exposure being studied?	list|"Yes"|Yes|"No"|No|"Unsure"|Unsure
+all7	all7		StudyType==7	q		Were all important strategies and outcomes included?	list|"Yes"|Yes|"No"|No|"Unsure"|Unsure
+method8	method8		StudyType==8	]		Was the appropriate method used to answer the question? Remember, interviews or focus groups should be used to study perceptions, while observation is required to evaluate behaviors.	list|"Yes"|Yes|"No"|No|"Unsure"|Unsure
+Continue4	Continue4		random=="No"||random=="Unsure"||all7=="No"||all7=="Unsure"||method8=="No"||method8=="Unsure"||similar=="Yes"||similar=="Unsure"||methods3=="No"||methods3=="Unsure"||question3=="No"||question3=="Unsure"||cohort4=="No"||cohort4=="Unsure"||gold5=="No"||gold5=="Unsure||blind5=="No"||blind5=="Unsure||face5=="No"||face5=="Unsure||differences6=="Yes"||differences6=="Unsure"	q		Based on your answers, this may not be a valid enough article to be worth completing a critical appraisal. To continue, click "Next."	nothing
+COMMENT							
+explicit3	explicit3		StudyType==3	[		Were appropriate methods used to select studies to include in the review?	list|"Yes"|Yes|"No"|No|"Unsure"|Unsure
+validity3	validity3		StudyType==3	q		Was the validity of the original studies included in the overview appropriately assessed?	list|"Yes"|Yes|"No"|No|"Unsure"|Unsure
+criteria4	criteria4		StudyType==4	q		Were the criteria for entry into the study objective and reasonable?	list|"Yes"|Yes|"No"|No|"Unsure"|Unsure
+fu4	fu4		StudyType==4	]		Was follow-up of subjects adequate (at least 70% to 80%)?	list|"Yes"|Yes|"No"|No|"Unsure"|Unsure
+continue5	continue5		explicit3=="No"||explicit3=="Unsure"||validity3=="No"||validity3=="Unsure"||criteria4=="No"||criteria4=="Unsure"||fu4=="No"||fu4=="Unsure"	q		Based on your answers, this may not be a valid enough article to be worth continuing a critical appraisal. To continue, click "Next."	nothing
+COMMENT							
+Validity2	Validity2		work_assessment=="Alert"||work_assessment=="CritApp"||triage=="Alert"||triage=="CritApp"	[		We will look at more issues regarding the <I>validity</I> of the article "`Article_title`":	nothing
+conceal	conceal		StudyType==2	q		Were steps taken to conceal the treatment assignment from study personnel who enrolled patients into the study (opaque envelopes, centralized randomization scheme, "concealed allocation")?	list|"Yes"|Yes|"No"|No|"Unsure"|Unsure
+FU	FU		StudyType==2	q		Were all patients who entered the trial properly accounted for at its conclusion? Was follow-up complete?	list|"Yes"|Yes|"No"|No|"Unsure"|Unsure
+analysis	analysis		StudyType==2	q		Were ALL patients analyzed in the groups to which they were randomized ("intention-to-treat" analysis)?  ("Once randomized, always analyzed.")	list|"Yes"|Yes|"No"|No|"Unsure"|Unsure
+blind	blind		StudyType==2	q		Were patients, clinicians, and study personnel "blind" to treatment?	list|"Yes"|Yes|"No"|No|"Unsure"|Unsure
+control	control		StudyType==2	q		Were the intervention and control groups similar with respect to known prognostic variables at the start of the trial? (Check Table 1 of most studies to look for baseline differences).	list|"Yes"|Yes|"No"|No|"Unsure"|Unsure
+factors	factors		StudyType==2	q		Were there other factors that might have affected the outcome? (For instance, were groups treated differently aside from the experimental intervention?)	list|"Yes"|Yes|"No"|No|"Unsure"|Unsure
+quality3	quality3		StudyType==3	q		Were the primary studies of high methodologic quality?	list|"Yes"|Yes|"No"|No|"Unsure"|Unsure
+assess3	assess3		StudyType==3	q		Was the assessment of the relevance, validity and results of the original studies reproducible and free from bias?	list|"Yes"|Yes|"No"|No|"Unsure"|Unsure
+variation3	variation3		StudyType==3	q		Was variation between the results of the relevant studies analyzed (test of homogeneity--used for meta-analyses)?	list|"Yes"|Yes|"No"|No|"Unsure"|Unsure
+results3	results3		StudyType==3	q		Were the results combined appropriately (apples with apples)?	list|"Yes"|Yes|"No"|No|"Unsure"|Unsure
+referral4	referral4		StudyType==4	q		Where did the subjects come from--was the referral pattern specified?	list|"Yes"|Yes|"No"|No|"Unsure"|Unsure
+sample4	sample4		StudyType==4	q		Was the sample of patients representative?  Were the patients similar to yours in terms of age, sex, race, severity of disease, and other factors that might influence the course of the disease?	list|"Yes"|Yes|"No"|No|"Unsure"|Unsure
+assess4	assess4		StudyType==4	q		Were the patients sufficiently homogeneous with respect to prognostic risk?	list|"Yes"|Yes|"No"|No|"Unsure"|Unsure
+outcomes4	outcomes4		StudyType==4	q		Were outcomes assessed objectively and blindly?	list|"Yes"|Yes|"No"|No|"Unsure"|Unsure
+eval5	eval5		StudyType==5	q		Did the results of the test being evaluated influence the decision to perform the reference standard?	list|"Yes"|Yes|"No"|No|"Unsure"|Unsure
+eval5a	eval5a		StudyType==5	q		Did the results of the reference standard influence the handling of the test being evaluated?	list|"Yes"|Yes|"No"|No|"Unsure"|Unsure
+similar6	similar6		StudyType==6	q		Did the investigators demonstrate similarity in all known determinants of outcome? If not, did they adjust for differences in the analysis?	list|"Yes"|Yes|"No"|No|"Unsure"|Unsure
+exposed6	exposed6		StudyType==6	q		Were exposed patients equally likely to be identified in the two groups?	list|"Yes"|Yes|"No"|No|"Unsure"|Unsure
+outcomes6	outcomes6		StudyType==6	q		Were the outcomes measured in the same way in the groups being compared?  Were outcomes equally likely to be identified?	list|"Yes"|Yes|"No"|No|"Unsure"|Unsure
+treat6	treat6		StudyType==6	q		Were the groups being compared treated differently other than with respect to the exposure of interest?	list|"Yes"|Yes|"No"|No|"Unsure"|Unsure
+fu6	fu6		StudyType==6	q		Was follow-up sufficiently complete?	list|"Yes"|Yes|"No"|No|"Unsure"|Unsure
+duration6	duration6		StudyType==6	q		Was the duration of follow-up adequate?	list|"Yes"|Yes|"No"|No|"Unsure"|Unsure
+explicit7	explicit7		StudyType==7	q		Was an explicit and sensible process used to identify, select, and combine the evidence regarding probabilities? Is the evidence strong enough?	list|"Yes"|Yes|"No"|No|"Unsure"|Unsure
+costs7	costs7		StudyType==7	q		Were the utilities (and costs) obtained in an explicit and sensible way from credible sources? (Beware utilities obtained from small samples.)	list|"Yes"|Yes|"No"|No|"Unsure"|Unsure
+sample8	sample8		StudyType==8	q		Was appropriate and adequate sampling used to get the best information? Remember, random sampling is not used in qualitative research. Instead, subjects are selected with the idea that they are best suited to provide appropriate information.	list|"Yes"|Yes|"No"|No|"Unsure"|Unsure
+collect8	collect8		StudyType==8	q		Was an iterative process of collecting information used? Remember, in qualitative research, the researcher learns about the topic as the research progresses. The study design should consist of data collection and analysis, followed by more data collection and analysis, in an iterative fashion, until no more information is obtained.	list|"Yes"|Yes|"No"|No|"Unsure"|Unsure
+analysis8	analysis8		StudyType==8	q		Was a thorough analysis presented? Remember, a good qualitative study not only presents the findings but provides a thorough analysis of the data. Beware studies that simply present results without interpretation.	list|"Yes"|Yes|"No"|No|"Unsure"|Unsure
+train8	train8		StudyType==8	]		Are the background and training of the investigators described? Remember, since the investigators are being relied on for analysis of the data, we must know their training and biases. We can use these characteristics to evaluate their conclusions.	list|"Yes"|Yes|"No"|No|"Unsure"|Unsure
+COMMENT							
+results	results		work_assessment=="Alert"||work_assessment=="CritApp"||triage=="Alert"||triage=="CritApp"	[		The following questions look at the <I>results</I> in the article "`Article_title`":	nothing
+effect	effect		StudyType==2||StudyType==3||StudyType==4||StudyType==5||StudyType==6	q		Did the study show a significant effect? (statistically)	list|"Yes"|Yes|"No"|No|"Unsure"|Unsure
+overall7	overall7		StudyType==7||StudyType==8	q		What are the overall results?	memo
+impact7	impact7		StudyType==7	q		Was the potential impact of any uncertainty in the evidence determined (sensitivity analysis)?	list|"Yes"|Yes|"No"|No|"Unsure"|Unsure
+strong7	strong7		StudyType==7	q		How strong is the evidence used in the analysis? Could the uncertainty in the evidence change the result? How much does allowance for uncertainty change the results? (Look for sensitivity to a given variable.)	list|"Yes"|Yes|"No"|No|"Unsure"|Unsure
+separate7	separate7		StudyType==7	]		Are results reported separately for patients whose baseline risks differ?	list|"Yes"|Yes|"No"|No|"Unsure"|Unsure
+COMMENT							
+number	number		(effect=="Yes"||effect=="Unsure")&&StudyType==2	[		What is the magnitude of the effect? (e.g. How many patients need to be treated for one to benefit?)	memo
+precision	precision		(effect=="Yes"||effect=="Unsure")&&StudyType==2	q		How precise is the estimate of the treatment effect?	memo
+exposure6	exposure6		(effect=="Yes"||effect=="Unsure")&&StudyType==6	q		How strong is the association between exposure and outcome? (e.g. How many patients need to be treated/exposed for one to be harmed?)  For case-control studies, this number is not calculable, so use the odds ratio to estimate the relative increase in risk.	memo
+precise6	precise6		(effect=="Yes"||effect=="Unsure")&&StudyType==6	q		How precise is the estimate of the effect/risk?	memo
+study3	study3		StudyType==3	q		Were the results similar from study to study?	list|"Yes"|Yes|"No"|No|"Unsure"|Unsure
+precise3	precise3		StudyType==3	q		What are the overall results of the review?	memo
+strong3	strong3		StudyType==3	q		How precise were the results?	memo
+likely4	likely4		StudyType==4	q		How likely are the outcomes over time?	memo
+precise4	precise4		StudyType==4	q		How precise are the estimates of likelihood?	memo
+sens5	sens5		StudyType==5	q		What is the sensitivity of the test? State "unsure" if unable to calculate. Reminder: sensitivity = True Positives / all with disease	text
+spec5	spec5		StudyType==5	q		What is the specificity of the test? State "unsure" if unable to calculate. Reminder: specificity = True Negatives / all without disease	text
+pred5	pred5		StudyType==5	q		What is the positive predictive value of the test? State "unsure" if unable to calculate. Reminder: P.P.V.= True Positives / all positives	text
+npred5	npred5		StudyType==5	q		What is the negative predictive value of the test? State "unsure" if unable to calculate. Reminder: N.P.V.= True Negatives / all negatives	text
+lr1	lr1		StudyType==5	q		What was the positive likelihood ratio for the test? State "unsure" if unable to calculate. Reminder: LR+=sens/(1-spec)	text
+lr2	lr2		StudyType==5	q		What was the negative likelihood ratio for the test? State "unsure" if unable to calculate. Reminder: LR-=(1-sens)/spec	text
+negative	negative		effect=="No"	q		Was the power of the study adequate to conclude no effect?  Are confidence intervals narrow enough to rule out clinically significant differences?	list|"Yes"|Yes|"No"|No|"Unsure"|Unsure
+significance	significance		effect=="Yes"||effect=="Unsure"	]		Are the results clinically as well as statistically significant?	list|"Yes"|Yes|"No"|No|"Unsure"|Unsure
+COMMENT							
+apply	apply		work_assessment=="Alert"||work_assessment=="CritApp"||triage=="Alert"||triage=="CritApp"	[		The following questions will help you consider how to <I>apply</I> the results to patient care for the article "`Article_title`":	nothing
+patients	patients		work_assessment=="Alert"||work_assessment=="CritApp"||triage=="Alert"||triage=="CritApp"	q		Were the study patients (and circumstances) similar to the patients (and circumstances) in your practice?	list|"Yes"|Yes|"No"|No|"Unsure"|Unsure
+clinical_relevance	clinical_relevance		StudyType==2||type3==2	q		Were all clinically relevant outcomes considered?	list|"Yes"|Yes|"No"|No|"Unsure"|Unsure
+benefits	benefits		StudyType==2||type3==2	q		Are the benefits worth the harms and costs?	list|"Yes"|Yes|"No"|No|"Unsure"|Unsure
+long4	long4		StudyType==4||type3==4||StudyType==2||type3==2	q		Was follow-up sufficiently long?	list|"Yes"|Yes|"No"|No|"Unsure"|Unsure
+COMMENT							
+prev5	prev5		StudyType==5||type3==5	q		In terms of prevalence of the disease, are the study subjects similar to your patients? Varying prevalences will affect the predictive value of the test in your practice.	list|"Yes"|Yes|"No"|No|"Unsure"|Unsure
+limits5	limits5		StudyType==5||type3==5	q		Is the new test reasonable? What are its limitations?	memo
+reprod5	reprod5		StudyType==5||type3==5	q		Will the reproducibility of the test result and its interpretation be satisfactory in your clinical setting?	list|"Yes"|Yes|"No"|No|"Unsure"|Unsure
+better5	better5		StudyType==5||type3==5	q		Will patients be better off as a result of the test?	list|"Yes"|Yes|"No"|No|"Unsure"|Unsure
+COMMENT							
+risk6	risk6		StudyType==6	q		What was the absolute magnitude of the risk? (You may need to guess as to the baseline risk.)	memo
+stop6	stop6		StudyType==6	q		Should you attempt to stop the exposure?	list|"Yes"|Yes|"No"|No|"Unsure"|Unsure
+cost7	cost7		StudyType==7||type3==7	q		Are the treatment benefits worth the risks and costs?	list|"Yes"|Yes|"No"|No|"Unsure"|Unsure
+expect7	expect7		StudyType==7||type3==7	]		Can you expect similar cost prevalences and outcomes in your setting?	list|"Yes"|Yes|"No"|No|"Unsure"|Unsure
+patient_care	patient_care		work_assessment=="Alert"||work_assessment=="CritApp"||triage=="Alert"||triage=="CritApp"	[		Can the results be applied to your patients, or the management of your practice?	list|"Yes"|Yes|"No"|No|"Unsure"|Unsure
+strategy	strategy		work_assessment=="Alert"||work_assessment=="CritApp"||triage=="Alert"||triage=="CritApp"	]		Will the results change your management strategy?	list|"Yes"|Yes|"No"|No|"Unsure"|Unsure
+COMMENT							
+COMMENT							
+COMMENT							
+COMMENT							
+COMMENT							
+COMMENT							
+COMMENT							
+COMMENT							
+COMMENT							
+COMMENT							
+COMMENT							
+COMMENT							
+COMMENT							
+COMMENT							
+summary_method	summary_method		work_assessment=="CritApp"||work_assessment=="Summary"||work_assessment=="Alert"||triage=="Alert"||triage=="CritApp"||triage=="Summary"	[		Describe the methodology of this study as briefly as possible, but include mention of the key elements such as type of study, number of patients, specific interventions applied, length of follow-up. Include methodological flaws that are likely to affect results.	memo
+summary_results	summary_results		work_assessment=="CritApp"||work_assessment=="Summary"||work_assessment=="Alert"||triage=="Alert"||triage=="CritApp"||triage=="Summary"	q		Describe the results. For comparisons of randomized trials, use the appraoch % vs. % outcome (p = #, NNT #) if appropriate. Calcuate NNT and NNH when appropriate. Limit results to the clinically useful outcomes.  Also consider adverse events which may not be reported in the abstract. If reporting on diagnostic studies, include positive and negative predictive values if appropriate. These may need to be calculated.	memo
+comment_need	comment_need		1	]		Would you like to enter any additional commentary?	radio|"Yes"|Yes|"No"|No
+comment	comment		comment_need=="Yes"	q		Enter any other information that is pertinent in evaluating the article, including commentary or criticism of your own.  Do not add commentary if you have nothing important to add.	memo
+bottom_line	bottom_line		work_assessment=="Alert"||work_assessment=="CritApp"||work_assessment=="Summary"||triage=="Alert"||triage=="CritApp"||triage=="Summary"	q		Please state the bottom-line as briefly as possible.  Try to avoid descriptions of methodolgy and disease-oriented outcomes in the bottom-line summary if possible.  Full sentences are not necessary.	memo
+COMMENT							
+COMMENT							
+COMMENT							
+report_1	report_1		triage=="undecided"	[		Here is a report of the assessment you made of this article:<BR> <B>Title: </B> `Article_title`	nothing
+COMMENT							
+report_2	report_2		triage=="undecided"	q		<B>Population studied: </B>`population`	nothing
+report_3	report_3		triage=="undecided"	q		<B>Outcome: </B>`outcome`	nothing
+report_4	report_4		triage=="undecided"	q		<B>Type of Conclusion: </B>`conclusion_type`	nothing
+COMMENT							
+COMMENT							
+report_5a	report_5a		conclusion_type=="treatment"||conclusion_type=="etiology"||conclusion_type=="prevention"||conclusion_type=="screening"	q		<B>Method used: </B>`methodology`	nothing
+report_5b	report_5b		conclusion_type=="diagnosis"	q		<B>Method used: </B>`method_Dx`	nothing
+report_5c	report_5c		conclusion_type=="prognosis"	q		<B>Method used: </B>`method_Prog`	nothing
+report_5d	report_5d		conclusion_type=="other"	q		<B>Method used: </B>`method_other`	nothing
+report_6	report_6		triage=="undecided"	q		<B>How common is the "problem" or "population" being addressed? </B>`Rele1`	nothing
+COMMENT							
+report_8	report_8		triage=="undecided"	q		<B>How feasible is the "intervention" being addressed? </B>`Rele3`	nothing
+COMMENT							
+New	report_9		triage=="undecided"	q		<B>Is this "new" information? </B>`New`	nothing
+outcome_type	report_10		triage=="undecided"	q		<B>Outcome type: </B>`outcome_type`	nothing
+relevance	reportREL		triage=="undecided"	q		<B>How relevant is this study for a community medical knowledgebase? </B>`relevance`	nothing
+COMMENT							
+Val1	reportVal1		triage=="undecided"	q		<B>Did the study used the best level of evidence? </B>`Val1`	nothing
+Val2	reportVal2		triage=="undecided"	q		<B>Did the study use the best available level of evidence? </B>`Val2`	nothing
+Val3	reportVal3		triage=="undecided"	q		<B>How large is this study? </B>`Val3`	nothing
+COMMENT							
+Val1fail	reportVal1fail		Val1=="Yes"&&!((((conclusion_type=="treatment"||conclusion_type=="etiology"||conclusion_type=="prevention"||conclusion_type=="screening")&&methodology=="rct")||(conclusion_type=="diagnosis"&&method_Dx=="Dx_best")||(conclusion_type=="prognosis"&&method_Prog=="cohort"))||methodology=="systematic_review"||method_Dx=="systematic_review"||method_Prog=="systematic_review"||conclusion_type=="other")	q		You suggested this article used the most valid study type (level 1 evidence) to address its conclusion.	nothing
+Val2check	reportVal2check		Val1=="no"&&(((conclusion_type=="treatment"||conclusion_type=="etiology"||conclusion_type=="prevention"||conclusion_type=="screening")&&methodology=="rct")||(conclusion_type=="diagnosis"&&method_Dx=="Dx_best")||(conclusion_type=="prognosis"&&method_Prog=="cohort"))	q		You suggested this article did not use the most valid study type (level 1 evidence) to address its conclusion.	nothing
+COMMENT							
+validity	reportVAL		triage=="undecided"	q		<B>How valid is this study? </B>`validity`	nothing
+work_assessment	reportWA		triage=="undecided"	]		<B>How much work is warranted in summarizing this study? </B>`work_assessment`	nothing
+
+COMMENT							
+rep1	rep1		StudyType==2||StudyType==3||StudyType==4||StudyType==5||StudyType==6||StudyType==7||StudyType==8	[		<B>Here is a report of the assessment you made of the article<BR>"`Article_title`"</B>:	nothing
+
+
+
+
+
+
+
+
+
+
+
+rep6	rep6		StudyType==2||StudyType==3||StudyType==4||StudyType==5||StudyType==6||StudyType==7||StudyType==8	q		<B>VALIDITY:</B>	nothing
+rep7	rep7		StudyType==2	q		<B>Was it a controlled trial and were the subjects randomly assigned?</B> `random`	nothing
+rep9	rep9		StudyType==2	q		<B>Are the patients in the study so dissimilar to yours that the results do not apply?</B> `similar`	nothing
+rep10	rep10		StudyType==2	q		<B>Were steps taken to conceal the treatment assignment from study personnel?</B> `conceal`	nothing
+rep11	rep11		StudyType==2	q		<B>Were all patients who entered the trial properly accounted for at its conclusion?</B> `FU`	nothing
+rep12	rep12		StudyType==2	q		<B>Were patients analyzed in the groups to which they were randomized?</B> `analysis`	nothing
+rep13	rep13		StudyType==2	q		<B>Were patients, clinicians, and study personnel "blind" to treatment?</B> `blind`	nothing
+rep14	rep14		StudyType==2	q		<B>Were the intervention and control groups similar at the start of the trial?</B> `control`	nothing
+rep15	rep15		StudyType==2	q		<B>Were there other factors that might have affected the outcome?</B> `factors`	nothing
+COMMENT							
+rep15a	rep15a		StudyType==3	q		<B>Did the review explicitly address a sensible clinical question?</B> `question3`	nothing
+rep16	rep16		StudyType==3	q		<B>Were the methods used to locate relevant studies comprehensive and clearly stated?</B> `methods3`	nothing
+rep16b	rep16b		StudyType==3	q		<B>Were explicit methods used to select studies to include in the overview?</B> `explicit3`	nothing
+rep16d	rep16d		StudyType==3	q		<B>Was the validity of the original studies included in the overview appropriately assessed?</B> `validity3`	nothing
+rep16ea	rep16ea		StudyType==3	q		<B>Were the primary studies of high methodologic quality?</B> `quality3`	nothing
+rep16f	rep16f		StudyType==3	q		<B>Was the assessment of the relevance and validity of the original studies reproducible and free from bias?</B> `assess3`	nothing
+rep16g	rep16g		StudyType==3	q		<B>Was variation between the results of the relevant studies analyzed?</B> `variation3`	nothing
+rep16h	rep16h		StudyType==3	q		<B>Were the results combined appropriately?</B> `results3`	nothing
+COMMENT							
+rep16k	rep16k		StudyType==4	q		<B>Was an "inception cohort" assembled?</B> `cohort4`	nothing
+rep16m	rep16m		StudyType==4	q		<B>Were the criteria for entry into the study objective and reasonable?</B> `criteria4`	nothing
+rep16o	rep16o		StudyType==4	q		<B>Was follow-up of subjects adequate?</B> `fu4`	nothing
+rep16s	rep16s		StudyType==4	q		<B>Where did the subjects come from--was the referral pattern specified?</B> `referral4`	nothing
+rep16sa	rep16sa		StudyType==4	q		<B>Was the sample of patients representative?</B> `sample4`	nothing
+rep16sb	rep16sb		StudyType==4	q		<B>Were the patients sufficiently homogeneous with respect to prognostic risk?</B> `assess4`	nothing
+rep16t	rep16t		StudyType==4	q		<B>Were outcomes assessed objectively and blindly?</B> `outcomes4`	nothing
+COMMENT							
+rep16w	rep16w		StudyType==5	q		<B>Was the new test compared with an acceptable "gold standard" test?</B> `gold5`	nothing
+rep16x	rep16x		StudyType==5	q		<B>Were both tests applied in a uniformly blind manner?</B> `blind5`	nothing
+rep16za	rep16za		StudyType==5	q		<B>Did clinicians face diagnostic uncertainty?</B> `face5`	nothing
+rep16aa	rep16aa		StudyType==5	q		<B>Did the results of the test being evaluated influence the decision to perform the reference standard?</B> `eval5`	nothing
+rep16ab	rep16ab		StudyType==5	q		<B>Did the results of the reference standard influence the handling of the test being evaluated?</B> `eval5a`	nothing
+COMMENT							
+rep17d	rep17d		StudyType==6	q		<B>Were there any potentially important differences between the groups other than the exposure being studied?</B> `differences6`	nothing
+rep17e	rep17e		StudyType==6	q		<B>Did the investigators demonstrate similarity in all known determinants of outcome? If not, did they adjust for differences in the analysis?</B> `similar6`	nothing
+rep17f	rep17f		StudyType==6	q		<B>Were exposed patients equally likely to be identified in the two groups?</B> `exposed6`	nothing
+rep17h	rep17h		StudyType==6	q		<B>Were the outcomes measured in the same way in the groups being compared?</B> `outcomes6`	nothing
+rep17ha	rep17ha		StudyType==6	q		<B>Were the groups being compared treated differently other than with respect to the exposure of interest?</B> `treat6`	nothing
+rep17i	rep17i		StudyType==6	q		<B>Was follow-up sufficiently complete?</B> `fu6`	nothing
+rep24d	rep24d		StudyType==6	q		<B>Was the duration of follow-up adequate?</B> `duration6`	nothing
+COMMENT							
+rep17j	rep17j		StudyType==7	q		<B>Were all important strategies and outcomes included?</B> `all7`	nothing
+rep17k	rep17k		StudyType==7	q		<B>Was an explicit and sensible process used to identify, select, and combine the evidence into probabilities? Is the evidence strong enough?</B> `explicit7`	nothing
+rep17l	rep17l		StudyType==7	q		<B>Were the utilities (costs) obtained in an explicit and sensible way from credible sources?</B> `costs7`	nothing
+COMMENT							
+rep17o	rep17o		StudyType==8	q		<B>Was the appropriate method used to answer the question?</B> `method8`	nothing
+rep17q	rep17q		StudyType==8	q		<B>Was appropriate and adequate sampling used to get the best information?</B> `sample8`	nothing
+rep17r	rep17r		StudyType==8	q		<B>Was an iterative process of collecting information used?</B> `collect8`	nothing
+rep17s	rep17s		StudyType==8	q		<B>Was a thorough analysis presented?</B> `analysis8`	nothing
+rep17t	rep17t		StudyType==8	q		<B>Are the background and training of the investigators described?</B> `train8`	nothing
+COMMENT							
+Title5	Title5		StudyType==2||StudyType==3||StudyType==4||StudyType==5||StudyType==6||StudyType==7||StudyType==8	q		<B>RESULTS: </B>	nothing
+rep17	rep17		StudyType==2||StudyType==3||StudyType==4||StudyType==5||StudyType==6	q		<B>Did the trial show a significant treatment effect?</B> `effect`	nothing
+rep20e	rep20e		(effect=="Yes"||effect=="Unsure")&&StudyType==6	q		<B>How strong is the association between exposure and outcome?</B> `exposure6`	nothing
+rep21e	rep21e		(effect=="Yes"||effect=="Unsure")&&StudyType==6	q		<B>How precise is the estimate of the effect/risk?</B> `precise6`	nothing
+rep20	rep20		(effect=="Yes"||effect=="Unsure")&&StudyType==2	q		<B>How many patients need to be treated for one to benefit?</B> `number`	nothing
+rep21	rep21		(effect=="Yes"||effect=="Unsure")&&StudyType==2	q		<B>How precise is the estimate of the treatment effect?</B> `precision`	nothing
+rep21a	rep21a		StudyType==3	q		<B>Were the results similar from study to study?</B> `study3`	nothing
+rep21b	rep21b		StudyType==3	q		<B>What are the overall results of the review?</B> `precise3`	nothing
+rep21c	rep21c		StudyType==3	q		<B>How precise were the results?</B> `strong3`	nothing
+rep21ca	rep21ca		StudyType==4	q		<B>How likely are the outcomes over time?</B> `likely4`	nothing
+rep21cb	rep21cb		StudyType==4	q		<B>How precise are the estimates of likelihood?</B> `precise4`	nothing
+rep16z	rep16z		StudyType==5	q		<B>What is the sensitivity value of the test?</B> `sens5`	nothing
+rep17a	rep17a		StudyType==5	q		<B>What is the specificity value of the test?</B> `spec5`	nothing
+rep17b	rep17b		StudyType==5	q		<B>What is the positive predictive value of the test?</B> `pred5`	nothing
+rep17ba	rep17ba		StudyType==5	q		<B>What is the negative predictive value of the test?</B> `npred5`	nothing
+rep17bb	rep17bb		StudyType==5	q		<B>What positive likelihood ratio was associated with the range of possible test results?</B> `lr1`	nothing
+rep17bc	rep17bc		StudyType==5	q		<B>What negative likelihood ratio was associated with the range of possible test results?</B> `lr2`	nothing
+rep24ba	rep24ba		StudyType==7||StudyType==8	q		<B>What are the overall results?</B> `overall7`	nothing
+rep17m	rep17m		StudyType==7	q		<B>Was the potential impact of any uncertainty in the evidence determined?</B> `impact7`	nothing
+rep17n	rep17n		StudyType==7	q		<B>How strong is the evidence used in the analysis? Could the uncertainty in the evidence change the result? How much does allowance for uncertainty change the results?</B> `strong7`	nothing
+rep17na	rep17na		StudyType==7	q		<B>Are results reported separately for patients whose baseline risks differ?</B> `separate7`	nothing
+rep18	rep18		effect=="No"	q		<B>Was the power of the study adequate?</B> `negative`	nothing
+rep19	rep19		effect=="Yes"||effect=="Unsure"	q		<B>Are the results clinically as well as statistically significant?</B> `significance`	nothing
+COMMENT							
+App	App		StudyType==2||StudyType==3||StudyType==4||StudyType==5||StudyType==6||StudyType==7||StudyType==8	q		<B>APPLICATION: </B>	nothing
+repApply	repApply		work_assessment=="Alert"||work_assessment=="CritApp"||triage=="Alert"||triage=="CritApp"	q		<B>Similar to practice?</B>`patients`	nothing
+rep23	rep23		StudyType==2||type3==2	q		<B>Were all clinically relevant outcomes considered?</B> `clinical_relevance`	nothing
+rep24	rep24		StudyType==2||type3==2	q		<B>Are the benefits worth the harms and costs?</B> `benefits`	nothing
+rep24a2	rep24a2		StudyType==4||type3==4||StudyType==2||type3==2	q		<B>Was follow-up sufficiently long?</B> `long4`	nothing
+rep17c	rep17c		StudyType==5||type3==5	q		<B>In terms of prevalence of the disease, are the study subjects similar to your patients?</B> `prev5`	nothing
+rep16y	rep16y		StudyType==5||type3==5	q		<B>Is the new test reasonable? What are its limitations?</B> `limits5`	nothing
+rep16ya	rep16ya		StudyType==5||type3==5	q		<B>Will the reproducibility of the test result and its interpretation be satisfactory in your clinical setting?</B> `reprod5`	nothing
+rep16yd	rep16yd		StudyType==5||type3==5	q		<B>Will patients be better off as a result of the test?</B> `better5`	nothing
+rep24e	rep24e		StudyType==6	q		<B>What was the absolute magnitude of the risk?</B> `risk6`	nothing
+rep24f	rep24f		StudyType==6	q		<B>Should you attempt to stop the exposure?</B> `stop6`	nothing
+rep24fa	rep24fa		StudyType==7||type3==7	q		<B>Are the treatment benefits worth the risks and costs?</B> `cost7`	nothing
+rep24fb	rep24fb		StudyType==7||type3==7	q		<B>Can you expect similar cost prevalences and outcomes in your setting?</B> `expect7`	nothing
+rep22	rep22		work_assessment=="Alert"||work_assessment=="CritApp"||triage=="Alert"||triage=="CritApp"	q		<B>Can the results be applied to your patients?</B> `patient_care`	nothing
+repstrat	repstrat		work_assessment=="Alert"||work_assessment=="CritApp"||triage=="Alert"||triage=="CritApp"	]		<B>change practice?</B>`strategy`	nothing
+
+COMMENT							
+COMMENT							
+COMMENT							
+reportA	reportA		1	[		Article summary report for `Article_title`	nothing
+reportBB	reportBB		!(triage=="undecided")	q		<B>Assessment of required work: </B>`triage`	nothing
+reportB	reportB		triage=="undecided"	q		<B>Assessment of required work: </B>`work_assessment`	nothing
+
+reportD	reportD		work_assessment=="Alert"||work_assessment=="CritApp"||work_assessment=="Summary"||triage=="Alert"||triage=="CritApp"||triage=="Summary"	q		Here is a report of your summarization of the article:  <BR><BR>`"Bottom-line:  " . bottom_line `<BR><BR>`"Methods:  " . summary_method`<BR><BR>`"Results:  " . summary_results`	nothing
+reportE	reportE		work_assessment=="One-liner"||triage=="One-liner"	q		Here is a report of your summarization of the article:  <BR><BR>`summary4`	nothing
+reportF	reportF		work_assessment=="Catalog"||triage=="Catalog"	q		Here is a report of your summarization of the article:  <BR><BR>`summary5`	nothing
+reportG	reportG		comment_need=="Yes"	]		Additional commentary:  <BR><BR>`comment`	nothing
+COMMENT							
+end	end		1	q		The end. Close the window and restart to review another article.	nothing
