@@ -43,4 +43,6 @@ class Value implements VersionIF {
 		datum = new Datum(d,datum.getName());
 	}
 	public Datum getDatum() { return datum; }
+	public boolean isReserved() { return (reserved >= 0); }
+	public int getReservedNum() { return reserved; }
 }
