@@ -21,7 +21,7 @@ import java.io.InputStream;
 	/*public*/ static final Logger NULL = new Logger(null,null,true);
 
 	private static PrintWriter STDERR = null;
-	private static String STDERR_DIR = "/usr/local/triceps/logs/";
+	private static String STDERR_DIR = "/usr/local/dialogix/logs/";
 	static final String STDERR_NAME = STDERR_DIR + "Triceps.log.err";
 
 	static {
