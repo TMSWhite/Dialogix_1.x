@@ -60,7 +60,9 @@ if (DEBUG) Logger.writeln("##TokenMgrError @ Qss.parse()" + e.getMessage());
         private void storeUndo(String tokenName) {
                 Object val = undoInfo.get(tokenName);
                 if (val == null) {
+                	try {
                         undoInfo.put(tokenName,triceps.getEvidence().getDatum(tokenName));      // store original value mapped to name
+                    } catch (NullPointerException e) { /* ignore it */ }
                 }
         }
 
