@@ -114,10 +114,12 @@ public class Node implements VersionIF  {
 		String token;
 		int field = 0;
 
+if (AUTHORABLE) {
 		if (numLanguages < 1) {
 			setParseError(triceps.get("numLanguages_must_be_greater_than_zero") + numLanguages);
 			numLanguages = 1;	// the default
 		}
+}
 
 		this.sourceLine = sourceLine;
 		this.sourceFile = sourceFile;
@@ -163,11 +165,11 @@ public class Node implements VersionIF  {
 					}
 					catch (NumberFormatException t) {
 if (DEBUG) Logger.writeln("##NumberFormatException @ Node.languageNum" + t.getMessage());
-						setParseError(triceps.get("languageNum_must_be_an_integer") + t.getMessage());
+if (AUTHORABLE) 		setParseError(triceps.get("languageNum_must_be_an_integer") + t.getMessage());
 						i = 0; // default language
 					}
 					if (i < 0 || i >= numLanguages) {
-						setParseError(triceps.get("languageNum_must_be_in_range_zero_to") + (numLanguages - 1) + "): " + i);
+if (AUTHORABLE)			setParseError(triceps.get("languageNum_must_be_in_range_zero_to") + (numLanguages - 1) + "): " + i);
 						i = 0;	// default language
 					}
 					answerLanguageNum = i;
@@ -180,10 +182,10 @@ if (DEBUG) Logger.writeln("##NumberFormatException @ Node.languageNum" + t.getMe
 				default: break;	// ignore extras
 			}
 		}
-		if (dependencies == null || dependencies.trim().length() == 0) {
+if (AUTHORABLE) {
+   		if (dependencies == null || dependencies.trim().length() == 0) {
 			setParseError(triceps.get("dependencies_column_is_missing"));
 		}
-
 		if (conceptName != null && conceptName.trim().length() > 0) {
 			conceptName = conceptName.trim();
 			if (Character.isDigit(conceptName.charAt(0))) {
@@ -203,21 +205,26 @@ if (DEBUG) Logger.writeln("##NumberFormatException @ Node.languageNum" + t.getMe
 		}
 		else {
 //			setNamingError(triceps.get("localName_must_be_specified"));
-		}
+	}
+}
 
 		parseQuestionOrEvalTypeField();
 
-		if (questionOrEvalType == BADTYPE) {
+if (AUTHORABLE) {
+   		if (questionOrEvalType == BADTYPE) {
 			setParseError(triceps.get("invalid_questionOrEvalType") + questionOrEvalTypeField);
 		}
+}
 
 		for (int i=0;i<answerChoicesStr.size();++i) {
 			parseAnswerOptions(i,(String) answerChoicesStr.elementAt(i));
 		}
 
-		if (datumType == Datum.INVALID) {
+if (AUTHORABLE) {
+  		if (datumType == Datum.INVALID) {
 			setParseError(triceps.get("invalid_dataType"));
 		}
+}
 	}
 
 	public String fixExcelisms(String s) {
@@ -248,10 +255,12 @@ if (DEBUG) Logger.writeln("##NumberFormatException @ Node.languageNum" + t.getMe
 		StringTokenizer ans;
 		int z;
 
-		if (questionOrEvalTypeField == null) {
+if (AUTHORABLE) {
+   		if (questionOrEvalTypeField == null) {
 			setParseError(triceps.get("questionOrEvalTypeField_must_exist"));
 			return;
 		}
+}
 
 		ans = new StringTokenizer(questionOrEvalTypeField,";",true);	// return ';' tokens too
 
@@ -276,10 +285,12 @@ if (DEBUG) Logger.writeln("##NumberFormatException @ Node.languageNum" + t.getMe
 				case 1:
 					datumTypeStr = s;
 					datumType = Datum.parseDatumType(s);
-					if (datumType == -1) {
+if (AUTHORABLE) {
+   					if (datumType == -1) {
 						setParseError(triceps.get("invalid_dataType") + datumTypeStr);
 						datumType = Datum.INVALID;
 					}
+}
 					break;
 				case 2:
 					minStr = s;
@@ -365,10 +376,12 @@ if (DEBUG) Logger.writeln("##NumberFormatException @ Node.languageNum" + t.getMe
 
 	private boolean parseAnswerOptions(int langNum, String src) {
 		/* Need to make sure that the answer type, order of answers, and internal values of answers are the same across all languages */
-		if (src == null) {
+if (AUTHORABLE) {
+   		if (src == null) {
 			setParseError(triceps.get("answerOptions_column_missing"));
 			return false;
 		}
+}
 
 		StringTokenizer ans = new StringTokenizer(src,"|",true);	// return '|' tokens too
 		String token = "";
@@ -379,7 +392,7 @@ if (DEBUG) Logger.writeln("##NumberFormatException @ Node.languageNum" + t.getMe
 		}
 		catch (NoSuchElementException t) {
 if (DEBUG) Logger.writeln("##NoSuchElementException @ Node.parseAnswerOptions" + t.getMessage());
-			setParseError(triceps.get("missing_display_type") + t.getMessage());
+if (AUTHORABLE)	setParseError(triceps.get("missing_display_type") + t.getMessage());
 		}
 
 		if (langNum == 0) {
@@ -391,9 +404,11 @@ if (DEBUG) Logger.writeln("##NoSuchElementException @ Node.parseAnswerOptions" +
 			}
 		}
 		else {
-			if (!QUESTION_TYPES[answerType].equalsIgnoreCase(token)) {
+if (AUTHORABLE) {
+   			if (!QUESTION_TYPES[answerType].equalsIgnoreCase(token)) {
 				setParseError(triceps.get("mismatch_across_languages_in_answerType"));
 			}
+}
 			// don't change the known value for answerType
 		}
 
@@ -401,7 +416,7 @@ if (DEBUG) Logger.writeln("##NoSuchElementException @ Node.parseAnswerOptions" +
 			answerType = NOTHING;	// so no further processing
 		}
 		else if (answerType == BADTYPE) {
-			setParseError(triceps.get("invalid_answerType"));
+if (AUTHORABLE)	setParseError(triceps.get("invalid_answerType"));
 			answerType = NOTHING;
 		}
 
@@ -453,7 +468,7 @@ if (DEBUG) Logger.writeln("##NoSuchElementException @ Node.parseAnswerOptions" +
 								catch (NullPointerException t) { err = true; }
 								catch (ArrayIndexOutOfBoundsException t) { err = true; }
 								if (err) {
-									setParseError(triceps.get("mismatch_across_languages_in_return_value_for_answerChoice_num") + (ansPos-1));
+if (AUTHORABLE)						setParseError(triceps.get("mismatch_across_languages_in_return_value_for_answerChoice_num") + (ansPos-1));
 									val = s2;	// reset it to the previously known return value for consistency (?)
 								}
 							}
@@ -461,25 +476,28 @@ if (DEBUG) Logger.writeln("##NoSuchElementException @ Node.parseAnswerOptions" +
 						case 2: msg = s;
 							field = 0;	// so that cycle between val & msg;
 							if (val == null || msg == null) {
-								setParseError(triceps.get("missing_value_or_message_for_answerChoice_num") + (ansPos-1));
+if (AUTHORABLE)					setParseError(triceps.get("missing_value_or_message_for_answerChoice_num") + (ansPos-1));
 							}
 							else {
 								AnswerChoice ac = new AnswerChoice(val,msg);
 								ansOptions.addElement(ac);
 
-								/* check for duplicate answer choice values */
+				 				/* check for duplicate answer choice values */
+if (AUTHORABLE) {
 								if (langNum == 0) {	// only for first pass
 									if (answerChoicesHash.put(val, ac) != null) {
-										setParseError(triceps.get("answerChoice_value_already_used") + val);
+            							setParseError(triceps.get("answerChoice_value_already_used") + val);
 									}
 								}
+}
 							}
 							val = null;
 							msg = null;
 							break;
 					}
 				}
-				if (ansOptions.size() == 0) {
+if (AUTHORABLE) {
+   				if (ansOptions.size() == 0) {
 					setParseError(triceps.get("answerChoices_must_be_specified"));
 				}
 				if (field == 1) {
@@ -490,6 +508,7 @@ if (DEBUG) Logger.writeln("##NoSuchElementException @ Node.parseAnswerOptions" +
 						setParseError(triceps.get("mismatch_across_languages_in_number_of_answerChoices") + prevAnsOptions.size() + " != " + ansOptions.size());
 					}
 				}
+}
 				answerChoicesVector.addElement(ansOptions);
 				break;
 			default:
@@ -800,7 +819,17 @@ if (DEBUG) Logger.writeln("##NoSuchElementException @ Node.parseAnswerOptions" +
 
 
 	public String toTSV() {
-		StringBuffer sb = new StringBuffer(conceptName + "\t" + localName + "\t" + externalName + "\t" + dependencies + "\t" + questionOrEvalTypeField);
+	    StringBuffer sb = new StringBuffer();
+if (AUTHORABLE) {
+		sb.append(conceptName);
+		sb.append("\t");
+		sb.append(localName);
+		sb.append("\t");
+		sb.append(externalName);
+		sb.append("\t");
+		sb.append(dependencies);
+		sb.append("\t");
+		sb.append(questionOrEvalTypeField);
 
 		for (int i = 0;i<numLanguages;++i) {
 			try { sb.append("\t"); sb.append(readback.elementAt(i)); } catch (ArrayIndexOutOfBoundsException e) { }
@@ -808,6 +837,7 @@ if (DEBUG) Logger.writeln("##NoSuchElementException @ Node.parseAnswerOptions" +
 			try { sb.append("\t"); sb.append(answerChoicesStr.elementAt(i)); } catch (ArrayIndexOutOfBoundsException e) { }
 			try { sb.append("\t"); sb.append(helpURL.elementAt(i)); } catch (ArrayIndexOutOfBoundsException e) { }
 		}
+}
 		return sb.toString();
 	}
 
@@ -884,10 +914,12 @@ if (DEBUG) Logger.writeln("##NoSuchElementException @ Node.parseAnswerOptions" +
 	public String getQuestionOrEval() { return getQuestionOrEval(answerLanguageNum); }
 
 	public String getQuestionOrEval(int langNum) {
-		if (langNum < 0 || langNum >= numLanguages) {
+if (AUTHORABLE) {
+   		if (langNum < 0 || langNum >= numLanguages) {
 			setParseError("languageNum must be in range (0 - " + (numLanguages - 1) + "): " + langNum);
 			return getValueAt(questionOrEval, answerLanguageNum);
 		}
+}
 		return getValueAt(questionOrEval, langNum);
 	}
 
@@ -904,10 +936,12 @@ if (DEBUG) Logger.writeln("##NoSuchElementException @ Node.parseAnswerOptions" +
 	public String getComment() { return comment; }
 
 	public void setAnswerLanguageNum(int langNum) {
-		if (langNum < 0 || langNum >= numLanguages) {
+if (AUTHORABLE) {
+   		if (langNum < 0 || langNum >= numLanguages) {
 			setParseError("languageNum must be in range (0 - " + (numLanguages - 1) + "): " + langNum);
 			return;
 		}
+}
 		answerLanguageNum = langNum;
 	}
 	public int getAnswerLanguageNum() { return answerLanguageNum; }
