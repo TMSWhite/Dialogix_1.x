@@ -5,8 +5,7 @@ import java.text.Format;
 /** This class provides the basic logic and mathematical functions for relating objects of type datum. */
 public class DatumMath {
 	private static final Format MONTH_AS_NUM_MASK = Datum.buildMask("M",Datum.MONTH);
-	private static GregorianCalendar arg1 = new GregorianCalendar();
-	private static GregorianCalendar arg2 = new GregorianCalendar();	
+//	private static GregorianCalendar calendar = new GregorianCalendar();
 	
 	static Datum hasError(Datum a, Datum b) {
 		if (a.isType(Datum.INVALID) || (b != null && b.isType(Datum.INVALID))) {
@@ -22,17 +21,26 @@ public class DatumMath {
 		return null;	// to indicate that there is no error that needs propagating
 	}
 	
-	static int getCalendarField(int datumType) {
+	static int getCalendarField(Datum d, int datumType) {
+		int field;
+		int value;
+		GregorianCalendar calendar = new GregorianCalendar();
+		
 		switch (datumType) {
-			case Datum.YEAR: return Calendar.YEAR;
-			case Datum.MONTH: return Calendar.MONTH;
-			case Datum.DAY: return Calendar.DAY_OF_MONTH;
-			case Datum.WEEKDAY: return Calendar.DAY_OF_WEEK;
-			case Datum.HOUR: return Calendar.HOUR_OF_DAY;
-			case Datum.MINUTE: return Calendar.MINUTE;
-			case Datum.SECOND: return Calendar.SECOND;
-			default: return -1;	// should never get here
+			case Datum.YEAR: field = Calendar.YEAR; break;
+			case Datum.MONTH: field = Calendar.MONTH; break;
+			case Datum.DAY: field = Calendar.DAY_OF_MONTH; break;
+			case Datum.WEEKDAY: field = Calendar.DAY_OF_WEEK; break;
+			case Datum.HOUR: field = Calendar.HOUR_OF_DAY; break;
+			case Datum.MINUTE: field = Calendar.MINUTE; break;
+			case Datum.SECOND: field = Calendar.SECOND; break;
+			default: return 0;	// should never get here
 		}
+//		synchronized (calendar) {
+			calendar.setTime(d.dateVal());
+			value = calendar.get(field);
+//		}
+		return value;
 	}
 
 	/** This method returns the sum of two Datum objects of type double. */
@@ -127,14 +135,8 @@ public class DatumMath {
 				case Datum.DAY:
 				case Datum.HOUR:
 				case Datum.MINUTE:
-				case Datum.SECOND: {
-					int field = DatumMath.getCalendarField(a.type());
-					
-					arg1.setTime(a.dateVal());
-					arg2.setTime(b.dateVal());
-					
-					return new Datum(arg1.get(field) == arg2.get(field));
-				}
+				case Datum.SECOND: 
+					return new Datum(DatumMath.getCalendarField(a,a.type()) == DatumMath.getCalendarField(b,a.type()));
 				case Datum.STRING:
 					return new Datum(a.stringVal().compareTo(b.stringVal()) == 0);
 				case Datum.NUMBER:
@@ -150,7 +152,7 @@ public class DatumMath {
 	 * This method returns a Datum of type boolean upon comparing two Datum objects of type String or double for
 	 * greater than or equal.
 	 */
-	static synchronized Datum ge(Datum a, Datum b) {
+	static Datum ge(Datum a, Datum b) {
 		Datum d = DatumMath.hasError(a,b);
 		if (d != null)
 			return d;
@@ -169,14 +171,8 @@ public class DatumMath {
 				case Datum.DAY:
 				case Datum.HOUR:
 				case Datum.MINUTE:
-				case Datum.SECOND: {
-					int field = DatumMath.getCalendarField(a.type());
-					
-					arg1.setTime(a.dateVal());
-					arg2.setTime(b.dateVal());
-					
-					return new Datum(arg1.get(field) >= arg2.get(field));
-				}
+				case Datum.SECOND: 
+					return new Datum(DatumMath.getCalendarField(a,a.type()) >= DatumMath.getCalendarField(b,a.type()));
 				case Datum.STRING:
 					return new Datum(a.stringVal().compareTo(b.stringVal()) >= 0);
 				case Datum.NUMBER:
@@ -191,7 +187,7 @@ public class DatumMath {
 	/**
 	 * This method returns a Datum of type boolean upon comparing two Datum objects of type String or double for greater than.
 	 */
-	static synchronized Datum gt(Datum a, Datum b) {
+	static Datum gt(Datum a, Datum b) {
 		Datum d = DatumMath.hasError(a,b);
 		if (d != null)
 			return d;
@@ -209,14 +205,8 @@ public class DatumMath {
 				case Datum.DAY:
 				case Datum.HOUR:
 				case Datum.MINUTE:
-				case Datum.SECOND: {
-					int field = DatumMath.getCalendarField(a.type());
-					
-					arg1.setTime(a.dateVal());
-					arg2.setTime(b.dateVal());
-					
-					return new Datum(arg1.get(field) > arg2.get(field));
-				}
+				case Datum.SECOND: 
+					return new Datum(DatumMath.getCalendarField(a,a.type()) > DatumMath.getCalendarField(b,a.type()));
 				case Datum.STRING:
 					return new Datum(a.stringVal().compareTo(b.stringVal()) > 0);
 				case Datum.NUMBER:
@@ -232,7 +222,7 @@ public class DatumMath {
 	 * This method returns a Datum of type boolean upon comparing two Datum objects of type String or double for
 	 * less than or equal.
 	 */
-	static synchronized Datum le(Datum a, Datum b) {
+	static Datum le(Datum a, Datum b) {
 		Datum d = DatumMath.hasError(a,b);
 		if (d != null)
 			return d;
@@ -251,14 +241,8 @@ public class DatumMath {
 				case Datum.DAY:
 				case Datum.HOUR:
 				case Datum.MINUTE:
-				case Datum.SECOND: {
-					int field = DatumMath.getCalendarField(a.type());
-					
-					arg1.setTime(a.dateVal());
-					arg2.setTime(b.dateVal());
-					
-					return new Datum(arg1.get(field) <= arg2.get(field));
-				}
+				case Datum.SECOND: 
+					return new Datum(DatumMath.getCalendarField(a,a.type()) <= DatumMath.getCalendarField(b,a.type()));
 				case Datum.STRING:
 					return new Datum(a.stringVal().compareTo(b.stringVal()) <= 0);
 				case Datum.NUMBER:
@@ -271,7 +255,7 @@ public class DatumMath {
 		return new Datum(false);
 	}
 	/** This method returns a Datum of type boolean upon comparing two Datum objects of type String or double for less than. */
-	static synchronized Datum lt(Datum a, Datum b) {
+	static Datum lt(Datum a, Datum b) {
 		Datum d = DatumMath.hasError(a,b);
 		if (d != null)
 			return d;
@@ -289,14 +273,8 @@ public class DatumMath {
 				case Datum.DAY:
 				case Datum.HOUR:
 				case Datum.MINUTE:
-				case Datum.SECOND: {
-					int field = DatumMath.getCalendarField(a.type());
-					
-					arg1.setTime(a.dateVal());
-					arg2.setTime(b.dateVal());
-					
-					return new Datum(arg1.get(field) < arg2.get(field));
-				}
+				case Datum.SECOND: 
+					return new Datum(DatumMath.getCalendarField(a,a.type()) < DatumMath.getCalendarField(b,a.type()));
 				case Datum.STRING:
 					return new Datum(a.stringVal().compareTo(b.stringVal()) < 0);
 				case Datum.NUMBER:
@@ -341,7 +319,7 @@ public class DatumMath {
 	 * This method returns a Datum of type boolean, value true, if two Datum objects of type String or double are not equal
 	 * or value false if equal.
 	 */
-	static synchronized Datum neq(Datum a, Datum b) {
+	static Datum neq(Datum a, Datum b) {
 		Datum d = DatumMath.hasError(a,b);
 		if (d != null)
 			return d;
@@ -359,14 +337,8 @@ public class DatumMath {
 				case Datum.DAY:
 				case Datum.HOUR:
 				case Datum.MINUTE:
-				case Datum.SECOND: {
-					int field = DatumMath.getCalendarField(a.type());
-					
-					arg1.setTime(a.dateVal());
-					arg2.setTime(b.dateVal());
-					
-					return new Datum(arg1.get(field) != arg2.get(field));
-				}
+				case Datum.SECOND: 
+					return new Datum(DatumMath.getCalendarField(a,a.type()) != DatumMath.getCalendarField(b,a.type()));
 				case Datum.STRING:
 					return new Datum(a.stringVal().compareTo(b.stringVal()) != 0);
 				case Datum.NUMBER:
