@@ -45,7 +45,7 @@ public class TricepsServlet extends HttpServlet implements VersionIF {
 		tricepsEngine = null;	// reset it in case of error page
 		try {
 			if (isSupportedBrowser(req)) {
-				okPage(req,res,null);
+				okPage(req,res);
 			}
 			else {
 				errorPage(req,res);
@@ -87,7 +87,7 @@ if (DEBUG) Logger.printStackTrace(t);
 		}
 	}
 
-	void okPage(HttpServletRequest req, HttpServletResponse res, String hiddenLoginToken) {
+	private void okPage(HttpServletRequest req, HttpServletResponse res) {
 		HttpSession session = req.getSession(true);
 		
 		if (session.isNew()) {
@@ -121,7 +121,7 @@ if (DEBUG) Logger.printStackTrace(t);
 			res.setContentType("text/html");
 			PrintWriter out = res.getWriter();
 			
-			tricepsEngine.doPost(req,res,out,hiddenLoginToken);
+			tricepsEngine.doPost(req,res,out,null,null);
 			
 			out.close();
 			out.flush();

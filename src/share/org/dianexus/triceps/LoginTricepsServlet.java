@@ -21,6 +21,9 @@ import java.io.IOException;
 import java.util.Random;
 import java.io.PrintWriter;
 import java.util.Enumeration;
+import java.io.PrintWriter;
+import java.io.BufferedWriter;
+import java.io.FileWriter;
 
 public class LoginTricepsServlet extends TricepsServlet {
 	/* Strings for storing / retrieving state of authentication */
@@ -30,13 +33,16 @@ public class LoginTricepsServlet extends TricepsServlet {
 	static final String LOGIN_IP = "_DlxLIP";
 	static final String LOGIN_USERNAME = "_DlxUname";
 	static final String LOGIN_PASSWORD = "_DlxPass";
+	static final String LOGIN_RECORD = "_DlxLRec";
 	
 	/* Strings serving as messages for login error pages - these should really be JSP */
 	static final String LOGIN_ERR_NO_TOKEN = "Please login";
 	static final String LOGIN_ERR_NEW_SESSION = "Please login";
 	static final String LOGIN_ERR_MISSING_UNAME_OR_PASS = "Please enter both your username and password";
 	static final String LOGIN_ERR_INVALID_UNAME_OR_PASS = "The username or password you entered was incorrect";	/* don't mix so many messages? */
-	static final String LOGIN_ERR_INVALID = "Please login again --  You will resume from where you left off.<br/><br/>(Your login session was invalided either because you accidentaly pressed the browser's back button (instead of the 'prevous' button, or you attempted to use a bookmarked page from the instrument)";
+	static final String LOGIN_ERR_INVALID = "Please login again --  You will resume from where you left off.<br><br>(Your login session was invalided either because you accidentaly pressed the browser's back button (instead of the 'prevous' button, or you attempted to use a bookmarked page from the instrument)";
+	static final String LOGIN_ERR_ALREADY_COMPLETED = "Thank you!  You have already completed this instrument.";
+	static final String LOGIN_ERR_UNABLE_TO_LOAD_FILE = "Please contact the administrator -- the program was unable to load the interview: ";
 	
 	LoginRecords loginRecords = LoginRecords.NULL;
 	static Random random = new Random();
@@ -94,6 +100,7 @@ if (DEBUG) Logger.printStackTrace(t);
 		String loginIP = req.getRemoteAddr();
 		String storedLoginToken = (String) session.getAttribute(LOGIN_TOKEN);
 		String storedIP = (String) session.getAttribute(LOGIN_IP);
+		LoginRecord loginRecord = (LoginRecord) session.getAttribute(LOGIN_RECORD);
 		
 		if (LOGIN_COMMAND_LOGON.equals(loginCommand)) {
 			/* then try to validate this person */
@@ -105,8 +112,8 @@ if (DEBUG) Logger.printStackTrace(t);
 				return;
 			}
 			
-			LoginRecord lr = loginRecords.validateLogin(uname,pass);
-			if (lr == LoginRecord.NULL) {
+			loginRecord = loginRecords.validateLogin(uname,pass);
+			if (loginRecord == LoginRecord.NULL) {
 				/* then invalid */
 				loginPage(req,res,LOGIN_ERR_INVALID_UNAME_OR_PASS);
 				return;
@@ -115,6 +122,7 @@ if (DEBUG) Logger.printStackTrace(t);
 			/* create tokens needed for remainder of processing */
 			storedIP = loginIP;
 			session.setAttribute(LOGIN_IP,storedIP);
+			session.setAttribute(LOGIN_RECORD,loginRecord);	// stores the username/password info for later access
 			storedLoginToken = createLoginToken();
 			loginToken = storedLoginToken;
 			
@@ -125,7 +133,8 @@ if (DEBUG) Logger.printStackTrace(t);
 		/* validate that the session is authenticated */
 					
 		if (loginToken == null || loginToken.trim().equals("") || 
-			storedLoginToken == null || storedLoginToken.trim().equals("")) {
+			storedLoginToken == null || storedLoginToken.trim().equals("") ||
+			loginRecord == null) {
 			/* Then user has not logged in */
 			loginPage(req,res,LOGIN_ERR_NO_TOKEN);
 			return;
@@ -167,6 +176,7 @@ if (DEBUG) Logger.printStackTrace(t);
 	}
 	
 	private boolean loadLoginInfoFile(ServletConfig config) {
+		/* N.B. This approach assumes that a single username / password is never used more than once -- one to one mapping between uname/pass and instrument instance */
 		String s = config.getInitParameter("loginInfoFile");
 		loginRecords = new LoginRecords(s);
 		loginRecords.showValues();
@@ -273,14 +283,101 @@ if (DEBUG) Logger.printStackTrace(t);
 			return "";
 		}
 	}
+	
+	void okPage(HttpServletRequest req, HttpServletResponse res, String hiddenLoginToken) {
+		HttpSession session = req.getSession(true);	// must alreay exist by this stage
+		
+		sessionID = session.getId();
+		String fullSessionID = TRICEPS_ENGINE + "." + sessionID;
+		String restoreFile = null;	// means that the file has already been loaded.  If non-null, asks the system to load it.
+		
+		tricepsEngine = (TricepsEngine) session.getAttribute(fullSessionID);
+		
+		
+		/* Now ensure that using proper instrument for this authenticated subject */
+		LoginRecord loginRecord = (LoginRecord) session.getAttribute(LOGIN_RECORD);	// can't be null here		
+		
+		/* Can I assume that once the tricepsEngine is active, that the proper instrument will have been loaded? */
+		if (tricepsEngine == null) {
+			/* different behavior based upon the status of this instance of the interview */
+			if (loginRecord.isCompleted()) {
+				/* if completed, give the option to sign on as someone else */
+				loginPage(req,res,LOGIN_ERR_ALREADY_COMPLETED);
+				return;
+			}
+			
+			tricepsEngine = new TricepsEngine(config);
+			
+			/* create new instance, or validate that old instance exists; then "resume" it via normal TricepsEngine mechanisms */
+			String src = null;
+			
+			if (loginRecord.isWorking()) {
+				/* then load the existing one, from where left off */
+				src = loginRecord.getFilename();
+			}
+			else {
+				/* hasn't been started yet -- load it from the instrument, and keep track of the location information (the tmp file) */
+				src = loginRecord.getInstrument();
+			}
+			
+			boolean ok = tricepsEngine.getNewTricepsInstance(tricepsEngine.getCanonicalPath(src));
+			if (ok) {
+				String filename = tricepsEngine.getTriceps().dataLogger.getFilename();
+				loginRecord.setFilename(filename);
+				loginRecord.setStatusWorking();
+				loginRecords.updateLoginInfo();
+				
+				/* override whatever command was passed via req -- should be RESTORE */
+				restoreFile = filename;
+			}
+			else {
+				loginPage(req,res,LOGIN_ERR_UNABLE_TO_LOAD_FILE + " '" + src + "'");
+				return;
+			}
+		}
+		
+		logAccess(req, " OK");
+		
+		try {
+			res.setContentType("text/html");
+			PrintWriter out = res.getWriter();
+			
+			tricepsEngine.doPost(req,res,out,hiddenLoginToken,restoreFile);
+			
+			out.close();
+			out.flush();
+		}
+		catch (Throwable t) {
+if (DEBUG) Logger.printStackTrace(t);
+		}
+		
+		session.setAttribute(fullSessionID, tricepsEngine);
+		
+		/* disable session if completed */
+		if (tricepsEngine.isFinished()) {
+			logAccess(req, " FINISHED");
+			Logger.writeln("...instrument finished.  Discarding session " + sessionID);
+			try {
+				session.invalidate();
+				loginRecord.setStatusCompleted();
+				loginRecords.updateLoginInfo();
+			}
+			catch (java.lang.IllegalStateException e) {
+				Logger.writeln(e.getMessage());
+			}
+		}
+	}	
 }
 
 class LoginRecords implements VersionIF  {
+	static String LOCK_FILE = "LOCK_FILE";
 	private boolean isLoaded = false;
 	private Hashtable loginRecords = new Hashtable();
 	static LoginRecords NULL = new LoginRecords(null);
+	static String sourceFile = null;	// so can modify this as needed
 	
 	LoginRecords(String filename) {
+		this.sourceFile = filename;
 		if (filename != null) {
 			isLoaded = loadLoginInfo(filename);
 		}
@@ -289,25 +386,27 @@ class LoginRecords implements VersionIF  {
 	private boolean loadLoginInfo(String filename) {
 		BufferedReader br = null;
 		boolean loaded = true;
-		try {
-			br = new BufferedReader(new FileReader(filename));
-			String fileLine = null;
-			while ((fileLine = br.readLine()) != null) {
-				if ("".equals(fileLine.trim())) {
-					continue;
+		synchronized(LOCK_FILE) {
+			try {
+				br = new BufferedReader(new FileReader(filename));
+				String fileLine = null;
+				while ((fileLine = br.readLine()) != null) {
+					if ("".equals(fileLine.trim())) {
+						continue;
+					}
+					if (fileLine.startsWith("#")) {
+						continue;
+					}
+					loaded = loaded && addLoginRecord(fileLine);
 				}
-				if (fileLine.startsWith("#")) {
-					continue;
-				}
-				loaded = loaded && addLoginRecord(fileLine);
 			}
-		}
-		catch (Throwable e) {
-if (DEBUG)	Logger.writeln("##Throwable @ loadLoginInfoFile() " + e.getMessage());
-			loaded = false;	// to incidate that an error occurred
-		}
-		if (br != null) {
-			try { br.close(); } catch (IOException t) { }
+			catch (Throwable e) {
+	if (DEBUG)	Logger.writeln("##Throwable @ loadLoginInfoFile() " + e.getMessage());
+				loaded = false;	// to incidate that an error occurred
+			}
+			if (br != null) {
+				try { br.close(); } catch (IOException t) { }
+			}
 		}
 		if (!loaded) {		
 			Logger.writeln("Unable to load loginInfoFile \"" + filename + "\"");
@@ -342,6 +441,9 @@ if (DEBUG)	Logger.writeln("##Throwable @ loadLoginInfoFile() " + e.getMessage())
 					break;
 				case 3:
 					lr.setInstrument(s);
+					break;
+				case 4:
+					lr.setStatus(s);
 					break;
 			}
 		}
@@ -379,23 +481,48 @@ if (DEBUG)	Logger.writeln("##Throwable @ loadLoginInfoFile() " + e.getMessage())
 			Logger.writeln(lr.showValue());
 		}
 	}
+	
+	boolean updateLoginInfo() {
+		synchronized(LOCK_FILE) {
+			PrintWriter pw = null;
+			try {
+				pw = new PrintWriter(new BufferedWriter(new FileWriter(sourceFile)));
+				
+				Enumeration enum = loginRecords.elements();
+				while (enum.hasMoreElements()) {
+					LoginRecord lr = (LoginRecord) enum.nextElement();
+					pw.println(lr.showValue());
+				}			
+			}
+			catch (Throwable e) {
+	if (DEBUG)	Logger.writeln("##Throwable @ updateLoginInfo() " + e.getMessage());
+				isLoaded = false;	// since a fatal error?
+			}
+			if (pw != null) {
+				pw.close();
+			}
+		}
+		if (!isLoaded) {		
+			Logger.writeln("Error updating loginInfoFile \"" + sourceFile + "\"");
+			return false;
+		}
+		return true;
+	}
 }
 
 
 class LoginRecord {
-	static LoginRecord NULL = new LoginRecord(null,null,null,null);
+	static final String STATUS_UNSTARTED = "unstarted";
+	static final String STATUS_WORKING = "working";
+	static final String STATUS_COMPLETED = "completed";
+	
+	static LoginRecord NULL = new LoginRecord();
 	
 	String username = null;
 	String password = null;
 	String filename = null;
 	String instrument = null;
-	
-	LoginRecord(String username, String password, String filename, String instrument) {
-		this.username = username;
-		this.password = password;
-		this.filename = filename;
-		this.instrument = instrument;
-	}
+	String status = null;
 	
 	LoginRecord() {
 	}
@@ -432,8 +559,41 @@ class LoginRecord {
 		return this.instrument;
 	}
 	
+	String getStatus() {
+		return this.status;
+	}
+	
+	void setStatus(String val) {
+		this.status = val;
+	}
+	
+	boolean isUnstarted() {
+		return STATUS_UNSTARTED.equals(status);
+	}
+	
+	boolean isWorking() {
+		return STATUS_WORKING.equals(status);
+	}
+	
+	boolean isCompleted() {
+		return STATUS_COMPLETED.equals(status);
+	}
+	
+	void setStatusUnstarted() {
+		status = STATUS_UNSTARTED;
+	}
+	
+	void setStatusWorking() {
+		status = STATUS_WORKING;
+	}
+	
+	void setStatusCompleted() {
+		status = STATUS_COMPLETED;
+	}
+	
+	/* should I also validate that the status value is valid? */
 	boolean isValid() {
-		if (username == null || password == null || filename == null || instrument == null) {
+		if (username == null || password == null || filename == null || instrument == null || status == null) {
 			return false;
 		}
 		else {
@@ -442,6 +602,16 @@ class LoginRecord {
 	}
 	
 	String showValue() {
-		return "<rec><user>" + username + "</user><pass>" + password + "</pass><file>" + filename + "</file><inst>" + instrument + "</inst></rec>";
+		StringBuffer sb = new StringBuffer();
+		sb.append(username);
+		sb.append("\t");
+		sb.append(password);
+		sb.append("\t");
+		sb.append(filename);
+		sb.append("\t");
+		sb.append(instrument);
+		sb.append("\t");
+		sb.append(status);
+		return sb.toString();
 	}
 }

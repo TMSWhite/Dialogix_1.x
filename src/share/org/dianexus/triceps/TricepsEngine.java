@@ -40,6 +40,8 @@ public class TricepsEngine implements VersionIF {
 
 	private HttpServletRequest req=null;
 	private HttpServletResponse res=null;
+	private String hiddenLoginToken = null;
+	private String restoreFile = null;
 	private String firstFocus = null;
 
 	private String scheduleSrcDir = "";
@@ -119,10 +121,12 @@ public class TricepsEngine implements VersionIF {
 		return schedule.getReserved(Schedule.IMAGE_FILES_DIR) + schedule.getReserved(which);
 	}
 
-	public void doPost(HttpServletRequest req, HttpServletResponse res, PrintWriter out, String hiddenLoginToken)  {
+	public void doPost(HttpServletRequest req, HttpServletResponse res, PrintWriter out, String hiddenLoginToken, String restoreFile)  {
 		try {
 			this.req = req;
 			this.res = res;
+			this.hiddenLoginToken = hiddenLoginToken;
+			this.restoreFile = restoreFile;
 			XmlString form = null;
 			firstFocus = null; // reset it each time
 			
@@ -135,6 +139,12 @@ if (DEPLOYABLE) {
 			triceps.processEventTimings(req.getParameter("EVENT_TIMINGS"));
 			triceps.receivedResponseFromUser();
 }			
+
+			/* Hack to support authenticated access to instruments */
+			if (restoreFile != null) {
+				/* means that this is the name of the file to restore */
+				directive = "RESTORE";
+			}
 
 			setGlobalVariables();
 
@@ -650,6 +660,11 @@ if (DEPLOYABLE) {
 
 		// get the POSTed directive (start, back, next, help, suspend, etc.)	- default is opening screen
 		if (directive == null || directive.equals("select_new_interview")) {
+			if (hiddenLoginToken != null) {
+				/* means that not allowed to have access to a general list of instruments */
+				return "";
+			}
+			
 			/* Construct splash screen */
 if (DISPLAY_SPLASH) {
 			isSplashScreen = true;
@@ -693,7 +708,7 @@ if (DISPLAY_WORKING) {
 		}
 		else if (directive.equals("START")) {
 			// load schedule
-			ok = getNewTricepsInstance(getSchedule(req.getParameter("schedule")));
+			ok = getNewTricepsInstance(getCanonicalPath(req.getParameter("schedule")));
 
 			if (!ok) {
 				directive = null;
@@ -709,12 +724,16 @@ if (DISPLAY_WORKING) {
 		else if (directive.equals("RESTORE")) {
 			String restore;
 
-			restore = getSchedule(req.getParameter("RestoreSuspended"));
+			if (restoreFile != null) {
+				restore = restoreFile;
+			}
+			else {
+				restore = getCanonicalPath(req.getParameter("RestoreSuspended"));
+			}
 			if (restore == null || restore.trim().length()==0) {
 				directive = null;
 				return processDirective();
 			}
-
 
 			// load schedule
 			ok = getNewTricepsInstance(restore);
@@ -1037,7 +1056,7 @@ if (AUTHORABLE) {
 		return sb.toString();
 	}
 
-	private boolean getNewTricepsInstance(String name) {
+	boolean getNewTricepsInstance(String name) {
 		if (triceps != null) {
 			triceps.closeDataLogger();
 		}
@@ -1955,7 +1974,7 @@ if (DEPLOYABLE) {
 		return (!isActive);
 	}
 	
-	private String getSchedule(String which) {
+	String getCanonicalPath(String which) {
 		if (which == null || which.trim() == "") {
 			return null;
 		}
@@ -1967,5 +1986,9 @@ if (DEPLOYABLE) {
 		else {
 			return s;	// already includes full path
 		}
+	}
+	
+	Triceps getTriceps() {
+		return triceps;
 	}
 }
