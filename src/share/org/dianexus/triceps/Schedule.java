@@ -15,6 +15,7 @@ import java.util.NoSuchElementException;
 import java.util.Locale;
 import java.io.File;
 import java.io.FileReader;
+import java.net.URLDecoder;
 
 /*public*/ class Schedule implements VersionIF  {
 	/*public*/ static final int LANGUAGES = 0;
@@ -499,10 +500,10 @@ if (DEPLOYABLE) {
 				case 0: break;
 				case 1: localName = Node.EMPTY_NODE.fixExcelisms(s); break;
 				case 2: answerLanguageNum = Node.EMPTY_NODE.fixExcelisms(s); break;
-				case 3: break; // don't reload questionAsAsked
-				case 4: ans = Node.EMPTY_NODE.fixExcelisms(s); break;
-				case 5: comment = Node.EMPTY_NODE.fixExcelisms(s); break;
-				case 6: timeStamp = Node.EMPTY_NODE.fixExcelisms(s); break;
+				case 3: timeStamp = Node.EMPTY_NODE.fixExcelisms(s); break;
+				case 4: break; // don't reload questionAsAsked
+				case 5: ans = URLDecoder.decode(Node.EMPTY_NODE.fixExcelisms(s)); break;
+				case 6: comment = URLDecoder.decode(Node.EMPTY_NODE.fixExcelisms(s)); break;
 			}
 		}
 		
@@ -609,7 +610,7 @@ else node.setParseError("syntax error");
 if (DEPLOYABLE) {		
 		if (resIdx >= 0 && resIdx < RESERVED_WORDS.length) {
 			triceps.dataLogger.println("RESERVED\t" + RESERVED_WORDS[resIdx] + "\t" + getReserved(resIdx) + 
-				"\t\t\t\t" + System.currentTimeMillis());
+				"\t" + System.currentTimeMillis() + "\t\t\t");
 		}
 }
 	}
