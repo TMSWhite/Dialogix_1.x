@@ -756,21 +756,172 @@
 	</UL>
 	<LI>[ ] POI for Excel import / export?
 	<LI>[ ] Torque for data persistence and to ease DB portability
+	<UL>
+		<LI>Builds 4 classes to model the connection -- BusinessObject, DAO, and Peers for each so can be done remotely.
+		<LI>Builds get/set methods for each data element
+		<LI>Doesn't build general insert equations for wholle object at a time
+		<LI>Supports EJB persistance
+		<LI>Not(?) speed optimized for multiple get/set -- perhaps solvable via transactions?
+		<LI>Does(?) support access to flat file databases and/or in memory ones?
+		<LI>[ ] Can it build structures on the fly? Seems to use Ant to for that
+	</UL>
 	<LI>[ ] FckEditor to ease web-based instrument creation?
 	<UL>
 		<LI>Successfully integrated it -- see \FCKeditor\* under Apache. Can download speed be improved?
 	</UL>
-	<LI>[ ] Add &quot;in&quot; operator to Dialogix parser syntax -- a form of equality operation (re priority)
+	<LI>[DONE ] Add &quot;in&quot; operator to Dialogix parser syntax -- a form of equality operation (re priority)
 	<UL>
-		<LI>Dilemma -- there is no Set type which stores multiple values, so would need to re-write each time?
-		<LI>Would like defined access to a DataSource, like list of patients
+		<LI>[ ] Dilemma -- there is no Set type which stores multiple values, so would need to re-write each time?
+		<LI>[ ] Would like defined access to a DataSource, like list of patients
 	</UL>
 	<LI>[ ] JDBC
 	<UL>
-		<LI>How generic is it?  Will same syntax work for all databases and data sources so can point to local files too?
+		<LI>How generic is it? Will same syntax work for all databases and data sources so can point to local files too?
 	</UL>
-	<LI>[ ] Compound types
-	<LI>[ ] Relationship to XForms
+	<LI>[ ] Compound types - e.g. define a list for (a in list)?
+	<LI>[ ] Relationship to XForms - especially nesting and more complex conditionals?
+</UL>
+
+<P>
+<HR ALIGN="CENTER">
+</P>
+<P>1/26/05</P>
+
+<UL>
+	<LI>J2EE Patterns
+	<UL>
+		<LI>DataAccessObject -- e.g. via DataSource?
+		<LI>Intercepting Filter / Front Controller -- to handle connection
+	</UL>
+	<LI>Parser
+	<UL>
+		<LI>Do we need to support a LIST or TUPLE datatype? If so, need to modify how work with Datum, DatumMath, and how
+		stored
+		<LI>Do we need dot-style lookup ala Velocity?
+	</UL>
+	<LI>Analysis of remaining Dialogix Code &amp; Functions
+	<UL>
+		<LI>AnswerChoice.java
+		<UL>
+			<LI>Represents avaible answer options, especially if a list of msg|value pairs
+			<LI>[ ] Model internally via XML structure to ease output as a Cocoon Generator?
+			<LI>Should support three values: msg,index,value; where index used for selection so that multiple answers can have
+			the same internal value, but order must be unique
+			<LI>Also add anchor and/or help?
+			<LI>Should support lazy access to database
+			<LI>getMessageAt(index), getValueAt(index), etc.
+		</UL>
+		<LI>ASCII_CharStream.java [DONE =&gt; .jjt]
+		<LI>Datum.java [DONE]
+		<LI>DatumMath.java [DONE]
+		<LI>Evidence.java
+		<UL>
+			<LI>=&gt; Functions.java
+			<UL>
+				<LI>[ ] Schedule &amp; Node functions
+				<LI>[ ] Navigation
+				<LI>[ ] Support external linking
+			</UL>
+			<LI>[ ] Reserved Words
+			<LI>[ ] get/set values =&gt; Context.DAO
+			<LI>[ ] get/set node values =&gt; Context.InstrumentAO?
+			<LI>[ ] write headers and starting values =&gt; Context.?? -- initialize an instance
+		</UL>
+		<LI>EvidenceIO.java
+		<UL>
+			<LI>createTempFile, saveAll, exec
+			<LI>[ ] Remove these from list of functions?
+		</UL>
+		<LI>ExcelDecoder.java
+		<UL>
+			<LI>decode -- fixes double quotes within Excel
+			<LI>applied to instrument columns
+		</UL>
+		<LI>InputDecoder.java
+		<UL>
+			<LI>decode -- does nothing
+		</UL>
+		<LI>InputEncoder.java
+		<UL>
+			<LI>encode -- remove tabs from a string
+			<LI>applied to answers and comments, austensibly so doesn't mess up data storage
+		</UL>
+		<LI>JarWriter.java
+		<UL>
+			<LI>generates Jar files
+			<LI>obsolete if write to database, else may be needed
+		</UL>
+		<LI>LicenseIF.java
+		<UL>
+			<LI>obsolete
+		</UL>
+		<LI>Logger.java
+		<UL>
+			<LI>[ ] replaced with Log4J functionality
+		</UL>
+		<LI>LoginTricepsServlet.java
+		<UL>
+			<LI>validate
+			<LI>set single-use token
+			<LI>check browser compatibility
+			<LI>create login form
+			<LI>initialize session if needed
+			<LI>restore if needed, else start anew, loading init parameters from DB (setExtraParameters)
+			<LI>update logon and status records in DB
+			<LI>call TricepsEngine.doPost()
+			<LI>if finished, update status records in DB
+			<LI>class LogonRecord -- abstraction of username,password,instrument, mappings
+			<UL>
+				<LI>[ ] like a DAO for initialization parameters
+			</UL>
+		</UL>
+		<LI>Node.java
+		<UL>
+			<LI>Datatypes
+			<LI>QuestionTypes
+			<LI>One row per item
+			<LI>linked to AnswerChoices hashtable
+			<LI>parses a source line from Excel, generating node with multi-language support (by index)
+			<LI>buildOrList (why?)
+			<LI>getSampleInputString()
+			<LI>prepareChoicesAsHtml() -- [ ] make modular, e.g. VelocityMacro, would need access to Node content and current
+			data values; ideally with XML way to map style to template
+			<LI>isWithinRange() -- [ ] validate elsewhere, since generates custom error message?
+			<LI>record errors
+			<LI>output to TSV or XML
+			<LI>get values
+		</UL>
+		<LI>ParseError.java
+		<LI>ParseException.java
+		<LI>Parser.java
+		<LI>QSortAlgorithm.java
+		<LI>Qss.java
+		<LI>qss.jj
+		<LI>QssConstants.java
+		<LI>QssTokenManager.java
+		<LI>Schedule.java
+		<LI>ScheduleList.java
+		<LI>ScheduleSource.java
+		<LI>SourceInfo.java
+		<LI>Token.java
+		<LI>TokenMgrError.java
+		<LI>Triceps.java
+		<LI>TricepsEngine.java
+		<LI>TricepsServlet.java
+		<LI>Value.java
+		<LI>VersionIF.java
+		<LI>XMLAttrEncoder.java
+		<LI>XmlString.java
+	</UL>
+	<LI>Porlets
+	<UL>
+		<LI>JPS -- Java Portlet Specification -- JSR 168 specification for portlets -- does it support events (for synchronizing
+		data within a page)?
+		<LI>How does it support context -- local Portal parameters, Locale, look &amp; feel - should I be using that model?
+		<LI>How does it support data sources -- can I use their style?
+		<LI>WSRP -- Web Services for Report Portlets
+		<LI>Support versioning -- how?  Can I use this for versions of instruments?
+	</UL>
 </UL>
 
 
