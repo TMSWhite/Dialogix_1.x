@@ -32,6 +32,7 @@ public class Triceps {
 	private String workingFilesDir = null;
 	private String completedFilesDir = null;
 	private String scheduleSrcDir = null;
+	private String urlPrefix = null;
 
 	public Triceps(String scheduleSrcDir, String workingFilesDir, String completedFilesDir) {
 		setScheduleSrcDir(scheduleSrcDir);
@@ -39,8 +40,8 @@ public class Triceps {
 		setCompletedFilesDir(completedFilesDir);
 	}
 
-	public boolean setSchedule(String filename, String optionalFilePrefix) {
-		BufferedReader br = Triceps.getReader(filename, optionalFilePrefix);
+	public boolean setSchedule(String filename, String urlPrefix, String optionalFilePrefix) {
+		BufferedReader br = Triceps.getReader(filename, urlPrefix, optionalFilePrefix);
 		if (br == null) {
 			scheduleURL = null;
 			errors.addElement("Unable to find or access '" + Triceps.getReaderError() + "'");
@@ -63,7 +64,7 @@ public class Triceps {
 		
 		boolean ok=false;
 		
-		ok = nodes.load(Triceps.getReader(scheduleURL,scheduleUrlPrefix),scheduleURL);
+		ok = nodes.load(Triceps.getReader(scheduleURL,urlPrefix,scheduleUrlPrefix),scheduleURL);
 		ok = resetEvidence() && ok;
 		
 		try {
@@ -647,17 +648,50 @@ public class Triceps {
 		}
 	}
 
-	static BufferedReader getReader(String filename, String optionalFilePrefix) {
+	static BufferedReader getReader(String fname, String urlPrefix, String optionalFilePrefix) {
 		boolean ok = false;
 		BufferedReader br = null;
 		URL url = null;
 		File file = null;
+		String filename=null;
 
-//		if (filename == null)
-//			return null;
-
+		/* If not a URL, then try reading from a file */
+		try {
+			String fileSrc = ((optionalFilePrefix != null) ? optionalFilePrefix : "") + fname;
+			System.err.println(fileSrc);
+			if (fileSrc != null) {
+				file = new File(fileSrc);
+				if (!file.exists() || !file.isFile() || !file.canRead()) {
+					ok = false;
+					System.err.println("Error - file doesn't exist; isn't a file, or is unreadable");
+				}
+				else {
+					br = new BufferedReader(new FileReader(file));
+					ok = true;
+					System.err.println("success");
+				}
+			}
+			else {
+				System.err.println("Error - null filename");
+			}
+		}
+		catch (Throwable t) {
+			System.err.println("error accessing file: " + t.getMessage());
+		}
+		finally {
+			if (ok) {
+				return br;
+			}
+			else {
+				if (br != null) {
+					try { br.close(); } catch (Exception e) {}
+				}
+			}
+		}
+		
 		/* Is it a URL pointing to a file? If so, try reading from it*/
 		try {
+			filename = ((urlPrefix != null) ? urlPrefix : "") + filename;
 			url = new URL(filename);
 			br = new BufferedReader(new InputStreamReader(url.openStream()));
 //			br.mark(1000);	// allows stream be reset to beginning, rather than closing & re-opening it
@@ -695,40 +729,7 @@ public class Triceps {
 				}
 			}
 		}		
-
-		/* If not a URL, then try reading from a file */
-		try {
-			String fileSrc = ((optionalFilePrefix != null) ? optionalFilePrefix : "") + filename;
-			System.err.println(fileSrc);
-			if (fileSrc != null) {
-				file = new File(fileSrc);
-				if (!file.exists() || !file.isFile() || !file.canRead()) {
-					ok = false;
-					System.err.println("Error - file doesn't exist; isn't a file, or is unreadable");
-				}
-				else {
-					br = new BufferedReader(new FileReader(file));
-					ok = true;
-					System.err.println("success");
-				}
-			}
-			else {
-				System.err.println("Error - null filename");
-			}
-		}
-		catch (Throwable t) {
-			System.err.println("error accessing file: " + t.getMessage());
-		}
-		finally {
-			if (ok) {
-				return br;
-			}
-			else {
-				if (br != null) {
-					try { br.close(); } catch (Exception e) {}
-				}
-			}
-		}
+		
 		if (!ok) {
 			StringBuffer sb = new StringBuffer();
 			if (url != null) {
@@ -741,7 +742,7 @@ public class Triceps {
 				sb.append(file.toString());
 			}
 			if (sb.length() == 0) {
-				sb.append("[filename=" + filename + "], [optionalFilePrefix=" + optionalFilePrefix + "]");
+				sb.append("[fname=" + fname + "], [optionalFilePrefix=" + optionalFilePrefix + "]");
 			}
 				
 			fileAccessError = "Error accessing or reading from " + sb.toString();

@@ -21,15 +21,16 @@ public class TricepsServlet extends HttpServlet {
 	private String scheduleSrcDir = "";
 	private String workingFilesDir = "";
 	private String completedFilesDir = "";
-	
+
 	/* hidden variables */
 	private boolean debug = false;
 	private boolean developerMode = false;
 	private boolean refuseToAnswerCurrent = false;
-	private boolean showQuestionNum = false;	
-	
-	private String directive = null;	// the default
+	private boolean showQuestionNum = false;
 
+	private String directive = null;	// the default
+	private String urlPrefix;
+	
 	/**
 	 * This method runs only when the servlet is first loaded by the
 	 * webserver.  It calls the loadSchedule method to input all the
@@ -51,8 +52,8 @@ public class TricepsServlet extends HttpServlet {
 			workingFilesDir = s.trim();
 		s = config.getInitParameter("completedFilesDir");
 		if (s != null)
-			completedFilesDir = s.trim();			
-			
+			completedFilesDir = s.trim();
+
 	}
 
 	public void destroy() {
@@ -79,22 +80,24 @@ public class TricepsServlet extends HttpServlet {
 		String form = null;
 		String hiddenStr = "";
 		firstFocus = null; // reset it each time
+		urlPrefix = "http://" + req.getServerName() + "/";
 		
+
 		triceps = (Triceps) session.getValue("triceps");
 
 		res.setContentType("text/html");
-		
+
 		directive = req.getParameter("directive");	// XXX: directive must be set before calling processHidden
-		
+
 		hiddenStr = processHidden();
 
 		form = processDirective();
 
 		out = res.getWriter();
-		
+
 		out.println(header());
 		out.println(getCustomHeader());
-		
+
 		if (form != null) {
 			out.println("<FORM method='POST' name='myForm' action='" + HttpUtils.getRequestURL(req) + "'>\n");
 			out.println(hiddenStr);
@@ -102,22 +105,22 @@ public class TricepsServlet extends HttpServlet {
 			out.println("</FORM>\n");
 		}
 		out.println(footer());
-		
+
 		out.flush();
 		out.close();	// XXX:  causes "Network Connection reset by peer" with Ham-D.txt - WHY?  Without close, dangling resources?
 
 		/* Store appropriate stuff in the session */
 		if (triceps != null)
 			session.putValue("triceps", triceps);
-			
+
 		if ("next".equals(directive)) {
 			triceps.toTSV();
 		}
 	}
-	
+
 	private String processHidden() {
 		StringBuffer sb = new StringBuffer();
-		
+
 		if ("on".equals(req.getParameter("DEBUG"))) {
 			debug = true;
 		}
@@ -129,7 +132,7 @@ public class TricepsServlet extends HttpServlet {
 		}
 		else
 			developerMode = false;
-			
+
 		/* XXX: Kludge - put in HIDDEN if developerMode && debug = false (else lose its state)
 			This must follow assessement of developerMode && debug, else lose state */
 		if ("on".equals(req.getParameter("showQuestionNum"))) {
@@ -140,17 +143,17 @@ public class TricepsServlet extends HttpServlet {
 		}
 		else
 			showQuestionNum = false;
-			
+
 		String attemptingToRefuse = null;
 		refuseToAnswerCurrent = false;	// the default value
-		
+
 		if (triceps != null) {
 			/* XXX: Refusals only apply once Triceps has been initialized */
 			attemptingToRefuse = req.getParameter("passwordForRefused");
 			if (attemptingToRefuse != null && !attemptingToRefuse.equals("")) {
 				/* if try to enter a password, make sure that doesn't reset the form if password fails */
 				directive = "next";	// XXX - since JavaScript can't set a SUBMIT value in the subjectRefusesToAnswer() function
-				
+
 				if (triceps.getPasswordForRefused() == null) {
 					sb.append("You are not allowed to refuse to answer these questions<BR>");
 				}
@@ -164,9 +167,9 @@ public class TricepsServlet extends HttpServlet {
 				}
 			}
 		}
-		
+
 		sb.append("<input type='HIDDEN' name='passwordForRefused' value=''>\n");	// must manually bypass each time
-		
+
 		return sb.toString();
 	}
 
@@ -183,9 +186,12 @@ public class TricepsServlet extends HttpServlet {
 		sb.append("<head>\n");
 		sb.append("<META HTTP-EQUIV='Content-Type' CONTENT='text/html;CHARSET=iso-8859-1'>\n");
 		sb.append("<title>" + ((triceps == null) ? "TRICEPS SYSTEM" : triceps.getTitle()) + "</title>\n");
+
+		sb.append(popupMenu());
+
 		sb.append("</head>\n");
 		sb.append("<body>\n");
-		
+
 		sb.append("<SCRIPT>\n");
 		sb.append("<!--\n");
 		sb.append("function subjectRefusesToAnswer() {\n");
@@ -195,49 +201,49 @@ public class TricepsServlet extends HttpServlet {
 		sb.append("	document.myForm.submit();\n");
 		sb.append("} //-->\n");
 		sb.append("</SCRIPT>\n");
-		
+
 		sb.append("<!--\n");
 		sb.append("scheduleList: " + scheduleList + "\n");
 		sb.append("scheduleSrcDir: " + scheduleSrcDir + "\n");
 		sb.append("workingFilesDir: " + workingFilesDir + "\n");
 		sb.append("completedFilesDir: " + completedFilesDir + "\n");
 		sb.append("-->\n");
-		
-		
-		
+
+
+
 		return sb.toString();
 	}
-	
+
 	private String getCustomHeader() {
 		StringBuffer sb = new StringBuffer();
-		
+
 		sb.append("<TABLE BORDER='0' CELLPADDING='0' CELLSPACING='3' WIDTH='100%'>\n");
 		sb.append("<TR>\n");
 		sb.append("	<TD WIDTH='18%'>\n");
-		
+
 		String icon = Node.encodeHTML((triceps != null) ? triceps.getIcon() : null);
-		if (icon.length() == 0) {
+		if (icon.trim().equals("")) {
 			sb.append("&nbsp;");
 		}
 		else {
 			sb.append("			<IMG SRC='" + icon + "' ALIGN='BOTTOM' BORDER='0' onmousedown='javascript:subjectRefusesToAnswer();'>\n");
 		}
 		sb.append("	</TD>\n");
-		sb.append("	<TD WIDTH='82%'><FONT SIZE='5'><B>" + Node.encodeHTML((triceps != null) ? triceps.getHeaderMsg() : "Triceps System") + "</B></FONT>\n");
+		sb.append("	<TD WIDTH='82%'><FONT SIZE='5'><B>" + Node.encodeHTML((triceps != null) ? triceps.getHeaderMsg() : "Triceps System") + "</B></FONT></TD>\n");
 		sb.append("</TR>\n");
 		sb.append("</TABLE>\n");
 		sb.append("<HR>\n");
-		
+
 		return sb.toString();
 	}
-	
+
 	private String getCustomFooter() {
 		return "";
 	}
 
 	private String footer() {
 		StringBuffer sb = new StringBuffer();
-		
+
 		sb.append(getCustomFooter());
 
 		sb.append("</body>\n");
@@ -255,11 +261,11 @@ public class TricepsServlet extends HttpServlet {
 		// get the POSTed directive (start, back, next, help, suspend, etc.)	- default is opening screen
 		if (directive == null || "select new interview".equals(directive)) {
 			/* read list of available schedules from file */
-			
-			BufferedReader br = Triceps.getReader(scheduleList, scheduleSrcDir);
+
+			BufferedReader br = Triceps.getReader(scheduleList, urlPrefix, scheduleSrcDir);
 			if (br == null) {
 				sb.append("<B>" + Triceps.getReaderError() + "</B><HR>");
-			}			
+			}
 			else {
 				try {
 					int count = 0;
@@ -281,7 +287,7 @@ public class TricepsServlet extends HttpServlet {
 								continue;
 
 							/* Test whether these files exist */
-							Reader target = Triceps.getReader(fileLoc,scheduleSrcDir);
+							Reader target = Triceps.getReader(fileLoc,urlPrefix, scheduleSrcDir);
 							if (target == null) {
 								sb.append("<B>" + Triceps.getReaderError() + "</B><HR>");
 							}
@@ -289,7 +295,7 @@ public class TricepsServlet extends HttpServlet {
 								try { target.close(); } catch (Exception e) {}
 
 								++count;
-								schedules.append("	<option value='" + Node.encodeHTML(fileLoc) + "'>" + Node.encodeHTML(title) + "</option>\n");								
+								schedules.append("	<option value='" + Node.encodeHTML(fileLoc) + "'>" + Node.encodeHTML(title) + "</option>\n");
 							}
 						}
 						catch (NullPointerException e) {
@@ -310,15 +316,15 @@ public class TricepsServlet extends HttpServlet {
 						try { br.close(); } catch (Throwable t) { }
 					}
 				}
-				
+
 				/* Now build the list of uncompleted interviews */
-				
+
 				try {
 					File dir = new File(workingFilesDir);
-					
+
 					if (dir.isDirectory() && dir.canRead()) {
 						String[] files = dir.list();
-						
+
 						int count=0;
 						for (int i=0;i<files.length;++i) {
 							try {
@@ -360,22 +366,22 @@ public class TricepsServlet extends HttpServlet {
 			sb.append("	</select></TD>\n");
 			sb.append("	<TD><input type='SUBMIT' name='directive' value='START'></TD>\n");
 			sb.append("</TR>\n");
-			
+
 			sb.append("<TR><TD>OR, restore an interview/questionnaire in progress:  </TD>\n");
-			sb.append("	<TD>" + suspendedInterviews + 
+			sb.append("	<TD>" + suspendedInterviews +
 				((developerMode) ? "<input type='text' name='RESTORE'>" : "") +
 				"</TD>\n");
 			sb.append("	<TD><input type='SUBMIT' name='directive' value='RESTORE'></TD>\n");
-			
+
 			sb.append(showOptions());
-			
+
 			sb.append("</TABLE>\n");
 			return sb.toString();
 		}
 		else if (directive.equals("START")) {
 			// load schedule
 			triceps = new Triceps(scheduleSrcDir, workingFilesDir, completedFilesDir);
-			ok = triceps.setSchedule(req.getParameter("schedule"),scheduleSrcDir);
+			ok = triceps.setSchedule(req.getParameter("schedule"),urlPrefix,scheduleSrcDir);
 
 			if (!ok) {
 				try {
@@ -393,19 +399,19 @@ public class TricepsServlet extends HttpServlet {
 		}
 		else if (directive.equals("RESTORE")) {
 			String restore;
-			
+
 			restore = req.getParameter("RESTORE");
 			if (restore == null || restore.trim().equals("")) {
 				restore = req.getParameter("RestoreSuspended");
 			}
-			
+
 			// load schedule
 			triceps = new Triceps(scheduleSrcDir, workingFilesDir, completedFilesDir);
-			ok = triceps.setSchedule(restore,workingFilesDir);
-			
+			ok = triceps.setSchedule(restore,urlPrefix,workingFilesDir);
+
 			if (!ok) {
 				directive = null;	// so that processDirective() will select new interview
-				
+
 				return "<B>Unable to find or access schedule '" + restore + "'</B><HR>" +
 					processDirective();
 			}
@@ -450,14 +456,14 @@ public class TricepsServlet extends HttpServlet {
 				sb.append("<TR><TD>double</TD><TD><B>" + datum.doubleVal() + "</B></TD><TD>long</TD><TD><B>" + datum.longVal() + "</B></TD></TR>\n");
 				sb.append("<TR><TD>date</TD><TD><B>" + datum.dateVal() + "</B></TD><TD>month</TD><TD><B>" + datum.monthVal() + "</B></TD></TR>\n");
 				sb.append("</TABLE>\n");
-				
+
 				Enumeration errs = triceps.getErrors();
 				if (errs.hasMoreElements()) {
 					sb.append("<B>There were errors parsing that equation:</B><BR>");
 					while (errs.hasMoreElements()) {
 						sb.append("<B>" + Node.encodeHTML((String) errs.nextElement()) + "</B><BR>\n");
 					}
-				}				
+				}
 			}
 		}
 		else if (directive.equals("show XML")) {
@@ -534,7 +540,7 @@ public class TricepsServlet extends HttpServlet {
 		else if (directive.equals("next")) {
 			// store current answer(s)
 			Enumeration questionNames = triceps.getQuestions();
-			
+
 			while(questionNames.hasMoreElements()) {
 				Node q = (Node) questionNames.nextElement();
 				boolean status;
@@ -569,7 +575,7 @@ public class TricepsServlet extends HttpServlet {
 			ok = ok && (gotoMsg == Triceps.OK);
 			// ask question
 		}
-//		if (!ok) 
+//		if (!ok)
 		{
 			/* should do this regardless of OK status?  Might catch interesting parsing errors? */
 			int errCount = 0;
@@ -620,7 +626,7 @@ public class TricepsServlet extends HttpServlet {
 		}
 		if (firstFocus == null) {
 			firstFocus = "directive[0]";	// try to focus on Next button if nothing else available
-		}		
+		}
 
 		sb.append(queryUser());
 		return sb.toString();
@@ -633,7 +639,7 @@ public class TricepsServlet extends HttpServlet {
 	private String queryUser() {
 		// if parser internal to Schedule, should have method access it, not directly
 		StringBuffer sb = new StringBuffer();
-	
+
 		if (debug) {
 			sb.append("<H4>QUESTION AREA</H4>\n");
 		}
@@ -668,11 +674,11 @@ public class TricepsServlet extends HttpServlet {
 			}
 
 			sb.append("	<TR>\n");
-			
+
 			if (showQuestionNum) {
 				sb.append("<TD><FONT" + color + "><B>" + Node.encodeHTML(node.getQuestionRef()) + "</FONT></B></TD>\n");
 			}
-			
+
 			switch(node.getAnswerType()) {
 				case Node.NOTHING:
 					sb.append("		<TD COLSPAN='3'><FONT" + color + ">" + Node.encodeHTML(triceps.getQuestionStr(node)) + "</FONT></TD>\n");
@@ -687,22 +693,22 @@ public class TricepsServlet extends HttpServlet {
 					break;
 				default:
 					sb.append("		<TD><FONT" + color + ">" + Node.encodeHTML(triceps.getQuestionStr(node)) + "</FONT></TD>\n");
-					sb.append("		<TD>" + node.prepareChoicesAsHTML(datum) + errMsg + "</TD>\n");	
-					break;				
+					sb.append("		<TD>" + node.prepareChoicesAsHTML(datum) + errMsg + "</TD>\n");
+					break;
 			}
 			if (node.getAnswerType() != Node.NOTHING) {
 				// help button
 				sb.append("	<TD WIDTH='1%'>\n");
-				sb.append("			<IMG SRC='file:///C|/cic/images/help.gif' ALIGN='BOTTOM' BORDER='0' ALT='Help' onmousedown='javascript:subjectRefusesToAnswer();'>\n");
+				sb.append("			<IMG SRC='file:///C|/cic/images/help.gif' ALIGN='BOTTOM' BORDER='0' ALT='Help' onmousedown='javascript:mouseDown;'>\n");
 				sb.append("	</TD>\n");
 			}
-			
+
 			sb.append("	</TR>\n");
 		}
 		sb.append("	<TR><TD COLSPAN='" + ((showQuestionNum) ? 4 : 3) + "' ALIGN='center'>\n");
 		sb.append("<input type='SUBMIT' name='directive' value='next'>\n");
 		sb.append("<input type='SUBMIT' name='directive' value='previous'>");
-		
+
 		sb.append("	</TD></TR>\n");
 
 		if (developerMode || debug) {
@@ -722,7 +728,7 @@ public class TricepsServlet extends HttpServlet {
 			sb.append("<input type='text' name='evaluate expr:'>\n");
 			sb.append("	</TD></TR>\n");
 		}
-		
+
 		sb.append(showOptions());
 
 		sb.append("</TABLE>\n");
@@ -774,11 +780,11 @@ public class TricepsServlet extends HttpServlet {
 		}
 		return sb.toString();
 	}
-	
+
 	private String showOptions() {
 		if (developerMode || debug) {
 			StringBuffer sb = new StringBuffer();
-		
+
 			sb.append("	<TR><TD COLSPAN='" + ((showQuestionNum) ? 4 : 3 ) + "' ALIGN='center'>\n");
 			sb.append("  developerMode<input type='checkbox' name='developerMode' value='on'" + ((developerMode) ? " CHECKED" : "") + ">\n");
 			sb.append("  showQuestionNum<input type='checkbox' name='showQuestionNum' value='on'" + ((showQuestionNum) ? " CHECKED" : "") + ">\n");
@@ -788,5 +794,134 @@ public class TricepsServlet extends HttpServlet {
 		}
 		else
 			return "";
+	}
+
+	private String popupMenu() {
+		StringBuffer sb = new StringBuffer();
+
+		sb.append("<script language=\"JavaScript\">\n");
+		sb.append("<!--BEGIN Script\n");
+		sb.append("\n");
+		sb.append("var ItemEntry = new Array()\n");
+		sb.append("\n");
+		sb.append("//=====================THIS PART MAY BE EDITED======================\n");
+		sb.append("\n");
+		sb.append("// Varibles can be changed\n");
+		sb.append("\n");
+		sb.append("MenuWidth = 100\n");
+		sb.append("MenuHeight = 110\n");
+		sb.append("\n");
+		sb.append("ItemInMenu = 4\n");
+		sb.append("\n");
+		sb.append("// Setup your menu words\n");
+		sb.append("// Entry Data in ItemEntry[x] = new MenuEntry(\"Item Caption\",\"Link Address\") format\n");
+		sb.append("ItemEntry[0] = new MenuEntry(\"Help\",\"/devhead/index.html\")\n");
+		sb.append("ItemEntry[1] = new MenuEntry(\"Add Comment\",\"/devhead/resources/scriptlibrary/index.html\")\n");
+		sb.append("ItemEntry[2] = new MenuEntry(\"Mark as Refused\",\"/devhead/resources/scriptlibrary/new.html\")\n");
+		sb.append("ItemEntry[3] = new MenuEntry(\"Mark as Unknown\",\"/devhead/resources/tools/htmlcheck/\")\n");
+		sb.append("\n");
+		sb.append("//===================DO NOT MODIFY THE CODE BELOW================\n");
+		sb.append("var menuEle = new Array(ItemInMenu)\n");
+		sb.append("n = (document.layers) ? 1:0\n");
+		sb.append("ie = (document.all) ? 1:0\n");
+		sb.append("\n");
+		sb.append("function init() {\n");
+		sb.append("        // initialize objects\n");
+		sb.append("        menu = new dynLayer(\"menuDiv\",null)\n");
+		sb.append("        for (var k = 0; k < menuEle.length; k++) {\n");
+		sb.append("                menuEle[k] = new dynLayer(\"input\" + k + \"Div\",\"menuDiv\")\n");
+		sb.append("                }\n");
+		sb.append("        menu.hide()\n");
+		sb.append("\n");
+		sb.append("        // initialize events\n");
+//		sb.append("        document.onmousedown = mouseDown\n");
+//		sb.append("        if (n) document.captureEvents(Event.MOUSEDOWN)\n");
+		sb.append("}\n");
+		sb.append("\n");
+		sb.append("function MenuEntry(cap,adrs) {\n");
+		sb.append("this.cap = cap\n");
+		sb.append("this.adrs = adrs\n");
+		sb.append("}\n");
+		sb.append("\n");
+		sb.append("// Temperary Varibles\n");
+		sb.append("showing = false\n");
+		sb.append("\n");
+		sb.append("function mouseDown(e) {\n");
+		sb.append("if (showing == true) {showing = false; setTimeout('menu.hide()',50)}\n");
+		sb.append("else if (((n && e.which == 1) || ie) && showing == false) {\n");
+		sb.append("                if (n) {var xNow=e.pageX; var yNow=e.pageY}\n");
+		sb.append("                if (ie) {var xNow=event.x; var yNow=event.y}\n");
+		sb.append("                menu.moveTo(xNow, yNow)\n");
+		sb.append("                menu.show()\n");
+		sb.append("                showing = true\n");
+		sb.append("        }\n");
+		sb.append("\n");
+		sb.append("\n");
+		sb.append("}\n");
+		sb.append("\n");
+		sb.append("function dynLayer(id,nestref,des) {\n");
+		sb.append("        if (n) {\n");
+		sb.append("                if (nestref) {\n");
+		sb.append("                        this.css = eval(\"document.\" + nestref + \".document.\" + id)\n");
+		sb.append("                                this.ref = eval(\"document.\" + nestref + \".document.\" + id + \".document\")\n");
+		sb.append("                }\n");
+		sb.append("                else {\n");
+		sb.append("                        this.css = document.layers[id]\n");
+		sb.append("                                this.ref = document.layers[id].document\n");
+		sb.append("                }\n");
+		sb.append("                        this.x = this.css.left\n");
+		sb.append("                        this.y = this.css.top\n");
+		sb.append("                        this.w = this.css.clip.width\n");
+		sb.append("                        this.h = this.css.clip.height\n");
+		sb.append("        }\n");
+		sb.append("        else if (ie) {\n");
+		sb.append("                this.css = document.all[id].style\n");
+		sb.append("                        this.ref = document\n");
+		sb.append("                        this.x = this.css.pixelLeft\n");
+		sb.append("                        this.y = this.css.pixelTop\n");
+		sb.append("                        this.w = this.css.pixelWidth\n");
+		sb.append("                        this.h = this.css.pixelHeight\n");
+		sb.append("        }\n");
+		sb.append("        this.obj = id + \"Object\"\n");
+		sb.append("                eval(this.obj + \"=this\")\n");
+		sb.append("                this.moveTo = dynLayerMoveTo\n");
+		sb.append("                this.show = dynLayerShow\n");
+		sb.append("                this.hide = dynLayerHide\n");
+		sb.append("}\n");
+		sb.append("\n");
+		sb.append("function dynLayerMoveTo(x,y) {\n");
+		sb.append("        this.x = x\n");
+		sb.append("                this.css.left = this.x\n");
+		sb.append("                this.y = y\n");
+		sb.append("                this.css.top = this.y\n");
+		sb.append("}\n");
+		sb.append("function dynLayerShow() {\n");
+		sb.append("        if (n) this.css.visibility = \"show\"\n");
+		sb.append("                else if (ie) this.css.visibility = \"visible\"\n");
+		sb.append("}\n");
+		sb.append("function dynLayerHide() {\n");
+		sb.append("        if (n) this.css.visibility = \"hide\"\n");
+		sb.append("                else if (ie) this.css.visibility = \"hidden\"\n");
+		sb.append("}\n");
+		sb.append("\n");
+		sb.append("document.writeln('<STYLE TYPE=\\\"text\\/css\\\">')\n");
+		sb.append("document.writeln('#menuDiv {position:absolute; left:0; top:0; background-color:C0C0C0; layer-background-color:C0C0C0; visibility:hidden;}')\n");
+		sb.append("\n");
+		sb.append("for (var k = 0; k < menuEle.length; k++) {\n");
+		sb.append("        document.writeln('#input' + k + 'Div {position:absolute; left:3; top:' + (20 * (k) + 3) + '; width:' + (MenuWidth-6) + '; height:20; clip:rect(0,' + (MenuWidth -6) + ',20,0); background-color:C0C0C0; layer-background-color:C0C0C0;}')\n");
+		sb.append("        }\n");
+		sb.append("\n");
+		sb.append("document.writeln('<\\/STYLE>')\n");
+		sb.append("document.writeln('<DIV ID=\"menuDiv\">')\n");
+		sb.append("for (var k = 0; k < menuEle.length; k++) {\n");
+		sb.append("        document.writeln('<DIV ID=\"input' + k + 'Div\"><FONT FACE=\"Helvetica\" SIZE=\"1\"><A HREF=\"' + ItemEntry[k].adrs + '\">' + ItemEntry[k].cap + '</FONT></A></DIV>')\n");
+		sb.append("        }\n");
+		sb.append("document.writeln('</DIV>')\n");
+		sb.append("init()\n");
+		sb.append("// -->\n");
+		sb.append("</script>\n");
+
+
+		return sb.toString();
 	}
 }
