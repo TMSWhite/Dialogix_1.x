@@ -10,7 +10,7 @@ public class Qss implements QssConstants {
 
         public Datum parse(Triceps tri) {
                 triceps = tri;
-        Datum d = Datum.getInstance(triceps,Datum.INVALID);
+        Datum d = null;
 
                 try {
                         stack = new Stack();
@@ -18,12 +18,15 @@ public class Qss implements QssConstants {
                         d = (Datum) stack.pop();
                 }
                 catch (EmptyStackException e) {
-                        error(triceps.get("stack_underflow"),token.beginLine,token.beginColumn);
+Logger.writeln("##EmptyStackException @ Qss.parse()" + e.getMessage());
+                       error(triceps.get("stack_underflow"),token.beginLine,token.beginColumn);
                 }
                 catch (ParseException e) {
+Logger.writeln("##ParseException @ Qss.parse()" + e.getMessage());
                         error(e.getMessage());
                 }
                 catch (TokenMgrError e) {
+Logger.writeln("##TokenMgrError @ Qss.parse()" + e.getMessage());
                         error(e.getMessage());
                 }
 
@@ -31,7 +34,7 @@ public class Qss implements QssConstants {
                         debug(null,d);
                 }
 
-                return d;
+                return ((d != null) ? d : Datum.getInstance(triceps,Datum.INVALID));
         }
 
         public void resetErrorCount() {
@@ -73,11 +76,12 @@ public class Qss implements QssConstants {
 
         private void unaryOp(int op, Object arg1) {
                 Datum a = getParam(arg1);
-                Datum ans = Datum.getInstance(triceps,Datum.INVALID);
+                Datum ans = null;
                 switch(op) {
                         case PLUS: ans = a; break;
                         case MINUS: ans = DatumMath.neg(a); break;
                         case NOT: ans = DatumMath.not(a); break;
+                        default: ans = Datum.getInstance(triceps,Datum.INVALID); break;
                 }
                 stack.push(ans);
                 if (debugLogger != Logger.NULL) {
@@ -94,7 +98,7 @@ public class Qss implements QssConstants {
         private void binaryOp(int op, Object arg2, Object arg1) {
                 Datum a = getParam(arg1);
                 Datum b = getParam(arg2);
-                Datum ans = Datum.getInstance(triceps,Datum.INVALID);
+                Datum ans = null;
                 switch(op) {
                         case PLUS: ans = DatumMath.add(a,b); break;
                         case MINUS: ans = DatumMath.subtract(a,b); break;
@@ -114,6 +118,7 @@ public class Qss implements QssConstants {
                         case AND: ans = DatumMath.and(a,b); break;
                         case OR: ans = DatumMath.or(a,b); break;
                         case ASSIGN: triceps.getEvidence().set(a.stringVal(),b); ans = triceps.getEvidence().getDatum(a.stringVal()); break;
+                        default: ans = Datum.getInstance(triceps,Datum.INVALID); break;
                 }
                 stack.push(ans);
                 if (debugLogger != Logger.NULL) {
@@ -125,9 +130,10 @@ public class Qss implements QssConstants {
                 Datum a = getParam(arg1);
                 Datum b = getParam(arg2);
                 Datum c = getParam(arg3);
-                Datum ans = Datum.getInstance(triceps,Datum.INVALID);
+                Datum ans = null;
                 switch(op) {
                         case QUEST: ans = DatumMath.conditional(a,b,c); break;
+                        default: ans = Datum.getInstance(triceps,Datum.INVALID); break;
                 }
                 stack.push(ans);
                 if (debugLogger != Logger.NULL) {
@@ -136,8 +142,7 @@ public class Qss implements QssConstants {
         }
 
         private void functionOp(Token func, Stack params) {
-                Datum ans = Datum.getInstance(triceps,Datum.INVALID);
-                ans = triceps.getEvidence().function(func.image, params, func.beginLine, func.beginColumn);
+                Datum ans = triceps.getEvidence().function(func.image, params, func.beginLine, func.beginColumn);
                 stack.push(ans);
                 if (debugLogger != Logger.NULL) {
                         StringBuffer sb = new StringBuffer("function\t" + func.image);
@@ -627,6 +632,7 @@ public class Qss implements QssConstants {
                                 }
                         }
                         catch (IndexOutOfBoundsException e) {
+Logger.writeln("##IndexOutOfBoundsException @ Qss.parseConstant()" + e.getMessage());
                                 error(triceps.get("unterminated_escaped_character"), token.beginLine, token.beginColumn + i);
                         }
 
