@@ -128,7 +128,7 @@ public class Schedule implements VersionIF  {
 
 		setDefaultReserveds();
 
-		setReserved(SCHEDULE_SOURCE,source,true);	// this defaults to LOADED_FROM, but want to keep track of the original source location
+		setReserved(SCHEDULE_SOURCE,source);	// this defaults to LOADED_FROM, but want to keep track of the original source location
 
 		if (load(source,false)) {
 			isFound = true;
@@ -143,12 +143,12 @@ public class Schedule implements VersionIF  {
 	private void setDefaultReserveds() {
 		setReserved(TRICEPS_FILE_TYPE,TRICEPS_UNKNOWN_FILE);
 		setReserved(TITLE,VERSION_NAME);
-		setReserved(STARTING_STEP,"0",true);
+		setReserved(STARTING_STEP,"0");
 		// START_TIME and *_DIR must preceed FILENAME, which uses the values from each of those //
-		setReserved(START_TIME,triceps.formatDate(new Date(System.currentTimeMillis()),Datum.TIME_MASK),true);
-		setReserved(WORKING_DIR,null,true);
-		setReserved(COMPLETED_DIR,null,true);
-		setReserved(FLOPPY_DIR,null,true);
+		setReserved(START_TIME,triceps.formatDate(new Date(System.currentTimeMillis()),Datum.TIME_MASK));
+		setReserved(WORKING_DIR,null);
+		setReserved(COMPLETED_DIR,null);
+		setReserved(FLOPPY_DIR,null);
 		setReserved(FILENAME,null);	// sets the default value
 		setReserved(PASSWORD_FOR_ADMIN_MODE,"");
 		setReserved(AUTOGEN_OPTION_NUM,"true");
@@ -158,18 +158,18 @@ public class Schedule implements VersionIF  {
 		setReserved(DEVELOPER_MODE,"false");
 		setReserved(DEBUG_MODE,"false");
 		setReserved(LANGUAGES,DEFAULT_LANGUAGE);
-		setReserved(CURRENT_LANGUAGE,null,true);
+		setReserved(CURRENT_LANGUAGE,null);
 		setReserved(SHOW_ADMIN_ICONS,"false");
 		setReserved(TITLE_FOR_PICKLIST_WHEN_IN_PROGRESS,"");	// default is unnamed until initialized
 		setReserved(ALLOW_COMMENTS,"false");
-		setReserved(SCHEDULE_SOURCE,"",true);
-		setReserved(LOADED_FROM,"",true);
+		setReserved(SCHEDULE_SOURCE,"");
+		setReserved(LOADED_FROM,"");
 		setReserved(ALLOW_LANGUAGE_SWITCHING,"true");
 		setReserved(ALLOW_REFUSED,"true");
 		setReserved(ALLOW_UNKNOWN,"true");
 		setReserved(ALLOW_DONT_UNDERSTAND,"true");
 		setReserved(RECORD_EVENTS,"true");
-		setReserved(IMAGE_FILES_DIR,null,true);
+		setReserved(IMAGE_FILES_DIR,null);
 		setReserved(COMMENT_ICON_ON,"comment_true.gif");
 		setReserved(COMMENT_ICON_OFF,"comment_false.gif");
 		setReserved(REFUSED_ICON_ON,"refused_true.gif");
@@ -178,8 +178,8 @@ public class Schedule implements VersionIF  {
 		setReserved(UNKNOWN_ICON_OFF,"unknown_false.gif");
 		setReserved(DONT_UNDERSTAND_ICON_ON,"not_understood_true.gif");
 		setReserved(DONT_UNDERSTAND_ICON_OFF,"not_understood_false.gif");
-		setReserved(TRICEPS_VERSION_MAJOR, VERSION_MAJOR,true);
-		setReserved(TRICEPS_VERSION_MINOR, VERSION_MINOR,true);
+		setReserved(TRICEPS_VERSION_MAJOR, VERSION_MAJOR);
+		setReserved(TRICEPS_VERSION_MINOR, VERSION_MINOR);
 		setReserved(SCHED_AUTHORS,null);
 		setReserved(SCHED_VERSION_MAJOR,null);
 		setReserved(SCHED_VERSION_MINOR,null);
@@ -388,7 +388,7 @@ if (DEBUG) Logger.writeln("##IOException @ Schedule.load()" + e.getMessage());
 	}
 
 	public boolean setReserved(int resIdx, String value) {
-		return setReserved(resIdx, value, true);	// should really be false, but bugs have crept in
+		return setReserved(resIdx, value, true);
 	}
 
 	public boolean setReserved(int resIdx, String value, boolean expert) {
