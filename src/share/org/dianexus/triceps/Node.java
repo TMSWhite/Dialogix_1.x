@@ -84,6 +84,7 @@ public class Node  {
 	private int datumType = Datum.INVALID;
 	private Vector runtimeErrors = new Vector();
 	private Vector parseErrors = new Vector();
+	private Vector namingErrors = new Vector();
 
 	private String questionOrEvalTypeStr = "";
 	private String datumTypeStr = "";
@@ -176,41 +177,33 @@ public class Node  {
 				default: break;	// ignore extras
 			}
 		}
-		if (field < 7) {	// help column is optional
-			setParseError("Too few columns: " + field);
-		}
-		if (numLanguagesFound < numLanguages) {
-//			setParseError("Missing entries for languages " + (numLanguages - numLanguagesFound) + " to " + (numLanguages - 1));
+		if (dependencies == null || dependencies.trim().length() == 0) {
+			setParseError("Missing dependencies column");
 		}
 
 		if (conceptName != null && conceptName.trim().length() > 0) {
 			conceptName = conceptName.trim();
 			if (Character.isDigit(conceptName.charAt(0))) {
-				setParseError("Invalid conceptName '" + conceptName + "':  it begins with a digit - prepending '_'");
+				setNamingError("Invalid conceptName '" + conceptName + "':  it begins with a digit - prepending '_'");
 				conceptName = "_" + conceptName;
 			}
 		}
 		if (localName != null && localName.trim().length() > 0) {
 			localName = localName.trim();
 			if (Character.isDigit(localName.charAt(0))) {
-				setParseError("Invalid localName '" + localName + "':  it begins with a digit - prepending '_'");
+				setNamingError("Invalid localName '" + localName + "':  it begins with a digit - prepending '_'");
 				localName = "_" + localName;
 			}
 		}
 		else {
-			setParseError("A localName must be specified for this node");
+			setNamingError("A localName must be specified for this node");
 		}
-		/*
-		if (externalName != null && externalName.trim().length() > 0) {
-			externalName = externalName.trim();
-			if (Character.isDigit(externalName.charAt(0))) {
-				setParseError("Invalid externalName '" + externalName + "':  it begins with a digit - prepending '_'");
-				externalName = "_" + externalName;
-			}
-		}
-		*/
 
 		parseQuestionOrEvalTypeField();
+		
+		if (questionOrEvalType == BADTYPE) {
+			setParseError("Invalid questionOrEvalType");
+		}
 
 		for (int i=0;i<answerChoicesStr.size();++i) {
 			parseAnswerOptions(i,(String) answerChoicesStr.elementAt(i));
@@ -284,9 +277,6 @@ public class Node  {
 							questionOrEvalType = z;
 							break;
 						}
-					}
-					if (z == ACTION_TYPES.length) {
-						setParseError("Unknown questionOrEval type " + questionOrEvalTypeStr);
 					}
 					break;
 				case 1:
@@ -748,7 +738,11 @@ public class Node  {
 	public boolean focusable() { return (answerType != BADTYPE && answerType != NOTHING); }
 	public boolean focusableArray() { return (answerType == RADIO || answerType == RADIO_HORIZONTAL || answerType == CHECK); }
 
-
+	public void setNamingError(String error) {
+		if (error != null)
+			namingErrors.addElement(error + "<br>");
+	}
+	
 	public void setParseError(String error) {
 		if (error != null)
 			parseErrors.addElement(error + "<br>");
@@ -766,6 +760,12 @@ public class Node  {
 		runtimeErrors = new Vector();	// clear the runtime errors;
 		return errs;
 	}
+	
+	public boolean hasParseErrors() { return parseErrors.size() > 0; }
+	public boolean hasNamingErrors() { return namingErrors.size() > 0; }
+	
+	public Vector getParseErrors() { return parseErrors; }	
+	public Vector getNamingErrors() { return namingErrors; }
 
 	public Vector getRuntimeErrors() {
 		Vector errs = runtimeErrors;
@@ -774,7 +774,6 @@ public class Node  {
 	}
 
 
-	public boolean hasErrors() { return ((runtimeErrors.size() + parseErrors.size()) > 0); }
 	public boolean hasRuntimeErrors() { return (runtimeErrors.size() > 0); }
 
 	public String toTSV() {
