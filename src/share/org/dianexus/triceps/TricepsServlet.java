@@ -152,7 +152,7 @@ public class TricepsServlet extends HttpServlet {
 			attemptingToRefuse = req.getParameter("passwordForRefused");
 			if (attemptingToRefuse != null && !attemptingToRefuse.equals("")) {
 				/* if try to enter a password, make sure that doesn't reset the form if password fails */
-				directive = "next";	// XXX - since JavaScript can't set a SUBMIT value in the subjectRefusesToAnswer() function
+				directive = "next";	// XXX - since JavaScript can't set a SUBMIT value in the answerRefused() function
 
 				if (triceps.getPasswordForRefused() == null) {
 					sb.append("You are not allowed to refuse to answer these questions<BR>");
@@ -169,6 +169,7 @@ public class TricepsServlet extends HttpServlet {
 		}
 
 		sb.append("<input type='HIDDEN' name='passwordForRefused' value=''>\n");	// must manually bypass each time
+		sb.append("<input type='HIDDEN' name='passwordForUnknown' value=''>\n");	// must manually bypass each time
 
 		return sb.toString();
 	}
@@ -178,10 +179,7 @@ public class TricepsServlet extends HttpServlet {
 
 		sb.append("<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 3.2//EN\">\n");
 		sb.append("<html>\n");
-		sb.append("<body bgcolor='white'");
-		if (firstFocus != null) {
-			sb.append(" onload='javascript:document.myForm." + firstFocus + ".focus()'");
-		}
+		sb.append("<body bgcolor='white' onload='javascript:init();'");
 		sb.append(">\n");
 		sb.append("<head>\n");
 		sb.append("<META HTTP-EQUIV='Content-Type' CONTENT='text/html;CHARSET=iso-8859-1'>\n");
@@ -191,25 +189,6 @@ public class TricepsServlet extends HttpServlet {
 
 		sb.append("</head>\n");
 		sb.append("<body>\n");
-
-		sb.append("<SCRIPT>\n");
-		sb.append("<!--\n");
-		sb.append("function subjectRefusesToAnswer() {\n");
-		sb.append("	var ans = prompt('Enter the password to refuse to answer this question','');\n");
-		sb.append("	if (ans == null || ans.length == 0) { return; /* to avoid submit */ }\n");
-		sb.append("	document.myForm.passwordForRefused.value = ans;\n");
-		sb.append("	document.myForm.submit();\n");
-		sb.append("} //-->\n");
-		sb.append("</SCRIPT>\n");
-
-		sb.append("<!--\n");
-		sb.append("scheduleList: " + scheduleList + "\n");
-		sb.append("scheduleSrcDir: " + scheduleSrcDir + "\n");
-		sb.append("workingFilesDir: " + workingFilesDir + "\n");
-		sb.append("completedFilesDir: " + completedFilesDir + "\n");
-		sb.append("-->\n");
-
-
 
 		return sb.toString();
 	}
@@ -226,7 +205,7 @@ public class TricepsServlet extends HttpServlet {
 			sb.append("&nbsp;");
 		}
 		else {
-			sb.append("			<IMG SRC='" + icon + "' ALIGN='BOTTOM' BORDER='0' onmousedown='javascript:subjectRefusesToAnswer();'>\n");
+			sb.append("			<IMG NAME='icon' SRC='" + icon + "' ALIGN='BOTTOM' BORDER='0'>\n");
 		}
 		sb.append("	</TD>\n");
 		sb.append("	<TD WIDTH='82%'><FONT SIZE='5'><B>" + Node.encodeHTML((triceps != null) ? triceps.getHeaderMsg() : "Triceps System") + "</B></FONT></TD>\n");
@@ -292,28 +271,29 @@ public class TricepsServlet extends HttpServlet {
 								sb.append("<B>" + Triceps.getReaderError() + "</B><HR>");
 							}
 							else {
-								try { target.close(); } catch (Exception e) {}
+								try { target.close(); } catch (Throwable t) { System.err.println("Error closing reader: " + t.getMessage()); }
 
 								++count;
 								schedules.append("	<option value='" + Node.encodeHTML(fileLoc) + "'>" + Node.encodeHTML(title) + "</option>\n");
 							}
 						}
-						catch (NullPointerException e) {
-							sb.append("Error tokenizing schedule list '" + scheduleList + "' on line " + line + ": " + e);
+						catch (Throwable t) {
+							String msg = "Error tokenizing schedule list '" + scheduleList + "' on line " + line + ": " + t.getMessage();
+							sb.append(msg);
+							System.err.println(msg);
 						}
-						catch (NoSuchElementException e) {
-							sb.append("Error tokenizing schedule list '" + scheduleList + "' on line " + line + ": " + e);
-						}
-						catch (Throwable t) {}
 					}
 				}
-				catch(IOException e) {
-					sb.append("Error reading from " + scheduleList);
+				catch(Throwable t) {
+					String msg = "Error reading from " + scheduleList + ": " + t.getMessage();
+					sb.append(msg);
+					System.err.println(msg);
 				}
-				catch (Throwable t) {}
 				finally {
 					if (br != null) {
-						try { br.close(); } catch (Throwable t) { }
+						try { br.close(); } catch (Throwable t) {
+							System.err.println("Error closing reader: " + t.getMessage());							
+						}
 					}
 				}
 
@@ -338,7 +318,7 @@ public class TricepsServlet extends HttpServlet {
 								}
 							}
 							catch (Throwable t) {
-								System.out.println(t.getMessage());
+								System.err.println("Error reading from file " + dir + ": " + t.getMessage());
 							}
 						}
 						if (count > 0) {
@@ -349,11 +329,11 @@ public class TricepsServlet extends HttpServlet {
 						}
 					}
 					else {
-						System.out.println("can't read from dir " + dir.toString());
+						System.err.println("can't read from dir " + dir.toString());
 					}
 				}
 				catch(Throwable t) {
-					System.out.println(t.getMessage());
+					System.err.println("Error reading from file: "  + t.getMessage());
 				}
 			}
 
@@ -387,9 +367,8 @@ public class TricepsServlet extends HttpServlet {
 				try {
 					this.doGet(req,res);
 				}
-				catch (ServletException e) {
-				}
-				catch (IOException e) {
+				catch (Throwable t) {
+					System.err.println("Error recursively calling doGet(): " + t.getMessage());
 				}
 				return sb.toString();
 			}
@@ -689,18 +668,14 @@ public class TricepsServlet extends HttpServlet {
 					if (showQuestionNum) {
 						sb.append("<TD>&nbsp;</TD>");
 					}
+					sb.append("	<TD WIDTH='1%'><IMG SRC='file:///C|/cic/images/help.gif' ALIGN='BOTTOM' BORDER='0' ALT='Help'></TD>\n");
 					sb.append(node.prepareChoicesAsHTML(datum,errMsg));
 					break;
 				default:
 					sb.append("		<TD><FONT" + color + ">" + Node.encodeHTML(triceps.getQuestionStr(node)) + "</FONT></TD>\n");
+					sb.append("	<TD WIDTH='1%'><IMG SRC='file:///C|/cic/images/help.gif' ALIGN='BOTTOM' BORDER='0' ALT='Help'></TD>\n");
 					sb.append("		<TD>" + node.prepareChoicesAsHTML(datum) + errMsg + "</TD>\n");
 					break;
-			}
-			if (node.getAnswerType() != Node.NOTHING) {
-				// help button
-				sb.append("	<TD WIDTH='1%'>\n");
-				sb.append("			<IMG SRC='file:///C|/cic/images/help.gif' ALIGN='BOTTOM' BORDER='0' ALT='Help' onmousedown='javascript:mouseDown;'>\n");
-				sb.append("	</TD>\n");
 			}
 
 			sb.append("	</TR>\n");
@@ -799,128 +774,65 @@ public class TricepsServlet extends HttpServlet {
 	private String popupMenu() {
 		StringBuffer sb = new StringBuffer();
 
-		sb.append("<script language=\"JavaScript\">\n");
-		sb.append("<!--BEGIN Script\n");
-		sb.append("\n");
-		sb.append("var ItemEntry = new Array()\n");
-		sb.append("\n");
-		sb.append("//=====================THIS PART MAY BE EDITED======================\n");
-		sb.append("\n");
-		sb.append("// Varibles can be changed\n");
-		sb.append("\n");
-		sb.append("MenuWidth = 100\n");
-		sb.append("MenuHeight = 110\n");
-		sb.append("\n");
-		sb.append("ItemInMenu = 4\n");
-		sb.append("\n");
-		sb.append("// Setup your menu words\n");
-		sb.append("// Entry Data in ItemEntry[x] = new MenuEntry(\"Item Caption\",\"Link Address\") format\n");
-		sb.append("ItemEntry[0] = new MenuEntry(\"Help\",\"/devhead/index.html\")\n");
-		sb.append("ItemEntry[1] = new MenuEntry(\"Add Comment\",\"/devhead/resources/scriptlibrary/index.html\")\n");
-		sb.append("ItemEntry[2] = new MenuEntry(\"Mark as Refused\",\"/devhead/resources/scriptlibrary/new.html\")\n");
-		sb.append("ItemEntry[3] = new MenuEntry(\"Mark as Unknown\",\"/devhead/resources/tools/htmlcheck/\")\n");
-		sb.append("\n");
-		sb.append("//===================DO NOT MODIFY THE CODE BELOW================\n");
-		sb.append("var menuEle = new Array(ItemInMenu)\n");
-		sb.append("n = (document.layers) ? 1:0\n");
-		sb.append("ie = (document.all) ? 1:0\n");
+		sb.append("<SCRIPT> <!--\n");
+		sb.append("var showing=false;\n");
+		sb.append("var xNow, yNow, css, n, ie;\n");
 		sb.append("\n");
 		sb.append("function init() {\n");
-		sb.append("        // initialize objects\n");
-		sb.append("        menu = new dynLayer(\"menuDiv\",null)\n");
-		sb.append("        for (var k = 0; k < menuEle.length; k++) {\n");
-		sb.append("                menuEle[k] = new dynLayer(\"input\" + k + \"Div\",\"menuDiv\")\n");
-		sb.append("                }\n");
-		sb.append("        menu.hide()\n");
-		sb.append("\n");
-		sb.append("        // initialize events\n");
-//		sb.append("        document.onmousedown = mouseDown\n");
-//		sb.append("        if (n) document.captureEvents(Event.MOUSEDOWN)\n");
+		sb.append("	n = (document.layers) ? 1:0\n");
+		sb.append("	ie = (document.all) ? 1:0\n");		
+		sb.append("	if (n) { css = document.layers['popup']; }\n");
+		sb.append("	if (ie) { css = document.all['popup'].style; }\n");
+//		sb.append("	hidePopup();\n");
+		sb.append("	for (var c=0;c<document.images.length;++c) {\n");
+		sb.append("		document.images[c].onmousedown = togglePopup;\n");
+		sb.append("	}\n");
+		sb.append("	if (document.images['icon']) document.images['icon'].onmousedown =  answerRefused;\n");
+		if (firstFocus != null) {
+			sb.append(" document.myForm." + firstFocus + ".focus();\n");
+		}
 		sb.append("}\n");
-		sb.append("\n");
-		sb.append("function MenuEntry(cap,adrs) {\n");
-		sb.append("this.cap = cap\n");
-		sb.append("this.adrs = adrs\n");
+		sb.append("function togglePopup(e) {\n");
+		sb.append("	if (showing == false) { showPopup(e); }\n");
+		sb.append("	else { hidePopup(); }\n");
 		sb.append("}\n");
-		sb.append("\n");
-		sb.append("// Temperary Varibles\n");
-		sb.append("showing = false\n");
-		sb.append("\n");
-		sb.append("function mouseDown(e) {\n");
-		sb.append("if (showing == true) {showing = false; setTimeout('menu.hide()',50)}\n");
-		sb.append("else if (((n && e.which == 1) || ie) && showing == false) {\n");
-		sb.append("                if (n) {var xNow=e.pageX; var yNow=e.pageY}\n");
-		sb.append("                if (ie) {var xNow=event.x; var yNow=event.y}\n");
-		sb.append("                menu.moveTo(xNow, yNow)\n");
-		sb.append("                menu.show()\n");
-		sb.append("                showing = true\n");
-		sb.append("        }\n");
-		sb.append("\n");
-		sb.append("\n");
+		sb.append("function showPopup(e) {\n");
+		sb.append("	if (n) {xNow=e.pageX; yNow=e.pageY}\n");
+		sb.append("	if (ie) {xNow=event.x; yNow=event.y}\n");
+		sb.append("	css.left = xNow - css.clip.width;\n");
+		sb.append("	css.top = yNow + 5;\n");
+		sb.append(" css.zIndex = 100;\n");
+		sb.append("	if (n) { css.visibility = 'show'; }\n");
+		sb.append("	else if (ie) { css.visibility = 'showing'; }\n");
+		sb.append("	showing = true;\n");
 		sb.append("}\n");
-		sb.append("\n");
-		sb.append("function dynLayer(id,nestref,des) {\n");
-		sb.append("        if (n) {\n");
-		sb.append("                if (nestref) {\n");
-		sb.append("                        this.css = eval(\"document.\" + nestref + \".document.\" + id)\n");
-		sb.append("                                this.ref = eval(\"document.\" + nestref + \".document.\" + id + \".document\")\n");
-		sb.append("                }\n");
-		sb.append("                else {\n");
-		sb.append("                        this.css = document.layers[id]\n");
-		sb.append("                                this.ref = document.layers[id].document\n");
-		sb.append("                }\n");
-		sb.append("                        this.x = this.css.left\n");
-		sb.append("                        this.y = this.css.top\n");
-		sb.append("                        this.w = this.css.clip.width\n");
-		sb.append("                        this.h = this.css.clip.height\n");
-		sb.append("        }\n");
-		sb.append("        else if (ie) {\n");
-		sb.append("                this.css = document.all[id].style\n");
-		sb.append("                        this.ref = document\n");
-		sb.append("                        this.x = this.css.pixelLeft\n");
-		sb.append("                        this.y = this.css.pixelTop\n");
-		sb.append("                        this.w = this.css.pixelWidth\n");
-		sb.append("                        this.h = this.css.pixelHeight\n");
-		sb.append("        }\n");
-		sb.append("        this.obj = id + \"Object\"\n");
-		sb.append("                eval(this.obj + \"=this\")\n");
-		sb.append("                this.moveTo = dynLayerMoveTo\n");
-		sb.append("                this.show = dynLayerShow\n");
-		sb.append("                this.hide = dynLayerHide\n");
+		sb.append("function hidePopup() {\n");
+		sb.append("	if (n) { document.layers['popup'].visibility = 'hide'; }\n");
+		sb.append("	else if (ie) { document.all['popup'].style.visibility = 'hidden'; }\n");
+		sb.append("	showing = false;\n");
 		sb.append("}\n");
-		sb.append("\n");
-		sb.append("function dynLayerMoveTo(x,y) {\n");
-		sb.append("        this.x = x\n");
-		sb.append("                this.css.left = this.x\n");
-		sb.append("                this.y = y\n");
-		sb.append("                this.css.top = this.y\n");
+		
+		/* This is where code would be added to deal with Help, Comment, Refused, and Unknown */
+		sb.append("function answerRefused() {\n");
+		sb.append("	var ans = prompt('Enter password to *REFUSE* to answer this question','');\n");
+		sb.append("	if (ans == null || ans.length == 0) { return; /* to avoid submit */ }\n");
+		sb.append("	document.myForm.passwordForRefused.value = ans;\n");
+		sb.append("	document.myForm.submit();\n");
 		sb.append("}\n");
-		sb.append("function dynLayerShow() {\n");
-		sb.append("        if (n) this.css.visibility = \"show\"\n");
-		sb.append("                else if (ie) this.css.visibility = \"visible\"\n");
-		sb.append("}\n");
-		sb.append("function dynLayerHide() {\n");
-		sb.append("        if (n) this.css.visibility = \"hide\"\n");
-		sb.append("                else if (ie) this.css.visibility = \"hidden\"\n");
-		sb.append("}\n");
-		sb.append("\n");
-		sb.append("document.writeln('<STYLE TYPE=\\\"text\\/css\\\">')\n");
-		sb.append("document.writeln('#menuDiv {position:absolute; left:0; top:0; background-color:C0C0C0; layer-background-color:C0C0C0; visibility:hidden;}')\n");
-		sb.append("\n");
-		sb.append("for (var k = 0; k < menuEle.length; k++) {\n");
-		sb.append("        document.writeln('#input' + k + 'Div {position:absolute; left:3; top:' + (20 * (k) + 3) + '; width:' + (MenuWidth-6) + '; height:20; clip:rect(0,' + (MenuWidth -6) + ',20,0); background-color:C0C0C0; layer-background-color:C0C0C0;}')\n");
-		sb.append("        }\n");
-		sb.append("\n");
-		sb.append("document.writeln('<\\/STYLE>')\n");
-		sb.append("document.writeln('<DIV ID=\"menuDiv\">')\n");
-		sb.append("for (var k = 0; k < menuEle.length; k++) {\n");
-		sb.append("        document.writeln('<DIV ID=\"input' + k + 'Div\"><FONT FACE=\"Helvetica\" SIZE=\"1\"><A HREF=\"' + ItemEntry[k].adrs + '\">' + ItemEntry[k].cap + '</FONT></A></DIV>')\n");
-		sb.append("        }\n");
-		sb.append("document.writeln('</DIV>')\n");
-		sb.append("init()\n");
-		sb.append("// -->\n");
-		sb.append("</script>\n");
+		sb.append("function answerUnknown() {\n");
+		sb.append("	var ans = prompt('Enter password to indicate that the answer is *UNKNOWN*','');\n");
+		sb.append("	if (ans == null || ans.length == 0) { return; /* to avoid submit */ }\n");
+		sb.append("	document.myForm.passwordForUnknown.value = ans;\n");
+		sb.append("	document.myForm.submit();\n");
+		sb.append("}\n");		
 
+		sb.append("// --> </SCRIPT>\n");
+		sb.append("<DIV NAME=\"popup\" STYLE=\"Layer-Background-Color : silver; position : absolute; visibility : hidden\">\n");
+		sb.append("	<A HREF=\"javascript:help();hidePopup();\">Help</A><BR>\n");
+		sb.append("	<A HREF=\"javascript:comment();hidePopup();\">Add&nbsp;Comment</A><BR>\n");
+		sb.append("	<A HREF=\"javascript:answerUnknown();hidePopup();\">Mark&nbsp;as&nbsp;Unknown</A><BR>\n");
+		sb.append("	<A HREF=\"javascript:answerRefused();hidePopup();\">Mark&nbsp;as&nbsp;Refused</A>\n");
+		sb.append("</DIV>\n");
 
 		return sb.toString();
 	}
