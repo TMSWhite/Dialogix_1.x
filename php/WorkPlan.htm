@@ -335,23 +335,302 @@
 	<UL>
 		<LI>Identify people reporting to PI
 		<LI>Have them report via video
-		<LI>Our job is to husband it and provide resources
+		<LI>Our job is to husband it and identify needed resources (provide them too?)
 	</UL>
-	<LI>Projects
+	<LI>Potential Projects
 	<UL>
-		<LI>Dialogix
+		<LI>Education
+		<UL>
+			<LI>Informatics Fellowship
+			<LI>Mental Health Informatics curriculum
+			<LI>Goverment Informatics curriculum
+			<LI>Develop / recruit staff from other departments in prep for submitting T32 education grant
+		</UL>
+		<LI>Dialogix, SWIM, etc.
+		<UL>
+			<LI>National Outcomes Database (with Health Legacy Partnership?)
+			<LI>LOINC standards for coding instruments and their questions (work to get fed to adopt this standard)
+			<LI>Improve instrument development cycle (faster, better psychometrics)
+			<LI>Implement Child psych instruments (with Peter Jensen &amp; Ruane Department)
+			<LI>Item banking &amp; data banking (instrument and data coordination centers)
+			<LI>&quot;Service industry&quot; to build / deploy / manage data collection using this tool
+			<LI>&quot;Service industry&quot; to LOINC-encode instruments that are commercially available, assuming we can get
+			government to adopt Dialogix as standard, HIPAA-compliant coding system for surveys
+			<LI>Prototype HL7 link of results to EMR including VA's system (since they are interested)
+		</UL>
+		<LI>Improving Clinical Trials
+		<UL>
+			<LI>Ad-hoc EMR creation (e.g. via Dialogix or custom modules on EMR) so track clinical trials data electronically;
+			yet ensuring appropriate security
+			<LI>Coordinate with pharma re needs for such a system; get funding from them?
+		</UL>
+		<LI>Mental Health EMR
+		<UL>
+			<LI>PI as test-bed for EMR candidates
+			<LI>Usability evalution of selected candidates (with Vimla's group)
+			<LI>Prototype / test Dialogix as modular component of EMR -- especially once has HL7 output to send results to
+			any EMR
+		</UL>
+		<LI>Disaster Management &amp; Epidemiological tracking
+		<UL>
+			<LI>Team with state DOH/HERDS
+			<UL>
+				<LI>Use Dialogix data to generate geo-maps for all needed survey data
+				<LI>Use HERDS to collect simple survey data routinely, e.g. bed availability, licencing data
+				<LI>Extend HERDS with Dialogix module for more complex surveys
+			</UL>
+			<LI>Team with Pittsburg OpenRODS proejct
+			<UL>
+				<LI>Get over-the-counter drug data for tracking mental health outbreaks and patterns
+				<LI>Extend OpenRODS to use Dialogix survey data to track actual symptoms / diagnoses over time
+			</UL>
+			<LI>Team with NYC DOHMH
+			<UL>
+				<LI>get feeds from Emergency Rooms, 911, Lifeline, to track MH outbreaks and patterns
+				<LI>coordinate disaster drills
+			</UL>
+		</UL>
 		<LI>Telemedicine
-		<LI>Education - Informatics Fellow (T32)
-		<LI>Outcomes Research
-		<LI>Vimla -- usability
-		<LI>Infrastructure for clinical research (R2Net)
+		<UL>
+			<LI>PI as diagnostic center of excellence -- extend Steve Hyler's work to make this a service industry
+			<LI>Extend diagnostic excellence internationally
+			<LI>others?
+		</UL>
+		<LI>Telecollaboration
+		<UL>
+			<LI>Virtual conference rooms for ad-hoc meetings
+		</UL>
 		<LI>PAC-SAN
+		<UL>
+			<LI>Use as PAC for the state rather than purchasing one for the EMR?
+			<LI>others?
+		</UL>
 		<LI>IRB infrastructure
-		<LI>psychiatric genetics
-		<LI>psychiatric imaging
-		<LI>data mining
-		<LI>neuro informatics (Dan Garder - database)
+		<UL>
+			<LI>Make it easier to file &amp; manage IRB applications
+			<LI>Facilitate Dialogix and other web-based data collection (e.g. make it easy for IRB to review electronic data
+			collection)
+		</UL>
+		<LI>Infrastructure for clinical research (R2Net)
+		<UL>
+			<LI>Extend to support Dialogix and other data for clinical trials
+			<LI>Enhance integration with IRB
+			<LI>Evaluate / extend usability
+		</UL>
+		<LI>Outcomes Research &amp; Data Mining
+		<UL>
+			<LI>Use data from clinical trials + Dialogix + PSYCKES + EMR +/- Medicaid
+			<LI>Team with Stanford (Amar Das &amp; Yuval Shahar) to do temporal data mining using KNAVE (Shahar) and Chronos-II
+			(Das) tools
+			<LI>&quot;service industry&quot; -- analysis clearinghouse to facilitate research requiring use of Medicaid data
+			-- PI and NKI have many projects that could use those data, and we can use their expertise, rather than keeping
+			it entirely within the Adult and Children's Services Evaluation Bureaus (yet not compete with them)
+		</UL>
+		<LI>Neuro &amp; Psychiatric Informatics
+		<UL>
+			<LI>Team with PI and NKI imaging departments to facilitate cross-disciplinary research (e.g. imaging + treatment
+			and outcomes data)
+			<LI>Team with Dan Gardner and Human Brain project re building federated database that spans from brain scans to
+			individual electrode studies
+			<LI>Team with international HONOS project (doing work similar to Gardner)
+			<LI>Team with data miners looking for correlations between brain scans, genetics, treatments, and outcomes
+		</UL>
+		<LI>Psychiatric Genetics
+		<UL>
+			<LI>team with Pat Cohen and others who are studying links between genetics and outcomes (degree to which genetics
+			can predict disease, optimal treatments, and outcomes) -- they are getting genetic data on patients they are following
+			longitudinally
+			<LI>Team with those standardizing data warehousing of genetics data + services, treatments &amp; outcomes
+		</UL>
+		<LI>Consumer Directed Healthcare
+		<UL>
+			<LI>Reports to let patients track own symptoms (like WebMD)
+			<LI>Use Dialogix to let patients enter data via the telephone
+			<LI>Team with Columbia's PatCIS efforts?
+			<LI>Team with Amar Das / Stanford to use his Chronos-II visualization tool for timeline graphs
+			<LI>Demonstration studies of impact of such efforts
+		</UL>
 	</UL>
+</UL>
+
+<P>
+<HR ALIGN="CENTER">
+</P>
+
+<P>Tomcat 5.5 Notes 12/28/2004</P>
+
+<UL>
+	<LI>Customizations
+	<UL>
+		<LI>Create these tables
+		<UL>
+			<LI>CREATE TABLE authority.user_roles (<BR>
+			user_name varchar(15) NOT NULL default '',<BR>
+			role_name varchar(15) NOT NULL default '',<BR>
+			PRIMARY KEY (user_name,role_name)<BR>
+			) ;<BR>
+			CREATE TABLE authority.users (<BR>
+			user_name varchar(15) NOT NULL default '',<BR>
+			user_pass varchar(15) NOT NULL default '',<BR>
+			PRIMARY KEY (user_name)<BR>
+			) ;
+		</UL>
+		<LI>Copy this .jar file into the endorsed directory
+		<UL>
+			<LI>put mysql-connector-java-3.0.16-ga.jar in ${catalina.home}/common/endorsed
+		</UL>
+		<LI>Add this to server.xml
+		<UL>
+			<LI>&lt;Realm className=&quot;org.apache.catalina.realm.JDBCRealm&quot;<BR>
+			driverName=&quot;com.mysql.jdbc.Driver&quot;<BR>
+			connectionURL=&quot;jdbc:mysql://localhost:3306/authority?autoReconnect=true&quot;<BR>
+			connectionName=&quot;root&quot; connectionPassword=&quot;&quot;<BR>
+			userTable=&quot;users&quot; userNameCol=&quot;user_name&quot; userCredCol=&quot;user_pass&quot;<BR>
+			userRoleTable=&quot;user_roles&quot; roleNameCol=&quot;role_name&quot; /&gt;
+		</UL>
+		<LI>Comment out the other Realm
+		<LI>Uncomment the FastCommonAccessLogValve
+		<LI>Install Tomcat as a service using service.bat install in order to get log messages to file instead of cmd window.
+	</UL>
+	<LI>Converting Dialogix to WAR file
+	<UL>
+		<LI>Updated build.xml with &quot;war&quot; option
+		<LI>Create context.xml for the database connection so that can be different for each platform and instance. Will
+		require documentation on how to customize the web.xml and context.xml; but easier than a re-compile!
+		<UL>
+			<LI>&lt;!-- Context information to add MySQL database connection for Dialogix --&gt;<BR>
+			@@DB.COMMENT_START@@<BR>
+			&lt;Context debug=&quot;5&quot; reloadable=&quot;true&quot; crossContext=&quot;true&quot;&gt;<BR>
+			<BR>
+			&lt;Resource name=&quot;jdbc/dialogix&quot; auth=&quot;Container&quot; type=&quot;javax.sql.DataSource&quot;<BR>
+			maxActive=&quot;100&quot; maxIdle=&quot;30&quot; maxWait=&quot;10000&quot;<BR>
+			username=&quot;root&quot; password=&quot;&quot; driverClassName=&quot;com.mysql.jdbc.Driver&quot;<BR>
+			url=&quot;jdbc:mysql://127.0.0.1:3306/dialogix2994?autoReconnect=true&quot;/&gt;<BR>
+			<BR>
+			&lt;/Context&gt;<BR>
+			@@DB.COMMENT_END@@
+		</UL>
+		<LI>Add the database resource reference to web.xml
+		<UL>
+			<LI>@@DB.COMMENT_START@@<BR>
+			&lt;resource-ref&gt;<BR>
+			&lt;description&gt;DB Connection&lt;/description&gt;<BR>
+			&lt;res-ref-name&gt;jdbc/dialogix&lt;/res-ref-name&gt;<BR>
+			&lt;res-type&gt;javax.sql.DataSource&lt;/res-type&gt;<BR>
+			&lt;res-auth&gt;Container&lt;/res-auth&gt;<BR>
+			&lt;/resource-ref&gt; <BR>
+			@@DB.COMMENT_END@@
+		</UL>
+	</UL>
+	<LI>Add this to startup.bat to log garbage collection parameters
+	<UL>
+		<LI>set CATALINA_OPTS=-verbose:gc
+	</UL>
+	<LI>Add logs directory /webapps so that Dialogix.log.err file can be created / written
+	<LI>[DONE ] Validate SSL - can do in standalone Tomcat, or behind Apache (in which case don't use SSL Connector
+	in server.xml)
+	<UL>
+		<LI>&lt;Connector port=&quot;8443&quot; <BR>
+		maxThreads=&quot;150&quot; minSpareThreads=&quot;25&quot; maxSpareThreads=&quot;75&quot;<BR>
+		enableLookups=&quot;false&quot; disableUploadTimeout=&quot;true&quot;<BR>
+		acceptCount=&quot;100&quot; scheme=&quot;https&quot; secure=&quot;true&quot;<BR>
+		keystoreFile=&quot;dianexus.keystore&quot;<BR>
+		keystorePass=&quot;aka##triceps&quot;<BR>
+		clientAuth=&quot;false&quot; sslProtocol=&quot;TLS&quot; /&gt;
+	</UL>
+	<LI>[ ] Link Tomcat behind Apache?
+	<UL>
+		<LI>(1) Use Proxies (e.g. so that all requests to www.dialogix.org:80 and :43 go to Tomcat, and protect its port
+		so that no external calls allowed
+		<LI>(2) Use the JK connector (AJP), which is more efficient than proxying if only using on server (instead of clustering).
+		<LI>[ ] Temporarily add 127.0.0.1 as www.dialogix.org to hosts (c:\windows\system32\drivers\etc\hosts) -- [ ] Make
+		sure to remove it!
+	</UL>
+	<LI>N.B. RequestDumperValve shows all header messages -- good for debugging, but don't keep on constantly
+	<LI>[DONE] Modify the war deployment to be the name of the directory, not dialogix.war.
+	<LI>[XXX ] Ant to deploy all instruments -- the &lt;antcall&gt; and &lt;ant&gt; tasks don't unset other parameters
+	as desired, so hard to call sub properties files
+	<LI>[DONE ] Re-write index.htm file so automatically generated?
+	<LI>[ ] Move the Dialogix connector into a global context? Alternatively keep them separate for each application?
+	<LI>[ ] All license info should really be in a database
+	<UL>
+		<LI>[ ] Model the DB
+		<LI>[ ] Use it to apply permissions by study?
+	</UL>
+	<LI>[ ] Create ant deployments of all active projects for tomcat 5.5.4 for psychinformatics? Redundant, but easier
+	to manage?
+	<LI>[ ] Unit test to find memory leak
+	<LI>[ ] Write all to DB, perhaps one set of tables (or DB) per project?
+	<LI>[ ] Play with JSP, esp. taglibs?
+	<LI>N.B. ${xxx.yy} expansion works within Ant properties files
+	<LI>N.B. &lt;input&gt; can let specify which license file to deploy on the fly?
+	<LI>N.B. Can put Oro and Mysql (and even Dialogix) into endorsed dir for deployment, but not &quot;droppable&quot;
+	war file
+	<LI>[ ] Struts
+	<UL>
+		<LI>Not clear that this would be of any benefit. The taglibs approach to adding content is too laborious
+		<LI>Pipeline is nice -- XXX -- where is the documentation that discusses the various access/authentication/translation/etc.
+		steps needed in a good application/
+		<LI>Might help with internationalization, but pulling off of database may be more extensible and easier to manage
+		<LI>Tiles -- seems too slow and inconvenient -- the Web.xml definition of them make it hard to grok.
+	</UL>
+	<LI>[ ] Velocity
+	<UL>
+		<LI>Templating is easy. Uses #if/#then, #set, #foreach, #macros
+		<LI>Nice that can see the code within an HTML page, so easy to develop using a standard browser, rather than struts;
+		but new building tools don't have that limitation
+		<LI>Automatically adds values from GET line as the variable name (so no protection against overwriting reserved
+		parameters)?
+		<LI>Introspection style nice, such as $foo.bar.toInt().
+		<LI>Creates contexts which can hold objects and arrays and be nested to create local scope
+		<LI>Can call exec() from Java to create contexts, so could iteratively add Dialogix content
+		<LI>However, math functionality is limited to integers, so not clear that has many direct benefits other than the
+		introspection
+		<LI>Can I use anything from their JavaCC or JJTree stuff?
+	</UL>
+	<LI>[ ] JavaCC / JJTree -- update Dialogix.jj to support Unicode?
+	<UL>
+		<LI>N.B. Does recompile successfully!
+		<LI>COMMON_TOKEN_ACTION -- lets a user-defined routine be called after every call to the token manager -- could
+		this let me do persistence management and/or db storage? [ ] Do I need this, or can the parser be modified to do
+		so itself?
+		<LI>UNICODE -- is not supported
+		<LI>[ ] Modify parser to use Context, rather than Triceps, since really only needs to read and set variables (plus
+		ability to get functions externally)?
+		<LI>DatumMath would need to accept Context
+		<LI>Data should support abstraction of business layers and EJB persistence and/or DB persistance? E.g. always use
+		name to get/set value, but as Object with attached properties to declare type, or Datum which has type declared?
+		<LI>Can Datum support arrays?
+	</UL>
+	<LI>Context would be interface with following features
+	<UL>
+		<LI>Logger
+		<LI>Locale
+		<LI>Functions
+		<LI>Data
+	</UL>
+	<LI>Datum should be interface to make new datatypes pluggable? Problem is how to do DatumMath.
+	<LI>Rename package to org.dialogix.*
+	<LI>Remove XMLString or tailor so can change what is filtered?
+	<LI>Support Durations (date1 - date2) which don't have Java date=0 problem
+	<LI>Remove VersionIF dependency
+	<LI>[ ] Logging via Log4J instead of my rudimentary logger
+	<UL>
+		<LI>There is a JDBC extensions to allow logging directly to MySQL -- use for general data writes?
+	</UL>
+	<LI>[ ] J2EE Patterns -- what do I need for data abstraction?
+	<LI>[ ] How do I apply styles to data elements instead of in-lining in Node? This is a place where Velocity could
+	be helpful as macros that are loaded from a library and evaluated
+	<LI>Parser has several functions
+	<UL>
+		<LI>Generate list of dependent nodes so that can dynamically tailor pages baswed upon relevance even when jumping
+		around
+		<LI>Compute results of equations
+		<LI>So, should I use a parse Tree (is this what AST is for?) so can visit it with interpretter vs. tool to get
+		dependency tree?
+	</UL>
+	<LI>[ ] Build revised version of Parser that uses Logger?
+	<LI>[ ] Analyze how ?? (Velocity) uses AST and Visitor classes to parse the tree?
 </UL>
 
 
