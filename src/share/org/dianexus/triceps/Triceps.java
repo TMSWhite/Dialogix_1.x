@@ -117,7 +117,8 @@ public class Triceps implements Serializable {
 	}
 
 	public String getQuestionStr(Node q) {
-		return parser.parseJSP(evidence, q.getAction()) + q.getQuestionMask();
+		q.setQuestionAsAsked(parser.parseJSP(evidence, q.getAction()) + q.getQuestionMask());
+		return q.getQuestionAsAsked();
 	}
 
 	public boolean gotoFirst() {
@@ -467,7 +468,7 @@ public class Triceps implements Serializable {
 					ans = d.stringVal();
 				}
 
-				out.write(n.toTSV() + "\t" + ans + "\n");
+				out.write(n.toTSV() + "\t" + n.getQuestionAsAsked() + "\t" + ans +"\n");
 			}
 			out.flush();
 			return true;

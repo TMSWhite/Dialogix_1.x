@@ -35,6 +35,8 @@ public class Node implements Serializable {
 	// loading from extended Schedule with default answers
 	// XXX hack - Node shouldn't know values of evidence - Schedule should know how to load itself.
 	private transient String debugAnswer = null;
+	private transient String questionAsAsked = "";
+
 
 	/* N.B. need this obtuse way of checking for adjacent TABs from tokenizer - no other way seems to work */
 	/* XXX - there is no reliable way to tokenize tab delimited files - constantly dropped null values -
@@ -83,9 +85,11 @@ public class Node implements Serializable {
 
 			parseTSV(answerOptions);
 
+			// XXX these next two lines are a hack - read in, but discard, the stored questions and answers
+			questionAsAsked = st.nextToken();
 			debugAnswer = st.nextToken();
 		}
-		catch(Exception e) {
+		catch(NoSuchElementException e) {
 			if (count < 8) {
 				System.out.println("Error tokenizing line " + (step + 1) + " (" + count + "/8 tokens found)" + e.getMessage());
 			}
@@ -229,6 +233,10 @@ public class Node implements Serializable {
 	public String getDebugAnswer() { return debugAnswer; }
 	public String getQuestionMask() { return QUESTION_MASKS[answerType]; }
 	public int getStep() { return step; }
+	public String getQuestionAsAsked() { return questionAsAsked; }
+	public void setQuestionAsAsked(String s) { questionAsAsked = s; }
+
+	public boolean focusable() { return (answerType != UNKNOWN && answerType != NOTHING); }
 
 	public void setError(String error) {
 		if (this.error == null)

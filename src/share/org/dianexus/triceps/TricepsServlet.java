@@ -421,9 +421,12 @@ public class TricepsServlet extends HttpServlet {
 
 		if (firstFocus == null) {
 			Enumeration nodes = triceps.getQuestions();
-			if (nodes.hasMoreElements()) {
+			while (nodes.hasMoreElements()) {
 				Node n = (Node) nodes.nextElement();
-				firstFocus = Node.encodeHTML(n.getName());
+				if (n.focusable()) {
+					firstFocus = Node.encodeHTML(n.getName());
+					break;
+				}
 			}
 		}
 
