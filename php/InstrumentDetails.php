@@ -53,7 +53,7 @@ while($r  = mysql_fetch_assoc($res))
 		<td>$Title</td>
 		<td>$Version</td>
 		<td>$NumVars</td>
-		<td><a title='View Translation File' href=\"http://psychinformatics.nyspi.org/Dialogix/InstrumentTranslationFile.php?Instrument=$InstrumentName&NumLanguages=$NumLanguages\">$LanguageList</a></td>
+		<td><a title='View Translation File' href=\"InstrumentTranslationFile.php?Instrument=$InstrumentName&NumLanguages=$NumLanguages\">$LanguageList</a></td>
 		<td>$NumQuestions</td>
 		<td>$NumEquations</td>
 		<td>$NumBranches</td>

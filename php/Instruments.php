@@ -56,7 +56,7 @@ while($r  = mysql_fetch_assoc($res))
 		<td>$NumEs</td>
 		<!--
 		<td><a href=\"http://psychinformatics.nyspi.org:8080/$Project/$Base.htm\" target=\"_blank\">
-			<img src=\"http://psychinformatics.nyspi.org:8080/images/info_i.jpg\"></a></td>
+			<img src=\"images/info_i.jpg\"></a></td>
 		-->
 		</tr>\n";
 	}

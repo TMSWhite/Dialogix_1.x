@@ -27,7 +27,7 @@ while($r  = mysql_fetch_assoc($res))
 
 <?php include("Dialogix_Table_PartA.php"); ?>
 
-<IMG SRC="http://psychinformatics.nyspi.org:8080/images/dialogoSmall.jpg" WIDTH="89" HEIGHT="40" ALIGN="BOTTOM" BORDER="0">
+<IMG SRC="images/dialogoSmall.jpg" WIDTH="89" HEIGHT="40" ALIGN="BOTTOM" BORDER="0">
 <FONT SIZE="+1">a System for Rapidly </FONT><I><FONT SIZE="+1">Developing</FONT></I><FONT SIZE="+1">, </FONT><I><FONT
 SIZE="+1">Deploying</FONT></I><FONT SIZE="+1">, and </FONT><I><FONT SIZE="+1">Analyzing</FONT></I><FONT SIZE="+1">
 Research Studies</FONT> <BR>
@@ -60,7 +60,7 @@ Research Studies</FONT> <BR>
 		<td>($NumAlwaysQs - $NumQs)</td>
 		<td>$NumEs</td>
 		<td><a href=\"http://psychinformatics.nyspi.org:8080/$Project/$Base.htm\" target=\"_blank\">
-			<img src=\"http://psychinformatics.nyspi.org:8080/images/info_i.jpg\"></a></td>
+			<img src=\"images/info_i.jpg\"></a></td>
 		</tr>\n";
 	}
 ?>

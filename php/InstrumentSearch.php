@@ -44,9 +44,9 @@ while($r  = mysql_fetch_assoc($res))
 		
 		echo "<tr>\t
 		<td><a title='View path taken through individual instances -- what the subject saw' 
-			href=\"http://psychinformatics.nyspi.org/Dialogix/InstanceSearch.php?InstrumentName=$InstrumentName\">$InstrumentName</a></td>
+			href=\"InstanceSearch.php?InstrumentName=$InstrumentName\">$InstrumentName</a></td>
 		<td><a title='View final data from all instances of this instrument'
-			href=\"http://psychinformatics.nyspi.org/Dialogix/StructuredDataView.php?InstrumentName=$InstrumentName\">$NumInstances</a></td>
+			href=\"StructuredDataView.php?InstrumentName=$InstrumentName\">$NumInstances</a></td>
 		</tr>\n";
 	}
 ?>

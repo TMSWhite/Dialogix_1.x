@@ -57,7 +57,7 @@ while($r  = mysql_fetch_assoc($res))
 		
 		echo "<tr>\t
 		<td>$StartDate</td>
-		<td><a href=\"http://psychinformatics.nyspi.org/Dialogix/ShowInstrumentData.php?Instance=$InstanceName&Instrument=$InstrumentName&StartDate=$StartDate\">$InstanceName</a></td>
+		<td><a href=\"ShowInstrumentData.php?Instance=$InstanceName&Instrument=$InstrumentName&StartDate=$StartDate\">$InstanceName</a></td>
 		<td>$NumPagesViewed</td>
 		<td>$hours:$minutes:$seconds</td>
 		</tr>\n";

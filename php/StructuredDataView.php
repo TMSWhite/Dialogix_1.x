@@ -63,7 +63,7 @@ while($r  = mysql_fetch_assoc($res))
 		$colCount = 0;
 		foreach ($r as $c) {
 			if (++$colCount == 3) {
-				echo "<td><a href=\"http://psychinformatics.nyspi.org/Dialogix/ShowInstrumentData.php?Instance=$c\">$c</td>";
+				echo "<td><a href=\"ShowInstrumentData.php?Instance=$c\">$c</td>";
 			}
 			else {
 				echo "<td>$c</td>";
