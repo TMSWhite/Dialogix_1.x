@@ -173,7 +173,7 @@ if (AUTHORABLE)	new XmlString(triceps, "<b>" + form.getErrors() + "</b>",out);
 			/* Store appropriate stuff in the session */
 			session.putValue("triceps", triceps);
 
-			if (directive != null && directive.equals(triceps.get("next"))) {
+			if (directive != null && directive.equals("next")) {
 				if (triceps.isAtEnd()) {
 //					System.runFinalization();	// could offer to let subject confirm that done, at which point written to floppy, etc.?
 				}
@@ -204,7 +204,7 @@ if (DEBUG) Logger.writeln("##Throwable @ Servlet.doPost()" + t.getMessage());
 
 if (AUTHORABLE) {
 		/* Want to evaluate expression before doing rest so can see results of changing global variable values */
-		if (directive != null && directive.equals(triceps.get("evaluate_expr"))) {
+		if (directive != null && directive.equals("evaluate_expr")) {
 			String expr = req.getParameter("evaluate_expr_data");
 			if (expr != null) {
 				Datum datum = triceps.evaluateExpr(expr);
@@ -261,13 +261,15 @@ if (AUTHORABLE) {
 		isSplashScreen = false;
 		activePrefix = schedule.getReserved(Schedule.ACTIVE_BUTTON_PREFIX);
 		activeSuffix = schedule.getReserved(Schedule.ACTIVE_BUTTON_SUFFIX);
-		inactivePrefix = spaces(activePrefix.length());
-		inactiveSuffix = spaces(activeSuffix.length());
+		inactivePrefix = spaces(activePrefix);
+		inactiveSuffix = spaces(activeSuffix);
 	}
 	
-	private String spaces(int len) {
+	private String spaces(String src) {
 		StringBuffer sb = new StringBuffer();
-		for (int i=0;i<len;++i) {
+		if (src == null)
+			return "";
+		for (int i=0;i<src.length();++i) {
 			sb.append("  ");
 		}
 		return sb.toString();
@@ -302,17 +304,17 @@ if (AUTHORABLE) {
 		/** Process requests to change developerMode-type status **/
 		if (directive != null) {
 			/* Toggle these values, as requested */
-			if (directive.startsWith(triceps.get("turn_developerMode"))) {
+			if (directive.equals("turn_developerMode")) {
 				developerMode = !developerMode;
 				schedule.setReserved(Schedule.DEVELOPER_MODE, String.valueOf(developerMode));
 				directive = "refresh current";
 			}
-			else if (directive.startsWith(triceps.get("turn_debugMode"))) {
+			else if (directive.equals("turn_debugMode")) {
 				debugMode = !debugMode;
 				schedule.setReserved(Schedule.DEBUG_MODE, String.valueOf(debugMode));
 				directive = "refresh current";
 			}
-			else if (directive.startsWith(triceps.get("turn_showQuestionNum"))) {
+			else if (directive.equals("turn_showQuestionNum")) {
 				showQuestionNum = !showQuestionNum;
 				schedule.setReserved(Schedule.SHOW_QUESTION_REF, String.valueOf(showQuestionNum));
 				directive = "refresh current";
@@ -540,7 +542,7 @@ if (DEBUG) Logger.writeln("##Throwable @ Servlet.selectFromInterviewsInDir" + t.
 		Enumeration nodes;
 
 		// get the POSTed directive (start, back, next, help, suspend, etc.)	- default is opening screen
-		if (directive == null || directive.equals(triceps.get("select_new_interview"))) {
+		if (directive == null || directive.equals("select_new_interview")) {
 			/* Construct splash screen */
 			isSplashScreen = true;
 			triceps.setLanguage(null);	// the default
@@ -569,7 +571,7 @@ if (DEBUG) Logger.writeln("##Throwable @ Servlet.selectFromInterviewsInDir" + t.
 
 			return sb.toString();
 		}
-		else if (directive.equals(triceps.get("START"))) {
+		else if (directive.equals("START")) {
 			// load schedule
 			ok = getNewTricepsInstance(req.getParameter("schedule"));
 
@@ -584,7 +586,7 @@ if (DEBUG) Logger.writeln("##Throwable @ Servlet.selectFromInterviewsInDir" + t.
 			ok = ok && ((gotoMsg = triceps.gotoStarting()) == Triceps.OK);	// don't proceed if prior error
 			// ask question
 		}
-		else if (directive.equals(triceps.get("RESTORE"))) {
+		else if (directive.equals("RESTORE")) {
 			String restore;
 
 			restore = req.getParameter("RestoreSuspended");
@@ -610,7 +612,7 @@ if (DEBUG) Logger.writeln("##Throwable @ Servlet.selectFromInterviewsInDir" + t.
 
 			// ask question
 		}
-		else if (directive.equals(triceps.get("jump_to"))) {
+		else if (directive.equals("jump_to")) {
 if (AUTHORABLE) {
 			gotoMsg = triceps.gotoNode(req.getParameter("jump_to_data"));
 			ok = (gotoMsg == Triceps.OK);
@@ -621,14 +623,14 @@ if (AUTHORABLE) {
 			ok = true;
 			// re-ask the current question
 		}
-		else if (directive.equals(triceps.get("restart_clean"))) { // restart from scratch
+		else if (directive.equals("restart_clean")) { // restart from scratch
 if (AUTHORABLE) {
 			triceps.resetEvidence();
 			ok = ((gotoMsg = triceps.gotoFirst()) == Triceps.OK);	// don't proceed if prior error
 			// ask first question
 }
 		}
-		else if (directive.equals(triceps.get("reload_questions"))) { // debugging option
+		else if (directive.equals("reload_questions")) { // debugging option
 if (AUTHORABLE) {
 			ok = triceps.reloadSchedule();
 			if (ok) {
@@ -637,7 +639,7 @@ if (AUTHORABLE) {
 			// re-ask current question
 }
 		}
-		else if (directive.equals(triceps.get("save_to"))) {
+		else if (directive.equals("save_to")) {
 if (AUTHORABLE) {
 			String name = req.getParameter("save_to_data");
 			ok = triceps.saveWorkingInfo(name);
@@ -646,7 +648,7 @@ if (AUTHORABLE) {
 			}
 }
 		}
-		else if (directive.equals(triceps.get("show_Syntax_Errors"))) {
+		else if (directive.equals("show_Syntax_Errors")) {
 if (AUTHORABLE) {
 			Vector pes = triceps.collectParseErrors();
 
@@ -722,7 +724,7 @@ if (AUTHORABLE) {
 			}
 }
 		}
-		else if (directive.equals(triceps.get("next"))) {
+		else if (directive.equals("next")) {
 			// store current answer(s)
 			Enumeration questionNames = triceps.getQuestions();
 
@@ -763,7 +765,7 @@ if (AUTHORABLE) {
 			// don't goto next if errors
 			// ask question
 		}
-		else if (directive.equals(triceps.get("previous"))) {
+		else if (directive.equals("previous")) {
 			// don't store current
 			// goto previous
 			gotoMsg = triceps.gotoPrevious();
@@ -811,7 +813,7 @@ if (AUTHORABLE) {
 			}
 		}
 		if (firstFocus == null) {
-			firstFocus = triceps.get("next");	// try to focus on Next button if nothing else available
+			firstFocus = "next";	// try to focus on Next button if nothing else available
 		}
 
 		firstFocus = (new XmlString(triceps, firstFocus)).toString();	// make sure properly formatted
@@ -993,7 +995,22 @@ if (AUTHORABLE) {
 	
 		
 	private String buildSubmit(String name) {
-		return "<input type='submit' name='" + triceps.get(name) + "' value='" + inactivePrefix + triceps.get(name) + inactiveSuffix + "'>";
+		StringBuffer sb = new StringBuffer();
+		
+		sb.append("<input type='submit' name='");
+		sb.append(name);
+		sb.append("' value='");
+		sb.append(inactivePrefix);
+		sb.append(triceps.get(name));
+		sb.append(inactiveSuffix);
+		sb.append("'>");
+		
+		sb.append("<input type='hidden' name='DIRECTIVE_");
+		sb.append(name);
+		sb.append("' value='");
+		sb.append(triceps.get(name));
+		sb.append("'>");
+		return sb.toString();
 	}
 	
 	private String buildClickableOptions(Node node, String inputName, boolean isSpecial) {
@@ -1164,48 +1181,49 @@ if (AUTHORABLE) {
 		sb.append("var ans = null;\n");
 
 		sb.append("function keyHandler(e) {\n");
-		if (allowRecordEvents) {
+//		if (allowRecordEvents) {
 			sb.append("	now = new Date();\n");
 			sb.append("	val = String.fromCharCode(e.which) + ',' + e.target.value;\n");
 			sb.append("	name = e.target.name;\n");
 			sb.append("	msg = name + ',' + e.target.type + ',' + e.type + ',' + now.getTime() + ',' + (now.getTime() - startTime.getTime()) + ',' + val + '|';\n");
 			sb.append("	document.myForm.EVENT_TIMINGS.value += msg;\n");
-		}
+//		}
 		sb.append("	return true;\n");
 		sb.append("}\n");
 
 		sb.append("function submitHandler(e) {\n");
-		if (allowRecordEvents) {
+//		if (allowRecordEvents) {
 			sb.append("	now = new Date();\n");
 			sb.append("	val = ',';\n");
 			sb.append("	msg = e.target.name + ',' + e.target.type + ',' + e.type + ',' + now.getTime() + ',' + (now.getTime() - startTime.getTime()) + ',' + val + '|';\n");
 			sb.append("	document.myForm.EVENT_TIMINGS.value += msg;\n");
-		}
-		sb.append("	if (e.type == 'focus') { e.target.value='" + activePrefix + "' + e.target.name + '" + activeSuffix + "'; }\n");
-		sb.append("	else if (e.type == 'blur') { e.target.value='" + inactivePrefix + "' + e.target.name + '" + inactiveSuffix + "'; }\n");
+//		}
+		sb.append("	name = document.myForm.elements['DIRECTIVE_' + e.target.name].value;\n");
+		sb.append("	if (e.type == 'focus') { e.target.value='" + activePrefix + "' + name + '" + activeSuffix + "'; }\n");
+		sb.append("	else if (e.type == 'blur') { e.target.value='" + inactivePrefix + "' + name + '" + inactiveSuffix + "'; }\n");
 		sb.append("	document.myForm.elements['DIRECTIVE'].value = e.target.name;\n");
 		sb.append("	return true;\n");
 		sb.append("}\n");
 		
 		sb.append("function selectHandler(e) {\n");
-		if (allowRecordEvents) {
+//		if (allowRecordEvents) {
 			sb.append("	now = new Date();\n");
 			sb.append("	val = e.target.options[e.target.selectedIndex].value + ',' + e.target.options[e.target.selectedIndex].text;\n");
 			sb.append("	name = e.target.name;\n");
 			sb.append("	msg = name + ',' + e.target.type + ',' + e.type + ',' + now.getTime() + ',' + (now.getTime() - startTime.getTime()) + ',' + val + '|';\n");
 			sb.append("	document.myForm.EVENT_TIMINGS.value += msg;\n");
-		}
+//		}
 		sb.append("	return true;\n");
 		sb.append("}\n");
 		
 		sb.append("function evHandler(e) {\n");
-		if (allowRecordEvents) {
+//		if (allowRecordEvents) {
 			sb.append("	now = new Date();\n");
 			sb.append("	val = ',' + e.target.value;\n");
 			sb.append("	name = e.target.name;\n");
 			sb.append("	msg = name + ',' + e.target.type + ',' + e.type + ',' + now.getTime() + ',' + (now.getTime() - startTime.getTime()) + ',' + val + '|';\n");
 			sb.append("	document.myForm.EVENT_TIMINGS.value += msg;\n");
-		}
+//		}
 		sb.append("	return true;\n");
 		sb.append("}\n");
 		
@@ -1334,7 +1352,7 @@ if (AUTHORABLE) {
 		sb.append(createJavaScript());
 
 		sb.append("</head>\n");
-		sb.append("<body name='body' bgcolor='white' onload='evHandler(event);init();'>");
+		sb.append("<body bgcolor='white' onload='evHandler(event);init();'>");
 
 		return sb.toString();
 	}
