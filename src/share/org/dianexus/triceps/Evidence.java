@@ -114,6 +114,9 @@ import java.io.File;
 	private static final int STDDEV = 85;
 	private static final int SUSPEND_TO_FLOPPY = 86;
 	private static final int REGEX_MATCH = 87;
+	private static final int CREATE_TEMP_FILE = 88;
+	private static final int SAVE_DATA = 89;
+	private static final int EXEC = 90;
 
 	
 	private static final Object FUNCTION_ARRAY[][] = {
@@ -205,6 +208,9 @@ import java.io.File;
 		{ "stddev",				UNLIMITED,	new Integer(STDDEV) },
 		{ "suspendToFloppy",	ZERO,		new Integer(SUSPEND_TO_FLOPPY) },
 		{ "regexMatch",			TWO,		new Integer(REGEX_MATCH) },
+		{ "createTempFile",		ZERO,		new Integer(CREATE_TEMP_FILE) },
+		{ "saveData",			ONE,		new Integer(SAVE_DATA) },
+		{ "exec",				ONE,		new Integer(EXEC) },
 	};
 
 	private static final Hashtable FUNCTIONS = new Hashtable();
@@ -1316,6 +1322,23 @@ if (DEBUG) Logger.writeln("##SecurityException @ Evidence.fileExists()" + e.getM
 					else {
 						return new Datum(triceps,false);
 					}
+				}
+				case CREATE_TEMP_FILE: {
+					String temp = EvidenceIO.createTempFile();
+					if (temp == null) {
+						return Datum.getInstance(triceps,Datum.INVALID);
+					}
+					else {
+						return new Datum(triceps,temp,Datum.STRING);
+					}
+				}
+				case SAVE_DATA: {
+					String file = getParam(params.elementAt(0)).stringVal();
+					boolean ok = EvidenceIO.saveAll(triceps.getSchedule(),file);
+					return new Datum(triceps,ok);
+				}
+				case EXEC: {
+					return new Datum(triceps,EvidenceIO.exec(datum.stringVal()));
 				}
 			}
 		}
