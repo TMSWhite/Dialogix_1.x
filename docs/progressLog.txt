@@ -268,12 +268,6 @@ Reorganization & Documentation
 << changes from version 2.8.1 to 2.8.2
   qss.jj
     Re-synched with Qss.java so that Qss.java can be re-generated (minus the copyright and package name) from qss.jj
-  Undo
-    affected files:  qss.jj, Qss.java, Node.java, Triceps.java, Parser.java
-    functionality:  qss builds hashtable of nodeName->oldValue.  When do 'previous' from Triceps, oldValues are restored.
-  "Previous" Algorithm Changed
-    affected files:  Schedule.java, Triceps.java
-    functionality: dramatic change in way previous is handled - now keeps stack of visited starting steps instead of re-evaluating dependencies
   XMLString
     numeric entities can now have integer digits.
   Netscape6
