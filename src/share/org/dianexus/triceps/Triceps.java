@@ -10,6 +10,7 @@ public class Triceps {
 	public static final boolean AUTHORABLE = true;
 	public static final String VERSION_MAJOR = "1.3";
 	public static final String VERSION_MINOR = "5";
+	public static final String VERSION_NAME = "Triceps version " + VERSION_MAJOR + "." + VERSION_MINOR;
 	
 	public static final int ERROR = 1;
 	public static final int OK = 2;
