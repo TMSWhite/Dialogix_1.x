@@ -14,7 +14,11 @@ public class Parser {
 	}
 
 	public String stringVal(Evidence ev, String exp) {
-		return parse(ev, exp).stringVal();
+		return parse(ev, exp).stringVal(false);
+	}
+	
+	public String stringVal(Evidence ev, String exp, boolean showReserved) {
+		return parse(ev,exp).stringVal(showReserved);
 	}
 
 	public double doubleVal(Evidence ev, String exp) {
@@ -52,7 +56,7 @@ public class Parser {
 			}
 			else {
 				if (inside) {
-					sb.append(stringVal(ev,s));
+					sb.append(stringVal(ev,s,true));	// so that see the *REFUSED*, etc as part of questions
 				}
 				else {
 					sb.append(s);
