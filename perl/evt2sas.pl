@@ -14,22 +14,27 @@ use strict;
 use Dialogix::Utils;
 
 
-if ($#ARGV != 0) {
-	print "Usage:\nperl evt2sas.pl <config_file>\n";
+if ($#ARGV != 2) {
+	print "Usage:\nperl evt2sas.pl <config_file> <instrument_name> <file_dir>\n";
+
 	exit(0);
 }
 
 my $conf_file = shift;
+my $instrument_name = shift;
+my $file_dir = shift;
 my $Prefs = &Dialogix::Utils::readDialogixPrefs($conf_file);
 &Dialogix::Utils::mychdir($Prefs->{INSTRUMENT_DIR});
 
-my ($uniqueID, $discardPrefix,@gargs,$filename,$instrument);
+my ($uniqueID, $discardPrefix,@gargs,$filename);
 my (%huidStep2path, %sched_nodes);
 
-$instrument = "$Prefs->{INSTRUMENT_DIR}/$Prefs->{INSTRUMENT}";
+my $instrument = "$Prefs->{INSTRUMENT_DIR}/$instrument_name";
+print "<<EVENTS: $instrument_name>>\n";
+
 $uniqueID = $Prefs->{UNIQUE_ID};
 $discardPrefix = $Prefs->{discardVarsMatchingPattern};
-@gargs = split(/ /,$Prefs->{EVT_FILES});
+@gargs = split(/ /,$file_dir);
 &Dialogix::Utils::mychdir($Prefs->{RESULTS_DIR});
 
 my ($varName, %vars, %varInfo, @vals);
@@ -49,15 +54,15 @@ sub main {
 
 sub do_evt2sas {
 
-# this section is dependent upon dat2sas.pl's section for pathstep-timing.tsv -- reads directly from it!
-open(PATHSTEP,"<pathstep-timing.tsv") or die("unable to open 'pathstep-timing.tsv'");
+# this section is dependent upon dat2sas.pl's section for _PathStep-timing.tsv -- reads directly from it!
+open(PATHSTEP,"<${instrument_name}_PathStep-timing.tsv") or die("unable to open '${instrument_name}_PathStep-timing.tsv'");
 my @lines = (<PATHSTEP>);
 close(PATHSTEP);
 foreach (@lines) {
 	chomp;
 	my @vars = split(/\t/);
 	
-	# ORDER IN pathstep-timing.tsv
+	# ORDER IN _PathStep-timing.tsv
 	#	UniqueID	DispCnt	Group	When	tDur	Qlen	Alen	Tlen	NumQs	tDurSec	TimevsQ	TimevsT	Title	Version
 	# ORDER DESIRED BY evt2sas
 	# Group When Qlen Alen Tlen NumQs Title Version tDurSec tTimeVsQ tTimeVsT:  keyed on "huid.dispCnt"
@@ -65,11 +70,11 @@ foreach (@lines) {
 #	$huidStep2path{"$vars[0].$vars[1]"} = "$vars[2]\t$vars[3]\t$vars[5]\t$vars[6]\t$vars[7]\t$vars[8]\t$vars[9]\t$vars[10]\t$vars[11]\t$vars[12]\t$vars[13]";
 }
 
-open(PERVAR,">__PerVar__.tsv")	or die("unable to write to '__PerVar__.tsv'");
+open(PERVAR,">${instrument_name}_PerVar.tsv")	or die("unable to write to '${instrument_name}_PerVar.tsv'");
 print PERVAR "UniqueID\tdispCnt\tnumQs\twhichQ\tc8name\tname\tinpType\ttotTime\tinpTime\tanswered\tskipped\tfocus\tblur\tchange\tclick\tkeypress\tmouseup";
 print PERVAR "\tAtype\tAlen\tQlen\tTlen\tqTimevsT\tiTimevsA\n";
 
-open(PERSCREEN,">__PerScreen__.tsv")	or die("unable to write to '__PerScreen__.tsv'");
+open(PERSCREEN,">${instrument_name}_PerScreen.tsv")	or die("unable to write to '${instrument_name}_PerScreen.tsv'");
 #print PERSCREEN "UniqueID\tdispCnt\tservSec\tloadSec\tdispSec\tturnSec\tntwkSec\tntwkSend\tntwkRecv\tloadDate\tloadTime\tloadDiff\n";
 print PERSCREEN "UniqueID\tdispCnt\tGroup\tWhen\tQlen\tAlen\tTlen\tNumQs\tTitle\tVersion\tDurSec\ttTimevsQ\ttTimevsT\tservSec\tloadSec\tdispSec\tturnSec\tntwkSec\tdTimevsQ\tdTimevsT\n";
 
@@ -419,7 +424,7 @@ sub calc_huid {
 sub load_instrument_nodes {
 	my $arg = shift;
 	
-	open (INST, "$arg.nodes") or die "unable to open instrument $arg. nodes";
+	open (INST, "$arg.nodes") or die "unable to open instrument $arg.nodes";
 	my @lines = (<INST>);
 	close (INST);
 	

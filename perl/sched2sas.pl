@@ -346,11 +346,12 @@ sub transform_schedule {
 	close (NEWINST);
 	
 	&transform_schedule_sub("$newname.src");
+	&showLogic("$newname.src","$newname.htm","$newname");
 }
 
 sub determine_full_instrument_name {
 	my $file = shift;
-	my ($filename,$inst,$timestamp,$when) = &Dialogix::Utils::whichInstrument($file);
+	my ($filename,$inst,$timestamp,$when,$varhash) = &Dialogix::Utils::whichInstrument($file);
 	return $inst;
 }
 
@@ -437,14 +438,24 @@ sub transform_schedule_sub {
 			module => $module,
 			c8name => $c8name,	# will be the "true" variable name
 			qa_md5 => 	md5_hex("$question|$ansOptions"),
+			displayName => $vals[2],
+			relevance => $vals[3],
+			actionType => $vals[4],
+			readback => $vals[5],
+			actionPhrase => $question,
+			answerOptions => $ansOptions
 		}
 	}
 	
-	my $sched_root = dirname($file) ."/" .  basename($file,"\.txt");
+	my $sched_root = dirname($file) ."/" .  basename($file,"\.src");
 	open (NODES, ">$sched_root.nodes") or die "unable to open $sched_root.nodes";
-	print NODES "Step\tConcept\tName\tType\tQlen\tAlen\tAtype\tc8name\tqa_md5\n";
+	print NODES "Step\tConcept\tName\tType\tQlen\tAlen\tAtype\tc8name\tqa_md5\tDisplay\n";
 	open (STEPS, ">$sched_root.steps") or die "unable to open $sched_root.steps";
 	print STEPS "Display\tFirstStep\tQlen\tAlen\tTlen\tNumSteps\tNames\n";
+	open (MYSQL, ">$sched_root.mysql_inst") or die "unable to open $sched_root.mysql_inst";
+	print MYSQL "StepNum\tConcept\tVarName\tQType\tQLen\tALen\tAType\tc8name\tqa_md5\tDisplayNum" .
+		"\tDisplayName\tRelevance\tActionType\tReadback\tActionPhrase\tAnswerOptions\n";
+
 	
 	my $in_block = 0;
 	my ($first, $tqlen, $talen) = (0,0,0);
@@ -453,7 +464,8 @@ sub transform_schedule_sub {
 	
 	my ($schedSteps, $schedDisplayFmt);
 	$schedSteps = ($#nodes + 1);
-	if ($schedSteps > 1000) { $schedDisplayFmt = "%04d"; }
+	if ($schedSteps > 10000) { $schedDisplayFmt = "%05d"; }
+	elsif ($schedSteps > 1000) { $schedDisplayFmt = "%04d"; }
 	elsif ($schedSteps > 100) { $schedDisplayFmt = "%03d"; }
 	elsif ($schedSteps > 10) { $schedDisplayFmt = "%02d"; }
 	else { $schedDisplayFmt = "%d"; }
@@ -462,7 +474,12 @@ sub transform_schedule_sub {
 		my %n = %{ $_ };
 		
 #		print NODES "$sched_root\t$n{'step'}\t$n{'concept'}\t$n{'name'}\t$n{'type'}\t$n{'qlen'}\t$n{'alen'}\t$n{'qtext'}\t$n{'atext'}\n";
-		print NODES "$n{'step'}\t$n{'concept'}\t$n{'name'}\t$n{'type'}\t$n{'qlen'}\t$n{'alen'}\t$n{'atype'}\t$n{'c8name'}\t$n{'qa_md5'}\n";
+		print NODES "$n{'step'}\t$n{'concept'}\t$n{'name'}\t$n{'type'}\t$n{'qlen'}\t$n{'alen'}\t$n{'atype'}\t$n{'c8name'}\t$n{'qa_md5'}\t" .
+			sprintf($schedDisplayFmt,$count) . "\n";
+			
+		print MYSQL "$n{'step'}\t$n{'concept'}\t$n{'name'}\t$n{'type'}\t$n{'qlen'}\t$n{'alen'}\t$n{'atype'}\t$n{'c8name'}\t$n{'qa_md5'}\t" .
+			sprintf($schedDisplayFmt,$count) . 
+			"\t$n{'displayName'}\t$n{'relevance'}\t$n{'actionType'}\t$n{'readback'}\t$n{'actionPhrase'}\t$n{'answerOptions'}\n";
 		
 		#calculate the membership and size of display screens
 		
@@ -512,7 +529,9 @@ sub transform_schedule_sub {
 sub createSPSSforPerVar {
 	my $sched_root = shift;
 	my $file="$Prefs->{RESULTS_DIR}/${sched_root}_PerVar";
-	$file =~ s/\//\\/g;	
+	if ($Prefs->{UNIX_DOS} eq 'dos') {
+		$file =~ s/\//\\/g;	
+	}
 
 	open (SPSS, ">$file.sps") or die "uanble to open $file.sps";
 	
@@ -595,12 +614,14 @@ sub createSPSSforPerVar {
 
 sub createSPSSforPathStepSummary {
 	my $sched_root = shift;
-	my $file="$Prefs->{RESULTS_DIR}/${sched_root}_PathStep";	
+	my $file="$Prefs->{RESULTS_DIR}/${sched_root}_PathStep-summary";	
 	my $arg = shift;
 	my @stepLabels = @$arg;
 	
-	$file =~ s/\//\\/g;	
-
+	if ($Prefs->{UNIX_DOS} eq 'dos') {
+		$file =~ s/\//\\/g;	
+	}
+	
 	open (SPSS, ">$file.sps") or die "uanble to open $file.sps";
 	
 	print SPSS "\n/**********************************************/\n";
@@ -646,13 +667,15 @@ sub createSPSSforPathStepSummary {
 	print SPSS "VARIABLE LABELS LSTVIEW \"Last set of questions viewed by subject\".\n";
 #	print SPSS "VARIABLE LABELS LSTVIEWN \"Last set of questions viewed by subject\".\n";
 	
-	print SPSS "VALUE LABELS LASTANS LSTVIEW\n";
-	my $count = 0;
-	foreach my $label (@stepLabels) {
-		++$count;
-		print SPSS "\t$count " . &splitLongLabel($label,60) . "\n";
+	if ($Prefs->{MAKE_SPSS_VALUE_LABELS} eq '1') {
+		print SPSS "VALUE LABELS LASTANS LSTVIEW\n";
+		my $count = 0;
+		foreach my $label (@stepLabels) {
+			++$count;
+			print SPSS "\t$count " . &splitLongLabel($label,60) . "\n";
+		}
+		print SPSS "\t.\n";	# line terminator
 	}
-	print SPSS "\t.\n";	# line terminator
 
 	print SPSS "\nSAVE OUTFILE='$file.sav' /COMPRESSED.\n";
 	
@@ -671,8 +694,10 @@ sub createSPSSforPerScreen {
 	my $arg = shift;
 	my @stepLabels = @$arg;
 	
-	$file =~ s/\//\\/g;	
-
+	if ($Prefs->{UNIX_DOS} eq 'dos') {
+		$file =~ s/\//\\/g;	
+	}
+	
 	open (SPSS, ">$file.sps") or die "uanble to open $file.sps";
 	
 	print SPSS "\n/**********************************************/\n";
@@ -735,13 +760,15 @@ sub createSPSSforPerScreen {
 	print SPSS "VARIABLE LABELS DTIMEVSQ \"DisplayTime vs. Question Length\".\n";
 	print SPSS "VARIABLE LABELS DTIMEVST \"DisplayTime vs. (Question + Answer) Length\".\n";
 	
-	print SPSS "VALUE LABELS GROUP\n";
-	my $count = 0;
-	foreach my $label (@stepLabels) {
-		++$count;
-		print SPSS "\t$count " . &splitLongLabel($label,60) . "\n";
+	if ($Prefs->{MAKE_SPSS_VALUE_LABELS} eq '1') {
+		print SPSS "VALUE LABELS GROUP\n";
+		my $count = 0;
+		foreach my $label (@stepLabels) {
+			++$count;
+			print SPSS "\t$count " . &splitLongLabel($label,60) . "\n";
+		}
+		print SPSS "\t.\n";	# line terminator
 	}
-	print SPSS "\t.\n";	# line terminator
 
 	print SPSS "\nSAVE OUTFILE='$file.sav' /COMPRESSED.\n";
 	
@@ -762,8 +789,9 @@ sub createSPSSforPathStepTiming {
 	my @stepLabels = @$arg;
 
 	my $file="$Prefs->{RESULTS_DIR}/pathstep-timing";
-	$file =~ s/\//\\/g;	
-
+	if ($Prefs->{UNIX_DOS} eq 'dos') {
+		$file =~ s/\//\\/g;	
+	}
 	open (SPSS, ">$file.sps") or die "uanble to open $file.sps";
 	
 	print SPSS "\n/**********************************************/\n";
@@ -814,13 +842,15 @@ sub createSPSSforPathStepTiming {
 	print SPSS "VARIABLE LABELS TITLE \"Instrument Title\".\n";
 	print SPSS "VARIABLE LABELS VERSION \"Instrument Version\".\n";
 	
-	print SPSS "VALUE LABELS GROUP\n";
-	my $count = 0;
-	foreach my $label (@stepLabels) {
-		++$count;
-		print SPSS "\t$count " . &splitLongLabel($label,60) . "\n";
+	if ($Prefs->{MAKE_SPSS_VALUE_LABELS} eq '1') {
+		print SPSS "VALUE LABELS GROUP\n";
+		my $count = 0;
+		foreach my $label (@stepLabels) {
+			++$count;
+			print SPSS "\t$count " . &splitLongLabel($label,60) . "\n";
+		}
+		print SPSS "\t.\n";	# line terminator	
 	}
-	print SPSS "\t.\n";	# line terminator	
 	
 
 	print SPSS "\nSAVE OUTFILE='$file.sav' /COMPRESSED.\n";
@@ -837,8 +867,9 @@ sub createSPSSdictionaries {
 		print "creating dictionary for module $_\n";
 		
 		my $file="$Prefs->{RESULTS_DIR}/$_";
-		$file =~ s/\//\\/g;
-			
+		if ($Prefs->{UNIX_DOS} eq 'dos') {
+			$file =~ s/\//\\/g;	
+		}			
 		&createSPSSdictionary($_,$file,$sched_root,$nodes);
 		&createSASdictionary($_,$file,$sched_root,$nodes);
 		
@@ -1056,15 +1087,16 @@ sub createSPSSdictionary {
 	print SPSS "VARIABLE LABELS NONANS \"# Times the question was unanswered, and subject was reminded to answer it\".\n";
 	
 	# value labels for STEP
-	
-	print SPSS "VALUE LABELS C8NAME\n";
-	foreach (sort $sortfn @nodes) {
-		my %n = %{ $_ };
-		next if ($n{'module'} ne $module);
-		
-		print SPSS "\t\"$n{'c8name'}\"\n\t" . &splitLongLabel("[$n{'name'}] $n{'qtext'}",255) . "\n";
+	if ($Prefs->{MAKE_SPSS_VALUE_LABELS} eq '1') {
+		print SPSS "VALUE LABELS C8NAME\n";
+		foreach (sort $sortfn @nodes) {
+			my %n = %{ $_ };
+			next if ($n{'module'} ne $module);
+			
+			print SPSS "\t\"$n{'c8name'}\"\n\t" . &splitLongLabel("[$n{'name'}] $n{'qtext'}",255) . "\n";
+		}
+		print SPSS "\t.\n";
 	}
-	print SPSS "\t.\n";
 	
 	#save data and spo files
 	print SPSS "\nSAVE OUTFILE='$file-complete.sav' /COMPRESSED.\n";
@@ -1361,4 +1393,48 @@ sub doit {
 	my $cmd = shift;
 	print "$cmd\n";
 	(system($cmd) == 0)	or die "ERROR";
+}
+
+
+sub showLogic {
+	my $infile = shift;
+	my $outfile = shift;
+	my $title = shift;
+	my $command = "perl $Prefs->{SHOWLOGIC} $infile $outfile \"$title\"";
+	&doit($command);
+}
+
+sub createInstrumentTables {
+	print qq|CREATE TABLE Dialogix.Instrument (
+  InstrumentID int(11) NOT NULL auto_increment,
+  Name text,
+  Description text,
+  Version varchar(20) default NULL,
+  Publication date default NULL,
+  Authors text,
+  Citation text,
+  Copyrighted enum('Y','N') default NULL,
+  PRIMARY KEY  (InstrumentID)
+) TYPE=MyISAM;
+
+
+CREATE TABLE Dialogix.Instrument_Details (
+  InstrumentsDetailsID int(11) NOT NULL auto_increment,
+  Instrument_FK int(11) NOT NULL default '0',
+  Concept text NOT NULL,
+  InternalName text NOT NULL,
+  ExternalName text NOT NULL,
+  Relevance text NOT NULL,
+  ActionType text NOT NULL,
+  ReadBack text NOT NULL,
+  ActionPhrase text NOT NULL,
+  AnswerOptions text NOT NULL,
+  HelpURL text NOT NULL,
+  DefaultAnswer text NOT NULL,
+  DefaultComment text NOT NULL,
+  Sequence int(11) NOT NULL default '0',
+  DisplayGroup int(11) NOT NULL default '0',
+  PRIMARY KEY  (InstrumentsDetailsID)
+) TYPE=MyISAM;
+    |;
 }

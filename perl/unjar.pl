@@ -15,6 +15,7 @@
 use strict;
 
 use Dialogix::Utils;
+use File::Basename;
 
 if ($#ARGV != 1 or ($ARGV[1] !~ /^unix|dos$/)) {
 	print "Usage:\nperl unjar.pl <config-file> [unix|dos]\n";
@@ -180,7 +181,7 @@ sub moveDataFiles {
 		$srcname = $_;
 	}
 	
-	my ($filename,$inst,$timestamp,$when) = &Dialogix::Utils::whichInstrument($files[0]);	# assume that they are all from the same same data prefix
+	my ($filename,$inst,$timestamp,$when,$varhash) = &Dialogix::Utils::whichInstrument($files[0]);	# assume that they are all from the same same data prefix
 	print "$files[0] => $inst\n";
 	my $locdir = $inst;
 	my $dstdir = "$Prefs->{UNJAR_DIR}/$locdir";
@@ -209,6 +210,12 @@ sub doit {
 	(system($cmd) == 0)	or die "ERROR";
 }
 
+sub doit_warn {
+	my $cmd = shift;
+	print "$cmd\n";
+	(system($cmd) == 0)	or warn "WARNING";
+}
+
 sub removeOldAnalysisFiles {
 	my @files = glob("$Prefs->{RESULTS_DIR}/*.log");
 	push @files, glob("$Prefs->{RESULTS_DIR}/*.sav");
@@ -225,13 +232,29 @@ sub update_dat {
 }
 
 sub dat2sas {
-	my $command = "perl $Prefs->{DAT2SAS} $conf_file";
-	&doit($command);
+	my @files = sort(glob("$Prefs->{UNJAR_DIR}/*"));
+	# process all directories within the Unjar directory
+	foreach my $dir (@files) {
+		if (-d $dir) {
+			my @folder = split(/\//,$dir);
+			my $last_folder = $folder[$#folder];
+			my $command = "perl $Prefs->{DAT2SAS} $conf_file $last_folder $dir/*.dat";
+			&doit_warn($command);
+		}
+	}
 }
 
 sub evt2sas {
-	my $command = "perl $Prefs->{EVT2SAS} $conf_file";
-	&doit($command);
+	my @files = sort(glob("$Prefs->{UNJAR_DIR}/*"));
+	# process all directories within the Unjar directory
+	foreach my $dir (@files) {
+		if (-d $dir) {
+			my @folder = split(/\//,$dir);
+			my $last_folder = $folder[$#folder];
+			my $command = "perl $Prefs->{EVT2SAS} $conf_file $last_folder $dir/*.evt";
+			&doit_warn($command);
+		}
+	}
 }
 
 sub removeDatFiles {
@@ -387,4 +410,14 @@ sub separateMergedFile {
 		print "CLEAN-ERROR: File $file didn't match known separateMergedFile() patterns";
 		return 0;
 	}
+}
+
+# Function to process all data in subdirectories
+sub look {
+	my @files = sort(glob(shift));
+	my @dirs;
+	foreach (@files) {
+		push @dirs, $_ if (-d);
+	}
+	
 }

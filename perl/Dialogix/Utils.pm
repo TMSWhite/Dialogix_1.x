@@ -91,6 +91,7 @@ sub whichInstrument($) {
 	my $timestamp = 0;
 	my $numvars = 0;
 	my $varlist = '';
+	my $varhash;
 	while (<IN>) {
 		++$count;
 		my @vals = split(/\t/);
@@ -137,20 +138,22 @@ sub whichInstrument($) {
 					$triceps_minor = $1;
 				}		
 			}
-			elsif ($vals[1] eq '__CURRENT_LANGUAGE__') {
+			elsif ($vals[1] eq '__CURRENT_LANGUAGE__' && $type eq 'DATA') {
 				last;	# break out of while loop
 			}
 		}
 		else {
 			if ($type eq 'DATA') {
 				# this is a variable declaration
-				if ($vals[5] eq '*UNASKED*') {
+				if ($vals[0] !~ /^COMMENT|RESERVED/i and $vals[1] !~ /^\s*$/) {
+					$varhash->{$vals[1]} = $numvars;
 					++$numvars;
 					$varlist .= "$vals[1]";
 				}
 			}
 			elsif ($type eq 'SCHEDULE') {
 				if ($vals[0] !~ /^COMMENT/i and $vals[1] !~ /^\s*$/) {
+					$varhash->{$vals[1]} = $numvars;
 					++$numvars;
 					$varlist .= "$vals[1]";
 				}
@@ -160,7 +163,7 @@ sub whichInstrument($) {
 	close (IN);
 	
 	# Calculate MD5 hash of $varlist;
-	my $varhash = md5_hex($varlist);
+	my $varmd5 = md5_hex($varlist);
 	
 	my	$triceps_version = "$triceps_major.$triceps_minor";
 	$triceps_version =~ s/\.\././g;	# remove adjacent periods
@@ -176,15 +179,17 @@ sub whichInstrument($) {
 	}
 	
 	if (($filename =~ /^\s*$/) || ($title =~ /^\s*$/)) {
-		return ($UNKNOWN_INST,$UNKNOWN_INST,$timestamp,$when);
+		return ($UNKNOWN_INST,$UNKNOWN_INST,$timestamp,$when,$varhash);
 	}
 	else {
 #		my $name = "$title-v$version_major.$version_minor-($filename)";
-		my $name = "${filename}_v$version_major.${version_minor}_n${numvars}_$varhash";
+		my $name = "${filename}_v$version_major.${version_minor}_n${numvars}_$varmd5";
+		
+		# create hash mapping list of variables to their names
 		
 		$name =~ s/\.\././g;
 		$name =~ s/[\\\/:\*\?\"<>\|\s]/_/g;	# remove spaces and characters disallowed in Windows folder names
-		return ($filename,$name,$timestamp,$when);
+		return ($filename,$name,$timestamp,$when,$varhash);
 	}
 }
 
@@ -209,8 +214,8 @@ sub readDialogixPrefs($$) {
 		UNJAR_DIR => '../unjar',			# path where unjared files should be put
 		UNFINISHED_DIR => '../working',	# path where incomplete files are stored
 		INSTRUMENT_DIR => '../instrument',	# path where source schedule / instrument stored
-		DAT_FILES => '../unjar/*.dat ../working/*',
-		EVT_FILES => '../unjar/*.evt ../working/*.evt',
+		DAT_FILES => '*.dat',
+		EVT_FILES => '*.evt',
 		PERL_SCRIPTS_PATH => '../perl',	# path to perl scripts - use '*' if in same directory as files
 		
 		UNIQUE_ID => '*',	#unique identifier
@@ -258,6 +263,8 @@ sub readDialogixPrefs($$) {
 	$Prefs->{SCHED2SAS} = "$Prefs->{PERL_SCRIPTS_PATH}/sched2sas.pl";
 #	$Prefs->{INSTRUMENT_FILE} = "$Prefs->{INSTRUMENT_DIR}/$Prefs->{INSTRUMENT}.txt";	
 	$Prefs->{INSTRUMENT_FILE} = "$Prefs->{INSTRUMENT_DIR}/*.*";	
+	$Prefs->{SHOWLOGIC} = "$Prefs->{PERL_SCRIPTS_PATH}/showlogic.pl";
+	
 	
 	return ($Prefs);
 }

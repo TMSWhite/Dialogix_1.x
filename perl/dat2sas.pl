@@ -38,12 +38,14 @@ use IO::File;
 use strict;
 use Dialogix::Utils;
 
-if ($#ARGV != 0) {
-	print "Usage:\nperl dat2sas.pl <config_file>\n";
+if ($#ARGV != 2) {
+	print "Usage:\nperl dat2sas.pl <config_file> <instrument_name> <file_dir>\n";
 	exit(0);
 }
 
 my $conf_file = shift;
+my $instrument_name = shift;
+my $file_dir = shift;
 my $Prefs = &Dialogix::Utils::readDialogixPrefs($conf_file);
 &Dialogix::Utils::mychdir($Prefs->{RESULTS_DIR});
 
@@ -56,10 +58,10 @@ my (@stepOrder, @stepDirection);	# make global for faster processing by &compute
 &main;
 
 sub main {
-	my @dat_file_globs = split(/ /,$Prefs->{DAT_FILES});
-	my $instrument = "$Prefs->{INSTRUMENT_DIR}/$Prefs->{INSTRUMENT}";
+	my @dat_file_globs = split(/ /,$file_dir);
+	my $instrument = "$Prefs->{INSTRUMENT_DIR}/$instrument_name";
 	
-	print "$instrument, $Prefs->{DAT_FILES}\n";
+	print "<<DATA: $instrument_name>>\n";
 	
 	&load_instrument($instrument);
 	&process_files(\@dat_file_globs);
@@ -194,16 +196,16 @@ foreach(@gargs) {
 			}
 			
 			if ($Prefs->{discardVarsMatchingPattern} ne '*' && $vals[1] =~ /^$Prefs->{discardVarsMatchingPattern}$/) {
-				$module = "__DISCARD__";
+				$module = "${instrument_name}_DISCARD";
 			}
 			elsif ($sched_nodes{$vals[1]}{'atype'} eq 'nothing' && $sched_nodes{$vals[1]}{'type'} !~ /^e/i) {	# an instructional question
-				$module = "__NOTHING__";
+				$module = "${instrument_name}_NOTHING";
 			}
 			elsif ($Prefs->{modularizeByPrefix} ne '*' && $vals[1] =~ /^($Prefs->{modularizeByPrefix})/) {
 				$module = $1;
 			}
 			else {
-				$module = "__MAIN__";
+				$module = "${instrument_name}_MAIN";
 			}			
 			
 			$internalName = $vals[1];
@@ -466,7 +468,7 @@ sub computeVarHistory {
 }
 
 sub pathByStep {
-	open (PATH,">pathstep-timing.tsv")	or die("unable to open pathstep-timing.tsv");
+	open (PATH,">${instrument_name}_PathStep-timing.tsv")	or die("unable to open ${instrument_name}_PathStep-timing.tsv");
 	print PATH "UniqueID\tDispCnt\tGroup\tWhen\ttDur\tQlen\tAlen\tTlen\tNumQs\ttDurSec\tTimevsQ\tTimevsT\tTitle\tVersion\n";
 	
 	foreach (@pathByStep) {
@@ -477,7 +479,7 @@ sub pathByStep {
 		
 	
 sub showPathLog {
-	open (PATH,">pathstep-summary.tsv")	or die("unable to open pathstep-summary.tsv");
+	open (PATH,">${instrument_name}_PathStep-summary.tsv")	or die("unable to open ${instrument_name}_PathStep-summary.tsv");
 #	print PATH "UniqueID\tType\tTitle\tVersion\tIP\tStartTime\tStopTime\ttDur\ttDurSec\tNumSteps\tPath\tRawPath\n";
 #	print PATH "UniqueID\tTitle\tVersion\tFinished\ttDur\ttDurSec\tNumSteps\tPath\tlastAns\tlastAnsN\tlstView\tlstViewN\n";
 	print PATH "UniqueID\tTitle\tVersion\tFinished\ttDur\ttDurSec\tNumSteps\tPath\tlastAns\tlstView\n";
@@ -584,7 +586,7 @@ sub fixComment {
 }
 
 sub pathTotals {
-	open (PATH,">pathstep-visits.tsv")	or die("unable to open pathstep-visits.tsv");
+	open (PATH,">${instrument_name}_PathStep-visits.tsv")	or die("unable to open ${instrument_name}_PathStep-visits.tsv");
 	
 	# print headers - will be variable number based on max # of possible display steps - may be limited by Excel's ~250 column limit
 	print PATH "UniqueID\tType\tInstrument\tIP\tStartTime\tStopTime\ttDur\ttDurSec\tNumSteps\tFinish\tEnd\tJump\tPrev\tRepeat\t";
