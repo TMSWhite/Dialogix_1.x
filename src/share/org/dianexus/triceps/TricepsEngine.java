@@ -507,6 +507,7 @@ if (DEBUG) Logger.writeln("##Throwable @ Servlet.getSortedNames()" + t.getMessag
 			else {
 				sb.append("NO_TITLE");
 			}
+			/*
 			Vector v = sched.getLanguages();
 			if (v.size() > 1) {
 				sb.append("[");
@@ -518,6 +519,7 @@ if (DEBUG) Logger.writeln("##Throwable @ Servlet.getSortedNames()" + t.getMessag
 				}
 				sb.append("]");
 			}
+			*/
 		}
 
 		return sb.toString();
@@ -652,13 +654,15 @@ if (DEPLOYABLE) {
 //		if (!isSplashScreen && triceps.isValid()) {
 		if (triceps.isValid()) {
 			Vector languages = schedule.getLanguages();
+			Vector languagesISO = schedule.getLanguagesISO();
 			if (languages.size() > 1) {
 				sb.append("<table width='100%' border='0'><tr><td align='center'>");
 				for (int i=0;i<languages.size();++i) {
 					String language = (String) languages.elementAt(i);
+					String languageISO = (String) languagesISO.elementAt(i);
 					boolean selected = (i == triceps.getLanguage());
 					sb.append(((selected) ? "\n<u>" : "") +
-						"<input type='button' onclick='evHandler(event);setLanguage(\"" + language + "\");' name='select_" + language + "' value='" + language + "'>" +
+						"<input type='button' onclick='evHandler(event);setLanguage(\"" + languageISO + "\");' name='select_" + languageISO + "' value='" + language + "'>" +
 						((selected) ? "</u>" : ""));
 				}
 				sb.append("</td></tr></table>");
@@ -2030,7 +2034,7 @@ if (DEPLOYABLE) {
 		sb.append("<!DOCTYPE html PUBLIC \"-//W3C//DTD HTML 4.01 Transitional//EN\">\n");
 		sb.append("<html>\n");
 		sb.append("<head>\n");
-		sb.append("<META HTTP-EQUIV='Content-Type' CONTENT='text/html;CHARSET=iso-8859-1'>\n");
+		sb.append("<META HTTP-EQUIV='Content-Type' CONTENT='" + TricepsServlet.CONTENT_TYPE + "'>\n");
 		if ("finished".equals(directive) && schedule != null) {
 			String s = schedule.getReserved(Schedule.REDIRECT_ON_FINISH_URL);
 			if (s.length() > 0) {

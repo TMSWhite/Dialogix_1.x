@@ -159,6 +159,7 @@ import java.io.FileReader;
 	private int languageCount = 0;
 	private Vector locales = null;
 	private Vector languageNames = null;
+	private Vector languagesISO = null;
 	private int currentLanguage = 0;
 	private boolean isFound = false;
 	private boolean isLoaded = false;
@@ -919,7 +920,6 @@ if (DEBUG) Logger.writeln("##NumberFormatException @ Schedule.setStartTime()" + 
 
 		languageCount = 0;
 		locales = new Vector();
-		languageNames = new Vector();
 		StringTokenizer ans = new StringTokenizer(value,"|");
 		while(ans.hasMoreTokens()) {
 			String s = null;
@@ -965,14 +965,17 @@ if (DEBUG) Logger.writeln("##NoSuchElementException @ Schedule.setLanguages()" +
 
 	private void buildLanguageNames() {
 		languageNames = new Vector();
+		languagesISO = new Vector();
 
 		for (int i=0;i<locales.size();++i) {
 			Locale loc = (Locale) locales.elementAt(i);
 			languageNames.addElement(loc.getDisplayLanguage(loc));
+			languagesISO.addElement(loc.toString());
 		}
 	}
-
+	
 	/*public*/ Vector getLanguages() { return languageNames; }
+	/*public*/ Vector getLanguagesISO() { return languagesISO; }
 
 	/*public*/ String setLanguage(String s) {
 		Locale loc = null;
@@ -983,8 +986,8 @@ if (DEBUG) Logger.writeln("##NoSuchElementException @ Schedule.setLanguages()" +
 			lang = 0;
 		}
 		else {
-			for (int i=0;i<languageNames.size();++i) {
-				if (s.equals((String) languageNames.elementAt(i))) {
+			for (int i=0;i<languagesISO.size();++i) {
+				if (s.equals((String) languagesISO.elementAt(i))) {
 					lang = i;
 				}
 			}
