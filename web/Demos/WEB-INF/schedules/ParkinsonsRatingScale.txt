@@ -1,0 +1,34 @@
+RESERVED	__TRICEPS_FILE_TYPE__	SCHEDULE
+RESERVED	__LANGUAGES__	en_US
+RESERVED	__TITLE__	Unified Parkinson's Disease Rating Scale
+RESERVED	__ICON__	cpmc_dmi.jpg
+RESERVED	__HEADER_MSG__	Unified Parkinson's Disease Rating Scale
+RESERVED	__PASSWORD_FOR_ADMIN_MODE__	bypass
+RESERVED	__SHOW_QUESTION_REF__	FALSE
+RESERVED	__AUTOGEN_OPTION_NUM__	false
+RESERVED	__DEVELOPER_MODE__	TRUE
+RESERVED	__DEBUG_MODE__	FALSE
+RESERVED	__SHOW_ADMIN_ICONS__	FALSE
+RESERVED	__ALLOW_COMMENTS__	FALSE
+RESERVED	__CURRENT_LANGUAGE__	en_US
+RESERVED	__ALLOW_LANGUAGE_SWITCHING__	TRUE
+RESERVED	__ALLOW_REFUSED__	TRUE
+RESERVED	__ALLOW_UNKNOWN__	TRUE
+RESERVED	__ALLOW_DONT_UNDERSTAND__	TRUE
+RESERVED	__RECORD_EVENTS__	TRUE					
+	Intro		1	[		A patient is considered to have extrapyramidal signs if any <i>one</i> sign is present and has a severity rating of 2 or more.  Patients with drug-induced extrapyramidal signs cannot be evaluated using the AD prediction techniques.  When deciding whether a sign is drug-induced, consider primary psychotics, particularly phenothiazines and tricyclic antidepressants	nothing
+	speech		1	q	<b>speech</b>	<b>Speech</b>	list|0|normal|1|slight loss of expression, dictation, or volume|2|monotone, slurred but understandable; moderately impaired|3|marked impairment, difficult to understand|4|unintelligible
+	facial		1	q	facial <b>expression</b>	<b>Facial Expression</b>	list|0|normal|1|slight hypomimia; could be normal <i>Poker Face</i>|2|slight but definitely abnormal diminution of facial expression|3|moderate hypomimia; lips parted some of the time|4|masked or fixed face with severe or complete loss of facial expression; lips parted 1/4 inch or more
+	tremor		1	]	<b>tremor</b> at rest	<b>Tremor at Rest</b>	list|0|absent|1|slight or infrequently present|2|<b>mild</b> in amplitude and present most of the time|3|<b>moderate</b> in amplitude and present most of the time|4|<b>marked</b> in amplitude and present most of the time
+	rigid_i		1	[		<b><i>Rigidity</i></b> (Judged on passive movement of major joint with patient relaxed in sitting position.  Cogwheeling to be ignored)	nothing
+	neck		1	q	<b>neck</b> rigidity	<b>Neck</b>	list|0|absent|1|slight or detectable only when activated by mirror or other movements|2|mild to moderate|3|marked, but full range of motion easily achieved|4|severe, range of motion achieved with difficulty
+	Rarm		1	q	<b>right arm</b> rigidity	<b>Right Arm</b>	list|0|absent|1|slight or detectable only when activated by mirror or other movements|2|mild to moderate|3|marked, but full range of motion easily achieved|4|severe, range of motion achieved with difficulty
+	Larm		1	q	<b>left arm</b> rigidity	<b>Left Arm</b>	list|0|absent|1|slight or detectable only when activated by mirror or other movements|2|mild to moderate|3|marked, but full range of motion easily achieved|4|severe, range of motion achieved with difficulty
+	Rleg		1	q	<b>right leg</b> rigidity	<b>Right Leg</b>	list|0|absent|1|slight or detectable only when activated by mirror or other movements|2|mild to moderate|3|marked, but full range of motion easily achieved|4|severe, range of motion achieved with difficulty
+	Lleg		1	]	<b>left leg</b> rigidity	<b>Left Leg</b>	list|0|absent|1|slight or detectable only when activated by mirror or other movements|2|mild to moderate|3|marked, but full range of motion easily achieved|4|severe, range of motion achieved with difficulty
+	posture		1	[	<b>posture</b>	<b>Posture</b>	list|0|normal erect|1|not quite erect, slightly stooped posture; could be normal for older person|2|moderately stooped posture, definitely abnormal; can be leaning slightly to one side|3|severely stooped posture with kyphosis; can be leaning moderately to one side|4|marked flexion with extreme abnormality of posture
+	kinesia		1	q	body <b>kinesia</b>	<b>Body Bradykinesia and Hypokinesia</b><br>(combining slowness, hesitancy, decreased arm swing, small amplitude, and poverty of motion in general)	list|0|none|1|minimal slowness, giving movement a deliberate character, could be normal for some people.  Possibly reduced amplitude|2|mild degree of slowness and poverty of movement which is definitely abnormal.  Alternatively, some reduced amplitude|3|Moderate slowness, poverty, or small amplitude of movement|4|marked slowness, poverty, or small amplitude of movement
+	gait		1	]	<b>gait</b>	<b>Gait</b>	list|0|normal|1|walks slowly, may shuffle with short steps, but no festination or propulsion|2|walks with difficulty, but requires little or no assistance; may have festination, short steps, or propulsion|3|severe disturbance of gait, requiring assistance|4|cannot walk at all, even with assistance
+	score		1	e		speech + facial + tremor + neck + Rarm + Larm + Rleg + Lleg + posture + kinesia + gait	nothing
+	sx_list		1	e		list(speech>1?desc(speech):'',facial>1?desc(facial):'',tremor>1?desc(tremor):'',neck>1?desc(neck):'',Rarm>1?desc(Rarm):'',Larm>1?desc(Larm):'',Rleg>1?desc(Rleg):'',Lleg>1?desc(Lleg):'',posture>1?desc(posture):'',kinesia>1?desc(kinesia):'',gait>1?desc(gait):'')	nothing
+	report		1	q		Given the information you entered, the subject has a Parkinson's Disease Rating Scale score of <b>`score`</b>.<br>Specifically, the patient had <i>greater than threshold</i> symptoms in `sx_list`.	nothing

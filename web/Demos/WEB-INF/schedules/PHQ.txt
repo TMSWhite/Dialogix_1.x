@@ -1,0 +1,136 @@
+RESERVED	__TRICEPS_FILE_TYPE__	SCHEDULE					
+RESERVED	__TITLE__	PHQ
+RESERVED	__ICON__	CETbulblogo.jpg					
+RESERVED	__HEADER_MSG__	Patient Health Questionnaire
+RESERVED	__PASSWORD_FOR_ADMIN_MODE__	bypass					
+RESERVED	__SHOW_QUESTION_REF__	true					
+RESERVED	__AUTOGEN_OPTION_NUM__	TRUE					
+RESERVED	__DEVELOPER_MODE__	true					
+RESERVED	__DEBUG_MODE__	TRUE
+RESERVED	__SWAP_NEXT_AND_PREVIOUS__	true
+RESERVED	__SET_DEFAULT_FOCUS__	false
+Disclaimer	Disclaimer		1	q		This instrument is under construction	nothing
+Title	Title		1	[		<p align='center'><b><font size='+2'>Patient Health Questionnaire<sup>TM</sup> (PHQ)</font></b></p>	nothing
+Intro	Intro		1	q		This questionnaire is an important part of providing you with the best heath care possible.  Your answers will help in understanding problems that you may have.  Please answer every question to the best of your ability unless you are requested to skip a question.	nothing
+date	date		1	q		Today's date is `getNow()`	nothing
+age	age		1	q		What is your age?	double
+female	female		1	]		What is your sex?	list|1|Female|0|Male
+q1intro	q1intro	1	1	[		<b>During the <u>last 4 weeks</u>, how much have you been bothered by any of the following problems?</b>	nothing
+q1a	q1a	a	1	q		Stomach pain	list|1|Not bothered at all|2|Bothered a little|3|Bothered a lot
+q1b	q1b	b	1	q		Back pain	list|1|Not bothered at all|2|Bothered a little|3|Bothered a lot
+q1c	q1c	c	1	q		Pain in your arms, legs, or joints (knees, hips, etc.)	list|1|Not bothered at all|2|Bothered a little|3|Bothered a lot
+q1d	q1d	d	1	q		Menstrual cramps or other problems with your periods	list|1|Not bothered at all|2|Bothered a little|3|Bothered a lot
+q1e	q1e	e	1	q		Pain or problems during sexual intercourse	list|1|Not bothered at all|2|Bothered a little|3|Bothered a lot
+q1f	q1f	f	1	q		Headaches	list|1|Not bothered at all|2|Bothered a little|3|Bothered a lot
+q1g	q1g	g	1	q		Chest pain	list|1|Not bothered at all|2|Bothered a little|3|Bothered a lot
+q1h	q1h	h	1	q		Dizziness	list|1|Not bothered at all|2|Bothered a little|3|Bothered a lot
+q1i	q1i	i	1	q		Fainting spells	list|1|Not bothered at all|2|Bothered a little|3|Bothered a lot
+q1j	q1j	j	1	q		Feeling your heart pound or race	list|1|Not bothered at all|2|Bothered a little|3|Bothered a lot
+q1k	q1k	k	1	q		Shortness of breath	list|1|Not bothered at all|2|Bothered a little|3|Bothered a lot
+q1l	q1l	l	1	q		Constipation, loose bowels, or diarrhea	list|1|Not bothered at all|2|Bothered a little|3|Bothered a lot
+q1m	q1m	m	1	]		Nausea, gas, or indigestion	list|1|Not bothered at all|2|Bothered a little|3|Bothered a lot
+q2intro	q2intro	2	1	[		<b>Over the <u>last 2 weeks</u>, how often have you been bothered by any of the following problems?</b>	nothing
+q2a	q2a	a	1	q		Little interest or pleasure in doing things	list|0|Not at all|1|Several days|2|More than half the days|3|Nearly every day
+q2b	q2b	b	1	q		Feeling down, depressed, or hopeless	list|0|Not at all|1|Several days|2|More than half the days|3|Nearly every day
+q2c	q2c	c	1	q		Trouble falling or staying asleep, or sleeping too much	list|0|Not at all|1|Several days|2|More than half the days|3|Nearly every day
+q2d	q2d	d	1	q		Feeling tired or having little energy	list|0|Not at all|1|Several days|2|More than half the days|3|Nearly every day
+q2e	q2e	e	1	q		Poor appetite or overeating	list|0|Not at all|1|Several days|2|More than half the days|3|Nearly every day
+q2f	q2f	f	1	q		Feeling bad about yourself, or that you are a failure, or have let yourself or your family down	list|0|Not at all|1|Several days|2|More than half the days|3|Nearly every day
+q2g	q2g	g	1	q		Trouble concentrating on things, such as reading the newspaper or watching television	list|0|Not at all|1|Several days|2|More than half the days|3|Nearly every day
+q2h	q2h	h	1	q		Moving or speaking so slowly that other people could have noticed.  Or the opposite -- being so fidgety or restless that you have been moving around a lot mor than usual	list|0|Not at all|1|Several days|2|More than half the days|3|Nearly every day
+q2i	q2i	i	1	]		Thoughts that you would be better off dead, or of hurting yourself in some way	list|0|Not at all|1|Several days|2|More than half the days|3|Nearly every day
+q3intro	q3intro	3	1	[		<b>Questions about anxiety.</b>	nothing
+q3a	q3a	a	1	]		In the <u>last 4 weeks</u>, have you had an anxiety attack -- suddenly fealing fear or panic?	list|0|NO|1|YES
+q3intro2	q3intro2	3	q3a	[		<b>Questions about anxiety.</b>	nothing
+q3b	q3b	b	q3a	q		Has this happened before?	list|0|NO|1|YES
+q3c	q3c	c	q3a	q		Do some of these attacks come <u>suddenly out of the blue</u> -- that is, in situations where you don't expect to be nervous or uncomfortable?	list|0|NO|1|YES
+q3d	q3d	d	q3a	]		Do these attacks bother you a lot or are you worred about having another attack?	list|0|NO|1|YES
+q4intro	q4intro	4	q3a	[		<b>Think about your last anxiety attack</b>	nothing
+q4a	q4a	a	q3a	q		Were you short of breath?	list|0|NO|1|YES
+q4b	q4b	b	q3a	q		Did your heart race, pound, or skip?	list|0|NO|1|YES
+q4c	q4c	c	q3a	q		Did you have chest pain or pressure?	list|0|NO|1|YES
+q4d	q4d	d	q3a	q		Did you sweat?	list|0|NO|1|YES
+q4e	q4e	e	q3a	q		Did you feel as if you were choking?	list|0|NO|1|YES
+q4f	q4f	f	q3a	q		Did you have hot flashes or chills?	list|0|NO|1|YES
+q4g	q4g	g	q3a	q		Did you have nausea or an upset stomach, or the feeling that you were going to have diarrhea?	list|0|NO|1|YES
+q4h	q4h	h	q3a	q		Did you feel dizzy, unsteady, or faint?	list|0|NO|1|YES
+q4i	q4i	i	q3a	q		Did you have tingling or numbness in parts of your body?	list|0|NO|1|YES
+q4j	q4j	j	q3a	q		Did you tremble or shake?	list|0|NO|1|YES
+q4k	q4k	k	q3a	]		Were you afraid of dying?	list|0|NO|1|YES
+q5intro	q5intro	5	1	[		<b>Over the <u>last 4 weeks</u>, how often have you been bothered by any of the following problems?</b>	nothing
+q5a	q5a	a	1	]		Feeling nervous, anxious, on edge, or worrying a lot about different things	list|0|Not at all|1|Several days|2|More than half the days
+q5intro1	q5intro1	5	q5a	[		<b>Over the <u>last 4 weeks</u>, how often have you been bothered by any of the following problems?</b>	nothing
+q5b	q5b	b	q5a	q		Feeling restless so that it is hard to sit still	list|0|Not at all|1|Several days|2|More than half the days
+q5c	q5c	c	q5a	q		Getting tired very easily	list|0|Not at all|1|Several days|2|More than half the days
+q5d	q5d	d	q5a	q		Muscle tension, aches, or soreness	list|0|Not at all|1|Several days|2|More than half the days
+q5e	q5e	e	q5a	q		Trouble falling asleep or staying asleep	list|0|Not at all|1|Several days|2|More than half the days
+q5f	q5f	f	q5a	q		Trouble concentrating on things, such a reading a book or watching TV	list|0|Not at all|1|Several days|2|More than half the days
+q5g	q5g	g	q5a	]		Becoming easily annoyed or irritable	list|0|Not at all|1|Several days|2|More than half the days
+q6intro	q6intro	6	1	[		<b>Questions about eating</b>	nothing
+q6a	q6a	a	1	q		Do you often feel that you can't control <u>what</u> or <u>how much</u> you eat?	list|0|NO|1|YES
+q6b	q6b	b	1	]		Do you often eat, <u>within any 2-hour period</u>, what most people would regard as an unusually <u>large</u> amount of food?	list|0|NO|1|YES
+q6intro1	q6intro1	6	(q6a && q6b)	[		<b>Questions about eating</b>	nothing
+q6c	q6c	c	(q6a && q6b)	]		Has this been as often, on average, as twice a week for the last 3 months?	list|0|NO|1|YES
+q7intro	q7intro	7	(q6a && q6b)	[		<b>In the last 3 months have you <u>often</u> done any of the following to avoid gaining weight?</b>	nothing
+q7a	q7a	a	(q6a && q6b)	q		Made yourself vomit?	list|0|NO|1|YES
+q7b	q7b	b	(q6a && q6b)	q		Took more than twice the recommended dose of laxatives?	list|0|NO|1|YES
+q7c	q7c	c	(q6a && q6b)	q		Fasted -- not eaten anything at all for at least 24 hours?	list|0|NO|1|YES
+q7d	q7d	d	(q6a && q6b)	]		Exercised for more than an hour specifically to avoid gaining weight after binge eating?	list|0|NO|1|YES
+q8	q8	8	(q6a && q6b) && (q7a || q7b || q7c || q7d)	q		<b>Did you use any of these ways of avoiding gaining weight as often, on average, as twice a week?</b>	list|0|NO|1|YES
+q9	q9	9	1	q		<b>Do you ever drink alcohol (including beer or wine)?</b>	list|0|NO|1|YES
+q10intro	q10intro	10	q9	[		<b>Have any of the following happened to you <u>more than once in the last 6 months?</u></b>	nothing
+q10a	q10a	a	q9	q		You drank alcohol even though a doctor suggested that you stop drinking because of a problem with your health	list|0|NO|1|YES
+q10b	q10b	b	q9	q		You drank alcohol, were high from alcohol, or hung over while you were working, going to school, or taking care of children or other responsibilities	list|0|NO|1|YES
+q10c	q10c	c	q9	q		You missed or were late for work, school, or other activities because you were drinking or hung over	list|0|NO|1|YES
+q10d	q10d	d	q9	q		You had a problem getting along with other people while you were drinking	list|0|NO|1|YES
+q10e	q10e	e	q9	]		You drove a car after having several drinks or after drinking too much	list|0|NO|1|YES
+somatic sx	sxSom		1	e		count((q1a==3),(q1b==3),(q1c==3),(q1d==3),(q1e==3),(q1f==3),(q1g==3),(q1h==3),(q1i==3),(q1j==3),(q1k==3),(q1l==3),(q1m==3))	nothing
+Somatic Syndrome	dxSom		1	e		sxSom >=3	nothing
+depressive sx	sxD		1	e		count((q2a>=2),(q2b>=2),(q2c>=2),(q2d>=2),(q2e>=2),(q2f>=2),(q2g>=2),(q2h>=2),(q2i>=1))	nothing
+Major Depression Syndrome	dxMDS		1	e		(q2a>=2|| q2b>=2) && (sxD >= 5)	nothing
+Other Depressive Syndrome	dxODS		1	e		(q2a>=2|| q2b>=2) && (sxD >= 2) && (sxD <= 4)	nothing
+panic sx	sxPanic		1	e		count(q3a,q3b,q3c,q3d)	nothing
+attack sx	sxAttack		1	e		count(q4a,q4b,q4c,q4d,q4e,q4f,q4g,q4h,q4i,q4j,q4k)	nothing
+Panic Syndrome	dxPanic		1	e		(sxPanic == 4) && (sxAttack >= 4)	nothing
+anxiety sx	sxAnxiety		1	e		count((q5a==2),(q5b==2),(q5c==2),(q5d==2),(q5e==2),(q5f==2),(q5g==2))	nothing
+Other Anxiety Syndrome	dxAnxiety		1	e		(q5a==2) && (sxAnxiety >= 3)	nothing
+bulimia sx	sxBul		1	e		count(q6a,q6b,q6c)	nothing
+purge sx	sxPurge		1	e		count(q7a,q7b,q7c,q7d)	nothing
+Bulimia Nervosa	dxBulNer		1	e		(sxBul == 3) && (q8 == 1)	nothing
+Bulimia Eating Disorder	dxBulEatDis		1	e		(sxBul == 3) && (q8 == 0)	nothing
+alcohol abuse sx	sxAlcAbu		1	e		count(q10a,q10b,q10c,q10d,q10e)	nothing
+Alcohol Abuse	dxAlcAbu		1	e		(sxAlcAbu > 0)	nothing
+Report	Report		1	[		<b>Report (for informational purposes only)</b>	nothing
+Report1	Report1		1	q		There were `sxSom` somatic symptoms, which <b>do `dxSom ? '' : 'not'`</b> meet criteria for Somatic Syndrome (if an adequate biological explanation is lacking)	nothing
+Report2	Report2		1	q		There were `sxD` depressive symptoms, which <b>do `dxMDS ? '' : 'not'`</b> meet criteria for Major Depressive Symptom, and <b>do `dxODS ? '' : 'not'`</b> meet criteria for Other Depressive Symptom	nothing
+Report3	Report3		1	q		There were `sxPanic` panic symptoms, and `sxAttack` panic attack symptoms, which <b>do `dxPanic ? '' : 'not'`</b> meet criteria for Panic Disorder	nothing
+Report4	Report4		1	q		There were `sxAnxiety` anxiety symptoms, which <b>do `dxAnxiety ? '' : 'not'`</b> meet criteria for Other Anxiety Syndrome	nothing
+Report5	Report5		1	q		There were `sxBul` bulimia symptoms, and `sxPurge` purging symptoms, which <b>do `dxBulEatDis ? '' : 'not'`</b> meet criteria for Bulimia Eating Disorder, and <b>do `dxBulNer ? '' : 'not'`</b> meet criteria for Bulimia Nervosa	nothing
+Report6	Report6		1	]		There were `sxAlcAbu` symptoms of alcohol abuse, which <b>do `dxAlcAbu ? '' : 'not'`</b> meet criteria for Alcohol Abuse	nothing
+anySx	anySx		1	e		(sxSom + sxD + sxPanic + sxAttack + sxAnxiety + sxBul + sxPurge + sxAlcAbu)	nothing
+q11	q11	11	anySx	q		<b>How <u>difficult</u> have these problems made it for you to do your work, take care of your things at home, or get along with other people?</b>	list|0|Not difficult at all|1|Somewhat difficult|2|Very difficult|3|Extremely difficult
+q12intro	q12intro	12	1	[		<b>In the <u>last 4 weeks</u>, how much have you been bothered by any of the following problems?</b>	nothing
+q12a	q12a	a	1	q		Worrying about your health	list|0|Not bothered|1|Bothered a little|2|Bothered a lot
+q12b	q12b	b	1	q		Your weight or how you look	list|0|Not bothered|1|Bothered a little|2|Bothered a lot
+q12c	q12c	c	1	q		Little or no sexual desire or pleasure during sex	list|0|Not bothered|1|Bothered a little|2|Bothered a lot
+q12d	q12d	d	1	q		Difficulties with husband/wife, partner/lover, or boyfriend/girlfriend	list|0|Not bothered|1|Bothered a little|2|Bothered a lot
+q12e	q12e	e	1	q		The stress of taking care of children, parents, or other family members	list|0|Not bothered|1|Bothered a little|2|Bothered a lot
+q12f	q12f	f	1	q		Stress at work outside of the home or at school	list|0|Not bothered|1|Bothered a little|2|Bothered a lot
+q12g	q12g	g	1	q		Financial problems or worries	list|0|Not bothered|1|Bothered a little|2|Bothered a lot
+q12h	q12h	h	1	q		Having no one to turn to when you have a problem	list|0|Not bothered|1|Bothered a little|2|Bothered a lot
+q12i	q12i	i	1	q		Something bad that happened <u>recently</u>	list|0|Not bothered|1|Bothered a little|2|Bothered a lot
+q12j	q12j	j	1	]		Thinking or dreaming about something terrible that happened to you <u>in the past</u> -- like your house being destroyed, a severe accident, being hit or assaulted, or being forced to commit a sexual act	list|0|Not bothered|1|Bothered a little|2|Bothered a lot
+q13	q13	13	1	q		<b>In the <u>last year</u>, have you been hit, slapped, kicked, or otherwise physically hurt by someone, or has anyone forced you to have an unwanted sexual act?</b>	list|0|NO|1|YES
+q14	q14	14	1	q		<b>What is the most stressfull thing in you life right now?</b>	memo
+q15	q15	15	1	q		<b>Are you taking any medicine for anxiety, depression, or stress</b>	list|0|NO|1|YES
+q16intro	q16intro	16	female	[		<b>Questions about menstruation, pregnancy and childbirth</b>	nothing
+q16a	q16a	a	female	q		Which best describes your menstrual periods?	list|0|Periods are unchanged|1|No periods because pregnant or recently gave birth|2|Periods have become irregular or changed in frequency, duration or amount|3|No periods for at least a year|4|Having periods because taking hormone replacement (estrogen) therapy or oral contraceptives
+q16b	q16b	b	female	]		During the week before your period starts, do you have a <u>serious</u> problem with your mood -- like depression, anxiety, irritability, anger, or mood swings?	list|0|NO|1|YES
+q16intro1	q16intro1	16	female && q16b	[		<b>Questions about menstruation, pregnancy and childbirth</b>	nothing
+q16c	q16c	c	female && q16b	]		Do these problems go away by the end of your period?	list|0|NO|1|YES
+q16intro2	q16intro2	16	female	[		<b>Questions about menstruation, pregnancy and childbirth</b>	nothing
+q16d	q16d	d	female	q		Have you given birth within the last 6 months?	list|0|NO|1|YES
+q16e	q16e	e	female	q		Have you had a miscarriage within the last 6 months?	list|0|NO|1|YES
+q16f	q16f	f	female	]		Are you having difficulty getting pregnant?	list|0|NO|1|YES
+Notes	Notes		1	q		<b>Notes</b><p>Developed by Drs. Robert L. Spitzer, Janet B.W. Williams, Kurt Kroenke, and other colleagues, with an educational grant from Pfizer, Inc.  For research information, contact Dr. Spitzer at <a href='mailto:rls8@columbia.edu'>rls8@columbia.edu</a>.  The names PRIME-MD and PRIME-MD TODAY are registered trademarks of Pfizer, Inc.</p>	nothing
+                                                                                                                                                                                                                                                            

@@ -1,0 +1,130 @@
+RESERVED	__TRICEPS_FILE_TYPE__	SCHEDULE
+RESERVED	__ICON__	cpmc_dmi.jpg
+RESERVED	__TITLE__	NIDA Drug Abuse Assessment
+RESERVED	__HEADER_MSG__	NIDA Drug Abuse Assessment
+RESERVED	__AUTOGEN_OPTION_NUM__	true
+RESERVED	__PASSWORD_FOR_ADMIN_MODE__	bypass
+RESERVED	__DEVELOPER_MODE__	TRUE
+Instruct/a	_348		1	[		Welcome to our interview on the computer. We hope that you find this an enjoyable experience. Your interviewer can answer any questions that you have about using the computer. But first...	nothing
+Instruct/b	_349		1	]		"How much experience do you have using a computer? Press the down arrow key until you get to the corrent answer (or use the pointing device). When your answer choice is highlighted, press the TAB key. This will highlight the ""NEXT"" button. Press the ENTER key to move to the next page. "	list|0|none|1|a little|2|quite a bit|3|extensive
+Instruct/c	_350		1	q		"If you go past an answer you wish to choose, you can use the up arrow to go back. When there are multiple questions on a page, the TAB key will move you to the next question, while the ENTER key always moves you to the next page. Don't worry about skipping a question, the computer will let you know you missed one and ask you to answer it."	nothing
+NIDA/intro/1	_450		1	[		"As you read each of the following statements, decide whether or not it describes you."	nothing
+NIDA/5	_451		1	q		I feel like losing my temper at people.	list|1|true|2|mostly true|3|mostly false|4|false
+NIDA/6	_452		1	]		The advice of others quite often helps me think better.	list|1|true|2|mostly true|3|mostly false|4|false
+NIDA/7	_453		1	[		There's no use in doing things for people; you only find that you get it in the neck in the long run.	list|1|true|2|mostly true|3|mostly false|4|false
+NIDA/8	_454		1	q		I often make people angry by teasing them.	list|1|true|2|mostly true|3|mostly false|4|false
+NIDA/9	_455		1	]		I feel I do not have much to be proud of.	list|1|true|2|mostly true|3|mostly false|4|false
+NIDA/10	_456		1	[		I could live alone and enjoy it.	list|1|true|2|mostly true|3|mostly false|4|false
+NIDA/11	_457		1	q		I feel like swearing.	list|1|true|2|mostly true|3|mostly false|4|false
+NIDA/12	_458		1	]		"When I make a decision, I usually go by what my parents have taught me."	list|1|true|2|mostly true|3|mostly false|4|false
+NIDA/13	_459		1	[		"If I get too much change in a store, I always give it back."	list|1|true|2|mostly true|3|mostly false|4|false
+NIDA/14	_460		1	q		I respect rules because they guide me.	list|1|true|2|mostly true|3|mostly false|4|false
+NIDA/15	_461		1	]		I often act on the spur of the moment without stopping to think.	list|1|true|2|mostly true|3|mostly false|4|false
+NIDA/16	_462		1	[		If someone does a better job than me I like to try to show him or her up.	list|1|true|2|mostly true|3|mostly false|4|false
+NIDA/17	_463		1	q		I feel like my life is very useful.	list|1|true|2|mostly true|3|mostly false|4|false
+NIDA/18	_464		1	]		I always try to do whatever is proper.	list|1|true|2|mostly true|3|mostly false|4|false
+NIDA/19	_465		1	[		Preparing for the future is more important for me than enjoying today.	list|1|true|2|mostly true|3|mostly false|4|false
+NIDA/20	_466		1	q		I often quarrel with others.	list|1|true|2|mostly true|3|mostly false|4|false
+NIDA/21	_467		1	]		I feel quilty when I break a rule.	list|1|true|2|mostly true|3|mostly false|4|false
+NIDA/22	_468		1	[		It's no use worrying my head about public affairs; I can't do anything about them.	list|1|true|2|mostly true|3|mostly false|4|false
+NIDA/23	_469		1	q		I am one of those people who blurt out things without thinking.	list|1|true|2|mostly true|3|mostly false|4|false
+NIDA/24	_470		1	]		I always try to share my problems with someone who can help me.	list|1|true|2|mostly true|3|mostly false|4|false
+NIDA/25	_471		1	[		I have met problems so full of possibilities that I have been unable to make up my mind about them.	list|1|true|2|mostly true|3|mostly false|4|false
+NIDA/26	_472		1	q		"When rules and regulations get in the way, I sometimes ignore them."	list|1|true|2|mostly true|3|mostly false|4|false
+NIDA/27	_473		1	]		It is all right to get around the law if you don't actually break it.	list|1|true|2|mostly true|3|mostly false|4|false
+NIDA/28	_474		1	[		"Rarely, if ever, do I do anything reckless."	list|1|true|2|mostly true|3|mostly false|4|false
+NIDA/29	_475		1	q		I am quite independent of the opinions of others.	list|1|true|2|mostly true|3|mostly false|4|false
+NIDA/30	_476		1	]		I am a useful person to have around.	list|1|true|2|mostly true|3|mostly false|4|false
+NIDA/31	_477		1	[		"People have a real duty to take care of their aged parents, even if it means making some pretty big sacrificies."	list|1|true|2|mostly true|3|mostly false|4|false
+NIDA/32	_478		1	q		"When I go to the store, I often come home with things I had not intended to buy."	list|1|true|2|mostly true|3|mostly false|4|false
+NIDA/33	_479		1	]		I feel that I have a number of good qualities.	list|1|true|2|mostly true|3|mostly false|4|false
+NIDA/34	_480		1	[		I sometimes feel that I am about to go to pieces or fall apart.	list|1|true|2|mostly true|3|mostly false|4|false
+NIDA/35	_481		1	q		"If I don't like an order I have been given, I may not do it, or I may do only part of it."	list|1|true|2|mostly true|3|mostly false|4|false
+NIDA/36	_482		1	]		My parents have often disapproved of my friends.	list|1|true|2|mostly true|3|mostly false|4|false
+NIDA/37	_483		1	[		I am often said to be hotheaded or bad-tempered.	list|1|true|2|mostly true|3|mostly false|4|false
+NIDA/38	_484		1	q		I'm never satisfied with anything I do.	list|1|true|2|mostly true|3|mostly false|4|false
+NIDA/49	_485		1	]		I feel very uncomfortable when I am away from my family too much.	list|1|true|2|mostly true|3|mostly false|4|false
+NIDA/40	_486		1	[		"If I don't feel like doing something I'm told to do, I often put it off or just don't do it at all."	list|1|true|2|mostly true|3|mostly false|4|false
+NIDA/41	_487		1	q		I have a reserved and cautious attitude toward life.	list|1|true|2|mostly true|3|mostly false|4|false
+NIDA/42	_488		1	]		I sometimes get myself into trouble at school or work.	list|1|true|2|mostly true|3|mostly false|4|false
+NIDA/43	_489		1	[		I am distracted by thoughts of the opposite sex.	list|1|true|2|mostly true|3|mostly false|4|false
+NIDA/44	_490		1	q		Sometimes I enjoy seeing how much I can get away with.	list|1|true|2|mostly true|3|mostly false|4|false
+NIDA/45	_491		1	]		I generally rely on careful reasoning in making up my mind.	list|1|true|2|mostly true|3|mostly false|4|false
+NIDA/46	_492		1	[		"When I'm told to do something by a teacher or my boss, I do it."	list|1|true|2|mostly true|3|mostly false|4|false
+NIDA/54	_493		1	q		"In the midst of social groups, I am often overcome by feelings of loneliness and worthlessness."	list|1|true|2|mostly true|3|mostly false|4|false
+NIDA/55	_494		1	q		I feel quilty if scolded for something even if I did not do it.	list|1|true|2|mostly true|3|mostly false|4|false
+NIDA/56	_495		1	]		I am troubled by feelings of guilt and remorse over quite small matters.	list|1|true|2|mostly true|3|mostly false|4|false
+NIDA/intro/2	_496		1	[		"For the following statements about yourself, please indicate how strongly you agree or disagree."	nothing
+NIDA/57a	_497		1	q		There is really no way I can solve some of the problems I have.	list|1|strongly agree|2|agree|3|disagree|4|strongly disagree
+NIDA/57b	_498		1	]		What happens to me in the future mostly depends on me.	list|1|strongly agree|2|agree|3|disagree|4|strongly disagree
+NIDA/57c	_499		1	[		I often feel helpless in dealing with the problems of life.	list|1|strongly agree|2|agree|3|disagree|4|strongly disagree
+NIDA/57d	_500		1	]		I can do just about anything I really set my mind to.	list|1|strongly agree|2|agree|3|disagree|4|strongly disagree
+NIDA/intro/3	_501		1	[		"Over the last few years, on average, how much were you bothered by _"	nothing
+NIDA/58a	_502		1	q		Feeling low in energy or slowed down?	list|1|not at all|2|a little|3|somewhat|4|quite a bit|5|extremely
+NIDA/58b	_503		1	q		Difficulty in falling asleep or staying asleep?	list|1|not at all|2|a little|3|somewhat|4|quite a bit|5|extremely
+NIDA/58c	_504		1	]		Easily annoyed or irritated?	list|1|not at all|2|a little|3|somewhat|4|quite a bit|5|extremely
+NIDA/intro3a	_504a		1	[		"Over the last few years, on average, how much were you bothered by _"	nothing
+NIDA/58d	_505		1	q		Worrying or stewing about things?	list|1|not at all|2|a little|3|somewhat|4|quite a bit|5|extremely
+NIDA/58e	_506		1	q		Feeling no interest in things?	list|1|not at all|2|a little|3|somewhat|4|quite a bit|5|extremely
+NIDA/58f	_507		1	]		Feeling fearful?	list|1|not at all|2|a little|3|somewhat|4|quite a bit|5|extremely
+NIDA/intro/4	_508		1	[		"Over the last few years, on average, how much were you bothered by _"	nothing
+NIDA/58g	_509		1	q		Temper outbursts you cannot control?	list|1|not at all|2|a little|3|somewhat|4|quite a bit|5|extremely
+NIDA/58h	_510		1	q		Trouble concentrating or keeping your mind on things?	list|1|not at all|2|a little|3|somewhat|4|quite a bit|5|extremely
+NIDA/58i	_511		1	]		Feeling lonely?	list|1|not at all|2|a little|3|somewhat|4|quite a bit|5|extremely
+NIDA/intro/4a	_511a		1	[		"Over the last few years, on average, how much were you bothered by _"	nothing
+NIDA/58j	_512		1	q		"Feeling anxious, nervous, or tense inside?"	list|1|not at all|2|a little|3|somewhat|4|quite a bit|5|extremely
+NIDA/58k	_513		1	q		Feeling others do not understand you or are unsympathetic?	list|1|not at all|2|a little|3|somewhat|4|quite a bit|5|extremely
+NIDA/58l	_514		1	]		Difficulty making decisions?	list|1|not at all|2|a little|3|somewhat|4|quite a bit|5|extremely
+NIDA/intro/5	_515		1	[		"Over the last few years, on average, how much were you bothered by _"	nothing
+NIDA/58m	_516		1	q		Feeling blue?	list|1|not at all|2|a little|3|somewhat|4|quite a bit|5|extremely
+NIDA/58n	_517		1	q		Feeling tense or keyed up?	list|1|not at all|2|a little|3|somewhat|4|quite a bit|5|extremely
+NIDA/58o	_518		1	]		Difficulty in feeling close to other people?	list|1|not at all|2|a little|3|somewhat|4|quite a bit|5|extremely
+NIDA/intro/6	_519		1	[		"Over the last few years, on average, how much were you bothered by _"	nothing
+NIDA/58p	_520		1	q		Blaming yourself for things?	list|1|not at all|2|a little|3|somewhat|4|quite a bit|5|extremely
+NIDA/58q	_521		1	q		Feeling hopeless about the future?	list|1|not at all|2|a little|3|somewhat|4|quite a bit|5|extremely
+NIDA/58r	_522		1	q		Feeling others are to blame for most of your troubles?	list|1|not at all|2|a little|3|somewhat|4|quite a bit|5|extremely
+NIDA/58s	_523		1	]		Feeling nervous or shaky inside?	list|1|not at all|2|a little|3|somewhat|4|quite a bit|5|extremely
+NIDA/intro/7	_524		1	[		How well this describe you?	nothing
+NIDA/59a	_525		1	q		Competitive	list|1|never or almost never true about me|2|a little true about me|3|somewhat true about me|4|almost always or always true about me
+NIDA/59b	_526		1	q		Gentle	list|1|never or almost never true about me|2|a little true about me|3|somewhat true about me|4|almost always or always true about me
+NIDA/59c	_527		1	]		Self-reliant	list|1|never or almost never true about me|2|a little true about me|3|somewhat true about me|4|almost always or always true about me
+NIDA/intro/7a	_527a		1	[		How well this describe you?	nothing
+NIDA/59d	_528		1	q		Yielding	list|1|never or almost never true about me|2|a little true about me|3|somewhat true about me|4|almost always or always true about me
+NIDA/59e	_529		1	q		Independent	list|1|never or almost never true about me|2|a little true about me|3|somewhat true about me|4|almost always or always true about me
+NIDA/59f	_530		1	]		Shy	list|1|never or almost never true about me|2|a little true about me|3|somewhat true about me|4|almost always or always true about me
+NIDA/intro/8	_531		1	[		How well this describe you?	nothing
+NIDA/59g	_532		1	q		Affectionate	list|1|never or almost never true about me|2|a little true about me|3|somewhat true about me|4|almost always or always true about me
+NIDA/59h	_533		1	q		Assertive	list|1|never or almost never true about me|2|a little true about me|3|somewhat true about me|4|almost always or always true about me
+NIDA/59i	_534		1	]		"Analytical, that is, thinks about things logically and carefully"	list|1|never or almost never true about me|2|a little true about me|3|somewhat true about me|4|almost always or always true about me
+NIDA/intro/9	_535		1	[		How well this describe you?	nothing
+NIDA/59j	_536		1	q		Sensitive to the needs of others	list|1|never or almost never true about me|2|a little true about me|3|somewhat true about me|4|almost always or always true about me
+NIDA/59k	_537		1	q		Dominant	list|1|never or almost never true about me|2|a little true about me|3|somewhat true about me|4|almost always or always true about me
+NIDA/59l	_538		1	]		Compassionate	list|1|never or almost never true about me|2|a little true about me|3|somewhat true about me|4|almost always or always true about me
+NIDA/intro/10	_539		1	[		How well this describe you?	nothing
+NIDA/59m	_540		1	q		Masculine	list|1|never or almost never true about me|2|a little true about me|3|somewhat true about me|4|almost always or always true about me
+NIDA/59n	_541		1	q		Tender	list|1|never or almost never true about me|2|a little true about me|3|somewhat true about me|4|almost always or always true about me
+NIDA/59o	_542		1	]		Agrressive	list|1|never or almost never true about me|2|a little true about me|3|somewhat true about me|4|almost always or always true about me
+NIDA/intro/11	_543		1	[		How well this describe you?	nothing
+NIDA/59p	_544		1	q		Warm	list|1|never or almost never true about me|2|a little true about me|3|somewhat true about me|4|almost always or always true about me
+NIDA/59q	_545		1	q		Acts as a leader	list|1|never or almost never true about me|2|a little true about me|3|somewhat true about me|4|almost always or always true about me
+NIDA/59r	_546		1	]		Feminine	list|1|never or almost never true about me|2|a little true about me|3|somewhat true about me|4|almost always or always true about me
+NIDA/intro/11a	_546a		1	[		How well this describe you?	nothing
+NIDA/59s	_547		1	q		Ambitious	list|1|never or almost never true about me|2|a little true about me|3|somewhat true about me|4|almost always or always true about me
+NIDA/59t	_548		1	]		Loves children	list|1|never or almost never true about me|2|a little true about me|3|somewhat true about me|4|almost always or always true about me
+NIDA/60	_549		1	[		What is your FIRST reaction to new people you meet?	list|1|very friendly|2|fairly friendly|3|unfriendly
+NIDA/61	_550		1	q		About how often are you afraid?	list|1|constantly|2|often|3|once in a while|4|almost never or never
+NIDA/62	_551		1	]		"Do you usually make friends easily, or do you usually have trouble making friends?"	list|1|make friends easily|2|have trouble making friends
+NIDA/63	_552		1	[		How often are you very shy with people you have met before?	list|1|often|2|sometimes|3|hardly ever|4|never
+NIDA/64	_553		1	q		How often are your feelings hurt?	list|1|often|2|sometimes|3|hardly ever|4|never
+NIDA/65	_554		1	]		How often are you timid and fearful about doing things?	list|1|often|2|sometimes|3|hardly ever|4|never
+NIDA/66	_555		1	[		How reliable are you coming home when you are supposed to?	list|1|always come home on time|2|usually come home on time|3|sometimes come home on time|4|hardly ever come home on time
+NIDA/67	_556		1	q		"When you are asked or told to do something, do you ..."	list|1|nearly always do it|2|sometimes do it|3|nearly always do NOT do it
+NIDA/68	_557		1	]		"When you do something, how important is it to you to do it exactly right?"	list|1|very important|2|fairly important|3|NOT important
+NIDA/69	_558		1	[		"When you try to do something and have trouble with it, what happens most of the time? Do you usually ..."	list|1|keep trying by yourself|2|call for help|3|switch to something else
+NIDA/70	_559		1	q		"If you start to do something and are interrupted, do you usually go back to it or don't you?"	list|1|go back to it|2|don't go back to it|3|varies
+NIDA/71	_560		1	]		"When you are doing something you like, how long will you usually do it?"	list|1|a half hour or less|2|more than a half hour but less than an hour|3|1 hour to less than 2 hours| 4|2 hours but less than 3 hours|5|3 hours but less than 4 hours|6| 4 hours or more
+NIDA/72	_561		1	[		"When you read or do school homework, how long do you usually do it?"	list|1|a half hour or less|2|more than a half hour but less than an hour|3|1 hour to less than 2 hours| 4|2 hours but less than 3 hours|5|3 hours but less than 4 hours|6| 4 hours or more
+NIDA/73	_562		1	q		"When doing things with your hands, would you say you are ..."	list|1| very clumsy|2|clumsy|3|well coordinated|4|very well coordinated
+NIDA/74	_563		1	]		How about in moving around? Would you say you are ...	list|1| very clumsy|2|clumsy|3|well coordinated|4|very well coordinated
+NIDA/75	_564		1	[		"How often do you lose your train of thought, that is, your mind drifts from one thing to another?"	list|1|often|2|sometimes|3|hardly ever|4|never
+NIDA/76	_565		1	]		How careful are you about things? Would you say you ...	list|1|destroy things on purpose|2|destroy things accidentally|3|are careless with things|4|are careful with things

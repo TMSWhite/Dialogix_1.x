@@ -1,0 +1,27 @@
+RESERVED	__TRICEPS_FILE_TYPE__	SCHEDULE
+RESERVED	__ICON__	dialogo.jpg
+RESERVED	__DEVELOPER_MODE__	true
+RESERVED	__DEBUG_MODE__	true
+RESERVED	__TITLE__	B - Dialogix Privacy and Safety
+RESERVED	__HEADER_MSG__	How Safe is Dialogix?<br>Does it Respect my Privacy?
+RESERVED	__AUTOGEN_OPTION_NUM__	true
+RESERVED	__SHOW_ADMIN_ICONS__	true
+RESERVED	__ALLOW_COMMENTS__	true
+RESERVED	__ALLOW_DONT_UNDERSTAND__	false
+RESERVED	__ALLOW_REFUSED__	true
+RESERVED	__ALLOW_UNKNOWN__	false
+RESERVED	__PASSWORD_FOR_ADMIN_MODE__	admin
+RESERVED	__LANGUAGES__	en_US
+	q1		1	q		Welcome to the second <b>Dialogix</b> tutorial, written by <a href="mailto:thomas.white@dmi.columbia.edu">Thomas White</a>.<br><br>Over the next 5 minutes, you will learn how safe Dialogix is.<br><br>Please press the <b>next</b> button below to continue.<br><br>If the text is too <u>small</u>, hold down the <b>Ctrl</b> key and press type the <b>]</b> key to make the text larger.<br>If the text is too <u>large</u>, hold down the <b>Ctrl</b> key and press type the <b>[</b> key to make the text smaller.	nothing
+	q2a		1	[		<b>SAFETY</b><br>Dialogix makes it impossible for an author (e.g. of a tutorial, interview, or questionnaire, etc.) to damage your computer.<br><br>Similarly, there is nothing that you can type, click, or paste that will cause Dialogix to crash.	nothing
+	q2b		1	q		Dialogix protects you by making sure that authors can't accidentally or maliciously insert viruses or bad code into their questions.<br><br>Dialogix does this by filtering the questions that the authors want to ask, and removes any dangerous parts.  For those of you familiar with HTML, Dialogix does not allow the author to insert any <object>, <embed>, or <script> tags.  If they try, you will see the code they tried to enter (like <b><object>delete all files</object></b> or <b><embed>have virus attack computer</embed></b>) but the code will <u>never</u> be run.	nothing
+	q2c		1	]		Dialogix also protects you (and the author) by making sure there is nothing you can do to break Dialogix, or the interview.  Even if you try to maliciously break Dialogix (e.g. by "accidentally" pasting a 64K buffer of control characters into a Comment field), the worst you can do is to crash Netscape, or your local computer (if it is running Windows).  If you were to do this (and I have tested this myself), you would be able to <b>Restore</b> the interview from exactly where you left off.	nothing
+	q3a		1	[		<b>PRIVACY</b><br>Dialogix also protects your privacy in a number of ways.	nothing
+	q3b		1	q		First, you are often allowed to <b>Refuse</b> to answer a question.  Of course, the authors don't want you to do this, but if you are asked sensitive questions, you should always be given this option.<br><br>For example, what is your name?	text
+	q3c		1	]		Second, Dialogix ensures that you are always able to go back and change your answers if you make a mistake (or later decide to answer a question you initially refused to answer)	nothing
+	q4a		1	[		<b>WHAT INFORMATION DOES DIALOGIX COLLECT?</b><br>Dialogix collects both answer and process information	nothing
+	q4b		1	q		<b>Answers</b>:  For each question, Dialogix collects the following data<table width="100%" border="1"><tr><td>questionName</td><td>This is the variable name that the authors/researchers will use to track the answers to the question</td></tr><tr><td>languageNum</td><td>Since instruments can be written in several languages, it is important to know the language being used to ask a particular quation</td></tr><tr><td>timeStamp</td><td>The time at which the question was answered - questions that take a long time to answer may be too complex or be poorly worded</td></tr><tr><td>questionAsAsked</td><td>As you have seen, the questions are tailord to the information you enter, such as your name or gender.  In order to validate the questions, it is important to keep track of exactly how the question was asked</td></tr><tr><td>answerGiven</td><td>This is the answer you gave to the question</td></tr><tr><td>comment</td><td>For each question, you can add an optional comment - like pointing out typos or concerns to the author</td></tr></table>	nothing
+	q4c		1	q		<b>Process</b>:  For each question, Dialogix collects information on how you answered the question.  This can be used to track down problems.  This has been helpful to authors developing large-scale studies, like those listed on the opening page.  For example, the people testing or administering the instrument might report that the computer keeps crashing.  The researcher can review the process log to see exactly what Dialogix and the interviewer were doing when the system crashed.  This makes it easier for them to quickly track down and fix bugs in their intruments.	nothing
+	q4d		1	]		For each question, Dialogix collects the following <b>process</b> information:<br>which buttons were pressed, and when<br>what keys were typed, and when<br>what question was the user working on	nothing
+	q5a		1	[		<b>ERROR TRACKING</b><br>Dialogix can not crash.  However, if it is not installed correctly it will display a few predictable and safe, but annoying behaviors.  For example, the icons might not load, or you can't start an interview.  Once an interview starts, however (even if you can't see the icons), Dialogix is guaranteed to work properly.<br><br>Dialogix has a log file that records debugging information to help the system administrator ensure that Dialogix is installed correctly.	nothing
+	q5b		1	]		nothing	nothing

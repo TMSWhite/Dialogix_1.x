@@ -1,0 +1,21 @@
+RESERVED	__TRICEPS_FILE_TYPE__	SCHEDULE
+RESERVED	__ICON__	dialogo.jpg
+RESERVED	__DEVELOPER_MODE__	true
+RESERVED	__TITLE__	AUDIT:  Alcohol Use Disorders Identification Test
+RESERVED	__HEADER_MSG__	AUDIT:  Alcohol Use Disorders Identification Test
+RESERVED	__SHOW_QUESTION_REF__	TRUE
+RESERVED	__AUTOGEN_OPTION_NUM__	TRUE
+RESERVED	__PASSWORD_FOR_ADMIN_MODE__	bypass
+	q1	1	1	[		How often do you have a drink containing alcohol?	list|0|Never|1|Monthly or less|2|Two to four times a month|3|Two to three times per week|4|Four or more times per week
+	q2	2	1	q		How many drinks containing alcohol do you have on a typical day when you are drinking?	list|0|1 or 2|1|3 or 4|2|5 or 6|3|7 to 9|4|10 or more
+	q3	3	1	]		How often do you have six or more drinks on one occasion?	list|0|Never|1|Less than monthly|2|Monthly|3|Weekly|4|Daily or almost daily
+	qc	4-8	1	[		How often <i><b>during the last year</b></i> have you ...	nothing
+	q4	4	1	q		found that you were not able to stop drinking once you had started?	list|0|Never|1|Less than monthly|2|Monthly|3|Weekly|4|Daily or almost daily
+	q5	5	1	q		failed to do what was normally expected from you because you were drinking?	list|0|Never|1|Less than monthly|2|Monthly|3|Weekly|4|Daily or almost daily
+	q6	6	1	q		needed a first drink in the morning to get yourself going after a heavy drinking session?	list|0|Never|1|Less than monthly|2|Monthly|3|Weekly|4|Daily or almost daily
+	q7	7	1	q		had a feeling of guilt or remorse after drinking?	list|0|Never|1|Less than monthly|2|Monthly|3|Weekly|4|Daily or almost daily
+	q8	8	1	]		been unable to remember what happened the might before because you had been drinking?	list|0|Never|1|Less than monthly|2|Monthly|3|Weekly|4|Daily or almost daily
+	q9	9	1	[		Have you or someone else been injured as a result of your drinking?	list|0|No|2|Yes, but not in the last year|4|Yes, during the last year
+	q10	10	1	]		Has a relative or friend, or a doctor or other health worker been concerned about your drinking or suggested you cut down?	list|0|No|2|Yes, but not in the last year|4|Yes, during the last year
+	AUDITscore		1	e		(q1+q2+q3+q4+q5+q6+q7+q8+q9+q10)	nothing
+	Report	Results	1	q		The minimum score is 0 and the maximum is 40.<br><br>A score of 8 or more indicates a strong likelihood of hazardous or harmful alcohol consumption.  <br><br>You scored   `AUDITscore`, so you `AUDITscore > 7?'<b>do</b>':'do not'` share that likelihood.	nothing

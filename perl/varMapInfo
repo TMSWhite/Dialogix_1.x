@@ -1,0 +1,4 @@
+BYS-Child	\usr\local\dialogix\webapps\BYS\WEB-INF\schedules\BYS-Child.jar	\cvs2\Dialogix\perl\BYS-Child.varmap	.	\usr\local\dialogix\webapps\BYS\WEB-INF\working
+BYS-Adult	\usr\local\dialogix\webapps\BYS\WEB-INF\schedules\BYS-Adult.jar	\cvs2\Dialogix\perl\BYS-Adult.varmap	.	\usr\local\dialogix\webapps\BYS\WEB-INF\working
+CIC-plus	\usr\local\dialogix\webapps\CIC\WEB-INF\schedules\CIC-plus.jar	\cvs2\Dialogix\perl\CIC-plus.varmap	.	\usr\local\dialogix\webapps\CIC\WEB-INF\working
+CIC	\usr\local\dialogix\webapps\CIC\WEB-INF\schedules\CIC.jar	\cvs2\Dialogix\perl\CIC.varmap	.	\usr\local\dialogix\webapps\CIC\WEB-INF\working

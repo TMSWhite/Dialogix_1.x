@@ -1,0 +1,87 @@
+#! /usr/local/bin/perl
+#
+# perl script to cycle Dialogix logs
+# 	(1) stops Tomcat
+# 	(2) changes name of $logname file with suffix of starting date of logs
+# 	(3) re-starts Tomcat
+
+use strict;
+
+my $prefix = "/usr/local/dialogix";
+#my $java_home = "/usr/local/bin/jdk1.3";
+my $java_home = "/usr/java/jdk1.3.1_01";
+my $logs = "$prefix/logs";
+my $logname = "Triceps.log.err";
+my $bin = "$prefix/bin";
+my $datefmt = "%04d.%02d.%02d";
+
+&main;
+
+sub main {
+# stop server
+$ENV{'JAVA_HOME'} = $java_home;
+my $val = system("$bin/shutdown.sh 1>/tmp/dialogix_shutdown.stdout 2>/tmp/dialogix_shutdown.stderr");	
+if ($val != 0) {
+	print "failed to shutdown tomcat -- err code " . ($val/256) . "\n";
+	&show_err_logs;
+	return;
+}
+else {
+	print "tomcat stopped\n";
+}
+
+open(LOG,"<$logs/$logname");
+my $startDate = <LOG>;
+close (LOG);
+
+#default date is yesterday if can't read file
+my @tm= localtime(time() - (60*60*24));
+my $date = sprintf($datefmt,(1900+$tm[5]),(1+$tm[4]),$tm[3]);
+
+# otherwise, have re-name date be the day when the log file was started
+if ($startDate =~ /started on \w{3} (\w{3}) (\d+) \d+:\d+:\d+ \w+ (\d{4})/) {
+#	**DEV version of Dialogix Interviewing System version 2.9.4 Log file started on Thu Jan 17 16:36:06 EST 2002
+	$date = sprintf($datefmt,$3,&month($1),$2);
+}
+
+rename("$logs/$logname","$logs/$logname.$date") if (-e "$logs/$logname");
+
+#sleep for 10 seconds to ensure that Tomcat fully stopped (else get a bind -- port in use error
+sleep(10);
+
+#restart server
+$val = system("$bin/startup.sh 1>/tmp/dialogix_startup.stdout 2>/tmp/dialogix_startup.stderr");	
+if ($val != 0) {
+	print "failed to restart tomcat -- err code " . ($val/256) . "\n";
+	&show_err_logs;
+}
+else {
+	print "tomcat restarted\n";
+}
+}
+
+sub show_err_logs {
+	open (ERR, "</tmp/rotate_dialogix.stdout");
+	while (<ERR>) { chomp; print "$_\n"; }
+	close (ERR);
+	open (ERR, "</tmp/rotate_dialogix.stderr");
+	while (<ERR>) { chomp; print "$_\n"; }
+	close (ERR);
+}
+
+sub month {
+	$_ = shift;
+	return '01' if (/Jan/i);
+	return '02' if (/Feb/i);
+	return '03' if (/Mar/i);
+	return '04' if (/Apr/i);
+	return '05' if (/May/i);
+	return '06' if (/Jun/i);
+	return '07' if (/Jul/i);
+	return '08' if (/Aug/i);
+	return '09' if (/Sep/i);
+	return '10' if (/Oct/i);
+	return '11' if (/Nov/i);
+	return '12' if (/Dec/i);
+	return '00';
+}

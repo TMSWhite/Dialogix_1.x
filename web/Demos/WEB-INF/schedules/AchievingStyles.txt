@@ -1,0 +1,109 @@
+RESERVED	__TRICEPS_FILE_TYPE__	SCHEDULE
+RESERVED	__LANGUAGES__	en_US
+RESERVED	__TITLE__	Achieving Styles Individual Inventory	
+RESERVED	__ICON__	nypi.jpg
+RESERVED	__HEADER_MSG__	Achieving Styles Individual Inventory	
+RESERVED	__PASSWORD_FOR_ADMIN_MODE__	bypass
+RESERVED	__SHOW_QUESTION_REF__	true
+RESERVED	__AUTOGEN_OPTION_NUM__	TRUE
+RESERVED	__DEVELOPER_MODE__	TRUE
+RESERVED	__DEBUG_MODE__	FALSE
+RESERVED	__SHOW_ADMIN_ICONS__	false
+RESERVED	__ALLOW_COMMENTS__	true
+RESERVED	__CURRENT_LANGUAGE__	en_US
+RESERVED	__ALLOW_LANGUAGE_SWITCHING__	TRUE
+RESERVED	__ALLOW_REFUSED__	TRUE
+RESERVED	__ALLOW_UNKNOWN__	TRUE
+RESERVED	__ALLOW_DONT_UNDERSTAND__	TRUE
+COMMENT	GUIDELINE CLASSIFICATION AXES							
+COMMENT	development information | guideline name		1	e		"Achieving Styles Individual Inventory"		
+COMMENT	development information | author name(s)		1	e		"Thomas M. White, MD"		
+COMMENT	development information | organization name(s)		1	e		"The New York State Psychiatric Institute"		
+COMMENT	development information | organization type(s)		1	e		"Academic Institution"		
+COMMENT	development information | version		1	e		"v.1.0"		
+COMMENT	development information | source		1	e		"Jean Lipman-Bluman, Jarold J. Leavitt & associates, 1983"		
+COMMENT	development information | last update date		1	e		"1/03/2001"		
+COMMENT concept	internalName	externalName	dependencies	action_type	substitution_phrase	action_phrase	answer_options	helpURL
+COMMENT
+	_tmp4		1	[		You will now be asked 45 questions.  Please indicate the answer that best describes your behavior	nothing
+	q1	1	1	q		For me, the most gratifiying thing is to have solved a tough problem	list|1|1 - Never|2|2|3|3|4|4|5|5|6|6|7|7 - Always
+	q2	2	1	q		I get to know important people in order to succeed	list|1|1 - Never|2|2|3|3|4|4|5|5|6|6|7|7 - Always
+	q3	3	1	q		I achieve my goals through contributing to the success of others	list|1|1 - Never|2|2|3|3|4|4|5|5|6|6|7|7 - Always
+	q4	4	1	q		For me, winning is the most important thing	list|1|1 - Never|2|2|3|3|4|4|5|5|6|6|7|7 - Always
+	q5	5	1	]		When I want ot achieve something, I look for assistance	list|1|1 - Never|2|2|3|3|4|4|5|5|6|6|7|7 - Always
+	q6	6	1	[		I work hard to achieve so people will think well of me	list|1|1 - Never|2|2|3|3|4|4|5|5|6|6|7|7 - Always
+	q7	7	1	q		I want to be a leader	list|1|1 - Never|2|2|3|3|4|4|5|5|6|6|7|7 - Always
+	q8	8	1	q		More than anything else, I like to take on a challenging task	list|1|1 - Never|2|2|3|3|4|4|5|5|6|6|7|7 - Always
+	q9	9	1	q		Faced with a task, I prefer a team approach to an individual one	list|1|1 - Never|2|2|3|3|4|4|5|5|6|6|7|7 - Always
+	q10	10	1	]		I seek out leadership positions	list|1|1 - Never|2|2|3|3|4|4|5|5|6|6|7|7 - Always
+	q11	11	1	[		Winning in competition is the most thrilling thing I can imagine	list|1|1 - Never|2|2|3|3|4|4|5|5|6|6|7|7 - Always
+	q12	12	1	q		I feel the successes or failures of those close to me as if they were my own	list|1|1 - Never|2|2|3|3|4|4|5|5|6|6|7|7 - Always
+	q13	13	1	q		I strive to achieve so that I will be well liked	list|1|1 - Never|2|2|3|3|4|4|5|5|6|6|7|7 - Always
+	q14	14	1	q		The more competitive the situation, the better I like it	list|1|1 - Never|2|2|3|3|4|4|5|5|6|6|7|7 - Always
+	q15	15	1	]		Real team effort is the best way for me to get a job done	list|1|1 - Never|2|2|3|3|4|4|5|5|6|6|7|7 - Always
+	q16	16	1	[		I achieve by guiding others toward their goals	list|1|1 - Never|2|2|3|3|4|4|5|5|6|6|7|7 - Always
+	q17	17	1	q		For me, the most exiting things is working on a tough problem	list|1|1 - Never|2|2|3|3|4|4|5|5|6|6|7|7 - Always
+	q18	18	1	q		I seek guidance when I have a task to accomplish	list|1|1 - Never|2|2|3|3|4|4|5|5|6|6|7|7 - Always
+	q19	19	1	q		I have a sense of failure when those I care about do poorly	list|1|1 - Never|2|2|3|3|4|4|5|5|6|6|7|7 - Always
+	q20	20	1	]		I develop some relationships with others to get what I need to succeed	list|1|1 - Never|2|2|3|3|4|4|5|5|6|6|7|7 - Always
+	q21	21	1	[		I seek positions of authority	list|1|1 - Never|2|2|3|3|4|4|5|5|6|6|7|7 - Always
+	q22	22	1	q		I am not happy if I don't come out on top in a competitive situation	list|1|1 - Never|2|2|3|3|4|4|5|5|6|6|7|7 - Always
+	q23	23	1	q		My way of achieving is by coaching othes to their own success	list|1|1 - Never|2|2|3|3|4|4|5|5|6|6|7|7 - Always
+	q24	24	1	q		For me, group effort is the most effective means to accomplishment	list|1|1 - Never|2|2|3|3|4|4|5|5|6|6|7|7 - Always
+	q25	25	1	]		I look for support from others when undertaking a new task	list|1|1 - Never|2|2|3|3|4|4|5|5|6|6|7|7 - Always
+	q26	26	1	[		I establish some relationships for the benefits they bring	list|1|1 - Never|2|2|3|3|4|4|5|5|6|6|7|7 - Always
+	q27	27	1	q		I try to be successful at what I do so that I will be respected	list|1|1 - Never|2|2|3|3|4|4|5|5|6|6|7|7 - Always
+	q28	28	1	q		I want to take charge when working with others	list|1|1 - Never|2|2|3|3|4|4|5|5|6|6|7|7 - Always
+	q29	29	1	q		When a loved one succeeds, I also have a sense of accomplishment although I make no direct contribution	list|1|1 - Never|2|2|3|3|4|4|5|5|6|6|7|7 - Always
+	q30	30	1	]		I strive to achieve in order to gain recognition	list|1|1 - Never|2|2|3|3|4|4|5|5|6|6|7|7 - Always
+	q31	31	1	[		I look for reassurance from others when making decisions	list|1|1 - Never|2|2|3|3|4|4|5|5|6|6|7|7 - Always
+	q32	32	1	q		For me, the greatest accomplishment is when the people I love achieve their goals	list|1|1 - Never|2|2|3|3|4|4|5|5|6|6|7|7 - Always
+	q33	33	1	q		I go out of my way to work on challenging tasks	list|1|1 - Never|2|2|3|3|4|4|5|5|6|6|7|7 - Always
+	q34	34	1	q		I succeed by taking an active part in helping others achieve success	list|1|1 - Never|2|2|3|3|4|4|5|5|6|6|7|7 - Always
+	q35	35	1	]		I use my relationships with others to get things done	list|1|1 - Never|2|2|3|3|4|4|5|5|6|6|7|7 - Always
+	q36	36	1	[		Working with others brings out my best efforts	list|1|1 - Never|2|2|3|3|4|4|5|5|6|6|7|7 - Always
+	q37	37	1	q		I select competitive situations because I do better when I compete	list|1|1 - Never|2|2|3|3|4|4|5|5|6|6|7|7 - Always
+	q38	38	1	q		Being the person in charge is exciting to me	list|1|1 - Never|2|2|3|3|4|4|5|5|6|6|7|7 - Always
+	q39	39	1	q		I work to accomplish my goals to gain the admiration of others	list|1|1 - Never|2|2|3|3|4|4|5|5|6|6|7|7 - Always
+	q40	40	1	]		I establish a relationship with one person in order to get to know others	list|1|1 - Never|2|2|3|3|4|4|5|5|6|6|7|7 - Always
+	q41	41	1	[		My way of achieving is by helping others to learn how to get what they want	list|1|1 - Never|2|2|3|3|4|4|5|5|6|6|7|7 - Always
+	q42	42	1	q		The accomplishment of close others gives me a feeling of accomplishment as well	list|1|1 - Never|2|2|3|3|4|4|5|5|6|6|7|7 - Always
+	q43	43	1	q		For me, the greatest satisfaction comes from breaking through to the solution of a new problem	list|1|1 - Never|2|2|3|3|4|4|5|5|6|6|7|7 - Always
+	q44	44	1	q		When I encounter a difficult problem, I go for help	list|1|1 - Never|2|2|3|3|4|4|5|5|6|6|7|7 - Always
+	q45	45	1	]		My best achievements come from working with others	list|1|1 - Never|2|2|3|3|4|4|5|5|6|6|7|7 - Always
+	intrinsic_direct		1	e		(q1 + q8 + q17 + q33 + q43) / 5	nothing
+	competitive_direct		1	e		(q4 + q11 + q14 + q22 + q37) / 5	nothing
+	power_direct		1	e		(q7 + q10 + q21 + q28 + q38) / 5	nothing
+	personal_instrumental		1	e		(q6 + q13 + q27 + q30 + q39) / 5	nothing
+	social_instrumental		1	e		(q2 + q20 + q26 + q35 + q40) / 5	nothing
+	reliant_instrumental		1	e		(q5 + q18 + q25 + q31 + q44) / 5	nothing
+	collaborative_relational		1	e		(q9 + q15 + q24 + q36 + q45) / 5	nothing
+	contributory_relational		1	e		(q3 + q16 + q23 + q34 + q41) / 5	nothing
+	vicarious_relational		1	e		(q12 + q19 + q29 + q32 + q42) / 5	nothing
+	report	Summary Results	1	q		Based on your answers, here is how your behavior can be classified using the thoery of Achieving Styles<p><table border='1'><tr><td>Intrinsic Direct</td><td>`intrinsic_direct`</td></tr><tr><td>Competitive Direct</td><td>`competitive_direct`</td></tr><tr><td>Power Direct</td><td>`power_direct`</td></tr><tr><td>Personal Instrumental</td><td>`personal_instrumental`</td></tr><tr><td>Social Instrumental</td><td>`social_instrumental`</td></tr><tr><td>Reliant Instrumental</td><td>`reliant_instrumental`</td></tr><tr><td>Collaborative Relational</td><td>`collaborative_relational`</td></tr><tr><td>Contributory Relational</td><td>`contributory_relational`</td></tr><tr><td>Vicarious Relational</td><td>`vicarious_relational`</td></tr></table></p>	nothing
+	intro_demographics		1	q		Thank you.<p>If you would like us to use this information for our study, please answer the following demographics questions</p>	nothing
+	_tmp1		1	[		Please answer the following demographic questions	nothing
+	age		1	q		Age	double				
+	sex		1	q		Sex	list|0|female|1|male
+	citizenship		1	q		Citizenship	text
+	sexualOrientation		1	q		Sexual Orientation	list|0|Heterosexual|1|Gay/Lesbian|2|Bisexual|3|Transexual
+	primaryLanguage		1	]		Primary Language Spoken	text
+	_tmp2		1	[		What language do you speak with...	nothing	
+	langGeneral		1	q		In general?	list|0|only `primaryLanguage`|1|Another language more than English|2|Both the same|3|English more than another language|4|Only English
+	langHome		1	q		At home?	list|0|only `primaryLanguage`|1|Another language more than English|2|Both the same|3|English more than another language|4|Only English
+	langFriends		1	q		With friends?	list|0|only `primaryLanguage`|1|Another language more than English|2|Both the same|3|English more than another language|4|Only English
+	langThink		1	]		When you are thinking?	list|0|only `primaryLanguage`|1|Another language more than English|2|Both the same|3|English more than another language|4|Only English
+	religion		1	q		Religion	list|0|Atheist|1|Agnostic|2|Buddhist|3|Catholic|4|Hindu|5|Jewish|6|Muslim|7|Protestant|8|Taoist/Confucianist|9|Other|10|Does not apply
+	_tmp3		1	[		How many years of education have you and your parents had?<br>12 = high school graduate	nothing
+	yearsEducationSelf		1	q;number;10;age-4		Self	double
+	yearsEducationFather		1	q;number;0		Father	double
+	yearsEducationMother		1	];number;0		Mother	double
+	highestDegree		1	[		What was your highest degree earned / Major?	text
+	occupation		1	q		Current occupation / job title	text
+	yearsPracticing		1	q;number;0;age-yearsEducationSelf		Years as practicing professional	double
+	yearsSpecializing		1	q		Years specializing with clients from similar racial/enthnic background	double
+	percentSpecializing		1	q;number;0;100		Percentage (%) of caseload comprised of clients from similar racial/ethnic background	double
+	clinicalOrientation		1	q		Predominant clinical orientation	list|0|Psycho-dynamic|1|Cognitive-Behavioral|2|Family Systems|3|Humanistic/Existential|4|Other
+	licensure		1	]		What license do you have?	list|0|LCSW|1|MFCC|2|Psychologist|3|Psychiatrist|4|None|5|Other
+	licensureOther		licensure==5	q	text	What (other) license do you have?	text
+	clinicalOrientationOther		clinicalOrientation==4	q		What (other) Clinical orientation do you have	text	

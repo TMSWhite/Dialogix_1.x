@@ -1,0 +1,46 @@
+RESERVED	__TRICEPS_FILE_TYPE__	SCHEDULE					
+RESERVED	__ICON__	cpmc_dmi.jpg					
+RESERVED	__TITLE__	Flowchart - Methods of Statistical Inference					
+RESERVED	__HEADER_MSG__	Flowchart - Methods of Statistical Inference					
+RESERVED	__DEVELOPER_MODE__	TRUE					
+	vars		1	q		How many variables of interest?	list|'one'|One|'two'|Two|'many'|Three or more
+	groups		vars == 'one'	q		How many groups are there?	list|'one'|One|'two'|Two|'many'|Three or more
+	shape		vars == 'one' && groups == 'one'	q		What is the shape of the distribution?	"list|'normal'|Normal, or central-limit theorm can be assumed to hold|'binomial'|Binomial|'Poisson'|Poisson|'other'|Other"
+	comparingMeans		vars == 'one' && groups == 'one' && shape == 'normal'	q		Do you want to compare the means?	list|0|no|1|yes
+	sigmaKnown		vars == 'one' && groups == 'one' && shape == 'normal' && comparingMeans	q		Do you know the standard deviation of the population?	list|0|no|1|yes
+	oneSampleZtest		vars == 'one' && groups == 'one' && shape == 'normal' && comparingMeans && sigmaKnown	q		<b>Use a one-sample Z-test</b>	nothing
+	oneSampleTtest		vars == 'one' && groups == 'one' && shape == 'normal' && comparingMeans && !sigmaKnown && !oneSampleZtest	q		<b>Use a one-sample <I>t</I>-test</b>	nothing
+	oneSampleXi2test		vars == 'one' && groups == 'one' && shape == 'normal' && comparingMeans	q		<b>Use a one-sample Chi-squared test</b>	nothing
+	approxNormal		vars == 'one' && groups == 'one' && shape == 'binomial'	q		Is the distribution approximately normal?	list|0|no|1|yes
+	binomialAsNormal		vars == 'one' && groups == 'one' && shape == 'binomial' && approxNormal	q		"<b>Use Normal theory methods (e.g. go back and say that the distribution is normal, not binomial)</b>"	nothing
+	binomialExactMethods		vars == 'one' && groups == 'one' && shape == 'binomial' && !approxNormal && !binomialAsNormal	q		<b>Use Exact methods</b>	nothing
+	oneSamplePoisson		vars == 'one' && groups == 'one' && shape == 'poisson'	q		<b>Use one-sample Poisson test</b>	nothing
+	oneSampleOther		vars == 'one' && groups == 'one' && shape == 'other'	q		"<b>Use another underlying distribution, or use non-parametric methods</b>"	nothing
+	shape2		vars == 'one' && groups == 'two'	q		What is the shape of the distribution?	"list|'normal'|Normal, or central-limit theorm can be assumed to hold|'binomial'|Binomial|'Person-Time'|Person-Time|'other'|Other"
+	comparingMeans2		vars == 'one' && groups == 'two' && shape2 == 'normal'	q		Do you want to compare the means?	list|0|no|1|yes
+	independent		vars == 'one' && groups == 'two' && shape2 == 'normal' && comparingMeans2	q		Are the samples independent?	list|0|no|1|yes
+	pairedTtest		vars == 'one' && groups == 'two' && shape2 == 'normal' && comparingMeans2 && independent	q		<b>Use a paired <I>t</I>-test</b>	nothing
+	variancesDifferent		vars == 'one' && groups == 'two' && shape2 == 'normal' && comparingMeans2 && !independent && !pairedTtest	q		Are the variances of the samples significantly different (using and F test)?	list|0|no|1|yes
+	twoSampleTwithEqualSigma		vars == 'one' && groups == 'two' && shape2 == 'normal' && comparingMeans2 && !independent && variancesDifferent	q		<b>Use a two-sample <I>t</I>-test with equal variances</b>	nothing
+	twoSampleTwithNonEqualSigma		vars == 'one' && groups == 'two' && shape2 == 'normal' && comparingMeans2 && !independent && !twoSampleTwithEqualSigma	q		<b>Use a two-sample <I>t</I>-test with unequal variances</b>	nothing
+	twoSampleFtest		vars == 'one' && groups == 'two' && shape2 == 'normal' && !comparingMeans2	q		<b>Use a two-sample F-test to compare the variances.  <I>(Caution: This test is very sensitive to nonnormality)</I></b>	nothing
+	independent2		vars == 'one' && groups == 'two' && shape2 == 'binomial'	q		Are the samples independent?	list|0|no|1|yes
+	samplesGt5		vars == 'one' && groups == 'two' && shape2 == 'binomial' && independent2	q		Are all the values expected to be >= 5?	list|0|no|1|yes
+	contingencies		vars == 'one' && groups == 'two' && shape2 == 'binomial' && independent2 && samplesGt5	q		How many contingencies are there?	"list|'2x2'|2 x 2 Contingency table|'2xk'|2 x <I>k</I> contingency table|'RxC'|R x C contingency table, where both R and C are > 2"
+	_2x2test		vars == 'one' && groups == 'two' && shape2 == 'binomial' && independent2 && samplesGt5 && contingencies == '2x2'	q		"<b>Use two sample test for binomial proportions, or 2 x 2 contingency table methods if not confounding is present; or the Mantel-Haenszel test if confounding is present</b>"	nothing
+	trendOverKbinomial		vars == 'one' && groups == 'two' && shape2 == 'binomial' && independent2 && samplesGt5 && contingencies == '2xk'	q		Are you interested in the trends over the <I>k</I> binomial proportions?	list|0|no|1|yes
+	chi2TrendTest		vars == 'one' && groups == 'two' && shape2 == 'binomial' && independent2 && samplesGt5 && contingencies == '2xk' && trendOverKbinomial	q		"<b>Use the chi-square test of trend, if no confounding is present, or the Mantel Extention test if confounding is present</b>"	nothing
+	chi2Heterogeneity2xkTest		vars == 'one' && groups == 'two' && shape2 == 'binomial' && independent2 && samplesGt5 && contingencies == '2xk' && !trendOverKbinomial	q		<b>Use the chi-square test for heterogeneity for 2 x <I>k</I> tables</b>	nothing
+	chi2HeterogeneityRxCTest		vars == 'one' && groups == 'two' && shape2 == 'binomial' && independent2 && samplesGt5 && contingencies == 'RxC'	q		<b>Use the chi-square test for heterogenity for <I>R</I> x <I>C</I> tables</b>	nothing
+	FishersExactTest		vars == 'one' && groups == 'two' && shape2 == 'binomial' && independent2 && !samplesGt5	q		<b>Use Fisher's exact test</b>	nothing
+	McNemarsTest		vars == 'one' && groups == 'two' && shape2 == 'binomial' && !independent2	q		<b>use McNemar's test</b>	nothing
+	oneSamplePersonTime		vars == 'one' && groups == 'two' && shape2 == 'Person-Time'	q		Is it a One-sample Person-Time problem?	list|0|no|1|yes
+	oneSamplePoisson2		vars == 'one' && groups == 'two' && shape2 == 'Person-Time' && oneSamplePersonTime	q		<b>use a one-sample Poisson test</b>	nothing
+	constantIncidenceRates		vars == 'one' && groups == 'two' && shape2 == 'Person-Time' && !oneSamplePersonTime	q		Do the incidence rates remain constant over time?	list|0|no|1|yes
+	twoSamplePersonTime		vars == 'one' && groups == 'two' && shape2 == 'Person-Time' && !oneSamplePersonTime && constantIncidenceRates	q		is it a two-sample Person-Time problem?	list|0|no|1|yes
+	twoSampleIncidentRateTest		vars == 'one' && groups == 'two' && shape2 == 'Person-Time' && !oneSamplePersonTime && constantIncidenceRates && twoSamplePersonTime	q		<b>Use two-sample test for comparison of incidence rates</b>	nothing
+	incidenceTrendTest		vars == 'one' && groups == 'two' && shape2 == 'Person-Time' && !oneSamplePersonTime && constantIncidenceRates && !twoSamplePersonTime	q		<b>Use test of trend for incidence rates</b>	nothing
+	twoSurvivalGroups		vars == 'one' && groups == 'two' && shape2 == 'Person-Time' && !oneSamplePersonTime && !constantIncidenceRates	q		<b>You will need to do Survival Analysis</b><br>Are you Interested in comparing the survval curves fo two groups with limited control of covariates?	list|0|no|1|yes
+	logRankTest		vars == 'one' && groups == 'two' && shape2 == 'Person-Time' && !oneSamplePersonTime && !constantIncidenceRates && twoSurvivalGroups	q		<b>Use log-rank test</b>	nothing
+	CoxProportionalHazardsTest		vars == 'one' && groups == 'two' && shape2 == 'Person-Time' && !oneSamplePersonTime && !constantIncidenceRates && !twoSurvivalGroups	q		"<b>If you are interested in the effects of several risk factors on survival, then use the Cox Proportional-hazards model</b>"	nothing
+	thanks		1	q		<b>Thank you for trying Dialogix' implementation of the flowchart for determing whih statistical inference test should be used</b>	nothing

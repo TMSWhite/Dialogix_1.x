@@ -1,0 +1,115 @@
+RESERVED	__TRICEPS_FILE_TYPE__	SCHEDULE						
+RESERVED	__ICON__	dialogo.jpg						
+RESERVED	__DEVELOPER_MODE__	TRUE						
+RESERVED	__TITLE__	NYC DOH Tuberculosis Testing & Treatment Guidline						
+RESERVED	__HEADER_MSG__	NYC DOH Tuberculosis Testing & Treatment Guidline						
+RESERVED	__AUTOGEN_OPTION_NUM__	TRUE						
+RESERVED	__PASSWORD_FOR_ADMIN_MODE__	bypass						
+COMMENT	GUIDELINE CLASSIFICATION AXES							
+COMMENT	clinical area | clinical field		1	e		"primary care"		
+COMMENT	clinical area | disease/condition		1	e		"tuberculosis"		
+COMMENT	clinical area | treatment/intervention		1	e		"antibiotic treatment"		
+COMMENT	guideline category		1	e		"screening and treatment"		
+COMMENT	use of the guideline | intended users		1	e		"clinicians"		
+COMMENT	use of the guideline | target population		1	e		"patients"		
+COMMENT	use of the guideline | usage mode		1	e		"within encounter"		
+COMMENT	use of the guideline | encounters		1	e		"single"		
+COMMENT	use of the guideline | setting		1	e		"care facility"		
+COMMENT	use of the guideline | time frame		1	e		"acute"		
+COMMENT	development information | guideline name		1	e		"New York City Department of Health"		
+COMMENT	development information | author name(s)		1	e		"Michael J. Hauan"		
+COMMENT	development information | organization name(s)		1	e		"Columbia University"		
+COMMENT	development information | organization type(s)		1	e		"Academic Institution"		
+COMMENT	development information | version		1	e		"v.1.0"		
+COMMENT	development information | source		1	e		"New York City Department of Health, American Thoracic Society, Centers for Disease Control and Prevention "		
+COMMENT	development information | last update date		1	e		"11/04/2000"		
+COMMENT	development information | level of evidence based support		1	e		"3. expert consensus"		
+COMMENT	implementation | format		1	e		"DIALOGIX"		
+COMMENT	implementation | distribution by originator		1	e				
+COMMENT	implementation | computability		1	e				
+COMMENT concept	internalName	externalName	dependencies	action type	substitution phrase	action phrase	answer options	helpURL
+	overall_intro_1		1	[		This is an implementation of the <b>New York City Department of Health</b> guideline for testing and treatment of <b>Latent Tuberculosis Infection (LTBI)</b>. <br>The guideline is composed of five basic steps:  <br>1)   decide who should be tested.  <br>2)  decide if the tuberculin skin test (TST) is positive.  <br>3)  evaluate for the presence of active disease.  <br>4)  select a treatment regimen for latent infection. <br>5)  make any adjustments for HIV-positive patients.	nothing	
+	overall_intro_2		1	]		It operationalizes the guideline to help you decide whether a tuberculin skin test is necessary and, if one has been done, to decide how to interpret the test and handle positive results.<br><br>Tuberculin skin testing should only take place when a plan has been developed for persons to complete a course of treatment if found to have latent TB infection.  <br><b>Remember, a decision to test is a commitment to treat!</b>	nothing	
+	age		1	q		What is your patient's age?	double	
+COMMENT								
+	Intro_1	 	1	[		<b>Step 1: Know Which Persons Are at High Risk for TB Infection or Disease and Should Be Tested for Latent TB Infection</b><br><br> The following descriptions characterize persons who are at high risk for TB infection or disease because they may have been recently infected.	nothing	
+	TB_contacts	 	1	q	having close contact with someone having active TB	Has your patient had close contact with someone who has active TB?	list|0|no|1|yes|3|Unknown	http://localhost:8297/Demos/TB-contacts.html
+	previous_positive	 	1	q	converting to positive TST within the past 2 years	Has your patient had a TST that has converted to positive (that is, a 10mm or more increase in induration) within the past 2 years?	list|0|no|1|yes|3|Unknown	
+	previous_TB_untreated		1	q	having a history of inadequately or untreated TB	Does your patient have a history of TB which was untreated or inadequately treated?	list|0|no|1|yes|3|Unknown	
+	recent_immigrant	 	1	q	immigrating within 5 years from a high risk area	Has your patient immigrated within the past 5 years from areas with high rates of TB?	list|0|no|1|yes|3|Unknown	http://localhost:8297/Demos/TB-areas.html
+	exposure_settings	 	1	]	living or working in a setting where TB exposure may be likely	Does your patient live or work in an institutional setting where TB exposure may be likely (e.g., hospitals, prisons, homeless shelters, nursing homes)?	list|0|no|1|yes|3|Unknown	
+	intro_1b		1	[		The following descriptions characterize patients who are at increased risk for progressing to active TB disease.	nothing	
+	HIV	 	1	q	being infected with HIV	Is your patient infected with human immunodeficiency virus (HIV)?	list|0|no|1|yes|3|Unknown	http://localhost:8297/Demos/TB-HIV.html
+	IVDA	 	1	q	abusing injection drugs	Does your patient abuse injection drugs, particulary if HIV-positive?	list|0|no|1|yes|3|Unknown	
+	old_TB	 	1	q	having evidence of old, healed TB lesion on X-ray	Does your patient have evidence of old, healed TB lesions on a chest X-ray?	list|0|no|1|yes|3|Unknown	
+	associated_condition	 	1	q	having a clinical condition that compromises the immune system	Does your patient have a clinical condition that could lead to a stressed or incompetent immune system (e.g., silicosis, chronic renal failure, diabetes mellitus)?	list|0|no|1|yes|3|Unknown	
+	immune_suppression		1	q	receiving immunosuppressive therapy	Is your patient receiving prolonged corticosteroid or other immunosuppressive therapy?	list|0|no|1|yes|3|Unknown	
+	under_weight	 	1	]	being underweight	Is your patient underweight (that is, 10% or more below ideal body weight)?	list|0|no|1|yes|3|Unknown	
+	weight		(under_weight == 3)	[		One method of determining the whether your patient is underweight is by using the body mass index.  Being 10% or more underweight corresponds to a BMI of 20 or less.<br>Enter your patient's weight (in pounds):	double	
+	height		(under_weight == 3)	]		Enter your patient's height (in inches):	double	
+	BMI		(under_weight == 3)	e		 (weight * 0.45359) / ((height * 0.0254) * (height * 0.0254))	double	
+	weight_recommendation		(under_weight == 3)	q		The BMI is `BMI` so your patient is `(BMI < 20)?"":"not"` more than 10% below ideal body weight. <br><br>Use the <i>PREVIOUS</i> button to return to the underweight question and record the answer.   	nothing	
+	exposed_child	 	(age < 5)	q	less than 5 years old and exposed to a high risk adult	Is this child exposed to adults in high risk categories?	list|0|no|1|yes|3|Unknown	
+	exposure_window		(TB_contacts == 1)	q		Was the first exposure to active TB within the past 12 weeks?	list|0|no|1|yes|3|Unknown	
+	risk_list		1	e		list((TB_contacts == 1)?desc(TB_contacts):"",(previous_positive == 1)?desc(previous_positive):"", (recent_immigrant == 1)?desc(recent_immigrant):"", (exposure_settings == 1)?desc(exposure_settings):"", (age < 5)?"is a child under the age of 5 years":"", (HIV == 1)?desc(HIV):"", (IVDA == 1)?desc(IVDA):"", (old_TB == 1)?desc(old_TB):"", (under_weight == 1)?desc(under_weight):"", (associated_condition == 1)?desc(associated_condition):"", (immune_suppression == 1)?desc(immune_suppression):"")	nothing	
+	high_risk		1	e		(TB_contacts  == 1) || (previous_positive == 1) || (recent_immigrant == 1) || (exposure_settings == 1) || (exposed_child == 1) || (HIV == 1) || (IVDA == 1) || (old_TB == 1) || (under_weight == 1) || (associated_condition == 1) || (immune_suppression == 1)	nothing	
+	risk_report		1	q		`(high_risk == 1)?"Your patient is at <b>high risk</b> due to the following -- ". risk_list . "."  :"Overall, your patient is at <b>low risk</b>."`  	nothing	
+	recent_exposure_under_5		(high_risk == 1) && (exposure_window == 1) && (age < 5)	q		Since this child under 5 years old was exposed within the past 12 weeks, the TST may be falsely negative. Active TB should be ruled out with a medical exam and a chest X-ray and treatment should be started for presumed latent TB infection with or without a TST.  <br><br>If TST results remain negative after the window period, treatment should be discontinued.	nothing	
+	recent_exposure_HIV		(high_risk == 1) && (exposure_window == 1) && (HIV == 1)	q		Since this HIV-positive person was exposed within the past 12 weeks, the TST may be falsely negative.  Active TB should be ruled out with a medical exam and a chest X-ray and treatment should be started for presumed latent TB infection without regard for the results of a TST.	nothing	
+	test_done		1	q		Has a tuberculin skin test been done?	list|0|no|1|yes|3|Unknown	
+	patient_state_1		(high_risk == 1) && (test_done == 1)	e		1	nothing	
+	patient_state_2		!(high_risk == 1) && (test_done == 1)	q		Routine tuberculin skin testing of persons at low risk for TB infection or disease is <b>not</b> recommended.  An individual not at high risk for developing TB disease who has been inadvertently tested should generally <b>not</b> be considered for treatment, <b>even if the TST test is positive</b>.	nothing	
+	patient_state_3		(high_risk == 1) && !(test_done ==1)	q		At this point you should suspend this guideline and test the patient.  Resume the guideline when the TST result is known.	nothing	
+	patient_state_4		!(high_risk == 1) && !(test_done == 1)	q		No testing or treatment is necessary unless the history or clinical situation change.	nothing	
+COMMENT								
+	Intro_2		(patient_state_1 == 1) || (patient_state_2 == 1)	[		<b>Step 2:  Determine if the Tuberculin Skin Test is Positive</b>	nothing	
+	Induration		(patient_state_1 == 1) || (patient_state_2 == 1)	]		If a tuberculin skin test has already been done (even if the patient was at low risk), please indicate the measurement of induration (mm).	double	http://localhost:8297/Demos/TB-TST.html
+	TST_positive_5mm		(patient_state_1 == 1) || (patient_state_2 == 1)	e		(Induration >= 5) && ((HIV == 1) || (TB_contacts == 1) || (old_TB == 1) || (immune_suppression == 1))	nothing	
+	TST_positive_10mm		(patient_state_1 == 1) || (patient_state_2 == 1)	e		(Induration >= 10) && ((recent_immigrant == 1) || (IVDA == 1) || (exposure_settings == 1) || (associated_condition == 1) || (age < 5) || (exposed_child == 1) || under_weight == 1))	nothing	
+	TST_positive_15mm		(patient_state_1 == 1) || (patient_state_2 == 1)	e		(Induration >= 15) && (high_risk != 1)	nothing	
+	TST_positive		(patient_state_1 == 1) || (patient_state_2 == 1)	e		(TST_positive_5mm == 1) || (TST_positive_10mm == 1) || (TST_positive_15mm == 1)	nothing	
+	TST_negative		(patient_state_1 == 1) || (patient_state_2 == 1)	e		(TST_positive != 1)	nothing	
+	report_TST		1	q		`(TST_negative == 1)?"This is a <b>negative</b> result and, therefore, no treatment is necessary.":"This is a <b>positive</b> result so we will proceed to Step 3."`	nothing	
+COMMENT								
+	Intro_3		(TST_positive == 1) || (recent_exposure_under_5 == 1) || (recent_exposure_HIV == 1)	[		<b>Step 3:  Evaluate for Active TB Disease</b>	nothing	
+	TST_positive_report		(TST_positive == 1) || (recent_exposure_under_5 == 1) || (recent_exposure_HIV == 1)	]		The guidelines recommend further evaluation for active TB disease with a medical examination and a chest X-ray due to the following:   `list((TST_positive ==1)?"this is a <b>positive</b> TST result.":"", ((age < 5) && (exposure_window == 1))?"this is a child under age 5 exposed within the past 12 weeks to active TB":"", ((HIV == 1) && (exposure_window == 1))?"this HIV-infected individual was exposed within the past 12 weeks to active TB":"") `.  	nothing	
+	TST_positive_under_5		(TST_positive == 1) && (age < 5)	q		Since your patient is younger than 5 years old and has a positive TST this must be reported to the Health Department.  Call (212) 788-4162.	nothing	
+	active_TB_suspected		(TST_positive == 1) || (recent_exposure_under_5 == 1) || (recent_exposure_HIV == 1)	q		Do you suspect or have you confirmed that your patient has active TB?	list|0|no|1|yes|3|Unknown	
+	report_active_TB		(active_TB_suspected == 1)	q		To report a case of suspected or confirmed TB disease to the Health Department, call (212) 788-4162.	nothing	
+	should_treat_LTBI		((TST_positive == 1) || (recent_exposure_under_5 == 1) || (recent_exposure_HIV == 1)) && !(active_TB_suspected == 1)	e		[(TST_positive == 1) || (recent_exposure_HIV == 1) || ((HIV == 1) && (previous_TB_untreated == 1)) || (recent_exposure_under_5 ==1)] && !(active_TB_suspected == 1) && !(suspect_MDRTB == 1)	nothing	
+	report_LTBI		((TST_positive == 1) || (recent_exposure_under_5 == 1) || (recent_exposure_HIV == 1)) && !(active_TB_suspected == 1)	q		This qualifies as a case of latent tuberculosis infection.  We will now proceed to Step 4.	nothing	
+COMMENT								
+	Intro_4		(should_treat_LTBI == 1)	[		<b>Step 4:  Give treatment for Latent TB Infection</b><br><br>The next series of questions will help determine the regimen that is best.	nothing	
+	pregnant		(should_treat_LTBI == 1)	q	pregnancy	Is your patient pregnant?	list|0|no|1|yes|3|Unknown	
+	postpartum		(should_treat_LTBI == 1)	q	less than 3 months post-partum	Is your patient less than 3 months post-partum?	list|0|no|1|yes|3|Unknown	
+	liver_disease_history		(should_treat_LTBI == 1)	q	a history of liver disease	Has your patient had any liver disease in the past?	list|0|no|1|yes|3|Unknown	
+	chronic_hepatitis		(should_treat_LTBI == 1)	q	chronic hepatitis	Does your patient have chronic hepatitis?	list|0|no|1|yes|3|Unknown	
+	alcohol_abuse		(should_treat_LTBI == 1)	q	a history of alcohol abuse	Does your patient have a history of alcohol abuse?	list|0|no|1|yes|3|Unknown	
+	previous_TB_treatment		(should_treat_LTBI == 1)	q	a history of prior TB treatment	Has your patient ever received TB treatment?	list|0|no|1|yes|3|Unknown	
+	tolerates_INH		(should_treat_LTBI == 1)	q	can tolerate INH	Can your patient take INH?	list|0|no|1|yes|3|Unknown	
+	tolerates_PZA		(should_treat_LTBI == 1)	]	can safely take PZA	Can your patient tolerate PZA?	list|0|no|1|yes|3|Unknown	
+	suspect_INH_resistance		(should_treat_LTBI == 1) && (TB_contacts == 1)	[		You reported that your patient had close contact with someone who has active TB.  Was this INH-resistant TB?	list|0|no|1|yes|3|Unknown	
+	suspect_MDRTB		(should_treat_LTBI == 1) && (TB_contacts == 1)	]		Was it multi-drug resistant TB?	list|0|no|1|yes|3|Unknown	
+	treat_MDRTB		(should_treat_LTBI == 1) && (suspect_MDRTB == 1)	q		Contacts of persons with multidrug-resistant TB (MDRTB) are unlikely to benefit from treatment with isoniazid or rifampin.  Therefore a regimen containing other drugs active against M. tuberculosis should be considered.  When possible, selection of drugs should be guided by in vitro susceptibility test results on an isolate obtained from the person to whom the patient was exposed.  Immunocompetent contacts may be observed without treatment or treated for at least 6 months.  HIV-infected persons should be treated for 12 months.  All persons with suspected MDRTB infection should be followed for at least 2 years, irrespective of treatment.  Expert consultation should be sought for the treatment of persons exposed to persons with MDRTB.	nothing	
+	using_antiretrovirals		(should_treat_LTBI == 1) && (HIV == 1) && !(tolerates_INH == 1)	q		Is your patient being treated with protease inhibitors and non-nucleoside reverse transcriptase inhibitors?	list|0|no|1|yes|3|Unknown	
+	intro_treat		(should_treat_LTBI == 1)	q		What follows are the recommended treatment for your patient: (please click the "next" button)	nothing	
+	pregnant_TST_positive		(should_treat_LTBI == 1) && (pregnant == 1)	q		Although the need for treatment of active TB during pregnancy is unquestioned, the treatment of LTBI in pregnant women is more controversial because the possible risk of isoniazid hepatotoxicity must be weighed against the risk of developing active TB.  In general, treatment of LTBI should be delayed until after delivery.  However, for women who are HIV-positive or who have been infected recently, initiation of thereapy should not be delayed on the basis of pregnancy alone, even during the first trimester.<br><br>The preferred regimen for treatment of LTB in pregnant women is INH (daily or twice weekly).  Extensive use of INH during pregancy has indicated that the drug is not teratogenic, even when given during the first 4 months of pregnancy.  Pregnant women taking INH should receive vitamin B6.  In general, pyrazinamide should not be used for the treatment of LTBI in pregnant women.	nothing	
+	treat_INH_9months	 	(should_treat_LTBI == 1) && !(old_TB == 1) && !(suspect_MDRTB == 1) && (tolerates_INH == 1)	q		Since your patient can tolerate INH:<br>Drug:  isoniazid (INH)<br>Duration: 9 months<br>Daily dosage:  5 mg/kg (300 mg) -- Criteria for Completion:  270 doses within 12 months<br>Twice Weekly dosage: 15 mg/kg (900 mg) -- Criteria for Completion: 76 doses within 12 months<br>	nothing	
+	treat_INH_6months	 	(should_treat_LTBI == 1) && !(old_TB == 1) && !(suspect_MDRTB == 1) && (tolerates_INH == 1 ) && !(HIV == 1)	q		Since your patient is not HIV-positive an alternative regimen is:<br>Drug:  isoniazid (INH)<br>Duration: 6 months<br>Daily dosage:  5 mg/kg (300 mg) -- Criteria for Completion:  180 doses within 9 months<br>Twice Weekly dosage: 15 mg/kg (900 mg) -- Criteria for Completion: 52 doses within 9 months<br>	nothing	
+	treat_rifampin_PZA		(should_treat_LTBI == 1) && !(old_TB == 1) && !(suspect_MDRTB == 1) && (!(tolerates_INH == 1 ) || (suspect_INH_resistance == 1)) && !(pregnant == 1) && (tolerates_PZA == 1)) && !(using_antiretrovirals == 1) 	q		When INH-resistance is suspected or a patient cannot tolerate INH, a recommended regimen is:<br>Drug:  rifampin (RIF) plus pyrazinamide (PZA)<br>Duration: 2 months<br>Daily dosage:  RIF 10 mg/kg (600 mg max), PZA 15-20 mg/kg (2.0 g max) -- Criteria for Completion: 60 doses within 3 months<br>Twice Weekly dosage:  RIF 10 mg/kg (600 mg max), PZA 15-20 mg/kg (2.0 g max) -- Criteria for Completion:  16 doses within 3 months	nothing	
+	treat_rifampin		(should_treat_LTBI == 1) && !(old_TB == 1) && !(suspect_MDRTB == 1) && !(tolerates_INH == 1) && ((pregnant == 1) || !(tolerates_PZA == 1))	q		When cannot tolerate or safely take either INH or PZA, a recommended regimen is:<br>Drug:  rifampin (RIF)<br>Duration:  4 months<br>Daily dosage:  10 mg/kg (600 mg max) -- Criteria for Completion:  120 doses within 6 months	nothing	
+	treat_old_TB_no_previous_treatment_no_HIV		(should_treat_LTBI == 1) && (old_TB == 1) && !(suspect_MDRTB == 1) && !(HIV == 1) && !(previous_TB_treatment == 1)	q		Since your patient has evidence of old, healed TB without a history of prior TB treatment, the appropriate treatment is isoniazid, rifampin, pyrazinamide, and ethambutol for 2 months followed by isoniazid and rifamipn for 2 months.	nothing	
+	treat_old_TB_previous_treatment_HIV		(should_treat_LTBI == 1) && (old_TB == 1) && !(suspect_MDRTB == 1) && [(HIV == 1) || (previous_TB_treatment == 1)]	q		Your patient has evidence of old, healed TB, `(HIV == 1)?"is HIV-positive,":""` `(previous_TB_treatment == 1)?" and has a history of prior treatment with anti-TB medications,":""` so should receive isoniazid, rifampin, pyrazinamide, and ethambutol for 4 months.	nothing	
+COMMENT								
+	intro_5		(should_treat_LTBI == 1) && (HIV == 1) && !(tolerates_INH == 1) && (using_antiretrovirals == 1)	q		<b>Step 5:  Adjust Treatment in HIV-positive Patients on Antiretroviral Agents</b>	nothing	
+	rifabutin_for_rifampin		(should_treat_LTBI == 1) && (HIV == 1) && !(tolerates_INH == 1) && (using_antiretrovirals == 1)	q		Since your HIV-infected patient is taking antiretrovirals, you should substitute rifabutin for rifampin.	nothing	http://localhost:8297/Demos/TB-rifabutin.html
+COMMENT								
+	intro_monitoring		(should_treat_LTBI == 1)	q		All patients receiving treatment for latent TB infection should be monitored clinically.  This involves education of patients about the signs and symptoms of adverse drug reactions and the need for prompt cessation of treatment and clinical evaluation should symptoms occur.  Blood tests are necessary for some patients.	nothing	http://localhost:8297/Demos/TB-tx_adverse-rxns.html
+	baseline_indications		(should_treat_LTBI == 1)	e		(HIV == 1) || (alcohol_abuse == 1) || (liver_disease_history == 1) || (chronic_hepatitis == 1) || (pregnant == 1) || (postpartum == 1) || (IVDA == 1) || [(age > 35) && (tolerates_INH == 1)]	nothing	
+	baseline_indications_list		(should_treat_LTBI == 1) && (baseline_indications == 1)	e		list((HIV == 1)?desc(HIV):"", (alcohol_abuse == 1)?desc(alcohol_abuse):"", (liver_disease_history == 1)?desc(liver_disease_history):"", (chronic_hepatitis == 1)?desc(chronic_hepatitis):"", (pregnant == 1)?desc(pregnant):"", (postpartum == 1)?desc(postpartum):"", (IVDA == 1)?desc(IVDA):"", [(age > 35) && (tolerates_INH == 1)]?"is older than 35 years (if taking INH)":"")	nothing	
+	need_baseline_CBC_LFT		(should_treat_LTBI == 1) && (baseline_indications == 1)	q		For your patient, `baseline_indications_list`, a baseline complete blood count and liver function tests should be done.	nothing	
+	monthly_indications		(should_treat_LTBI == 1)	e		((HIV == 1) || (alcohol_abuse == 1) || (liver_disease_history == 1) || (chronic_hepatitis == 1) || (pregnant == 1) || (postpartum == 1) || (IVDA == 1))	nothing	
+	monthly_indications_list		(should_treat_LTBI == 1) &&  (monthly_indications == 1)	e		list((HIV == 1)?desc(HIV):"", (alcohol_abuse == 1)?desc(alcohol_abuse):"", (liver_disease_history == 1)?desc(liver_disease_history):"", (chronic_hepatitis == 1)?desc(chronic_hepatitis):"", (pregnant == 1)?desc(pregnant):"", (postpartum == 1)?desc(postpartum):"", (IVDA == 1)?desc(IVDA):"")	nothing	
+	need_monthly_LFT		(should_treat_LTBI == 1) &&  (monthly_indications == 1)	q		For your patient, `monthly_indications_list`, monthly liver function tests should be done.	nothing	
+COMMENT								
+	conclusion		1	q		Apply this guideline again if clinical conditions change.	nothing	

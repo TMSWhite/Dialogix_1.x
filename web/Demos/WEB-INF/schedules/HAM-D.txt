@@ -1,0 +1,37 @@
+RESERVED	__TRICEPS_FILE_TYPE__	SCHEDULE
+RESERVED	__ICON__	cpmc_dmi.jpg
+RESERVED	__TITLE__	Hamilton Depression Inventory
+RESERVED	__HEADER_MSG__	Hamilton Depression Inventory
+RESERVED	__AUTOGEN_OPTION_NUM__	true
+RESERVED	__PASSWORD_FOR_ADMIN_MODE__	bypass
+RESERVED	__DEVELOPER_MODE__	TRUE
+Intro	_0	Intro	1	[		For each item select the cue which best characterizes the patient	nothing
+depressed mood	_1	_1	1	q	sadness, hopeless, helpless, worthless	Depressed Mood	list|0|Absent|1|These feeling states indicated only on questioning|2|These feeling states spontaneously reported verbally|3|Communicates feeling states nonverbally - i.e., through posture, voice, and tendency to weep|4|Patient reports VIRTUALLY ONLY these feeling states in his spontaneous verbal and nonverbal communication
+feelings of guilt	_2	_2	1	q		Feelings of Guilt	list|0|Absent|1|Self-reproach, feels he has let people down|2|Ideas of guilt or rumination over past errors or sinful deeds|3|Present illness is a punishment.  Delusions of guilt|4|Hears accusatory or denunciatory voices and/or experiences threatening visula hallucinations
+suicide	_3	_3	1	q		Suicide	list|0|Absent|1|Feels life is not worth living|2|Wishes he were dead or any thoughts of possible death to self|3|Suicide ideas or gesture|4|Attempts at suicide
+insomnia early	_4	_4	1	q		Insomnia Early	list|0|No difficulty falling asleep|1|Patient complains of occasional dificulty falling asleep, i.e., more than a quarter hour
+insomnia middle	_5	_5	1	q		Insomnia Middle	list|0|No difficulty|1|Patient complains of being restless and disturbed during the night|2|Waking during the night - any getting out of bed (except for purposes of voiding)
+insomnia late	_6	_6	1	q		Insomnia Late	list|0|No difficulty|1|Waking in early hours of the morning but goes back to sleep|2|Unable to fall asleep
+work and activities	_7	_7	1	q		Work and activities	list|0|No difficulty|1|Thoughts and feelings of incapacity, fatigue or weakness related to activities, work or hobbies|2|Loss of interest in activity, hobbies, or work - either directly reported by patient, or indirect in listlessness, indecision,and vacillation (feels he has to push self to work or activities)|3|Decrease in actual time spent in activities or decrease in productivity.|4|Stopped working because of present illness.
+retardation	_8	_8	1	q	slowness of thought and speech; impaired ability to concentrate; decreased motor activity	Retardation	list|0|Normal speech and thought|1|Slight retardation at interview|2|Obvious retardation at interview|3|Interview difficult|4|Complete stupor
+agitation	_9	_9	1	q		Agitation	list|0|None|1|"Playing with" hands, hair, etc.|2|Hand-wringing, nail biting, hair pulling, biting of lips
+anxiety psychic	_10	_10	1	q		Anxiety psychic	list|0|No difficulty|1|Subjective tension and irritability|2|Worrying about minor matters|3|Apprehensive attitude apparent in face or speech|4|Fears expressed without questioning
+anxiety somatic	_11	_11	1	q		Anxiety somatic	list|0|Absent|1|Mild|2|Moderate|3|Severe|4|Incapacitating
+somatic symptoms gastrointestinal	_12	_12	1	q		Somatic symptoms gastrointestinal	list|0|None|1|Loss of appetite but eating without staff encouragement.  Heavy feelings in abdomen|2|Difficulty eating without staff urging.  Requests or requires laxatives or medication for bowels or medication for GI symptoms
+somatic symptoms general	_13	_13	1	q		Somatic symptoms general	list|0|None|1|Heaviness in limbs, back or head.  Backaches, headache, muscle aches.  Loss of energy and fatigability|2|Any clear cut symptom rates 2
+genital symptoms	_14	_14	1	q		Genital symptoms	list|0|Absent|1|Mild|2|Severe
+hypochondriasis	_15	_15	1	]		Hypochondriasis	list|0|Not present|1|Self-absorption (bodily)|2|Preoccupation with health|3|Frequent complaints, requests for help, etc.|4|Hypochondriacal delusions
+loss of weight criterion	_16P	_16P	1	q		How will you assess loss of weight?	list|0|By history|1|By measurement
+loss of weight;by history	_16A	_16A	_16P == 0	q		Loss of weight when rating by history	list|0|No weight loss|1|Probable weight loss associated with present illness|2|Definite (according to patient) weight loss
+loss of weight;by measurement	_16B	_16B	_16P == 1	q		Loss of weight when rating by measurement	list|0|Less than 1 lb weight loss in week|1|Greater than 1 lb weight loss in week|2|Greater than 2 lb weight loss in week
+insight	_17	_17	1	[		Insight	list|0|Acknowledges being depressed and ill|1|Acknowledges illness but attributes cause to bad food, climate, overwork, virus, need for rest, etc.|2|Denies being ill at all
+diurnal variation;period	_18A	_18A	1	q		Diurnal variation period when worse	list|0|AM|1|PM
+diurnal variation;severity	_18B	_18B	1	q		Diurnal variation severity when worse	list|0|Absent|1|Mild|2|Severe
+depersonalization and derealizations	_19	_19	1	q		Depersonalization and derealizations	list|0|Absent|1|Mild|2|Moderate|3|Severe|4|Incapacitating
+paranoid symptoms	_20	_20	1	q		Paranoid symptoms	list|0|None|1|Suspiciousness (low)|2|Suspiciousness (high)|3|Ideas of reference|4|Delusions of reference and persecution
+obsessional and compulsive symptoms	_21	_21	1	q		Obsessional and compulsive symptoms	list|0|Absent|1|Mild|2|Severe
+helplessness	_22	_22	1	q		Helplessness	list|0|Not present|1|Subjective feelings which are elicited only by inquiry|2|Patient volunteers his helpless feelings|3|Requires urging, guidance, and reassurance to accomplish ward chores or personal hygiene|4|Requires physical assistance for dress, grooming, eating,bedside tasks, or personal hygiene
+hopelessness	_23	_23	1	q		Hopelessness	list|0|Not present|1|Intermittently doubts that "thing will improve" but can be reassured|2|Consistently feels "hopeless" but accepts reassurances|3|Expresses feelings of discouragement, despair, pessimism about future, which cannot be dispelled|4|Spontaneous and inappropriately perseverates "I'll mever get well" or its equivalent
+worthlessness	_24	_24	1	]	ranges from mild loss of self esteem, feelings of inferiority, self-deprecation to delusional notions of worthlessness	Worthlessness	list|0|Not present|1|Indicates feelings of worthlessness (loss of self-esteem) only on questioning|2|Spontaneously indicated feelings of worthlessness (loss of self-esteem)|3|Different from 2 by degree.  Patient volunteers that he is "no good," "inferior," or its equivalent|4|Delusional notions of worthlessness - i.e., "I am a heap of garbage" or its equivalent
+count	_25	_25	1	e		_1 + _2 + _3 + _4 + _5 + _6 + _7 + _8 + _9 + _10 + _11 + _12 + _13 + _14 + _15 + (_16P == 0?_16A:_16B) + _17 + _18B + _19 + _20 + _21 + _22 + _23 + _24	nothing
+report	_26	_26	1	q		This person's score is `_25`.  A score of 17 or above is commonly associated with clinical depression.	nothing

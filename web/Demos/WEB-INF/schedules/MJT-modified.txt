@@ -1,0 +1,82 @@
+RESERVED	__TRICEPS_FILE_TYPE__	SCHEDULE						
+RESERVED	__ICON__	dialogo.jpg						
+RESERVED	__DEVELOPER_MODE__	TRUE						
+RESERVED	__TITLE__	MJT						
+RESERVED	__HEADER_MSG__	Questionnaire on Ethical Problems						
+RESERVED	__AUTOGEN_OPTION_NUM__	TRUE						
+RESERVED	__SHOW_ADMIN_ICONS__	TRUE						
+RESERVED	__ALLOW_COMMENTS__	FALSE						
+RESERVED	__ALLOW_DONT_UNDERSTAND__	FALSE						
+RESERVED	__ALLOW_REFUSED__	FALSE						
+RESERVED	__ALLOW_UNKNOWN__	FALSE						
+RESERVED	__ALLOW_JUMP_TO__	FALSE						
+RESERVED	__HELP_ICON__	help_true.gif						
+RESERVED	__PASSWORD_FOR_ADMIN_MODE__	bypass						
+COMMENT	"The Moral Judgment Test (MJT), Georg Lind, http://www.uni-konstanz.de/ag-moral"						
+COMMENT concept	internalName	externalName	dependencies	action type	substitution phrase	action phrase	answer options	helpURL
+Q_Intro	Q_Intro		1	[		"This questionnaire consists of several parts.  To be able to match parts from the same person, we need an identification.  Please do not enter your name anywhere on the questionnaire.  For <I>identification</I>, please fill in the following questions instead:"	nothing
+Q_ID_1	Q_ID_1		1	q		The first two letters of your mother's first name:	text
+Q_ID_2	Q_ID_2		1	q		The first two letters of your fathers first name:	text
+Q_ID_3	Q_ID_3		1	]		"The last two digits of  your house number (If it has only one digit, please write a leading 0, e.g., 02.)"	text
+Q_ID_4	Q_ID_4		1	q		Your personal identification number is: `Q_ID_1``Q_ID_2``Q_ID_3`	nothing
+I_Intro	I_Intro		1	[		"<B>I.  Workers' Dilemma</B><BR>Due to some seemingly unfounded dismissals, some factory workers suspect the managers of eavesdropping on their employees through an intercom and using this information against them.  The managers officially and emphatically deny this accusation.  The union declares that it will only take steps against the company when proof has been found that confirms these suspicions.  Two workers then break into the administrative offices and take tape transcripts that prove the allegation of eavesdropping."	nothing
+I_agreement	I_agreement		1	]		Would you disagree or agree with the workers' behavior?	radio2|-3|I stongly <I>dis</I>agree|-2| |-1| |0|neither agree nor disagree |1| |2| |3|I stongly agree
+I_pro_intro	I_pro_intro		1	[		What is your opinion of the following arguments <I>in favor</I> of the two workers' behavior?  Suppose someone argued they were <I>right</I> because	nothing
+I_pro_stage1	I_pro_stage1		1	q		they didn't cause much damage to the company.	radio2|-4|strongly reject|-3| |-2| |-1| |0|neither accept nor reject|1| |2| |3| |4|strongly accept
+I_pro_stage4	I_pro_stage4		1	q		"due to the company's disregard for the law, the means used by the two workers were permissable to restore law and order."	radio2|-4|strongly reject|-3| |-2| |-1| |0|neither accept nor reject|1| |2| |3| |4|strongly accept
+I_pro_stage3	I_pro_stage3		1	q		most of the workers would approve of their deed and many of them would be happy about it.	radio2|-4|strongly reject|-3| |-2| |-1| |0|neither accept nor reject|1| |2| |3| |4|strongly accept
+I_pro_stage6	I_pro_stage6		1	q		trust between people and individual dignity count for more than what is best for the firm.	radio2|-4|strongly reject|-3| |-2| |-1| |0|neither accept nor reject|1| |2| |3| |4|strongly accept
+I_pro_stage2	I_pro_stage2		1	q		the company committed an injustice first so the two workers were justified in breaking into the offices.	radio2|-4|strongly reject|-3| |-2| |-1| |0|neither accept nor reject|1| |2| |3| |4|strongly accept
+I_pro_stage5	I_pro_stage5		1	]		"the two workers saw no legal means of revealing the company's misuse of confidence, and therefore chose what they considered the lesser evil."	radio2|-4|strongly reject|-3| |-2| |-1| |0|neither accept nor reject|1| |2| |3| |4|strongly accept
+I_con_intro	I_con_intro		1	[		What is your opinion of the following arguments <I>against</I> the two worker's behavior?  Suppose someone argued they were <I>wrong</I> because:	nothing
+I_con_stage4	I_con_stage4		1	q		law and order in society would be endangered if everyone acted as the two workers did.	radio2|-4|strongly reject|-3| |-2| |-1| |0|neither accept nor reject|1| |2| |3| |4|strongly accept
+I_con_stage6	I_con_stage6		1	q		"one must not violate such a basic right as the right of property ownership and take the law into one's own hands, unless some universal moral principle justifies doing so."	radio2|-4|strongly reject|-3| |-2| |-1| |0|neither accept nor reject|1| |2| |3| |4|strongly accept
+I_con_stage2	I_con_stage2		1	q		risking dismissal from the company is unwise due to what other people might think.	radio2|-4|strongly reject|-3| |-2| |-1| |0|neither accept nor reject|1| |2| |3| |4|strongly accept
+I_con_stage5	I_con_stage5		1	q		the two should have run through the legal channels at their disposal and not committed a serious violation of the law.	radio2|-4|strongly reject|-3| |-2| |-1| |0|neither accept nor reject|1| |2| |3| |4|strongly accept
+I_con_stage3	I_con_stage3		1	q		one doesn't steal and commit burglary if one wants to be considered a decent and honest person.	radio2|-4|strongly reject|-3| |-2| |-1| |0|neither accept nor reject|1| |2| |3| |4|strongly accept
+I_con_stage1	I_con_stage1		1	]		the dismissals of the other employees did not affect them and thus they had no reason to steal the transcripts.	radio2|-4|strongly reject|-3| |-2| |-1| |0|neither accept nor reject|1| |2| |3| |4|strongly accept
+II_intro	II_intro		1	[		"<B>II. Doctor's Dilemma</B><BR>A woman  had cancer and she had no hope of being saved.  She was in terrible pain and so weakened that a large dose of a painkiller such as morphine would have caused her death.  During a temporary period of improvement, she begged the doctor to give her enough morphine to kill her.  She said she could no longer endure the pain and would be dead in a few weeks anyway.  The doctor complied with her wish."	nothing
+II_agreement	II_agreement		1	]		Do you disagree or agree with the doctor's behavior?	radio2|-3|I stongly <I>dis</I>agree|-2| |-1| |0|neither agree nor disagree |1| |2| |3|I stongly agree
+II_pro_intro	II_pro_intro		1	[		What is your opinion of the following arguments <I>in favor</I> of the doctor?  Suppose someone said he acted <I>rightly</I> because:	nothing
+II_pro_stage6	II_pro_stage6		1	q		the doctor had to act according to his conscience.  The woman's condition justified an exception to the moral obligation to preserve life.	radio2|-4|strongly reject|-3| |-2| |-1| |0|neither accept nor reject|1| |2| |3| |4|strongly accept
+II_pro_stage5	II_pro_stage5		1	q		the doctor was the only one who could fulfill the woman's wish.  Respect for her made him act as he did.	radio2|-4|strongly reject|-3| |-2| |-1| |0|neither accept nor reject|1| |2| |3| |4|strongly accept
+II_pro_stage2	II_pro_stage2		1	q		the doctor only did what the woman talked him into doing.  He need not worry about unpleasant consequences.	radio2|-4|strongly reject|-3| |-2| |-1| |0|neither accept nor reject|1| |2| |3| |4|strongly accept
+II_pro_stage1	II_pro_stage1		1	q		the woman would have died anyway and it didn't take much effort for him to give her an overdose of a painkiller.	radio2|-4|strongly reject|-3| |-2| |-1| |0|neither accept nor reject|1| |2| |3| |4|strongly accept
+II_pro_stage4	II_pro_stage4		1	q		the doctor didn't really break a law.  Nobody could have saved the woman and he only wanted to shorten her suffering.	radio2|-4|strongly reject|-3| |-2| |-1| |0|neither accept nor reject|1| |2| |3| |4|strongly accept
+II_pro_stage3	II_pro_stage3		1	]		most of his fellow doctors would presumably have done the same in a similar situation.	radio2|-4|strongly reject|-3| |-2| |-1| |0|neither accept nor reject|1| |2| |3| |4|strongly accept
+II_con_intro	II_con_intro		1	[		What is your opinion of the following arguments <I>against</I> the doctor?  Suppose someone said that he acted <I>wrongly</I> because: 	nothing
+II_con_stage3	II_con_stage3		1	q		he acted contrary to his colleagues' convictions.  If they are against mercy-killing the doctor shouldn't do it.	radio2|-4|strongly reject|-3| |-2| |-1| |0|neither accept nor reject|1| |2| |3| |4|strongly accept
+II_con_stage5	II_con_stage5		1	q		one should be confident in a doctor's devotion to preserving life even if someone with great pain would rather die.	radio2|-4|strongly reject|-3| |-2| |-1| |0|neither accept nor reject|1| |2| |3| |4|strongly accept
+II_con_stage6	II_con_stage6		1	q		the protection of life is everyone's highest moral obligation.  We have no clear moral criteria for distinguishing between mercy-killing and murder.	radio2|-4|strongly reject|-3| |-2| |-1| |0|neither accept nor reject|1| |2| |3| |4|strongly accept
+II_con_stage1	II_con_stage1		1	q		the doctor could get himself into much trouble.  They have already punished others for doing the same thing.	radio2|-4|strongly reject|-3| |-2| |-1| |0|neither accept nor reject|1| |2| |3| |4|strongly accept
+II_con_stage2	II_con_stage2		1	q		he could have had it much easier if he had waited and not interfered with the woman's dying.	radio2|-4|strongly reject|-3| |-2| |-1| |0|neither accept nor reject|1| |2| |3| |4|strongly accept
+II_con_stage4	II_con_stage4		1	]		"the doctor broke the law.  If one does think that mercy-killing is illegal, then one should refuse such requests."	radio2|-4|strongly reject|-3| |-2| |-1| |0|neither accept nor reject|1| |2| |3| |4|strongly accept
+sum_stage1	sum_stage1		1	e		I_pro_stage1 + I_con_stage1 + II_pro_stage1 + II_con_stage1	nothing
+sum_stage2	sum_stage2		1	e		I_pro_stage2 + I_con_stage2 + II_pro_stage2 + II_con_stage2	nothing
+sum_stage3	sum_stage3		1	e		I_pro_stage3 + I_con_stage3 + II_pro_stage3 + II_con_stage3	nothing
+sum_stage4	sum_stage4		1	e		I_pro_stage4 + I_con_stage4 + II_pro_stage4 + II_con_stage4	nothing
+sum_stage5	sum_stage5		1	e		I_pro_stage5 + I_con_stage5 + II_pro_stage5 + II_con_stage5	nothing
+sum_stage6	sum_stage6		1	e		I_pro_stage6 + I_con_stage6 + II_pro_stage6 + II_con_stage6	nothing
+sum_I	sum_I		1	e		I_pro_stage1 + I_con_stage1 + I_pro_stage2 + I_con_stage2 + I_pro_stage3 + I_con_stage3 + I_pro_stage4 + I_con_stage4 + I_pro_stage5 + I_con_stage5 + I_pro_stage6 + I_con_stage6	nothing
+SS_I	SS_I		1	e		I_pro_stage1 * I_pro_stage1 + I_con_stage1 * I_con_stage1 + I_pro_stage2 * I_pro_stage2 + I_con_stage2 * I_con_stage2 + I_pro_stage3 * I_pro_stage3 + I_con_stage3 * I_con_stage3 + I_pro_stage4 * I_pro_stage4 + I_con_stage4 * I_con_stage4 + I_pro_stage5 * I_pro_stage5 + I_con_stage5 * I_con_stage5 + I_pro_stage6 * I_pro_stage6 + I_con_stage6 * I_con_stage6	nothing
+sum_II	sum_II		1	e		II_pro_stage1 + II_con_stage1 + II_pro_stage2 + II_con_stage2 + II_pro_stage3 + II_con_stage3 + II_pro_stage4 + II_con_stage4 + II_pro_stage5 + II_con_stage5 + II_pro_stage6 + II_con_stage6	nothing
+SS_II	SS_II		1	e		II_pro_stage1 * II_pro_stage1 + II_con_stage1 * II_con_stage1 + II_pro_stage2 * II_pro_stage2 + II_con_stage2 * II_con_stage2 + II_pro_stage3 * II_pro_stage3 + II_con_stage3 * II_con_stage3 + II_pro_stage4 * II_pro_stage4 + II_con_stage4 * II_con_stage4 + II_pro_stage5 * II_pro_stage5 + II_con_stage5 * II_con_stage5 + II_pro_stage6 * II_pro_stage6 + II_con_stage6 * II_con_stage6	nothing
+sum_I_II	sum_I_II		1	e		sum_I + sum_II	nothing
+SStotal	SStotal		1	e		SS_I + SS_II	nothing
+MSS	MSS		1	e		(sum_I_II * sum_I_II)/24	nothing
+DSS	DSS		1	e		SStotal - MSS	nothing
+sum_pro	sum_pro		1	e		I_pro_stage1 + II_pro_stage1 + I_pro_stage2 + II_pro_stage2 + I_pro_stage3 + II_pro_stage3 +  I_pro_stage4 + II_pro_stage4 + I_pro_stage5 + II_pro_stage5 + I_pro_stage6 + II_pro_stage6	nothing
+sum_con	sum_con		1	e		I_con_stage1 + II_con_stage1 + I_con_stage2 + II_con_stage2 + I_con_stage3 + II_con_stage3 +  I_con_stage4 + II_con_stage4 + I_con_stage5 + II_con_stage5 + I_con_stage6 + II_con_stage6	nothing
+sum_pro_squared	sum_pro_squared		1	e		sum_pro * sum_pro	nothing
+sum_con_squared	sum_con_squared		1	e		sum_con * sum_con	nothing
+sum_stage1_sq	sum_stage1_sq		1	e		sum_stage1 * sum_stage1	nothing
+sum_stage2_sq	sum_stage2_sq		1	e		sum_stage2 * sum_stage2	nothing
+sum_stage3_sq	sum_stage3_sq		1	e		sum_stage3 * sum_stage3	nothing
+sum_stage4_sq	sum_stage4_sq		1	e		sum_stage4 * sum_stage4	nothing
+sum_stage5_sq	sum_stage5_sq		1	e		sum_stage5 * sum_stage5	nothing
+sum_stage6_sq	sum_stage6_sq		1	e		sum_stage6 * sum_stage6	nothing
+sum_stages_sq	sum_stages_sq		1	e		(sum_stage1_sq + sum_stage2_sq + sum_stage3_sq + sum_stage4_sq + sum_stage5_sq + sum_stage6_sq) /4	nothing
+SSstage	SSstage		1	e		sum_stages_sq - MSS	nothing
+coeff_deter	coeff_deter		1	e		SSstage / DSS	nothing
+C	C		1	e		coeff_deter * 100	nothing
+reportC	reportC		1	q		The C index is:  `C`.<BR><BR>A score below 10 is <I>low</I>.  A score from 10 to 29 is <I>medium</I>.  A score from 30 to 49 is <I>high</I>.  A score of 50 or more is <I>very high</I>.	nothing

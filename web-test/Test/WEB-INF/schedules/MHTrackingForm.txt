@@ -1,0 +1,30 @@
+RESERVED	__TRICEPS_FILE_TYPE__	SCHEDULE						0
+RESERVED	__ICON__	dialogo.jpg						
+RESERVED	__DEVELOPER_MODE__	TRUE						
+RESERVED	__TITLE__	Mental Health Tracking Form						
+RESERVED	__HEADER_MSG__	Mental Health Tracking Form						
+RESERVED	__PASSWORD_FOR_ADMIN_MODE__	bypass						
+RESERVED	__SHOW_QUESTION_REF__	TRUE						
+RESERVED	__AUTOGEN_OPTION_NUM__	TRUE						
+RESERVED	__DEVELOPER_MODE__	TRUE						
+RESERVED	__LANGUAGES__	en_US						
+COMMENT concept	internalName	externalName	relevance	questionOrEvalType	readback[0]	questionOrEval[0]	answerChoices[0]	
+counselorID	counselorID		1	[		Counselor ID#	double	
+date	date		1	]		Date	date	
+q1	q1	1	1	[		I assessed a child for a mental health problem using (check all that apply)	nothing	
+q1a	q1a		1	q		an in-person interview	check|1|Yes	
+q1b	q1b		1	q		the C-DISC	check|1|Yes	
+q1c	q1c		1	]		other asssesment scale(s)	check|1|Yes
+q1c-other	q1c_other		q1c==1	q		please specify which other instrument(s) were used	text
+q2	q2	2	1	q		Potential medial health issues were identified as qa result of the assessment	list|0|No|1|Yes
+q3	q3	3	1	q		I contacted this child's parents(s) to discuss potentail medical issues	list|0|No|1|Yes
+q3intro	q3intro		q3==0	[		Why we the parents not contacted (check all that apply)	nothing
+q3a	q3a		q3==0	q		student over 18 (or …)	list|0|No|1|Yes
+q3b	q3b		q3==0	q		social services involved …	list|0|No|1|Yes
+q3c 	q3c 		q3==0	]		other	list|0|No|1|Yes
+q3c_other	q3c_other		(q3==0)&&(q3c==1)	q		(other -- please specify)	text
+aq1	aq1		1	[		How important do you think …	list|5|Extremely important|4|Very Important|3|Somewhat Important|2|Not Very Important|1|Not at All Important
+aq2	aq2		1	q		How important do you think …	radio|5|Extremely important|4|Very Important|3|Somewhat Important|2|Not Very Important|1|Not at All Important
+aq3	aq3		1	q		How important do you think …	radio2|5|Extremely important|4|Very Important|3|Somewhat Important|2|Not Very Important|1|Not at All Important
+aq4	aq4		1	]		How important do you think …	combo|5|Extremely important|4|Very Important|3|Somewhat Important|2|Not Very Important|1|Not at All Important
+end	end		1	q		end	nothing
