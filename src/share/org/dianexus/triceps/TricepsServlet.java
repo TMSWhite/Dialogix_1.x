@@ -212,7 +212,7 @@ public class TricepsServlet extends HttpServlet {
 	    return node.toString();
 	}
 	public void loadQuestions() {
-		nodes = new Schedule("C:/jswdk1.0/tricept/navigation.txt");
+		nodes = new Schedule("http://localhost:8080/triceps/docs/navigation.txt");
 	}
 	public void init(ServletConfig config) throws ServletException {
 		super.init(config);
@@ -220,7 +220,7 @@ public class TricepsServlet extends HttpServlet {
 	}
 	private void queryUser() {
 
-		out.println("<form method='POST' action='/tricept/servlet/TricepsServlet'>");
+		out.println("<form method='POST' action='/triceps/servlet/TricepsServlet'>");
 		
 	     out.println("<B>Question " + node.getQuestionRef() + "</B>: " + parser.parseJSP(evidence,node.getAction()) + "<br>");
 	     
