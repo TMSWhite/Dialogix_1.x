@@ -18,6 +18,7 @@ import java.util.StringTokenizer;
 	private static final Hashtable DISALLOWED_TAGS = new Hashtable();
 	private static final Hashtable SOLO_ATTRIBUTES = new Hashtable();
 	private static final Hashtable TAGS_AFFECTED_BY_WHITESPACE = new Hashtable();
+	private static final int MAX_ENTITY_LEN = 10;	// really 8, but give leeway
 
 	private static final String binaryHTMLtags[] = {
 		"a","abbr","acronym","address","applet",
@@ -308,6 +309,9 @@ if (AUTHORABLE)	error(triceps.get("expected_start_of_a_string") + asElement(elem
 							withinEscape = !(withinEscape);
 							continue;
 						}
+						else {
+							withinEscape = false;
+						}
 						if (quoteChar.equals(token) && !withinEscape) {
 							/* normal end of that string */
 							which = NMTOKEN;
@@ -331,11 +335,12 @@ if (AUTHORABLE)	error(triceps.get("expected_start_of_a_string") + asElement(elem
 			}
 			else {
 if (AUTHORABLE)	error(triceps.get("prematurely_terminated_element") + parsingPosition[which] + " " + asElement(element));
+//if (DEBUG) Logger.writeln("##XMLString.isValidElement(<<" + src + ">>)->(<<" + element + ">>): prematurely terminated");
 				return false;	// unterminated attribute-value pairs
 			}
 		}
 		catch (Throwable t) {
-if (DEBUG) Logger.writeln("##Throwable @ XMLString.isValidElement()" + t.getMessage());
+if (DEBUG) Logger.writeln("##Throwable @ XMLString.isValidElement(" + src + ") " + t.getMessage());
 if (AUTHORABLE)	error(triceps.get("prematurely_terminated_element") + parsingPosition[which] + " " + asElement(element));
 			return false;
 		}
@@ -440,7 +445,7 @@ if (AUTHORABLE)	error(triceps.get("no_closing_right_angle_bracket"));
 							break;
 						case '&': {
 							String entity = null;
-							int entityEnd = s.indexOf(';',i);
+							int entityEnd = entityEndIndex(s,i);	// limit forward search
 							if (entityEnd != -1) {
 								entity = s.substring(i,entityEnd+1);
 								if (isEntity(entity)) {
@@ -474,6 +479,20 @@ if (DEBUG) Logger.writeln("##IOException @ XMLString.encodeHTML()" + e.getMessag
 		}
 		insertMissingEndTags(null);
 	}
+	
+	private int entityEndIndex(String s, int start) {
+		try {
+			for (int i=start;i<start + MAX_ENTITY_LEN;++i) {
+				if (s.charAt(i) == ';') {
+					return i;
+				}
+			}
+			return -1;	// end not found
+		}
+		catch (IndexOutOfBoundsException e) {
+			return -1;
+		}
+	}
 
 	private void error(String s) {
 		logger.println(s,lineNum,column);
@@ -500,16 +519,17 @@ if (AUTHORABLE)	error(triceps.get("name_contains_invalid_character") + chars[i])
 		else {
 			/* check whether it is a valid UNICODE character */
 			int unicodeHashMark = entity.indexOf('#');
-			if (unicodeHashMark == 1 && entity.length() <= 3) {
-				String unicodeTriple = entity.substring(unicodeHashMark,entity.length());
-				for (int j=0;j<unicodeTriple.length();++j) {
-					if (!Character.isDigit(unicodeTriple.charAt(j))) {
+			if (unicodeHashMark == 1 && entity.length() <= 6) {
+				char[] chars = entity.toCharArray();
+				for (int i=2;i<(chars.length-1);++i) {
+					if (!Character.isDigit(chars[i])) {
 						return false;
 					}
 				}
 				return true;
 			}
 			else {
+//if (DEBUG) Logger.writeln("##XMLString.isEntity(" + entity + ")->false");				
 				return false;
 			}
 		}
