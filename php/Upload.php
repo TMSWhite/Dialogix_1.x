@@ -24,7 +24,8 @@ if (isset($_FILES['userfile']['size']) && $_FILES['userfile']['size'] > 0) {
   }
   else {
     $uploadDir = '/usr/local/tomcat554/webapps/OMH/WEB-INF/schedules/';
-    $uploadFile = $uploadDir . $matches[1] . ".txt";  /* so that uploaded file is TSV equivalent of Excel file */
+    $instrument = $matches[1] . ".txt";
+    $uploadFile = $uploadDir . $instrument;  /* so that uploaded file is TSV equivalent of Excel file */
     
     // print "Uploading to file $uploadFile<br>";
     
@@ -93,7 +94,10 @@ if (isset($_FILES['userfile']['size']) && $_FILES['userfile']['size'] > 0) {
       }
       else {
         print $_FILES['userfile']['name'] . " was successfully uploaded<br>";
-        print "You can access it <a href=\"http://www.dialogix.org:8888/OMH/servlet/Dialogix\" target=\"_blank\">here</a>";  
+        print "You can start it directly by clicking " .
+          "<a href=\"http://www.dialogix.org:8888/OMH/servlet/Dialogix?DIRECTIVE=START&schedule=WEB-INF/schedules/" .
+          $instrument .
+          "\" target=\"_blank\">here</a>";  
       }    
       @chmod($uploadFile, 0644);
       @unlink($_FILES['userfile']['tmp_name']);  /* remove the temp file */
