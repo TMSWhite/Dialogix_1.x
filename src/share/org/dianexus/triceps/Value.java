@@ -2,12 +2,12 @@ import java.lang.*;
 import java.util.*;
 
 class Value {
-	Node	node=null;
-	Datum	datum=null;
-	Date	timeStamp=null;
-	String	timeStampStr=null;
-	int reserved = -1;
-	Schedule schedule = null;
+	private Node	node=null;
+	private Datum	datum=null;
+	private Date	timeStamp=null;
+	private String	timeStampStr=null;
+	private int reserved = -1;
+	private Schedule schedule = null;
 			
 	Value() {
 	}
