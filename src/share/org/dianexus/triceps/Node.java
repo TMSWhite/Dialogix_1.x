@@ -39,16 +39,19 @@ import java.text.DecimalFormat;
 	/*public*/ static final int SECOND = 19;
 	/*public*/ static final int MONTH_NUM = 20;
 	/*public*/ static final int DAY_NUM = 21;
-	/*public*/ static final int RADIO_HORIZONTAL2 = 22;
+	/*public*/ static final int RADIO_HORIZONTAL2 = 22;	// horizontal, but fits into answer field space, rather than on next line
+	/*public*/ static final int COMBO2 = 23;	// no accelerator key (e.g. for long lists)
+	/*public*/ static final int LIST2 = 24;		// no accelerator key
 
 	private static final String QUESTION_TYPES[] = {
 		"*badtype*", "nothing", "radio", "check", "combo", "list",
 		"text", "double", "radio2", "password","memo",
-		"date", "time", "year", "month", "day", "weekday", "hour", "minute", "second", "month_num", "day_num", "radio3"};
+		"date", "time", "year", "month", "day", "weekday", "hour", "minute", "second", "month_num", "day_num", "radio3", "combo2", "list2"};
 	private static final int DATA_TYPES[] = {
 		Datum.STRING, Datum.STRING, Datum.STRING, Datum.STRING, Datum.STRING, Datum.STRING,
 		Datum.STRING, Datum.NUMBER, Datum.STRING, Datum.STRING, Datum.STRING,
-		Datum.DATE, Datum.TIME, Datum.YEAR, Datum.MONTH, Datum.DAY, Datum.WEEKDAY, Datum.HOUR, Datum.MINUTE, Datum.SECOND, Datum.MONTH_NUM, Datum.DAY_NUM, Datum.STRING };
+		Datum.DATE, Datum.TIME, Datum.YEAR, Datum.MONTH, Datum.DAY, Datum.WEEKDAY, Datum.HOUR, Datum.MINUTE, Datum.SECOND, Datum.MONTH_NUM, Datum.DAY_NUM, Datum.STRING, 
+		Datum.STRING, Datum.STRING };
 
 	/*public*/ static final int QUESTION = 1;
 	/*public*/ static final int EVAL = 2;
@@ -421,6 +424,8 @@ else setParseError("syntax error");
 			case RADIO:
 			case RADIO_HORIZONTAL:
 			case RADIO_HORIZONTAL2:
+			case COMBO2:
+			case LIST2;
 				String val=null;
 				String msg=null;
 				int field=0;
@@ -594,6 +599,8 @@ else setParseError("syntax error");
 			}
 			break;
 		case COMBO:	// stores integers as value
+		case COMBO2:
+		case LIST2:
 		case LIST: {
 			StringBuffer choices = new StringBuffer();
 			ans = getAnswerChoices().elements();
@@ -622,8 +629,10 @@ else setParseError("syntax error");
 					}
 					choices.append(">");
 					if (i == 0) {	// show selection number
-						choices.append((autogen) ? String.valueOf(optionNum) : ac.getValue());
-						choices.append(")&nbsp;");
+						if (answerType == COMBO || answerType == LIST) {
+							choices.append((autogen) ? String.valueOf(optionNum) : ac.getValue());
+							choices.append(")&nbsp;");
+						}
 					}
 					else {	// indent to indicate that same as previous
 						choices.append("&nbsp;&nbsp;&nbsp;");
@@ -877,6 +886,8 @@ if (XML) {
 			break;
 		case COMBO:	
 		case LIST:
+		case COMBO2:
+		case LIST2:
 			ans = getAnswerChoices().elements();
 			while (ans.hasMoreElements()) { // for however many choices there are
 				++count;
@@ -886,7 +897,11 @@ if (XML) {
 				if (selected) {
 					nothingSelected = false;
 				}
-				sb.append(ac.toXML(selected, MAX_TEXT_LEN_FOR_COMBO, (autogen) ? Integer.toString(count) : ac.getValue()));
+				String key = "";
+				if (answerType == COMBO || answerType == LIST) {
+					key = (autogen) ? Integer.toString(count) : ac.getValue();
+				}
+				sb.append(ac.toXML(selected, MAX_TEXT_LEN_FOR_COMBO, key);
 			}
 			StringBuffer acs = sb;
 			sb = new StringBuffer();
