@@ -15,6 +15,10 @@ import java.io.FileOutputStream;
 import java.util.jar.JarFile;
 import java.util.jar.JarEntry;
 import java.util.Enumeration;
+import java.io.BufferedReader;
+import java.io.FileReader;
+import java.io.FileInputStream;
+import java.util.Date;
 
 /*public*/ final class ScheduleList implements VersionIF {
 	private Vector schedules = new Vector();
@@ -78,6 +82,88 @@ import java.util.Enumeration;
 		}    	
     }
     
+    private void processErrorLog(File file) {
+    	// check whether this contents is in the existing Triceps.log.err file -- if not, append it
+    	BufferedReader br = null;
+    	BufferedReader br2 = null;    	
+    	String line=null;
+    	String line2=null;
+    	boolean foundFirst = false;
+    	boolean foundLast = false;
+    	try {
+    		br = new BufferedReader(new FileReader(Logger.STDERR_NAME));
+    		br2 = new BufferedReader(new FileReader(file));
+    		
+			line2 = br2.readLine();
+			
+			while (line2 != null) {
+				line = br.readLine();
+				if (line == null) {
+					break;
+				}
+				
+				if (line2.equals(line)) {
+					foundFirst = true;
+//if (DEBUG) Logger.writeln("foundFirst");					
+					break;
+				}
+			}
+			
+			while (foundFirst) {
+				line2 = br2.readLine();
+				
+				if (line2 == null) {	// last line in this file
+					foundLast = true;
+//if (DEBUG) Logger.writeln("foundLast");					
+					break;
+				}
+				
+				line = br.readLine();
+				if (!line2.equals(line)) {
+//if (DEBUG) Logger.writeln("unequal lines:\n\t" + line + "\n\t" + line2);					
+					break;
+				}
+			}
+    	}
+    	catch (Exception e) { 
+if (DEBUG) Logger.writeln("##parseErrorLog(" + file.getName() + ") " + e.getMessage());    		
+    	}
+    	try {
+    		br.close();
+    		br2.close();
+    	}
+    	catch (Exception e) { }
+    	
+    	if (!foundLast) {
+    		// append to file
+    		BufferedInputStream bis = null;
+    		try {
+				bis = new BufferedInputStream(new FileInputStream(file));
+				byte[] buf = new byte[1000];
+				int bytesRead = 0;
+				Date now = new Date(System.currentTimeMillis());
+				
+				Logger.writeln("<!-- START COPYING LOG FILE CONTENTS FROM '" + file.getName() + "' [" + now + "] -->");
+				while((bytesRead = bis.read(buf)) != -1) {
+					Logger.write(new String(buf,0,bytesRead));
+				}    			
+				Logger.writeln("<!-- END COPYING LOG FILE CONTENTS FROM '" + file.getName() + "' [" + now + "] -->");				
+			}
+			catch (Exception e) {
+if (DEBUG) Logger.writeln("##parseErrorLog(" + file.getName() + ") " + e.getMessage());    		
+			}
+			try {
+				bis.close();
+			}
+			catch (Exception e) { }
+    	}
+    	
+    	try {
+    		file.delete();	// remove the log file from working directory when done
+    	}
+    	catch (Exception e) { }
+    }
+    
     private boolean unjar(File file) {
 		JarFile jf = null;
 		boolean ok = true;
@@ -106,8 +192,13 @@ import java.util.Enumeration;
 		FileOutputStream fos = null;
 		File file = null;
 		boolean ok = true;
+		byte[] buf = new byte[1000];
+		int bytesRead = 0;
+		String name=null;
+				
 		try {
-			file = new File(sourceDir + je.getName());
+			name = je.getName();
+			file = new File(sourceDir + name);
 			if (file.exists()) {
 				if (file.length() > je.getSize()) {
 					File jarFile = new File(jf.getName());
@@ -122,9 +213,6 @@ import java.util.Enumeration;
 			
 			bis = new BufferedInputStream(jf.getInputStream(je));
 			fos = new FileOutputStream(file);
-			
-			byte[] buf = new byte[1000];
-			int bytesRead = 0;
 			
 			while((bytesRead = bis.read(buf)) != -1) {
 				fos.write(buf,0,bytesRead);
@@ -142,7 +230,10 @@ import java.util.Enumeration;
 				setError("saveUnjaredFile " + file.toString() + ": " + e.getMessage());	
 				ok = false;
 			}				
-		}		
+		}	
+		if (name.toLowerCase().endsWith(Triceps.ERRORLOG_SUFFIX)) {
+			processErrorLog(file);
+		}			
 		return ok;					
 	}
     
