@@ -134,7 +134,7 @@ if (DEBUG) {
 		sessionID + 
 		((WEB_SERVER) ? (" " + req.getRemoteAddr() + " \"" +
 		req.getHeader(USER_AGENT) + "\" \"" + req.getHeader(ACCEPT_LANGUAGE) + "\" \"" + req.getHeader(ACCEPT_CHARSET) + "\"") : "") +
-		((tricepsEngine != null) ? tricepsEngine.getScheduleStatus() : "") + msg);
+		((tricepsEngine != null) ? tricepsEngine.getScheduleStatus() : "") + msg + " " + (req.isSecure() ? "HTTPS" : "HTTP"));
 		
 // User-Agent = Mozilla/4.73 [en] (Win98; U)
 // Accept-Language = en

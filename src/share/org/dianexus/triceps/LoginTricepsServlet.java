@@ -36,15 +36,40 @@ public class LoginTricepsServlet extends TricepsServlet {
 	static final String LOGIN_RECORD = "_DlxLRec";
 	
 	/* Strings serving as messages for login error pages - these should really be JSP */
-	static final String LOGIN_ERR_NO_TOKEN = "Please login";
-	static final String LOGIN_ERR_NEW_SESSION = "Please login";
-	static final String LOGIN_ERR_MISSING_UNAME_OR_PASS = "Please enter both your username and password";
-	static final String LOGIN_ERR_INVALID_UNAME_OR_PASS = "The username or password you entered was incorrect";	/* don't mix so many messages? */
-	static final String LOGIN_ERR_INVALID = "Please login again --  You will resume from where you left off.<br><br>(Your login session was invalidated either because you accidentally pressed the browser's back button instead of the 'previous' button; or you attempted to use a bookmarked page from the instrument; or you triple-clicked an icon or button)";
-	static final String LOGIN_ERR_ALREADY_COMPLETED = "Thank you!  You have already completed this instrument.";
-	static final String LOGIN_ERR_UNABLE_TO_LOAD_FILE = "Please contact the administrator -- the program was unable to load the interview: ";
-	static final String LOGIN_ERR_EXPIRED_SESSION = "Please login again -- You will resume from where you left off.<br><br>(Your session expired, either because of prolonged inactivity, or because the server was restarted)";
-	static final String LOGIN_ERR_INVALID_RELOGON = "Please login again --  You will resume from where you left off.<br><br>(Your login session was invalidated because the login page was submitted twice)";
+	static final int LOGIN_ERR_NO_TOKEN = 0;
+	static final int LOGIN_ERR_NEW_SESSION = 1;
+	static final int LOGIN_ERR_MISSING_UNAME_OR_PASS = 2;
+	static final int LOGIN_ERR_INVALID_UNAME_OR_PASS = 3;
+	static final int LOGIN_ERR_INVALID = 4;
+	static final int LOGIN_ERR_ALREADY_COMPLETED = 5;
+	static final int LOGIN_ERR_UNABLE_TO_LOAD_FILE = 6;
+	static final int LOGIN_ERR_EXPIRED_SESSION = 7;
+	static final int LOGIN_ERR_INVALID_RELOGON = 8;
+
+	
+	static final String[] LOGIN_ERRS_BRIEF = {
+		" LOGIN_ERR_NO_TOKEN",
+		" LOGIN_ERR_NEW_SESSION",
+		" LOGIN_ERR_MISSING_UNAME_OR_PASS",
+		" LOGIN_ERR_INVALID_UNAME_OR_PASS",
+		" LOGIN_ERR_INVALID",
+		" LOGIN_ERR_ALREADY_COMPLETED",
+		" LOGIN_ERR_UNABLE_TO_LOAD_FILE", 
+		" LOGIN_ERR_EXPIRED_SESSION", 
+		" LOGIN_ERR_INVALID_RELOGON",
+	};
+	
+	static final String[] LOGIN_ERRS_VERBOSE = {
+		"Please login",
+		"Please login",
+		"Please enter both your username and password",
+		"The username or password you entered was incorrect",
+		"Please login again --  You will resume from where you left off.<br><br>(Your login session was invalidated either because you accidentally pressed the browser's back button instead of the 'previous' button; or you attempted to use a bookmarked page from the instrument; or you triple-clicked an icon or button)",
+		"Thank you!  You have already completed this instrument.",
+		"Please contact the administrator -- the program was unable to load the interview: ",
+		"Please login again -- You will resume from where you left off.<br><br>(Your session expired, either because of prolonged inactivity, or because the server was restarted)",
+		"Please login again --  You will resume from where you left off.<br><br>(Your login session was invalidated because the login page was submitted twice)",
+	};
 
 	
 	LoginRecords loginRecords = LoginRecords.NULL;
@@ -187,8 +212,12 @@ if (DEBUG) Logger.printStackTrace(t);
 		return loginRecords.isLoaded();
 	}
 	
-	void loginPage(HttpServletRequest req, HttpServletResponse res, String message) {
-		logAccess(req, " LOGIN - " + message);
+	void loginPage(HttpServletRequest req, HttpServletResponse res, int login_err) {
+		loginPage(req,res,login_err,LOGIN_ERRS_VERBOSE[login_err]);
+	}
+	
+	void loginPage(HttpServletRequest req, HttpServletResponse res, int login_err, String message) {
+		logAccess(req, LOGIN_ERRS_BRIEF[login_err]);
 		
 		shutdown(req,"now at loginPage",true);
 		
@@ -344,7 +373,7 @@ if (DEBUG) Logger.printStackTrace(t);
 				restoreFile = filename;
 			}
 			else {
-				loginPage(req,res,LOGIN_ERR_UNABLE_TO_LOAD_FILE + " '" + src + "'");
+				loginPage(req,res,LOGIN_ERR_UNABLE_TO_LOAD_FILE,LOGIN_ERRS_VERBOSE[LOGIN_ERR_UNABLE_TO_LOAD_FILE] + " '" + src + "'");
 				return;
 			}
 		}
