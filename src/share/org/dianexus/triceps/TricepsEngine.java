@@ -926,7 +926,7 @@ if (XML) {
 		
 		sb.append("<admin>\n");
 		sb.append("	<icon name=\"help\">" + getIcon(Schedule.HELP_ICON) + "<alt value=\"" + XMLAttrEncoder.encode(triceps.get("Help")) + "\"/></icon>\n");
-		sb.append("	<icon name=\"logo\">" + ((!isSplashScreen && triceps.isValid()) ? triceps.getIcon() : logoIcon) + "<alt value=\"" + XMLAttrEncoder.encode(triceps.get("LogoMessage")) + "\"/></icon>\n");
+		sb.append("	<icon name=\"logo\">" + schedule.getReserved(Schedule.IMAGE_FILES_DIR) + ((!isSplashScreen && triceps.isValid()) ? triceps.getIcon() : logoIcon) + "<alt value=\"" + XMLAttrEncoder.encode(triceps.get("LogoMessage")) + "\"/></icon>\n");
 		
 		if (AUTHORABLE && developerMode) {
 			sb.append(actionXML("select_new_interview","button",triceps.get("select_new_interview"),null));
