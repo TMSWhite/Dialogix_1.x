@@ -165,7 +165,10 @@ public class DatumMath {
 				case Datum.MONTH_NUM:
 					return new Datum(DatumMath.getCalendarField(a,a.type()) == DatumMath.getCalendarField(b,a.type()));
 				case Datum.STRING:
-					return new Datum(a.stringVal().compareTo(b.stringVal()) == 0);
+					if (a.isType(Datum.NUMBER)) 
+						return new Datum(a.doubleVal() == b.doubleVal());
+					else	
+						return new Datum(a.stringVal().compareTo(b.stringVal()) == 0);
 				case Datum.NUMBER:
 					return new Datum(a.doubleVal() == b.doubleVal());
 				default:
@@ -202,7 +205,10 @@ public class DatumMath {
 				case Datum.MONTH_NUM:
 					return new Datum(DatumMath.getCalendarField(a,a.type()) >= DatumMath.getCalendarField(b,a.type()));
 				case Datum.STRING:
-					return new Datum(a.stringVal().compareTo(b.stringVal()) >= 0);
+					if (a.isType(Datum.NUMBER)) 
+						return new Datum(a.doubleVal() >= b.doubleVal());
+					else
+						return new Datum(a.stringVal().compareTo(b.stringVal()) >= 0);
 				case Datum.NUMBER:
 					return new Datum(a.doubleVal() >= b.doubleVal());
 				default:
@@ -237,7 +243,10 @@ public class DatumMath {
 				case Datum.MONTH_NUM:
 					return new Datum(DatumMath.getCalendarField(a,a.type()) > DatumMath.getCalendarField(b,a.type()));
 				case Datum.STRING:
-					return new Datum(a.stringVal().compareTo(b.stringVal()) > 0);
+					if (a.isType(Datum.NUMBER)) 
+						return new Datum(a.doubleVal() > b.doubleVal());
+					else
+						return new Datum(a.stringVal().compareTo(b.stringVal()) > 0);
 				case Datum.NUMBER:
 					return new Datum(a.doubleVal() > b.doubleVal());
 				default:
@@ -274,7 +283,10 @@ public class DatumMath {
 				case Datum.MONTH_NUM:
 					return new Datum(DatumMath.getCalendarField(a,a.type()) <= DatumMath.getCalendarField(b,a.type()));
 				case Datum.STRING:
-					return new Datum(a.stringVal().compareTo(b.stringVal()) <= 0);
+					if (a.isType(Datum.NUMBER)) 
+						return new Datum(a.doubleVal() <= b.doubleVal());
+					else
+						return new Datum(a.stringVal().compareTo(b.stringVal()) <= 0);
 				case Datum.NUMBER:
 					return new Datum(a.doubleVal() <= b.doubleVal());
 				default:
@@ -307,7 +319,10 @@ public class DatumMath {
 				case Datum.MONTH_NUM:
 					return new Datum(DatumMath.getCalendarField(a,a.type()) < DatumMath.getCalendarField(b,a.type()));
 				case Datum.STRING:
-					return new Datum(a.stringVal().compareTo(b.stringVal()) < 0);
+					if (a.isType(Datum.NUMBER)) 
+						return new Datum(a.doubleVal() < b.doubleVal());
+					else	
+						return new Datum(a.stringVal().compareTo(b.stringVal()) < 0);
 				case Datum.NUMBER:
 					return new Datum(a.doubleVal() < b.doubleVal());
 				default:
@@ -372,7 +387,10 @@ public class DatumMath {
 				case Datum.MONTH_NUM:
 					return new Datum(DatumMath.getCalendarField(a,a.type()) != DatumMath.getCalendarField(b,a.type()));
 				case Datum.STRING:
-					return new Datum(a.stringVal().compareTo(b.stringVal()) != 0);
+					if (a.isType(Datum.NUMBER)) 
+						return new Datum(a.doubleVal() != b.doubleVal());
+					else
+						return new Datum(a.stringVal().compareTo(b.stringVal()) != 0);
 				case Datum.NUMBER:
 					return new Datum(a.doubleVal() != b.doubleVal());
 				default:
