@@ -1,0 +1,173 @@
+###################################################################
+# Auto generated configuration. Dated: Thu Jan 17 17:34:38 EST 2002
+###################################################################
+
+#
+# You will need to merge the content of this file with your 
+# regular obj.conf and then restart (=stop + start) your Netscape server. 
+#
+
+#
+# Loading the redirector into your server
+#
+
+Init fn="load-modules" funcs="jk_init,jk_service" shlib="<put full path to the redirector here>"
+Init fn="jk_init" worker_file="C:/usr/local/dialogix/conf/workers.properties" log_level="debug" log_file="C:/usr/local/dialogix/logs/netscape_redirect.log"
+
+<Object name=default>
+#
+# Redirecting the root context requests to tomcat.
+#
+NameTrans fn="assign-name" from="/servlet/*" name="servlet"
+NameTrans fn="assign-name" from="/*.jsp" name="servlet"
+
+#########################################################
+# Auto configuration for the /BYS context starts.
+#########################################################
+
+#
+# The following line mounts all JSP file and the /servlet/ uri to tomcat
+#
+NameTrans fn="assign-name" from="/BYS/servlet/*" name="servlet"
+NameTrans fn="assign-name" from="/BYS/*.jsp" name="servlet"
+NameTrans fn=pfx2dir from="/BYS" dir="C:/usr/local/dialogix/webapps/BYS"
+
+#######################################################
+# Auto configuration for the /BYS context ends.
+#######################################################
+
+#########################################################
+# Auto configuration for the /CET context starts.
+#########################################################
+
+#
+# The following line mounts all JSP file and the /servlet/ uri to tomcat
+#
+NameTrans fn="assign-name" from="/CET/servlet/*" name="servlet"
+NameTrans fn="assign-name" from="/CET/*.jsp" name="servlet"
+NameTrans fn=pfx2dir from="/CET" dir="C:/usr/local/dialogix/webapps/CET"
+
+#######################################################
+# Auto configuration for the /CET context ends.
+#######################################################
+
+#########################################################
+# Auto configuration for the /CIC context starts.
+#########################################################
+
+#
+# The following line mounts all JSP file and the /servlet/ uri to tomcat
+#
+NameTrans fn="assign-name" from="/CIC/servlet/*" name="servlet"
+NameTrans fn="assign-name" from="/CIC/*.jsp" name="servlet"
+NameTrans fn=pfx2dir from="/CIC" dir="C:/usr/local/dialogix/webapps/CIC"
+
+#######################################################
+# Auto configuration for the /CIC context ends.
+#######################################################
+
+#########################################################
+# Auto configuration for the /Demos context starts.
+#########################################################
+
+#
+# The following line mounts all JSP file and the /servlet/ uri to tomcat
+#
+NameTrans fn="assign-name" from="/Demos/servlet/*" name="servlet"
+NameTrans fn="assign-name" from="/Demos/*.jsp" name="servlet"
+NameTrans fn=pfx2dir from="/Demos" dir="C:/usr/local/dialogix/webapps/Demos"
+
+#######################################################
+# Auto configuration for the /Demos context ends.
+#######################################################
+
+#########################################################
+# Auto configuration for the /images context starts.
+#########################################################
+
+#
+# The following line mounts all JSP file and the /servlet/ uri to tomcat
+#
+NameTrans fn="assign-name" from="/images/servlet/*" name="servlet"
+NameTrans fn="assign-name" from="/images/*.jsp" name="servlet"
+NameTrans fn=pfx2dir from="/images" dir="C:/usr/local/dialogix/webapps/images"
+
+#######################################################
+# Auto configuration for the /images context ends.
+#######################################################
+
+#########################################################
+# Auto configuration for the /outcomes context starts.
+#########################################################
+
+#
+# The following line mounts all JSP file and the /servlet/ uri to tomcat
+#
+NameTrans fn="assign-name" from="/outcomes/servlet/*" name="servlet"
+NameTrans fn="assign-name" from="/outcomes/*.jsp" name="servlet"
+NameTrans fn=pfx2dir from="/outcomes" dir="C:/usr/local/dialogix/webapps/outcomes"
+
+#######################################################
+# Auto configuration for the /outcomes context ends.
+#######################################################
+
+#########################################################
+# Auto configuration for the /Prefs context starts.
+#########################################################
+
+#
+# The following line mounts all JSP file and the /servlet/ uri to tomcat
+#
+NameTrans fn="assign-name" from="/Prefs/servlet/*" name="servlet"
+NameTrans fn="assign-name" from="/Prefs/*.jsp" name="servlet"
+NameTrans fn=pfx2dir from="/Prefs" dir="C:/usr/local/dialogix/webapps/Prefs"
+
+#######################################################
+# Auto configuration for the /Prefs context ends.
+#######################################################
+
+#########################################################
+# Auto configuration for the /Test context starts.
+#########################################################
+
+#
+# The following line mounts all JSP file and the /servlet/ uri to tomcat
+#
+NameTrans fn="assign-name" from="/Test/servlet/*" name="servlet"
+NameTrans fn="assign-name" from="/Test/*.jsp" name="servlet"
+NameTrans fn=pfx2dir from="/Test" dir="C:/usr/local/dialogix/webapps/Test"
+
+#######################################################
+# Auto configuration for the /Test context ends.
+#######################################################
+
+#########################################################
+# Auto configuration for the /Tutorials context starts.
+#########################################################
+
+#
+# The following line mounts all JSP file and the /servlet/ uri to tomcat
+#
+NameTrans fn="assign-name" from="/Tutorials/servlet/*" name="servlet"
+NameTrans fn="assign-name" from="/Tutorials/*.jsp" name="servlet"
+NameTrans fn=pfx2dir from="/Tutorials" dir="C:/usr/local/dialogix/webapps/Tutorials"
+
+#######################################################
+# Auto configuration for the /Tutorials context ends.
+#######################################################
+
+#######################################################
+# Protecting the web inf directory.
+#######################################################
+PathCheck fn="deny-existence" path="*/WEB-INF/*"
+
+</Object>
+
+#######################################################
+# New object to execute your servlet requests.
+#######################################################
+<Object name=servlet>
+ObjectType fn=force-type type=text/html
+Service fn="jk_service" worker="ajp12" path="/*"
+</Object>
+

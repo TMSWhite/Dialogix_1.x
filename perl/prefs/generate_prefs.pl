@@ -109,9 +109,15 @@ sub prepare_classes {
 	foreach my $class (@classes) {
 		++$counter;
 		my $prefix = $varnames{$class};
+		my $title2 = "I had...";
+		$title2 = "I felt..."	if (($class =~ /energy/i) || ($class =~ /mood/i));
+		$title2 = "I ..." if (($class =~ /sleep/i) || ($class =~ /memory/i));
+		$title2 = "it has been difficult for me ..." if (($class =~ /relation/i) || ($class =~ /control/i) || ($class =~ /spiritual/i));
+		$title2 = "I needed help with ..." if ($class =~ /activities/i);
+		$title2 = "I have been worried / had concerns about ..." if ($class =~ /worries/i);
 		
 		push @new_present, "\t${class}_intro\t$counter\tscreen_" . lc($class) . "==1\t" . &qtype($counter,$max,1,1) . "\t\t" . 	# all nested
-			qq|<center><b>$mapping{$class}</b></center>	nothing|;
+			qq|<center><b>$mapping{$class}</b><br/><b>$title2</b></center>	nothing|;
 		
 		&prepare_subclasses($class,$counter,$prefix,($counter==$max));
 		push @new_present, "";
@@ -141,7 +147,12 @@ sub prepare_subclasses {
 		
 		my $subprefix = $varnames{$vals[0]};
 		
-		push @new_present, "p$subprefix\t$vals[0]" . "_present\t$counter.$subc\tscreen_" . lc($class) . "==1\t" . &qtype($subc,$max,$endable,1) . "\t\t$vals[1]\tcheck|1|Yes";
+		if ($class =~ /other/i) {
+			push @new_present, "p$subprefix\t$vals[0]" . "_present\t$counter.$subc\tscreen_" . lc($class) . "==1\t" . &qtype($subc,$max,$endable,1) . "\t\t$vals[1]\tmemo				 "; 
+		}
+		else {
+			push @new_present, "p$subprefix\t$vals[0]" . "_present\t$counter.$subc\tscreen_" . lc($class) . "==1\t" . &qtype($subc,$max,$endable,1) . "\t\t$vals[1]\tcheck|1|Yes"; 
+		}
 	}
 }
 
@@ -161,8 +172,8 @@ sub prepare_followup {
 		
 		my $subcount = &prepare_subclass_followup($class,$counter,$prefix,($counter==$max));
 		
-		push @new_followup, "$disc_varnames{$class}\t${class}_discuss\t${counter}.$subcount\tscreen_$lcclass==1\t" . &qtype($counter,$max,1,1) . "\t\t".
-			$disc_mapping{$class}	. "\tcheck|1|Yes";
+		push @new_followup, "$disc_varnames{$class}\t${class}_discuss\t${counter}.$subcount\tscreen_$lcclass==1\t" . &qtype($counter,$max,1,1) . "\t\t<b>".
+			$disc_mapping{$class}	. "</b>\tcombo|0|No|1|Yes";
 
 		push @new_followup, "";
 	}
@@ -260,7 +271,7 @@ sub build_summary_table2 {
 		$table .= qq|<td $style[0] $width[1]><b>Severity</b></td><td $style[0] $width[2]><b>Bother</b></td><td $style[0] $width[3] align='center'><b>Comments</b></td>|;
 	}
 	elsif ($st eq '_header2_') {
-		$table .= qq|<td $width[0] $style[1]><b>Importance</b></td><td $width[1] $style[1]><b>`${class}_imp`</b></td><td $width[2] $style[1]>&nbsp;</td><td $width[3] $style[1]><b>`(${class}_discuss)?'Please talk with MD':'&nbsp;'`</b></td>|;
+		$table .= qq|<td $width[0] $style[1]><b>Importance</b></td><td $width[1] $style[1]><b>`${class}_imp`</b></td><td $width[2] $style[1]>&nbsp;</td><td $width[3] $style[1]><b>`(${class}_discuss)?'Need to discuss with health care provider':'&nbsp;'`</b></td>|;
 	}
 	else {
 		$table .= qq|<td $width[0]>$hsts{$st}</td><td $width[1]>`getAnsOption(${st}_severity)`</td><td $width[2]>`${st}_bother`</td><td $width[3]>&nbsp;</td>|;
