@@ -214,9 +214,6 @@
    description="Compile Java sources">
    
    <!-- remove source files, since always re-parsed -->
-   <delete dir="${build.home}/src"/>
-   <delete dir="${build.home}/classes"/>
-
     <copy  todir="${build.home}/src/" filtering="true">
 	    <fileset dir="src/share">
 	    	<include name="**/*.java" />
@@ -396,6 +393,32 @@
        </filterset>
     </copy>	
     
+    <copy todir="${tomcat.home}">
+    	<fileset dir="src" includes="*.ico"/>
+    </copy>
+    
+    <copy  todir="${tomcat.home}" filtering="true">
+	    <fileset dir="src">
+	    	<include name="dialogix.bat" />
+	    	<include name="README.txt" />
+	    </fileset>
+       <filterset begintoken="@@" endtoken="@@">
+         <filter token="DIALOGIX.START_DIR" value="${dialogix.start_dir}"/>
+         <filter token="DIALOGIX.VERSION_MAJOR" value="${dialogix.version_major}"/>
+         <filter token="DIALOGIX.VERSION_MINOR" value="${dialogix.version_minor}"/>
+         <filter token="LICENSE.STUDY_ALIAS" value="${LICENSE.STUDY_ALIAS}"/>
+         <filter token="LICENSE.STUDY_NAME" value="${LICENSE.STUDY_NAME}"/>
+         <filter token="LICENSE.STUDY_ICON" value="${LICENSE.STUDY_ICON}"/>
+         <filter token="LICENSE.PRINCIPAL_INVESTIGATOR" value="${LICENSE.PRINCIPAL_INVESTIGATOR}"/>
+         <filter token="LICENSE.GRANT_NAME" value="${LICENSE.GRANT_NAME}"/>
+         <filter token="LICENSE.GRANT_TITLE" value="${LICENSE.GRANT_TITLE}"/>
+		 <filter token="DIALOGIX.HOME" value="${DIALOGIX.HOME}"/>
+         <filter token="LICENSE.PACKAGE_DIR" value="${LICENSE.PACKAGE_DIR}"/>
+		 <filter token="ARCHIVE.DIR" value="${ARCHIVE.DIR}"/>
+		 <filter token="ZIP.NAME" value="${zip.name}"/>
+       </filterset>
+    </copy>	
+    
   </target>
 
 
@@ -420,6 +443,7 @@
     <mkdir dir="${dist.home}"/>
     
     <!-- Create application Zip file -->
+    <!--
     <zip zipfile="${dist.home}/${zip.name}.zip"
          basedir="/">
 		<include name="${zip.basedir}/archive/**"/>
@@ -432,7 +456,58 @@
 		<include name="${win98.desktop}/Dialogix/**" if="using.win98"/>    																																																																																																																								
 		<include name="${win2000.desktop}/Dialogix/**" if="using.win2000"/>																																																																																																																																										
     </zip>
+    -->
+    
+    <!-- Create INNO installer script -->
+    
+    <mkdir dir="${dist.home}/${zip.name}"/>
+    
+    <copy  todir="${dist.home}/${zip.name}" filtering="true">
+	    <fileset dir="src">
+	    	<include name="Dialogix-install-script.iss" />
+	    </fileset>
+       <filterset begintoken="@@" endtoken="@@">
+		 <filter token="DIALOGIX.HOME" value="${DIALOGIX.HOME}"/>
+         <filter token="DIALOGIX.VERSION_MAJOR" value="${dialogix.version_major}"/>
+         <filter token="DIALOGIX.VERSION_MINOR" value="${dialogix.version_minor}"/>
+         <filter token="LICENSE.STUDY_ALIAS" value="${LICENSE.STUDY_ALIAS}"/>
+         <filter token="LICENSE.STUDY_NAME" value="${LICENSE.STUDY_NAME}"/>
+         <filter token="LICENSE.STUDY_ICON" value="${LICENSE.STUDY_ICON}"/>
+         <filter token="LICENSE.PRINCIPAL_INVESTIGATOR" value="${LICENSE.PRINCIPAL_INVESTIGATOR}"/>
+         <filter token="LICENSE.GRANT_NAME" value="${LICENSE.GRANT_NAME}"/>
+         <filter token="LICENSE.GRANT_TITLE" value="${LICENSE.GRANT_TITLE}"/>         
+       </filterset>
+    </copy>
+    <move file="${dist.home}/${zip.name}/Dialogix-install-script.iss" tofile="${dist.home}/${zip.name}/${zip.name}-install-script.iss"/>
+    
+	<exec dir="${dist.home}/${zip.name}" executable="C:\Program Files\Inno Setup 2\Compil32.exe" os="Windows 2000">
+		<arg line="/cc ${zip.name}-install-script.iss"/>
+	</exec>
+	
+	<move file="${dist.home}/${zip.name}/Output/setup.exe" tofile="${dist.home}/${zip.name}/${zip.name}.exe"/>
+	<delete dir="${dist.home}/${zip.name}/Output"/>
+
   </target>
+  
+  <target name="zip_dist" depends="deploy,javadoc"
+   description="Create binary distribution for Unix platforms">
+   
+    <mkdir dir="${dist.home}"/>
+    
+    <!-- Create application Zip file -->
+    <zip zipfile="${dist.home}/${zip.name}.zip"
+         basedir="/">
+		<include name="${zip.basedir}/archive/**"/>
+		<include name="${zip.basedir}/bin/**"/>
+		<include name="${zip.basedir}/conf/**"/>
+		<include name="${zip.basedir}/lib/**"/>
+		<include name="${zip.basedir}/webapps/${LICENSE.PACKAGE_DIR}/**"/>
+		<include name="${zip.basedir}/webapps/ROOT/**"/>
+		<include name="${zip.basedir}/webapps/images/**"/>                         																																																																																																																								
+		<include name="${win98.desktop}/Dialogix/**" if="using.win98"/>    																																																																																																																								
+		<include name="${win2000.desktop}/Dialogix/**" if="using.win2000"/>																																																																																																																																										
+    </zip>
+ </target>
   
 <!-- ==================== Src Target ===================================== -->
 
@@ -522,6 +597,7 @@
     <echo message="LICENSE.PRINCIPAL_INVESTIGATOR=${LICENSE.PRINCIPAL_INVESTIGATOR}"/>
     <echo message="LICENSE.GRANT_NAME=${LICENSE.GRANT_NAME}"/>
     <echo message="LICENSE.GRANT_TITLE=${LICENSE.GRANT_TITLE}"/>
+    <echo message="DIALOGIX.HOME=${DIALOGIX.HOME}"/>
     <!-- Copy static files from external dependencies as needed -->
     
     <copy toDir="${build.home}/web" >
@@ -559,13 +635,13 @@
     	<equals arg1="${deploy.os}" arg2="win2000" />
     </condition>
     
-    <condition property="dialogix.user_role" value="_Developer">
+    <condition property="dialogix.user_role" value="Developer">
     	<and>
     		<equals arg1="${dialogix.authorable}" arg2="true"/>
     		<equals arg1="${dialogix.deployable}" arg2="true"/>
     	</and>
     </condition>
-    <condition property="dialogix.user_role" value="_Interviewer">
+    <condition property="dialogix.user_role" value="Interviewer">
     	<and>
     		<equals arg1="${dialogix.authorable}" arg2="false"/>
     		<equals arg1="${dialogix.deployable}" arg2="true"/>
@@ -588,8 +664,29 @@
     	</not>
     </condition>  
     
+    <condition property="dialogix.start_dir" value="">
+    	<equals arg1="${LICENSE.PACKAGE_DIR}" arg2="**" />
+    </condition>    
+    <condition property="dialogix.start_dir" value="${LICENSE.PACKAGE_DIR}">
+    	<not>
+    		<equals arg1="${LICENSE.PACKAGE_DIR}" arg2="**" />
+    	</not>
+    </condition>  
+    
     <property name="zip.name" 
-    	value="${app.name}_${app.version}_${deploy.os}_${dialogix.package_name}${dialogix.webbable}${dialogix.user_role}" />
+    	value="${app.name}_${app.version}_${deploy.os}_${dialogix.package_name}${dialogix.webbable}_${dialogix.user_role}" />
+    	
+    <pathconvert targetos="windows" property="DIALOGIX.HOME">
+    	<path>
+    		<pathelement location="${tomcat.home}"/>
+    	</path>
+    </pathconvert>
+    
+    <pathconvert targetos="windows" property="ARCHIVE.DIR">
+    	<path>
+    		<pathelement location="${floppy.dir}"/>
+    	</path>
+    </pathconvert>    
   </target>
   
 
