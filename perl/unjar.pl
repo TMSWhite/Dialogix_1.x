@@ -42,6 +42,7 @@ $Prefs = {
 	UNASKED => 44444,
 	INSTRUMENT => '',	# name of the instrument file (without .txt extensions)
 	SORTBY => 'sortby_variable_name',	# 'sortby_order_asked'
+	VARNAME_FROM_COLUMN => 1,	# use '0' for concept, '1' for internalName, '2' for externalName
 	
 	VARMAP_INFO_FILE => 'varMapInfo',
 	
@@ -232,21 +233,18 @@ sub removeOldAnalysisFiles {
 sub update_dat {
 	chdir($Prefs->{UNJAR_DIR});
 	my $command = "perl $UPDATE_DAT $Prefs->{VARMAP_INFO_FILE} $Prefs->{DAT_FILES}";
-	print "$command\n";
 	&doit($command);
 }
 
 sub dat2sas {
 	chdir($Prefs->{RESULTS_DIR});
 	my $command = "perl $DAT2SAS $Prefs->{SORTBY} $Prefs->{INSTRUMENT_DIR}/$Prefs->{INSTRUMENT} $Prefs->{UNIQUE_ID} $Prefs->{modularizeByPrefix} $Prefs->{discardVarsMatchingPattern} $Prefs->{NA} $Prefs->{REFUSED} $Prefs->{UNKNOWN} $Prefs->{HUH} $Prefs->{INVALID} $Prefs->{UNASKED} $Prefs->{DAT_FILES}";
-	print "$command\n";
 	&doit($command);
 }
 
 sub evt2sas {
 	chdir($Prefs->{RESULTS_DIR});
 	my $command = "perl $EVT2SAS $Prefs->{INSTRUMENT_DIR}/$Prefs->{INSTRUMENT} $Prefs->{UNIQUE_ID} $Prefs->{discardVarsMatchingPattern} $Prefs->{EVT_FILES}";
-	print "$command\n";
 	&doit($command);
 }
 
@@ -273,7 +271,6 @@ sub removeErrFiles {
 
 sub sched2sas {
 	chdir($Prefs->{INSTRUMENT_DIR});
-	my $command = "perl $SCHED2SAS $Prefs->{SORTBY} $Prefs->{modularizeByPrefix} $Prefs->{discardVarsMatchingPattern} $Prefs->{RESULTS_DIR} $Prefs->{NA} $Prefs->{REFUSED} $Prefs->{UNKNOWN} $Prefs->{HUH} $Prefs->{INVALID} $Prefs->{UNASKED} $INSTRUMENT_FILE";
-	print "$command\n";
+	my $command = "perl $SCHED2SAS $Prefs->{SORTBY} $Prefs->{VARNAME_FROM_COLUMN} $Prefs->{modularizeByPrefix} $Prefs->{discardVarsMatchingPattern} $Prefs->{RESULTS_DIR} $Prefs->{NA} $Prefs->{REFUSED} $Prefs->{UNKNOWN} $Prefs->{HUH} $Prefs->{INVALID} $Prefs->{UNASKED} $INSTRUMENT_FILE";
 	&doit($command);
 }

@@ -73,10 +73,11 @@ my $formats = {
 	year => 'date|yyyy',	
 };
 
-my (@gargs, $modulePrefix, $discardPrefix, $resultsDir, $sortby);
+my (@gargs, $modulePrefix, $discardPrefix, $resultsDir, $sortby, $varnameFromColumn);
 my (%modules);
 @gargs = @ARGV;
 $sortby = shift(@gargs);
+$varnameFromColumn = shift(@gargs);	# if 0, then use concept field; if 1, use internalName; if 2, then use externalName
 $modulePrefix = shift(@gargs);
 $discardPrefix = shift(@gargs);
 $resultsDir = shift(@gargs);
@@ -213,8 +214,8 @@ sub getLongestValidSubName {
 		--$len;
 #		print "truncating $arg\n";
 	}
-#	print "bad name $name -- using _VAR_\n";
-	return "_VAR_000";
+#	print "bad name $name -- using XXX_\n";
+	return "XXX_0000";
 }
 
 sub transform_schedule {
@@ -233,6 +234,11 @@ sub transform_schedule {
 	%uniqueNames = ();
 	%c8name2vars = ();
 	
+	my $varnameColumn = 1;
+	if ($varnameFromColumn =~ /^[012]$/) {
+		$varnameColumn = $varnameFromColumn;
+	}
+	
 	#initialize reserved variable names
 	foreach (@reservedVars) {
 		&getUniqueName(uc($_));		# these are already valid names
@@ -247,7 +253,7 @@ sub transform_schedule {
 		my @vals = split(/\t/,$line);
 		++$step;
 		
-		my $ucname = uc($vals[1]);
+		my $ucname = uc($vals[$varnameColumn]);
 		my $c8name = &getUniqueName($ucname);
 		
 		push @c8names, $c8name;
