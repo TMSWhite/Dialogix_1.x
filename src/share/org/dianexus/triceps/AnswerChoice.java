@@ -3,9 +3,12 @@ package org.dianexus.triceps;
 /*import java.lang.*;*/
 /*import java.util.*;*/
 /*import java.io.*;*/
+import java.util.Vector;
 
 
 /*public*/ class AnswerChoice implements VersionIF  {
+	private static final String INTRA_OPTION_LINE_BREAK = "<br>";
+
 	String value;
 	String message;
 	String anchor;
@@ -38,4 +41,66 @@ package org.dianexus.triceps;
 
 	/*public*/ void setAnchor(String anchor) { this.anchor = anchor; }
 	/*public*/ String getAnchor() { return anchor; }
+	
+	/*public*/ String toXML(boolean selected, int maxLen, String key) {
+		StringBuffer sb = new StringBuffer();
+		
+		Vector v = subdivideMessage(maxLen);
+		String val = XMLAttrEncoder.encode(getValue());
+		
+		for (int i=0;i<v.size();++i) {
+			sb.append("<ac val=\"");
+			sb.append(val);
+			sb.append("\" key=\"");
+			sb.append(key);	// the accelerator key
+			sb.append("\" on=\"");
+			sb.append((selected && i==0) ? "1" : "0");	// only mark the first instance as selected
+			sb.append("\">");
+			sb.append((new XmlString(null,(String) v.elementAt(i))).toString());	// can have embedded markup
+			sb.append("</ac>");
+		}
+		return sb.toString();
+	}
+	
+	private Vector subdivideMessage(int maxLen) {
+		Vector choices = new Vector();
+
+		int start=0;
+		int stop=0;
+		int toadd=0;
+		int lineBreak=0;
+		String option = null;
+		String messageStr = getMessage();
+		
+		if (maxLen == -1) {
+			choices.addElement(messageStr);
+			return choices;
+		}
+
+		/* also detects <br> for intra-option line-breaks */
+		while (start < messageStr.length()) {
+			toadd = 1;	// length of space;
+			
+			lineBreak = messageStr.indexOf(INTRA_OPTION_LINE_BREAK,start);
+			if (lineBreak == -1) {
+				option = messageStr.substring(start,messageStr.length());
+			}
+			else {
+				option = messageStr.substring(start,lineBreak);
+				toadd += INTRA_OPTION_LINE_BREAK.length();
+			}
+			
+			if (option.length() <= maxLen) {
+				stop = option.length();
+			}
+			else {
+				stop = option.lastIndexOf(' ',maxLen);
+			}
+			
+			choices.addElement(option.substring(0,stop));
+			
+			start += (stop + toadd);
+		}						
+		return choices;
+	}
 }

@@ -813,6 +813,73 @@ if (AUTHORABLE) {
 }
 		return sb.toString();
 	}
+	
+	/*public*/ String toXML(Datum datum, boolean autogen) {
+		StringBuffer sb = new StringBuffer();
+		String defaultValue = "";
+		AnswerChoice ac;
+		Enumeration ans = null;
+		int count=0;
+		
+		boolean isSpecial = (datum.isRefused() || datum.isUnknown() || datum.isNotUnderstood());
+		
+		sb.append("<node name=\"");
+		sb.append(getLocalName());
+		sb.append("\" concept=\"");
+		sb.append(XMLAttrEncoder.encode(getConcept()));
+		sb.append("\" extName=\"");
+		sb.append(XMLAttrEncoder.encode(getExternalName()));
+		sb.append("\" ansType=\"");
+		sb.append(QUESTION_TYPES[answerType]);
+		sb.append("\" comment=\"");
+		sb.append(XMLAttrEncoder.encode(getComment()));
+		sb.append("\" special=\"");
+		sb.append((isSpecial) ? triceps.toString(this,true) : "");
+		sb.append("\" help=\"");
+		sb.append(XMLAttrEncoder.encode(getHelpURL()));
+		sb.append("\" err=\"");
+		sb.append(XMLAttrEncoder.encode(getRuntimeErrors()));
+		sb.append("\"><ask>");
+		sb.append((new XmlString(triceps,triceps.getQuestionStr(this))).toString());	// can have embedded markup
+		sb.append("</ask>");
+		
+		switch(answerType) {
+		case RADIO:
+		case CHECK:
+			ans = getAnswerChoices().elements();
+			while (ans.hasMoreElements()) { // for however many choices there are
+				++count;
+				ac = (AnswerChoice) ans.nextElement();
+				ac.parse(triceps);
+				sb.append(ac.toXML(isSelected(datum,ac), -1, (autogen) ? Integer.toString(count) : ac.getValue()));
+			}
+			break;
+		case COMBO:	
+		case LIST:
+			ans = getAnswerChoices().elements();
+			while (ans.hasMoreElements()) { // for however many choices there are
+				++count;
+				ac = (AnswerChoice) ans.nextElement();
+				ac.parse(triceps);
+				sb.append(ac.toXML(isSelected(datum,ac), MAX_TEXT_LEN_FOR_COMBO, (autogen) ? Integer.toString(count) : ac.getValue()));
+			}
+			break;
+		default:
+		case TEXT:
+		case MEMO:
+		case PASSWORD:
+		case DOUBLE:
+			if (datum != null && datum.exists())
+				defaultValue = datum.stringVal();
+			sb.append("<ac value=\"" + XMLAttrEncoder.encode(defaultValue) + "\"/>");
+			break;
+		case NOTHING:
+			break;
+		}
+		sb.append("</node>");
+		
+		return sb.toString();
+	}
 
 	/*public*/ Date getTimeStamp() { return timeStamp; }
 	/*public*/ String getTimeStampStr() { return timeStampStr; }

@@ -149,6 +149,8 @@ if (AUTHORABLE)	new XmlString(triceps, "<b>" + form.getErrors() + "</b>",out);
 			out.println(footer());	// should not be parsed
 			out.flush();
 			out.close();
+			
+if (XML && DEBUG)	Logger.writeln(responseXML());			
 		}
 		catch (Throwable t) {
 if (DEBUG) Logger.writeln("##Throwable @ Servlet.doPost()" + t.getMessage());
@@ -812,7 +814,7 @@ if (AUTHORABLE) {
 		firstFocus = (new XmlString(triceps, firstFocus)).toString();	// make sure properly formatted
 
 		sb.append(queryUser());
-
+		
 		return sb.toString();
 	}
 
@@ -834,6 +836,45 @@ if (AUTHORABLE) {
 		schedule.setReserved(Schedule.IMAGE_FILES_DIR,imageFilesDir);
 		schedule.setReserved(Schedule.SCHEDULE_DIR,scheduleSrcDir);
 		return triceps.isValid();
+	}
+	
+	private String nodesXML() {
+		StringBuffer sb = new StringBuffer();
+		Enumeration questionNames = triceps.getQuestions();
+		
+		sb.append("<nodes>");
+		for(int count=0;questionNames.hasMoreElements();++count) {
+			Node node = (Node) questionNames.nextElement();
+			Datum datum = triceps.getDatum(node);
+			
+			sb.append(node.toXML(datum,autogenOptionNums));	
+			
+		}
+		sb.append("</nodes>");
+		
+		return sb.toString();
+	}
+	
+	private String metadataXML() {
+		StringBuffer sb = new StringBuffer();
+		
+		sb.append("<metadata>");
+		sb.append("</metadata>");
+		
+		return sb.toString();
+	}
+
+	private String responseXML() {
+		if (!triceps.isValid())
+			return "";
+			
+		StringBuffer sb = new StringBuffer();
+		sb.append("<triceps>");
+		sb.append(nodesXML());
+		sb.append(metadataXML());
+		sb.append("</triceps>");
+		
+		return sb.toString();
 	}
 
 	/**
