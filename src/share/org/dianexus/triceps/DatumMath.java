@@ -14,10 +14,11 @@ public class DatumMath {
 		if (a.isType(Datum.REFUSED) || (b != null && b.isType(Datum.REFUSED))) {
 			return new Datum(Datum.REFUSED);
 		}
+		/* Do NOT throw an error message if try to access a NA datatype? 
 		if (a.isType(Datum.NA) || (b != null && b.isType(Datum.NA))) {
-			/* throw an error message here? */
 			return new Datum(Datum.INVALID);
 		}
+		*/
 		return null;	// to indicate that there is no error that needs propagating
 	}
 	
@@ -33,7 +34,6 @@ public class DatumMath {
 			case Datum.MONTH_NUM: return Calendar.MONTH;
 			default: return 0;	// should never get here
 		}
-
 	}
 	
 	static int getCalendarField(Datum d, int datumType) {
@@ -54,15 +54,38 @@ public class DatumMath {
 			return d;
 			
 		switch (a.type()) {
-			default:
+			case Datum.NUMBER:
+			case Datum.STRING:
 				return new Datum(a.doubleVal() + b.doubleVal());
-			case Datum.MONTH:
-				int val = Integer.parseInt(Datum.format(a.dateVal(),Datum.DATE,MONTH_AS_NUM_MASK));
-				val += (int) b.doubleVal();
-				Date newMonth = (new Datum("" + val, Datum.MONTH, MONTH_AS_NUM_MASK)).dateVal();
-				return (new Datum(newMonth, Datum.MONTH));
+			default:
+//			case Datum.DATE:
+//			case Datum.TIME:
+			{
+				int field = DatumMath.datumToCalendar(b.type());
+				GregorianCalendar gc = new GregorianCalendar();	// should happen infrequently (not a garbage collection problem?)
+				
+				gc.setTime(a.dateVal());
+				gc.add(field, DatumMath.getCalendarField(b,field));
+				return new Datum(gc.getTime(),a.type());	// set to type of first number in expression
+			}
+//			case Datum.WEEKDAY: 
+//			case Datum.MONTH:
+/*
+ 			case Datum.MONTH:
+ 				int val = Integer.parseInt(Datum.format(a.dateVal(),Datum.DATE,MONTH_AS_NUM_MASK));
+ 				val += (int) b.doubleVal();
+ 				Date newMonth = (new Datum("" + val, Datum.MONTH, MONTH_AS_NUM_MASK)).dateVal();
+ 				return (new Datum(newMonth, Datum.MONTH));
+*/
+//			case Datum.YEAR:
+//			case Datum.DAY:
+//			case Datum.HOUR:
+//			case Datum.MINUTE:
+//			case Datum.SECOND:
+//			case Datum.MONTH_NUM:
 		}
 	}
+	
 	static Datum and(Datum a, Datum b) {
 		Datum d = DatumMath.hasError(a,b);
 		if (d != null)
