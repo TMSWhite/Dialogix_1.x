@@ -533,7 +533,7 @@ if (AUTHORABLE)	error(triceps.get("name_contains_invalid_character") + chars[i])
 		else {
 			/* check whether it is a valid UNICODE character */
 			int unicodeHashMark = entity.indexOf('#');
-			if (unicodeHashMark == 1 && entity.length() <= 6) {
+			if (unicodeHashMark == 1 && entity.length() <= 8) {
 				char[] chars = entity.toCharArray();
 				for (int i=2;i<(chars.length-1);++i) {
 					if (!Character.isDigit(chars[i])) {
