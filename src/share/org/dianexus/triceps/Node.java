@@ -744,10 +744,11 @@ public class Node  {
 			<U></U>
 			<BR>
 		*/
-		char[] src = s.toCharArray();
 		StringBuffer dst = new StringBuffer();
 		
 		try {
+			char[] src = s.toCharArray();
+			
 			for (int i=0;i<src.length;++i) {
 				switch (src[i]) {
 					case '\'': dst.append("&#39;"); break;
@@ -829,6 +830,7 @@ public class Node  {
 		}
 		catch (java.text.ParseException e) {
 			setParseError("Error parsing time " + e.getMessage());
+			System.out.println("error parsing time " + e.getMessage());
 		}
 		if (time == null) {
 			setTimeStamp();
