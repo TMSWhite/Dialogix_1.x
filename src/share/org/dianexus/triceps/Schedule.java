@@ -16,7 +16,7 @@ public class Schedule implements Serializable {
 	public Schedule() {
 		nodes = new Vector();
 	}
-	
+
 	public boolean load(File file) {
 		if (file == null)
 			return false;
@@ -25,6 +25,9 @@ public class Schedule implements Serializable {
 			String fileLine;
 			BufferedReader br = new BufferedReader(new FileReader(file));
 			while ((fileLine = br.readLine()) != null) {
+				if (fileLine.startsWith("COMMENT"))
+					continue;
+
 				Node node = new Node(count, fileLine);
 				++count;
 				nodes.addElement(node);
@@ -38,11 +41,11 @@ public class Schedule implements Serializable {
 			return false;
 		}
 	}
-	
+
 	public boolean load(URL url) {
 		if (url == null)
 			return false;
-			
+
 		boolean err = false;
 		try {
 			InputStream is = url.openStream();
@@ -50,12 +53,15 @@ public class Schedule implements Serializable {
 			String fileLine;
 			BufferedReader br = new BufferedReader(new InputStreamReader(is));
 			while ((fileLine = br.readLine()) != null) {
-				if (count == 0 && 
-					(fileLine.indexOf("<h1>") != -1) || 
+				if (count == 0 &&
+					(fileLine.indexOf("<h1>") != -1) ||
 					(fileLine.indexOf("<html>") != -1)) {
 					err = true;
 					break;
 				}
+				if (fileLine.startsWith("COMMENT"))
+					continue;
+
 				Node node = new Node(count, fileLine);
 				++count;
 				nodes.addElement(node);
@@ -73,7 +79,7 @@ public class Schedule implements Serializable {
 			return false;
 		}
 	}
-	
+
 	public Node getNode(int index) {
 		if (index < 0) {
 			System.out.println("Node[" + index + "] does't exist");
@@ -85,7 +91,7 @@ public class Schedule implements Serializable {
 		}
 		return (Node)nodes.elementAt(index);
 	}
-	
+
 	public int size() {
 		return nodes.size();
 	}
