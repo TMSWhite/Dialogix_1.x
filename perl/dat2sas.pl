@@ -373,7 +373,7 @@ foreach(@gargs) {
 				open (OUT, ">$module-complete.tsv");	
 #				print OUT "UniqueID\tStep\tName\tc8name\tLanguage\tAnswer\tComment\tVersion";
 				print OUT "UniqueID\tFinished\tc8name\tLanguage\tVersion";
-				print OUT "\tAnswers\tDispCnts\tDirectns\tVisits\tPrevs\tRepeats\tNexts\tChanges\tRetains\tNa2Na\tNa2Ok\tOk2Na\tOk2Ok\tNonAns\n";				
+				print OUT "\tAnswers\tDispCnts\tDirectns\tVisits\tPrevs\tRepeats\tNexts\tChanges\tRetains\tNa2Ok\tOk2Na\tOk2Ok\tNonAns\n";				
 				close (OUT);
 			}
 		}	
@@ -456,8 +456,8 @@ sub computeVarHistory {
 		@answers = @dispCnts = @directions = ('.');
 	}
 
-	#print OUT "\tAnswers\tDispCnts\tDirectns\tVisits\tPrevs\tRepeats\tNexts\tChanges\tRetains\tNa2Na\tNa2Ok\tOk2Na\tOk2Ok\tNonAns\n";				
-	#print Answers DispCnts Directions Visits Prevs Repeats Nexts Changes Retains Na2Na Na2Ok Ok2Na Ok2Ok
+	#print OUT "\tAnswers\tDispCnts\tDirectns\tVisits\tPrevs\tRepeats\tNexts\tChanges\tRetains\tNa2Ok\tOk2Na\tOk2Ok\tNonAns\n";				
+	#print Answers DispCnts Directions Visits Prevs Repeats Nexts Changes Retains Na2Ok Ok2Na Ok2Ok
 	
 	my $msg =	join(',',@answers) . "\t" . join(',',@dispCnts) . "\t" . join(',',@directions) . 
 		"\t$visits\t$prevs\t$repeats\t$nexts\t$changes\t$retains\t$na2ok\t$ok2na\t$ok2ok\t$nonAns";
