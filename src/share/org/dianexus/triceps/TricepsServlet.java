@@ -774,7 +774,6 @@ public class TricepsServlet extends HttpServlet {
 //				triceps.setSchedule(name,workingFilesDir,completedFilesDir,floppyDir);
 //			}
 //			else {
-				triceps.finalize();
 				triceps = new Triceps(name,workingFilesDir,completedFilesDir,floppyDir);
 //			}
 		}
