@@ -10,6 +10,7 @@ public class Evidence implements Serializable {
 	Hashtable aliases;
 	Vector data;
 	Vector nodes;
+	Integer lastNode;
 	int size;
 
 	public Evidence(int size) {
@@ -31,14 +32,15 @@ public class Evidence implements Serializable {
 			in = new ObjectInputStream(fis);
 			ev = (Evidence) in.readObject();
 			in.close();
+			this.aliases = ev.aliases;
+			this.data = ev.data;
+			this.nodes = ev.nodes;
+			this.size = ev.size;
+			this.lastNode = ev.lastNode;
 		}
 		catch (IOException e) {
-			System.out.println(e);
+			System.out.println("There's some error " + e + "getting evidence from " + filename +".");
 		}
-		this.aliases = ev.aliases;
-		this.data = ev.data;
-		this.nodes = ev.nodes;
-		this.size = ev.size;
 	}
 
 	public void save(String filename) throws IOException {
@@ -113,6 +115,7 @@ public class Evidence implements Serializable {
 		aliases.put(node.getConcept(), i);
 		aliases.put(node.getName(), i);
 		aliases.put(node.getQuestionRef(), i);
+		lastNode = i;
 	}
 	
 	public void set(String name, Datum val) {
@@ -132,6 +135,7 @@ public class Evidence implements Serializable {
 			nodes.setElementAt(name, i.intValue());
 		}
 		aliases.put(name, i);
+		lastNode = i;
 	}
 	
 	public int size() {

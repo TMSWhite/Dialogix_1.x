@@ -14,7 +14,7 @@ public class TricepsServlet extends HttpServlet {
 	private Schedule nodes;
 	private String infoMessage = null;
 	private int step;
-	private Node node;
+	private Node node = null;
 	private Evidence evidence;
 	private boolean forward;
 	private HttpServletRequest req;
@@ -62,11 +62,11 @@ public class TricepsServlet extends HttpServlet {
 		out.println("							<option selected>navigation.txt");
 //		out.println("							<option navigation2.txt");
 		out.println("							</select>");
-		out.println("The system currently only starts a new interview.");
+//		out.println("The system currently only starts a new interview.");
 		out.println("Select an interview:	<select name='interview'>");
 		out.println("								<option selected>new");
 //		out.println("								<option> test-completed");
-//		out.println("								<option> test-suspended");
+		out.println("								<option> test-suspended");
 		out.println("								</select>");
 		out.println("<hr>");
 		out.println("<input type='SUBMIT' name='directive' value='START'>		<input type='RESET'>");
@@ -84,8 +84,8 @@ public class TricepsServlet extends HttpServlet {
 		this.res = res;
 		HttpSession session = req.getSession(true);
 
-		node = (Node)session.getValue("currentNode");			// retrieve the node
-		evidence = (Evidence)session.getValue("evidence");		// retrieve the evidence
+		node = (Node)session.getValue("currentNode");			// retrieve the node stored in the session
+		evidence = (Evidence)session.getValue("evidence");		// retrieve the evidence stored in the session
 
 		res.setContentType("text/html");
 		out = res.getWriter();
@@ -126,21 +126,33 @@ public class TricepsServlet extends HttpServlet {
 			if (directive.equals("START")) {		// very first question -- set everything up
 				directive = "forward"; 				// to avoid null pointer exception
 				forward = true;
-				step = -1; // so that increments back to 0 - allows bypassing of first question, if necessary
+				step = -1; 								// will increment to 0 below - allows bypassing of first question, if necessary
 				
 				/* prepare the Evidence -- either new or retrieved */
 				if ("test-suspended".equals(req.getParameter("interview"))) {
-					evidence = new Evidence("/tmp/test-suspended");
+//					evidence = new Evidence("/tmp/test-suspended");
+					try {
+						FileInputStream istream = new FileInputStream("/tmp/test-suspended");
+						ObjectInputStream p = new ObjectInputStream(istream);
+						this.evidence = (Evidence)p.readObject();
+						istream.close();
+					}
+					catch (IOException e) {
+						System.out.println(e);
+					}
+					// gotta get the last node stored in the evidence
+					if (evidence == null) evidence = new Evidence(nodes.size());
+					else node = evidence.getNode("_400");
 				}
 				else if ("new".equals(req.getParameter("interview"))) {
 					evidence = new Evidence(nodes.size());	//  initialize the Evidence object
 				}
 			}
 			else if (directive.equals("jump-to")) {		// debugging option
-				answer = req.getParameter("jump-to");
-				Node next = evidence.getNode(answer);
+				String dest = req.getParameter("jump-to");
+				Node next = evidence.getNode(dest);		// jumps to a node in the evidence, not the schedule!!
 				if (next == null) {
-					infoMessage = "Unable to jump to Node " + answer + ": not found";
+					infoMessage = "Unable to jump to Node " + dest + ": not found";
 					queryUser();		// re-display current node
 					return;
 				}
@@ -162,7 +174,8 @@ public class TricepsServlet extends HttpServlet {
 			}
 			else if (directive.equals("suspend")) {		// gotta go -- be back later :-)
 				String status = "suspended";
-				infoMessage = saveEvidence(evidence, status);
+				infoMessage = "Suspending interview.....";
+				evidence.save("/tmp/test-" + status);
 				queryUser();	// re-display current node  ****** this should change!!!
 				return;
 			}
@@ -205,7 +218,8 @@ public class TricepsServlet extends HttpServlet {
 						if (++step >= nodes.size()) {	// then the schedule is complete
 							String status = "completed";
 							// store evidence here
-							infoMessage = saveEvidence(evidence, status);				
+							infoMessage = "The interview is completed.";
+							evidence.save("/tmp/test-" + status);				
 							// close the session
 							// session.invalidate();
 							break;
@@ -384,14 +398,5 @@ public class TricepsServlet extends HttpServlet {
 			out.println("" + (i + 1) + "(" + n.getName() + "): " + n.getConcept() + ": <B>" +
 				evidence.toString(n) + "</B><BR>");
 		}
-	}
-
-	/**
-	 * This method assembles the evidence accumulated and stores it with
-	 * a marker indicating its status -- completed or suspended.
-	 */
-	private String saveEvidence(Evidence ev, String status) throws IOException {
-		ev.save("/tmp/test-" + status);
-		return "Saving " + status + " Interview....";
 	}
 }
