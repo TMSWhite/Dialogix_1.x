@@ -46,20 +46,23 @@ public class LoginTricepsServlet extends TricepsServlet {
 	}
 
 	public void doPost(HttpServletRequest req, HttpServletResponse res)  {
+		initSession(req,res);
+
 		int result = LOGIN_ERR_OK;
 		try {
 			result = processPost(req,res);
+			if (result >= 0) { logPageHit(req,LOGIN_ERRS_BRIEF[result]); }	// way to avoid re-logging post shutdown 
+			// [XXX] so does this mean it is logging the wrong thing?
 		}
 		catch (Throwable t) {
 if (DEBUG) Logger.printStackTrace(t);
 		}
-		if (result >= 0) { logPageHit(req,LOGIN_ERRS_BRIEF[result]); }	// way to avoid re-logging post shutdown
 	}
 	
 	int processPost(HttpServletRequest req, HttpServletResponse res)  {
 		/* validate session */
 		/* Ensure that there is actually a session object  -- if not, will be created by loginPage */
-		HttpSession session = req.getSession();
+		HttpSession session = req.getSession(false);
 		
 		if (session == null || session.isNew()) {
 			/* If session is expired, give appropriiate error page */
@@ -268,13 +271,12 @@ if (DEBUG) Logger.printStackTrace(t);
 	}
 	
 	int okPage(HttpServletRequest req, HttpServletResponse res, String hiddenLoginToken) {
-		HttpSession session = req.getSession();	// must alreay exist by this stage
+		/* 2/5/03:  Explicitly ask for session info everywhere (vs passing it as needed) */
+		HttpSession session = req.getSession(false);
+		String sessionID = session.getId();
+		TricepsEngine tricepsEngine = (TricepsEngine) session.getAttribute(TRICEPS_ENGINE);
 		
-		sessionID = session.getId();
 		String restoreFile = null;	// means that the file has already been loaded.  If non-null, asks the system to load it.
-		
-		tricepsEngine = (TricepsEngine) session.getAttribute(TRICEPS_ENGINE);
-		
 		
 		/* Now ensure that using proper instrument for this authenticated subject */
 		LoginRecord loginRecord = (LoginRecord) session.getAttribute(LOGIN_RECORD);	// can't be null here		
@@ -288,7 +290,7 @@ if (DEBUG) Logger.printStackTrace(t);
 				return -1;
 			}
 			
-			tricepsEngine = new TricepsEngine(config);
+			tricepsEngine = new TricepsEngine(this.getServletConfig());
 			
 			/* create new instance, or validate that old instance exists; then "resume" it via normal TricepsEngine mechanisms */
 			String src = null;
@@ -366,7 +368,7 @@ if (DEBUG) Logger.printStackTrace(t);
 	**/
 	
 	LoginRecord validateLogin(String username, String password) {
-		if (!isLoaded || username == null || username.trim().equals("") || password == null || password.trim().equals("")) {
+		if (username == null || username.trim().equals("") || password == null || password.trim().equals("")) {
 			return LoginRecord.NULL;
 		}
 		
@@ -437,8 +439,13 @@ if (DEBUG) Logger.printStackTrace(t);
 	}
 	
 	boolean updateStatus(HttpServletRequest req, String msg) {
+		/* 2/5/03:  Explicitly ask for session info everywhere (vs passing it as needed) */
+		HttpSession session = req.getSession(false);
+		String sessionID = session.getId();
+		TricepsEngine tricepsEngine = (TricepsEngine) session.getAttribute(TRICEPS_ENGINE);
+						
 		/* This assumes that each unique username is only assigned to a single instrument */
-		LoginRecord lr = (LoginRecord) req.getSession().getAttribute(LOGIN_RECORD);
+		LoginRecord lr = (LoginRecord) session.getAttribute(LOGIN_RECORD);
 		if (lr == null || tricepsEngine == null) { return false; }
 		
 		StringBuffer sb = new StringBuffer();
