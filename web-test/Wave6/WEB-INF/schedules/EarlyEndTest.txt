@@ -1,21 +1,35 @@
 RESERVED	__TRICEPS_FILE_TYPE__	SCHEDULE
-RESERVED	__TITLE__	Early End Test
+RESERVED	__TITLE__	Wave6 Fragment (Demo)
 RESERVED	__ICON__	cpmc_dmi.jpg
 RESERVED	__SHOW_QUESTION_REF__	TRUE
 RESERVED	__AUTOGEN_OPTION_NUM__	TRUE
 RESERVED	__DEVELOPER_MODE__	true
 RESERVED	__PASSWORD_FOR_ADMIN_MODE__	bypass
-RESERVED	__HEADER_MSG__	Early End Test
-	q1	q1	1	[		This interview tests whether the system can stop and save the interview in the middle.	nothing
-	q2	q2	1	q		In general, would you say your health is:	list|5|Excellent|4.4|Very good|3.4|Good|2|Fair|1|Poor
-	q3	q3	1	]		<u>Compared to one year ago</u>, how would you rate your health in general <u>now</u>?	list|1|Much better now than one year ago|2|Somewhat better now than one year ago|3|About the same as one year ago|4|Somewhat worse now than one year ago|5|Much worse now than one year ago
-	e1	e1	1	e		suspendToFloppy();	nothing
-	q4	q4	1	[		Thanks you -- you have completed this part of the interview, and can exit this window.  In the next few days, one of our clinicians will contact you and ask a few follow-up questions.	nothing
-	q5	q5	1	];;'wave6';'wave6'		Clinicians -- please enter the password to continue.	password
-	q6	q6	1	[		This is the clinical section of the interview	nothing
-	q11		1	q		How TRUE or FALSE is <u>each</u> of the following statements for you?	nothing
-	q11a	v33	1	q		I seem to get sick a little easier than other people.	list|1|Definitely True|2|Mostly True|3|Don't Know|4|Mostly False|5|Definitely False
-	q11b	v34	1	q		I am as healthy as anybody I know.	list|5|Definitely True|4|Mostly True|3|Don't Know|2|Mostly False|1|Definitely False
-	q11c	v35	1	q		I expect my health to get worse.	list|1|Definitely True|2|Mostly True|3|Don't Know|4|Mostly False|5|Definitely False
-	q11d	v36	1	]		My health is excellent.	list|5|Definitely True|4|Mostly True|3|Don't Know|2|Mostly False|1|Definitely False
-	end	end	1	q		You have finished this intervew.  Please press the "next" button one more time to save the data.	nothing
+RESERVED	__HEADER_MSG__	Wave6 Fragment (Demo)
+RESERVED	__ICON__	ciclogo.gif
+RESERVED	__SHOW_ADMIN_ICONS__	true
+Instruct/aa	ND37a		1	q		Thank you for your continuing participation in the Children in the Community study. You are making an important contribution to the study of mental health and the development of young people in our society. 	nothing
+	NDconsentAintro		1	[		<b><font color='blue'>[One way to do consent is to link to a separate page]</font></b>	nothing
+	NDconsentAtext		1	q		Please click on the underlined link <b><a href="../consent_form.htm" target="_new">here</a></b>, and read the consent form carefully.  Then answer the following question	nothing
+	NDconsentAoption		1	]		Please indicate whether you agree (or do not agree) to participate in this study	list|1|I agree to participate|0|I do not agree to participate
+	NDconsentAfollowup		NDconsentAoption!=1	[		You have indicated that you do not want to participate.  Thank you for your time.  Feel free to contact us with any questions or concerns.	nothing
+	NDconsentAbarrier		NDconsentAoption!=1	];;_clinpass;_clinpass		Please click the X in the upper right hand corner to exit.	password
+	NDconsentBintro		1	[		<b><font color='blue'>[Another way is to include it on the same page]</font></b>	nothing
+	NDconsentBtext		1	q		<P><STRONG>CHILDREN IN THE COMMUNITY PROJECT YOUNG ADULT CONSENT</STRONG></P><P>1051 Riverside Drive, Box 47<BR>New York, New York 10032<BR>Tel: 212-740-1460<BR>Fax: 212-740-5394</P><P><STRONG>PURPOSE OF THE STUDY</STRONG>: You are being asked to participate in a study about the stability of personality from childhood to adulthood, and how it is related to adult functioning.</P><P><STRONG>ALTERNATIVE TO STUDY PARTICIPATION</STRONG>: This is not a treatment protocol.  Information is being collected for research purposes only.</P><P><STRONG>STUDY PROCEDURES</STRONG>:  You may answer our questions on the web, by telephone, or by mail.  You will be asked about your thoughts, feelings, and behaviors, and about your work, school, family, and social relationships, since the last time you were interviewed seven years ago.  This web-based portion will take about 11/2 hours.  Additional material will be sent by mail, including consent forms to sign and return.</P><P><STRONG>RISKS AND BENEFITS</STRONG>: In the experience of the research investigators, this study has no risk to you.  This information is collected for research purposes and not for your benefit.  However, the results of the research may contribute to scientific knowledge in the future.</P><P><STRONG>COMPENSATION</STRONG>: This study is being conducted with joint funding.  You will receive one money order for $100 in the mail for your participation; this payment includes $50 from us and the $50 payment noted in the Mount Sinai consent you will be given to sign.  It may take two to four weeks to receive the money order.</P><P><STRONG>RESEARCH STANDARDS AND RIGHTS:</STRONG> Your participation is voluntary.  You can refuse to participate or discontinue participation at any time without loss of benefits to which you are otherwise entitled.  You also will be notified of significant new findings that may relate to your willingness to continue to participate.  We will take the following steps to keep the information confidential.  All information will be coded and your name will never be connected to your responses.  Records and all other research materials will be kept in locked files and will be available only to research staff and institutional personnel as part of routine audits.  It is particularly important for you to know that we have obtained a Certificate of Confidentiality from the United States Government for this study to make sure we can best protect your privacy.  This certificate means that the researchers cannot be forced to tell people who are not connected with the study about your participation unless you request disclosure.  This includes courts and the police.  There are some limits to the researchers' ability to maintain your confidentiality.  If we learn keeping information private would immediately put you in danger, or put in danger someone else we know about, then we will have to tell the appropriate agencies to protect you or another person.  </P><P>The investigators will answer any questions about the study described above.  If you have any further questions you may call Dr. Cohen or Dr. Kasen at (212) 740-1460.  Recruitment of subjects for this research study has been evaluated and approved by the Institutional Review Board at Columbia University - New York State Psychiatric Institute.  If you have any questions about your rights as a research subject, or any complaints, you may call the Institutional Review Board at (212) 543-5758 during office hours.  You will receive a copy of the consent form.</P>	nothing
+	NDconsentBoption		1	]		Please indicate whether you agree (or do not agree) to participate in this study	list|1|I agree to participate|0|I do not agree to participate
+	NDconsentBfollowup		NDconsentBoption!=1	[		You have indicated that you do not want to participate.  Thank you for your time.  Feel free to contact us with any questions or concerns.	nothing
+	NDconsentBbarrier		NDconsentBoption!=1	];;_clinpass;_clinpass		Please click the X in the upper right hand corner to exit.	password
+Instruct/a	ND37b		1	q		"Welcome to our interview on the Web. We hope that you find this an enjoyable experience. Should you have any problems using this interview, please contact the Field Office at (800) 711-6350 or Kathy Gordon at gordonk@pi.cpmc.columbia.edu . As you may note, neither your name, address, date of birth nor other identifying information is included in this interview. In fact, we have not even labeled this interview with the identification number we have used for you in previous years. We remain totally committed to keeping the  information you supply completely confidential."	nothing
+Instruct/b	ND37c		1	q		"You may close this interview at any point and resume at your convenience. Entering your user name and password will restore your own interview at the point where you left off. We ask that, once you start, you then complete this interview within a week."	nothing
+Instruct/c	ND37d		1	q		"The computer will let you know if you missed answering a question. If you do not wish to answer an individual question or a question is asked that does not apply to you, click on the Children in the Community logo in the upper left hand corner of your screen and at the prompt type in ""bypass."" This will give you icons that you can click to skip the question."	nothing
+	Dem1		1	e		Dem1	nothing
+Demo/2	Dem2		1	[		Sex	list|1|female|2|male
+Demo/3	Dem3		1	]		Where do you currently live?	list|1|Large city|2|smaller city|3|Suburb|4|Small town|5|Rural area
+	_vacant		1	q		[Pretend the rest of the self-assessment goes here].  CLICK NEXT	nothing
+	_clinpass		1	e		_clinpass	nothing
+	_done_with_sa_suspend		1	e		suspendToFloppy();	nothing
+	_done_with_sa_msg		1	q		Thank you.  You have completed this part of the interview.  Exit this window by clicking on the X in the upper right hand corner of your screen. One of our interviewers will contact you soon and ask a few follow-up questions.	nothing
+	_done_with_sa_clinpass		1	q;;_clinpass;_clinpass		Clinicians -- please enter the password to continue.  [Hint (for demo purposes), the password is <i>`_clinpass`</i>]	password
+	Clinicintro		1	q		The clinical assessment begins here. Please indicate if this is the original assessment or a recoding for reliability data.	list|1|original assessment|2|reliability check
+	_vacant2		1	q		[Pretend rest of clinical interview goes here].  CLICK NEXT	nothing
+close	close		1	q		You are done! Please check to make sure that you have a disk in the computer on which to save this interview. The Triceps program will automatically save it to both the hard drive and the disk when you click on the NEXT button.	nothing
