@@ -49,7 +49,7 @@ while($r  = mysql_fetch_assoc($res))
 		
 		echo "<tr>\t
 		<td><a title='View logic file for this instrument'
-			href=\"InstrumentLogicFile.php?Instrument=$InstrumentName\">$InstrumentName</td>
+			href=\"InstrumentLogicFile.php?Instrument=$InstrumentName\">$InstrumentName</a></td>
 		<td>$NumInstances</td>
 		<td><a title='View final data from all instances of this instrument'
 			href=\"StructuredDataView.php?Instrument=$InstrumentName\">Results</a></td>
