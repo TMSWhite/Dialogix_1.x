@@ -45,6 +45,7 @@ import java.util.jar.JarEntry;
 	/*public*/ static final int ERROR = 1;
 	/*public*/ static final int OK = 2;
 	/*public*/ static final int AT_END = 3;
+	/*public*/ static final int AT_START = 4;
 	/*public*/ static final int WORKING_DIR = 1;
 	/*public*/ static final int COMPLETED_DIR = 2;
 	/*public*/ static final int FLOPPY_DIR = 3;
@@ -78,6 +79,7 @@ import java.util.jar.JarEntry;
 	private ResourceBundle bundle = null;
 	private static final String BUNDLE_NAME = "TricepsBundle";
 	private Locale locale = defaultLocale;
+	private Vector currentNodeSet = new Vector();	// starts with zero nodes
 
 	/* Hold on to instances of Date and Number format for fast and easy retrieval */
 	private static final Hashtable dateFormats = new Hashtable();
@@ -107,7 +109,9 @@ import java.util.jar.JarEntry;
 	
 	private boolean init(String scheduleLoc, String workingFilesDir, String completedFilesDir, String floppyDir,boolean log) {
 		evidence = new Evidence(this);
-		return setSchedule(scheduleLoc,workingFilesDir,completedFilesDir,floppyDir,log);
+		boolean val = setSchedule(scheduleLoc,workingFilesDir,completedFilesDir,floppyDir,log);
+//if (DEBUG)	showNodes();
+		return val;		
 	}
 	
 	/*public*/ void deleteDataLoggers() {
@@ -252,55 +256,6 @@ if (AUTHORABLE) {
 
 	/*public*/ String getScheduleErrors() { return nodes.getErrors(); }
 
-	/*public*/ Enumeration getQuestions() {
-		Vector e = new Vector();
-		int braceLevel  = 0;
-		int actionType;
-		Node node;
-		int step = currentStep;
-		int currentLanguage = nodes.getLanguage();
-
-		// should loop over available questions
-		do {
-			if (step >= size()) {
-				if (braceLevel > 0) {
-					setError(get("missing") + braceLevel + get("closing_braces"));
-				}
-				break;
-			}
-			node = nodes.getNode(step++);
-
-			node.setAnswerLanguageNum(currentLanguage);
-
-			actionType = node.getQuestionOrEvalType();
-			e.addElement(node);	// add regardless of type
-
-			if (actionType == Node.GROUP_OPEN) {
-				++braceLevel;
-			}
-			else if (actionType == Node.EVAL) {
-				node.setError(get("evals_disallowed_within_question_block") + braceLevel);
-				break;
-			}
-			else if (actionType == Node.GROUP_CLOSE) {
-				--braceLevel;
-				if (braceLevel < 0) {
-					node.setError(get("extra_closing_brace"));
-					break;
-				}
-			}
-			else if (actionType == Node.QUESTION) {
-			}
-			else {
-				node.setError(get("invalid_action_type"));
-				break;
-			}
-		} while (braceLevel > 0);
-
-		numQuestions = e.size();	// what about error conditions?
-		return e.elements();
-	}
-
 	/*public*/ String getQuestionStr(Node q) {
 		/* recompute the min and max ranges, if necessary - must be done before premature abort (if invalid entry)*/
 
@@ -352,116 +307,6 @@ if (AUTHORABLE) {
 		return gotoNext();
 	}
 
-	/*public*/ int gotoNext() {
-		Node node;
-		int braceLevel = 0;
-		int actionType;
-		int step = currentStep + numQuestions;
-		int currentLanguage = nodes.getLanguage();
-
-		if (currentStep == size()) {
-			/* then already at end */
-			setError(get("already_at_end_of_interview"));
-			return AT_END;
-		}
-
-		do {		// loop forward through nodes -- break to query user or to end
-			if (step >= size()) {	// then the schedule is complete
-				if (braceLevel > 0) {
-					setError(get("missing") + braceLevel + get("closing_braces"));
-				}
-				currentStep = size();	// put at last node
-				numQuestions = 0;
-
-				/* The current state should be saved in the background after the next set of questions is retrieved.
-					It is up to the calling program to call toTSV() to save the state */
-				return AT_END;
-			}
-			if ((node = nodes.getNode(step)) == null) {
-				setError(get("invalid_node_at_step") + step);
-				return ERROR;
-			}
-
-			actionType = node.getQuestionOrEvalType();
-			node.setAnswerLanguageNum(currentLanguage);
-
-			if (actionType == Node.GROUP_OPEN) {
-				if (braceLevel == 0) {
-					if (parser.booleanVal(this, node.getDependencies())) {
-						break;	// this is the first node of a block - break out of loop to ask it
-					}
-					else {
-						++braceLevel;	// XXX:  skip this entire section
-						evidence.set(node, Datum.getInstance(this,Datum.NA));	// and set all of this brace's values to NA
-					}
-				}
-				else {
-					++braceLevel;	// skip this inner block
-					evidence.set(node, Datum.getInstance(this,Datum.NA));	// set all of this brace's values to NA
-				}
-			}
-			else if (actionType == Node.GROUP_CLOSE) {
-				--braceLevel;	// close an open block
-				evidence.set(node, Datum.getInstance(this,Datum.NA));	// closing an open block, so set value to NA
-				if (braceLevel < 0) {
-					node.setError(get("extra_closing_brace"));
-					return ERROR;
-				}
-			}
-			else if (actionType == Node.EVAL) {
-				if (braceLevel > 0) {
-					evidence.set(node, Datum.getInstance(this,Datum.NA));	// NA if internal to a brace when going forwards
-				}
-				else {
-					if (parser.booleanVal(this, node.getDependencies())) {
-						Datum datum = parser.parse(this, node.getQuestionOrEval());
-//						node.setDatumType(datum.type());
-						int type = node.getDatumType();
-						if (type != Datum.STRING && type != datum.type()) {
-							datum = datum.cast(type,null);
-						}
-						evidence.set(node, datum);
-					}
-					else {
-						evidence.set(node, Datum.getInstance(this,Datum.NA));	// if doesn't satisfy dependencies, store NA
-					}
-				}
-			}
-			else if (actionType == Node.QUESTION) {
-				if (braceLevel > 0) {
-					evidence.set(node, Datum.getInstance(this,Datum.NA));	// NA if internal to a brace when going forwards
-				}
-				else {
-					if (parser.booleanVal(this, node.getDependencies())) {
-						break;	// ask this question
-					}
-					else {
-						evidence.set(node, Datum.getInstance(this,Datum.NA));	// if doesn't satisfy dependencies, store NA
-					}
-				}
-			}
-			else {
-				node.setError(get("invalid_action_type"));
-				evidence.set(node, Datum.getInstance(this,Datum.NA));
-				return ERROR;
-			}
-			++step;
-		} while (true);
-		
-		numQuestions = 0;
-		
-		if (currentStep != step) {
-			currentStep = step;
-	
-			/* The current state should be saved in the background after the next set of questions is retrieved.
-				It is up to the calling program to call toTSV() to save the state */
-			nodes.setReserved(Schedule.STARTING_STEP,Integer.toString(currentStep));
-			dataLogger.flush();
-		}
-					
-		return OK;
-	}
-	
 	/*public*/ int jumpToFirstUnasked() {
 		int ok=OK;
 		Node node;
@@ -498,71 +343,14 @@ if (AUTHORABLE) {
 			return ERROR;
 		} else {
 			currentStep = result;
-			return OK;
+			numQuestions = 0;	// so that selects next group of nodes (and skips over 'e's and not applicables)
+			return gotoNext();
+//			// will jump to that single node (and not show surrounding issues)
+//			currentNodeSet = new Vector();
+//			currentNodeSet.addElement(n);
+//			numQuestions = 1;
+//			return OK;
 		}
-	}
-
-	/*public*/ int gotoPrevious() {
-		Node node;
-		int braceLevel = 0;
-		int actionType;
-		int step = currentStep;
-		int currentLanguage = nodes.getLanguage();
-
-		while (true) {
-			if (--step < 0) {
-				if (braceLevel < 0)
-					setError(get("missing") + braceLevel + get("opening_braces"));
-
-				setError(get("already_at_beginning"));
-				return ERROR;
-			}
-			if ((node = nodes.getNode(step)) == null)
-				return ERROR;
-
-			actionType = node.getQuestionOrEvalType();
-//			node.setAnswerLanguageNum(currentLanguage);	// do this going backwards?
-
-			if (actionType == Node.EVAL) {
-				;	// skip these going backwards, but don't reset values when going backwards
-			}
-			else if (actionType == Node.GROUP_CLOSE) {
-				--braceLevel;
-			}
-			else if (actionType == Node.GROUP_OPEN) {
-				++braceLevel;
-				if (braceLevel > 0) {
-					setError(get("extra_opening_brace"));
-					return ERROR;
-				}
-				if (braceLevel == 0 && parser.booleanVal(this, node.getDependencies())) {
-					break;	// ask this block of questions
-				}
-				else {
-					// try the next question
-				}
-			}
-			else if (actionType == Node.QUESTION) {
-				if (braceLevel == 0 && parser.booleanVal(this, node.getDependencies())) {
-					break;	// ask this block of questions
-				}
-				else {
-					// else within a brace, or not applicable, so skip it.
-				}
-			}
-			else {
-				node.setError(get("invalid_action_type"));
-				return ERROR;
-			}
-		}
-		if (currentStep != step) {
-			currentStep = step;
-			
-			nodes.setReserved(Schedule.STARTING_STEP,Integer.toString(currentStep));
-			dataLogger.flush();
-		}
-		
-		return OK;
 	}
 
 	private void startTimer(Date time) {
@@ -1360,5 +1148,399 @@ if (DEBUG) Logger.writeln("##IllegalArgumentException @ Triceps.formatNumber()" 
 if (DEBUG) Logger.writeln("##IllegalArgumentException @ Triceps.formatDate()" + e.getMessage());
 			return null;
 		}
+	}
+	
+/*** Additions on 12/05/2001 to support variable numbers of nodes within display groups ***/
+	/** Collect next set of nodes that might be relevant (collect them first, determine relevance later)
+	* as a side effect, want to set current language for each node as go forward (XXX?) */
+			
+	
+	private Vector collectNextNodeSet() {
+		Vector e = collectNextNodeSet1();
+//		showVector("collectNextNodeSet1",e);
+		if (e == null) {
+			return null;	// indicates that at end
+		}
+		numQuestions = e.size();
+		return e;
+	}
+	
+	private Vector collectNextNodeSet1() {
+		Node node=null;
+		int step=0;
+		Vector e = new Vector();
+		int braceLevel = 0;
+		int actionType;
+		
+		step = currentStep;	//  + numQuestions;	// skips past current block of questions.  If successful, will update currentStep
+		// return null if already at the end, and no elements in vector
+		if (step >= size()) {
+			return null;
+		}
+		while(true) {
+			if (step >= size()) {	
+				// return block if at end, regardless of whether matching braces found
+				return e;
+			}
+			
+			if ((node = nodes.getNode(step)) == null) {
+				setError(get("invalid_node_at_step") + step);
+				return e;
+			}
+			
+			// add the node to the collection
+			e.addElement(node);
+			
+			actionType = node.getQuestionOrEvalType();			
+			if (actionType == Node.GROUP_OPEN) {
+				++braceLevel;
+			}
+			else if (actionType == Node.GROUP_CLOSE) {
+				--braceLevel;	// close an open block
+			}
+			else if (actionType == Node.EVAL) {
+				;
+			}
+			else if (actionType == Node.QUESTION) {
+				;
+			}
+			if (braceLevel == 0) {
+				return e;
+			}
+			// finally, ++ step
+			++step;
+		}
+	}
+
+	private Vector collectPreviousNodeSet() {
+		Vector e = collectPreviousNodeSet1();
+//		showVector("collectPreviousNodeSet1",e);
+		if (e == null) {
+			return null;
+		}
+		numQuestions = e.size();
+		// reverse order of nodes (since collected backwards!)
+		Vector dst = new Vector();
+		for (int i=(numQuestions-1);i>=0;--i) {
+			dst.addElement(e.elementAt(i));
+		}
+		return dst;
+	}
+	
+	/** FIXME Do I need to reset currentStep when going backwards? Yes, but where? */
+	private Vector collectPreviousNodeSet1() {
+		Node node=null;
+		int step = currentStep;
+		Vector e = new Vector();
+		int braceLevel = 0;
+		int actionType;
+		
+		while (true) {
+			if (--step < firstStep) {	// find previous block of questions.  If successful, will update currentStep
+				if (e.size() == 0) {
+					return null;	// indicates already at beginning
+				}
+				else {
+					return e;
+				}
+			}
+			
+			if ((node = nodes.getNode(step)) == null) {
+				setError(get("invalid_node_at_step") + step);
+				return e;
+			}
+			
+			// add the node to the collection
+			e.addElement(node);
+			
+			actionType = node.getQuestionOrEvalType();			
+			if (actionType == Node.EVAL) {
+				;	// skip these going backwards, but don't reset values when going backwards
+			}
+			else if (actionType == Node.GROUP_CLOSE) {
+				--braceLevel;
+			}
+			else if (actionType == Node.GROUP_OPEN) {
+				++braceLevel;
+			}
+			else if (actionType == Node.QUESTION) {
+				;
+			}
+			else {
+				node.setError(get("invalid_action_type"));
+				return e;
+			}
+			if (braceLevel == 0) {
+				return e;
+			}
+		}
+	}
+	
+	/** As a side effect, this marks irrelevant nodes as NA **/
+	
+	private Vector getRelevantNodes(Vector src) {
+		Node node;
+		int actionType;
+		Vector dst = new Vector();
+		
+		if (src == null) {
+			return null;	// should never happen
+		}
+		
+		for (int i=0;i<src.size();++i) {
+			node = (Node) src.elementAt(i);
+			actionType = node.getQuestionOrEvalType();
+			
+			if (parser.booleanVal(this, node.getDependencies())) {
+				dst.addElement(node);
+			}
+			else {
+				evidence.set(node, Datum.getInstance(this,Datum.NA));	// if doesn't satisfy dependencies, store NA
+			}
+		}
+		return dst;
+	}
+	
+	/** checks whether there are errors in a collected block of nodes **/
+	private boolean isBlockOK(Vector v) {
+		int braceLevel = 0;
+		
+		if (v == null) {
+			return false;	// should not be called, since null means that at beginning or end
+		}
+		
+		int size = v.size();
+		Node node = null;
+		int actionType = 0;
+		
+		if (size == 0) {
+			return false;	// should not be zero sized
+		}
+		for (int i=0;i<size;++i) {
+			node = (Node) v.elementAt(i);
+			actionType = node.getQuestionOrEvalType();
+			
+			if (actionType == Node.GROUP_OPEN) {
+				++braceLevel;
+			}
+			else if (actionType == Node.GROUP_CLOSE) {
+				--braceLevel;
+			}
+			
+			if (size == 1 && i == 0) {
+				if (!(actionType == Node.EVAL || actionType == Node.QUESTION)) {
+					setError("invalid block of nodes");	// FIXME -- need better error, and translation file
+					return false;
+				}
+				return true;	// block contains single item - an 'e' or a 'q'
+			}
+			if (i == 0) {
+				if (actionType != Node.GROUP_OPEN) {
+					setError("first node in a block must be '['");	// FIXME -- need better error, and translation file
+					return false;
+				}
+			}
+			else if (i == (size-1)) {
+				if (actionType != Node.GROUP_CLOSE) {
+					setError("last node in block must be ']'");	// FIXME -- need better error, and translation file
+					return false;
+				}
+			}
+			else {
+				if (actionType == Node.EVAL) {
+					node.setError(get("evals_disallowed_within_question_block"));	// and don't add it to the collection
+					evidence.set(node, Datum.getInstance(this,Datum.INVALID));	// evals can't be embedded in a block, so mark as INVALID
+					return false;
+				}
+				else if (actionType == Node.GROUP_OPEN) {
+					node.setError(get("extra_opening_brace"));
+					return false;
+				}
+				else if (actionType == Node.GROUP_CLOSE){
+					node.setError(get("extra_closing_brace"));
+					return false;
+				}
+			}
+		}
+		if (braceLevel > 0) {
+			setError(get("missing") + braceLevel + get("closing_braces"));
+			return false;
+		}
+		else if (braceLevel < 0) {
+			setError(get("missing") + braceLevel + get("opening_braces"));
+			return false;
+		}
+		return true;
+	}
+	
+	/*public*/ int gotoNext() {
+//		showVector("gotoNext@start",currentNodeSet);
+		int old_step = currentStep;	// so know where started
+		Vector old_nodeSet = currentNodeSet;
+		int old_numQuestions = numQuestions;
+		int ans = gotoNext1();
+		
+		if (ans == AT_END) {
+			numQuestions = 0;
+			currentNodeSet = new Vector();
+			if (old_step >= currentStep) {
+				setError(get("already_at_end_of_interview"));	
+			}
+		}
+		if (ans == ERROR) {
+			currentStep = old_step;
+			numQuestions = old_numQuestions;
+			currentNodeSet = old_nodeSet;
+			setError("invalid block of nodes");	// FIXME -- need better error, and translation file
+		}
+
+		nodes.setReserved(Schedule.STARTING_STEP,Integer.toString(currentStep));
+		dataLogger.flush();	
+//		showVector("gotoNext@end",currentNodeSet);
+		return ans;		
+	}
+
+	private int gotoNext1() {
+		Vector e = null;
+		
+		currentStep += numQuestions;	// jump over the currently active block of questions (since know they are valid)
+		
+		e = collectNextNodeSet();
+		if (e == null) {
+			return AT_END;
+		}
+		
+		if (!isBlockOK(e)) {
+			return ERROR;
+		}
+		
+		e = getRelevantNodes(e);	// will mark as NA those embedded which are not relevant; and will set numQuestions
+		currentNodeSet = e;	// store for getQuestions()? -- so that don't recalculate each step
+//		showVector("getNextRelevant",currentNodeSet);
+		
+		if (e.size() == 0) {
+			// then no relevent in this block
+			return gotoNext1();
+		}
+		if (e.size() == 1) {
+			Node node;
+			int actionType;
+			node = (Node) e.elementAt(0);
+			if (node.getQuestionOrEvalType() == Node.EVAL) {
+				Datum datum = parser.parse(this, node.getQuestionOrEval());
+				int type = node.getDatumType();
+				if (type != Datum.STRING && type != datum.type()) {
+					datum = datum.cast(type,null);
+				}
+				evidence.set(node, datum);
+				return gotoNext1();	// since want to find next non-eval node -- FIXME -- what happens if last node in instrument is eval?
+			}
+		}
+		return OK;
+	}
+	
+	/*public*/ int gotoPrevious() {
+//		showVector("gotoPrevious@start",currentNodeSet);
+		int old_step = currentStep;
+		Vector old_nodeSet = currentNodeSet;
+		int old_numQuestions = numQuestions;
+		int ans = gotoPrevious1();
+		
+		if (ans != OK) {
+			currentStep = old_step;
+			numQuestions = old_numQuestions;
+			currentNodeSet = old_nodeSet;
+			if (ans == AT_START) {
+				setError(get("already_at_beginning"));
+			}
+		}
+		nodes.setReserved(Schedule.STARTING_STEP,Integer.toString(currentStep));
+		dataLogger.flush();			
+		
+//		showVector("gotoPrevious@end",currentNodeSet);
+		return ans;		
+	}
+	
+	private void showVector(String msg, Vector v) {
+if (DEBUG) {
+		StringBuffer sb = new StringBuffer();
+		sb.append("![");
+		sb.append(currentStep);
+		sb.append(",");
+		sb.append(numQuestions);
+		sb.append("] ");
+		sb.append(msg);
+		sb.append(" Elements(");
+		
+		if (v == null) {
+			sb.append("0) - null vector");
+			Logger.writeln(sb.toString());
+			return;
+		}
+		int size = v.size();
+		sb.append(size);
+		sb.append("): ");
+		Node node;
+		String actionTypeName;
+		for (int i=0;i<size;++i) {
+			node = (Node) v.elementAt(i);
+			actionTypeName = Node.ACTION_TYPES[node.getQuestionOrEvalType()];
+			if (i > 0) {
+				sb.append(",");
+			}
+			sb.append(node.getLocalName());
+			sb.append("(");
+			sb.append(actionTypeName);
+			sb.append(")");
+		}
+		Logger.writeln(sb.toString());
+}		
+	}
+			
+	
+	private int gotoPrevious1() {
+		Vector e = null;
+		
+		e = collectPreviousNodeSet();
+		if (e == null) {
+			return AT_START;
+		}
+		
+		if (!isBlockOK(e)) {
+			return ERROR;
+		}
+		
+		currentStep -= numQuestions;	// set here, after detecting potential errors
+		
+		e = getRelevantNodes(e);	// will mark as NA those embedded which are not relevant; and will set numQuestions
+		currentNodeSet = e;	// store for getQuestions()? -- so that don't recalculate each step
+//		showVector("gotoPreviousRelevant",currentNodeSet);
+		
+		if (e.size() == 0) {
+			// then no relevent in this block
+			return gotoPrevious1();
+		}
+		if (e.size() == 1) {
+			Node node = (Node) e.elementAt(0);
+			if (node.getQuestionOrEvalType() == Node.EVAL) {
+				// ignore it going backwards (or undo, once supported)
+				return gotoPrevious1();
+			}
+		}
+		return OK;		
+	}
+	
+	/*public*/ Enumeration getQuestions() {
+		return currentNodeSet.elements();
+	}
+	
+	private void showNodes() {
+if (DEBUG) {
+		Node node;
+		for (int i=0;i<size();++i) {
+			node = nodes.getNode(i);
+			Logger.writeln("+[" + i + "] " + node.getLocalName());
+		}
+}		
 	}
 }
