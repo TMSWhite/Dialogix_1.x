@@ -205,7 +205,7 @@ else setParseError("syntax error");
 			}
 		}
 		else {
-//			setNamingError(triceps.get("localName_must_be_specified"));
+			setNamingError(triceps.get("localName_must_be_specified"));
 	}
 
 		parseQuestionOrEvalTypeField();
