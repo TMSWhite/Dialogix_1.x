@@ -1,0 +1,64 @@
+RESERVED	__TRICEPS_FILE_TYPE__	SCHEDULE					
+RESERVED	__TITLE__	PIDS-SA
+RESERVED	__ICON__	CETbulblogo.jpg					
+RESERVED	__HEADER_MSG__	Personal Inventory for Depression and SAD Self Assessment Version
+RESERVED	__PASSWORD_FOR_ADMIN_MODE__	bypass					
+RESERVED	__SHOW_QUESTION_REF__	true					
+RESERVED	__AUTOGEN_OPTION_NUM__	false					
+RESERVED	__DEVELOPER_MODE__	true					
+RESERVED	__DEBUG_MODE__	TRUE
+RESERVED	__REDIRECT_ON_FINISH_URL__	www.cet.org
+RESERVED	__REDIRECT_ON_FINISH_MSG__	The Center for Environmental Therapeutics
+RESERVED	__SWAP_NEXT_AND_PREVIOUS__	true
+RESERVED	__SET_DEFAULT_FOCUS__	false
+Disclaimer	Disclaimer		1	q		This instrument is under construction	nothing
+Title	Title		1	[		<b><p align='center'><font size='+2'>Personal Inventory of Depression and SAD</font><br/><font size='+1'>Self-Assessment Version (PIDS-SA)</font><br/><br/>Michael Terman, PhD and Janet B.W. Williams, DSW<br/><i>New York State Psychiatric Institute and<br/>Department of Psychiatry, Columbia University</i></p></b>	nothing
+Intro	Intro		1	]		This questionnaire may help you decide whether to consult a clinician about depression, whether Seasonal Affecteive Disorder (SAD) may be your problem, and whether treatment -- with light, medication, or psychotherapy -- should be considered.  This is not a method for self-diagnosis, but it can help you assess the severity and timing of certain symptoms of depression.  You should answer these questions privately -- for your personal use -- and make separate copies of the questionnaire if family members or friends want to use it.	nothing
+Aintro	Aintro		1	[		<b>PART 1.  SOME QUESTIONS ABOUT DEPRESSION.</b><p><b><i>In the last year, have you had any single period of time -- <u>lasting at least two weeks</u> -- in which any of the following problems was present nearly every day?  (Of course, you may also have had several such periods.)</i></b></p><p><b>Where there two weeks or more ...</b></p>	nothing
+A1	A1		1	q		when you had trouble falling asleep or staying asleep, or sleeping too much?	list|1|YES|0|NO
+A2	A2		1	q		when you were feeling tired or had little energy?	list|1|YES|0|NO
+A3	A3		1	q		when you experienced poor appetite or overeating?  Or significant weight gain or loss, although you were not dieting?	list|1|YES|0|NO
+A4	A4		1	q		when you found little interest or little pleasure in doing things?	list|1|YES|0|NO
+A5	A5		1	q		when you were feeling down, depressed, or hopeless?	list|1|YES|0|NO
+A6	A6		1	q		when you were feeling bad about yourself -- or that you were a failure -- or that you were letting yourself or your family down?	list|1|YES|0|NO
+A7	A7		1	q		when you had trouble concentring on things, like reading the newspaper or watching television?	list|1|YES|0|NO
+A8	A8		1	q		when you were so fidgety or restless that you were moving around a lot more than usual?  Or the opposite -- moving or speaking so slowly that other people could have noticed?	list|1|YES|0|NO
+A9	A9		1	]		when you were thinking a lot about death or that you would be better off dead, or even thinking about hurting yourself?	list|1|YES|0|NO
+Ascore	Ascore		1	e		count(A1,A2,A3,A4,A5,A6,A7,A8,A9)	nothing
+Bintro	Bintro		1	[		<b>PART 2.  HOW 'SEASONAL' A PERSON ARE YOU?</b><p><b><i>Select that answer that indicates how much of the following behaviors or feelings <u>changes with the seasons</u>.</i></b>  (For instance, you may find you sleep different hours in the winter than in the summer.)</p>	nothing
+B1	B1		1	q		Change in your total sleep length (including nighttime sleep and naps)	list|0|no change|1|slight change|2|moderate change|3|marked change|4|extreme change
+B2	B2		1	q		Change in your level of social activity (including friends, family and co-workers)	list|0|no change|1|slight change|2|moderate change|3|marked change|4|extreme change
+B3	B3		1	q		Change in your general mood, or overall feeling of well-being	list|0|no change|1|slight change|2|moderate change|3|marked change|4|extreme change
+B4	B4		1	q		Change in your weight	list|0|no change|1|slight change|2|moderate change|3|marked change|4|extreme change
+B5	B5		1	q		Change in your appetite (both food cravings and the amount you eat)	list|0|no change|1|slight change|2|moderate change|3|marked change|4|extreme change
+B6	B6		1	]		Change in your energy level	list|0|no change|1|slight change|2|moderate change|3|marked change|4|extreme change
+Bscore	Bscore		1	e		(B1 + B2 + B3 + B4 + B5 + B6)	nothing
+Cintro	Cintro		1	[		<b>PART 3.  WHICH MONTHS STAND OUT AS 'EXTREME' TO YOU?</b><p><b><i>For each of the following behaviors or feelings, select all applicable months.  If no particular month stands out for an item, select "none".  You should select a month <u>only if you recollect a distinct change</u> in comparison to other months, occuring for several years.  You may select several months for each item.</i></b></p>	nothing
+C1a	C1a		1	q		I tend to feel worst in	radio2|1|Jan|2|Feb|3|Mar|4|Apr|5|May|6|Jun|7|Jul|8|Aug|9|Sep|10|Oct|11|Nov|12|Dec|0|none
+C1b	C1b		1	q		I tend to feel best in	radio2|1|Jan|2|Feb|3|Mar|4|Apr|5|May|6|Jun|7|Jul|8|Aug|9|Sep|10|Oct|11|Nov|12|Dec|0|none
+C2a	C2a		1	q		I tend to eat most in	radio2|1|Jan|2|Feb|3|Mar|4|Apr|5|May|6|Jun|7|Jul|8|Aug|9|Sep|10|Oct|11|Nov|12|Dec|0|none
+C2b	C2b		1	q		I tend to eat least in	radio2|1|Jan|2|Feb|3|Mar|4|Apr|5|May|6|Jun|7|Jul|8|Aug|9|Sep|10|Oct|11|Nov|12|Dec|0|none
+C3a	C3a		1	q		I tend to gain most weight in	radio2|1|Jan|2|Feb|3|Mar|4|Apr|5|May|6|Jun|7|Jul|8|Aug|9|Sep|10|Oct|11|Nov|12|Dec|0|none
+C3b	C3b		1	q		I tend to lost most weight in	radio2|1|Jan|2|Feb|3|Mar|4|Apr|5|May|6|Jun|7|Jul|8|Aug|9|Sep|10|Oct|11|Nov|12|Dec|0|none
+C4a	C4a		1	q		I tend to sleep most in	radio2|1|Jan|2|Feb|3|Mar|4|Apr|5|May|6|Jun|7|Jul|8|Aug|9|Sep|10|Oct|11|Nov|12|Dec|0|none
+C4b	C4b		1	q		I tend to sleep least in	radio2|1|Jan|2|Feb|3|Mar|4|Apr|5|May|6|Jun|7|Jul|8|Aug|9|Sep|10|Oct|11|Nov|12|Dec|0|none
+C5a	C5a		1	q		I tend to have the least energy in	radio2|1|Jan|2|Feb|3|Mar|4|Apr|5|May|6|Jun|7|Jul|8|Aug|9|Sep|10|Oct|11|Nov|12|Dec|0|none
+C5b	C5b		1	q		I tend to havfe the most energy in	radio2|1|Jan|2|Feb|3|Mar|4|Apr|5|May|6|Jun|7|Jul|8|Aug|9|Sep|10|Oct|11|Nov|12|Dec|0|none
+C6a	C6a		1	q		I tend to have the lowest level of social anxiety in	radio2|1|Jan|2|Feb|3|Mar|4|Apr|5|May|6|Jun|7|Jul|8|Aug|9|Sep|10|Oct|11|Nov|12|Dec|0|none
+C6b	C6b		1	]		I tend to have the highest level of social anxiety in	radio2|1|Jan|2|Feb|3|Mar|4|Apr|5|May|6|Jun|7|Jul|8|Aug|9|Sep|10|Oct|11|Nov|12|Dec|0|none
+Dintro	Dintro		1	[		<b>PART 4.  MORE ABOUT POSSIBLE WINTER SYMPTOMS ...</b><p><b><i>In comparison to other times of the year, during the winter months, which -- if any -- of the following symptoms tend to be present?</i></b></p>	nothing
+D1	D1		1	q		I tend to sleep longer hours (napping included).	list|1|YES|0|NO
+D2	D2		1	q		I tend to have toruble waking up in the morning.	list|1|YES|0|NO
+D3	D3		1	q		I tend to have low daytime energy, feeling tired most of the time.	list|1|YES|0|NO
+D4	D4		1	q		I tend to feel worse, overall, in the late evening than in the morning.	list|1|YES|0|NO
+D5	D5		1	q		I tend to have a distinct temporary slump in mood or energy in the afternoon.	list|1|YES|0|NO
+D6	D6		1	q		I tend to crave more sweets and starches.	list|1|YES|0|NO
+D7	D7		1	q		I tend to eat more sweets and starches, whether or not I crave them.	list|1|YES|0|NO
+D8	D8		1	q		I tend to crave sweets, but mostly in the afternoon and evening.	list|1|YES|0|NO
+D9	D9		1	]		I tend to gain more weight than in the summer.	list|1|YES|0|NO
+Dscore	Dscore		1	e		count(D1,D2,D3,D4,D5,D6,D7,D8,D9)	nothing
+ReportA	ReportA		1	[		<b>Part 1.</b>  You marked `Ascore` problems.  If you reported 5 or more problems, it is possible that you have had a major depressive disorder for which you should consider seeking help.  Even if you marked only one or two problems, you may want to consult with a psychiatrist, psychologist, social worker, or other mental health professional if the problems worry you or interfere with your daily activities.  You may have experienced some of these problems for <i>less</i> than two weeks -- if so, your problem is probably not a "major" depressive disorder (as clinically defined), but still may be serious enough to merit consultation with a therapist, and possible treatment.  To determine whether the problem might be seasonal, consider Parts 2 and 3 below.	nothing
+ReportB	ReportB		1	q		<b>Part 2.</b>  Your total score was `Bscore`.  If your total score is less than 6, you fall within the "nonseasonal" range.  You probably do not have seasonal affective disorder (SAD).  If your score on Part 1 was high, however, it is still possible that you have experienced a depression that merits the attention and guidance of a mental health professional.<p>If your score on falls between 7 and 11, ...</p>	nothing
+ReportC	ReportC		1	q		<b>Part 3.</b>  [Triceps is currently unable to automate this section]	nothing
+ReportD	ReportD		1	]		<b>Part 4.</b>  Your score was `Dscore`.  If you reported any of these specific behaviors, you have experienced winter symptoms that may respond to treatments for SAD, regardless of whether or not you have depressed mood.  The higher your score in Part 4, the more likely you are to have winter SAD.  It is possible, however, to be depressed in winter <i>without</i> these symtpoms -- or even with <i>opposite</i> symtpoms such as reduced sleep and appetite.  If so, a mental health professional might recommend a treatment not designed specifically for SAD.	nothing
+Notes	Notes		1	q		<b>NOTES</b><p>For further information about SAD and its treatments, see the website of the Center for Environmental Therapeutics, <a href="http://www.cet.org" target="_blank">http://www.cet.org</a>, 767 Broadway, Norwood, NJ  07648.</p><p>Part 1 was adapted from the <i>Prime-MD Clinician Evaluation Guide</i>, developed by Robert L. Spitzer, MD, and Janet B.W. Williams, DSW, New York Psychiatric Institute and Department of Psychiatry, Columbia University.  Parts 2 and 3 were adapted from the <i>Seasonal Pattern Assessment Questionnaire</i> developed by Normal E. Rosenthal, MD, Gary J. Bradt, and Thomas A. Wehr, MD, National Institutes of Mental Health.  Preparation of the PIDS was sponsored in part by Grant MH42930 from the National Institutes of Mental Health.</p>	nothing

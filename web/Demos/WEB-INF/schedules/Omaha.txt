@@ -1,0 +1,247 @@
+RESERVED	__TRICEPS_FILE_TYPE__	SCHEDULE
+RESERVED	__ICON__	cpmc_dmi.jpg
+RESERVED	__TITLE__	Omaha Classification
+RESERVED	__HEADER_MSG__	Omaha Classification
+RESERVED	__AUTOGEN_OPTION_NUM__	true
+RESERVED	__PASSWORD_FOR_ADMIN_MODE__	bypass
+RESERVED	__DEVELOPER_MODE__	TRUE
+Income.Behavior	I_01_B	I.01	1	[		Income.Behavior.Patient	list|1|Not Appropriate|2|Rarely Appropriate|3|Inconsistently Appropriate|4|Usually Appropriate|5|Consistently Appropriate	
+Income.Knowledge	I_01_K	I.01	1	q		Income.Knowledge.Patient	list|1|No Knowledge|2|Minimal Knowledge|3|Basic Knowledge|4|Adequate Knowledge|5|Superior Knowledge	
+Income.Status	I_01_S	I.01	1	q		Income.Status.Patient	list|1|Extreme Signs/Symptoms|2|Severe Signs/Symptoms|3|Moderate Signs/Symptoms|4|Minimal Signs/Symptoms|5|No Signs/Symptoms	
+Income.Behavior	I_01_B_F	I.01	1	q		Income.Behavior.Family	list|1|Not Appropriate|2|Rarely Appropriate|3|Inconsistently Appropriate|4|Usually Appropriate|5|Consistently Appropriate	
+Income.Knowledge	I_01_K_F	I.01	1	q		Income.Knowledge.Family	list|1|No Knowledge|2|Minimal Knowledge|3|Basic Knowledge|4|Adequate Knowledge|5|Superior Knowledge	
+Income.Status	I_01_S_F	I.01	1	]		Income.Status.Family	list|1|Extreme Signs/Symptoms|2|Severe Signs/Symptoms|3|Moderate Signs/Symptoms|4|Minimal Signs/Symptoms|5|No Signs/Symptoms	
+Sanitation.Behavior	I_02_B	I.02	1	[		Sanitation.Behavior.Patient	list|1|Not Appropriate|2|Rarely Appropriate|3|Inconsistently Appropriate|4|Usually Appropriate|5|Consistently Appropriate	
+Sanitation.Knowledge	I_02_K	I.02	1	q		Sanitation.Knowledge.Patient	list|1|No Knowledge|2|Minimal Knowledge|3|Basic Knowledge|4|Adequate Knowledge|5|Superior Knowledge	
+Sanitation.Status	I_02_S	I.02	1	q		Sanitation.Status.Patient	list|1|Extreme Signs/Symptoms|2|Severe Signs/Symptoms|3|Moderate Signs/Symptoms|4|Minimal Signs/Symptoms|5|No Signs/Symptoms	
+Sanitation.Behavior	I_02_B_F	I.02	1	q		Sanitation.Behavior.Family	list|1|Not Appropriate|2|Rarely Appropriate|3|Inconsistently Appropriate|4|Usually Appropriate|5|Consistently Appropriate	
+Sanitation.Knowledge	I_02_K_F	I.02	1	q		Sanitation.Knowledge.Family	list|1|No Knowledge|2|Minimal Knowledge|3|Basic Knowledge|4|Adequate Knowledge|5|Superior Knowledge	
+Sanitation.Status	I_02_S_F	I.02	1	]		Sanitation.Status.Family	list|1|Extreme Signs/Symptoms|2|Severe Signs/Symptoms|3|Moderate Signs/Symptoms|4|Minimal Signs/Symptoms|5|No Signs/Symptoms	
+Residence.Behavior	I_03_B	I.03	1	[		Residence.Behavior.Patient	list|1|Not Appropriate|2|Rarely Appropriate|3|Inconsistently Appropriate|4|Usually Appropriate|5|Consistently Appropriate	
+Residence.Knowledge	I_03_K	I.03	1	q		Residence.Knowledge.Patient	list|1|No Knowledge|2|Minimal Knowledge|3|Basic Knowledge|4|Adequate Knowledge|5|Superior Knowledge	
+Residence.Status	I_03_S	I.03	1	q		Residence.Status.Patient	list|1|Extreme Signs/Symptoms|2|Severe Signs/Symptoms|3|Moderate Signs/Symptoms|4|Minimal Signs/Symptoms|5|No Signs/Symptoms	
+Residence.Behavior	I_03_B_F	I.03	1	q		Residence.Behavior.Family	list|1|Not Appropriate|2|Rarely Appropriate|3|Inconsistently Appropriate|4|Usually Appropriate|5|Consistently Appropriate	
+Residence.Knowledge	I_03_K_F	I.03	1	q		Residence.Knowledge.Family	list|1|No Knowledge|2|Minimal Knowledge|3|Basic Knowledge|4|Adequate Knowledge|5|Superior Knowledge	
+Residence.Status	I_03_S_F	I.03	1	]		Residence.Status.Family	list|1|Extreme Signs/Symptoms|2|Severe Signs/Symptoms|3|Moderate Signs/Symptoms|4|Minimal Signs/Symptoms|5|No Signs/Symptoms	
+Neighborhood/Workplace Safety.Behavior	I_04_B	I.04	1	[		Neighborhood/Workplace Safety.Behavior.Patient	list|1|Not Appropriate|2|Rarely Appropriate|3|Inconsistently Appropriate|4|Usually Appropriate|5|Consistently Appropriate	
+Neighborhood/Workplace Safety.Knowledge	I_04_K	I.04	1	q		Neighborhood/Workplace Safety.Knowledge.Patient	list|1|No Knowledge|2|Minimal Knowledge|3|Basic Knowledge|4|Adequate Knowledge|5|Superior Knowledge	
+Neighborhood/Workplace Safety.Status	I_04_S	I.04	1	q		Neighborhood/Workplace Safety.Status.Patient	list|1|Extreme Signs/Symptoms|2|Severe Signs/Symptoms|3|Moderate Signs/Symptoms|4|Minimal Signs/Symptoms|5|No Signs/Symptoms	
+Neighborhood/Workplace Safety.Behavior	I_04_B_F	I.04	1	q		Neighborhood/Workplace Safety.Behavior.Family	list|1|Not Appropriate|2|Rarely Appropriate|3|Inconsistently Appropriate|4|Usually Appropriate|5|Consistently Appropriate	
+Neighborhood/Workplace Safety.Knowledge	I_04_K_F	I.04	1	q		Neighborhood/Workplace Safety.Knowledge.Family	list|1|No Knowledge|2|Minimal Knowledge|3|Basic Knowledge|4|Adequate Knowledge|5|Superior Knowledge	
+Neighborhood/Workplace Safety.Status	I_04_S_F	I.04	1	]		Neighborhood/Workplace Safety.Status.Family	list|1|Extreme Signs/Symptoms|2|Severe Signs/Symptoms|3|Moderate Signs/Symptoms|4|Minimal Signs/Symptoms|5|No Signs/Symptoms	
+Communication With Community Resources.Behavior	II_06_B	II.06	1	[		Communication With Community Resources.Behavior.Patient	list|1|Not Appropriate|2|Rarely Appropriate|3|Inconsistently Appropriate|4|Usually Appropriate|5|Consistently Appropriate	
+Communication With Community Resources.Knowledge	II_06_K	II.06	1	q		Communication With Community Resources.Knowledge.Patient	list|1|No Knowledge|2|Minimal Knowledge|3|Basic Knowledge|4|Adequate Knowledge|5|Superior Knowledge	
+Communication With Community Resources.Status	II_06_S	II.06	1	q		Communication With Community Resources.Status.Patient	list|1|Extreme Signs/Symptoms|2|Severe Signs/Symptoms|3|Moderate Signs/Symptoms|4|Minimal Signs/Symptoms|5|No Signs/Symptoms	
+Communication With Community Resources.Behavior	II_06_B_F	II.06	1	q		Communication With Community Resources.Behavior.Family	list|1|Not Appropriate|2|Rarely Appropriate|3|Inconsistently Appropriate|4|Usually Appropriate|5|Consistently Appropriate	
+Communication With Community Resources.Knowledge	II_06_K_F	II.06	1	q		Communication With Community Resources.Knowledge.Family	list|1|No Knowledge|2|Minimal Knowledge|3|Basic Knowledge|4|Adequate Knowledge|5|Superior Knowledge	
+Communication With Community Resources.Status	II_06_S_F	II.06	1	]		Communication With Community Resources.Status.Family	list|1|Extreme Signs/Symptoms|2|Severe Signs/Symptoms|3|Moderate Signs/Symptoms|4|Minimal Signs/Symptoms|5|No Signs/Symptoms	
+Social Contact.Behavior	II_07_B	II.07	1	[		Social Contact.Behavior.Patient	list|1|Not Appropriate|2|Rarely Appropriate|3|Inconsistently Appropriate|4|Usually Appropriate|5|Consistently Appropriate	
+Social Contact.Knowledge	II_07_K	II.07	1	q		Social Contact.Knowledge.Patient	list|1|No Knowledge|2|Minimal Knowledge|3|Basic Knowledge|4|Adequate Knowledge|5|Superior Knowledge	
+Social Contact.Status	II_07_S	II.07	1	q		Social Contact.Status.Patient	list|1|Extreme Signs/Symptoms|2|Severe Signs/Symptoms|3|Moderate Signs/Symptoms|4|Minimal Signs/Symptoms|5|No Signs/Symptoms	
+Social Contact.Behavior	II_07_B_F	II.07	1	q		Social Contact.Behavior.Family	list|1|Not Appropriate|2|Rarely Appropriate|3|Inconsistently Appropriate|4|Usually Appropriate|5|Consistently Appropriate	
+Social Contact.Knowledge	II_07_K_F	II.07	1	q		Social Contact.Knowledge.Family	list|1|No Knowledge|2|Minimal Knowledge|3|Basic Knowledge|4|Adequate Knowledge|5|Superior Knowledge	
+Social Contact.Status	II_07_S_F	II.07	1	]		Social Contact.Status.Family	list|1|Extreme Signs/Symptoms|2|Severe Signs/Symptoms|3|Moderate Signs/Symptoms|4|Minimal Signs/Symptoms|5|No Signs/Symptoms	
+Role Change.Behavior	II_08_B	II.08	1	[		Role Change.Behavior.Patient	list|1|Not Appropriate|2|Rarely Appropriate|3|Inconsistently Appropriate|4|Usually Appropriate|5|Consistently Appropriate	
+Role Change.Knowledge	II_08_K	II.08	1	q		Role Change.Knowledge.Patient	list|1|No Knowledge|2|Minimal Knowledge|3|Basic Knowledge|4|Adequate Knowledge|5|Superior Knowledge	
+Role Change.Status	II_08_S	II.08	1	q		Role Change.Status.Patient	list|1|Extreme Signs/Symptoms|2|Severe Signs/Symptoms|3|Moderate Signs/Symptoms|4|Minimal Signs/Symptoms|5|No Signs/Symptoms	
+Role Change.Behavior	II_08_B_F	II.08	1	q		Role Change.Behavior.Family	list|1|Not Appropriate|2|Rarely Appropriate|3|Inconsistently Appropriate|4|Usually Appropriate|5|Consistently Appropriate	
+Role Change.Knowledge	II_08_K_F	II.08	1	q		Role Change.Knowledge.Family	list|1|No Knowledge|2|Minimal Knowledge|3|Basic Knowledge|4|Adequate Knowledge|5|Superior Knowledge	
+Role Change.Status	II_08_S_F	II.08	1	]		Role Change.Status.Family	list|1|Extreme Signs/Symptoms|2|Severe Signs/Symptoms|3|Moderate Signs/Symptoms|4|Minimal Signs/Symptoms|5|No Signs/Symptoms	
+Interpersonal Relationship.Knowledge	II_09_K	II.09	1	[		Interpersonal Relationship.Knowledge.Patient	list|1|No Knowledge|2|Minimal Knowledge|3|Basic Knowledge|4|Adequate Knowledge|5|Superior Knowledge	
+Interpersonal Relationship.Status	II_09_S	II.09	1	q		Interpersonal Relationship.Status.Patient	list|1|Extreme Signs/Symptoms|2|Severe Signs/Symptoms|3|Moderate Signs/Symptoms|4|Minimal Signs/Symptoms|5|No Signs/Symptoms	
+Interpersonal Relationship.Behavior	II_09_B	II.09	1	q		Interpersonal Relationship.Behavior.Patient	list|1|Not Appropriate|2|Rarely Appropriate|3|Inconsistently Appropriate|4|Usually Appropriate|5|Consistently Appropriate	
+Interpersonal Relationship.Knowledge	II_09_K_F	II.09	1	q		Interpersonal Relationship.Knowledge.Family	list|1|No Knowledge|2|Minimal Knowledge|3|Basic Knowledge|4|Adequate Knowledge|5|Superior Knowledge	
+Interpersonal Relationship.Status	II_09_S_F	II.09	1	q		Interpersonal Relationship.Status.Family	list|1|Extreme Signs/Symptoms|2|Severe Signs/Symptoms|3|Moderate Signs/Symptoms|4|Minimal Signs/Symptoms|5|No Signs/Symptoms	
+Interpersonal Relationship.Behavior	II_09_B_F	II.09	1	]		Interpersonal Relationship.Behavior.Family	list|1|Not Appropriate|2|Rarely Appropriate|3|Inconsistently Appropriate|4|Usually Appropriate|5|Consistently Appropriate	
+Spirituality.Behavior	II_10_B	II.10	1	[		Spirituality.Behavior.Patient	list|1|Not Appropriate|2|Rarely Appropriate|3|Inconsistently Appropriate|4|Usually Appropriate|5|Consistently Appropriate	
+Spirituality.Knowledge	II_10_K	II.10	1	q		Spirituality.Knowledge.Patient	list|1|No Knowledge|2|Minimal Knowledge|3|Basic Knowledge|4|Adequate Knowledge|5|Superior Knowledge	
+Spirituality.Status	II_10_S	II.10	1	q		Spirituality.Status.Patient	list|1|Extreme Signs/Symptoms|2|Severe Signs/Symptoms|3|Moderate Signs/Symptoms|4|Minimal Signs/Symptoms|5|No Signs/Symptoms	
+Spirituality.Behavior	II_10_B_F	II.10	1	q		Spirituality.Behavior.Family	list|1|Not Appropriate|2|Rarely Appropriate|3|Inconsistently Appropriate|4|Usually Appropriate|5|Consistently Appropriate	
+Spirituality.Knowledge	II_10_K_F	II.10	1	q		Spirituality.Knowledge.Family	list|1|No Knowledge|2|Minimal Knowledge|3|Basic Knowledge|4|Adequate Knowledge|5|Superior Knowledge	
+Spirituality.Status	II_10_S_F	II.10	1	]		Spirituality.Status.Family	list|1|Extreme Signs/Symptoms|2|Severe Signs/Symptoms|3|Moderate Signs/Symptoms|4|Minimal Signs/Symptoms|5|No Signs/Symptoms	
+Grief.Behavior	II_11_B	II.11	1	[		Grief.Behavior.Patient	list|1|Not Appropriate|2|Rarely Appropriate|3|Inconsistently Appropriate|4|Usually Appropriate|5|Consistently Appropriate	
+Grief.Knowledge	II_11_K	II.11	1	q		Grief.Knowledge.Patient	list|1|No Knowledge|2|Minimal Knowledge|3|Basic Knowledge|4|Adequate Knowledge|5|Superior Knowledge	
+Grief.Status	II_11_S	II.11	1	q		Grief.Status.Patient	list|1|Extreme Signs/Symptoms|2|Severe Signs/Symptoms|3|Moderate Signs/Symptoms|4|Minimal Signs/Symptoms|5|No Signs/Symptoms	
+Grief.Behavior	II_11_B_F	II.11	1	q		Grief.Behavior.Family	list|1|Not Appropriate|2|Rarely Appropriate|3|Inconsistently Appropriate|4|Usually Appropriate|5|Consistently Appropriate	
+Grief.Knowledge	II_11_K_F	II.11	1	q		Grief.Knowledge.Family	list|1|No Knowledge|2|Minimal Knowledge|3|Basic Knowledge|4|Adequate Knowledge|5|Superior Knowledge	
+Grief.Status	II_11_S_F	II.11	1	]		Grief.Status.Family	list|1|Extreme Signs/Symptoms|2|Severe Signs/Symptoms|3|Moderate Signs/Symptoms|4|Minimal Signs/Symptoms|5|No Signs/Symptoms	
+Emotional Stability.Behavior	II_12_B	II.12	1	[		Emotional Stability.Behavior.Patient	list|1|Not Appropriate|2|Rarely Appropriate|3|Inconsistently Appropriate|4|Usually Appropriate|5|Consistently Appropriate	
+Emotional Stability.Knowledge	II_12_K	II.12	1	q		Emotional Stability.Knowledge.Patient	list|1|No Knowledge|2|Minimal Knowledge|3|Basic Knowledge|4|Adequate Knowledge|5|Superior Knowledge	
+Emotional Stability.Status	II_12_S	II.12	1	q		Emotional Stability.Status.Patient	list|1|Extreme Signs/Symptoms|2|Severe Signs/Symptoms|3|Moderate Signs/Symptoms|4|Minimal Signs/Symptoms|5|No Signs/Symptoms	
+Emotional Stability.Behavior	II_12_B_F	II.12	1	q		Emotional Stability.Behavior.Family	list|1|Not Appropriate|2|Rarely Appropriate|3|Inconsistently Appropriate|4|Usually Appropriate|5|Consistently Appropriate	
+Emotional Stability.Knowledge	II_12_K_F	II.12	1	q		Emotional Stability.Knowledge.Family	list|1|No Knowledge|2|Minimal Knowledge|3|Basic Knowledge|4|Adequate Knowledge|5|Superior Knowledge	
+Emotional Stability.Status	II_12_S_F	II.12	1	]		Emotional Stability.Status.Family	list|1|Extreme Signs/Symptoms|2|Severe Signs/Symptoms|3|Moderate Signs/Symptoms|4|Minimal Signs/Symptoms|5|No Signs/Symptoms	
+Human Sexuality.Behavior	II_13_B	II.13	1	[		Human Sexuality.Behavior.Patient	list|1|Not Appropriate|2|Rarely Appropriate|3|Inconsistently Appropriate|4|Usually Appropriate|5|Consistently Appropriate	
+Human Sexuality.Knowledge	II_13_K	II.13	1	q		Human Sexuality.Knowledge.Patient	list|1|No Knowledge|2|Minimal Knowledge|3|Basic Knowledge|4|Adequate Knowledge|5|Superior Knowledge	
+Human Sexuality.Status	II_13_S	II.13	1	q		Human Sexuality.Status.Patient	list|1|Extreme Signs/Symptoms|2|Severe Signs/Symptoms|3|Moderate Signs/Symptoms|4|Minimal Signs/Symptoms|5|No Signs/Symptoms	
+Human Sexuality.Behavior	II_13_B_F	II.13	1	q		Human Sexuality.Behavior.Family	list|1|Not Appropriate|2|Rarely Appropriate|3|Inconsistently Appropriate|4|Usually Appropriate|5|Consistently Appropriate	
+Human Sexuality.Knowledge	II_13_K_F	II.13	1	q		Human Sexuality.Knowledge.Family	list|1|No Knowledge|2|Minimal Knowledge|3|Basic Knowledge|4|Adequate Knowledge|5|Superior Knowledge	
+Human Sexuality.Status	II_13_S_F	II.13	1	]		Human Sexuality.Status.Family	list|1|Extreme Signs/Symptoms|2|Severe Signs/Symptoms|3|Moderate Signs/Symptoms|4|Minimal Signs/Symptoms|5|No Signs/Symptoms	
+Caretaking/Parenting.Behavior	II_14_B	II.14	1	[		Caretaking/Parenting.Behavior.Patient	list|1|Not Appropriate|2|Rarely Appropriate|3|Inconsistently Appropriate|4|Usually Appropriate|5|Consistently Appropriate	
+Caretaking/Parenting.Knowledge	II_14_K	II.14	1	q		Caretaking/Parenting.Knowledge.Patient	list|1|No Knowledge|2|Minimal Knowledge|3|Basic Knowledge|4|Adequate Knowledge|5|Superior Knowledge	
+Caretaking/Parenting.Status	II_14_S	II.14	1	q		Caretaking/Parenting.Status.Patient	list|1|Extreme Signs/Symptoms|2|Severe Signs/Symptoms|3|Moderate Signs/Symptoms|4|Minimal Signs/Symptoms|5|No Signs/Symptoms	
+Caretaking/Parenting.Behavior	II_14_B_F	II.14	1	q		Caretaking/Parenting.Behavior.Family	list|1|Not Appropriate|2|Rarely Appropriate|3|Inconsistently Appropriate|4|Usually Appropriate|5|Consistently Appropriate	
+Caretaking/Parenting.Knowledge	II_14_K_F	II.14	1	q		Caretaking/Parenting.Knowledge.Family	list|1|No Knowledge|2|Minimal Knowledge|3|Basic Knowledge|4|Adequate Knowledge|5|Superior Knowledge	
+Caretaking/Parenting.Status	II_14_S_F	II.14	1	]		Caretaking/Parenting.Status.Family	list|1|Extreme Signs/Symptoms|2|Severe Signs/Symptoms|3|Moderate Signs/Symptoms|4|Minimal Signs/Symptoms|5|No Signs/Symptoms	
+Neglected Child/Adult.Behavior	II_15_B	II.15	1	[		Neglected Child/Adult.Behavior.Patient	list|1|Not Appropriate|2|Rarely Appropriate|3|Inconsistently Appropriate|4|Usually Appropriate|5|Consistently Appropriate	
+Neglected Child/Adult.Knowledge	II_15_K	II.15	1	q		Neglected Child/Adult.Knowledge.Patient	list|1|No Knowledge|2|Minimal Knowledge|3|Basic Knowledge|4|Adequate Knowledge|5|Superior Knowledge	
+Neglected Child/Adult.Status	II_15_S	II.15	1	q		Neglected Child/Adult.Status.Patient	list|1|Extreme Signs/Symptoms|2|Severe Signs/Symptoms|3|Moderate Signs/Symptoms|4|Minimal Signs/Symptoms|5|No Signs/Symptoms	
+Neglected Child/Adult.Behavior	II_15_B_F	II.15	1	q		Neglected Child/Adult.Behavior.Family	list|1|Not Appropriate|2|Rarely Appropriate|3|Inconsistently Appropriate|4|Usually Appropriate|5|Consistently Appropriate	
+Neglected Child/Adult.Knowledge	II_15_K_F	II.15	1	q		Neglected Child/Adult.Knowledge.Family	list|1|No Knowledge|2|Minimal Knowledge|3|Basic Knowledge|4|Adequate Knowledge|5|Superior Knowledge	
+Neglected Child/Adult.Status	II_15_S_F	II.15	1	]		Neglected Child/Adult.Status.Family	list|1|Extreme Signs/Symptoms|2|Severe Signs/Symptoms|3|Moderate Signs/Symptoms|4|Minimal Signs/Symptoms|5|No Signs/Symptoms	
+Abused Child/Adult.Behavior	II_16_B	II.16	1	[		Abused Child/Adult.Behavior.Patient	list|1|Not Appropriate|2|Rarely Appropriate|3|Inconsistently Appropriate|4|Usually Appropriate|5|Consistently Appropriate	
+Abused Child/Adult.Knowledge	II_16_K	II.16	1	q		Abused Child/Adult.Knowledge.Patient	list|1|No Knowledge|2|Minimal Knowledge|3|Basic Knowledge|4|Adequate Knowledge|5|Superior Knowledge	
+Abused Child/Adult.Status	II_16_S	II.16	1	q		Abused Child/Adult.Status.Patient	list|1|Extreme Signs/Symptoms|2|Severe Signs/Symptoms|3|Moderate Signs/Symptoms|4|Minimal Signs/Symptoms|5|No Signs/Symptoms	
+Abused Child/Adult.Behavior	II_16_B_F	II.16	1	q		Abused Child/Adult.Behavior.Family	list|1|Not Appropriate|2|Rarely Appropriate|3|Inconsistently Appropriate|4|Usually Appropriate|5|Consistently Appropriate	
+Abused Child/Adult.Knowledge	II_16_K_F	II.16	1	q		Abused Child/Adult.Knowledge.Family	list|1|No Knowledge|2|Minimal Knowledge|3|Basic Knowledge|4|Adequate Knowledge|5|Superior Knowledge	
+Abused Child/Adult.Status	II_16_S_F	II.16	1	]		Abused Child/Adult.Status.Family	list|1|Extreme Signs/Symptoms|2|Severe Signs/Symptoms|3|Moderate Signs/Symptoms|4|Minimal Signs/Symptoms|5|No Signs/Symptoms	
+Growth And Development.Behavior	II_17_B	II.17	1	[		Growth And Development.Behavior.Patient	list|1|Not Appropriate|2|Rarely Appropriate|3|Inconsistently Appropriate|4|Usually Appropriate|5|Consistently Appropriate	
+Growth And Development.Knowledge	II_17_K	II.17	1	q		Growth And Development.Knowledge.Patient	list|1|No Knowledge|2|Minimal Knowledge|3|Basic Knowledge|4|Adequate Knowledge|5|Superior Knowledge	
+Growth And Development.Status	II_17_S	II.17	1	q		Growth And Development.Status.Patient	list|1|Extreme Signs/Symptoms|2|Severe Signs/Symptoms|3|Moderate Signs/Symptoms|4|Minimal Signs/Symptoms|5|No Signs/Symptoms	
+Growth And Development.Behavior	II_17_B_F	II.17	1	q		Growth And Development.Behavior.Family	list|1|Not Appropriate|2|Rarely Appropriate|3|Inconsistently Appropriate|4|Usually Appropriate|5|Consistently Appropriate	
+Growth And Development.Knowledge	II_17_K_F	II.17	1	q		Growth And Development.Knowledge.Family	list|1|No Knowledge|2|Minimal Knowledge|3|Basic Knowledge|4|Adequate Knowledge|5|Superior Knowledge	
+Growth And Development.Status	II_17_S_F	II.17	1	]		Growth And Development.Status.Family	list|1|Extreme Signs/Symptoms|2|Severe Signs/Symptoms|3|Moderate Signs/Symptoms|4|Minimal Signs/Symptoms|5|No Signs/Symptoms	
+Hearing.Behavior	III_19_B	III.19	1	[		Hearing.Behavior.Patient	list|1|Not Appropriate|2|Rarely Appropriate|3|Inconsistently Appropriate|4|Usually Appropriate|5|Consistently Appropriate	
+Hearing.Knowledge	III_19_K	III.19	1	q		Hearing.Knowledge.Patient	list|1|No Knowledge|2|Minimal Knowledge|3|Basic Knowledge|4|Adequate Knowledge|5|Superior Knowledge	
+Hearing.Status	III_19_S	III.19	1	q		Hearing.Status.Patient	list|1|Extreme Signs/Symptoms|2|Severe Signs/Symptoms|3|Moderate Signs/Symptoms|4|Minimal Signs/Symptoms|5|No Signs/Symptoms	
+Hearing.Behavior	III_19_B_F	III.19	1	q		Hearing.Behavior.Family	list|1|Not Appropriate|2|Rarely Appropriate|3|Inconsistently Appropriate|4|Usually Appropriate|5|Consistently Appropriate	
+Hearing.Knowledge	III_19_K_F	III.19	1	q		Hearing.Knowledge.Family	list|1|No Knowledge|2|Minimal Knowledge|3|Basic Knowledge|4|Adequate Knowledge|5|Superior Knowledge	
+Hearing.Status	III_19_S_F	III.19	1	]		Hearing.Status.Family	list|1|Extreme Signs/Symptoms|2|Severe Signs/Symptoms|3|Moderate Signs/Symptoms|4|Minimal Signs/Symptoms|5|No Signs/Symptoms	
+Vision.Behavior	III_20_B	III.20	1	[		Vision.Behavior.Patient	list|1|Not Appropriate|2|Rarely Appropriate|3|Inconsistently Appropriate|4|Usually Appropriate|5|Consistently Appropriate	
+Vision.Knowledge	III_20_K	III.20	1	q		Vision.Knowledge.Patient	list|1|No Knowledge|2|Minimal Knowledge|3|Basic Knowledge|4|Adequate Knowledge|5|Superior Knowledge	
+Vision.Status	III_20_S	III.20	1	q		Vision.Status.Patient	list|1|Extreme Signs/Symptoms|2|Severe Signs/Symptoms|3|Moderate Signs/Symptoms|4|Minimal Signs/Symptoms|5|No Signs/Symptoms	
+Vision.Behavior	III_20_B_F	III.20	1	q		Vision.Behavior.Family	list|1|Not Appropriate|2|Rarely Appropriate|3|Inconsistently Appropriate|4|Usually Appropriate|5|Consistently Appropriate	
+Vision.Knowledge	III_20_K_F	III.20	1	q		Vision.Knowledge.Family	list|1|No Knowledge|2|Minimal Knowledge|3|Basic Knowledge|4|Adequate Knowledge|5|Superior Knowledge	
+Vision.Status	III_20_S_F	III.20	1	]		Vision.Status.Family	list|1|Extreme Signs/Symptoms|2|Severe Signs/Symptoms|3|Moderate Signs/Symptoms|4|Minimal Signs/Symptoms|5|No Signs/Symptoms	
+Speech And Language.Behavior	III_21_B	III.21	1	[		Speech And Language.Behavior.Patient	list|1|Not Appropriate|2|Rarely Appropriate|3|Inconsistently Appropriate|4|Usually Appropriate|5|Consistently Appropriate	
+Speech And Language.Knowledge	III_21_K	III.21	1	q		Speech And Language.Knowledge.Patient	list|1|No Knowledge|2|Minimal Knowledge|3|Basic Knowledge|4|Adequate Knowledge|5|Superior Knowledge	
+Speech And Language.Status	III_21_S	III.21	1	q		Speech And Language.Status.Patient	list|1|Extreme Signs/Symptoms|2|Severe Signs/Symptoms|3|Moderate Signs/Symptoms|4|Minimal Signs/Symptoms|5|No Signs/Symptoms	
+Speech And Language.Behavior	III_21_B_F	III.21	1	q		Speech And Language.Behavior.Family	list|1|Not Appropriate|2|Rarely Appropriate|3|Inconsistently Appropriate|4|Usually Appropriate|5|Consistently Appropriate	
+Speech And Language.Knowledge	III_21_K_F	III.21	1	q		Speech And Language.Knowledge.Family	list|1|No Knowledge|2|Minimal Knowledge|3|Basic Knowledge|4|Adequate Knowledge|5|Superior Knowledge	
+Speech And Language.Status	III_21_S_F	III.21	1	]		Speech And Language.Status.Family	list|1|Extreme Signs/Symptoms|2|Severe Signs/Symptoms|3|Moderate Signs/Symptoms|4|Minimal Signs/Symptoms|5|No Signs/Symptoms	
+Dentition.Behavior	III_22_B	III.22	1	[		Dentition.Behavior.Patient	list|1|Not Appropriate|2|Rarely Appropriate|3|Inconsistently Appropriate|4|Usually Appropriate|5|Consistently Appropriate	
+Dentition.Knowledge	III_22_K	III.22	1	q		Dentition.Knowledge.Patient	list|1|No Knowledge|2|Minimal Knowledge|3|Basic Knowledge|4|Adequate Knowledge|5|Superior Knowledge	
+Dentition.Status	III_22_S	III.22	1	q		Dentition.Status.Patient	list|1|Extreme Signs/Symptoms|2|Severe Signs/Symptoms|3|Moderate Signs/Symptoms|4|Minimal Signs/Symptoms|5|No Signs/Symptoms	
+Dentition.Behavior	III_22_B_F	III.22	1	q		Dentition.Behavior.Family	list|1|Not Appropriate|2|Rarely Appropriate|3|Inconsistently Appropriate|4|Usually Appropriate|5|Consistently Appropriate	
+Dentition.Knowledge	III_22_K_F	III.22	1	q		Dentition.Knowledge.Family	list|1|No Knowledge|2|Minimal Knowledge|3|Basic Knowledge|4|Adequate Knowledge|5|Superior Knowledge	
+Dentition.Status	III_22_S_F	III.22	1	]		Dentition.Status.Family	list|1|Extreme Signs/Symptoms|2|Severe Signs/Symptoms|3|Moderate Signs/Symptoms|4|Minimal Signs/Symptoms|5|No Signs/Symptoms	
+Cognition.Behavior	III_23_B	III.23	1	[		Cognition.Behavior.Patient	list|1|Not Appropriate|2|Rarely Appropriate|3|Inconsistently Appropriate|4|Usually Appropriate|5|Consistently Appropriate	
+Cognition.Knowledge	III_23_K	III.23	1	q		Cognition.Knowledge.Patient	list|1|No Knowledge|2|Minimal Knowledge|3|Basic Knowledge|4|Adequate Knowledge|5|Superior Knowledge	
+Cognition.Status	III_23_S	III.23	1	q		Cognition.Status.Patient	list|1|Extreme Signs/Symptoms|2|Severe Signs/Symptoms|3|Moderate Signs/Symptoms|4|Minimal Signs/Symptoms|5|No Signs/Symptoms	
+Cognition.Behavior	III_23_B_F	III.23	1	q		Cognition.Behavior.Family	list|1|Not Appropriate|2|Rarely Appropriate|3|Inconsistently Appropriate|4|Usually Appropriate|5|Consistently Appropriate	
+Cognition.Knowledge	III_23_K_F	III.23	1	q		Cognition.Knowledge.Family	list|1|No Knowledge|2|Minimal Knowledge|3|Basic Knowledge|4|Adequate Knowledge|5|Superior Knowledge	
+Cognition.Status	III_23_S_F	III.23	1	]		Cognition.Status.Family	list|1|Extreme Signs/Symptoms|2|Severe Signs/Symptoms|3|Moderate Signs/Symptoms|4|Minimal Signs/Symptoms|5|No Signs/Symptoms	
+Pain.Behavior	III_24_B	III.24	1	[		Pain.Behavior.Patient	list|1|Not Appropriate|2|Rarely Appropriate|3|Inconsistently Appropriate|4|Usually Appropriate|5|Consistently Appropriate	
+Pain.Knowledge	III_24_K	III.24	1	q		Pain.Knowledge.Patient	list|1|No Knowledge|2|Minimal Knowledge|3|Basic Knowledge|4|Adequate Knowledge|5|Superior Knowledge	
+Pain.Status	III_24_S	III.24	1	q		Pain.Status.Patient	list|1|Extreme Signs/Symptoms|2|Severe Signs/Symptoms|3|Moderate Signs/Symptoms|4|Minimal Signs/Symptoms|5|No Signs/Symptoms	
+Pain.Behavior	III_24_B_F	III.24	1	q		Pain.Behavior.Family	list|1|Not Appropriate|2|Rarely Appropriate|3|Inconsistently Appropriate|4|Usually Appropriate|5|Consistently Appropriate	
+Pain.Knowledge	III_24_K_F	III.24	1	q		Pain.Knowledge.Family	list|1|No Knowledge|2|Minimal Knowledge|3|Basic Knowledge|4|Adequate Knowledge|5|Superior Knowledge	
+Pain.Status	III_24_S_F	III.24	1	]		Pain.Status.Family	list|1|Extreme Signs/Symptoms|2|Severe Signs/Symptoms|3|Moderate Signs/Symptoms|4|Minimal Signs/Symptoms|5|No Signs/Symptoms	
+Consciousness.Behavior	III_25_B	III.25	1	[		Consciousness.Behavior.Patient	list|1|Not Appropriate|2|Rarely Appropriate|3|Inconsistently Appropriate|4|Usually Appropriate|5|Consistently Appropriate	
+Consciousness.Knowledge	III_25_K	III.25	1	q		Consciousness.Knowledge.Patient	list|1|No Knowledge|2|Minimal Knowledge|3|Basic Knowledge|4|Adequate Knowledge|5|Superior Knowledge	
+Consciousness.Status	III_25_S	III.25	1	q		Consciousness.Status.Patient	list|1|Extreme Signs/Symptoms|2|Severe Signs/Symptoms|3|Moderate Signs/Symptoms|4|Minimal Signs/Symptoms|5|No Signs/Symptoms	
+Consciousness.Behavior	III_25_B_F	III.25	1	q		Consciousness.Behavior.Family	list|1|Not Appropriate|2|Rarely Appropriate|3|Inconsistently Appropriate|4|Usually Appropriate|5|Consistently Appropriate	
+Consciousness.Knowledge	III_25_K_F	III.25	1	q		Consciousness.Knowledge.Family	list|1|No Knowledge|2|Minimal Knowledge|3|Basic Knowledge|4|Adequate Knowledge|5|Superior Knowledge	
+Consciousness.Status	III_25_S_F	III.25	1	]		Consciousness.Status.Family	list|1|Extreme Signs/Symptoms|2|Severe Signs/Symptoms|3|Moderate Signs/Symptoms|4|Minimal Signs/Symptoms|5|No Signs/Symptoms	
+Integument.Behavior	III_26_B	III.26	1	[		Integument.Behavior.Patient	list|1|Not Appropriate|2|Rarely Appropriate|3|Inconsistently Appropriate|4|Usually Appropriate|5|Consistently Appropriate	
+Integument.Knowledge	III_26_K	III.26	1	q		Integument.Knowledge.Patient	list|1|No Knowledge|2|Minimal Knowledge|3|Basic Knowledge|4|Adequate Knowledge|5|Superior Knowledge	
+Integument.Status	III_26_S	III.26	1	q		Integument.Status.Patient	list|1|Extreme Signs/Symptoms|2|Severe Signs/Symptoms|3|Moderate Signs/Symptoms|4|Minimal Signs/Symptoms|5|No Signs/Symptoms	
+Integument.Behavior	III_26_B_F	III.26	1	q		Integument.Behavior.Family	list|1|Not Appropriate|2|Rarely Appropriate|3|Inconsistently Appropriate|4|Usually Appropriate|5|Consistently Appropriate	
+Integument.Knowledge	III_26_K_F	III.26	1	q		Integument.Knowledge.Family	list|1|No Knowledge|2|Minimal Knowledge|3|Basic Knowledge|4|Adequate Knowledge|5|Superior Knowledge	
+Integument.Status	III_26_S_F	III.26	1	]		Integument.Status.Family	list|1|Extreme Signs/Symptoms|2|Severe Signs/Symptoms|3|Moderate Signs/Symptoms|4|Minimal Signs/Symptoms|5|No Signs/Symptoms	
+Neuro-Musculo-Skeletal Function.Behavior	III_27_B	III.27	1	[		Neuro-Musculo-Skeletal Function.Behavior.Patient	list|1|Not Appropriate|2|Rarely Appropriate|3|Inconsistently Appropriate|4|Usually Appropriate|5|Consistently Appropriate	
+Neuro-Musculo-Skeletal Function.Knowledge	III_27_K	III.27	1	q		Neuro-Musculo-Skeletal Function.Knowledge.Patient	list|1|No Knowledge|2|Minimal Knowledge|3|Basic Knowledge|4|Adequate Knowledge|5|Superior Knowledge	
+Neuro-Musculo-Skeletal Function.Status	III_27_S	III.27	1	q		Neuro-Musculo-Skeletal Function.Status.Patient	list|1|Extreme Signs/Symptoms|2|Severe Signs/Symptoms|3|Moderate Signs/Symptoms|4|Minimal Signs/Symptoms|5|No Signs/Symptoms	
+Neuro-Musculo-Skeletal Function.Behavior	III_27_B_F	III.27	1	q		Neuro-Musculo-Skeletal Function.Behavior.Family	list|1|Not Appropriate|2|Rarely Appropriate|3|Inconsistently Appropriate|4|Usually Appropriate|5|Consistently Appropriate	
+Neuro-Musculo-Skeletal Function.Knowledge	III_27_K_F	III.27	1	q		Neuro-Musculo-Skeletal Function.Knowledge.Family	list|1|No Knowledge|2|Minimal Knowledge|3|Basic Knowledge|4|Adequate Knowledge|5|Superior Knowledge	
+Neuro-Musculo-Skeletal Function.Status	III_27_S_F	III.27	1	]		Neuro-Musculo-Skeletal Function.Status.Family	list|1|Extreme Signs/Symptoms|2|Severe Signs/Symptoms|3|Moderate Signs/Symptoms|4|Minimal Signs/Symptoms|5|No Signs/Symptoms	
+Respiration.Behavior	III_28_B	III.28	1	[		Respiration.Behavior.Patient	list|1|Not Appropriate|2|Rarely Appropriate|3|Inconsistently Appropriate|4|Usually Appropriate|5|Consistently Appropriate	
+Respiration.Knowledge	III_28_K	III.28	1	q		Respiration.Knowledge.Patient	list|1|No Knowledge|2|Minimal Knowledge|3|Basic Knowledge|4|Adequate Knowledge|5|Superior Knowledge	
+Respiration.Status	III_28_S	III.28	1	q		Respiration.Status.Patient	list|1|Extreme Signs/Symptoms|2|Severe Signs/Symptoms|3|Moderate Signs/Symptoms|4|Minimal Signs/Symptoms|5|No Signs/Symptoms	
+Respiration.Behavior	III_28_B_F	III.28	1	q		Respiration.Behavior.Family	list|1|Not Appropriate|2|Rarely Appropriate|3|Inconsistently Appropriate|4|Usually Appropriate|5|Consistently Appropriate	
+Respiration.Knowledge	III_28_K_F	III.28	1	q		Respiration.Knowledge.Family	list|1|No Knowledge|2|Minimal Knowledge|3|Basic Knowledge|4|Adequate Knowledge|5|Superior Knowledge	
+Respiration.Status	III_28_S_F	III.28	1	]		Respiration.Status.Family	list|1|Extreme Signs/Symptoms|2|Severe Signs/Symptoms|3|Moderate Signs/Symptoms|4|Minimal Signs/Symptoms|5|No Signs/Symptoms	
+Circulation.Behavior	III_29_B	III.29	1	[		Circulation.Behavior.Patient	list|1|Not Appropriate|2|Rarely Appropriate|3|Inconsistently Appropriate|4|Usually Appropriate|5|Consistently Appropriate	
+Circulation.Knowledge	III_29_K	III.29	1	q		Circulation.Knowledge.Patient	list|1|No Knowledge|2|Minimal Knowledge|3|Basic Knowledge|4|Adequate Knowledge|5|Superior Knowledge	
+Circulation.Status	III_29_S	III.29	1	q		Circulation.Status.Patient	list|1|Extreme Signs/Symptoms|2|Severe Signs/Symptoms|3|Moderate Signs/Symptoms|4|Minimal Signs/Symptoms|5|No Signs/Symptoms	
+Circulation.Behavior	III_29_B_F	III.29	1	q		Circulation.Behavior.Family	list|1|Not Appropriate|2|Rarely Appropriate|3|Inconsistently Appropriate|4|Usually Appropriate|5|Consistently Appropriate	
+Circulation.Knowledge	III_29_K_F	III.29	1	q		Circulation.Knowledge.Family	list|1|No Knowledge|2|Minimal Knowledge|3|Basic Knowledge|4|Adequate Knowledge|5|Superior Knowledge	
+Circulation.Status	III_29_S_F	III.29	1	]		Circulation.Status.Family	list|1|Extreme Signs/Symptoms|2|Severe Signs/Symptoms|3|Moderate Signs/Symptoms|4|Minimal Signs/Symptoms|5|No Signs/Symptoms	
+Digestion-Hydration.Behavior	III_30_B	III.30	1	[		Digestion-Hydration.Behavior.Patient	list|1|Not Appropriate|2|Rarely Appropriate|3|Inconsistently Appropriate|4|Usually Appropriate|5|Consistently Appropriate	
+Digestion-Hydration.Knowledge	III_30_K	III.30	1	q		Digestion-Hydration.Knowledge.Patient	list|1|No Knowledge|2|Minimal Knowledge|3|Basic Knowledge|4|Adequate Knowledge|5|Superior Knowledge	
+Digestion-Hydration.Status	III_30_S	III.30	1	q		Digestion-Hydration.Status.Patient	list|1|Extreme Signs/Symptoms|2|Severe Signs/Symptoms|3|Moderate Signs/Symptoms|4|Minimal Signs/Symptoms|5|No Signs/Symptoms	
+Digestion-Hydration.Behavior	III_30_B_F	III.30	1	q		Digestion-Hydration.Behavior.Family	list|1|Not Appropriate|2|Rarely Appropriate|3|Inconsistently Appropriate|4|Usually Appropriate|5|Consistently Appropriate	
+Digestion-Hydration.Knowledge	III_30_K_F	III.30	1	q		Digestion-Hydration.Knowledge.Family	list|1|No Knowledge|2|Minimal Knowledge|3|Basic Knowledge|4|Adequate Knowledge|5|Superior Knowledge	
+Digestion-Hydration.Status	III_30_S_F	III.30	1	]		Digestion-Hydration.Status.Family	list|1|Extreme Signs/Symptoms|2|Severe Signs/Symptoms|3|Moderate Signs/Symptoms|4|Minimal Signs/Symptoms|5|No Signs/Symptoms	
+Bowel Function.Behavior	III_31_B	III.31	1	[		Bowel Function.Behavior.Patient	list|1|Not Appropriate|2|Rarely Appropriate|3|Inconsistently Appropriate|4|Usually Appropriate|5|Consistently Appropriate	
+Bowel Function.Knowledge	III_31_K	III.31	1	q		Bowel Function.Knowledge.Patient	list|1|No Knowledge|2|Minimal Knowledge|3|Basic Knowledge|4|Adequate Knowledge|5|Superior Knowledge	
+Bowel Function.Status	III_31_S	III.31	1	q		Bowel Function.Status.Patient	list|1|Extreme Signs/Symptoms|2|Severe Signs/Symptoms|3|Moderate Signs/Symptoms|4|Minimal Signs/Symptoms|5|No Signs/Symptoms	
+Bowel Function.Behavior	III_31_B_F	III.31	1	q		Bowel Function.Behavior.Family	list|1|Not Appropriate|2|Rarely Appropriate|3|Inconsistently Appropriate|4|Usually Appropriate|5|Consistently Appropriate	
+Bowel Function.Knowledge	III_31_K_F	III.31	1	q		Bowel Function.Knowledge.Family	list|1|No Knowledge|2|Minimal Knowledge|3|Basic Knowledge|4|Adequate Knowledge|5|Superior Knowledge	
+Bowel Function.Status	III_31_S_F	III.31	1	]		Bowel Function.Status.Family	list|1|Extreme Signs/Symptoms|2|Severe Signs/Symptoms|3|Moderate Signs/Symptoms|4|Minimal Signs/Symptoms|5|No Signs/Symptoms	
+Genito-Urinary Function.Behavior	III_32_B	III.32	1	[		Genito-Urinary Function.Behavior.Patient	list|1|Not Appropriate|2|Rarely Appropriate|3|Inconsistently Appropriate|4|Usually Appropriate|5|Consistently Appropriate	
+Genito-Urinary Function.Knowledge	III_32_K	III.32	1	q		Genito-Urinary Function.Knowledge.Patient	list|1|No Knowledge|2|Minimal Knowledge|3|Basic Knowledge|4|Adequate Knowledge|5|Superior Knowledge	
+Genito-Urinary Function.Status	III_32_S	III.32	1	q		Genito-Urinary Function.Status.Patient	list|1|Extreme Signs/Symptoms|2|Severe Signs/Symptoms|3|Moderate Signs/Symptoms|4|Minimal Signs/Symptoms|5|No Signs/Symptoms	
+Genito-Urinary Function.Behavior	III_32_B_F	III.32	1	q		Genito-Urinary Function.Behavior.Family	list|1|Not Appropriate|2|Rarely Appropriate|3|Inconsistently Appropriate|4|Usually Appropriate|5|Consistently Appropriate	
+Genito-Urinary Function.Knowledge	III_32_K_F	III.32	1	q		Genito-Urinary Function.Knowledge.Family	list|1|No Knowledge|2|Minimal Knowledge|3|Basic Knowledge|4|Adequate Knowledge|5|Superior Knowledge	
+Genito-Urinary Function.Status	III_32_S_F	III.32	1	]		Genito-Urinary Function.Status.Family	list|1|Extreme Signs/Symptoms|2|Severe Signs/Symptoms|3|Moderate Signs/Symptoms|4|Minimal Signs/Symptoms|5|No Signs/Symptoms	
+Antepartum/Postpartum.Behavior	III_33_B	III.33	1	[		Antepartum/Postpartum.Behavior.Patient	list|1|Not Appropriate|2|Rarely Appropriate|3|Inconsistently Appropriate|4|Usually Appropriate|5|Consistently Appropriate	
+Antepartum/Postpartum.Knowledge	III_33_K	III.33	1	q		Antepartum/Postpartum.Knowledge.Patient	list|1|No Knowledge|2|Minimal Knowledge|3|Basic Knowledge|4|Adequate Knowledge|5|Superior Knowledge	
+Antepartum/Postpartum.Status	III_33_S	III.33	1	q		Antepartum/Postpartum.Status.Patient	list|1|Extreme Signs/Symptoms|2|Severe Signs/Symptoms|3|Moderate Signs/Symptoms|4|Minimal Signs/Symptoms|5|No Signs/Symptoms	
+Antepartum/Postpartum.Behavior	III_33_B_F	III.33	1	q		Antepartum/Postpartum.Behavior.Family	list|1|Not Appropriate|2|Rarely Appropriate|3|Inconsistently Appropriate|4|Usually Appropriate|5|Consistently Appropriate	
+Antepartum/Postpartum.Knowledge	III_33_K_F	III.33	1	q		Antepartum/Postpartum.Knowledge.Family	list|1|No Knowledge|2|Minimal Knowledge|3|Basic Knowledge|4|Adequate Knowledge|5|Superior Knowledge	
+Antepartum/Postpartum.Status	III_33_S_F	III.33	1	]		Antepartum/Postpartum.Status.Family	list|1|Extreme Signs/Symptoms|2|Severe Signs/Symptoms|3|Moderate Signs/Symptoms|4|Minimal Signs/Symptoms|5|No Signs/Symptoms	
+Nutrition.Behavior	IV_35_B	IV.35	1	[		Nutrition.Behavior.Patient	list|1|Not Appropriate|2|Rarely Appropriate|3|Inconsistently Appropriate|4|Usually Appropriate|5|Consistently Appropriate	
+Nutrition.Knowledge	IV_35_K	IV.35	1	q		Nutrition.Knowledge.Patient	list|1|No Knowledge|2|Minimal Knowledge|3|Basic Knowledge|4|Adequate Knowledge|5|Superior Knowledge	
+Nutrition.Status	IV_35_S	IV.35	1	q		Nutrition.Status.Patient	list|1|Extreme Signs/Symptoms|2|Severe Signs/Symptoms|3|Moderate Signs/Symptoms|4|Minimal Signs/Symptoms|5|No Signs/Symptoms	
+Nutrition.Behavior	IV_35_B_F	IV.35	1	q		Nutrition.Behavior.Family	list|1|Not Appropriate|2|Rarely Appropriate|3|Inconsistently Appropriate|4|Usually Appropriate|5|Consistently Appropriate	
+Nutrition.Knowledge	IV_35_K_F	IV.35	1	q		Nutrition.Knowledge.Family	list|1|No Knowledge|2|Minimal Knowledge|3|Basic Knowledge|4|Adequate Knowledge|5|Superior Knowledge	
+Nutrition.Status	IV_35_S_F	IV.35	1	]		Nutrition.Status.Family	list|1|Extreme Signs/Symptoms|2|Severe Signs/Symptoms|3|Moderate Signs/Symptoms|4|Minimal Signs/Symptoms|5|No Signs/Symptoms	
+Sleep And Rest Pattern.Behavior	IV_36_B	IV.36	1	[		Sleep And Rest Pattern.Behavior.Patient	list|1|Not Appropriate|2|Rarely Appropriate|3|Inconsistently Appropriate|4|Usually Appropriate|5|Consistently Appropriate	
+Sleep And Rest Pattern.Knowledge	IV_36_K	IV.36	1	q		Sleep And Rest Pattern.Knowledge.Patient	list|1|No Knowledge|2|Minimal Knowledge|3|Basic Knowledge|4|Adequate Knowledge|5|Superior Knowledge	
+Sleep And Rest Pattern.Status	IV_36_S	IV.36	1	q		Sleep And Rest Pattern.Status.Patient	list|1|Extreme Signs/Symptoms|2|Severe Signs/Symptoms|3|Moderate Signs/Symptoms|4|Minimal Signs/Symptoms|5|No Signs/Symptoms	
+Sleep And Rest Pattern.Behavior	IV_36_B_F	IV.36	1	q		Sleep And Rest Pattern.Behavior.Family	list|1|Not Appropriate|2|Rarely Appropriate|3|Inconsistently Appropriate|4|Usually Appropriate|5|Consistently Appropriate	
+Sleep And Rest Pattern.Knowledge	IV_36_K_F	IV.36	1	q		Sleep And Rest Pattern.Knowledge.Family	list|1|No Knowledge|2|Minimal Knowledge|3|Basic Knowledge|4|Adequate Knowledge|5|Superior Knowledge	
+Sleep And Rest Pattern.Status	IV_36_S_F	IV.36	1	]		Sleep And Rest Pattern.Status.Family	list|1|Extreme Signs/Symptoms|2|Severe Signs/Symptoms|3|Moderate Signs/Symptoms|4|Minimal Signs/Symptoms|5|No Signs/Symptoms	
+Physical Activity.Behavior	IV_37_B	IV.37	1	[		Physical Activity.Behavior.Patient	list|1|Not Appropriate|2|Rarely Appropriate|3|Inconsistently Appropriate|4|Usually Appropriate|5|Consistently Appropriate	
+Physical Activity.Knowledge	IV_37_K	IV.37	1	q		Physical Activity.Knowledge.Patient	list|1|No Knowledge|2|Minimal Knowledge|3|Basic Knowledge|4|Adequate Knowledge|5|Superior Knowledge	
+Physical Activity.Status	IV_37_S	IV.37	1	q		Physical Activity.Status.Patient	list|1|Extreme Signs/Symptoms|2|Severe Signs/Symptoms|3|Moderate Signs/Symptoms|4|Minimal Signs/Symptoms|5|No Signs/Symptoms	
+Physical Activity.Behavior	IV_37_B_F	IV.37	1	q		Physical Activity.Behavior.Family	list|1|Not Appropriate|2|Rarely Appropriate|3|Inconsistently Appropriate|4|Usually Appropriate|5|Consistently Appropriate	
+Physical Activity.Knowledge	IV_37_K_F	IV.37	1	q		Physical Activity.Knowledge.Family	list|1|No Knowledge|2|Minimal Knowledge|3|Basic Knowledge|4|Adequate Knowledge|5|Superior Knowledge	
+Physical Activity.Status	IV_37_S_F	IV.37	1	]		Physical Activity.Status.Family	list|1|Extreme Signs/Symptoms|2|Severe Signs/Symptoms|3|Moderate Signs/Symptoms|4|Minimal Signs/Symptoms|5|No Signs/Symptoms	
+Personal Hygiene.Behavior	IV_38_B	IV.38	1	[		Personal Hygiene.Behavior.Patient	list|1|Not Appropriate|2|Rarely Appropriate|3|Inconsistently Appropriate|4|Usually Appropriate|5|Consistently Appropriate	
+Personal Hygiene.Knowledge	IV_38_K	IV.38	1	q		Personal Hygiene.Knowledge.Patient	list|1|No Knowledge|2|Minimal Knowledge|3|Basic Knowledge|4|Adequate Knowledge|5|Superior Knowledge	
+Personal Hygiene.Status	IV_38_S	IV.38	1	q		Personal Hygiene.Status.Patient	list|1|Extreme Signs/Symptoms|2|Severe Signs/Symptoms|3|Moderate Signs/Symptoms|4|Minimal Signs/Symptoms|5|No Signs/Symptoms	
+Personal Hygiene.Behavior	IV_38_B_F	IV.38	1	q		Personal Hygiene.Behavior.Family	list|1|Not Appropriate|2|Rarely Appropriate|3|Inconsistently Appropriate|4|Usually Appropriate|5|Consistently Appropriate	
+Personal Hygiene.Knowledge	IV_38_K_F	IV.38	1	q		Personal Hygiene.Knowledge.Family	list|1|No Knowledge|2|Minimal Knowledge|3|Basic Knowledge|4|Adequate Knowledge|5|Superior Knowledge	
+Personal Hygiene.Status	IV_38_S_F	IV.38	1	]		Personal Hygiene.Status.Family	list|1|Extreme Signs/Symptoms|2|Severe Signs/Symptoms|3|Moderate Signs/Symptoms|4|Minimal Signs/Symptoms|5|No Signs/Symptoms	
+Substance Use.Behavior	IV_39_B	IV.39	1	[		Substance Use.Behavior.Patient	list|1|Not Appropriate|2|Rarely Appropriate|3|Inconsistently Appropriate|4|Usually Appropriate|5|Consistently Appropriate	
+Substance Use.Knowledge	IV_39_K	IV.39	1	q		Substance Use.Knowledge.Patient	list|1|No Knowledge|2|Minimal Knowledge|3|Basic Knowledge|4|Adequate Knowledge|5|Superior Knowledge	
+Substance Use.Status	IV_39_S	IV.39	1	q		Substance Use.Status.Patient	list|1|Extreme Signs/Symptoms|2|Severe Signs/Symptoms|3|Moderate Signs/Symptoms|4|Minimal Signs/Symptoms|5|No Signs/Symptoms	
+Substance Use.Behavior	IV_39_B_F	IV.39	1	q		Substance Use.Behavior.Family	list|1|Not Appropriate|2|Rarely Appropriate|3|Inconsistently Appropriate|4|Usually Appropriate|5|Consistently Appropriate	
+Substance Use.Knowledge	IV_39_K_F	IV.39	1	q		Substance Use.Knowledge.Family	list|1|No Knowledge|2|Minimal Knowledge|3|Basic Knowledge|4|Adequate Knowledge|5|Superior Knowledge	
+Substance Use.Status	IV_39_S_F	IV.39	1	]		Substance Use.Status.Family	list|1|Extreme Signs/Symptoms|2|Severe Signs/Symptoms|3|Moderate Signs/Symptoms|4|Minimal Signs/Symptoms|5|No Signs/Symptoms	
+Family Planning.Behavior	IV_40_B	IV.40	1	[		Family Planning.Behavior.Patient	list|1|Not Appropriate|2|Rarely Appropriate|3|Inconsistently Appropriate|4|Usually Appropriate|5|Consistently Appropriate	
+Family Planning.Knowledge	IV_40_K	IV.40	1	q		Family Planning.Knowledge.Patient	list|1|No Knowledge|2|Minimal Knowledge|3|Basic Knowledge|4|Adequate Knowledge|5|Superior Knowledge	
+Family Planning.Status	IV_40_S	IV.40	1	q		Family Planning.Status.Patient	list|1|Extreme Signs/Symptoms|2|Severe Signs/Symptoms|3|Moderate Signs/Symptoms|4|Minimal Signs/Symptoms|5|No Signs/Symptoms	
+Family Planning.Behavior	IV_40_B_F	IV.40	1	q		Family Planning.Behavior.Family	list|1|Not Appropriate|2|Rarely Appropriate|3|Inconsistently Appropriate|4|Usually Appropriate|5|Consistently Appropriate	
+Family Planning.Knowledge	IV_40_K_F	IV.40	1	q		Family Planning.Knowledge.Family	list|1|No Knowledge|2|Minimal Knowledge|3|Basic Knowledge|4|Adequate Knowledge|5|Superior Knowledge	
+Family Planning.Status	IV_40_S_F	IV.40	1	]		Family Planning.Status.Family	list|1|Extreme Signs/Symptoms|2|Severe Signs/Symptoms|3|Moderate Signs/Symptoms|4|Minimal Signs/Symptoms|5|No Signs/Symptoms	
+Health Care Supervision.Behavior	IV_41_B	IV.41	1	[		Health Care Supervision.Behavior.Patient	list|1|Not Appropriate|2|Rarely Appropriate|3|Inconsistently Appropriate|4|Usually Appropriate|5|Consistently Appropriate	
+Health Care Supervision.Knowledge	IV_41_K	IV.41	1	q		Health Care Supervision.Knowledge.Patient	list|1|No Knowledge|2|Minimal Knowledge|3|Basic Knowledge|4|Adequate Knowledge|5|Superior Knowledge	
+Health Care Supervision.Status	IV_41_S	IV.41	1	q		Health Care Supervision.Status.Patient	list|1|Extreme Signs/Symptoms|2|Severe Signs/Symptoms|3|Moderate Signs/Symptoms|4|Minimal Signs/Symptoms|5|No Signs/Symptoms	
+Health Care Supervision.Behavior	IV_41_B_F	IV.41	1	q		Health Care Supervision.Behavior.Family	list|1|Not Appropriate|2|Rarely Appropriate|3|Inconsistently Appropriate|4|Usually Appropriate|5|Consistently Appropriate	
+Health Care Supervision.Knowledge	IV_41_K_F	IV.41	1	q		Health Care Supervision.Knowledge.Family	list|1|No Knowledge|2|Minimal Knowledge|3|Basic Knowledge|4|Adequate Knowledge|5|Superior Knowledge	
+Health Care Supervision.Status	IV_41_S_F	IV.41	1	]		Health Care Supervision.Status.Family	list|1|Extreme Signs/Symptoms|2|Severe Signs/Symptoms|3|Moderate Signs/Symptoms|4|Minimal Signs/Symptoms|5|No Signs/Symptoms	
+Prescribed Medication Regimen.Behavior	IV_42_B	IV.42	1	[		Prescribed Medication Regimen.Behavior.Patient	list|1|Not Appropriate|2|Rarely Appropriate|3|Inconsistently Appropriate|4|Usually Appropriate|5|Consistently Appropriate	
+Prescribed Medication Regimen.Knowledge	IV_42_K	IV.42	1	q		Prescribed Medication Regimen.Knowledge.Patient	list|1|No Knowledge|2|Minimal Knowledge|3|Basic Knowledge|4|Adequate Knowledge|5|Superior Knowledge	
+Prescribed Medication Regimen.Status	IV_42_S	IV.42	1	q		Prescribed Medication Regimen.Status.Patient	list|1|Extreme Signs/Symptoms|2|Severe Signs/Symptoms|3|Moderate Signs/Symptoms|4|Minimal Signs/Symptoms|5|No Signs/Symptoms	
+Prescribed Medication Regimen.Behavior	IV_42_B_F	IV.42	1	q		Prescribed Medication Regimen.Behavior.Family	list|1|Not Appropriate|2|Rarely Appropriate|3|Inconsistently Appropriate|4|Usually Appropriate|5|Consistently Appropriate	
+Prescribed Medication Regimen.Knowledge	IV_42_K_F	IV.42	1	q		Prescribed Medication Regimen.Knowledge.Family	list|1|No Knowledge|2|Minimal Knowledge|3|Basic Knowledge|4|Adequate Knowledge|5|Superior Knowledge	
+Prescribed Medication Regimen.Status	IV_42_S_F	IV.42	1	]		Prescribed Medication Regimen.Status.Family	list|1|Extreme Signs/Symptoms|2|Severe Signs/Symptoms|3|Moderate Signs/Symptoms|4|Minimal Signs/Symptoms|5|No Signs/Symptoms	
+Technical Procedure.Behavior	IV_43_B	IV.43	1	[		Technical Procedure.Behavior.Patient	list|1|Not Appropriate|2|Rarely Appropriate|3|Inconsistently Appropriate|4|Usually Appropriate|5|Consistently Appropriate	
+Technical Procedure.Knowledge	IV_43_K	IV.43	1	q		Technical Procedure.Knowledge.Patient	list|1|No Knowledge|2|Minimal Knowledge|3|Basic Knowledge|4|Adequate Knowledge|5|Superior Knowledge	
+Technical Procedure.Status	IV_43_S	IV.43	1	q		Technical Procedure.Status.Patient	list|1|Extreme Signs/Symptoms|2|Severe Signs/Symptoms|3|Moderate Signs/Symptoms|4|Minimal Signs/Symptoms|5|No Signs/Symptoms	
+Technical Procedure.Behavior	IV_43_B_F	IV.43	1	q		Technical Procedure.Behavior.Family	list|1|Not Appropriate|2|Rarely Appropriate|3|Inconsistently Appropriate|4|Usually Appropriate|5|Consistently Appropriate	
+Technical Procedure.Knowledge	IV_43_K_F	IV.43	1	q		Technical Procedure.Knowledge.Family	list|1|No Knowledge|2|Minimal Knowledge|3|Basic Knowledge|4|Adequate Knowledge|5|Superior Knowledge	
+Technical Procedure.Status	IV_43_S_F	IV.43	1	]		Technical Procedure.Status.Family	list|1|Extreme Signs/Symptoms|2|Severe Signs/Symptoms|3|Moderate Signs/Symptoms|4|Minimal Signs/Symptoms|5|No Signs/Symptoms	

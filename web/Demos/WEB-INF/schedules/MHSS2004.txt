@@ -1,0 +1,108 @@
+RESERVED	__TRICEPS_FILE_TYPE__	SCHEDULE
+RESERVED	__ICON__	dialogo.jpg
+RESERVED	__TITLE__	Mental Health Services Survey 2004 (Draft)
+RESERVED	__HEADER_MSG__	Mental Health Services Survey 2004 (Draft)
+RESERVED	__AUTOGEN_OPTION_NUM__	true
+RESERVED	__PASSWORD_FOR_ADMIN_MODE__	bypass
+RESERVED	__TRICEPS_VERSION_MAJOR__	0
+RESERVED	__TRICEPS_VERSION_MINOR__	5
+RESERVED	__DEVELOPER_MODE__	TRUE
+RESERVED	__SWAP_NEXT_AND_PREVIOUS__	true
+	ND_Background		1	[		Please tell us about yourself without sharing your name.  This confidential non-identifying information is very important to help ensure that services meet your needs.  Please select the choice that best answers the following questions.	nothing
+	q1_Gender		1	q		Gender	list|1|Male|2|Female
+COMMENT	q2_Age		1	q		Age	double
+	q2_Age_Group		1	q		Age Group	list|1|18 - 24|2|25 - 34|3|35 - 44|4|45 - 54|6|55 - 64|7|65 - 74|8|75 - 84|9|85 and older
+	q3_CountyOfResidence		1	q		County of Residence	combo2|01|Albany|02|Allegany|03|Broome|04|Cattaraugus|05|Cayuga|06|Chautauqua|07|Chemung|08|Chenango|09|Clinton|10|Columbia|11|Cortland|12|Delaware|13|Dutchess|14|Erie|15|Essex|16|Franklin|17|Fulton|18|Genesee|19|Greene|20|Hamilton|21|Herkimer|22|Jefferson|23|Lewis|24|Livingston|25|Madison|26|Monroe|27|Montgomery|28|Nassau|29|Niagara|30|Oneida|31|Onondaga|32|Ontario|33|Orange|34|Orleans|35|Oswego|36|Otsego|37|Putnam|38|Rensselaer|39|Rockland|40|Saint Lawrence|41|Saratoga|42|Schenectady|43|Schoharie|44|Schuyler|45|Seneca|46|Steuben|47|Suffolk|48|Sullivan|49|Tioga|50|Tompkins|51|Ulster|52|Warren|53|Washington|54|Wayne|55|Westchester|56|Wyoming|57|Yates|58|Bronx|59|Kings|60|New York|61|Queens|62|Richmond|66|New York City|67|NYS OMH-Bradford|68|NYS OMRDD-Bradford|69|NYS DOH|70|NYC Claims Proc|71|Other Claims Proc|72|Statewide|97|NYS OMH|98|NYS OMRDD|99|unknown|77|NYC|88|Out of State
+	q3a_CountyOfServices		1	q		County of Services	combo2|01|Albany|02|Allegany|03|Broome|04|Cattaraugus|05|Cayuga|06|Chautauqua|07|Chemung|08|Chenango|09|Clinton|10|Columbia|11|Cortland|12|Delaware|13|Dutchess|14|Erie|15|Essex|16|Franklin|17|Fulton|18|Genesee|19|Greene|20|Hamilton|21|Herkimer|22|Jefferson|23|Lewis|24|Livingston|25|Madison|26|Monroe|27|Montgomery|28|Nassau|29|Niagara|30|Oneida|31|Onondaga|32|Ontario|33|Orange|34|Orleans|35|Oswego|36|Otsego|37|Putnam|38|Rensselaer|39|Rockland|40|Saint Lawrence|41|Saratoga|42|Schenectady|43|Schoharie|44|Schuyler|45|Seneca|46|Steuben|47|Suffolk|48|Sullivan|49|Tioga|50|Tompkins|51|Ulster|52|Warren|53|Washington|54|Wayne|55|Westchester|56|Wyoming|57|Yates|58|Bronx|59|Kings|60|New York|61|Queens|62|Richmond|66|New York City|67|NYS OMH-Bradford|68|NYS OMRDD-Bradford|69|NYS DOH|70|NYC Claims Proc|71|Other Claims Proc|72|Statewide|97|NYS OMH|98|NYS OMRDD|99|unknown|77|NYC|88|Out of State
+	q3b_PMHP		1	]		Are you a PMHP member?	list|1|Yes|2|No
+	q3c_PMHP		(q3b_PMHP == 1)	q		Prepaid Mental Health Plan	combo2|1|Albany Community Support Center|2|Baltic Street PMHP|3|Bensonhurst PMHP|4|Buckman Center|5|Bushwick Center|6|Butler Resource and Treatment Center|7|Canarsie Treatment Center|8|Community Treatment + Rehabilitation Center|9|Coney Island PMHP|10|Continuing Day Treatment|11|Continuing Day Treatment - Satellite|12|Creedmoor Adult Home Program Clinic|13|Del Nor Resource and Treatment Center|14|Dutchess PMHP|15|Elmhurst OPD|16|Elmira Community Clinic|17|Fort Hamilton PMHP|18|Geriatric Support Team|19|Ginsburg Clinic|20|Gouverneur Mental Health Clinic|21|Heights Hill PMHP|22|Herkimer Clinic|23|HPC Madison Street Clinic|24|Jamaica Community Services|25|La Casita|26|Lakeside Resource and Treatment Center|27|Lancaster Resource and Treatment Center|28|Manhattan 125th St. Clinic|29|Mapleton PMHP|30|Massena Mental Health Center|31|Mental Health Clinic for the Deaf-Inwood Clinic|32|Middletown Mental Health Clinic|33|Miller Broadway Resource and Treatment|34|Mount Vernon Services Center|35|New Rochelle Services Center|36|Newburgh Mental Health Clinic|37|North Buffalo Resource and Treatment Center|38|North Tonawanda Resource and Treatment Center|39|Nyack Services Center|40|Ocean View Lodge PMHP|41|Ogdensburg Mental Health Clinic|42|Oneida St. Clinic|43|Patchogue Geriatric Center|44|Peconic Center|45|Peekskill Services Center|46|Progress House CDT|47|Putnam County PMHP|48|Queens Village Community Services|49|Ransomville Resource and Treatment Center|50|Residential Services Mental Health Clinic|51|Rochester Psychiatric Center|52|Rome Clinic|53|Schenectady Community Support Center|54|Seneca- Ontario Community Services|55|South Richmond PMHP|56|Steinway OPD|57|Ulster County PMHP- Pine Grove Center|58|Watkins Glen Community Clinic|59|Western Suffolk Center|60|White Plains Services Center|61|Williamsburg Center|62|Yaphank Center|63|Yonkers Services Center|64|York St. Clinic|65|Zoar Valley Resource and Treatment Center
+COMMENT	q4_PrimaryRace		0	q		Primary Racial / Ethnic Identification	list|1|White (non-Hispanic)|2|Black (non-Hispanic)|3|Asian/Asian American|4|Latino/Hispanic (any)|5|Native American|6|Pacific Islander|7|Other or dual
+	Q4a_Intro		1	[		Race (check all that apply)	nothing
+	q4a_Race_White		1	q			check|1|White
+	q4b_Race_Black		1	q			check|2|Black/African American
+	q4c_Race_Asian		1	q			check|3|Asian
+	q4d_Race_Indian		1	q			check|4|American Indian/Alaska Native
+	q4e_Race_Hawaiian		1	q			check|5|Native Hawaiian
+	q4f_Race_Unknown		1	]			check|6|Unknown
+COMMENT	q5_Nationality		0	q		Nationality	list|1|Born in U.S. or U.S. Territory|2|Foreign Born
+	q6_PrimaryLanguage		1	[		Primary Language	list|1|English|2|Spanish|3|Chinese|4|Creole|5|French|6|Greek|7|Italian|8|Japanese|9|Russian|10|Vietnamese|11|Korean|12|Indic(Hindi, Urdu, Sindi)|13|Yiddish|14|German|15|Polish|16|Albanian|17|Sign Language|18|Other
+COMMENT	q7_ReligiousPreference		0	q		Current Religious/Spritual Preference	list|1|No Religious/Spiritual Preference|2|Christian (Protestant)|3|Christian (Roman Catholic)|4|Jewish|5|Islamic,Muslim|6|Hindu|7|Other
+	q8_LastPsychHospitalization		1	]		I have not been a psychiatric hospital inpatient during the past	list|1|1 month|2|3 months|3|6 months|4|1 year|5|more than 1 year|6|Never hospitalized
+COMMENT	q4_other_PrimaryRace		(q4_PrimaryRace == 7)	q		Please specify your race/ethnic identification	text
+COMMENT	q5_yearsInUs		(q5_Nationality == 2)	q		How many years have you been in the US?	double
+	q6_other_PrimaryLanguage		(q6_PrimaryLanguage == 18)	q		What is your primary language?	text
+COMMENT	q7_other_ReligiousPreference		(q7_ReligiousPreference == 7)	q		What is your Religious/Spiritual Preference?	text
+	q9_into		1	[		Which services have you accessed in the past three months (select all that apply)	nothing
+	q9_Inpatient		(q8_LastPsychHospitalization != 6)	q		Inpatient	check|1|Yes
+	q9_PartialHospitalization		1	q		Partial Hospitalization	check|1|Yes
+	q9_ContinuingDayTreatment		1	q		Continuing Day Treatment	check|1|Yes
+	q9_Education		1	q		Education	check|1|Yes
+	q9_PeerOperatedServices		1	q		Peer Operated Services	check|1|Yes
+	q9_SubstanceAbuse		1	q		Sustance Abuse	check|1|Yes
+	q9_Clinic		1	q		Clinic	check|1|Yes
+	q9_CaseManagement		1	q		Case Management	check|1|Yes
+	q9_SupportiveCaseManagement		1	q		Supportive Case Management	check|1|Yes
+	q9_IntensiveCaseManagement		1	q		Intensive Case Management	check|1|Yes
+	q9_IntensivePsychiatricRehabilitationTreatment		1	q		Intensive Psychiatric Rehabilitation Treatment	check|1|Yes
+	q9_AssertiveCommunityTreatment		1	q		Assertive Community Treatment	check|1|Yes
+	q9_Other		1	]		Other Alternative Service	text				N/A
+	ND_ConvenienceIntro		1	[		Please tell us how easy and convenient it has been to get mental health services during the last 3 months.	nothing
+	q10_Information		1	q		The information you were given about services options	list|1|Poor|2|Fair|3|Good|4|Excellent|999|Does Not Apply
+	q11_CoordinatedServices		1	q		Your service coordinator/therapist's help in getting the services you need	list|1|Poor|2|Fair|3|Good|4|Excellent|999|Does Not Apply
+	q12_Appointments		1	q		The ease of making appointments	list|1|Poor|2|Fair|3|Good|4|Excellent|999|Does Not Apply
+	q13_AssistedHousing		1	q		Help in getting housing, vocational and educational services	list|1|Poor|2|Fair|3|Good|4|Excellent|999|Does Not Apply
+	q14_Emergency		1	q		Getting help in a psychiatric emergency	list|1|Poor|2|Fair|3|Good|4|Excellent|999|Does Not Apply
+	q15_GettingServices		1	q		The ease of getting services when you needed them	list|1|Poor|2|Fair|3|Good|4|Excellent|999|Does Not Apply
+	q16_SelfHelp		1	q		The availability of self-help and peer support groups.	list|1|Poor|2|Fair|3|Good|4|Excellent|999|Does Not Apply
+	q17_Transportation		1	q		The ease of getting to the places where you receive services.	list|1|Poor|2|Fair|3|Good|4|Excellent|999|Does Not Apply
+	q18_RangeOfServices		1	q		The range of services available to you.	list|1|Poor|2|Fair|3|Good|4|Excellent|999|Does Not Apply
+	q19_GettingMedServices		1	]		The ease of getting medical services.	list|1|Poor|2|Fair|3|Good|4|Excellent|999|Does Not Apply
+	ND_StaffResponsivenessIntro		1	[		Please tell us how mental health services were provided and how responsive services providers were to you during the last 3 months.	nothing
+	q20_Listening		1	q		Staff's willingness to listen to your concerns	list|1|Poor|2|Fair|3|Good|4|Excellent|999|Does Not Apply
+	q21_Sensitivity		1	q		Staff's sensitivity to issues related to your culture, race, gender, sexual orientation and/or religion	list|1|Poor|2|Fair|3|Good|4|Excellent|999|Does Not Apply
+	q22_RecoveryOrientation		1	q		Staff's belief that you can grow, change and recover.	list|1|Poor|2|Fair|3|Good|4|Excellent|999|Does Not Apply
+	q23_MedInfo		1	q		The information you received about your medication and any side effects.	list|1|Poor|2|Fair|3|Good|4|Excellent|999|Does Not Apply
+	q24_Respect		1	q		The respect with which you were treated.	list|1|Poor|2|Fair|3|Good|4|Excellent|999|Does Not Apply
+	q25_CommonLanguage		1	q		Staff's ability to speak in your language	list|1|Poor|2|Fair|3|Good|4|Excellent|999|Does Not Apply
+	q26_Preferences		1	q		Our freedom to choose or reject services.	list|1|Poor|2|Fair|3|Good|4|Excellent|999|Does Not Apply
+	q27_Empowerment		1	q		Your opportunity to take charge of your care.	list|1|Poor|2|Fair|3|Good|4|Excellent|999|Does Not Apply
+	q28_Skill		1	q		Staff's skill in providing services.	list|1|Poor|2|Fair|3|Good|4|Excellent|999|Does Not Apply
+	q29_MetSpecialNeeds		1	q		How well services met your special needs.	list|1|Poor|2|Fair|3|Good|4|Excellent|999|Does Not Apply
+	q30_DiagnosisInfo		1	q		The information you were given about your diagnosis and treatment.	list|1|Poor|2|Fair|3|Good|4|Excellent|999|Does Not Apply
+	q31_SharedPlanning		1	]		Your opportunity to participate in the development of plans for your services.	list|1|Poor|2|Fair|3|Good|4|Excellent|999|Does Not Apply
+	ND_HelpfulnessIntro		1	[		Please tells us how helpful mental health services have been for you during the last 3 months.	nothing
+	q32_DailyProblems		1	q		Helpfulness of services on your ability to deal with daily problems.	list|1|Poor|2|Fair|3|Good|4|Excellent|999|Does Not Apply
+	q33_Crisis		1	q		Helpfulness of services on your ability to manage in a crisis.	list|1|Poor|2|Fair|3|Good|4|Excellent|999|Does Not Apply
+	q34_Goals		1	q		Support that you receive from mental health services to achieve your goals.	list|1|Poor|2|Fair|3|Good|4|Excellent|999|Does Not Apply
+	q35_SelfHelp		1	q		Helpfulness of self-help nad support groups on your recovery.	list|1|Poor|2|Fair|3|Good|4|Excellent|999|Does Not Apply
+	q36_Work		1	q		Helpfulness of services on your involvement in work or school.	list|1|Poor|2|Fair|3|Good|4|Excellent|999|Does Not Apply
+	q37_Meds		1	q		Helpfulness of the medication you receive in reducing symptoms.	list|1|Poor|2|Fair|3|Good|4|Excellent|999|Does Not Apply
+	q38_Relationships		1	q		Helpfulness of services on your relationships with others who are close to you.	list|1|Poor|2|Fair|3|Good|4|Excellent|999|Does Not Apply
+	q39_Improvement		1	]		Overall improvement you have made.	list|1|Poor|2|Fair|3|Good|4|Excellent|999|Does Not Apply
+	ND_OverallRatingIntro		1	[		We would like your overall rating of the mental health services provided during the last 3 months.  How would you rate the following?	nothing
+	q40_OverallQuality		1	q		The overall quality of the services you received	list|1|Poor|2|Fair|3|Good|4|Excellent|999|Does Not Apply
+	q41_LikelihoodContinuedUse		1	q		The likelihood you would continue to use these services when you have the need.	list|1|Poor|2|Fair|3|Good|4|Excellent|999|Does Not Apply
+	other1		1	q		Is there anything else you want on your service plan?	memo				Type comments here.
+	suggestions		1	q		What suggestions would you make to improve services and/or what aspects of services are particularly good?	memo				Type comments here.
+	comments		1	q		Please type any additional comments here.	memo				Type comments here.
+	harmful_yn		1	]		Where there any harmful aspects to the services that you received?	list|1|Yes|2|No
+	harmful_yn_fu		(harmful_yn == 1)	q		Please explain the harmful aspects of the services you received.	memo				Type comments here.
+	ND_QOL_Intro		1	[		In this section, we ask you to rate how thing are going in different areas of your life.  Please read the statement and select the answer that best represents your experience.  Overall, how would you rate:	nothing
+	qol1		1	q		The place where you live (your housing)	list|1|Poor|2|Fair|3|Good|4|Excellent|999|Does Not Apply
+	qol2		1	q		The amount of money you have to buy what you need.	list|1|Poor|2|Fair|3|Good|4|Excellent|999|Does Not Apply
+	qol3		1	q		Your involvement in work, employment.	list|1|Poor|2|Fair|3|Good|4|Excellent|999|Does Not Apply
+	qol4		1	q		Your level of education.	list|1|Poor|2|Fair|3|Good|4|Excellent|999|Does Not Apply
+	qol5		1	q		Your access to transportation to get around.	list|1|Poor|2|Fair|3|Good|4|Excellent|999|Does Not Apply
+	qol6		1	q		Your social life.	list|1|Poor|2|Fair|3|Good|4|Excellent|999|Does Not Apply
+	qol7		1	q		Your participation in community activities (leisure, sports, spiritual, volunteer work).	list|1|Poor|2|Fair|3|Good|4|Excellent|999|Does Not Apply
+	qol8		1	q		Your ability to have fun and relax.	list|1|Poor|2|Fair|3|Good|4|Excellent|999|Does Not Apply
+	qol9		1	q		Your physical health.	list|1|Poor|2|Fair|3|Good|4|Excellent|999|Does Not Apply
+	qol10		1	q		Your level of independence.	list|1|Poor|2|Fair|3|Good|4|Excellent|999|Does Not Apply
+	qol11		1	q		Your ability to take care of yourself (staying healthy, eating right, avoiding danger).	list|1|Poor|2|Fair|3|Good|4|Excellent|999|Does Not Apply
+	qol12		1	q		Your self-esteem (how you feel about yourself).	list|1|Poor|2|Fair|3|Good|4|Excellent|999|Does Not Apply
+	qol13		1	q		Overall, how things are going in your life.	list|1|Poor|2|Fair|3|Good|4|Excellent|999|Does Not Apply
+	qol14		1	q		The effect of Alcohol and other drugs on your life	list|1|Severe|2|Moderate|3|Minimal|4|None|5|Does Not Apply
+	qol15		1	]		Your mental health symptoms.	list|1|Severe|2|Moderate|3|Minimal|4|None|5|Does Not Apply
+	end		1	q		Thank you for completing this survey.  When you press "next", the data will be submitted.	nothing
+
+

@@ -1,0 +1,33 @@
+RESERVED	__TRICEPS_FILE_TYPE__	SCHEDULE
+RESERVED	__ICON__	cpmc_dmi.jpg
+RESERVED	__TITLE__	HIV-SSC
+RESERVED	__HEADER_MSG__	HIV-SSC
+RESERVED	__AUTOGEN_OPTION_NUM__	true
+RESERVED	__PASSWORD_FOR_ADMIN_MODE__	bypass
+RESERVED	__DEVELOPER_MODE__	TRUE
+Anxiety	q1		1	[		Anxiety	list|1|Mild|2|Moderate|3|Severe
+Chills	q2		1	q		Chills	list|1|Mild|2|Moderate|3|Severe
+Day Sweats	q3		1	q		Day Sweats	list|1|Mild|2|Moderate|3|Severe
+Depression	q4		1	q		Depression	list|1|Mild|2|Moderate|3|Severe
+Diarrhea	q5		1	q		Diarrhea	list|1|Mild|2|Moderate|3|Severe
+Difficulty Concentrating	q6		1	q		Difficulty Concentrating	list|1|Mild|2|Moderate|3|Severe
+Disorientation	q7		1	q		Disorientation	list|1|Mild|2|Moderate|3|Severe
+Dry Mouth	q8		1	q		Dry Mouth	list|1|Mild|2|Moderate|3|Severe
+Fatigue	q9		1	q		Fatigue	list|1|Mild|2|Moderate|3|Severe
+Fear	q10		1	q		Fear	list|1|Mild|2|Moderate|3|Severe
+Fever	q11		1	q		Fever	list|1|Mild|2|Moderate|3|Severe
+Gas/Bloating	q12		1	q		Gas/Bloating	list|1|Mild|2|Moderate|3|Severe
+Lack Of Appetite	q13		1	q		Lack Of Appetite	list|1|Mild|2|Moderate|3|Severe
+Loose Stools	q14		1	q		Loose Stools	list|1|Mild|2|Moderate|3|Severe
+Memory Loss	q15		1	q		Memory Loss	list|1|Mild|2|Moderate|3|Severe
+Muscle Aches	q16		1	q		Muscle Aches	list|1|Mild|2|Moderate|3|Severe
+Nausea	q17		1	q		Nausea	list|1|Mild|2|Moderate|3|Severe
+Night Sweats	q18		1	q		Night Sweats	list|1|Mild|2|Moderate|3|Severe
+Painful Joints	q19		1	q		Painful Joints	list|1|Mild|2|Moderate|3|Severe
+Shortness Of Breath At Rest	q20		1	q		Shortness Of Breath At Rest	list|1|Mild|2|Moderate|3|Severe
+Shortness Of Breath With Activity	q21		1	q		Shortness Of Breath With Activity	list|1|Mild|2|Moderate|3|Severe
+Thirsty	q22		1	q		Thirsty	list|1|Mild|2|Moderate|3|Severe
+Vomiting	q23		1	q		Vomiting	list|1|Mild|2|Moderate|3|Severe
+Weakness	q24		1	q		Weakness	list|1|Mild|2|Moderate|3|Severe
+Wheezing	q25		1	q		Wheezing	list|1|Mild|2|Moderate|3|Severe
+Abdominal Pain	q26		1	]		Abdominal Pain	list|0|Absent|1|Present

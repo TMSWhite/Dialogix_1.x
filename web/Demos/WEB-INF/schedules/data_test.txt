@@ -1,0 +1,42 @@
+RESERVED	__TRICEPS_FILE_TYPE__	SCHEDULE
+RESERVED	__ICON__	dialogo.jpg
+RESERVED	__DEVELOPER_MODE__	true
+RESERVED	__DEBUG_MODE__	true
+RESERVED	__TITLE__	Data Test
+RESERVED	__HEADER_MSG__	Data Test
+RESERVED	__AUTOGEN_OPTION_NUM__	true
+RESERVED	__SHOW_ADMIN_ICONS__	true
+RESERVED	__ALLOW_COMMENTS__	true
+RESERVED	__ALLOW_DONT_UNDERSTAND__	false
+RESERVED	__ALLOW_REFUSED__	true
+RESERVED	__ALLOW_UNKNOWN__	false
+RESERVED	__PASSWORD_FOR_ADMIN_MODE__	admin
+RESERVED	__SUSPEND_TO_FLOPPY__	false
+RESERVED	__LANGUAGES__	en|ar|be|bg|ca|cs|da|de|el|es|et|fi|fr|hr|hu|is|it|iw|ja|ko|lt|lv|mk|nl|no|pl|pt|ro|ru|sh|sk|sl|sq|sr|sv|th|tr|uk|zh
+RESERVED	__JUMP_TO_FIRST_UNASKED__	false
+	check		1	[		check	check|0|No|1|Yes|2|Don't Know
+	combo		1	q		combo	combo|0|No|1|Yes|2|Don't Know
+	combo2	1	q		combo2	combo2|0|No|1|Yes|2|Don't Know
+	date		1	q		date	date
+	day		1	q		day	day
+	day_num		1	q		day_num	day_num
+	double		1	q		double	double
+	hour		1	q		hour	hour
+	list		1	q		list	list|0|No|1|Yes|2|Don't Know
+	list2		1	q		list2	list2|0|No|1|Yes|2|Don't Know
+	memo		1	q		memo	memo
+	minute		1	q		minute	minute
+	month		1	q		month	month
+	month_num		1	q		month_num	month_num
+	nothing		1	q		nothing	nothing
+	password		1	q		password	password
+	radio		1	q		radio	radio|0|No|1|Yes|2|Don't Know
+	radio2		1	q		radio2	radio2|0|No|1|Yes|2|Don't Know
+	radio3		1	q		radio3	radio3|0|No|1|Yes|2|Don't Know
+	second		1	q		second	second
+	text		1	q		text	text
+	time		1	q		time	time
+	weekday		1	q		weekday	weekday
+	year		1	]		year	year
+	
+	

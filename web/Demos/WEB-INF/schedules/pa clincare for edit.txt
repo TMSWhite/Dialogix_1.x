@@ -1,0 +1,389 @@
+RESERVED	__TRICEPS_FILE_TYPE__	SCHEDULE
+RESERVED	__ICON__	nypi.jpg
+RESERVED	__DEVELOPER_MODE__	TRUE
+RESERVED	__DEBUG_MODE__	TRUE
+RESERVED	__TITLE__	Clincare
+RESERVED	__HEADER_MSG__	Clincare
+RESERVED	__AUTOGEN_OPTION_NUM__	FALSE
+RESERVED	__SHOW_ADMIN_ICONS__	FALSE
+RESERVED	__ALLOW_COMMENTS__	FALSE
+RESERVED	__ALLOW_DONT_UNDERSTAND__	TRUE
+RESERVED	__ALLOW_REFUSED__	TRUE
+RESERVED	__ALLOW_UNKNOWN__	TRUE
+RESERVED	__PASSWORD_FOR_ADMIN_MODE__	admin
+RESERVED	__LANGUAGES__	en_US
+RESERVED	__SUSPEND_TO_FLOPPY__	FALSE
+RESERVED	__JUMP_TO_FIRST_UNASKED__	FALSE
+RESERVED	__SCHED_AUTHORS__	Barry Gurland					
+RESERVED	__SCHED_VERSION_MAJOR__	0.1					
+RESERVED	__SCHED_VERSION_MINOR__	0					
+COMMENT: Concept	VariableName	DisplayName	Relevance	QuestionOrEval	Readback	QuestionOrEvalText	
+COMMENT							
+D1	D1		1	[		SEQUENCE OF INTERVIEW	double
+D2	D2		1	q		STUDY ID #	double
+D3	D3		1	q		INTERVIEWER'S ID	double
+D4	D4		1	q		SUB-STUDY#	double
+D6	D6		1	]		DATE OF INTERVIEW	date
+
+GENH1	GHGENHD		1	q		1.GENERAL HEALTH	nothing
+GENH2	GHPROB		1	[		Have you had any kind of a problem with your health over the past month?	list|"?"|?|0|No|1|Reports a problem
+GENH3	GHCOMPOTH		1	q		"Compared with persons your age, how would you rate your health at the present time - excellent, good, fair, or poor?"	list|"?"|?|0|Excellent|1|Good|2|Fair|3|Poor
+GENH4	GHCOMPAST		1	q		"Compared with your health six months ago, how is your health now? Better, about the same,or worse?"	list|"?"|?|0|Better|1|Same|2|Worse
+GENH5	GHSTOP		1	q		What things does your health stop you from doing as much as you would like?  What about…	nothing
+GENH5a	GHINTLEIS		1	q		Leisure activities?	list|"?"|?|0|No|1|Due to health does less than desired
+GENH6	GHINTCHRS		1	q		"What about chores( dusting, washing dishes)"	list|"?"|?|0|No|1|Due to health etc.
+GENH7	GHINTJOB		1	q		What about holding a paying job?	list|"?"|?|0|No|1|Due to health etc.
+GENH8	GHINTARND		1	q		What about getting around the neighborhood?	list|"?"|?|0|No|1|Due to health etc.
+GENH9	GHINTTRVL		1	q		What about travel outside the neighborhood?	list|"?"|?|0|No|1|Due to health etc.
+GENH10	GHINTSOC		1	q		"What about social activities (e.g visiting, being visited)"	list|"?"|?|0|No|1|Due to health etc.
+GENH11	GHINTSPRT		1	q		"What about spiritual activities ( church, prayer groups)"	list|"?"|?|0|No|1|Due to health etc.
+GENH12	GHINTOTH		1	]		Any other ways? Please tell me more about that.	list|"?"|?|0|No|1|Due to health etc.
+GENH1_12_score	GENH1_12_score		1	e		(((GHPROB)?GHPROB:0) + ((GHCOMPOTH)?GHCOMPOTH:0) + ((GHCOMPAST)?GHCOMPAST:0) + ((GHINTLEIS)?GHINTLEIS:0) + ((GHINTCHRS)?GHINTCHRS:0) + ((GHINTJOB)?GHINTJOB:0) + ((GHINTARND)?GHINTARND:0) + ((GHINTTRVL)?GHINTTRVL:0) + ((GHINTSOC)?GHINTSOC:0) + ((GHINTSPRT)?GHINTSPRT:0) + ((GHINTOTH)?GHINTOTH:0))	nothing
+GENH13	GHINTACTS		(GHINTLEIS ==1)||(GHINTCHRS ==1)||(GHINTJOB ==1)||(GHINTARND ==1)||(GHINTTRVL ==1)||(GHINTSOC ==1)||(GHINTSPRT==1)||(GHINTOTH ==1)	q		Do your health problems get in the way of your doing the things you want to do little or a great deal?	list|"?"|?|0|Not at all|1|A little|2|A great deal
+GENH14	GHDIFDO		1	[		Any difficulty in doing things for yourself?	list|"?"|?|0|No|1|Reports a difficulty in self-care
+GENH15	GHVSTMD		1	]		Have you seen a doctor in the last past year?	list|"?"|?|0|No|1|Has visited a doctor
+GENH16	GHRCOVR		(GHVSTMD==1)	q		What was that for? What did she say about it? What treatment did you get? Is it better now?	list|"?"|?|0|No|1|Not recovered
+GENH18	GH100		1	q		Glb: 0-10 above normal; 11-30 normal; 31-55 advice or/and follow annually; 56-80 investigate and/or prevention/ 81-100 treat actively. 	double
+
+ADL1	ADLHD		1	q		2.ACTIVITIES OF DAILY LIVING, MOBILITY	nothing
+
+MOBL3	MBHVYDOORS		1	[		"Can you open heavy doors, like shop doors or revolving doors, by yourself?"	list|"?"|?|0|Yes|1| Cannot open heavy doors unassisted
+MOBL4	MBHVYPCKGE		1	q		Can you carry heavy packages?	list|"?"|?|0|Yes|1|Cannot carry heavy packages
+MOBL6	MBHURRY		1	q		Can you hurry quickly across the road if necessary?	list|"?"|?|0|Yes|1|Cannot hurry
+MOBL7	MBBLOCK		1	q		How many street blocks can you walk without resting? More than 10?	list|"?"|?|7|11+blocks without resting|6|10-6 blocks|5|5 blocks|4|4 blocks|3|3 blocks|2|2 blocks|1|1 block|0|less than 1 block
+MOBL17	MBDFOUT		1	q		Do you have any difficulty walking outdoors?	list|"?"|?|0|No|1|Difficulty outdoors
+MOBL15	MBDFINDRS		1	q		Do you have any difficulty walking indoors?	list|"?"|?|0|No|1|Difficulty indoors
+MOBL13	MBDFSTND		1	q		Do you have any difficulty getting to a standing position?	list|"?"|?|0|No|1|Difficulty standing up or starting to get up
+MOBL19	MBCANE		1	q		Do you usually use a cane or a walker to help you walk? 	list|"?"|?|0|No|1|Uses a cane or walker
+MOBL18	MBDYSOUT		1	q		How many days have you gone out of the house in the last week	list|"?"|?|0|7 days out in a week|1|5-6 days out in a week|2|4 days out in a week|3|less than 3 days out in a week
+MOBL21	MBDIFCROSS		1	q		Do you have difficulty crossing roads or intersections by yourself?	list|"?"|?|0|No|1|Diddiculty crossing roads
+MOBL22	MBFEET		1	]		"Do you have any pain or discomfort in ypur feet?"	list|"?"|?|0|No|1|Trouble with feet
+
+MOBL24	MBSCORE		1	e		(((MBHVYDOORS)?MBHVYDOORS:0) + ((MBHVYPCKGE)?MBHVYPCKGE:0) + ((MBHURRY)?MBHURRY:0) + ((MBBLOCK)?MBBLOCK:0) + ((MBDYSOUT)?MBDYSOUT:0) + ((MBCANE)?MBCANE:0) + ((MBDIFCROSS)?MBDIFCROSS:0) + ((MBFEET)?MBFEET:0))	double
+
+
+
+FALLS1	FAFLLSHD		1	q		FALLS	nothing
+FALLS2	FABALANCE		1	[		Is your balance poor?	list|"?"|?|0|No|1|Claims balance is poor
+
+
+FALLS5	FAFLSCHNG		1	]		Have you changed the way you do things OR stopped doing certain activities because of worrying about falling?	list|"?"|?|0|No|1|Changed activity|2|Stopped activity
+
+FALLS7	FASCORE		1	e		(((FABALANCE)?FABALANCE:0) + ((FAFLSCHNG)?FAFLSCHNG:0))	double
+
+CHRS6	CRDFHVCHR		1	q		Do you have any difficulty doing heavy chores?	list|"?"|?|0|No|1|Difficulty heavy chores
+INST3	ITCOULDCOOK		1	q		Could you manage the cooking and preparation entirely by yourself if you had to?	list|"?"|?|0|Definitely or probably could|1|Definitely or probably could not
+INST6	ITCOULDSHP		1	q		Could you manage all your shopping entirely by yourself if you had to?	list|"?"|?|0|Definitely or probably could|1|Definitely or probably could not
+IADL	CRITSCORE		1	e		(((CRDFHVCHR)?CRDFHVCHR:0) + ((ITCOULDCOOK)?ITCOULDCOOK:0))	double
+
+
+DRSS3	DSDIFDRSS		1	q		Do you have any difficulty in getting dressed or putting on outdoor clothing by yourself?	list|"?"|?|0|No|1|Difficulty dressing
+
+
+
+EXCR3	ETDIFTLT		1	q		Do you have any difficulty getting to or using the toilet by yourself?	list|"?"|?|0|No|1|Difficulty with toilet
+
+BADL	DSETSCORE		1	e		(((DSDIFDRSS)?DSDIFDRSS:0) + ((ETDIFTLT)?ETDIFTLT:0))	double
+
+ATRB1	ATHD		1	q		"ATTRIBUTIONS, PROGRESS AND EFFECTS "	nothing
+ATRB2	ATSUM		1	[		"SUMMARY:Were activities or tasks reported to be difficult, problematic, limited or requiring assistance?"	list|"?"|?|0|No|1|Reported difficulty, problem, limitation, or assistance
+ATRB3	ATANY		(ATSUM==1)	q		"IF ANY DIFFICULTY, PROBLEM, LIMITATION, OR ASSISTANCE: You mentioned…………. What is that due to? RATE ALL THAT APPLY"	nothing
+ATRB4	ATWK		(ATSUM==1)	q		General weakness?	list|"?"|?|0|No|1|Yes
+ATRB5	ATPARL		(ATSUM==1)	q		Paralysis?	list|"?"|?|0|No|1|Yes
+ATRB6	ATBLNC		(ATSUM==1)	q		Poor balance?	list|"?"|?|0|No|1|Yes
+ATRB7	ATBRTH		(ATSUM==1)	q		Breathlessness?	list|"?"|?|0|No|1|Yes
+ATRB8	ATCHSTP		(ATSUM==1)	q		Pain in chest?	list|"?"|?|0|No|1|Yes
+ATRB9	ATLEGP		(ATSUM==1)	q		Pain in legs or feet?	list|"?"|?|0|No|1|Yes
+ATRB10	ATSTIFF		(ATSUM==1)	q		Stiffness or stooping?	list|"?"|?|0|No|1|Yes
+ATRB11	ATELSE		(ATSUM==1)	q		Is it something else that make it difficult (etc.) for you?	nothing
+ATRB12	ATPHYS		(ATSUM==1)	q		Other physical causes?	list|"?"|?|0|No|1|Yes
+ATRB13	ATNONPH		(ATSUM==1)	q		Othe non physical causes?	list|"?"|?|0|No|1|Yes
+ATRB14	ATWRSE		(ATSUM==1)	]		"Overall, is this difficulty, problem or limitation getting better, worse, or remaining the same?"	list|"?"|?|0|Getting better|1|Same|2|Worse
+
+
+
+COGF1	CFCOGHD		1	q		COGNITIVELY CONTROLLED FUNCTIONS	nothing
+COGF2	CFDIFMEM		1	[		How about any difficulty with your memory?	list|"?"|?|0|No|1|Difficulty with memory
+COGF12	CFWORSE		1	q		Is it more difficult for you to remember things than it used to be?	list|"?"|?|0|No|1|More difficult
+COGF3	CFDIFRECNT		1	q		Do you have difficulty in remembering things you have just read or heard? What kind of things do you forget?	list|"?"|?|0|No|1|Difficulty remembering recent events
+COGF4	CFDIFNMS		1	q		Do you have difficulty remembering the names of people in your family or close friends? (DO NOT INCLUDE TRANSIENT MISTAKES QUICKLY CORRECTED).	list|"?"|?|0|No|1|Difficulty remembering recent names
+COGF5	CFSTOPWDS		1	q		Do you  ofter have to stop in the middle of saying something because you have difficulty remembering the ridht word?	list|"?"|?|0|No|1|Stops to remember words
+COGF6	CFDIFDOING		(CFDIFMEM==1)||(CFDIFRECNT==1)||(CFDIFNMS==1)||(CFSTOPWDS==1)	q		Does this problem with your memory make it difficult for you to do the things you used to do?	list|"?"|?|0|No|1|Difficult to do things
+COGF7	CFDIF		(CFDIFMEM==1)||(CFDIFRECNT==1)||(CFDIFNMS==1)||(CFSTOPWDS==1)	q		Do problems with your memory make it difficult for you to:	nothing
+COGF8	CFDIFOUT		(CFDIFMEM==1)||(CFDIFRECNT==1)||(CFDIFNMS==1)||(CFSTOPWDS==1)	q		Go outside by yourself?	list|"?"|?|0|No|1|Is difficult
+COGF11	CFDIFBUSN		(CFDIFMEM==1)||(CFDIFRECNT==1)||(CFDIFNMS==1)||(CFSTOPWDS==1)	]		"Keep track of your personal business like paying bills, handling money,etc?"	list|"?"|?|0|No|1|Is difficult
+COG 14	CFSCORE		1	e		(((CFDIFMEM)?CFDIFMEM:0) + ((CFDIFRECNT)?CFDIFRECNT:0) + ((CFDIFNMS)?CFDIFNMS:0) + ((CFSTOPWDS)?CFSTOPWDS:0) + ((CFDIFDOING)?CFDIFDOING:0) + ((CFDIFOUT)?CFDIFOUT:0) + ((CFDIFBUSN)?CFDIFBUSN:0) + ((CFWORSE)?CFWORSE:0))	double
+
+
+
+
+COGN1	CGHEAD		1	q		3.COGNITIVE PERFORMANCE	nothing
+COGN5	CGBRTHYRa		1	[		"How old are you? IF GIVES YEAR OF BIRTH: So, how many years would that be?) "	list|"?"|?|0|Yes|"NR"|No Response|1|Age is incorrect (allow one year discrepancy)
+COGN6	CGBRTHMNTH		1	q		In what year were you born?	list|"?"|?|0|Yes|"NR"|No Response|1|Year of birth is incorrect
+COGN7	CGBRTHDY		1	q		And the Month ?	list|"?"|?|0|Yes|"NR"|No Response|1|Month of birth is incorrect
+COGN9	CGDISCREP		1	q		OBS: BIRTH DATE AND AGE ARE DISCREPANT	list|"?"|?|0|No|"NR"|No Response|1|Birth date and age are discrepant
+COGN10	CGOBSAGEORBTH		(CGDISCREP==1)	q		That doesn't seem to come out right when I add it up. Can you help me?	list|"?"|?|0|Yes|"NR"|No Response|1|Does not correct discrepancy in birth age
+COGN11	CGOBVIOUS		(CGDISCREP==1)	q			list|"?"|?|0|No|"NR"|No Response|1|Either stated birth date,stated age, or both are obviously wrong
+COGN18	CGLONGATADD		1	q		How long have you lived at this address? [IF GIVES DATE:How many years would that be?]	list|"?"|?|"NR"|No Response|'double'|<enter a number>
+COGN19	CGYRMOVD		1	q		What year did you move to this address?	list|"?"|?|"NR"|No Response|'year'|<enter a year>
+COGN21	CGADDCON		1	q		CHECK CONSISTENCY OF ADDRESS DATES	list|"?"|?|0|Yes|"NR"|No Response|1|Address dates not consistent
+COGN22	CGADDSCR		(CGADDCON==1)	q		That doesn't seem to come out right. When I add it up. Can you help me?	list|"?"|?|0|Yes|"NR"|No Response|1|Does not correct address dates discrepancy
+COGN28	CGMBTH		1	q		What month is it?	list|"?"|?|0|Yes|"NR"|No Response|1|Does not state the correct month(allow three days leeway at turn of month)
+COGN29	CGYR		1	]		What year is it?	list|"?"|?|0|Yes|"NR"|No Response|1|Does not state correct year
+COGN36	CGGLB100		1	q		Glb: 0-10 above normal; 11-30 normal; 31-55 advice and/orfollow annually; 56-80 investigte and/orprevention/81-100 treat actively.	double
+COGN37	CGSCORE		1	e		(((CGBRTHMNTH)?CGBRTHMNTH:1) + ((CGBRTHDY)?CGBRTHDY:1) + ((CGDISCREP)?CGDISCREP:1) + ((CGOBSAGEORBTH)?CGOBSAGEORBTH:1) + ((CGOBVIOUS)?CGOBVIOUS:1) + ((CGLONGATADD)?CGLONGATADD:1) + ((CGYRMOVD)?CGYRMOVD:1) + ((CGADDCON)?CGADDCON:1) + ((CGADDSCR)?CGADDSCR:1))	double
+
+
+DEPR1	DPHEAD		1	q		4. DEPRESSED MOOD	nothing
+DEPR2	DPLIFESAT		1	[		Taking everything into consideration, how would you describe your satisfaction with life in general at the present time good, fair, or poor?	list|"?"|?|0|Good|1|Fair|2|Poor
+DEPR3	DPHAPPY		1	q		In general, how happy are you - very happy, fairly happy, not very happy, or not happy at all?	list|"?"|?|0|Very happy|1|Fairly happy|2|Not very happy|3|Not happy at all
+DEPR4	DPWRRY		1	q		What kinds of things do you worry about?	list|"?"|?|0|No|1|Mentions some worries
+DEPR5	DPWRYALL		(DPWRRY==1)	q		Do you worry about almost everything?	list|"?"|?|0|No|1|Worries about almost everything
+DEPR6	DPWRYTME		(DPWRRY==1)	q		Can you stop yourself from worrying when you want to?	list|"?"|?|0|Yes|1|Not able to stop worrying
+DEPR7	DPSAD		1	q		Have you been sad or depressed in the past month?	list|"?"|?|0|No|1|Sad and/or depressed
+DEPR8	DPSADHRS		(DPSAD==1)	q		How long does the sadness/depression last? Just a few hours at a time or longer than that?	list|"?"|?|0|Less than a few hours|1|Just a few hours|2|Longer than a few hours
+DEPR9	DPSADDYS		(DPSAD==1)	q		"Has it been present for most of the day, every day?"	list|"?"|?|0|No|1|Most of the day/everyday
+DEPR10	DPSADWKS		(DPSAD==1)	q		For at least two weeks in the past month?	list|"?"|?|0|No|1|At least two weeks
+DEPR11	DPSADTIME		(DPSAD==1)	q		What time of the day do you feel the worst? Is it toward the beginning of the day or toward the end of the day? All day long?	list|"?"|?|0|No|1|Toward the beginning of the day|2|All day long
+DEPR12	DPCRY		1	q		Have you cried at all in the past month?	list|"?"|?|0|No|1|Cried in the past month
+DEPR17	DPTRBLSLP		1	q		Have you had trouble sleeping over the past month?	list|"?"|?|0|No|1|Trouble sleeping
+DEPR18	DPAWKDEP		(DPTRBLSLP==1)	q		What goes through your mind while you are lying awake?	list|"?"|?|0|No|1|Lies awake with depressed or anxious feeling or thoughts
+DEPR21	DPPESSM		1	q		How do you feel about your future? What are your hopes for the future? 	list|"?"|?|0|Yes|1|Pessimistic or empty expectations or bleak future
+DEPR13	DPFWD		1	q		What is it that you look forward to?	list|"?"|?|0|confused|1|future looks bleak and unbearable
+DEPR14	DPLESENJY		1	q		Do you enjoy things or have the same level of interest in things now as much as it used to be (say few years ago)?	list|"?"|?|0|Yes|1|Less enjoyment or interest
+DEPR15	DPNOTENJY		1	q		What have you enjoyed doing in the past month?	list|"?"|?|0|Yes|1|nothing or almost nothing enjoyed
+DEPR16	DPNOHPPY		1	q		When did you last feel happy? Have you felt happy in the past month?	list|"?"|?|0|Yes|1|No mention of happiness in the past month
+DEPR22	DPLFWRTH		1	q		"During the past month, have you felt that life was not worth living?"	list|"?"|?|0|No|1|Life not worth living
+DEPR19	DPRGRTS		1	q		Do you have any regrets about your life?   Do you blame yourself for anything?	list|"?"|?|0|No|1|Mentions regrets
+DEPR20	DPSLFBLM		(DPRGRTS==1)	q		"What? In the past month, has this been on your mind a lot?"	list|"?"|?|0|No|1|Unjustifiable self-blame
+DEPR23	DPENDIT		1	q		"In the past month, have you at any time felt like you'd rather be dead or felt like you wanted to end it all?"	list|"?"|?|0|No|1|Rather be dead or end it all
+DEPR24	DPWISHD		(DPENDIT==1)	q		Did you think doing anything harmful to yourself  ( in the past month)?	list|"?"|?|0|No|1|Wishes to be dead but rejects suicide
+DEPR25	DPFLTSUIC		(DPWISHD==1)	q		How often did you think about it?	list|"?"|?|0|No|1|Fleeting suicidal thoughts
+DEPR26	DPSERSUIC		(DPWISHD==1)	q		What did you plan to do?	list|"?"|?|0|No|1|Seriously considered a method but has not attempted suicide
+DEPR27	DPATTMPTSIC		(DPWISHD==1)	]		Did you actually try anything? What did you do?	list|"?"|?|0|No|1|Attempted suicide
+DEPR31	DPGLB100		1	q		Glb: 0-10 above normal; 11-30 normal; 31-55 advice and/orfollow annually; 56-80 investigte and/orprevention/81-100 treat actively.	double
+DEPR32	DPSCORE		1	e		(((DPLIFESAT)?DPLIFESAT:0) + ((DPHAPPY)?DPHAPPY:0) + ((DPWRRY)?DPWRRY:0) + ((DPWRYALL)?DPWRYALL:0) + ((DPWRYTME)?DPWRYTME:0) + ((DPSAD)?DPSAD:0) + ((DPSADHRS)?DPSADHRS:0) + ((DPSADDYS)?DPSADDYS:0) + ((DPSADWKS)?DPSADWKS:0) + ((DPSADTIME)?DPSADTIME:0) + ((DPCRY)?DPCRY:0) + ((DPLESENJY)?DPLESENJY:0) + ((DPNOTENJY)?DPNOTENJY:0) + ((DPNOHPPY)?DPNOHPPY:0) + ((DPTRBLSLP)?DPTRBLSLP:0) + ((DPAWKDEP)?DPAWKDEP:0) + ((DPRGRTS)?DPRGRTS:0) + ((DPSLFBLM)?DPSLFBLM:0) + ((DPPESSM)?DPPESSM:0) + ((DPLFWRTH)?DPLFWRTH:0) + ((DPENDIT)?DPENDIT:0) + ((DPWISHD)?DPWISHD:0) + ((DPFLTSUIC)?DPFLTSUIC:0) + ((DPSERSUIC)?DPSERSUIC:0) + ((DPATTMPTSIC)?DPATTMPTSIC:0))	double
+
+
+
+
+
+FEARS1	FHEAD		1	q		5. FEARS	nothing
+FEARS2	FPRTS		1	[		Do you get frightened or very anxious?	list|"?"|?|0|No|1|Admits to fear anxiety
+FEARS3	FDISPROP		(FPRTS==1)	q		Has that happen lately? What made you feel that way? Would that make most people feel frightened?	list|"?"|?|0|No|1|Fears or anxiety which subject admits is out of proportion
+FEARS4	FSWTTRM		1	q		"When you feel this way do you find yourself sweating, trembling,or feel your heartbeat strongly?"	list|"?"|?|0|No|1|Sweating,trembling,palpitations
+FEARS5	FGOINGOUT		1	q		Do you tend to get very nervous or afraid of going out?	list|"?"|?|0|No|1|Fearful of going out
+FEARS6	FAVDSOUT		(FGOINGOUT==1)	]		Do you try to avoid going out for that reason?	list|"?"|?|0|No|1|Avoids going out
+FEARS11	FGLB100		1	q		Glb: 0-10 above normal; 11-30 normal; 31-55 advice and/orfollow annually; 56-80 investigte and/orprevention/81-100 treat actively.	double
+FEARS12	FRSSCORE		1	e		(((FHEAD)?FHEAD:0) + ((FPRTS)?FPRTS:0) + ((FDISPROP)?FDISPROP:0) + ((FSWTTRM)?FSWTTRM:0) + ((FGOINGOUT)?FGOINGOUT:0) + ((FAVDSOUT)?FAVDSOUT:0))	double
+
+
+PAIIN1	PNHEAD		1	q		6. CHRONIC PAIN	nothing
+PAIIN2	PNSTIF		1	[		Do you have pain, stiffness or swelling in or around the joints?	list|"?"|?|0|No|1|Has pain stiffness or swelling in or around the joint
+PAIIN3	PNOTHR		1	q		Do you have any other part of your body that causes you pain?	list|"?"|?|0|No|1|Other painful part
+PAIIN5	PNMED		1	q		Do you often have to take medication to relieve pain?	list|"?"|?|0|No|1|Often takes medication for pain
+PAIIN7	PNPREOC		1	q		Do you think about the pain a lot?	list|"?"|?|0|No|1|Thinks about the pain a lot
+PAIIN8	PNINTF		(PNPREOC==1)	q		Does that pain interfere with your concentrating on other things?	list|"?"|?|0|No|1|Distracted or preoccupied by pain(s)
+PAIIN9	PNSTPS		1	]		Does pain stop you doing your ordinary activities?	list|"?"|?|0|No|1|Stops activities
+PAIIN12	PNGLB100		1	q		Glb: 0-10 above normal; 11-30 normal; 31-55 advice and/orfollow annually; 56-80 investigte and/orprevention/81-100 treat actively.	double
+PAIIN13	PNSCORE		1	e		(((PNMED)?PNMED:0) + ((PNPREOC)?PNPREOC:0) + ((PNINTF)?PNINTF:0) + ((PNSTPS)?PNSTPS:0))	double
+
+
+EFFT1	EFHEAD		1	q		7. EFFORT INTOLERANCE	nothing
+EFFT2	EFBRTHLSS		1	[		Do you become short of breath when you are doing ordinary physical activity such as walking on level ground or doing your usual housework?	list|"?"|?|0|No|1|Breathless on ordinary exertion
+EFFT5	EFSYMSTPS		1	q		Is there any (other) symptom which brings you to a stop when you try to do ordinary physical activity?	list|"?"|?|0|No|1|Other symptoms increase with ordinary physical activity and stop it
+EFFT7	EFENGSITS		1	]		Do you find a lack of energy causes you to sit or lie down a lot?	list|"?"|?|0|No|1|Sits or lies down a lot for lack of energy
+EFFT10	EFGLB100		1	q		Glb: 0-10 above normal; 11-30 normal; 31-55 advice and/orfollow annually; 56-80 investigte and/orprevention/81-100 treat actively.	double
+
+
+HEAR1	HRHEAD		1	q		8. HEARING:	nothing
+HEAR2	HRINSTRUCT		1	q		"THE FOLLOWING ITEMS ARE ASKING OR OBSERVED WITH THE SUBJECT USING A HEARING AID, IF THAT IS CUSTOMARY FOR THE SUBJECT"	nothing
+HEAR4	HRNOUNDSTND		1	[		Can you hear well enough to understand people when they talk to you?	list|"?"|?|0|Yes|1|Cannot understand others
+HEAR6	HRDIFGRP		1	]		Can you follow the conversation when you are with several people?	list|"?"|?|0|Yes|1|Difficulty in hearing group conversation
+HEAR14	HRGLB100		1	q		Glb: 0-10 above normal; 11-30 normal; 31-55 advice and/orfollow annually; 56-80 investigte and/orprevention/81-100 treat actively.	double
+HEAR15	HRSCORE		1	e		(((HRNOUNDSTND)?HRNOUNDSTND:0) + ((HRDIFGRP)?HRDIFGRP:0))	double
+
+
+VISN1	VHEAD		1	q		9. VISION	nothing
+VISN2	VINSTRCT		1	q		THE FOLLOWING ITEMS ARE ASKED OR OBSERVED WITH THE SUBJECT USING SPECTACLES (GLASSES) IF THAT IS CUSTOMARY FOR THE SUBJECT	nothing
+VISN11	VSIGN		1	[		"Can you see street names or bus numbers or "Walk" (traffic) signs?"	list|"?"|?|0|Yes|1|Cannot see public signs or traffic
+VISN6	VSHP		1	q		Can you see well enough to read labels or prices in shops?	list|"?"|?|0|Yes|1|Shopping difficulty because of sight
+VISN14	VMEDS		1	]		Can you read labels on medicine bottles?	list|"?"|?|0|Yes|1|Treatment problem because of sight
+VISN19	VGLB100		1	q		Glb: 0-10 above normal; 11-30 normal; 31-55 advice and/orfollow annually; 56-80 investigte and/orprevention/81-100 treat actively.	double
+VISN20	VSCORE		1	e		(((VSHP)?VSHP:0) + ((VSIGN)?VSIGN:0) + ((VMEDS)?VMEDS:0))	double
+
+
+ORAL1	ORHEAD		1	q		10. ORAL CAVITY	nothing
+ORAL2	ORNOTSN		1	[		Have you seen a dentist within the last year?	list|"?"|?|0|Yes|1|Has not seen a dentist within the past year
+
+ORAL5	ORCHW		1	]		Do you have difficulty chewing?	list|"?"|?|0|No|1|Difficulty chewing
+ORAL11	ORGLB100		1	q		Glb: 0-10 above normal; 11-30 normal; 31-55 advice and/orfollow annually; 56-80 investigte and/orprevention/81-100 treat actively.	double
+ORAL12	ORSCORE		1	e		(((ORNOTSN)?ORNOTSN:0) + ((ORCHW)?ORCHW:0))	double
+
+
+CARD1	CPHEAD		1	q		11. CARDIO-PULMONARY	nothing
+CARD7	CPPAINa		1	[		Do you currently (within the last month) have chest pain or other discomfort when you exert yourself?	list|"?"|?|0|No|1|Describes chest pain on exertion (within the last month)
+CARD11	CPSWLL		1	]		Do your feet swell a lot during the day?	list|"?"|?|0|No|1|Legs or feet swell a lot
+CARD13	CPGLB100		1	q		Glb: 0-10 above normal; 11-30 normal; 31-55 advice and/orfollow annually; 56-80 investigte and/orprevention/81-100 treat actively.	double
+CARD14	CPSCORE		1	e		(((CPPAINa)?CPPAINa:0) + ((CPSWLL)?CPSWLL:0))	double
+
+
+STRK1	SKHEAD		1	q		12. STROKE EFFECTS	nothing
+STRK2	SKHIST		1	[		Have you ever had a stroke or a sudden paralysis (weakness) or numbness (loss of sensation) on one side of the body but not the other?	list|"?"|?|0|No|1|Had a stroke
+STRK7	SKCRNT		(SKHIST==1)(SKSPCH==1)(SKCNSC==1)1	]		Do you notice any after-effects now?	list|"?"|?|0|No|1|Reports current after-effects
+STRK11	SKGLB100		1	q		Glb: 0-10 above normal; 11-30 normal; 31-55 advice and/orfollow annually; 56-80 investigte and/orprevention/81-100 treat actively.	double
+STRK12	SKSCORE		1	e		(((SKHIST)?SKHIST:0) + ((SKCRNT)?SKCRNT:0))	double
+
+
+
+
+CRIT1	CIHEAD		1	q		14. CRITICAL INCIDENTS	nothing
+CRIT2	CIDYSRS		1	[		"How many days have you felt too ill, weak, or distressed to do the things you usually do over the past month?"	list|"?"|?|0|None|1|1-3 days restricted by illness|2|4-7 days restricted by illness|3|8+ days restricted by illness
+CRIT3	CIDYSHS		1	]		How many days have you been confined to the house over the past month?	list|"?"|?|0|None|1|1-3 days in house|2|4-7 days in house|3|8+ days in house
+CRIT7	CIGLB100		1	q		Glb: 0-10 above normal; 11-30 normal; 31-55 advice and/orfollow annually; 56-80 investigte and/orprevention/81-100 treat actively.	double
+CRIT8	CISCORE		1	e		(((CIDYSRS)?CIDYSRS:0) + ((CIDYSHS)?CIDYSHS:0))	double
+
+
+LIVG1	LCHEAD		1	q		15. LIVING CONDITIONS	nothing
+LIVG2	LCDEBT		1	[		"Are you behind in important payments like rent, electricity, telephone bills? (How far? How many payments have you missed?)"	list|"?"|?|0|No|1|Has missed at least two payments
+LIVG5	LCALONE		1	q		Do you live alone?	list|"?"|?|0|No|1|Lives alone
+LIVG6	LCSTRANGER		(LCALONE==0)	q		Who lives with you? Are they related to you?	list|"?"|?|0|Yes|1|Living companion is unrelated
+LIVG7	LCCRGVR		(LCALONE==0)	q		Do you have to help look after them?	list|"?"|?|0|No|1|Lives with dependent person
+CARE2	CBGIVE		1	q		Does any family member living with you have a serious mental or physical problem?	list|"?"|?|0|No|1|Has caregiving responsibility
+CARE6	CBGOUT		(CBGIVE==1)	q		Has it stopped you from going out?	list|"?"|?|0|No|1|Stopped going out
+CARE7	CBVIST		(CBGIVE==1)	q		Has it stopped you from seeing friends?	list|"?"|?|0|No|1|Stopped visiting
+LIVG9	LCDLYCNTCT		1	q		"Do you have daily contact with a relative, friend, or neighbor (not living with you)?"	list|"?"|?|0|Yes|1|Does not have daily contact
+LIVG26	LCNOTFND		1	q		If you were unable to get up one day because of illness would anyone notice this? How? Might you lie the whole day and night without being found?	list|"?"|?|0|Yes|1|Might lie unnoticed
+LIVG10	LCHLPLSS		1	q		Is there someone you could rely upon to look after you if you needed their help?	list|"?"|?|0|Yes|1|Children,relative or friends would not help if needed
+LIVG13	LCCNFDNT		1	q		Is there someone (friend or relative) you can talk to and share your problems with?	list|"?"|?|0|Yes|1|Does not have someone to talk to and share problems with
+LIVG17	LCACCSS		1	q		Is it difficult for you to get in and out of your home?	list|"?"|?|0|No|1|Difficult entry/exit
+LIVG23	LCSTRUCT		1	]		"Do you have special gadgets or structures in your home to help you do things? Like handrails, special toilets, hoists, shower seats etc?"	list|"?"|?|0|Yes|1|Home has not been restructured to help mobility and self-care
+LIVG35	LCGLB100		1	q		Glb: 0-10 above normal; 11-30 normal; 31-55 advice and/orfollow annually; 56-80 investigte and/orprevention/81-100 treat actively.	double
+LIVG36	LCSCORE		1	e		(((LCDEBT)?LCDEBT:0) + ((LCALONE)?LCALONE:0) + ((LCSTRANGER)?LCSTRANGER:0) + ((LCCRGVR)?LCCRGVR:0) + ((LCDLYCNTCT)?LCDLYCNTCT:0) + ((LCHLPLSS)?LCHLPLSS:0) + ((LCCNFDNT)?LCCNFDNT:0) + ((LCACCSS)?LCACCSS:0) + ((LCSTRUCT)?LCSTRUCT:0) + ((LCNOTFND)?LCNOTFND:0))	double
+
+
+
+STRS1	SSHEAD		1	q		16:STRESS	nothing
+STRS2	SSEVNTS		1	[		"Has anything happened to you over the past year which has caused major changes in your life, either for better or worse? Has anything major happened to you with respect to housing or crime or finances, or your family or your health or an accident?"	list|"?"|?|0|No|1|Events have occurred during the year which are major changes in the subject's life
+STRS3	SSREACT		(SSEVNTS==1)	q		"When did it happen? Do you still think about it a lot? Has it affected the way you live, a lot? Has it distressed you, a lot?"	list|"?"|?|0|No|1|Reactions to event continue at an intense level
+STRS4	SSNOTCOPE		(SSEVNTS==1)	]		Are you dealing with it now? Is anyone helping you deal with it?	list|"?"|?|0|Yes|1|Subject is not coping or being helped to cope adequately with events
+STRS7	SSGLB100		1	q		Glb: 0-10 above normal; 11-30 normal; 31-55 advice and/orfollow annually; 56-80 investigte and/orprevention/81-100 treat actively.	double
+STRS8	SSSCORE		1	e		(((SSEVNTS)?SSEVNTS:0) + ((SSREACT)?SSREACT:0) + ((SSNOTCOPE)?SSNOTCOPE:0))	double
+
+SEXL1	SXHEAD		1	q		17:SEXUAL PROBLEMS	nothing
+SEXL5	SXNEW		1	[		Have you noticed during the past year any new physical or emotional difficulty with sexual activity?	list|"?"|?|0|No|1|Has noticed during the past year an increase in sexual difficulties
+SEXL6	SXADVC		(SXNEW==1)	]		Would you like to talk to talk to someone about that?	list|"?"|?|0|No|1|Would like advice
+SEXL8	SXGLB100		1	q		Glb: 0-10 above normal; 11-30 normal; 31-55 advice and/orfollow annually; 56-80 investigte and/orprevention/81-100 treat actively.	double
+SEXL9	SXSCORE		1	e		(((SXNEW)?SXNEW:0) + ((SXADVC)?SXADVC:0))	double
+
+
+
+NUTR1	NTHEAD		1	q		19: NUTRITION	nothing
+NUTR5	NTHTML		1	[		Do you eat at least one hot meal every day?	list|"?"|?|0|Yes|1|Does not eat at least one hot meal a day
+NUTR7	NTLOST		1	q		Have you lost any weight during the past 6 months?	list|"?"|?|0|No|1|Lost weight
+NUTR8	NT10plus		(NTLOST==1)	q		IF LOST WEIGHT: How much? More or less than 10lbs?	list|"?"|?|0|Less than 10lbs|1|More than 10lbs
+NUTR9	NTUNEX		(NTLOST==1)	q		"Is it because it is painful for you to eat or food makes you feel ill, or you just have no appetite?"	list|"?"|?|0|No|1|Due to loss of appetite or is unexplained
+NUTR16	NTDIET		1	q		Are you on a special diet? Are there foods you avoid because you've been told to on account of your health?	list|"?"|?|0|No|1|Told to avoid certain foods
+NUTR18	NTKEEP		(NTDIET==1)	]		IF ON SPECIAL DIET: Do you keep to the diet?	list|"?"|?|0|Yes|1|Does not keep to recommended diet
+NUTR25	NTGLB100		1	q		Glb: 0-10 above normal; 11-30 normal; 31-55 advice and/orfollow annually; 56-80 investigte and/orprevention/81-100 treat actively.	double
+NUTR26	NTSCORE		1	e		(((NTHTML)?NTHTML:0) + ((NTLOST)?NTLOST:0) + ((NT10plus)?NT10plus:0) + ((NTUNEX)?NTUNEX:0) + ((NTDIET)?NTDIET:0) + ((NTKEEP)?NTKEEP:0))	double
+
+
+
+
+STYL1	HSHEAD		1	q		20: HEALTH STYLE	nothing
+STYL2	HSDRNK		1	[		"Do you drink beer, wine or spirits?"	list|"?"|?|0|No|1|Drinks beer, wine or spirits
+STYL3	HSFREQ		(HSDRNK==1)	q		IF DRINKS: How many times a day do you usually have a drink? (How many days a week do you do that?)	list|"?"|?|0|No|1|Usually drinks alcohol 3+times or throughout the day, 4+days a week
+STYL4	HSEXCS		(HSDRNK==1)	q		Do you often drink more alcohol than is good for you?	list|"?"|?|0|No|1|Admits that often drinks alcohol to excess
+STYL5	HSSMOK		1	q		Do you smoke tobacco in any form?	list|"?"|?|0|No|1|Smoked in last five years
+STYL6	HSCIG		(HSSMOK==1)	q		IF SMOKES: How many cigarettes a day do you smoke now?  On average?	list|"?"|?|0|Smokes 4 or less cigarettes a day|1|Smokes 5-9 cigarettes a day|2|Smokes 10 or more
+STYL7	HSEXRCS		1	]		How many days a week do you walk or exercise enough to make yourself breathe deeply or become hot and sweaty?	list|"?"|?|0|Walks or exercises 3 or more days a week|1|Walks or exercises 2 or less days a week
+STYL10	HSGLB100		1	q		Glb: 0-10 above normal; 11-30 normal; 31-55 advice and/orfollow annually; 56-80 investigte and/orprevention/81-100 treat actively.	double
+STYLE11	HSSCORE		1	e		(((HSDRNK)?HSDRNK:0) + ((HSFREQ)?HSFREQ:0) + ((HSEXCS)?HSEXCS:0) + ((HSSMOK)?HSSMOK:0) + ((HSCIG)?HSCIG:0) + ((HSEXRCS)?HSEXRCS:0))	double
+
+
+CNCR1	CAHEAD		1	q		21: CANCER ALERT	nothing
+CNCR2	CASORE		1	[		Do you have a sore that won't heal?	list|"?"|?|0|No|1|Sore won't heal
+CNCR4	CACOFF		1	q		Do you have a cough? IF YES: How long have you had it?	list|"?"|?|0|No|1|Persistent cough lasting over one month but not longer than one year
+CNCR6	CABLED		1	q		Do you have any bleeding or discharge from anywhere? IF YES: From where? Do you know what it is due to?	list|"?"|?|0|No|1|Unexplained bleeding or discharge from vagina or bowel
+CNCR12	CABOWL		1	]		Has there been a change recently in your bowel habits (constipation or diarrhea) or in the color of your stools? When did you first notice that? How long did it last?	list|"?"|?|0|No|1|Describes a change in bowl habits/stool within past year and lasting 1+ months
+CNCR15	CAGLB100		1	q		Glb: 0-10 above normal; 11-30 normal; 31-55 advice and/orfollow annually; 56-80 investigte and/orprevention/81-100 treat actively.	double
+CNCR16	CASCORE		1	e		(((CASORE)?CASORE:0) + ((CACOFF)?CACOFF:0) + ((CABLED)?CABLED:0) + ((CABOWL)?CABOWL:0))	double
+
+
+
+MEDS1	MSHEAD		1	q		22: MEDICATIONS	nothing
+MEDS2	MSMDON		1	[		Are you on any medications or drugs?	list|"?"|?|0|No|1|On medication
+MEDS11	MSINST		(MSMDON==1)(MSOTC==1)	q		"IF ON PRESCRIBED MEDICATIONS, ASK TO SEE BOTTLES OR PRESCRIPTIONS, RECORDS/ VIALS/ TABLETS, ETC."	nothing
+MEDS12	MSSUBHD		(MSMDON==1)(MSOTC==1)	q		FILL IN ALL PRESCRIBED AND NON-PRESCRIBED DRUGS	nothing
+MEDS13	MSNRTV1		(MSMDON==1)(MSOTC==1)	q		What is it called? What strength? Name or description	Text
+MEDS14	MSNRTV2		(MSMDON==1)(MSOTC==1)	q		What do you take it for? Patient's view of purpose	Text
+MEDS15	MSNRTV3		(MSMDON==1)(MSOTC==1)	q		Has it helped you? Benefits 0 - 100  (0=None 100=Best)	double
+MEDS16	MSNRTV4		(MSMDON==1)(MSOTC==1)	q		Has it affected you in any way? Do you experience any side-effects? What? Side-effects 0 - 100  (0=None 100=Best)	double
+MEDS19	MSRMND		1	q		Do you have a system for reminding yourself to take medications?	list|"?"|?|0|Yes|1|Does not have system of own nor informal caregiver to help subject remember to take medications
+MEDS21	MSHELP		1	q		Do you have someone who gives you your medications?	list|"?"|?|0|No|1|Someone else (A formal or informal caregiver) gives patient their medications
+MEDS24	MSMISS		1	q		Do you often miss taking your medication?	list|"?"|?|0|No|1|Patient and/or informal caregiver often misses taking/giving medications
+MEDS23	MSFILL		1	q		Is that because you run out of medications before getting your prescriptions refilled? (Why is that?)	list|"?"|?|0|No|1|Patient and/or informal caregiver neglects, has trouble getting or cannot afford filling prescriptions
+MEDS7	MSEFFLNGS		1	q		Do you take any medication to improve your feelings or help you calm down? How often have you taken it in the past month?	list|"?"|?|0|No|1|Takes medication for effect on feelings, calming, coping
+MEDS8	MSILLGL		(MSEFFLNGS==1)	q		Is that prescribed by a doctor?	list|"?"|?|0|Yes|1|Not prescribed
+MEDS9	MSMOOD		MSILLGL==1)	]		What happens if you don't take it?	list|"?"|?|0|No|1|Frequently takes a mood active drug which cannot do without
+MEDS35	MSGLB100		1	q		Glb: 0-10 above normal; 11-30 normal; 31-55 advice and/orfollow annually; 56-80 investigte and/orprevention/81-100 treat actively.	double
+MEDS36	MSSCORE		1	e		(((MSEFFLNGS)?MSEFFLNGS:0) + ((MSILLGL)?MSILLGL:0) + ((MSMOOD)?MSMOOD:0) + ((MSHELP)?MSHELP:0) + ((MSFILL)?MSFILL:0) + ((MSMISS)?MSMISS:0))	double
+
+
+
+SRVC1	SUHEAD		1	q		23: SERVICE USE	nothing
+SRVC2	SUPRTC		1	[		Do you have a particular doctor whom you contact when you're ill?	list|"?"|?|0|Yes|1|Does not have a doctor to contact when ill
+SRVC5	SUEMFR		1	q		Have you had to go to the emergency room during the past year? How many times? What was it for?	list|"?"|?|0|No|1|Has been to the emergency room on two or more occasions in past year
+SRVC6	SUEMPR		(SUEMFR==1)	q			list|"?"|?|0|No|1|Emergency visit comparable to primary care visit in urgency and severity
+SRVC8	SURECT		1	q		"In the past year, have you had a rectal examination?"	list|"?"|?|0|Yes|1|No rectal examination
+SRVC9A	SUSRVSEX		1	q		OBS: Is this person male or female	list|"?"|?|0|Male|1|Female
+SRVC9	SUVAGN		(SUSRVSEX==1)	q		"In the past year, have you had a vaginal (pelvic) examination?"	list|"?"|?|0|Yes|1|No vaginal examination
+SRVC10	SUBRST		(SUSRVSEX==1)	q		"In the past year, have you had a breast examination?"	list|"?"|?|0|Yes|1|No breast examination
+SRVC12	SUBPRS		1	q		Have you had your blood pressure tested within the last year?	list|"?"|?|0|Yes|1|No blood pressure test
+SRVC14	SUFLU		1	]		Have you had a flu injection in the last two years?	list|"?"|?|0|Yes|1|No fflu vaccine in last two years
+SRVC17	SUGLB100		1	q		Glb: 0-10 above normal; 11-30 normal; 31-55 advice and/orfollow annually; 56-80 investigte and/orprevention/81-100 treat actively.	double
+SRVC18	SUSCORE		1	e		(((SUPRTC)?SUPRTC:0) + ((SUEMFR)?SUEMFR:0) + ((SUEMPR)?SUEMPR:0) + ((SURECT)?SURECT:0) + ((SUVAGN)?SUVAGN:0) + ((SUBRST)?SUBRST:0) + ((SUBPRS)?SUBPRS:0) + ((SUFLU)?SUFLU:0))	double
+
+
+
+SVST1	SAHEAD		1	q		24: SATISFACTION WITH SERVICES	nothing
+SVST2	SASTSFE		1	[		Are you completely satisfied with the way you're treated when you visit your doctor? Either here or in the hospital or at home?	list|"?"|?|0|Yes|1|Not satisfied withsome aspect of treatment services, medication, information, etc
+SVST3	SAINSF		(SASTSFE==1)	q		What is the problem?	list|"?"|?|0|No|1|Claims to receive insufficient services
+SVST4	SAINAP		(SASTSFE==1)	q			list|"?"|?|0|No|1|Claims to receive inappropriate services
+SVST5	SASTYL		(SASTSFE==1)	q			list|"?"|?|0|No|1|Complains about style of treatment (e.g. cost, courtesy, time)
+SVST6	SAGAPS		(SASTSFE==1)	q			list|"?"|?|0|No|1|Complains about a gap in treatment (e.g. information)
+SVST7	SAOTHR		(SASTSFE==1)	]			list|"?"|?|0|No|1|'Other' complaint
+SVST9	SAGLB100		1	q		Glb: 0-10 above normal; 11-30 normal; 31-55 advice and/orfollow annually; 56-80 investigte and/orprevention/81-100 treat actively.	double
+SVST10	SASCORE		1	e		(((SASTSFE)?SASTSFE:0) + ((SAINSF)?SAINSF:0) + ((SAINAP)?SAINAP:0) + ((SASTYL)?SASTYL:0) + ((SAGAPS)?SAGAPS:0) + ((SAOTHR)?SAOTHR:0))	double
+
+
+
+DCSN1	INHEAD		1	q		25: INVOLVEMENT IN DECISIONS	nothing
+DCSN2	INTRTM		1	[		IF NOT ALREADY REPORTED: Are you presently receiving treatment of any kind from a doctor?	list|"?"|?|0|No|1|Receiving treatment
+DCSN3	INDSCS		(INTRTM==1)	q		Has the doctor or some member of the staff discussed with you how to manage your treatment?	list|"?"|?|0|Yes|1|Doctors/staff have not discussed treatment with patient
+DCSN4	INFMLY		(INTRTM==1)	q		Did they discuss it with any member of your family?	list|"?"|?|0|Yes|1|No discussion with family member
+DCSN5	INOPIN		(INTRTM==1)	q		Did anyone ask for your opinion or feelings before they made plans for treatment?	list|"?"|?|0|Yes|1|Was not asked feelings/opinion about plans for treatment
+DCSN6	INMORE		1	]		"Would you like to receive more information about your health, condition, medications, obtaining equipment, financial assistance or transportation or home care or any other services?"	list|"?"|?|0|No|1|Would like more information
+DCSN9	INGLB100		1	q		Glb: 0-10 above normal; 11-30 normal; 31-55 advice and/orfollow annually; 56-80 investigte and/orprevention/81-100 treat actively.	double
+DCSN10	INSCORE		1	e		(((INTRTM)?INTRTM:0) + ((INDSCS)?INDSCS:0) + ((INFMLY)?INFMLY:0) + ((INOPIN)?INOPIN:0) + ((INMORE)?INMORE:0))	double
+
+
+COMM1	CMHEAD		1	q		26: COMMUNICATION	nothing
+COMM2	CMOBSEXPR		1	[		Obs: Expressive communication	list|"?"|?|0|No|1|Speaks and is usually understood|2|Speaks but is only understood with difficulty|3|Uses only structured sign language, symbol board, or writes to communicate|4|Uses only gestures, grunts, or primitive symbols to communicate|5|Does not convey needs
+COMM3	CMOBSRCPT		1	]		Obs: Receptive comunication	list|"?"|?|0|No|1|Usually understands oral communication|2|Limited comprehension of oral communication|3|Understands by depending on lip reading, written materials, or structured sign language|4|Understans only primitive gestures, facial expression, simple pictograms, and/or recognizes environmental clues|5|Does not understand
+COMM5	CMGLB100		1	q		Glb: 0-10 above normal; 11-30 normal; 31-55 advice and/orfollow annually; 56-80 investigte and/orprevention/81-100 treat actively.	double
+
+
+PSTV1	PQHEAD		1	q		27: POSITIVE QUALITIES	nothing
+PSTV2	PQPERS		1	[		"Obs: Positive personality: Attractiveness, charm, resourcefulness; adaptability; confidence. Glb: 0 - 100 rating of severity 0=Best 100=Worst"	double
+PSTV3	PQMOOD		1	q		"Obs: Positive mood: Cheerful most of interview, pleasant and well groomed; mentions positive attitudes. Glb: 0 - 100 rating of severity 0=Best 100=Worst"	double
+PSTV4	PQCOGN		1	q		Obs: Positive cognition:Remembers dates and details of life events; carries on interesting conversation with wide range of emotional response; prompt and appropriate answers; familiar with current events. Glb: 0 - 100 rating of severity 0=Best 100=Worst	double
+PSTV5	PQPHYS		1	q		Obs: Positive physical assets: Vigor; resilience; endurance; strength. Glb: 0 - 100 rating of severity 0=Best 100=Worst	double
+PSTV6	PQMTRL		1	q		Obs: Positive material environment: Economic reserves; buying power; adequacy and convenience of housing. Glb: 0 - 100 rating of severity 0=Best 100=Worst	double
+PSTV7	PQHUMN		1	q		"Obs: Positive human environment: Proximity, willingness and ability of helpers; friendly circle. Glb: 0 - 100 rating of severity 0=Best 100=Worst"	double
+PSTV8	PQCONST		1	q		Obs: Positive contribution: Helps family or friends through material means or by doing tasks. Glb: 0 - 100 rating of severity 0=Best 100=Worst	double
+PSTV9	PQGLBPSTV		1	]		Obs: Exceptional patient: Outstanding positive strengths (despite possible presence of marked health problems). Glb: 0 - 100 rating of severity 0=Best 100=Worst	list|"?"|?|0|No|1|Exceptionally positive strengths
+
+
+COMMENT						……………………………….THE END……………………………	

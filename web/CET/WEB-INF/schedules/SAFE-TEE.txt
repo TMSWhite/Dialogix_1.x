@@ -1,0 +1,235 @@
+RESERVED	__TRICEPS_FILE_TYPE__	SCHEDULE					
+RESERVED	__TITLE__	SAFTEE
+RESERVED	__ICON__	CETbulblogo.jpg					
+RESERVED	__HEADER_MSG__	Systematic Assessment for Treatment Emergent Effects (SAFTEE)
+RESERVED	__PASSWORD_FOR_ADMIN_MODE__	bypass					
+RESERVED	__SHOW_QUESTION_REF__	true					
+RESERVED	__AUTOGEN_OPTION_NUM__	TRUE					
+RESERVED	__DEVELOPER_MODE__	true					
+RESERVED	__DEBUG_MODE__	TRUE
+RESERVED	__SWAP_NEXT_AND_PREVIOUS__	true
+Title	Title		1	[		<p align='center'><b><font size='+1'>SYSTEMATIC ASSESSMENT FOR TREATMENT EMERGENT EFFECTS (SAFTEE)</font></b></p><p><b>Reference</b><br/>Levine J, Schooler, NR. SAFTEE: A technique for the systematic assessment of side effects in clinical trials. Psychopharmacol Bull 1986;22:343-381.</p>	nothing
+Intro	Intro		1	]		Below is a list of complaints people sometimes have.  Please read each and mark the number corresponding to how much you have been bothered by that problem in the <b>last week</b>	nothing
+q1i	q1i		1	[		During the <b>past week</b>, how much have you been bothered by ...	nothing
+q1	q1	1	1	q		headaches	list|1|not at all|2|a little bit|3|moderately|4|quite a bit|5|extremely
+q2	q2	2	1	q		dizziness of faintness	list|1|not at all|2|a little bit|3|moderately|4|quite a bit|5|extremely
+q3	q3	3	1	q		loss of consciousness	list|1|not at all|2|a little bit|3|moderately|4|quite a bit|5|extremely
+q4	q4	4	1	]		seizures	list|1|not at all|2|a little bit|3|moderately|4|quite a bit|5|extremely
+q5i	q5i	5	1	q		Any other problems with your head?	list|0|no|1|yes
+q5a	q5a	5a	q5i==1	[		What is that other problem with your head?	text
+q5b	q5b	5b	q5i==1	]		How much has it been bothering you in the <b>past week</b>	list|1|not at all|2|a little bit|3|moderately|4|quite a bit|5|extremely
+q6i	q6i	6	q5i==1	q		Any other problems with your head?	list|0|no|1|yes
+q6a	q6a	6a	q6i==1	[		What is that other problem with your head?	text
+q6b	q6b	6b	q6i==1	]		How much has it been bothering you in the <b>past week</b>	list|1|not at all|2|a little bit|3|moderately|4|quite a bit|5|extremely
+q7i	q7i		1	[		During the <b>past week</b>, how much have you been bothered by ...	nothing
+q7	q7	7	1	q		eye irritation	list|1|not at all|2|a little bit|3|moderately|4|quite a bit|5|extremely
+q8	q8	8	1	q		swelling	list|1|not at all|2|a little bit|3|moderately|4|quite a bit|5|extremely
+q9	q9	9	1	q		blurred vision	list|1|not at all|2|a little bit|3|moderately|4|quite a bit|5|extremely
+q10	q10	10	1	q		double vision	list|1|not at all|2|a little bit|3|moderately|4|quite a bit|5|extremely
+q11	q11	11	1	q		poor vision	list|1|not at all|2|a little bit|3|moderately|4|quite a bit|5|extremely
+q12	q12	12	1	]		light bothering your eyes	list|1|not at all|2|a little bit|3|moderately|4|quite a bit|5|extremely
+q13i	q13i	13	1	q		Any other problems with your eyes?	list|0|no|1|yes
+q13a	q13a	13a	q13i==1	[		What is that other problem with your eyes?	text
+q13b	q13b	13b	q13i==1	]		How much has it been bothering you in the <b>past week</b>	list|1|not at all|2|a little bit|3|moderately|4|quite a bit|5|extremely
+q14i	q14i	14	q13i==1	q		Any other problems with your eyes?	list|0|no|1|yes
+q14a	q14a	14a	q14i==1	[		What is that other problem with your eyes?	text
+q14b	q14b	14b	q14i==1	]		How much has it been bothering you in the <b>past week</b>	list|1|not at all|2|a little bit|3|moderately|4|quite a bit|5|extremely
+q15i	q15i		1	[		During the <b>past week</b>, how much have you been bothered by ...	nothing
+q15	q15	15	1	q		earache	list|1|not at all|2|a little bit|3|moderately|4|quite a bit|5|extremely
+q16	q16	16	1	q		discharge	list|1|not at all|2|a little bit|3|moderately|4|quite a bit|5|extremely
+q17	q17	17	1	q		trouble hearing	list|1|not at all|2|a little bit|3|moderately|4|quite a bit|5|extremely
+q18	q18	18	1	]		ringing or whistling or other noise in ears	list|1|not at all|2|a little bit|3|moderately|4|quite a bit|5|extremely
+q19i	q19i	19	1	q		Any other problems with your ears?	list|0|no|1|yes
+q19a	q19a	19a	q19i==1	[		What is that other problem with your ears?	text
+q19b	q19b	19b	q19i==1	]		How much has it been bothering you in the <b>past week</b>	list|1|not at all|2|a little bit|3|moderately|4|quite a bit|5|extremely
+q20i	q20i	20	q19i==1	q		Any other problems with your ears?	list|0|no|1|yes
+q20a	q20a	20a	q20i==1	[		What is that other problem with your ears?	text
+q20b	q20b	20b	q20i==1	]		How much has it been bothering you in the <b>past week</b>	list|1|not at all|2|a little bit|3|moderately|4|quite a bit|5|extremely
+q21i	q21i		1	[		During the <b>past week</b>, how much have you been bothered by ...	nothing
+q21	q21	21	1	q		sores in mouth	list|1|not at all|2|a little bit|3|moderately|4|quite a bit|5|extremely
+q22	q22	22	1	q		dry mouth	list|1|not at all|2|a little bit|3|moderately|4|quite a bit|5|extremely
+q23	q23	23	1	q		too much saliva	list|1|not at all|2|a little bit|3|moderately|4|quite a bit|5|extremely
+q24	q24	24	1	q		swollen or sore tongue	list|1|not at all|2|a little bit|3|moderately|4|quite a bit|5|extremely
+q25	q25	25	1	q		bleeding gums	list|1|not at all|2|a little bit|3|moderately|4|quite a bit|5|extremely
+q26	q26	26	1	]		dental problems	list|1|not at all|2|a little bit|3|moderately|4|quite a bit|5|extremely
+q27i	q27i	27	1	q		Any other problems with your mouth or teeth?	list|0|no|1|yes
+q27a	q27a	27a	q27i==1	[		What is that other problem with your mouth or teeth?	text
+q27b	q27b	27b	q27i==1	]		How much has it been bothering you in the <b>past week</b>	list|1|not at all|2|a little bit|3|moderately|4|quite a bit|5|extremely
+q28i	q28i	28	q27i==1	q		Any other problems with your mouth or teeth?	list|0|no|1|yes
+q28a	q28a	28a	q28i==1	[		What is that other problem with your mouth or teeth?	text
+q28b	q28b	28b	q28i==1	]		How much has it been bothering you in the <b>past week</b>	list|1|not at all|2|a little bit|3|moderately|4|quite a bit|5|extremely
+q29i	q29i		1	[		During the <b>past week</b>, how much have you been bothered by ...	nothing
+q29	q29	29	1	q		nasal congestion	list|1|not at all|2|a little bit|3|moderately|4|quite a bit|5|extremely
+q30	q30	30	1	q		nose bleeds	list|1|not at all|2|a little bit|3|moderately|4|quite a bit|5|extremely
+q31	q31	31	1	q		sore throat	list|1|not at all|2|a little bit|3|moderately|4|quite a bit|5|extremely
+q32	q32	32	1	q		laryngitis	list|1|not at all|2|a little bit|3|moderately|4|quite a bit|5|extremely
+q33	q33	33	1	]		difficulty swallowing	list|1|not at all|2|a little bit|3|moderately|4|quite a bit|5|extremely
+q34i	q34i	34	1	q		Any other problems with your nose or throat?	list|0|no|1|yes
+q34a	q34a	34a	q34i==1	[		What is that other problem with your nose or throat?	text
+q34b	q34b	34b	q34i==1	]		How much has it been bothering you in the <b>past week</b>	list|1|not at all|2|a little bit|3|moderately|4|quite a bit|5|extremely
+q35i	q35i	35	q34i==1	q		Any other problems with your nose or throat?	list|0|no|1|yes
+q35a	q35a	35a	q35i==1	[		What is that other problem with your nose or throat?	text
+q35b	q35b	35b	q35i==1	]		How much has it been bothering you in the <b>past week</b>	list|1|not at all|2|a little bit|3|moderately|4|quite a bit|5|extremely
+q36i	q36i		1	[		During the <b>past week</b>, how much have you been bothered by ...	nothing
+q36	q36	36	1	q		chest pain	list|1|not at all|2|a little bit|3|moderately|4|quite a bit|5|extremely
+q37	q37	37	1	q		shortness of breath	list|1|not at all|2|a little bit|3|moderately|4|quite a bit|5|extremely
+q38	q38	38	1	q		wheezing	list|1|not at all|2|a little bit|3|moderately|4|quite a bit|5|extremely
+q39	q39	39	1	q		coughing	list|1|not at all|2|a little bit|3|moderately|4|quite a bit|5|extremely
+q40	q40	40	1	q		breast or nipple pain or discharge	list|1|not at all|2|a little bit|3|moderately|4|quite a bit|5|extremely
+q41	q41	41	1	]		breast tenderness	list|1|not at all|2|a little bit|3|moderately|4|quite a bit|5|extremely
+q42i	q42i	42	1	q		Any other trouble with your chest?	list|0|no|1|yes
+q42a	q42a	42a	q42i==1	[		What is that other trouble with your chest?	text
+q42b	q42b	42b	q42i==1	]		How much has it been bothering you in the <b>past week</b>	list|1|not at all|2|a little bit|3|moderately|4|quite a bit|5|extremely
+q43i	q43i	43	q42i==1	q		Any other trouble with your chest?	list|0|no|1|yes
+q43a	q43a	43a	q43i==1	[		What is that other trouble with your chest?	text
+q43b	q43b	43b	q43i==1	]		How much has it been bothering you in the <b>past week</b>	list|1|not at all|2|a little bit|3|moderately|4|quite a bit|5|extremely
+q44i	q44i		1	[		During the <b>past week</b>, how much have you been bothered by ...	nothing
+q44	q44	44	1	q		rapid heart rate	list|1|not at all|2|a little bit|3|moderately|4|quite a bit|5|extremely
+q45	q45	45	1	]		irregular heart beat	list|1|not at all|2|a little bit|3|moderately|4|quite a bit|5|extremely
+q46i	q46i	46	1	q		Any other trouble with your heart?	list|0|no|1|yes
+q46a	q46a	46a	q46i==1	[		What is that other trouble with your heart?	text
+q46b	q46b	46b	q46i==1	]		How much has it been bothering you in the <b>past week</b>	list|1|not at all|2|a little bit|3|moderately|4|quite a bit|5|extremely
+q47i	q47i	47	q46i==1	q		Any other trouble with your heart?	list|0|no|1|yes
+q47a	q47a	47a	q47i==1	[		What is that other trouble with your heart?	text
+q47b	q47b	47b	q47i==1	]		How much has it been bothering you in the <b>past week</b>	list|1|not at all|2|a little bit|3|moderately|4|quite a bit|5|extremely
+q48i	q48i		1	[		During the <b>past week</b>, how much have you been bothered by ...	nothing
+q48	q48	48	1	q		stomach/abdominal discomfort	list|1|not at all|2|a little bit|3|moderately|4|quite a bit|5|extremely
+q49	q49	49	1	q		nausea	list|1|not at all|2|a little bit|3|moderately|4|quite a bit|5|extremely
+q50	q50	50	1	q		vomiting	list|1|not at all|2|a little bit|3|moderately|4|quite a bit|5|extremely
+q51	q51	51	1	]		heartburn	list|1|not at all|2|a little bit|3|moderately|4|quite a bit|5|extremely
+q52i	q52i	52	1	q		Any other problems with your stomach or abdomen?	list|0|no|1|yes
+q52a	q52a	52a	q52i==1	[		What is that other problem with your stomach or abdomen?	text
+q52b	q52b	52b	q52i==1	]		How much has it been bothering you in the <b>past week</b>	list|1|not at all|2|a little bit|3|moderately|4|quite a bit|5|extremely
+q53i	q53i	53	q52i==1	q		Any other problems with your stomach or abdomen?	list|0|no|1|yes
+q53a	q53a	53a	q53i==1	[		What is that other problem with your stomach or abdomen?	text
+q53b	q53b	53b	q53i==1	]		How much has it been bothering you in the <b>past week</b>	list|1|not at all|2|a little bit|3|moderately|4|quite a bit|5|extremely
+q54i	q54i		1	[		During the <b>past week</b>, how much have you been bothered by ...	nothing
+q54	q54	54	1	q		diarrhea	list|1|not at all|2|a little bit|3|moderately|4|quite a bit|5|extremely
+q55	q55	55	1	q		constipation	list|1|not at all|2|a little bit|3|moderately|4|quite a bit|5|extremely
+q56	q56	56	1	q		gas	list|1|not at all|2|a little bit|3|moderately|4|quite a bit|5|extremely
+q57	q57	57	1	q		change of color of stools	list|1|not at all|2|a little bit|3|moderately|4|quite a bit|5|extremely
+q58	q58	58	1	q		hemorrhoids	list|1|not at all|2|a little bit|3|moderately|4|quite a bit|5|extremely
+q59	q59	59	1	]		painful bowel movements	list|1|not at all|2|a little bit|3|moderately|4|quite a bit|5|extremely
+q60i	q60i	60	1	q		Any other changes in your bowel movements?	list|0|no|1|yes
+q60a	q60a	60a	q60i==1	[		What is that other change in your bowel movements?	text
+q60b	q60b	60b	q60i==1	]		How much has it been bothering you in the <b>past week</b>	list|1|not at all|2|a little bit|3|moderately|4|quite a bit|5|extremely
+q61i	q61i	61	q60i==1	q		Any other changes in your bowel movements?	list|0|no|1|yes
+q61a	q61a	61a	q61i==1	[		What is that other change in your bowel movements?	text
+q61b	q61b	61b	q61i==1	]		How much has it been bothering you in the <b>past week</b>	list|1|not at all|2|a little bit|3|moderately|4|quite a bit|5|extremely
+q62i	q62i		1	[		During the <b>past week</b>, how much have you been bothered by ...	nothing
+q62	q62	62	1	q		appetite increase	list|1|not at all|2|a little bit|3|moderately|4|quite a bit|5|extremely
+q63	q63	63	1	q		appetite decrease	list|1|not at all|2|a little bit|3|moderately|4|quite a bit|5|extremely
+q64	q64	64	1	q		weight gain	list|1|not at all|2|a little bit|3|moderately|4|quite a bit|5|extremely
+q65	q65	65	1	q		weight loss	list|1|not at all|2|a little bit|3|moderately|4|quite a bit|5|extremely
+q66	q66	66	1	q		bad taste or change in taste	list|1|not at all|2|a little bit|3|moderately|4|quite a bit|5|extremely
+q67	q67	67	1	]		increased thirst	list|1|not at all|2|a little bit|3|moderately|4|quite a bit|5|extremely
+q68i	q68i	68	1	q		Any other change in appetite?	list|0|no|1|yes
+q68a	q68a	68a	q68i==1	[		What is that other change in appetite?	text
+q68b	q68b	68b	q68i==1	]		How much has it been bothering you in the <b>past week</b>	list|1|not at all|2|a little bit|3|moderately|4|quite a bit|5|extremely
+q69i	q69i	69	q68i==1	q		Any other change in appetite?	list|0|no|1|yes
+q69a	q69a	69a	q69i==1	[		What is that change in appetite?	text
+q69b	q69b	69b	q69i==1	]		How much has it been bothering you in the <b>past week</b>	list|1|not at all|2|a little bit|3|moderately|4|quite a bit|5|extremely
+q70i	q70i		1	[		During the <b>past week</b>, how much have you been bothered by ...	nothing
+q70	q70	70	1	q		painful urination	list|1|not at all|2|a little bit|3|moderately|4|quite a bit|5|extremely
+q71	q71	71	1	q		burning sensation with urination	list|1|not at all|2|a little bit|3|moderately|4|quite a bit|5|extremely
+q72	q72	72	1	q		difficulty starting to urinate	list|1|not at all|2|a little bit|3|moderately|4|quite a bit|5|extremely
+q73	q73	73	1	q		decrease in force of urinary stream	list|1|not at all|2|a little bit|3|moderately|4|quite a bit|5|extremely
+q74	q74	74	1	q		more frequent urination	list|1|not at all|2|a little bit|3|moderately|4|quite a bit|5|extremely
+q75	q75	75	1	]		change in color of urine	list|1|not at all|2|a little bit|3|moderately|4|quite a bit|5|extremely
+q76i	q76i	76	1	q		Any other problems with urination?	list|0|no|1|yes
+q76a	q76a	76a	q76i==1	[		What is that other problem with urination?	text
+q76b	q76b	76b	q76i==1	]		How much has it been bothering you in the <b>past week</b>	list|1|not at all|2|a little bit|3|moderately|4|quite a bit|5|extremely
+q77i	q77i	77	q76i==1	q		Any other problems with urination?	list|0|no|1|yes
+q77a	q77a	77a	q77i==1	[		What is that other problem with urination?	text
+q77b	q77b	77b	q77i==1	]		How much has it been bothering you in the <b>past week</b>	list|1|not at all|2|a little bit|3|moderately|4|quite a bit|5|extremely
+female	female		1	q		What is your gender	list|0|male|1|female
+q78i	q78i		female	[		During the <b>past week</b>, how much have you been bothered by ...	nothing
+q78	q78	78	female	q		menstrual irregularity	list|1|not at all|2|a little bit|3|moderately|4|quite a bit|5|extremely
+q79	q79	79	female	q		cramps	list|1|not at all|2|a little bit|3|moderately|4|quite a bit|5|extremely
+q80	q80	80	female	q		heavy bleeding	list|1|not at all|2|a little bit|3|moderately|4|quite a bit|5|extremely
+q81	q81	81	female	q		spotting	list|1|not at all|2|a little bit|3|moderately|4|quite a bit|5|extremely
+q82	q82	82	female	q		tension	list|1|not at all|2|a little bit|3|moderately|4|quite a bit|5|extremely
+q83	q83	83	female	q		hot flashes	list|1|not at all|2|a little bit|3|moderately|4|quite a bit|5|extremely
+q84	q84	84	female	q		lengthening of menstrual period	list|1|not at all|2|a little bit|3|moderately|4|quite a bit|5|extremely
+q85	q85	85	female	]		shortening of menstrual period	list|1|not at all|2|a little bit|3|moderately|4|quite a bit|5|extremely
+q86i	q86i	86	female	q		Any other problems with your menstrual period?	list|0|no|1|yes
+q86a	q86a	86a	q86i==1	[		What is that other problem with your menstrual period?	text
+q86b	q86b	86b	q86i==1	]		How much has it been bothering you in the <b>past week</b>	list|1|not at all|2|a little bit|3|moderately|4|quite a bit|5|extremely
+q87i	q87i	87	q86i==1	q		Any other problems with your menstrual period?	list|0|no|1|yes
+q87a	q87a	87a	q87i==1	[		What is that other problem with your menstrual period?	text
+q87b	q87b	87b	q87i==1	]		How much has it been bothering you in the <b>past week</b>	list|1|not at all|2|a little bit|3|moderately|4|quite a bit|5|extremely
+q88i	q88i		1	[		During the <b>past week</b>, how much have you been bothered by ...	nothing
+q88	q88	88	1	q		discomfort in genitals	list|1|not at all|2|a little bit|3|moderately|4|quite a bit|5|extremely
+q89	q89	89	1	q		swelling or discharge from genitals	list|1|not at all|2|a little bit|3|moderately|4|quite a bit|5|extremely
+q90	q90	90	1	q		decrease in interest in sex	list|1|not at all|2|a little bit|3|moderately|4|quite a bit|5|extremely
+q91	q91	91	1	q		increase in interest in sex	list|1|not at all|2|a little bit|3|moderately|4|quite a bit|5|extremely
+q92	q92	92	1	]		delayed orgasm or inability to reach orgasm	list|1|not at all|2|a little bit|3|moderately|4|quite a bit|5|extremely
+q93	q93	93	female==0	q		difficulty achieving or maintaining an erection	list|1|not at all|2|a little bit|3|moderately|4|quite a bit|5|extremely
+q94i	q94i	94	1	q		Any other problems with your genitals or sexual functioning?	list|0|no|1|yes
+q94a	q94a	94a	q94i==1	[		What is that other problem with your genitals or sexual functioning?	text
+q94b	q94b	94b	q94i==1	]		How much has it been bothering you in the <b>past week</b>	list|1|not at all|2|a little bit|3|moderately|4|quite a bit|5|extremely
+q95i	q95i	95	q94i==1	q		Any other problems with your genitals or sexual functioning?	list|0|no|1|yes
+q95a	q95a	95a	q95i==1	[		What is that other problem with your genitals or sexual functioning?	text
+q95b	q95b	95b	q95i==1	]		How much has it been bothering you in the <b>past week</b>	list|1|not at all|2|a little bit|3|moderately|4|quite a bit|5|extremely
+q96i	q96i		1	[		During the <b>past week</b>, how much have you been bothered by ...	nothing
+q96	q96	96	1	q		aches, pains in muscles, bones, or joints	list|1|not at all|2|a little bit|3|moderately|4|quite a bit|5|extremely
+q97	q97	97	1	q		swelling in legs or arms	list|1|not at all|2|a little bit|3|moderately|4|quite a bit|5|extremely
+q98	q98	98	1	]		tingling or numbness in hands or feet	list|1|not at all|2|a little bit|3|moderately|4|quite a bit|5|extremely
+q99i	q99i	99	1	q		Any other problems with your muscles, bones, or joints?	list|0|no|1|yes
+q99a	q99a	99a	q99i==1	[		What is that other problem with your muscles, bones, or joints?	text
+q99b	q99b	99b	q99i==1	]		How much has it been bothering you in the <b>past week</b>	list|1|not at all|2|a little bit|3|moderately|4|quite a bit|5|extremely
+q100i	q100i	100	q99i==1	q		Any other problems with your muscles, bones, or joints?	list|0|no|1|yes
+q100a	q100a	100a	q100i==1	[		What is that other problem with your muscles, bones, or joints?	text
+q100b	q100b	100b	q100i==1	]		How much has it been bothering you in the <b>past week</b>	list|1|not at all|2|a little bit|3|moderately|4|quite a bit|5|extremely
+q101i	q101i		1	[		During the <b>past week</b>, how much have you been bothered by ...	nothing
+q101	q101	101	1	q		feeling unsteady on your feet	list|1|not at all|2|a little bit|3|moderately|4|quite a bit|5|extremely
+q102	q102	102	1	q		trouble with starting to move	list|1|not at all|2|a little bit|3|moderately|4|quite a bit|5|extremely
+q103	q103	103	1	q		controlling unwanted bodily movements	list|1|not at all|2|a little bit|3|moderately|4|quite a bit|5|extremely
+q104	q104	104	1	q		feeling restless or like you cannot stay still	list|1|not at all|2|a little bit|3|moderately|4|quite a bit|5|extremely
+q105	q105	105	1	q		shaking	list|1|not at all|2|a little bit|3|moderately|4|quite a bit|5|extremely
+q106	q106	106	1	]		feeling still or rigid	list|1|not at all|2|a little bit|3|moderately|4|quite a bit|5|extremely
+q107i	q107i	107	1	q		Any other difficulty with walking or moving?	list|0|no|1|yes
+q107a	q107a	107a	q107i==1	[		What is that other difficulty with walking or moving?	text
+q107b	q107b	107b	q107i==1	]		How much has it been bothering you in the <b>past week</b>	list|1|not at all|2|a little bit|3|moderately|4|quite a bit|5|extremely
+q108i	q108i	108	q107i==1	q		Any other difficulty with walking or moving?	list|0|no|1|yes
+q108a	q108a	108a	q108i==1	[		What is that other difficulty with walking or moving?	text
+q108b	q108b	108b	q108i==1	]		How much has it been bothering you in the <b>past week</b>	list|1|not at all|2|a little bit|3|moderately|4|quite a bit|5|extremely
+q109i	q109i		1	[		During the <b>past week</b>, how much have you been bothered by ...	nothing
+q109	q109	109	1	q		rashes, itching, or irritation	list|1|not at all|2|a little bit|3|moderately|4|quite a bit|5|extremely
+q110	q110	110	1	q		bruising	list|1|not at all|2|a little bit|3|moderately|4|quite a bit|5|extremely
+q111	q111	111	1	q		increased irritation in sunlight	list|1|not at all|2|a little bit|3|moderately|4|quite a bit|5|extremely
+q112	q112	112	1	]		sweating a lot	list|1|not at all|2|a little bit|3|moderately|4|quite a bit|5|extremely
+q113i	q113i	113	1	q		Any other trouble with your scalp or skin?	list|0|no|1|yes
+q113a	q113a	113a	q113i==1	[		What is that other trouble with your scalp or skin?	text
+q113b	q113b	113b	q113i==1	]		How much has it been bothering you in the <b>past week</b>	list|1|not at all|2|a little bit|3|moderately|4|quite a bit|5|extremely
+q114i	q114i	114	q113i==1	q		Any other trouble with your scalp or skin?	list|0|no|1|yes
+q114a	q114a	114a	q114i==1	[		What is that other trouble with your scalp or skin?	text
+q114b	q114b	114b	q114i==1	]		How much has it been bothering you in the <b>past week</b>	list|1|not at all|2|a little bit|3|moderately|4|quite a bit|5|extremely
+q115i	q115i		1	[		During the <b>past week</b>, how much have you been bothered by ...	nothing
+q115	q115	115	1	q		fever or chills	list|1|not at all|2|a little bit|3|moderately|4|quite a bit|5|extremely
+q116	q116	116	1	q		feeling tired or fatigued	list|1|not at all|2|a little bit|3|moderately|4|quite a bit|5|extremely
+q117	q117	117	1	q		too much energy	list|1|not at all|2|a little bit|3|moderately|4|quite a bit|5|extremely
+q118	q118	118	1	q		jumpiness or feeling jittery	list|1|not at all|2|a little bit|3|moderately|4|quite a bit|5|extremely
+q119	q119	119	1	q		feeling excited, overactive, or elated	list|1|not at all|2|a little bit|3|moderately|4|quite a bit|5|extremely
+q120	q120	120	1	q		problems falling asleep	list|1|not at all|2|a little bit|3|moderately|4|quite a bit|5|extremely
+q121	q121	121	1	q		problems staying asleep	list|1|not at all|2|a little bit|3|moderately|4|quite a bit|5|extremely
+q122	q122	122	1	q		waking up too early	list|1|not at all|2|a little bit|3|moderately|4|quite a bit|5|extremely
+q123	q123	123	1	q		sleeping too much	list|1|not at all|2|a little bit|3|moderately|4|quite a bit|5|extremely
+q124	q124	124	1	q		feeling drowsy during the day	list|1|not at all|2|a little bit|3|moderately|4|quite a bit|5|extremely
+q125	q125	125	1	q		trouble thinking, concentrating, or remembering	list|1|not at all|2|a little bit|3|moderately|4|quite a bit|5|extremely
+q126	q126	126	1	q		feeling down, depressed, or blue	list|1|not at all|2|a little bit|3|moderately|4|quite a bit|5|extremely
+q127	q127	127	1	q		feeling anxious	list|1|not at all|2|a little bit|3|moderately|4|quite a bit|5|extremely
+q128	q128	128	1	]		irritability	list|1|not at all|2|a little bit|3|moderately|4|quite a bit|5|extremely
+q129i	q129i	129	1	q		Any other problems with your thinking, mood, or energy, or with other aspects of your health not mentioned above?	list|0|no|1|yes
+q129a	q129a	129a	q129i==1	[		What is that other problem?	text
+q129b	q129b	129b	q129i==1	]		How much has it been bothering you in the <b>past week</b>	list|1|not at all|2|a little bit|3|moderately|4|quite a bit|5|extremely
+q130i	q130i	130	q129i==1	q		Any other problems with your thinking, mood, or energy, or with other aspects of your health not mentioned above?	list|0|no|1|yes
+q130a	q130a	130a	q130i==1	[		What is that other problem?	text
+q130b	q130b	130b	q130i==1	]		How much has it been bothering you in the <b>past week</b>	list|1|not at all|2|a little bit|3|moderately|4|quite a bit|5|extremely
+q131i	q131i	131	q130i==1	q		Any other problems with your thinking, mood, or energy, or with other aspects of your health not mentioned above?	list|0|no|1|yes
+q131a	q131a	131a	q131i==1	[		What is that other problem?	text
+q131b	q131b	131b	q131i==1	]		How much has it been bothering you in the <b>past week</b>	list|1|not at all|2|a little bit|3|moderately|4|quite a bit|5|extremely
+q132i	q132i	132	q131i==1	q		Any other problems with your thinking, mood, or energy, or with other aspects of your health not mentioned above?	list|0|no|1|yes
+q132a	q132a	132a	q132i==1	[		What is that other problem?	text
+q132b	q132b	132b	q132i==1	]		How much has it been bothering you in the <b>past week</b>	list|1|not at all|2|a little bit|3|moderately|4|quite a bit|5|extremely
+Notes	Notes		1	q		<b>Reference</b><br/>Levine J, Schooler, NR. SAFTEE: A technique for the systematic assessment of side effects in clinical trials. Psychopharmacol Bull 1986;22:343-381.	nothing

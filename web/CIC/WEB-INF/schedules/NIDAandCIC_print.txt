@@ -1,0 +1,243 @@
+RESERVED	__TRICEPS_FILE_TYPE__	SCHEDULE
+RESERVED	__TITLE__	Children in the Community: Transition Study
+RESERVED	__ICON__	ciclogo.gif					
+RESERVED	__HEADER_MSG__	Part 1					
+RESERVED	__PASSWORD_FOR_ADMIN_MODE__	bypass					
+RESERVED	__SHOW_QUESTION_REF__	TRUE					
+RESERVED	__AUTOGEN_OPTION_NUM__	TRUE					
+RESERVED	__DEVELOPER_MODE__	TRUE					
+RESERVED	__DEBUG_MODE__	FALSE					
+NIDA/intro/1	_10450	_10450	1	[		As you read each of the following statements, decide whether or not it describes you. Please mark your answer clearly by circling the number of your selected response or the entire response. In a few cases, you will fill in a response, usually a date or number. Please use a blue pen if possible.	nothing
+NIDA/5	N5	N5	1	q		I feel like losing my temper at people.	list|1|true|2|mostly true|3|mostly false|4|false
+NIDA/6	N6	N6	1	q		The advice of others quite often helps me think better.	list|1|true|2|mostly true|3|mostly false|4|false
+NIDA/7	N7	N7	1	q		There's no use in doing things for people; you only find that you get it in the neck in the long run.	list|1|true|2|mostly true|3|mostly false|4|false
+NIDA/8	N8	N8	1	q		I often make people angry by teasing them.	list|1|true|2|mostly true|3|mostly false|4|false
+NIDA/9	N9	N9	1	q		I feel I do not have much to be proud of.	list|1|true|2|mostly true|3|mostly false|4|false
+NIDA/10	N10	N10	1	q		I could live alone and enjoy it.	list|1|true|2|mostly true|3|mostly false|4|false
+NIDA/11	N11	N11	1	q		I feel like swearing.	list|1|true|2|mostly true|3|mostly false|4|false
+NIDA/12	N12	N12	1	q		When I make a decision, I usually go by what my parents have taught me.	list|1|true|2|mostly true|3|mostly false|4|false
+NIDA/13	N13	N13	1	q		If I get too much change in a store, I always give it back.	list|1|true|2|mostly true|3|mostly false|4|false
+NIDA/14	N14	N14	1	q		I respect rules because they guide me.	list|1|true|2|mostly true|3|mostly false|4|false
+NIDA/15	N15	N15	1	q		I often act on the spur of the moment without stopping to think.	list|1|true|2|mostly true|3|mostly false|4|false
+NIDA/16	N16	N16	1	q		If someone does a better job than me I like to try to show him or her up.	list|1|true|2|mostly true|3|mostly false|4|false
+NIDA/17	N17	N17	1	q		I feel like my life is very useful.	list|1|true|2|mostly true|3|mostly false|4|false
+NIDA/18	N18	N18	1	q		I always try to do whatever is proper.	list|1|true|2|mostly true|3|mostly false|4|false
+NIDA/19	N19	N19	1	q		Preparing for the future is more important for me than enjoying today.	list|1|true|2|mostly true|3|mostly false|4|false
+NIDA/20	N20	N20	1	q		I often quarrel with others.	list|1|true|2|mostly true|3|mostly false|4|false
+NIDA/21	N21	N21	1	q		I feel guilty when I break a rule.	list|1|true|2|mostly true|3|mostly false|4|false
+NIDA/22	N22	N22	1	q		It's no use worrying my head about public affairs; I can't do anything about them.	list|1|true|2|mostly true|3|mostly false|4|false
+NIDA/23	N23	N23	1	q		I am someone who blurts out things without thinking.	list|1|true|2|mostly true|3|mostly false|4|false
+NIDA/24	N24	N24	1	q		I always try to share my problems with someone who can help me.	list|1|true|2|mostly true|3|mostly false|4|false
+NIDA/25	N25	N25	1	q		I have met problems so full of possibilities that I have been unable to make up my mind about them.	list|1|true|2|mostly true|3|mostly false|4|false
+NIDA/26	N26	N26	1	q		When rules and regulations get in the way, I sometimes ignore them.	list|1|true|2|mostly true|3|mostly false|4|false
+NIDA/27	N27	N27	1	q		It is all right to get around the law if you don't actually break it.	list|1|true|2|mostly true|3|mostly false|4|false
+NIDA/28	N28	N28	1	q		Rarely, if ever, do I do anything reckless.	list|1|true|2|mostly true|3|mostly false|4|false
+NIDA/29	N29	N29	1	q		I am quite independent of the opinions of others.	list|1|true|2|mostly true|3|mostly false|4|false
+NIDA/30	N30	N30	1	q		I am a useful person to have around.	list|1|true|2|mostly true|3|mostly false|4|false
+NIDA/31	N31	N31	1	q		People have a real duty to take care of their aged parents, even if it means making some pretty big sacrifices.	list|1|true|2|mostly true|3|mostly false|4|false
+NIDA/32	N32	N32	1	q		When I go to the store, I often come home with things I had not intended to buy.	list|1|true|2|mostly true|3|mostly false|4|false
+NIDA/33	N33	N33	1	q		I feel that I have a number of good qualities.	list|1|true|2|mostly true|3|mostly false|4|false
+NIDA/34	N34	N34	1	q		I sometimes feel that I am about to go to pieces or fall apart.	list|1|true|2|mostly true|3|mostly false|4|false
+NIDA/35	N35	N35	1	q		If I don't like an order I have been given, I may not do it, or I may do only part of it.	list|1|true|2|mostly true|3|mostly false|4|false
+NIDA/36	N36	N36	1	q		My parents have often disapproved of my friends.	list|1|true|2|mostly true|3|mostly false|4|false
+NIDA/37	N37	N37	1	q		I am often said to be hotheaded or bad-tempered.	list|1|true|2|mostly true|3|mostly false|4|false
+NIDA/38	N38	N38	1	q		I'm never satisfied with anything I do.	list|1|true|2|mostly true|3|mostly false|4|false
+NIDA/39	N39	N39	1	q		I feel very uncomfortable when I am away from my family too much.	list|1|true|2|mostly true|3|mostly false|4|false
+NIDA/40	N40	N40	1	q		If I don't feel like doing something I'm told to do, I often put it off or just don't do it at all.	list|1|true|2|mostly true|3|mostly false|4|false
+NIDA/41	N41	N41	1	q		I have a reserved and cautious attitude toward life.	list|1|true|2|mostly true|3|mostly false|4|false
+NIDA/42	N42	N42	1	q		I sometimes get myself into trouble at school or work.	list|1|true|2|mostly true|3|mostly false|4|false
+NIDA/43	N43	N43	1	q		I am distracted by thoughts of the opposite sex.	list|1|true|2|mostly true|3|mostly false|4|false
+NIDA/44	N44	N44	1	q		Sometimes I enjoy seeing how much I can get away with.	list|1|true|2|mostly true|3|mostly false|4|false
+NIDA/45	N45	N45	1	q		I generally rely on careful reasoning in making up my mind.	list|1|true|2|mostly true|3|mostly false|4|false
+NIDA/46	N46	N46	1	q		When I'm told to do something by a teacher or my boss, I do it.	list|1|true|2|mostly true|3|mostly false|4|false
+NIDA/54	N54	N54	1	q		In the midst of social groups, I am often overcome by feelings of loneliness and worthlessness.	list|1|true|2|mostly true|3|mostly false|4|false
+NIDA/55	N55	N55	1	q		I feel guilty if scolded for something even if I did not do it.	list|1|true|2|mostly true|3|mostly false|4|false
+NIDA/56	N56	N56	1	q		I am troubled by feelings of guilt and remorse over quite small matters.	list|1|true|2|mostly true|3|mostly false|4|false
+NIDA/intro/2	_10496	_10496	1	q		For the following statements about yourself, please indicate how strongly you agree or disagree.	nothing
+NIDA/57a	N57a	N57a	1	q		There is really no way I can solve some of the problems I have.	list|1|strongly agree|2|agree|3|disagree|4|strongly disagree
+NIDA/57b	N57b	N57b	1	q		What happens to me in the future mostly depends on me.	list|1|strongly agree|2|agree|3|disagree|4|strongly disagree
+NIDA/57c	N57c	N57c	1	q		I often feel helpless in dealing with the problems of life.	list|1|strongly agree|2|agree|3|disagree|4|strongly disagree
+NIDA/57d	N57d	N57d	1	q		I can do just about anything I really set my mind to.	list|1|strongly agree|2|agree|3|disagree|4|strongly disagree
+NIDA/intro/3	_10501	_10501	1	q		Over the last few years, on average, how much were you bothered by ...	nothing
+NIDA/58a	N58a	N58a	1	q		Feeling low in energy or slowed down? 	list|1|not at all|2|a little|3|somewhat|4|quite a bit|5|extremely
+NIDA/58b	N58b	N58b	1	q		Difficulty in falling asleep or staying asleep? 	list|1|not at all|2|a little|3|somewhat|4|quite a bit|5|extremely
+NIDA/58c	N58c	N58c	1	q		Easily annoyed or irritated? 	list|1|not at all|2|a little|3|somewhat|4|quite a bit|5|extremely
+NIDA/58d	N58d	N58d	1	q		Worrying or stewing about things? 	list|1|not at all|2|a little|3|somewhat|4|quite a bit|5|extremely
+NIDA/58e	N58e	N58e	1	q		Feeling no interest in things? 	list|1|not at all|2|a little|3|somewhat|4|quite a bit|5|extremely
+NIDA/58f	N58f	N58f	1	q		Feeling fearful? 	list|1|not at all|2|a little|3|somewhat|4|quite a bit|5|extremely
+NIDA/58g	N58g	N58g	1	q		Temper outbursts you cannot control? 	list|1|not at all|2|a little|3|somewhat|4|quite a bit|5|extremely
+NIDA/58h	N58h	N58h	1	q		Trouble concentrating or keeping your mind on things? 	list|1|not at all|2|a little|3|somewhat|4|quite a bit|5|extremely
+NIDA/58i	N58i	N58i	1	q		Feeling lonely?	list|1|not at all|2|a little|3|somewhat|4|quite a bit|5|extremely
+NIDA/58j	N58j	N58j	1	q		Feeling anxious, nervous, or tense inside?	list|1|not at all|2|a little|3|somewhat|4|quite a bit|5|extremely
+NIDA/58k	N58k	N58k	1	q		Feeling others do not understand you or are unsympathetic?	list|1|not at all|2|a little|3|somewhat|4|quite a bit|5|extremely
+NIDA/58l	N58l	N58l	1	q		Difficulty making decisions? 	list|1|not at all|2|a little|3|somewhat|4|quite a bit|5|extremely
+NIDA/58m	N58m	N58m	1	q		Feeling blue?	list|1|not at all|2|a little|3|somewhat|4|quite a bit|5|extremely
+NIDA/58n	N58n	N58n	1	q		Feeling tense or keyed up? 	list|1|not at all|2|a little|3|somewhat|4|quite a bit|5|extremely
+NIDA/58o	N58o	N58o	1	q		Difficulty in feeling close to other people?	list|1|not at all|2|a little|3|somewhat|4|quite a bit|5|extremely
+NIDA/58p	N58p	N58p	1	q		Blaming yourself for things?	list|1|not at all|2|a little|3|somewhat|4|quite a bit|5|extremely
+NIDA/58q	N58q	N58q	1	q		Feeling hopeless about the future?	list|1|not at all|2|a little|3|somewhat|4|quite a bit|5|extremely
+NIDA/58r	N58r	N58r	1	q		Feeling others are to blame for most of your troubles? 	list|1|not at all|2|a little|3|somewhat|4|quite a bit|5|extremely
+NIDA/58s	N58s	N58s	1	q		Feeling nervous or shaky inside?	list|1|not at all|2|a little|3|somewhat|4|quite a bit|5|extremely
+NIDA/intro/7	_10524	_10524	1	q		How well this describe you?	nothing
+NIDA/59a	N59a	N59a	1	q		Competitive	list|1|never or almost never true about me|2|a little true about me|3|somewhat true about me|4|almost always or always true about me
+NIDA/59b	N59b	N59b	1	q		Gentle	list|1|never or almost never true about me|2|a little true about me|3|somewhat true about me|4|almost always or always true about me
+NIDA/59c	N59c	N59c	1	q		Self-reliant	list|1|never or almost never true about me|2|a little true about me|3|somewhat true about me|4|almost always or always true about me
+NIDA/59d	N59d	N59d	1	q		Yielding	list|1|never or almost never true about me|2|a little true about me|3|somewhat true about me|4|almost always or always true about me
+NIDA/59e	N59e	N59e	1	q		Independent	list|1|never or almost never true about me|2|a little true about me|3|somewhat true about me|4|almost always or always true about me
+NIDA/59f	N59f	N59f	1	q		Shy	list|1|never or almost never true about me|2|a little true about me|3|somewhat true about me|4|almost always or always true about me
+NIDA/59g	N59g	N59g	1	q		Affectionate 	list|1|never or almost never true about me|2|a little true about me|3|somewhat true about me|4|almost always or always true about me
+NIDA/59h	N59h	N59h	1	q		Assertive	list|1|never or almost never true about me|2|a little true about me|3|somewhat true about me|4|almost always or always true about me
+NIDA/59i	N59i	N59i	1	q		Analytical, that is, thinks about things logically and carefully	list|1|never or almost never true about me|2|a little true about me|3|somewhat true about me|4|almost always or always true about me
+NIDA/59j	N59j	N59j	1	q		Sensitive to the needs of others	list|1|never or almost never true about me|2|a little true about me|3|somewhat true about me|4|almost always or always true about me
+NIDA/59k	N59k	N59k	1	q		Dominant	list|1|never or almost never true about me|2|a little true about me|3|somewhat true about me|4|almost always or always true about me
+NIDA/59l	N59l	N59l	1	q		Compassionate	list|1|never or almost never true about me|2|a little true about me|3|somewhat true about me|4|almost always or always true about me
+NIDA/59m	N59m	N59m	1	q		Masculine	list|1|never or almost never true about me|2|a little true about me|3|somewhat true about me|4|almost always or always true about me
+NIDA/59n	N59n	N59n	1	q		Tender	list|1|never or almost never true about me|2|a little true about me|3|somewhat true about me|4|almost always or always true about me
+NIDA/59o	N59o	N59o	1	q		Aggressive	list|1|never or almost never true about me|2|a little true about me|3|somewhat true about me|4|almost always or always true about me
+NIDA/59p	N59p	N59p	1	q		Warm	list|1|never or almost never true about me|2|a little true about me|3|somewhat true about me|4|almost always or always true about me
+NIDA/59q	N59q	N59q	1	q		Acts as a leader	list|1|never or almost never true about me|2|a little true about me|3|somewhat true about me|4|almost always or always true about me
+NIDA/59r	N59r	N59r	1	q		Feminine	list|1|never or almost never true about me|2|a little true about me|3|somewhat true about me|4|almost always or always true about me
+NIDA/59s	N59s	N59s	1	q		Ambitious	list|1|never or almost never true about me|2|a little true about me|3|somewhat true about me|4|almost always or always true about me
+NIDA/59t	N59t	N59t	1	q		Loves children	list|1|never or almost never true about me|2|a little true about me|3|somewhat true about me|4|almost always or always true about me
+NIDA/60	N60	N60	1	q		What is your FIRST reaction to new people you meet?	list|1|very friendly|2|fairly friendly|3|unfriendly
+NIDA/61	N61	N61	1	q		About how often are you afraid?	list|1|constantly|2|often|3|once in a while|4|almost never or never
+NIDA/62	N62	N62	1	q		Do you usually make friends easily, or do you usually have trouble making friends?	list|1|make friends easily|2|have trouble making friends
+NIDA/63	N63	N63	1	q		How often are you very shy with people you have met before?	list|1|often|2|sometimes|3|hardly ever|4|never
+NIDA/64	N64	N64	1	q		How often are your feelings hurt?	list|1|often|2|sometimes|3|hardly ever|4|never
+NIDA/65	N65	N65	1	q		How often are you timid and fearful about doing things?	list|1|often|2|sometimes|3|hardly ever|4|never
+NIDA/66	N66	N66	1	q		How reliable are you coming home when you are expected?	list|1|always come home on time|2|usually come home on time|3|sometimes come home on time|4|hardly ever come home on time
+NIDA/67	N67	N67	1	q		When you are asked or told to do something, do you ...	list|1|nearly always do it|2|sometimes do it|3|nearly always do NOT do it
+NIDA/68	N68	N68	1	q		When you do something, how important is it to you to do it exactly right?	list|1|very important|2|fairly important|3|NOT important
+NIDA/69	N69	N69	1	q		When you try to do something and have trouble with it, what happens most of the time? Do you usually ...	list|1|keep trying by yourself|2|call for help|3|switch to something else
+NIDA/70	N70	N70	1	q		If you start to do something and are interrupted, do you usually go back to it or don't you?	list|1|go back to it|2|don't go back to it|3|varies
+NIDA/71	N71	N71	1	q		When you are doing something you like, how long can you usually keep at it?	list|1|a half hour or less|2|more than a half hour but less than an hour|3|1 hour to less than 2 hours| 4|2 hours but less than 3 hours|5|3 hours but less than 4 hours|6| 4 hours or more
+NIDA/72	N72	N72	1	q		When you read or do paperwork, how long can you usually do it?	list|1|a half hour or less|2|more than a half hour but less than an hour|3|1 hour to less than 2 hours| 4|2 hours but less than 3 hours|5|3 hours but less than 4 hours|6| 4 hours or more
+NIDA/73	N73	N73	1	q		When doing things with your hands, would you say you are ...	list|1| very clumsy|2|clumsy|3|well coordinated|4|very well coordinated
+NIDA/74	N74	N74	1	q		How about in moving around? Would you say you are ...	list|1| very clumsy|2|clumsy|3|well coordinated|4|very well coordinated
+NIDA/75	N75	N75	1	q		How often do you lose your train of thought, that is, your mind drifts from one thing to another?	list|1|often|2|sometimes|3|hardly ever|4|never
+NIDA/76	N76	N76	1	q		How careful are you about things? Would you say you ...	list|1|destroy things on purpose|2|destroy things accidentally|3|are careless with things|4|are careful with things
+CIC/comment2	_101001	_101001	1	q		For the next few questions, please indicate how often the statements are true about you and, if married (and not separated), your spouse. If not married, answer about you and the person who is closest to you.	nothing
+CIC/Q174	Q174	Q174	1	q		We engage in outside interests together.	list|1|never|2|seldom|3|sometimes|4|often|5|always
+CIC/Q175	Q175	Q175	1	q		We are very affectionate with each other.	list|1|never|2|seldom|3|sometimes|4|often|5|always
+CIC/Q176	Q176	Q176	1	q		We really talk with one another.	list|1|never|2|seldom|3|sometimes|4|often|5|always
+CIC/Q177	Q177	Q177	1	q		I can depend on him or her in a pinch.	list|1|never|2|seldom|3|sometimes|4|often|5|always
+CIC/Q178	Q178	Q178	1	q		We comfort and help each other when we have troubles.	list|1|never|2|seldom|3|sometimes|4|often|5|always
+CIC/Q179	Q179	Q179	1	q		We argue or fight about things.	list|1|never|2|seldom|3|sometimes|4|often|5|always
+CIC/Q180	Q180	Q180	1	q		We have fun together.	list|1|never|2|seldom|3|sometimes|4|often|5|always
+CIC/Q181	Q181	Q181	1	q		I get really angry at him or her.	list|1|never|2|seldom|3|sometimes|4|often|5|always
+CIC/Q182	Q182	Q182	1	q		We give each other information, guidance and suggestions.	list|1|never|2|seldom|3|sometimes|4|often|5|always
+CIC/Q183	Q183	Q183	1	q		We agree about the important things in life.	list|1|never|2|seldom|3|sometimes|4|often|5|always
+CIC/Q184	Q184	Q184	1	q		We can rely on each other's loyalty and faithfulness.	list|1|never|2|seldom|3|sometimes|4|often|5|always
+CIC/Q184a	Q184a	Q184a	1	Q		With whom was the relationship you described in the previous questions?	list|1|spouse|2|romantic partner|3|parent|4|same-sex friend|5|other friend|6|other relative|7|someone else
+CIC/comment3	_101013	_101013	1	q		Next are some questions about yourself. Answer how well each of these statements describes you.	nothing
+CIC/Q191	Q191	Q191	1	q		You think a lot about why you feel the way you do.	list|1|not like me|2|a little bit like me|3|quite a bit like me|4|a lot like me
+CIC/Q192	Q192	Q192	1	q		When you're troubled you like to talk it over with others	list|1|not like me|2|a little bit like me|3|quite a bit like me|4|a lot like me
+CIC/Q193	Q193	Q193	1	q		You often daydream about yourself.	list|1|not like me|2|a little bit like me|3|quite a bit like me|4|a lot like me
+CIC/Q194	Q194	Q194	1	q		You pay a lot of attention to how other people are feeling.	list|1|not like me|2|a little bit like me|3|quite a bit like me|4|a lot like me
+CIC/Q195	Q195	Q195	1	q		You think it's better not to pay much attention to your own pains or problems.	list|1|not like me|2|a little bit like me|3|quite a bit like me|4|a lot like me
+CIC/Q196	Q196	Q196	1	q		You try to figure out why you behave the way you do.	list|1|not like me|2|a little bit like me|3|quite a bit like me|4|a lot like me
+CIC/Q197	Q197	Q197	1	q		You think that being aware of your own feelings and motivations is      very important.	list|1|not like me|2|a little bit like me|3|quite a bit like me|4|a lot like me
+CIC/Q198	Q198	Q198	1	q		When you're upset you keep your feelings to yourself.	list|1|not like me|2|a little bit like me|3|quite a bit like me|4|a lot like me
+CIC/Q199	Q199	Q199	1	q		You usually find it pretty easy to forget your troubles.	list|1|not like me|2|a little bit like me|3|quite a bit like me|4|a lot like me
+CIC/comment4	_101023	_101023	1	q		For the following questions, please indicate whether you think the statements are false, mostly false, mostly true, or true.	nothing
+CIC/1	C1	C1	1	q		People enjoy doing favors for me even when I don't do favors for them.	list|1|false|2|mostly false|3|mostly true|4|true
+CIC/2	C2	C2	1	q		I feel bored most of the time.	list|1|false|2|mostly false|3|mostly true|4|true
+CIC/3	C3	C3	1	q		People who confide in others are asking for trouble.	list|1|false|2|mostly false|3|mostly true|4|true
+CIC/4	C4	C4	1	q		I am more concerned about my looks than most people my age.	list|1|false|2|mostly false|3|mostly true|4|true
+CIC/5	C5	C5	1	q		People that I have looked up to have often ended up disappointing me.	list|1|false|2|mostly false|3|mostly true|4|true
+CIC/6	C6	C6	1	q		If I don't feel like doing something I'm told to do, I often put it off or just don't do it at all.	list|1|false|2|mostly false|3|mostly true|4|true
+CIC/7	C7	C7	1	q		Flirting comes naturally to me.	list|1|false|2|mostly false|3|mostly true|4|true
+CIC/8	C8	C8	1	q		My feelings are easily hurt.	list|1|false|2|mostly false|3|mostly true|4|true
+CIC/9	C9	C9	1	q		I don't like to make a decision until I check it out with people I trust.	list|1|false|2|mostly false|3|mostly true|4|true
+CIC/10	C10	C10	1	q		If I think that someone is out to get me, I try to get him or her first.	list|1|false|2|mostly false|3|mostly true|4|true
+CIC/11	C11	C11	1	q		I worry about being left alone without anyone to take care of  me.	list|1|false|2|mostly false|3|mostly true|4|true
+CIC/12	C12	C12	1	q		Most people are not aware of how much secret groups influence their lives.	list|1|false|2|mostly false|3|mostly true|4|true
+CIC/13	C13	C13	1	q		Most of the people I know feel the way I do about what is important in life.	list|1|false|2|mostly false|3|mostly true|4|true
+CIC/14	C14	C14	1	q		I often go out of my way to protect myself from others.	list|1|false|2|mostly false|3|mostly true|4|true
+CIC/15	C15	C15	1	q		Most people's criticism doesn't bother me at all.	list|1|false|2|mostly false|3|mostly true|4|true
+CIC/16	C16	C16	1	q		I try to avoid activities that will be too tiring.	list|1|false|2|mostly false|3|mostly true|4|true
+CIC/17	C17	C17	1	q		I would have no difficulty finding someone to borrow $1000 from if I needed it.	list|1|false|2|mostly false|3|mostly true|4|true
+CIC/18	C18	C18	1	q		I often feel that people boss me around.	list|1|false|2|mostly false|3|mostly true|4|true
+CIC/19	C19	C19	1	q		I need a lot of admiration and attention in order to feel good.	list|1|false|2|mostly false|3|mostly true|4|true
+CIC/20	C20	C20	1	q		I have a pretty good sense of humor.	list|1|false|2|mostly false|3|mostly true|4|true
+CIC/21	C21	C21	1	q		People talk about me behind my back.	list|1|false|2|mostly false|3|mostly true|4|true
+CIC/22	C22	C22	1	q		I like to be emotional and make a big deal out of things.	list|1|false|2|mostly false|3|mostly true|4|true
+CIC/23	C23	C23	1	q		I can't help envying other people.	list|1|false|2|mostly false|3|mostly true|4|true
+CIC/24	C24	C24	1	q		People have complained that I don't understand or care enough about their feelings.	list|1|false|2|mostly false|3|mostly true|4|true
+CIC/25	C25	C25	1	q		I often find myself thinking about how great a person I am, or will be.	list|1|false|2|mostly false|3|mostly true|4|true
+CIC/26	C26	C26	1	q		A real friend would never criticize a person.	list|1|false|2|mostly false|3|mostly true|4|true
+CIC/27	C27	C27	1	q		I have problems that are so unusual, they are hard for other people to understand.	list|1|false|2|mostly false|3|mostly true|4|true
+CIC/28	C28	C28	1	q		I often find it easy and fun to impress or charm other people.	list|1|false|2|mostly false|3|mostly true|4|true
+CIC/29	C29	C29	1	q		I really get annoyed when people tell me how to do things.	list|1|false|2|mostly false|3|mostly true|4|true
+CIC/30	C30	C30	1	q		Someone is always available if I am ill and need help.	list|1|false|2|mostly false|3|mostly true|4|true
+CIC/31	C31	C31	1	q		I need activity and excitement all the time.	list|1|false|2|mostly false|3|mostly true|4|true
+CIC/32	C32	C32	1	q		I often become angry when I'm unfairly criticized.	list|1|false|2|mostly false|3|mostly true|4|true
+CIC/33	C33	C33	1	q		Most of the people I know have  the same political attitudes I do.	list|1|false|2|mostly false|3|mostly true|4|true
+CIC/34	C34	C34	1	q		People say I exaggerate my difficulties- "make mountains out of molehills." 	list|1|false|2|mostly false|3|mostly true|4|true
+CIC/35	C35	C35	1	q		I'm loyal to people even when they mistreat me.	list|1|false|2|mostly false|3|mostly true|4|true
+CIC/36	C36	C36	1	q		I have a pet who is an important  companion for me.	list|1|false|2|mostly false|3|mostly true|4|true
+CIC/37	C37	C37	1	q		I often wonder if the people I know can really be trusted.	list|1|false|2|mostly false|3|mostly true|4|true
+CIC/38	C38	C38	1	q		I like to be the center of attention.	list|1|false|2|mostly false|3|mostly true|4|true
+CIC/39	C39	C39	1	q		Criticism often makes me feel ashamed.	list|1|false|2|mostly false|3|mostly true|4|true
+CIC/40	C40	C40	1	q		I do things I don't like to do in order to get people to like me.	list|1|false|2|mostly false|3|mostly true|4|true
+CIC/41	C41	C41	1	q		I am a person with unusual talents and abilities.	list|1|false|2|mostly false|3|mostly true|4|true
+CIC/42	C42	C42	1	q		It's often best to agree with people even when you don't think they're right.	list|1|false|2|mostly false|3|mostly true|4|true
+CIC/43	C43	C43	1	q		I often think I could do a much better job than the people in charge.	list|1|false|2|mostly false|3|mostly true|4|true
+CIC/44	C44	C44	1	q		If someone hurts or insults me, I generally don't forget it.	list|1|false|2|mostly false|3|mostly true|4|true
+CIC/45	C45	C45	1	q		Most people think mainly about  themselves.	list|1|false|2|mostly false|3|mostly true|4|true
+CIC/46	C46	C46	1	q		I don't know if I'm doing all right until people tell me so.	list|1|false|2|mostly false|3|mostly true|4|true
+CIC/47	C47	C47	1	q		I often have warm and loving feelings towards others.	list|1|false|2|mostly false|3|mostly true|4|true
+CIC/48	C48	C48	1	q		If I don't like an order I have been given, I may not do it or I may do only part of it. 	list|1|false|2|mostly false|3|mostly true|4|true
+CIC/49	C49	C49	1	q		I enjoy "horsing around" or just being silly.	list|1|false|2|mostly false|3|mostly true|4|true
+CIC/50	C50	C50	1	q		I believe I was meant to do the work that I am doing or preparing myself to do.	list|1|false|2|mostly false|3|mostly true|4|true
+CIC/51	C51	C51	1	q		My work is heading towards a  worthwhile goal.	list|1|false|2|mostly false|3|mostly true|4|true
+CIC/52	C52	C52	1	q		The friends I have are the kind  of friends I really want to be with.	list|1|false|2|mostly false|3|mostly true|4|true
+CIC/53	C53	C53	1	q		I expect that I will stay friends with my current friends for many  years.	list|1|false|2|mostly false|3|mostly true|4|true
+CIC/54	C54	C54	1	q		I can get just as involved in a fun thing as in a serious or important one.	list|1|false|2|mostly false|3|mostly true|4|true
+CIC/55	C55	C55	1	q		I believe there is a right and a wrong way to live.	list|1|false|2|mostly false|3|mostly true|4|true
+CIC/56	C56	C56	1	q		If something makes me happy then it is the right thing to do.	list|1|false|2|mostly false|3|mostly true|4|true
+CIC/57	C57	C57	1	q		There is a reason why humans are on the earth.	list|1|false|2|mostly false|3|mostly true|4|true
+CIC/58	C58	C58	1	q		A person can get pleasure sometimes from hurting or frightening other people.	list|1|false|2|mostly false|3|mostly true|4|true
+CIC/59	C59	C59	1	q		I often seem to end up disappointing myself.	list|1|false|2|mostly false|3|mostly true|4|true
+CIC/60	C60	C60	1	q		I'm proud of how well I do my work.	list|1|false|2|mostly false|3|mostly true|4|true
+CIC/61	C61	C61	1	q		I almost always try to do the best I can.	list|1|false|2|mostly false|3|mostly true|4|true
+CIC/62	C62	C62	1	q		I find that I am usually at my best under pressure.	list|1|false|2|mostly false|3|mostly true|4|true
+CIC/63	C63	C63	1	q		I am considered to be quite creative.	list|1|false|2|mostly false|3|mostly true|4|true
+CIC/64	C64	C64	1	q		When I meet up with problems I usually feel excited rather than frustrated.	list|1|false|2|mostly false|3|mostly true|4|true
+CIC/65	C65	C65	1	q		Sometimes weak people deserve to be humiliated.	list|1|false|2|mostly false|3|mostly true|4|true
+CIC/66	C66	C66	1	q		I prefer to avoid competitive activities and work.	list|1|false|2|mostly false|3|mostly true|4|true
+CIC/67	C67	C67	1	q		I can deal with things that are unpleasant as well or better than most people.	list|1|false|2|mostly false|3|mostly true|4|true
+CIC/68	C68	C68	1	q		You always have to be alert to pick up the real meaning of what people do or say.	list|1|false|2|mostly false|3|mostly true|4|true
+CIC/69	C69	C69	1	q		I have sometimes threatened to kill myself.	list|1|false|2|mostly false|3|mostly true|4|true
+CIC/70	C70	C70	1	q		I have a lot of trouble throwing out things that are worn out or worthless.	list|1|false|2|mostly false|3|mostly true|4|true
+CIC/71	C71	C71	1	q		People usually give me credit when I do a good job.	list|1|false|2|mostly false|3|mostly true|4|true
+CIC/72	C72	C72	1	q		I need more admiration and praise than most people.	list|1|false|2|mostly false|3|mostly true|4|true
+CIC/73	C73	C73	1	q		When I resent doing something I tend to work slowly or screw things up.	list|1|false|2|mostly false|3|mostly true|4|true
+CIC/74	C74	C74	1	q		I am easily offended.	list|1|false|2|mostly false|3|mostly true|4|true
+CIC/75	C75	C75	1	q		When I thought it would be to my advantage, I have used a different name.	list|1|false|2|mostly false|3|mostly true|4|true
+CIC/76	C76	C76	1	q		People sometimes accuse me of being self-centered.	list|1|false|2|mostly false|3|mostly true|4|true
+CIC/77	C77	C77	1	q		I tend to forget things that I'd rather not do.	list|1|false|2|mostly false|3|mostly true|4|true
+CIC/78	C78	C78	1	q		I often spend my money on things I want, and don't have money for things I really need.	list|1|false|2|mostly false|3|mostly true|4|true
+CIC/79	C79	C79	1	q		My mood changes quickly and often.	list|1|false|2|mostly false|3|mostly true|4|true
+CIC/80	C80	C80	1	q		Other people consider me to be a good worker who pulls his/her own weight.	list|1|false|2|mostly false|3|mostly true|4|true
+CIC/81	C81	C81	1	q		There have been times when I  have enjoyed the humiliation of others.	list|1|false|2|mostly false|3|mostly true|4|true
+CIC/82	C82	C82	1	q		It often happens that I'm very happy one minute, but very sad the next.	list|1|false|2|mostly false|3|mostly true|4|true
+CIC/83	C83	C83	1	q		I am the kind of person that when I want something I want it now.	list|1|false|2|mostly false|3|mostly true|4|true
+CIC/84	C84	C84	1	q		I have often just not paid my bills.	list|1|false|2|mostly false|3|mostly true|4|true
+CIC/85	C85	C85	1	q		Some people consider me a drifter because I don't stay long in any one place.	list|1|false|2|mostly false|3|mostly true|4|true
+CIC/comment5	_101109	_101109	1	q		For the following questions please indicate how often these statements are true about you.	nothing
+CIC/87	C87	C87	1	q		Does your spouse or close friend do things that make you so furious you "can't see straight? "	list|1|almost never|2|once in a while|3|sometimes|4|often|5|almost always
+CIC/88	C88	C88	1	q		Does it make you angry  when you are kept waiting for an appointment?	list|1|almost never|2|once in a while|3|sometimes|4|often|5|almost always
+CIC/89	C89	C89	1	q		Would people who know you consider you a rather quiet person?	list|1|almost never|2|once in a while|3|sometimes|4|often|5|almost always
+CIC/90	C90	C90	1	q		Do you raise your voice when  you get angry?	list|1|almost never|2|once in a while|3|sometimes|4|often|5|almost always
+CIC/91	C91	C91	1	q		When waiting in ticket lines, supermarket lines, etc., do you become impatient?	list|1|almost never|2|once in a while|3|sometimes|4|often|5|almost always
+CIC/92	C92	C92	1	q		Does it annoy you when you get held up in traffic?	list|1|almost never|2|once in a while|3|sometimes|4|often|5|almost always
+CIC/93	C93	C93	1	q		Is being the best in most things important to you?	list|1|almost never|2|once in a while|3|sometimes|4|often|5|almost always
+CIC/94	C94	C94	1	q		Do you get irritated when people do not take their jobs seriously?	list|1|almost never|2|once in a while|3|sometimes|4|often|5|almost always
+CIC/95	C95	C95	1	q		Do you play hard to win when you play games with people your own age?	list|1|almost never|2|once in a while|3|sometimes|4|often|5|almost always
+CIC/96	C96	C96	1	q		Do you put more effort into getting a job done than most people?	list|1|almost never|2|once in a while|3|sometimes|4|often|5|almost always
+CIC/97	C97	C97	1	q		Do you enjoy competing hard?	list|1|almost never|2|once in a while|3|sometimes|4|often|5|almost always
+CIC/98	C98	C98	1	q		When you see other people are not doing a good job, does it make you angry inside?	list|1|almost never|2|once in a while|3|sometimes|4|often|5|almost always
+CIC/99	C99	C99	1	q		Are you more aggressive than most people in going after what you want?	list|1|almost never|2|once in a while|3|sometimes|4|often|5|almost always
+CIC/100	C100	C100	1	q		When you play games like cards, tennis, scrabble, etc., with young children, would you let  them win on purpose?	list|1|almost never|2|once in a while|3|sometimes|4|often|5|almost always
+	_101124	_101124	1	]		That completes part 1 of this questionnaire.	nothing

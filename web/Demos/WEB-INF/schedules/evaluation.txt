@@ -1,0 +1,123 @@
+RESERVED	__TRICEPS_FILE_TYPE__	SCHEDULE
+RESERVED	__TITLE__	Triceps Tutorial and Evaluation
+RESERVED	__ICON__	cpmc_dmi.jpg
+RESERVED	__HEADER_MSG__	Welcome to the Triceps System!!
+RESERVED	__PASSWORD_FOR_ADMIN_MODE__	bypass
+RESERVED	__SHOW_QUESTION_REF__	false
+RESERVED	__AUTOGEN_OPTION_NUM__	false
+RESERVED	__DEVELOPER_MODE__	TRUE
+RESERVED	__FILENAME__	test
+RESERVED	__LANGUAGES__	en_US
+COMMENT concept	internalName	externalName	dependencies	questionOrEvalType	readback[0]	questionOrEval[0]	answerChoices[0]	helpURL[0]	languageNum	questionAsAsked	answerGiven	comment	timeStamp
+Introduction	welcome screen		1	[		Thank you for evaluating the <b>Triceps System</b>!!	nothing
+	_tmp0000		1	q		During the course of this evaluation you will be shown the basic features of the display and some examples of what kinds of human-computer interactions are possible with <B>Triceps</b>.  Along the way you will be asked what you think so we can devise improvements.	nothing
+	username		1	]		But first, please type in your name:	text
+	display_username		1	q		Thanks, `username`!  <br><br>With <b>Triceps</b> it is easy to refer to previous answers (like your name above) and with them modify the text of subsequent displays and even the flow of the whole interaction.  As this evaluation proceeds you will see numerous examples of how this dynamic customization of the interview occurs.	nothing
+	_tmp0001		1	e		__HEADER_MSG__ = "Using The Triceps Display"	nothing
+	_tmp0002		1	[		The <b>Triceps</b> interface is a regular web browser.  Inside the browser window	nothing
+	_tmp0003		1	q		One navigates the screen in usual browser fashion with either the mouse or keyboard.  <br>	nothing
+	_tmp0004		1	q		<b>MOUSE: </b>The mouse allows you to click buttons, like the <b>next</b> and <b>previous</b> buttons below.  You can click icons, like the question mark icon in the upper left-hand corner which provides general system help.  You can select radio buttons and check boxes in the usual fashion.  And you can move the cursor and focus to where you will enter text or numbers.	nothing
+	_tmp0005		1	]		<b>KEYBOARD: </b>It is possible to rapidly navigate the page with keystrokes alone.  However, this depends heavily on what type of browser you are using.  <b>Triceps</b> is currently optimized for Netscape navigator 4.x on MS Windows.  The TAB key cycles the focus trhough text fields (if any) and the navigation buttons.   In pull-down menus, the up and down arrow keys move the focus between options or you can hit the key corresponding to the first letter or number of the option to move the focus directly there.	nothing
+	_tmp0006		1	e		__HEADER_MSG__ = 'What is the Triceps System?'	nothing
+	_tmp0007		1	[		<b>Triceps</b> is designed to make defining and deploying any kind of structured human-computer interaction easy.  Researchers, clinicians, and educators commonly need to collect and distribute information that has a standard structure and content on the one hand, but is also appropriate to the circumstances of the exchange and the particular characteristics of the subject, patient, or student on the other.	nothing
+	_tmp0008		1	q		The system is composed of 4 basic parts:<br>1)  spreadsheet<br>2)  a servlet<br>3) a browser<br>4) data files	nothing
+	_tmp0009		1	q		The <i>spreadsheet</i> (a tab-delimited text file) is where the schedule is defined that governs the human-computer interaction.  Each row in the spreadsheet defines a node.	nothing
+	_tmp0010		1	q		The <i>servlet</i> (TricepsServlet and its associated files) reads the spreadsheet and traverses the nodes in order from start to finish.	nothing
+	_tmp0011		1	q		The <i>browser</i> is the user interface to the servlet.	nothing
+	_tmp0012		1	q		The <i>data file</i> is built as an interview proceeds.	nothing
+	_tmp0013		1	]		In a nutshell, one defines the schedule in the spreadsheet and deploys it by configuring the servlet to run it then starting and runing it with the browser.	nothing
+	_tmp0014		1	e		__HEADER_MSG__ = "Defining a Schedule"	nothing
+	_tmp0015		1	[		One uses any spreasheet program to define a schedule.  Each row is a <i>node</i> that defines a discrete step to take in the interview, for example, displaying text in the browser or performing an internal evaluation of previous answers.	nothing
+	_tmp0016		1	q		A <i>node</i> includes a field of <i>dependencies</i>.  Before a node's action is performed these dependencies are evaluated to see if that node is applicable under the circumstances.	nothing
+	_tmp0017		1	q		For example, at one node one might ask for the interviewee's gender.  A subsequent node asking about pregnancies would only be asked if the gender node answer was "female".	nothing
+	_tmp0018		1	]		There are two important points to note about using dependencies like this.  First, each node explicitly specifies the circumstances in which it is applicable.  In the example given, the node about pregnancy is performed only if the interviewee is female.   Second, one does not have to record a "goto" for each answer option at a given node.  This eliminates the difficulty of following the flow of a schedule through all the possible paths.  In <b>Triceps</b>, all nodes are considered in order from start to finish.	nothing
+	IDprefix		1	[;number;1;99;00		Enter the Cluster number	double
+	ID		1	];number;1;9999;0000		Enter the HUID	double
+	Filename		1	e;string		IDprefix . '-' . ID	nothing
+	_tmp0019		1	q		The filename will be <B>`Filename`</B>	nothing
+	_tmp0020		1	e		__FILENAME__ = Filename	nothing
+interview;date;month	_410	Month	1	q		What is the current month?	month
+ED;introduction	_2000	Intro	1	[		The following questions calculate the <B>Body Mass Index</B>	nothing
+subject;height;current	_2001	Q1	1	q		How tall are you?<br> (use inches)	text
+subject;weight;current	_2002	Q2	1	q		How much do you weigh now?<BR> (use pounds)	text
+subject;weight;past year;lowest	_2003	Q3	1	]		"In the last six months, that is, since  <B><i>`_410 - 6`</I></B>, what was your <U>lowest</u> weight?"	text
+subject;weight;past year;lowest BMI	_2004		1	e		((_2002 < _2003?(_2002 * 0.45359):(_2003 * 0.45359)) / ((_2001 * 0.0254) * (_2001 * 0.0254)))	nothing
+ED;underweight criteria;anorexic	_2005	low	1	e		_2004 <= 17.5	nothing
+ED;underweight criteria;overweight	_2006	overweight	1	e		_2004 > 25 && _2004 <= 30	nothing
+ED;underweight criteria;obese	_2007	obese	1	e		_2004 > 30	nothing
+	_2008	BMI	1	q		"Your BMI is `_2004`, which is `_2005?'too low':(_2006?'overweight':(_2007?'obese':'within normal range'))`"	nothing
+	_1	_1	1	[		The following INPUT STYLES are available (the spreadsheet command to specify these is listed in parentheses)	nothing
+	_2	_2	1	q		message not requiring input (nothing)	nothing
+	_3	_3	1	q		text field (text)	text
+	_4	_4	1	q		memo field (memo)	memo
+	_5	_5	1	q		password (password)	password
+	_6	_6	1	q		check-box (check)	check|1|ok
+	_7	_7	1	q		pick list (combo)	combo|0|no|1|maybe|2|yes|7|unknown|9|refused
+	_7a	_7a	1	q		pick list (list)	list|0|no|1|maybe|2|yes|7|unknown|9|refused
+	_7b	_7b	1	]		radio buttons (radio)	radio|0|no|1|maybe|2|yes
+	_8	_8	1	[		Longer answer choices are also handled gracefully:	nothing
+	_8a	_8a	1	q		radio buttons - horizontally oriented (radio2)	"radio2|0|Not present|1|Indicates feelings of worthlessness (loss of self-esteem) only on questioning|2|Spontaneously indicated feelings of worthlessness (loss of self-esteem)|3|Different from 2 by degree.  Patient volunteers that he is ""no good,"" ""inferior,"" or its equivalent|4|Delusional notions of worthlessness - i.e., ""I am a heap of garbage"" or its equivalent"
+	_8b	_8b	1	q		combo box (combo)	"combo|0|Not present|1|Indicates feelings of worthlessness (loss of self-esteem) only on questioning|2|Spontaneously indicated feelings of worthlessness (loss of self-esteem)|3|Different from 2 by degree.  Patient volunteers that he is ""no good,"" ""inferior,"" or its equivalent|4|Delusional notions of worthlessness - i.e., ""I am a heap of garbage"" or its equivalent"
+	_8c	_8c	1	]		list box (list)	"list|0|Not present|1|Indicates feelings of worthlessness (loss of self-esteem) only on questioning|2|Spontaneously indicated feelings of worthlessness (loss of self-esteem)|3|Different from 2 by degree.  Patient volunteers that he is ""no good,"" ""inferior,"" or its equivalent|4|Delusional notions of worthlessness - i.e., ""I am a heap of garbage"" or its equivalent"
+	_10	_10	1	[		The following DATA types are available:	nothing
+	_11	_11	1	q		"number (can use text, check, list, combo, or radio2 styles)"	double
+	_12	_12	1	q		"text (can use text, check, list, combo, or radio2 styles)"	text
+	_13	_13	1	q		date	date
+	_14	_14	1	q		time	time
+	_15	_15	1	q		year	year
+	_16	_16	1	q		month	month
+	_17	_17	1	q		day	day
+	_18	_18	1	q		weekday	weekday
+	_19	_19	1	q		hour	hour
+	_20	_20	1	q		minute	minute
+	_21	_21	1	]		second	second
+	_22	_22	1	[		Data validation is supported	nothing
+	_23	_23	1	q;number;0;		number (greater than a constant)	double
+	_24	_24	1	q;number;;0;		number (less than a constant)	double
+	_25	_25	1	];number;5;10		number (between two constants)	double
+	_26	_26	1	[		Dynamic calculations of data validation ranges is also supported	nothing
+min	_27	_27	1	q;number;		set min value	double
+max	_28	_28	1	];number;		set max value	double
+	_29	_29	1	[		Questions can be customized to reference previous answers	nothing
+	_30	_30	1	q		"For example, the following questions use the min (`min`) and max (`max`) values you just specified"	nothing
+	_31	_31	1	q;number;min		enter a number greater than your min	double
+	_32	_32	1	q;number;;max		enter a number less than your max	double
+	_33	_33	1	];number;min;max		enter a number between your min and max	double
+	_34	_34	1	[		These static and/or dynamic range checks can be used for text and dates too	nothing
+	_35	_35	1	q;string;'q';;		text (greater than)	text
+	_36	_36	1	q;string;'q';		text (less than)	text
+	_37	_37	1	q;string;'f';'t';		text (between)	text
+	_38	_38	1	q;string;'hello';'hello';		text (exact match)	text
+	_39	_39	1	];string;'pass';'pass';		password (exact match - 'pass')	password
+	_40	_40	1	[		Multiple date and time formats and ranges can be used	nothing
+	_41	_41	1	q;date;1920;2040;yyyy		date (year - 'yyyy')	date
+	_42	_42	1	q;date;50;95;yy		date (year - 'yy')	date
+	_43	_43	1	q;date;4;9;M		date (month - 'M')	date
+	_44	_44	1	q;date;'May';'Nov';MMM		date (month - 'MMM')	date
+	_45	_45	1	q;date;'February';'June';MMMM		date (month - 'MMMM')	date
+	_46	_46	1	q;date;7;24;d		date (day - 'd')	date
+	_47	_47	1	q;date;5;15;H		date (hour in 24 hour format - 'H')	date
+	_48	_48	1	q;date;15;45;m		date (minute in hour - 'm')	date
+	_49	_49	1	q;date;1;10;s		date (second - 's')	date
+	_50	_50	1	q;weekday;'Mon';'Fri'		date (day in week - 'EE')	date
+	_51	_51	1	q;weekday;'Monday';'Friday';EEEE		date (day in week - 'EEEE')	date
+	_52	_52	1	];date;'1/29/1967';'1/1/2001';MM/dd/yyyy		date (day/month/year - 'MM/dd/yyyy')	date
+	_53	_53	1	[		Here are the defaults for date-type inputs	nothing
+date	_54	_54	1	q;date		date	text
+time	_55	_55	1	q;time		time	text
+	_56	_56	1	q;year		year	text
+	_57	_57	1	q;month		month	text
+	_58	_58	1	q;day		day	text
+	_59	_59	1	q;weekday		weekday	text
+	_60	_60	1	q;hour		hour	text
+	_61	_61	1	q;minute		minute	text
+	_62	_62	1	q;second		second	text
+	_63	_63	1	]		Thanks for looking	nothing
+	_64	_64	1	[;year;date		year	text
+	_65	_65	1	q;month;date		month	text
+	_66	_66	1	q;day;date		day	text
+	_67	_67	1	q;weekday;date		weekday	text
+	_68	_68	1	q;hour;time		hour	text
+	_69	_69	1	q;minute;time		minute	text
+	_70	_70	1	q;second;time		second	text
+	_71	_71	1	]		Thanks for looking	nothing

@@ -1,0 +1,101 @@
+RESERVED	__TRICEPS_FILE_TYPE__	SCHEDULE						
+RESERVED	__ICON__	dialogo.jpg						
+RESERVED	__DEVELOPER_MODE__	TRUE						
+RESERVED	__TITLE__	New York Cancer Project						
+RESERVED	__HEADER_MSG__	New York Cancer Project Questionnaire						
+RESERVED	__AUTOGEN_OPTION_NUM__	TRUE						
+RESERVED	__PASSWORD_FOR_ADMIN_MODE__	bypass						
+COMMENT								
+	screening_intro		1	[		SCREENING Visit 1:  This section to be completed by interviewer.	nothing	
+	subject_ID		1	q		Subject ID (SCAN LABEL)	text	
+	screening_location		1	q		Location:	text	
+	screening_date		1	q		Screening Evaluation Date:	date	
+	screening_interviewer		1	]		Recorded by (Interviewer ID#):	text	
+	heard_by_query		1	[		How did you hear about the New York Cancer Project?	nothing	
+	heard_by_radio		1	q			check|1|Radio broadcast or ad	
+	heard_by_TV		1	q			check|1|Television broadcast or ad	
+	heard_by_newspaper		1	q			check|1|Newspaper article or ad	
+	heard_by_poster		1	q			check|1|Saw a poster or flyer	
+	heard_by_mail		1	q			check|1|Received a letter / email	
+	heard_by_other		1	q			check|1|Other	
+	heard_by_participant		1	q			check|1|Through someone who already participated in the New York Cancer Project	
+	heard_by_presentation		1	]			check|1|A presentation or lecture (for example, at a hospital, church, community meeting / event	
+	heard_by_other_specified		heard_by_other == 1	q		Through what other means did you hear about the New York Cancer Project?	text	
+	news_query		heard_by_newspaper == 1	[		In which newspaper(s) did you hear about the New York Cancer Project? (please check all that apply)	nothing	
+Amsterdam News	paper1		heard_by_newspaper == 1	q			check|1|Amsterdam News	
+Bensonhurst Paper	paper2		heard_by_newspaper == 1	q			check|1|Bensonhurst Paper	
+Brooklyn Bay News	paper3		heard_by_newspaper == 1	q			check|1|Brooklyn Bay News	
+China Press	paper4		heard_by_newspaper == 1	q			check|1|China Press	
+Crains	paper5		heard_by_newspaper == 1	q			check|1|Crains	
+El Diario/La Prensa	paper6		heard_by_newspaper == 1	q			check|1|El Diario/La Prensa	
+Haiti Observer	paper7		heard_by_newspaper == 1	q			check|1|Haiti Observer	
+Jewish Press	paper8		heard_by_newspaper == 1	q			check|1|Jewish Press	
+Ming Pao Daily	paper9		heard_by_newspaper == 1	q			check|1|Ming Pao Daily	
+Novoye Russkoye Slovo	paper10		heard_by_newspaper == 1	q			check|1|Novoye Russkoye Slovo	
+Our Town	paper11		heard_by_newspaper == 1	q			check|1|Our Town	
+Queens Ledger	paper12		heard_by_newspaper == 1	q			check|1|Queens Ledger	
+Russkaya Reklama	paper13		heard_by_newspaper == 1	q			check|1|Russkaya Reklama	
+Sing Tao Daily	paper14		heard_by_newspaper == 1	q			check|1|Sing Tao Daily	
+Staten Island Advance	paper15		heard_by_newspaper == 1	q			check|1|Staten Island Advance	
+The Bay Ridge Paper	paper16		heard_by_newspaper == 1	q			check|1|The Bay Ridge Paper	
+The Forward	paper17		heard_by_newspaper == 1	q			check|1|The Forward	
+The Jewish Herald	paper18		heard_by_newspaper == 1	q			check|1|The Jewish Herald	
+The Manhattan Spirit	paper19		heard_by_newspaper == 1	q			check|1|The Manhattan Spirit	
+The New York Caribbean News	paper20		heard_by_newspaper == 1	q			check|1|The New York Caribbean News	
+The New York Jewish Week	paper21		heard_by_newspaper == 1	q			check|1|The New York Jewish Week	
+The New York Times	paper22		heard_by_newspaper == 1	q			check|1|The New York Times	
+The NY Daily News	paper23		heard_by_newspaper == 1	q			check|1|The NY Daily News	
+The NY Post	paper24		heard_by_newspaper == 1	q			check|1|The NY Post	
+The Villager	paper25		heard_by_newspaper == 1	q			check|1|The Villager	
+The Wall Street Journal	paper26		heard_by_newspaper == 1	q			check|1|The Wall Street Journal	
+Upper East Side Resident	paper27		heard_by_newspaper == 1	q			check|1|Upper East Side Resident	
+Weekly Queens Examiner	paper28		heard_by_newspaper == 1	q			check|1|Weekly Queens Examiner	
+World Journal	paper29		heard_by_newspaper == 1	q			check|1|World Journal	
+Other	paper30		heard_by_newspaper == 1	]			check|1|Other	
+	other_newspaper_specified		paper30 == 1	q		What is the name of the other newspaper?	text	
+	birthdate		1	[		What is your data of birth?	date	
+	gender		1	q		Gender	radio|0|female|1|male	
+	ethnic_query		1	]		Do you consider yourself Spanish / Hispanic / Latino?	radio|0|no|1|yes	
+	race_query		ethnic_query == 1	q		What would you consider yourself to be?	combo|0|Mexican, Mexican American, Chicano|1|Caribbean|2|Puerto Rican|3|Dominican|4|Cuban|5|Other Spanish / Hispanic / Latino	
+	race		1	q		What is your race?	combo|0|White|1|Chinese|2|Native Hawaiian|3|Black-African American or Negro|4|Filipino|5|Guamanian or Chamarro|6|Black-West Indian / Caribbean|7|Korean|8|Samoan|9|American Indian or Alaska Native|10|Vietnamese|11|Other Pacific Islander|12|Asian Indian|13|Other Asian|14|Some other race	
+	other_Pacific_race		race == 11	q		What other Pacific island race?	text	
+	other_Asian_race		race == 13	q		What other Asian race?	text	
+	other_race		race == 14	q		What other race?	text	
+	called_800		1	q		Before coming in today, did you call the 800 telephone number for the New York Cancer Project (1-877-NYC-PROJ)?	radio|0|no|1|yes	
+	call_reason_query		called_800 == 1	[		Did you call the 800 number to: (please check all that apply)	nothing	
+	call_reason_moreinfo		called_800 == 1	q			check|1|Get more information about the study?	
+	call_reason_appointment		called_800 == 1	q			check|1|Make an appointment?	
+	call_reason_other		called_800 == 1	]			check|1|Other	
+	call_reason_other_specified		call_reason_other == 1	q		For what other reason(s) did you call?	text	
+	partic_reason_query		1	[		What were your reasons for deciding to participate in this study? (please check all that apply)	nothing	
+	partic_reason_cure		1	q			check|1|To help find a cure for cancer / contribute to science or humanity	
+	partic_reason_learn		1	q			check|1|To learn for myself about cancer or other health issues	
+	partic_reason_help		1	q			check|1|To help others in my community	
+	partic_reason_fun		1	q			check|1|I thought it would be fun / interesting	
+	partic_reason_cancer_near		1	q			check|1|For the sake of a family member / friend who has /had cancer	
+	partic_reason_partic_near		1	q			check|1|Because friend / family member is participating in the New York Cancer Project	
+	partic_reason_nothingelsetodo		1	q			check|1|Nothing else to do	
+	partic_reason_other		1	]			check|1|Other	
+	partic_reason_other_specified		partic_reason_other == 1	q		For what other reason(s) did you decide to participate in this study?	text	
+	age_between_30_64		1	[		Are you between the ages of 30 and 64?	radio|0|no|1|yes	
+	resides_NYNJCT		1	q		Do you live in New York, New Jersey, or Connecticut?	radio|0|no|1|yes	
+	SSN		1	q		What is your Social Security number?	text	
+	ZIP		1	q		What is your ZIP code?	text	
+	cancer_history		1	q		Have you had a prior history of cancer, except for non-melanoma skin cancer?	radio|0|no|1|yes	
+	reading_language		1	]		What is the primary language you prefer to READ materials in?	list|0|English|1|Spanish|2|Chinese|3|Russian|4|Other	
+	other_reading_language		reading_language == 4	q		What other language is the primary language you prefer to READ materials in?	text	
+	lang_screen_completed		1	[		Language screening form was completed	list|0|English|1|Spanish|2|Chinese|3|Russian	
+	eligible		1	]		Is the subject eligible?	radio|0|no|1|yes	
+	reason_not_eligible		eligible == 0	q		Why is the subject not eligible?	radio|0|Age|1|Residence|2|Literacy	
+	consent_given		eligible == 1	q		Did the subject consent to participate?	radio|0|no|1|yes	
+	refused_consent_reason_query		eligible == 1 && consent_given == 0	[		Why did the subject not consent? (check all that apply)	nothing	
+	refused_consent_blood		eligible == 1 && consent_given == 0	q			check|1|Blood draw	
+	refused_consent_personal		eligible == 1 && consent_given == 0	q			check|1|Questionnaire too personal	
+	refused_consent_measurements		eligible == 1 && consent_given == 0	q			check|1|Physical measurements	
+	refused_consent_confidentiality		eligible == 1 && consent_given == 0	q			check|1|Confidentiality	
+	refused_consent_genetic_testing		eligible == 1 && consent_given == 0	q			check|1|Genetic testing	
+	refused_consent_toolong		eligible == 1 && consent_given == 0	q			check|1|Long-term commitment	
+	refused_consent_tooboring		eligible == 1 && consent_given == 0	q			check|1|Data collection process too long	
+	refused_consent_other		eligible == 1 && consent_given == 0	]			check|1|Other	
+	refused_consent_other_specified		eligible == 1 && consent_given == 0 && refused_consent_other == 1	q		What other objection(s) were there to giving consent?	text	
+	end	end	1	q		THIS MARKS THE END OF THE INSTRUMENT	nothing

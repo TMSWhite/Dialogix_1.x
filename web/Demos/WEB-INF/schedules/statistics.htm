@@ -1,0 +1,54 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2//EN">
+<HTML>
+	<HEAD>
+		<META HTTP-EQUIV="Content-Type" CONTENT="text/html;CHARSET=iso-8859-1">
+	</HEAD>
+	<TITLE>Translation File for statistics</TITLE>
+<BODY>
+	<P ALIGN='center'><b>Logic File for statistics</b></P>
+	<TABLE border='1'>
+		<tr><td width="5%">#</td><td width="%15">Variable Name</td><td width="15%">Relevance</td><td width='40%'>Question</td><td width='20%'>Answers</td></tr>
+		<tr><td>1</td><td>vars</td><td>1</td><td>How many variables of interest?</td><td>['one'] One<br />['two'] Two<br />['many'] Three or more<br />&nbsp;</td></tr>
+		<tr><td>2</td><td>groups</td><td>vars == 'one'</td><td>How many groups are there?</td><td>['one'] One<br />['two'] Two<br />['many'] Three or more<br />&nbsp;</td></tr>
+		<tr><td>3</td><td>shape</td><td>vars == 'one' && groups == 'one'</td><td>What is the shape of the distribution?</td><td>['normal'] Normal, or central-limit theorm can be assumed to hold<br />['binomial'] Binomial<br />['Poisson'] Poisson<br />['other'] Other"<br />&nbsp;</td></tr>
+		<tr><td>4</td><td>comparingMeans</td><td>vars == 'one' && groups == 'one' && shape == 'normal'</td><td>Do you want to compare the means?</td><td>[0] no<br />[1] yes<br />&nbsp;</td></tr>
+		<tr><td>5</td><td>sigmaKnown</td><td>vars == 'one' && groups == 'one' && shape == 'normal' && comparingMeans</td><td>Do you know the standard deviation of the population?</td><td>[0] no<br />[1] yes<br />&nbsp;</td></tr>
+		<tr><td>6</td><td>oneSampleZtest</td><td>vars == 'one' && groups == 'one' && shape == 'normal' && comparingMeans && sigmaKnown</td><td><b>Use a one-sample Z-test</b></td><td>&nbsp;</td></tr>
+		<tr><td>7</td><td>oneSampleTtest</td><td>vars == 'one' && groups == 'one' && shape == 'normal' && comparingMeans && !sigmaKnown && !oneSampleZtest</td><td><b>Use a one-sample <I>t</I>-test</b></td><td>&nbsp;</td></tr>
+		<tr><td>8</td><td>oneSampleXi2test</td><td>vars == 'one' && groups == 'one' && shape == 'normal' && comparingMeans</td><td><b>Use a one-sample Chi-squared test</b></td><td>&nbsp;</td></tr>
+		<tr><td>9</td><td>approxNormal</td><td>vars == 'one' && groups == 'one' && shape == 'binomial'</td><td>Is the distribution approximately normal?</td><td>[0] no<br />[1] yes<br />&nbsp;</td></tr>
+		<tr><td>10</td><td>binomialAsNormal</td><td>vars == 'one' && groups == 'one' && shape == 'binomial' && approxNormal</td><td>"<b>Use Normal theory methods (e.g. go back and say that the distribution is normal, not binomial)</b>"</td><td>&nbsp;</td></tr>
+		<tr><td>11</td><td>binomialExactMethods</td><td>vars == 'one' && groups == 'one' && shape == 'binomial' && !approxNormal && !binomialAsNormal</td><td><b>Use Exact methods</b></td><td>&nbsp;</td></tr>
+		<tr><td>12</td><td>oneSamplePoisson</td><td>vars == 'one' && groups == 'one' && shape == 'poisson'</td><td><b>Use one-sample Poisson test</b></td><td>&nbsp;</td></tr>
+		<tr><td>13</td><td>oneSampleOther</td><td>vars == 'one' && groups == 'one' && shape == 'other'</td><td>"<b>Use another underlying distribution, or use non-parametric methods</b>"</td><td>&nbsp;</td></tr>
+		<tr><td>14</td><td>shape2</td><td>vars == 'one' && groups == 'two'</td><td>What is the shape of the distribution?</td><td>['normal'] Normal, or central-limit theorm can be assumed to hold<br />['binomial'] Binomial<br />['Person-Time'] Person-Time<br />['other'] Other"<br />&nbsp;</td></tr>
+		<tr><td>15</td><td>comparingMeans2</td><td>vars == 'one' && groups == 'two' && shape2 == 'normal'</td><td>Do you want to compare the means?</td><td>[0] no<br />[1] yes<br />&nbsp;</td></tr>
+		<tr><td>16</td><td>independent</td><td>vars == 'one' && groups == 'two' && shape2 == 'normal' && comparingMeans2</td><td>Are the samples independent?</td><td>[0] no<br />[1] yes<br />&nbsp;</td></tr>
+		<tr><td>17</td><td>pairedTtest</td><td>vars == 'one' && groups == 'two' && shape2 == 'normal' && comparingMeans2 && independent</td><td><b>Use a paired <I>t</I>-test</b></td><td>&nbsp;</td></tr>
+		<tr><td>18</td><td>variancesDifferent</td><td>vars == 'one' && groups == 'two' && shape2 == 'normal' && comparingMeans2 && !independent && !pairedTtest</td><td>Are the variances of the samples significantly different (using and F test)?</td><td>[0] no<br />[1] yes<br />&nbsp;</td></tr>
+		<tr><td>19</td><td>twoSampleTwithEqualSigma</td><td>vars == 'one' && groups == 'two' && shape2 == 'normal' && comparingMeans2 && !independent && variancesDifferent</td><td><b>Use a two-sample <I>t</I>-test with equal variances</b></td><td>&nbsp;</td></tr>
+		<tr><td>20</td><td>twoSampleTwithNonEqualSigma</td><td>vars == 'one' && groups == 'two' && shape2 == 'normal' && comparingMeans2 && !independent && !twoSampleTwithEqualSigma</td><td><b>Use a two-sample <I>t</I>-test with unequal variances</b></td><td>&nbsp;</td></tr>
+		<tr><td>21</td><td>twoSampleFtest</td><td>vars == 'one' && groups == 'two' && shape2 == 'normal' && !comparingMeans2</td><td><b>Use a two-sample F-test to compare the variances.  <I>(Caution: This test is very sensitive to nonnormality)</I></b></td><td>&nbsp;</td></tr>
+		<tr><td>22</td><td>independent2</td><td>vars == 'one' && groups == 'two' && shape2 == 'binomial'</td><td>Are the samples independent?</td><td>[0] no<br />[1] yes<br />&nbsp;</td></tr>
+		<tr><td>23</td><td>samplesGt5</td><td>vars == 'one' && groups == 'two' && shape2 == 'binomial' && independent2</td><td>Are all the values expected to be >= 5?</td><td>[0] no<br />[1] yes<br />&nbsp;</td></tr>
+		<tr><td>24</td><td>contingencies</td><td>vars == 'one' && groups == 'two' && shape2 == 'binomial' && independent2 && samplesGt5</td><td>How many contingencies are there?</td><td>['2x2'] 2 x 2 Contingency table<br />['2xk'] 2 x <I>k</I> contingency table<br />['RxC'] R x C contingency table, where both R and C are > 2"<br />&nbsp;</td></tr>
+		<tr><td>25</td><td>_2x2test</td><td>vars == 'one' && groups == 'two' && shape2 == 'binomial' && independent2 && samplesGt5 && contingencies == '2x2'</td><td>"<b>Use two sample test for binomial proportions, or 2 x 2 contingency table methods if not confounding is present; or the Mantel-Haenszel test if confounding is present</b>"</td><td>&nbsp;</td></tr>
+		<tr><td>26</td><td>trendOverKbinomial</td><td>vars == 'one' && groups == 'two' && shape2 == 'binomial' && independent2 && samplesGt5 && contingencies == '2xk'</td><td>Are you interested in the trends over the <I>k</I> binomial proportions?</td><td>[0] no<br />[1] yes<br />&nbsp;</td></tr>
+		<tr><td>27</td><td>chi2TrendTest</td><td>vars == 'one' && groups == 'two' && shape2 == 'binomial' && independent2 && samplesGt5 && contingencies == '2xk' && trendOverKbinomial</td><td>"<b>Use the chi-square test of trend, if no confounding is present, or the Mantel Extention test if confounding is present</b>"</td><td>&nbsp;</td></tr>
+		<tr><td>28</td><td>chi2Heterogeneity2xkTest</td><td>vars == 'one' && groups == 'two' && shape2 == 'binomial' && independent2 && samplesGt5 && contingencies == '2xk' && !trendOverKbinomial</td><td><b>Use the chi-square test for heterogeneity for 2 x <I>k</I> tables</b></td><td>&nbsp;</td></tr>
+		<tr><td>29</td><td>chi2HeterogeneityRxCTest</td><td>vars == 'one' && groups == 'two' && shape2 == 'binomial' && independent2 && samplesGt5 && contingencies == 'RxC'</td><td><b>Use the chi-square test for heterogenity for <I>R</I> x <I>C</I> tables</b></td><td>&nbsp;</td></tr>
+		<tr><td>30</td><td>FishersExactTest</td><td>vars == 'one' && groups == 'two' && shape2 == 'binomial' && independent2 && !samplesGt5</td><td><b>Use Fisher's exact test</b></td><td>&nbsp;</td></tr>
+		<tr><td>31</td><td>McNemarsTest</td><td>vars == 'one' && groups == 'two' && shape2 == 'binomial' && !independent2</td><td><b>use McNemar's test</b></td><td>&nbsp;</td></tr>
+		<tr><td>32</td><td>oneSamplePersonTime</td><td>vars == 'one' && groups == 'two' && shape2 == 'Person-Time'</td><td>Is it a One-sample Person-Time problem?</td><td>[0] no<br />[1] yes<br />&nbsp;</td></tr>
+		<tr><td>33</td><td>oneSamplePoisson2</td><td>vars == 'one' && groups == 'two' && shape2 == 'Person-Time' && oneSamplePersonTime</td><td><b>use a one-sample Poisson test</b></td><td>&nbsp;</td></tr>
+		<tr><td>34</td><td>constantIncidenceRates</td><td>vars == 'one' && groups == 'two' && shape2 == 'Person-Time' && !oneSamplePersonTime</td><td>Do the incidence rates remain constant over time?</td><td>[0] no<br />[1] yes<br />&nbsp;</td></tr>
+		<tr><td>35</td><td>twoSamplePersonTime</td><td>vars == 'one' && groups == 'two' && shape2 == 'Person-Time' && !oneSamplePersonTime && constantIncidenceRates</td><td>is it a two-sample Person-Time problem?</td><td>[0] no<br />[1] yes<br />&nbsp;</td></tr>
+		<tr><td>36</td><td>twoSampleIncidentRateTest</td><td>vars == 'one' && groups == 'two' && shape2 == 'Person-Time' && !oneSamplePersonTime && constantIncidenceRates && twoSamplePersonTime</td><td><b>Use two-sample test for comparison of incidence rates</b></td><td>&nbsp;</td></tr>
+		<tr><td>37</td><td>incidenceTrendTest</td><td>vars == 'one' && groups == 'two' && shape2 == 'Person-Time' && !oneSamplePersonTime && constantIncidenceRates && !twoSamplePersonTime</td><td><b>Use test of trend for incidence rates</b></td><td>&nbsp;</td></tr>
+		<tr><td>38</td><td>twoSurvivalGroups</td><td>vars == 'one' && groups == 'two' && shape2 == 'Person-Time' && !oneSamplePersonTime && !constantIncidenceRates</td><td><b>You will need to do Survival Analysis</b><br>Are you Interested in comparing the survval curves fo two groups with limited control of covariates?</td><td>[0] no<br />[1] yes<br />&nbsp;</td></tr>
+		<tr><td>39</td><td>logRankTest</td><td>vars == 'one' && groups == 'two' && shape2 == 'Person-Time' && !oneSamplePersonTime && !constantIncidenceRates && twoSurvivalGroups</td><td><b>Use log-rank test</b></td><td>&nbsp;</td></tr>
+		<tr><td>40</td><td>CoxProportionalHazardsTest</td><td>vars == 'one' && groups == 'two' && shape2 == 'Person-Time' && !oneSamplePersonTime && !constantIncidenceRates && !twoSurvivalGroups</td><td>"<b>If you are interested in the effects of several risk factors on survival, then use the Cox Proportional-hazards model</b>"</td><td>&nbsp;</td></tr>
+		<tr><td>41</td><td>thanks</td><td>1</td><td><b>Thank you for trying Dialogix' implementation of the flowchart for determing whih statistical inference test should be used</b></td><td>&nbsp;</td></tr>
+	</TABLE>
+</BODY>
+</HTML>

@@ -1,0 +1,260 @@
+RESERVED	__TRICEPS_FILE_TYPE__	SCHEDULE					
+RESERVED	__TITLE__	Children in the Community: Transition Study					
+RESERVED	__ICON__	ciclogo.gif					
+RESERVED	__HEADER_MSG__	Part 2					
+RESERVED	__PASSWORD_FOR_ADMIN_MODE__	bypass					
+RESERVED	__SHOW_QUESTION_REF__	TRUE					
+RESERVED	__AUTOGEN_OPTION_NUM__	TRUE					
+RESERVED	__DEVELOPER_MODE__	TRUE			 		
+RESERVED	__DEBUG_MODE__	FALSE					
+intro	_A	A	1	[		"In the following questionnaire, please circle the response that best answers each question. You may circle the number of the response or the entire response, but please be sure that your mark CLEARLY INDICATES the response you chose. In a few cases, you are asked to fill in a response such as a number or a date. Please use a blue pen if possible."	nothing
+scid1/screen/MDD/1	_1	1	1	Q		"In the last year, has there been a period of time when you were feeling depressed or down, most days, for two weeks or longer?"	list|2|yes|1|maybe|0|no
+scid1/screen/MDD/2	_2	2	1	Q		"In the last year, has there been a period of time when you had little interest or pleasure in doing things that you usually enjoyed, for two weeks or longer?"	list|2|yes|1|maybe|0|no
+scid1/screen/MDD/3	_3	3	1	Q		"In the last year, has there been a time when you gained or lost a few pounds, or when you noticed that your appetite increased or decreased for days, for two weeks or longer?"	list|2|yes|1|maybe|0|no
+scid1/screen/MDD/4	_4	4	1	Q		"In the last year, has there been a period of time when you had trouble sleeping or were sleeping too much most nights for two weeks or longer?"	list|2|yes|1|maybe|0|no
+scid1/screen/MDD/5	_5	5	1	Q		"In the last year, has there been a period of time when you were so fidgety or restless that you were unable to sit still, most days, for two weeks or longer?"	list|2|yes|1|maybe|0|no
+scid1/screen/MDD/5a	_6	6	1	Q		"In the last year, has there been a period of time when you moved or thought very slowly for a period of two weeks or longer?"	list|2|yes|1|maybe|0|no
+scid1/screen/MDD/6	_7	7	1	Q		"In the last year, has there been a period of time when you were tired or had little energy, most days, for two weeks or longer?"	list|2|yes|1|maybe|0|no
+scid1/screen/MDD/7	_8	8	1	Q		"In the last year, has there been a period of time when you felt guilty or worthless, most days, for two weeks or longer?"	list|2|yes|1|maybe|0|no
+scid1/screen/MDD/8	_9	9	1	Q		"In the last year, has there been a period of time when you had trouble thinking, concentrating, or making decisions, most days, for two weeks or longer?"	list|2|yes|1|maybe|0|no
+scid1/screen/MDD/9	_10	10	1	Q		"In the last year, were there any times when you were thinking a lot about death, or that you would be better off dead, or when you were thinking of hurting yourself? "	list|2|yes|1|maybe|0|no
+scid1/screen/MDD/9a	_11	11	1	Q		"In the last year, have you had any thoughts about killing yourself?"	list|2|yes|1|maybe|0|no
+scid1/screen/MDD/9b	_12	12	1	Q		"In the last year, have you written a suicide note or made a suicide plan?"	list|2|yes|1|maybe|0|no
+scid1/screen/MDD/9c	_13	13	1	Q		Have you ever attempted suicide?	list|2|yes|1|maybe|0|no
+scid1/screen/MDD/9d	_14	14	1	Q		"If YES, when was the most recent suicide attempt?"	date
+scid1/screen/Dysthymia/10	_15	15	1	Q		"For the past couple of years, have you been bothered by feeling depressed or down more than half the time?"	list|2|yes|1|maybe|0|no
+scid1/screen/Dysthymia/11	_16	16	1	Q		Has there been a time during the past two years when you DID NOT feel depressed for more than two months in a row? 	list|2|yes|1|maybe|0|no
+	_B	B	1	Q		"IF QUESTION 16 WAS ANSWERED ""yes,"" PLEASE SKIP TO QUESTION 23."	nothing
+scid1/screen/Dysthymia/12	_17	17	1	Q		"When you feel down or depressed, do you often lose your appetite or eat too much?"	list|2|yes|1|maybe|0|no
+scid1/screen/Dysthymia/13	_18	18	1	Q		"When you feel down or depressed, do you often have trouble sleeping or sleep too much?"	list|2|yes|1|maybe|0|no
+scid1/screen/Dysthymia/14	_19	19	1	Q		"When you feel down or depressed, do you often have little energy to do things or feel tired a lot?"	list|2|yes|1|maybe|0|no
+scid1/screen/Dysthymia/15	_20	20	1	Q		"When you feel down or depressed, do you often feel bad about yourself?"	list|2|yes|1|maybe|0|no
+scid1/screen/Dysthymia/16	_21	21	1	Q		"When you feel down or depressed, do you often have trouble concentrating or making decisions?"	list|2|yes|1|maybe|0|no
+scid1/screen/Dysthymia/17	_22	22	1	Q		"When you feel down or depressed, do you often feel hopeless?"	list|2|yes|1|maybe|0|no
+	_C	C	1	Q		"RESUME HERE IF YOU ANSWERED ""yes"" TO QUESTION 16."	nothing
+scid1/screen/Alcohol abuse/18	_23	23	1	Q		"In the last year, have there been any days when you had five or more drinks (beer, wine, or liquor) on one occasion?"	list|2|yes|1|maybe|0|no
+scid1/screen/Alcohol abuse/19	_24	24	1	Q		"In the last year, has your drinking caused any problems at work, at school, or at home? "	list|2|yes|1|maybe|0|no
+scid1/screen/Alcohol abuse/20	_25	25	1	Q		"In the last year, did you drive a car or a motorcycle, or operate a lawnmower or power tool after you had a few drinks?  "	list|2|yes|1|maybe|0|no
+scid1/screen/Alcohol abuse/21	_26	26	1	Q		"In the last year, has drinking caused you to have any legal problems, or any problems with the police? "	list|2|yes|1|maybe|0|no
+scid1/screen/Alcohol abuse/22	_27	27	1	Q		"In the last year, has drinking caused you to have any problems getting along with other people, or did anyone tell you that you drank too much? "	list|2|yes|1|maybe|0|no
+	_D	D	1	Q		"IF YOU ANSWERED ""no"" TO BOTH QUESTIONS 23 and 24, SKIP TO QUESTION 36. "	nothing
+scid1/screen/Alcohol dependence/23	_28	28	1	Q		"In the last year, have you often found that, when you started drinking, you ended up drinking much more than you were planning to? "	list|2|yes|1|maybe|0|no
+scid1/screen/Alcohol dependence/24	_29	29	1	Q		"In the last year, have you thought that you should try to drink less or stop drinking alcohol? "	list|2|yes|1|maybe|0|no
+scid1/screen/Alcohol dependence/25	_30	30	1	Q		"In the last year, have you spent a lot of time drinking, being high, or hung over? "	list|2|yes|1|maybe|0|no
+scid1/screen/Alcohol dependence/26	_31	31	1	Q		"In the last year, have there been times when you weren't able to do your work, or gave up some other activity or time with your family because you were drinking? "	list|2|yes|1|maybe|0|no
+scid1/screen/Alcohol dependence/27	_32	32	1	Q		"In the last year, has drinking caused you to have any problems with your emotions or your health?"	list|2|yes|1|maybe|0|no
+scid1/screen/Alcohol dependence/28	_33	33	1	Q		"In the last year, have you found that you needed to have more to drink in order to get the feeling you wanted than you did when you first started drinking?"	list|2|yes|1|maybe|0|no
+scid1/screen/Alcohol dependence/29	_34	34	1	Q		"In the last year, did you find that, when you drank the same amount, it had less effect than it used to?"	list|2|yes|1|maybe|0|no
+scid1/screen/Alcohol dependence/30	_35	35	1	Q		"In the last year, have you become ill when you cut down or stopped drinking?"	list|2|yes|1|maybe|0|no
+	_E	E	1	Q		"RESUME HERE IF YOU ANSWERED ""no"" TO QUESTIONS 23 AND 24."	nothing
+scid1/screen/substance abuse/31	_36	36	1	Q		"In the last year, have you used any street drugs (such as marijuana or cocaine) to get high, or have you been ""hooked"" on any prescribed medicine or taken a lot more of it than you were supposed to? "	list|2|yes|1|maybe|0|no
+	_F	F	1	Q		"IF YOU ANSWERED ""no"" TO  QUESTION 36, SKIP TO QUESTION 50. "	nothing
+scid1/screen/substance abuse/31a	_37	37	1	Q		"In the last year, have there been periods  when you used one or more of these unprescribed drugs nearly every day?"	list|2|yes|1|maybe|0|no
+scid1/screen/substance abuse/32	_38	38	1	Q		"In the last year, has drug use caused you any problems at work, at school, or at home? "	list|2|yes|1|maybe|0|no
+scid1/screen/substance abuse/33	_39	39	1	Q		"In the last year, did you drive a car or a motorcycle, or operate a lawnmower or power tool after you used a drug?  "	list|2|yes|1|maybe|0|no
+scid1/screen/substance abuse/34	_40	40	1	Q		"In the last year, has your drug use caused you to have any legal problems, or any problems with the police? "	list|2|yes|1|maybe|0|no
+scid1/screen/substance abuse/35	_41	41	1	Q		"In the last year, has your drug use caused you to have any problems getting along with other people, or did anyone tell you that you got high too often? "	list|2|yes|1|maybe|0|no
+scid1/screen/substance dependence/36	_42	42	1	Q		"In the last year, have you often found that, when you started using any drugs, you ended up using much more than you were planning to? "	list|2|yes|1|maybe|0|no
+scid1/screen/substance dependence/37	_43	43	1	Q		"In the last year, have you tried to cut down or stop using drugs? "	list|2|yes|1|maybe|0|no
+scid1/screen/substance dependence/38	_44	44	1	Q		"In the last year, have you spent a lot of time using drugs, being high, or recovering from the effects of your drug use? "	list|2|yes|1|maybe|0|no
+scid1/screen/substance dependence/39	_45	45	1	Q		"In the last year, have there been times  when you weren't able to do your work, or gave up other activities or time with your family or friends because of the drugs you were taking?"	list|2|yes|1|maybe|0|no
+scid1/screen/substance dependence/40	_46	46	1	Q		"In the last year, has drug use caused you to have any problems with your emotions or your health?"	list|2|yes|1|maybe|0|no
+scid1/screen/substance dependence/41	_47	47	1	Q		"In the last year, have you found that you needed to use more of a drug in order to get the feeling you wanted than you did when you first using that drug?"	list|2|yes|1|maybe|0|no
+scid1/screen/substance dependence/42	_48	48	1	Q		"In the last year, did you find that, when you used the same amount of a drug, it had less effect than it used to?"	list|2|yes|1|maybe|0|no
+scid1/screen/substance dependence/43	_49	49	1	Q		"In the last year, have you become ill when you cut down or stopped using a drug?"	list|2|yes|1|maybe|0|no
+	_G	G	1	Q		"RESUME HERE IF YOU ANSWERED ""no"" TO QUESTION 36."	nothing
+scid1/screen/panic/44	_50	50	1	Q		"In the last year, have you had any panic attacks, when you SUDDENLY felt anxious or frightened, or suddenly developed a lot of physical symptoms?   "	list|2|yes|1|maybe|0|no
+	_H	H	1	Q		"IF YOU ANSWERED ""no"" TO QUESTION 50, SKIP TO QUESTION 68."	nothing
+scid1/screen/panic/45	_51	51	1	Q		"After one of these attacks, did you worry that there might be something terribly wrong with you, like you were having a heart attack or going crazy? "	list|2|yes|1|maybe|0|no
+scid1/screen/panic/46	_52	52	1	Q		"After one of these attacks, did you worry a lot about having another one? "	list|2|yes|1|maybe|0|no
+scid1/screen/panic/47	_53	53	1	Q		"After one of these attacks, did you do anything differently because of the attacks (like avoiding certain places or certain activities)? "	list|2|yes|1|maybe|0|no
+scid1/screen/panic/48	_54	54	1	Q		Did one of these panic attacks come on all of a sudden and get really bad in a few minutes? 	list|2|yes|1|maybe|0|no
+scid1/screen/panic/49	_55	55	1	Q		"During one of these panic attacks, did your heart race, pound, or skip? "	list|2|yes|1|maybe|0|no
+scid1/screen/panic/50	_56	56	1	Q		"During one of these panic attacks, did you sweat heavily? "	list|2|yes|1|maybe|0|no
+scid1/screen/panic/51	_57	57	1	Q		"During one of these panic attacks, did you tremble or shake? "	list|2|yes|1|maybe|0|no
+scid1/screen/panic/52	_58	58	1	Q		"During one of these panic attacks, were you short of breath, or did you have trouble catching your breath? "	list|2|yes|1|maybe|0|no
+scid1/screen/panic/53	_59	59	1	Q		"During one of these panic attacks, did you feel as if you were choking? "	list|2|yes|1|maybe|0|no
+scid1/screen/panic/54	_60	60	1	Q		"During one of these panic attacks, did you have chest pain or pressure? "	list|2|yes|1|maybe|0|no
+scid1/screen/panic/55	_61	61	1	Q		"During one of these panic attacks, did you have nausea or an upset stomach or the feeling that you were going to have diarrhea? "	list|2|yes|1|maybe|0|no
+scid1/screen/panic/56	_62	62	1	Q		"During one of these panic attacks, did you feel dizzy, unsteady, or like you might faint? "	list|2|yes|1|maybe|0|no
+scid1/screen/panic/57	_63	63	1	Q		"During one of these panic attacks, did things around you seem unreal, or did you feel detached from things around you or detached from part of your body? "	list|2|yes|1|maybe|0|no
+scid1/screen/panic/58	_64	64	1	Q		"During one of these panic attacks, were you afraid you were going crazy or might lose control? "	list|2|yes|1|maybe|0|no
+scid1/screen/panic/59	_65	65	1	Q		"During one of these panic attacks, were you afraid you might die? "	list|2|yes|1|maybe|0|no
+scid1/screen/panic/60	_66	66	1	Q		"During one of these panic attacks, did you have tingling or numbness in parts of your body? "	list|2|yes|1|maybe|0|no
+scid1/screen/panic/61	_67	67	1	Q		"During one of these panic attacks, did you have hot flashes or chills? "	list|2|yes|1|maybe|0|no
+	_I	I	1	Q		"RESUME HERE IF YOU ANSWERED ""no"" TO QUESTION 50."	nothing
+scid1/screen/social phobia/62	_68	68	1	Q		"In the last year, was there anything that you were afraid to do or felt uncomfortable doing in front of other people, like speaking, eating, or writing? "	list|2|yes|1|maybe|0|no
+scid1/screen/social phobia/63	_69	69	1	Q		Is there anything you have to do in front of other people that usually makes you feel anxious?	list|2|yes|1|maybe|0|no
+scid1/screen/social phobia/64	_70	70	1	Q		"IF YES, when this happens, does it bother you that you become this anxious?"	list|2|yes|1|maybe|0|no
+scid1/screen/OCD/67	_71	71	1	Q		"In the last year, have you been bothered by any thoughts that didn't make any sense and kept coming back to you even when you tried not to have them? "	list|2|yes|1|maybe|0|no
+scid1/screen/OCD/73	_72	72	1	Q		"In the last year, was there anything that you had to do over and over again, and couldn't resist doing, like washing your hands again and again, counting up to a certain number, or checking something several times to make sure that you'd done it right?"	list|2|yes|1|maybe|0|no
+scid1/screen/PTSD/77	_73	73	1	Q		"Has something extremely upsetting or horrible, like a disaster, violent crime, or life-threatening situation happened to you or someone you were close to during your lifetime?"	list|2|yes|1|maybe|0|no
+	_J	J	1	Q		"IF YOU ANSWERED ""no"" TO QUESTION 73, SKIP TO QUESTION 93."	nothing
+scid1/screen/PTSD/78	_74	74	1	Q		Were you very frightened or horrified when this happened?                                       	list|2|yes|1|maybe|0|no
+scid1/screen/PTSD/79	_75	75	1	Q		"In the last year, did you think about this event when you didn't want to, or did images or memories about this event come to you suddenly when you didn't want them to? "	list|2|yes|1|maybe|0|no
+scid1/screen/PTSD/80	_76	76	1	Q		"In the last year, did you have any upsetting dreams about this event? "	list|2|yes|1|maybe|0|no
+scid1/screen/PTSD/81	_77	77	1	Q		"In the last year, have you found yourself acting or feeling as if you were back in that situation? "	list|2|yes|1|maybe|0|no
+scid1/screen/PTSD/82	_78	78	1	Q		"In the last year, did you get upset when something reminded you of this event? "	list|2|yes|1|maybe|0|no
+scid1/screen/PTSD/83	_79	79	1	Q		"In the last year, did something that reminded you of this event cause you to have physical symptoms, like breaking out in a sweat, breathing heavily or irregularly, or your heart pounding or racing? "	list|2|yes|1|maybe|0|no
+scid1/screen/PTSD/84	_80	80	1	Q		"Since the event happened, have you tried to avoid thinking or talking about what happened? "	list|2|yes|1|maybe|0|no
+scid1/screen/PTSD/85	_81	81	1	Q		"Since the event happened, have you stayed away from things or people that reminded you of the event? "	list|2|yes|1|maybe|0|no
+scid1/screen/PTSD/86	_82	82	1	Q		"Since the event happened, have you been unable to remember some important part of what happened? "	list|2|yes|1|maybe|0|no
+scid1/screen/PTSD/87	_83	83	1	Q		"Since the event happened, have you been much less interested in doing things that used to be important to you, like seeing friends, reading books, or watching TV? "	list|2|yes|1|maybe|0|no
+scid1/screen/PTSD/88	_84	84	1	Q		"Since the event happened, have you felt distant or cut off from others? "	list|2|yes|1|maybe|0|no
+scid1/screen/PTSD/89	_85	85	1	Q		"Since the event happened, have you felt ""numb"" or like you no longer had strong feelings about anything or loving feelings for anyone? "	list|2|yes|1|maybe|0|no
+scid1/screen/PTSD/90	_86	86	1	Q		"Since the event happened, did you notice a change in the way you think about or plan for the future? "	list|2|yes|1|maybe|0|no
+scid1/screen/PTSD/90	_87	87	1	Q		"Since the event happened, did you notice a change in the way you think about or plan for the future? "	list|2|yes|1|maybe|0|no
+scid1/screen/PTSD/91	_88	88	1	Q		"Since the event happened, have you had trouble sleeping? "	list|2|yes|1|maybe|0|no
+scid1/screen/PTSD/92	_89	89	1	Q		"Since the event happened, have you been unusually irritable or have you had outbursts of anger? "	list|2|yes|1|maybe|0|no
+scid1/screen/PTSD/93	_90	90	1	Q		"Since the event happened, have you had trouble concentrating? "	list|2|yes|1|maybe|0|no
+scid1/screen/PTSD/94	_91	91	1	Q		"Since the event happened, have you been watchful or on guard even when there was no reason to be? "	list|2|yes|1|maybe|0|no
+scid1/screen/PTSD/95	_92	92	1	Q		"Since the event happened, have you been jumpy or easily startled, like by sudden noises? "	list|2|yes|1|maybe|0|no
+	_K	K	1	Q		"RESUME HERE IF YOU ANSWERED ""no"" TO QUESTION 73."	nothing
+scid1/screen/GAD/96	_93	93	1	Q		"In the last six months, have you been particularly nervous or anxious?       "	list|2|yes|1|maybe|0|no
+	_L	L	1	Q		"IF YOU ANSWERED ""no"" TO QUESTION 93, SKIP TO QUESTION 103."	nothing
+scid1/screen/GAD/97	_94	94	1	Q		"In the last six months, have you been worrying a lot about different kinds of events or activities in your life, such as your performance at work or as a partner or parent?  "	list|2|yes|1|maybe|0|no
+scid1/screen/GAD/98	_95	95	1	Q		"When you're worrying this way, do you find that it's hard to stop yourself?"	list|2|yes|1|maybe|0|no
+scid1/screen/GAD/99	_96	96	1	Q		"In the last six months, has your worrying or anxiety bothered you or interfered with your life?"	list|2|yes|1|maybe|0|no
+scid1/screen/GAD/100	_97	97	1	Q		"In the last six months, when you have felt nervous or anxious, have you often felt physically restless, or keyed up, or on edge?"	list|2|yes|1|maybe|0|no
+scid1/screen/GAD/101	_98	98	1	Q		"In the last six months, when you felt nervous or anxious, did you often get tired very easily?"	list|2|yes|1|maybe|0|no
+scid1/screen/GAD/102	_99	99	1	Q		"In the last six months, when you felt nervous or anxious, did you often have trouble concentrating, or did your mind go blank?"	list|2|yes|1|maybe|0|no
+scid1/screen/GAD/103	_100	100	1	Q		"In the last six months, when you felt nervous or anxious, did you often become irritable?"	list|2|yes|1|maybe|0|no
+scid1/screen/GAD/104	_101	101	1	Q		"In the last six months, when you felt nervous or anxious, did your muscles often become tense?"	list|2|yes|1|maybe|0|no
+scid1/screen/GAD/105	_102	102	1	Q		"In the last six months, when you felt nervous or anxious, did you often have trouble falling or staying asleep?"	list|2|yes|1|maybe|0|no
+	_M	M	1	Q		"RESUME HERE IF YOU ANSWERED ""no"" TO QUESTION 93."	nothing
+	_103	103	1	Q		Has there been a time during the last year when you weighed much less than other people thought you should weigh?	list|2|yes|1|maybe|0|no
+scid1/screen/Anorexia/107	_104	104	1	Q		"In the last year, have you been afraid that you might  gain weight or become fat?"	list|2|yes|1|maybe|0|no
+scid1/screen/Anorexia/108	_105	105	1	Q		"In the last year, when you were at your lowest weight, did you still want to be thinner?"	list|2|yes|1|maybe|0|no
+scid1/screen/Anorexia/109	_106	106	1	Q		"IF FEMALE, did you miss one or more menstrual periods due to weight loss?              "	list|2|yes|1|maybe|0|no
+scid1/screen/Bulimia/110	_107	107	1	Q		"In the last year, have there been times when your eating was out of control? "	list|2|yes|1|maybe|0|no
+	_N	N	1	Q		"IF YOU ANSWERED ""no"" TO QUESTION 107, SKIP TO QUESTION 112."	nothing
+scid1/screen/Bulimia/111	_108	108	1	Q		"During these times, have you eaten a very large amount of food?                          "	list|2|yes|1|maybe|0|no
+scid1/screen/Bulimia/112	_109	109	1	Q		"In the last year, have you had more than a few of these food binges?"	list|2|yes|1|maybe|0|no
+scid1/screen/Bulimia/113	_110	110	1	Q		"In the last year, after food binges, did you often do things to try to prevent yourself from gaining weight?"	list|2|yes|1|maybe|0|no
+scid1/screen/Bulimia/114	_111	111	1	Q		"In the last year, has your body shape and weight been very important to you?"	list|2|yes|1|maybe|0|no
+	_O	O	1	Q		"RESUME HERE IF YOU ANSWERED ""no"" TO QUESTION 107."	nothing
+scid1/screen/Psychotic/122	_112	112	1	Q		"In the last year, have you been afraid that you might be crazy, or has anyone told you that they were seriously concerned that you were?"	list|2|yes|1|maybe|0|no
+scid1/screen/Psychotic/123	_113	113	1	Q		"In the last year, have there been times when you thought that people were talking about you behind your back or showing unusual interest in you?"	list|2|yes|1|maybe|0|no
+scid1/screen/Psychotic/124	_114	114	1	Q		"In the last year, have you received special messages from the TV, radio, or newspaper, or from the way things were arranged around you? "	list|2|yes|1|maybe|0|no
+scid1/screen/Psychotic/125	_115	115	1	Q		"In the last year, has it seemed to you that people have gone out of their way to harass or attack or persecute or conspire against you? "	list|2|yes|1|maybe|0|no
+scid1/screen/Psychotic/126	_116	116	1	Q		"In the last year, have you felt that you were more important than most other people? "	list|2|yes|1|maybe|0|no
+scid1/screen/Psychotic/127	_117	117	1	Q		"In the last year, have you felt that something was very wrong with your body, or that you had a very serious illness even though the doctor can't find anything? "	list|2|yes|1|maybe|0|no
+scid1/screen/Psychotic/128	_118	118	1	Q		"In the last year, have you one or more very odd or unusual religious experiences? "	list|2|yes|1|maybe|0|no
+scid1/screen/Psychotic/129	_119	119	1	Q		"In the last year, did you feel that you had done something terrible for which you should be punished? "	list|2|yes|1|maybe|0|no
+scid1/screen/Psychotic/130	_120	120	1	Q		"In the last year, did you hear any voices that other people couldn't hear even if they were there? "	list|2|yes|1|maybe|0|no
+scid1/screen/Psychotic/131	_121	121	1	Q		"In the last year, did you have any visions or see anything that other people couldn't see? "	list|2|yes|1|maybe|0|no
+IntroB	_aa	AA	1	Q		"THE FOLLOWING QUESTIONS ARE ABOUT THE KIND OF PERSON YOU GENERALLY  ARE, THAT IS, HOW YOU USUALLY HAVE FELT OR BEHAVED OVER THE  PAST SEVERAL YEARS.  "	nothing
+scid2/screen/avoid/1	_122	122	1	Q		Have you avoided jobs or tasks that involved having to deal with a lot of people?	list|2|yes|1|maybe|0|no
+scid2/screen/avoid/3	_123	123	1	Q		"Do you find it hard to be ""open"" even with people you are close to? "	list|2|yes|1|maybe|0|no
+scid2/screen/avoid/5	_124	124	1	Q		Are you usually quiet when you meet new people?	list|2|yes|1|maybe|0|no
+scid2/screen/avoid/7	_125	125	1	Q		Are you afraid to try new things? 	list|2|yes|1|maybe|0|no
+scid2/screen/dependent/9	_126	126	1	Q		"Do you depend on other people to handle important areas in your life such as finances, child care, or living arrangements? "	list|2|yes|1|maybe|0|no
+scid2/screen/dependent/11	_127	127	1	Q		Do you find it hard to start or work on tasks when there is no one to help you?	list|2|yes|1|maybe|0|no
+scid2/screen/dependent/13	_128	128	1	Q		Do you usually feel uncomfortable when you are by yourself?	list|2|yes|1|maybe|0|no
+scid2/screen/dependent/15	_129	129	1	Q		Do you worry a lot about being left alone to take care of yourself? 	list|2|yes|1|maybe|0|no
+scid2/screen/obsessive/17	_130	130	1	Q		Do you have trouble finishing jobs because you spend so much time trying to get things exactly right?	list|2|yes|1|maybe|0|no
+scid2/screen/obsessive/19	_131	131	1	Q		Do you have very high standards about what is right and what  is wrong?	list|2|yes|1|maybe|0|no
+scid2/screen/obsessive/21	_132	132	1	Q		Is it hard for you to let other people help out if they don't agree to do things exactly the way you want? 	list|2|yes|1|maybe|0|no
+scid2/screen/obsessive/23	_133	133	1	Q		Are you often so sure you are right that it doesn't  matter what other people say?	list|2|yes|1|maybe|0|no
+scid2/screen/passive/25	_134	134	1	Q		"When someone asks you to do something that you don't want to do, do you say ""YES"" but then work slowly or do a bad job?"	list|2|yes|1|maybe|0|no
+scid2/screen/passive/27	_135	135	1	Q		"Do you often feel that other people don't understand you, or don't appreciate how much you do?"	list|2|yes|1|maybe|0|no
+scid2/screen/passive/29	_136	136	1	Q		"Have you found that most of your bosses, teachers, supervisors, doctors, and others who are supposed to know what they are doing really don't?"	list|2|yes|1|maybe|0|no
+scid2/screen/passive/31	_137	137	1	Q		Do you often complain that more than your share of bad things have happened to you?	list|2|yes|1|maybe|0|no
+scid2/screen/depress/33	_138	138	1	Q		Do you usually feel unhappy or like life is no fun? 	list|2|yes|1|maybe|0|no
+scid2/screen/depress/35	_139	139	1	Q		Do you often put yourself down?	list|2|yes|1|maybe|0|no
+scid2/screen/depress/37	_140	140	1	Q		Do you often judge others harshly and easily find fault with them?	list|2|yes|1|maybe|0|no
+scid2/screen/depress/39	_141	141	1	Q		Do you almost always expect things to turn out badly?	list|2|yes|1|maybe|0|no
+scid2/screen/paranoid/41	_142	142	1	Q		Do you often have to keep an eye out to stop people from using you or hurting you?	list|2|yes|1|maybe|0|no
+scid2/screen/paranoid/43	_143	143	1	Q		Do you find that it is best not to let other people know much about you because they will use it against you?	list|2|yes|1|maybe|0|no
+scid2/screen/paranoid/45	_144	144	1	Q		Are you the kind of person who holds grudges or takes a long time to forgive people who have insulted or slighted you?	list|2|yes|1|maybe|0|no
+scid2/screen/paranoid/47	_145	145	1	Q		Do you often get angry or lash out when someone criticizes or insults you in some way?	list|2|yes|1|maybe|0|no
+scid2/screen/schizotyp/49	_146	146	1	Q		"When you are out in public and see people talking, do you often feel that they are talking about you?"	list|2|yes|1|maybe|0|no
+scid2/screen/schizotyp/51	_147	147	1	Q		"When you are around people, do you often get the feeling that you are being watched or stared at?"	list|2|yes|1|maybe|0|no
+scid2/screen/schizotyp/53	_148	148	1	Q		Have you had personal experiences with the supernatural?	list|2|yes|1|maybe|0|no
+scid2/screen/schizotyp/55	_149	149	1	Q		Do you often think that objects or shadows are really people or animals or that noises are actually people's voices?	list|2|yes|1|maybe|0|no
+scid2/screen/schizotyp/57	_150	150	1	Q		Do you often see auras or energy fields around people?	list|2|yes|1|maybe|0|no
+scid2/screen/schizoid/59	_151	151	1	Q		Do you often feel nervous when you are with other people? 	list|2|yes|1|maybe|0|no
+scid2/screen/schizoid/61	_152	152	1	Q		Would you rather do things alone than with other people?	list|2|yes|1|maybe|0|no
+scid2/screen/schizoid/63	_153	153	1	Q		Are there really very few things that give you pleasure?	list|2|yes|1|maybe|0|no
+scid2/screen/schizoid/65	_154	154	1	Q		Do you find that nothing makes you very happy or very sad?	list|2|yes|1|maybe|0|no
+scid2/screen/histrionic/67	_155	155	1	Q		Do you flirt a lot?	list|2|yes|1|maybe|0|no
+scid2/screen/histrionic/69	_156	156	1	Q		Do you try to draw attention to yourself by the way you dress or look?	list|2|yes|1|maybe|0|no
+scid2/screen/histrionic/71	_157	157	1	Q		Do you often change your mind about things depending on the people you're with or what you have just read or seen on TV?	list|2|yes|1|maybe|0|no
+scid2/screen/narcissistic/73	_158	158	1	Q		Do people often fail to appreciate your very special talents or accomplishments?	list|2|yes|1|maybe|0|no
+scid2/screen/narcissistic/75	_159	159	1	Q		"Do you think a lot about the power, fame, or recognition that will be yours someday?"	list|2|yes|1|maybe|0|no
+scid2/screen/narcissistic/77	_160	160	1	Q		"When you have a problem, do you almost always insist on seeing the top person?"	list|2|yes|1|maybe|0|no
+scid2/screen/narcissistic/79	_161	161	1	Q		Is it very important to you that people pay attention to you or admire  you in some way?	list|2|yes|1|maybe|0|no
+scid2/screen/narcissistic/81	_162	162	1	Q		Do you often feel that you are the kind of person who deserves special treatment?	list|2|yes|1|maybe|0|no
+scid2/screen/narcissistic/83	_163	163	1	Q		Do you often have to put your needs above other people's?	list|2|yes|1|maybe|0|no
+scid2/screen/narcissistic/85	_164	164	1	Q		Are you not really interested in other people's problems or feelings?	list|2|yes|1|maybe|0|no
+scid2/screen/narcissistic/87	_165	165	1	Q		Are you often envious of others?	list|2|yes|1|maybe|0|no
+scid2/screen/narcissistic/89	_166	166	1	Q		Do you find that there are very few people that are worth your time and attention?	list|2|yes|1|maybe|0|no
+scid2/screen/borderline/91	_167	167	1	Q		Do your relationships with people you really care about have lots of extreme ups and downs?	list|2|yes|1|maybe|0|no
+scid2/screen/borderline/93	_168	168	1	Q		Does your sense of who you are often change dramatically?	list|2|yes|1|maybe|0|no
+scid2/screen/borderline/95	_169	169	1	Q		"Have there been lots of sudden changes in your goals, career plans, religious beliefs, and so on?"	list|2|yes|1|maybe|0|no
+scid2/screen/borderline/97	_170	170	1	Q		Have you tried to hurt or kill yourself or threatened to do so?	list|2|yes|1|maybe|0|no
+scid2/screen/borderline/99	_171	171	1	Q		Do you have a lot of sudden mood changes?	list|2|yes|1|maybe|0|no
+scid2/screen/borderline/101	_172	172	1	Q		Do you often have temper outbursts or get so angry that you lose   control?	list|2|yes|1|maybe|0|no
+scid2/screen/borderline/103	_173	173	1	Q		Do even little things get you very angry?	list|2|yes|1|maybe|0|no
+scid2/screen/avoid/2	_174	174	1	Q		Do you avoid getting involved with people unless you are certain they will like you?	list|2|yes|1|maybe|0|no
+scid2/screen/avoid/4	_175	175	1	Q		Do you often worry about being criticized or rejected in social situations?	list|2|yes|1|maybe|0|no
+scid2/screen/avoid/6	_176	176	1	Q		"Do you believe that you're not as good, as smart, or as attractive as most other people?"	list|2|yes|1|maybe|0|no
+scid2/screen/dependent/8	_177	177	1	Q		Do you need a lot of advice or reassurance from others before you can make everyday decisions--like what to wear or what to order in a restaurant? 	list|2|yes|1|maybe|0|no
+scid2/screen/dependent/10	_178	178	1	Q		Do you find it hard to disagree with people even when you think they are wrong?	list|2|yes|1|maybe|0|no
+scid2/screen/dependent/12	_179	179	1	Q		Have you often volunteered to do things that are unpleasant?	list|2|yes|1|maybe|0|no
+scid2/screen/dependent/14	_180	180	1	Q		"When a close relationship ends, do you feel you immediately have to find someone else to take care of you?"	list|2|yes|1|maybe|0|no
+scid2/screen/obsessive/16	_181	181	1	Q		"Are you the kind of person who focuses on details, order, and organization or likes to make lists and schedules?"	list|2|yes|1|maybe|0|no
+scid2/screen/obsessive/18	_182	182	1	Q		Do you or other people feel that you are so devoted to work that you have no time left for anyone else or for just  having fun?	list|2|yes|1|maybe|0|no
+scid2/screen/obsessive/20	_183	183	1	Q		Do you have trouble throwing things out because they might come in handy some day?	list|2|yes|1|maybe|0|no
+scid2/screen/obsessive/22	_184	184	1	Q		Is it hard for you to spend money on yourself and other people even when you have enough?	list|2|yes|1|maybe|0|no
+scid2/screen/obsessive/24	_185	185	1	Q		Have other people told you that you are stubborn or rigid?	list|2|yes|1|maybe|0|no
+scid2/screen/passive/26	_186	186	1	Q		"Often, if you don't want to do something, do you just ""forget"" to do it?"	list|2|yes|1|maybe|0|no
+scid2/screen/passive/28	_187	187	1	Q		Are you often grumpy and likely to get into arguments?	list|2|yes|1|maybe|0|no
+scid2/screen/passive/30	_188	188	1	Q		Do you often think that it's not fair that other people have more than you do?	list|2|yes|1|maybe|0|no
+scid2/screen/passive/32	_189	189	1	Q		Do you often angrily refuse to do what others want and then later feel bad and apologize? 	list|2|yes|1|maybe|0|no
+scid2/screen/depress/34	_190	190	1	Q		Do you believe that you are basically an inadequate person and you often don't feel good about yourself?	list|2|yes|1|maybe|0|no
+scid2/screen/depress/36	_191	191	1	Q		Do you keep thinking about bad things that have happened in the past or worry about bad things that might happen in the future? 	list|2|yes|1|maybe|0|no
+scid2/screen/depress/38	_192	192	1	Q		Do you think that most people are basically no good?	list|2|yes|1|maybe|0|no
+scid2/screen/depress/40	_193	193	1	Q		Do you often feel guilty about things you have or haven't  done? 	list|2|yes|1|maybe|0|no
+scid2/screen/paranoid/42	_194	194	1	Q		Do you spend a lot of time wondering if you can trust your friends or the people you work with?	list|2|yes|1|maybe|0|no
+scid2/screen/paranoid/44	_195	195	1	Q		Do you often detect hidden threats or insults in things people say or do?	list|2|yes|1|maybe|0|no
+scid2/screen/paranoid/46	_196	196	1	Q		Are there many people that you can't forgive because they did or said something to you a long time ago?	list|2|yes|1|maybe|0|no
+scid2/screen/paranoid/48	_197	197	1	Q		Have you often suspected that your spouse or partner has been unfaithful?	list|2|yes|1|maybe|0|no
+scid2/screen/schizotyp/50	_198	198	1	Q		Do you often get the feeling that things that have no special meaning to most people are really meant to give you a message?	list|2|yes|1|maybe|0|no
+scid2/screen/schizotyp/52	_199	199	1	Q		Have you ever felt that you could make things happen just by making a wish or thinking about them?	list|2|yes|1|maybe|0|no
+scid2/screen/schizotyp/54	_200	200	1	Q		"Do you believe that you have a sixth sense"" that allows you to know and predict things that others can't?"""	list|2|yes|1|maybe|0|no
+scid2/screen/schizotyp/56	_201	201	1	Q		"Have you had the sense that some person or force is around you, even though you cannot see anyone?"	list|2|yes|1|maybe|0|no
+scid2/screen/schizoid/58	_202	202	1	Q		Are there very few people that you're really close to outside of your immediate family?	list|2|yes|1|maybe|0|no
+scid2/screen/schizoid/60	_203	203	1	Q		Is it NOT important to you whether you have any close relationships?	list|2|yes|1|maybe|0|no
+scid2/screen/schizoid/62	_204	204	1	Q		Could you be content without ever being sexually involved with anyone?	list|2|yes|1|maybe|0|no
+scid2/screen/schizoid/64	_205	205	1	Q		Does it not matter to you what people think of you?	list|2|yes|1|maybe|0|no
+scid2/screen/histrionic/66	_206	206	1	Q		Do you like to be the center of attention?	list|2|yes|1|maybe|0|no
+scid2/screen/histrionic/68	_207	207	1	Q		"Do you often find yourself ""coming on"" to people?"	list|2|yes|1|maybe|0|no
+scid2/screen/histrionic/70	_208	208	1	Q		Do you often make a point of being dramatic and colorful?	list|2|yes|1|maybe|0|no
+scid2/screen/histrionic/72	_209	209	1	Q		Do you have lots of friends that you are very close to?	list|2|yes|1|maybe|0|no
+scid2/screen/narcissistic/74	_210	210	1	Q		Have people told you that you have too high an opinion of yourself?	list|2|yes|1|maybe|0|no
+scid2/screen/narcissistic/76	_211	211	1	Q		Do you think a lot about the perfect romance that will be yours someday?	list|2|yes|1|maybe|0|no
+scid2/screen/narcissistic/78	_212	212	1	Q		Do you feel it is important to spend time with people who are special or influential?	list|2|yes|1|maybe|0|no
+scid2/screen/narcissistic/80	_213	213	1	Q		Do you think that it's not necessary to follow certain rules or social conventions when they get in your way?	list|2|yes|1|maybe|0|no
+scid2/screen/narcissistic/82	_214	214	1	Q		Do you often find it necessary to step on a few toes to get what you want? 	list|2|yes|1|maybe|0|no
+scid2/screen/narcissistic/84	_215	215	1	Q		Do you often expect other people to do what you ask without  question because of who you are?	list|2|yes|1|maybe|0|no
+scid2/screen/narcissistic/86	_216	216	1	Q		Have people complained to you that you don't listen to them or care about their feelings?	list|2|yes|1|maybe|0|no
+scid2/screen/narcissistic/88	_217	217	1	Q		Do you feel that others are often envious of you?	list|2|yes|1|maybe|0|no
+scid2/screen/borderline/90	_218	218	1	Q		Have you often become frantic when you thought that someone you really cared about was going to leave you?	list|2|yes|1|maybe|0|no
+scid2/screen/borderline/92	_219	219	1	Q		Have you all of a sudden changed your sense of who you are and where you are headed?	list|2|yes|1|maybe|0|no
+scid2/screen/borderline/94	_220	220	1	Q		Are you so different with different people or in different situations that you sometimes don't know who you really are?	list|2|yes|1|maybe|0|no
+scid2/screen/borderline/96	_221	221	1	Q		Have you often done things impulsively?	list|2|yes|1|maybe|0|no
+scid2/screen/borderline/98	_222	222	1	Q		"Have you ever cut, burned, or scratched yourself on purpose?"	list|2|yes|1|maybe|0|no
+scid2/screen/borderline/100	_223	223	1	Q		Do you often feel empty inside? 	list|2|yes|1|maybe|0|no
+scid2/screen/borderline/102	_224	224	1	Q		Do you hit people or throw things when you get angry?	list|2|yes|1|maybe|0|no
+scid2/screen/borderline/104	_225	225	1	Q		"When you are under a lot of stress, do you get suspicious of other people or feel especially spaced out?"	list|2|yes|1|maybe|0|no
+scid2/screen/antisocial105	_226	226	1	Q		"In the past three years have you done things that are against the law -- even if you weren't caught-- like stealing, using or selling drugs, writing bad checks, or having sex for money?"	list|2|yes|1|maybe|0|no
+scid2/screen/antisocial106	_227	227	1	Q		Do you often find that you have to lie to get what you want?	list|2|yes|1|maybe|0|no
+scid2/screen/antisocial107	_228	228	1	Q		Do you often do things on the spur of the moment without thinking about how it will affect you or other people?	list|2|yes|1|maybe|0|no
+scid2/screen/antisocial108	_229	229	1	Q		"In the past three years, have you been in more than one serious physical fight?"	list|2|yes|1|maybe|0|no
+scid2/screen/antisocial109	_230	230	1	Q		Do you ever drive a car when you are drunk or high?	list|2|yes|1|maybe|0|no
+scid2/screen/antisocial112	_231	231	1	Q		Do you borrow money from friends or acquaintances without paying them back?	list|2|yes|1|maybe|0|no
+scid2/screen/antisocial113	_232	232	1	Q		Are you less likely to feel guilty than other people are about illegal or disapproved things that you do?	list|2|yes|1|maybe|0|no
+scid2/screen/antisocial114	_233	233	1	Q		Have you ever used an alias or pretended you were someone else for your own advantage or to get out of trouble?	list|2|yes|1|maybe|0|no
+scid2/screen/antisocial115	_234	234	1	Q		"Do you sometimes ""con"" people or trick them into doing things for you?"	list|2|yes|1|maybe|0|no
+	BB	BB	1	]		"THANK YOU FOR COMPLETING THIS QUESTIONNAIRE. AFTER WE RECEIVE IT BACK, WE WILL CALL YOU TO SCHEDULE A PHONE INTERVIEW TO COMPLETE THIS STEP OF OUR RESEARCH."	nothing

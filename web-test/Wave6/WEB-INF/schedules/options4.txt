@@ -1,0 +1,403 @@
+RESERVED	__TRICEPS_FILE_TYPE__	SCHEDULE					
+RESERVED	__TITLE__	**Offspring**					
+RESERVED	__ICON__	FALSE					
+RESERVED	__HEADER_MSG__	**OFFSPRING** 					
+RESERVED	__PASSWORD_FOR_ADMIN_MODE__	bypass					
+RESERVED	__SHOW_QUESTION_REF__	TRUE					
+RESERVED	__AUTOGEN_OPTION_NUM__	FALSE					
+RESERVED	__DEVELOPER_MODE__	TRUE					
+RESERVED	__DEBUG_MODE__	TRUE					
+Introduction	ID		1	q;number;99999;500000		ID number	double
+Introduction	IDconfirm		1	q		ID confirmation	double
+Introduction	Confirm		ID==IDconfirm	e		1	nothing
+	makeFilenameEqualID		1	e		__FILENAME__ = ID	nothing
+	makeTitleEqualID		1	e		__TITLE_FOR_PICKLIST_WHEN_IN_PROGRESS__ = ID	nothing
+Introduction	ConfirmOK		1	q		`Confirm==1?'Ready to start the interview.':'You entered two different ID numbers. PLEASE GO BACK AND CHECK BEFORE PROCEEDING WITH THE INTERVIEW!'`	nothing
+Introduction	DOB		1	q		Date of birth	date
+Introduction	ND1		1	[		"I am going to be asking you some questions about the people you are closest to, at school and at home, in particular your male and female friends."	nothing
+Introduction	ND2		1	q		"One thing I want to be clear about is that our talk is confidential. That means that I won't be telling anyone else what you say, not your parents, teachers, or anyone else at all. "	nothing
+	ND2A		1	q		Do you have the response cards we mailed to you?	nothing
+Introduction	ND3		1	]		"Are you in a place where you can talk privately? If not, can you find a private area right now?"	nothing
+Demogrphics	AGE		1	[		How old are you?	double
+Demogrphics	SEX		1	q		Are you male or female?	List|0|Female|1|Male
+Demogrphics	GRADE		1	]		Grade in school (Enter zero if dropped out or graduated.)	double
+	GRADEA		GRADE==0	q		Last grade completed in school	double
+Demogrphics	LIVEWITH		1	[		Who do you live with? (Who lives in your household most of the time?)	nothing
+	mom		1	q		Mother	list|0|No|1|Yes
+	dad		1	q		Father	list|0|No|1|Yes
+	sibs		1	q		Sibling(s)	list|0|No|1|Yes
+	rmmate		1	q		Friends/room mates	list|0|No|1|Yes
+	alone		1	q		Lives alone	list|0|No|1|Yes
+	dorm		1	q		Lives at school	list|0|No|1|Yes
+	other		1	]		Other(s)	list|0|No|1|Yes
+	other2		1	q		"Describe others (subject's children, grandparent, spouse, etc.). List all who live in household most of time."	text
+Friends	ND4		1	[		"I'd like to know a little about the friends you spend the most time with, who you are closest to right now."	nothing
+	ND4a		1	q		Could you tell me the first name of your closest friend?	nothing
+Friends	Friend1		1	]		Closest friend	text
+Friends	ND5		1	[		"Could you tell me the first names of two other friends you are close to? (Type in ""none"" if deny having further friends.)"	nothing
+Friends	Friend2		1	q		Second friend	text
+Friends	Friend3		1	]		Third friend	text
+Friends	FR1age		1	[		How old is `Friend1`?	double
+Friends	FR1sex		1	]		Is that a male or female?	List|0|Female|1|Male|9|denies having a single friend
+Friends	FR2age		1	[		"How old is `Friend2`? (If respondent denies having a second friend, enter 0.)"	double
+Friends	FR2sex		1	]		Is that a male or female?	List|0|Female|1|Male|9|denies having a second friend
+Friends	FR3age		1	[		"How old is `Friend3`? (If respondent denies having a third friend, enter 0.)"	double
+Friends	FR3sex		1	]		Is that a male or female?	List|0|Female|1|Male|9|denies having a third friend
+Peer network	PEENET1		1	[		I want you to think about your friends.	nothing
+Peer network	PEENET2		1	]		"About how many people are in your (main) group of friends? (If respondent absolutely denies having ONE friend, enter 0.)"	double
+PSTA	ND6		PEENET2>0	[		"Think about the most popular person in this group of friends. What makes that person so popular?  INTERVIEWER CATEGORIZES RESPONSES BELOW. (If denies that one person is ""most popular,"" ask them to answer about someone in their group who everyone likes.)"	nothing
+PSTA	PSTA1a		PEENET2>0	q		"Prosocial characteristics (friendly, nice, smart, outgoing, gets along with others, helps others)"	list|2|mentioned first|1|mentioned later|0|not mentioned
+PSTA	PSTA1c		PEENET2>0	q		"Physical or material characteristics (attractive, physically trong or muscular, dresses well, money"	list|2|mentioned first|1|mentioned later|0|not mentioned
+PSTA	PSTA1e		PEENET2>0	q		"Antisocial/Risk taking (parties, drinks, talks back to teachers, does what he/she wants with little adult control)"	list|2|mentioned first|1|mentioned later|0|not mentioned
+PSTA	PSTA1f		PEENET2>0	]		Other	list|2|mentioned first|1|mentioned later|0|not mentioned
+PSTA	PSTA1g		PSTA1f>0	q		Describe other	text
+PEESTA2	PEESTA2		PEENET2>0	[		Where do you fit in the group? Would you say you are: 	list|0|unpopular|1|not very popular|2|average |3|pretty popular|4|very popular.
+	ND7		PEENET2>0	q		Tell me why. INTERVIEWER CATEGORIZES RESPONSES BELOW. 	Nothing
+PSTA	PSTA3a		PEENET2>0	q		"Prosocial characteristics (friendly, nice, outgoing)"	list|2|mentioned first|1|mentioned later|0|not mentioned
+PSTA	PSTA3c		PEENET2>0	q		"Physical or material characteristics (attractive, physically trong or muscular, dresses well, money"	list|2|mentioned first|1|mentioned later|0|not mentioned
+PSTA	PSTA3e		PEENET2>0	q		"Antisocial/Risk taking (parties, drinks, talks back to teachers, does what he/she wants with little adult control)"	list|2|mentioned first|1|mentioned later|0|not mentioned
+PSTA	PSTA3f		PEENET2>0	]		Other	list|2|mentioned first|1|mentioned later|0|not mentioned
+PSTA	PSTA3g		PSTA3f>0	q		Describe other	text
+PEESTA4	PEESTA4		PEENET2>0	q		How popular is your main group compared to other groups of kids in your school?	list|0|unpopular|1|not very popular|2|pretty popular|3|very popular.
+	ND8		1	q		"For the next few questions, please get out the blue answer card and choose from those answers."	nothing
+	ND9		1	[		How often do other kids or teenagers do these things to you?	nothing
+Peer victimization	PEEVICT1		1	q		Make fun of you or say things to make you angry or embarrassed	list|1|Never|2|hardly ever|3|sometimes  |4|often |5| almost all the time 
+Peer victimization	PEEVICT2		1	q		"Try to hurt you physically (hit, push, ...)"	list|1|Never|2|hardly ever|3|sometimes  |4|often |5| almost all the time 
+Peer victimization	PEEVICT3		1	]		Spread Rumors about you	list|1|Never|2|hardly ever|3|sometimes  |4|often |5| almost all the time 
+	ND9A		1	[		How often do other kids or teenagers do these things to you?	nothing
+Peer victimization	PEEVICT4		1	q		Try to get others to stop liking you or hang out with you	list|1|Never|2|hardly ever|3|sometimes  |4|often |5| almost all the time 
+Peer victimization	PEEVICT5		1	q		Take or break your things	list|1|Never|2|hardly ever|3|sometimes  |4|often |5| almost all the time 
+Peer victimization	PEEVICT6		1	]		Threaten to hurt you	list|1|Never|2|hardly ever|3|sometimes  |4|often |5| almost all the time 
+	ND10		1	[		How often do you or your group of friends do these things to other people? 	nothing
+Peer bullying	PEEBUL1		1	q		Make fun of others or say things to make them angry or embarrassed	list|1|Never|2|hardly ever|3|sometimes  |4|often |5| almost all the time 
+Peer bullying	PEEBUL2		1	q		"Try to hurt them physically (hit, push, ...)"	list|1|Never|2|hardly ever|3|sometimes  |4|often |5| almost all the time 
+Peer bullying	PEEBUL3		1	]		Spread rumors about them	list|1|Never|2|hardly ever|3|sometimes  |4|often |5| almost all the time 
+	ND10A		1	[		How often do you or your group of friends do these things to other people? 	nothing
+Peer bullying	PEEBUL4		1	q		Try to get others to stop liking them or hang out with them	list|1|Never|2|hardly ever|3|sometimes  |4|often |5| almost all the time 
+Peer bullying	PEEBUL5		1	q		Take or break their things	list|1|Never|2|hardly ever|3|sometimes  |4|often |5| almost all the time 
+Peer bullying	PEEBUL6		1	]		Threaten to hurt others	list|1|Never|2|hardly ever|3|sometimes  |4|often |5| almost all the time 
+	ND11		PEENET2>0	[		"For the next few questions, please answer about your friends, but not about someone you like romantically."	nothing
+	ND12		PEENET2>0	q		What do you have the most in common with your friends? 	nothing
+PEEINT1	PEEINT1		PEENET2>0	q		"Prosocial characteristics (friendly, nice, outgoing; supportive)"	list|2|mentioned first|1|mentioned later|0|not mentioned 
+PEEINT2	PEEINT2		PEENET2>0	q		"Shared prosocial activities (we have fun, we go to practice together, we like the same music)"	list|2|mentioned first|1|mentioned later|0|not mentioned 
+PEEINT3	PEEINT3		PEENET2>0	q		"Physical or material characteristics (attractive, physically strong or muscular, dresses well, money"	list|2|mentioned first|1|mentioned later|0|not mentioned 
+PEEINT5	PEEINT5		PEENET2>0	q		"Antisocial/Risk taking (parties, drinks, talks back to teachers, does what he/she wants with little adult control)"	list|2|mentioned first|1|mentioned later|0|not mentioned 
+PEEINT6	PEEINT6		PEENET2>0	]		Other	list|2|mentioned first|1|mentioned later|0|not mentioned 
+PEEINT7	PEEINT7		PEEINT6>0	q		Describe other	text
+	ND13		PEENET2>0	Q		"For the next few questions, please get out the green answer card and choose from those answers."	nothing
+Friends talk	FRTALK1		PEENET2>0	[		How much do you and your friends talk about wanting to go to college	list|0|Never |1|Once a month |2|Once a week |3|Few times a week
+Friends talk	FRTALK2		PEENET2>0	Q		How much do you and your friends talk about what you want to be when you get out of school  	list|0|Never |1|Once a month |2|Once a week |3|Few times a week
+Friends talk	FRTALK3		PEENET2>0	Q		How much do you and your friends talk about wanting to drink or use drugs 	list|0|Never |1|Once a month |2|Once a week |3|Few times a week
+Friends talk	FRTALK4		PEENET2>0	Q		How much do you and your friends talk about wanting to get married  	list|0|Never |1|Once a month |2|Once a week |3|Few times a week
+Friends talk	FRTALK5		PEENET2>0	]		How much do you and your friends talk about who you like and are attracted to  	list|0|Never |1|Once a month |2|Once a week |3|Few times a week
+Friends talk	FRTALK6		PEENET2>0	[		How much do you and your friends talk about sex  	list|0|Never |1|Once a month |2|Once a week |3|Few times a week
+Friends talk	FRTALK7		PEENET2>0	Q		"How much do you and your friends talk about your parents, families "	list|0|Never |1|Once a month |2|Once a week |3|Few times a week
+Friends talk	FRTALK8		PEENET2>0	Q		How much do you and your friends talk about wanting to do well in school  	list|0|Never |1|Once a month |2|Once a week |3|Few times a week
+Friends talk	FRTALK9		PEENET2>0	Q		How much do you and your friends talk about stealing  	list|0|Never |1|Once a month |2|Once a week |3|Few times a week
+Friends talk	FRTALK10		PEENET2>0	Q		How much do you and your friends talk about something another person at school did that bothers you  	list|0|Never |1|Once a month |2|Once a week |3|Few times a week
+Friends talk	FRTALK11		PEENET2>0	q		How much do you and your friends talk about fighting with other people  	list|0|Never |1|Once a month |2|Once a week |3|Few times a week
+Friends talk	FRTALK12		PEENET2>0	]		How much do you and your friends talk about how you shouldn't be friends with a person in your group anymore 	list|0|Never |1|Once a month |2|Once a week |3|Few times a week
+	ND13A		PEENET2>0	[		Please get out the yellow response card and use it to answer the next few questions.	nothing
+Family & friends	FAFRINT2		PEENET2>0	Q		How well does your family know your friends?	list|0|not at all |1|a little |2|somewhat |3|quite a bit|4|a lot
+Family & friends	FAFRINT3		PEENET2>0	Q		How much does your family like most of your friends?	list|0|not at all |1|a little |2|somewhat |3|quite a bit|4|a lot
+Peer support	PEESUP1		PEENET2>0	Q		How much do you turn to your friends for support with personal problems?	list|0|not at all |1|a little |2|somewhat |3|quite a bit|4|a lot
+Peer support	PEESUP2		PEENET2>0	]		"How much do you depend on your friends for help, advice or sympathy?"	list|0|not at all |1|a little |2|somewhat |3|quite a bit|4|a lot
+Peer support	PEESUP3		PEENET2>0	[		"When  you are feeling down or upset, how much do you depend on your friends to cheer things up?"	list|0|not at all |1|a little |2|somewhat |3|quite a bit|4|a lot
+Peer support	PEESUP4		PEENET2>0	]		How much would your friends stand by you if you were in trouble?	list|0|not at all |1|a little |2|somewhat |3|quite a bit|4|a lot
+	ND17		1	[		"For the next few questions, please get out the blue answer card again."	nothing
+SEQ	SEQ1		1	q		How often do you get left out of activities on purpose?	list|1|Never|2|hardly ever|3|sometimes  |4|often |5| almost all the time 
+SEQ	SEQ2		1	]		How often do you get pushed out of a group because someone is mad at you?	list|1|Never|2|hardly ever|3|sometimes  |4|often |5| almost all the time 
+SEQ	SEQ3		1	[		How often has a kid told lies about you so other kids won't like you anymore	list|1|Never|2|hardly ever|3|sometimes  |4|often |5| almost all the time 
+SEQ	SEQ4		1	q		How often does another kid say they won't like you unless you do what they want?	list|1|Never|2|hardly ever|3|sometimes  |4|often |5| almost all the time 
+SEQ	SEQ5		1	q		How often does another kid say mean things about you so others won't like you?	list|1|Never|2|hardly ever|3|sometimes  |4|often |5| almost all the time 
+SEQ	SEQ6		1	]		How often do you get hit by another kid at school? 	list|1|Never|2|hardly ever|3|sometimes  |4|often |5| almost all the time 
+SEQ	SEQ7		1	[		How often do you get pushed or shoved by another kid at school?	list|1|Never|2|hardly ever|3|sometimes  |4|often |5| almost all the time 
+SEQ	SEQ8		1	q		How often do you get kicked or have your hair pulled by another kid? 	list|1|Never|2|hardly ever|3|sometimes  |4|often |5| almost all the time 
+SEQ	SEQ9		1	q		How often does another kid give you help when you need  it?	list|1|Never|2|hardly ever|3|sometimes  |4|often |5| almost all the time 
+SEQ	SEQ10		1	]		How often does another kid cheer you up when you are sad or upset?	list|1|Never|2|hardly ever|3|sometimes  |4|often |5| almost all the time 
+SEQ	SEQ11		1	[		How often does another kid do something that makes you feel happy?	list|1|Never|2|hardly ever|3|sometimes  |4|often |5| almost all the time 
+SEQ	SEQ12		1	q		How often does another kid say something nice to you?	list|1|Never|2|hardly ever|3|sometimes  |4|often |5| almost all the time 
+SEQ	SEQ13		1	]		How often does another kid let you know they care about you?	list|1|Never|2|hardly ever|3|sometimes  |4|often |5| almost all the time 
+OPSXDV1	OPSXDV1		1	q		"Now I'm going to ask about your romantic interests. Are you interested in `SEX==1?'girls':'boys '`? It doesn't mean you ever had a `SEX==1?'girlfriend':'boyfriend '`, but are you interested?  "	list|0|No|1|Yes
+OPSXDV2	OPSXDV2		OPSXDV1==1	q		How old were you when you started to be interested in `SEX==1?'girls':'boys '`? 	double
+OPSXDV2A	OPSXDV1A		OPSXDV1==0	q		Are you romantically interested in `SEX==1?'boys':'girls '`? 	list|0|No|1|Yes
+OPSXDV3	OPSXDV2A		OPSXDV2A==1	q		How old were you when you started to be interested in `SEX==1?'boys':'girls '` romantically? 	double
+OPSXDV4	OPSXDV4		OPSXDV1==1||OPSXDV1A==1	q		Have you ever had a `(SEX==1&&OPSXDV1==1)||(SEX==0&&OPSXDV2A==1)?'girlfriend':'boyfriend'` since you were 10? 	list|0|No|1|Yes
+OPSXDV4A	OPSXDV4A		OPSXDV4==1	[		How many `(SEX==1&&OPSXDV1==1)||(SEX==0&&OPSXDV2A==1)?'girlfriends':'boyfriends'` have you had  since you turned 10?	double
+OPSXDV4B	OPSXDV4B		OPSXDV4==1	q		How long was the longest relationship you had with a `(SEX==1&&OPSXDV1==1)||(SEX==0&&OPSXDV2A==1)?'girlfriend':'boyfriend'`? 	list|1|less than 1 week|2|  1 to 2 weeks|3| 2 weeks to 1 month|4|1 to 3 months|5| 3 to 6 months|6|6 months to 1 year|7|more than 1 year
+OPSXDV4C	OPSXDV4C		OPSXDV4==1	]		Do you have a `(SEX==1&&OPSXDV1==1)||(SEX==0&&OPSXDV2A==1)?'girlfriend':'boyfriend'` now? 	list|0|No|1|Yes
+OPSXDV5	OPSXDV5		OPSXDV4C==0&&OPSXDV4==0	q		"In the last three months, have you been interested in someone, a person you might like to go out with? "	list|0|No|1|Yes
+OPSXDV6	OPSXDV6		OPSXDV4==1||OPSXDV4C==1||OPSXDV5==1	q		Can you tell me the first name of `OPSXDV4C==1||OPSXDV5==1?'that person':'your last girlfriend/boyfriend'`?	text
+	ND17a		OPSXDV6==Friend1	q		Is that the same person you said is your closest friend?	list|0|No|1|Yes
+	OPSXDV4F		OPSXDV4==1&&OPSXDV4C==0	q		How long ago did you break up with `OPSXDV6`?	list|1|less than 1 week|2|  1 to 2 weeks|3| 2 weeks to 1 month|4|1 to 3 months|5| 3 to 6 months|6|6 months to 1 year|7|more than 1 year
+OPSXDV4D	OPSXDV4D		OPSXDV4==1	[		 `OPSXDV4C==0?'How long did you go out?': 'How long have you been going out?'`	list|1|less than 1 week|2|  1 to 2 weeks|3| 2 weeks to 1 month|4|1 to 3 months|5| 3 to 6 months|6|6 months to 1 year|7|more than 1 year
+OPSXDV4E	OPSXDV4E		OPSXDV4==1	q		"`OPSXDV4C==1?'Do':'Did'`  you or your `(SEX==1&&OPSXDV1==1)||(SEX==0&&OPSXDV2A==1)?'girlfriend':'boyfriend'` see other people or have other girlfriends or boyfriends too, or `OPSXDV4C==1?'do':'did'` you only see in each other?"	list|0|See Others |1|Exclusive
+OPSXDV7	OPSXDV7		OPSXDV4==1||OPSXDV4C==1	q		How old is `OPSXDV6` now?	double
+OPSXDV8	OPSXDV8		OPSXDV4==1||OPSXDV4C==1	q		How do you know `(SEX==1&&OPSXDV1==1)||(SEX==0&&OPSXDV2A==1)?'her':'him'`? (Interviewer codes using scale)	"list|1|school |2|work |3|through family |4|friend of friend |5|organized extra-curricular activity (e.g. dance class, soccer team, church) |6|unstructured setting (e.g. street, party, mall)|7|internet |8|other               neighborhood? Summer camp?"
+OPSXDV9	OPSXDV9		OPSXDV4==1||OPSXDV5==1	]		`OPSXDV4==1&&OPSXDV4C==0?'How close were you when you were dating?':'How close are you?'`(Read first 4 options only. The fifth might be used for someone who has a crush on a stranger.) 	list|1|not close at all |2|somewhat close|3|pretty close|4|very close|0|not acquainted
+	ND18		OPSXDV4==1||OPSXDV4C==1	[		What kinds of things `OPSXDV4C==1?'do you do together':'did you do together when you were dating'`? (Interviewer codes all categories)	nothing
+OPSXDV10	OPSXDV10		OPSXDV4==1||OPSXDV4C==1	q		"Prosocial (movies, shopping, sports, watch TV, church)"	list|2|mentioned first|1|mentioned later|0|not mentioned 
+OPSXDV11	OPSXDV11		OPSXDV4==1||OPSXDV4C==1	q		"Antisocial (unsupervised parties, drinking, getting in trouble, hanging out with little adult supervision, criminal activity)"	list|2|mentioned first|1|mentioned later|0|not mentioned 
+OPSXDV12	OPSXDV12		OPSXDV4==1||OPSXDV4C==1	]		Other	list|2|mentioned first|1|mentioned later|0|not mentioned 
+	ND19		OPSXDV12>0	q		Describe other	text
+	ND20		OPSXDV4==1||OPSXDV4C==1||OPSXDV5==1	[		What `OPSXDV4C==1?'do':'did'` you like most about `(SEX==1&&OPSXDV1==1)||(SEX==0&&OPSXDV2A==1)?'her':'him'`? (Code all categories)	nothing
+OPSXDV13	OPSXDV13		OPSXDV4==1||OPSXDV4C==1	q		"Prosocial characteristics (friendly, smart, outgoing)"	list|2|mentioned first|1|mentioned later|0|not mentioned 
+OPSXDV14	OPSXDV15		OPSXDV4==1||OPSXDV4C==1	q		"Shared prosocial activities (we have fun, we go to practice together, we like the same music)"	list|2|mentioned first|1|mentioned later|0|not mentioned 
+OPSXDV15	OPSXDV16		OPSXDV4==1||OPSXDV4C==1	q		"Physical or material characteristics (attractive, physically strong or muscular, dresses well, money"	list|2|mentioned first|1|mentioned later|0|not mentioned 
+OPSXDV17	OPSXDV18		OPSXDV4==1||OPSXDV4C==1	q		"Antisocial/Risk taking (unsupervised parties, drinks, talks back to teachers, does what he/she wants with little adult control)"	list|2|mentioned first|1|mentioned later|0|not mentioned 
+OPSXDV18	OPSXDV19		OPSXDV4==1||OPSXDV4C==1	]		Other	list|2|mentioned first|1|mentioned later|0|not mentioned 
+	OSXDV19a		OPSXDV19>0	q		Describe other	text
+OPSXDV19	OPSXDV20		OPSXDV4==1||OPSXDV4C==1	[		Who `OPSXDV4C==1?'does':'did'` `OPSXDV6` live with `OPSXDV4C==0?'when you were dating':''`? (Interviewer codes using scale)	nothing
+	DV20A		1	q		Mother	list|0|No|1|Yes
+	DV20B		1	q		Father	list|0|No|1|Yes
+	DV20C		1	q		Sibling(s)	list|0|No|1|Yes
+	DV20D		1	q		Friends/room mates	list|0|No|1|Yes
+	DV20E		1	q		Lives alone	list|0|No|1|Yes
+	DV20F		1	q		Lives at school	list|0|No|1|Yes
+	DV20G		1	]		Others	list|0|No|1|Yes
+	DV20H		DV20G==1	q		Describe others 	text
+OPSXDV20	OPSXDV21		OPSXDV4==1||OPSXDV4C==1	q		Which of these choices is the best way to describe how you `OPSXDV4C==1?'':'used to'` spend time with `OPSXDV6`?	list|0|only in groups of friends |1|mostly in groups of friends|2|about half and half|3|mostly as a couple|4|only as a couple.
+	ND23		OPSXDV4==1||OPSXDV4C==1	Q		"For the next few questions, please get out the yellow answer card again."	nothing
+OPSXDV22	OPSXDV22		OPSXDV4==1||OPSXDV4C==1	[		How well `OPSXDV4C==1?'do':'did'` your friends and  `OPSXDV6` know each other?	list|0|not at all |1|a little |2|somewhat |3|quite a bit|4|a lot
+OPSXDV23	OPSXDV23		OPSXDV4==1||OPSXDV4C==1	]		How much `OPSXDV4C==1?'do':'did'` your friends like `(SEX==1&&OPSXDV1==1)||(SEX==0&&OPSXDV2A==1)?'her':'him'` ?	list|0|not at all |1|a little |2|somewhat |3|quite a bit|4|a lot
+	ND24		OPSXDV4==1||OPSXDV4C==1	[		How often `OPSXDV4C==1?'do':'did'` you and `OPSXDV6` talk about:	nothing
+OPSXDV25	OPSXDV25		OPSXDV4==1||OPSXDV4C==1	q		Wanting to go to college 	list|0|Never |1|Once a month |2|Once a week |3|Few times a week
+OPSXDV26	OPSXDV26		OPSXDV4==1||OPSXDV4C==1	q		Having a good job 	list|0|Never |1|Once a month |2|Once a week |3|Few times a week
+OPSXDV27	OPSXDV27		OPSXDV4==1||OPSXDV4C==1	q		Drinking or using drugs  	list|0|Never |1|Once a month |2|Once a week |3|Few times a week
+OPSXDV28	OPSXDV28		OPSXDV4==1||OPSXDV4C==1	]		Getting married 	list|0|Never |1|Once a month |2|Once a week |3|Few times a week
+	ND25		OPSXDV4==1||OPSXDV4C==1	[		How often `OPSXDV4C==1?'do':'did'` you and `OPSXDV6` talk about:	nothing
+OPSXDV29	OPSXDV29		OPSXDV4==1||OPSXDV4C==1	q		Having sex 	list|0|Never |1|Once a month |2|Once a week |3|Few times a week
+OPSXDV30	OPSXDV30		OPSXDV4==1||OPSXDV4C==1	q		Your parents 	list|0|Never |1|Once a month |2|Once a week |3|Few times a week
+OPSXDV31	OPSXDV31		OPSXDV4==1||OPSXDV4C==1	q		Wanting to do well in school 	list|0|Never |1|Once a month |2|Once a week |3|Few times a week
+OPSXDV32	OPSXDV32		OPSXDV4==1||OPSXDV4C==1	q		Partying 	list|0|Never |1|Once a month |2|Once a week |3|Few times a week
+0PSXDV33	OPSXDV33		OPSXDV4==1||OPSXDV4C==1	q		Stealing 	list|0|Never |1|Once a month |2|Once a week |3|Few times a week
+OPSXDV34	OPSXDV34		OPSXDV4==1||OPSXDV4C==1	q		Something another person at school did that bothers you  	list|0|Never |1|Once a month |2|Once a week |3|Few times a week
+OPSXDV35	OPSXDV35		OPSXDV4==1||OPSXDV4C==1	]		Fighting with other people  	list|0|Never |1|Once a month |2|Once a week |3|Few times a week
+OPSXDV36	OPSXDV36		OPSXDV4==1||OPSXDV4C==1	[		How serious is (was) your relationship? Would you say?	list|0|not at all |1|a little |2|somewhat |3|quite a bit|4|a lot
+OPSXDV37	OPSXDV37		OPSXDV4==1||OPSXDV4C==1	]		How important is/was this relationship to you? Would you say	list|0|not at all |1|a little |2|somewhat |3|quite a bit|4|a lot
+	ND28		1	q		"For the next few questions, please get out the green answer card and use those answers."	NOTHING
+	ND26		OPSXDV4==1||OPSXDV4C==1	Q		The following statements concern how you `OPSXDV4C==0?'felt':'feel'` in your `OPSXDV4C==0?'previous':''` romantic relationship. Respond to each question by indicating how much you agree or disagree with it.  	NOTHING
+ECRI1	ECRI1		OPSXDV4==1||OPSXDV4C==1	[		I `OPSXDV4C==1?'am':'was'` very comfortable being close to `OPSXDV6`. 	list|1|disagree strongly |2| disagree somewhat |3|  neither |4| agree somewhat|5|agree strongly 
+ECRI2	ECRI2		OPSXDV4==1||OPSXDV4C==1	Q		I `OPSXDV4C==1?'worry':'worried'`  a fair amount about `OPSXDV6` leaving me. 	list|1|disagree strongly |2| disagree somewhat |3|  neither |4| agree somewhat|5|agree strongly 
+ECRI3	ECRI3		OPSXDV4==1||OPSXDV4C==1	Q		"I `OPSXDV4C==1?'want':'wanted'` to get close to `OPSXDV6`, but I `OPSXDV4C==1?'keep':'kept'` pulling back. "	list|1|disagree strongly |2| disagree somewhat |3|  neither |4| agree somewhat|5|agree strongly 
+ECRI4	ECRI4		OPSXDV4==1||OPSXDV4C==1	Q		I often `OPSXDV4C==1?'wish':'wished'` that `OPSXDV6`'s feelings for me were as strong as my feelings for him/her. 	list|1|disagree strongly |2| disagree somewhat |3|  neither |4| agree somewhat|5|agree strongly 
+ECRI5	ECRI5		OPSXDV4==1||OPSXDV4C==1	]		I `OPSXDV4C==1?'am':'was'` nervous when `OPSXDV6` `OPSXDV4C==1?'gets':'got'` too close to me. 	list|1|disagree strongly |2| disagree somewhat |3|  neither |4| agree somewhat|5|agree strongly 
+ECRI6	ECRI6		OPSXDV4==1||OPSXDV4C==1	[		I `OPSXDV4C==1?'worry':'worried'` about being alone even when I `OPSXDV4C==1?'have':'had'` a `(SEX==1&&OPSXDV1==1)||(SEX==0&&OPSXDV2A==1)?'girlfriend':'boyfriend'`.	list|1|disagree strongly |2| disagree somewhat |3|  neither |4| agree somewhat|5|agree strongly 
+ECRI7	ECRI7		OPSXDV4==1||OPSXDV4C==1	Q		I `OPSXDV4C==1?'feel':'felt'` comfortable sharing my private thoughts and feelings with `OPSXDV6`.   	list|1|disagree strongly |2| disagree somewhat |3|  neither |4| agree somewhat|5|agree strongly 
+ECRI8	ECRI8		OPSXDV4==1||OPSXDV4C==1	Q		I often `OPSXDV4C==1?'need':'needed'` `OPSXDV6` to show me `(SEX==1&&OPSXDV1==1)||(SEX==0&&OPSXDV2A==1)?'she':'he'` `OPSXDV4C==1?'cares':'cared'` about me. 	list|1|disagree strongly |2| disagree somewhat |3|  neither |4| agree somewhat|5|agree strongly 
+ECRI9	ECRI9		OPSXDV4==1||OPSXDV4C==1	Q		I `OPSXDV4C==1?'try':'tried'` to avoid getting too close to `OPSXDV6`. 	list|1|disagree strongly |2| disagree somewhat |3|  neither |4| agree somewhat|5|agree strongly 
+ECRI10	ECRI10		OPSXDV4==1||OPSXDV4C==1	]		"If I `OPSXDV4C==1?'cannot':'could not'` get `OPSXDV6` to show interest in me, I `OPSXDV4C==1?'get':'got'` upset or angry. "	list|1|disagree strongly |2| disagree somewhat |3|  neither |4| agree somewhat|5|agree strongly 
+ECRI11	ECRI11		OPSXDV4==1||OPSXDV4C==1	[		I usually `OPSXDV4C==1?'discuss':'discussed'` my problems and concerns with `OPSXDV6`.  	list|1|disagree strongly |2| disagree somewhat |3|  neither |4| agree somewhat|5|agree strongly 
+ECRI12	ECRI12		OPSXDV4==1||OPSXDV4C==1	Q		"When I'm not involved in a relationship, I feel somewhat anxious and insecure. "	list|1|disagree strongly |2| disagree somewhat |3|  neither |4| agree somewhat|5|agree strongly 
+ECRI13	ECRI13		OPSXDV4==1||OPSXDV4C==1	Q		I `OPSXDV4C==1?'feel':'felt'` comfortable depending on `OPSXDV6`.	list|1|disagree strongly |2| disagree somewhat |3|  neither |4| agree somewhat|5|agree strongly 
+ECRI14	ECRI14		OPSXDV4==1||OPSXDV4C==1	]		I `OPSXDV4C==1?'resent':'resented'` it when `OPSXDV6` `OPSXDV4C==1?'spends':'spent'` time away from me. 	list|1|disagree strongly |2| disagree somewhat |3|  neither |4| agree somewhat|5|agree strongly 
+	ND100		1	q		The following statements concern how you feel in your friendship with `ND17a==1?Friend2:Friend1`. Respond to each question by indicating how much you agree or disagree with it.  	nothing
+ECRI1	ECRI1a		1	[		I am very comfortable being close to `ND17a==1?Friend2:Friend1`.	list|1|disagree strongly |2| disagree somewhat |3|  neither |4| agree somewhat|5|agree strongly 
+ECRI2	ECRI2a		1	Q		I worry a fair amount about losing `ND17a==1?Friend2:Friend1` as a friend.	list|1|disagree strongly |2| disagree somewhat |3|  neither |4| agree somewhat|5|agree strongly 
+ECRI3	ECRI3a		1	Q		"I want to get close to `ND17a==1?Friend2:Friend1`, but I keep pulling back. "	list|1|disagree strongly |2| disagree somewhat |3|  neither |4| agree somewhat|5|agree strongly 
+ECRI4	ECRI4a		1	Q		I often wish that `ND17a==1?Friend2:Friend1`s feelings for me were as strong as my feelings for him/her. 	list|1|disagree strongly |2| disagree somewhat |3|  neither |4| agree somewhat|5|agree strongly 
+ECRI5	ECRI5a		1	]		I am nervous when `ND17a==1?Friend2:Friend1` gets too close to me. 	list|1|disagree strongly |2| disagree somewhat |3|  neither |4| agree somewhat|5|agree strongly 
+ECRI6	ECRI6a		OPSXDV4==0||OPSXDV4C==0	[		I generally worry about being alone.	list|1|disagree strongly |2| disagree somewhat |3|  neither |4| agree somewhat|5|agree strongly 
+ECRI7	ECRI7a		1	Q		I feel comfortable sharing my private thoughts and feelings with `ND17a==1?Friend2:Friend1`.  (R) 	list|1|disagree strongly |2| disagree somewhat |3|  neither |4| agree somewhat|5|agree strongly 
+ECRI8	ECRI8a		1	Q		I often need `ND17a==1?Friend2:Friend1` to show me he/she cares about me. 	list|1|disagree strongly |2| disagree somewhat |3|  neither |4| agree somewhat|5|agree strongly 
+ECRI9	ECRI9a		1	Q		I try to avoid getting too close to `ND17a==1?Friend2:Friend1`. 	list|1|disagree strongly |2| disagree somewhat |3|  neither |4| agree somewhat|5|agree strongly 
+ECRI10	ECRI10a		1	]		"If I can't get `ND17a==1?Friend2:Friend1` to show interest in me, I get upset or angry. "	list|1|disagree strongly |2| disagree somewhat |3|  neither |4| agree somewhat|5|agree strongly 
+ECRI11	ECRI11a		1	[		I usually discuss my problems and concerns with `ND17a==1?Friend2:Friend1`.  	list|1|disagree strongly |2| disagree somewhat |3|  neither |4| agree somewhat|5|agree strongly 
+ECRI13	ECRI13a		OPSXDV4==0	Q		I feel comfortable depending on `ND17a==1?Friend2:Friend1`.	list|1|disagree strongly |2| disagree somewhat |3|  neither |4| agree somewhat|5|agree strongly 
+ECRI14	ECRI14a		OPSXDV4==0	]		I resent it when `ND17a==1?Friend2:Friend1` spends time away from me. 	list|1|disagree strongly |2| disagree somewhat |3|  neither |4| agree somewhat|5|agree strongly 
+OPSXDV38	OPSXDV38		1	q		"Kids get involved with girlfriends or boyfriends at different times. Some start earlier, and some later. Compared to your friends, are you more interested in getting involved with `(SEX==1&&OPSXDV1==1)||(SEX==0&&OPSXDV2A==1)?'girlfriends':'boyfriends'`, less interested, or about the same as your friends?"	list|-1|less involved|0|the same|1|more involved
+PERODV1	PERODV1		PEENET2>0	q		"I want to ask you some questions about your friends now. In your main group of friends, how many are `(SEX==1&&OPSXDV1==1)||(SEX==0&&OPSXDV2A==1)?'girls':'boys'`?"	list|0|none|1|less than half|2|about half |3|more than half|4|all
+PERODV2	PERODV2		PERODV1>0	q		"How old are the `(SEX==1&&OPSXDV1==1)||(SEX==0&&OPSXDV2A==1)?'girls':'boys'` in your main group of friends, on average?"	double
+	pr1		PEENET2>0	[		This next question uses the aqua card. How many of your friends (in your main group) à	nothing
+	pr2		1	q		Date or see someone exclusively	double
+	pr3		1	q		Date casually	double
+	pr4		1	q		"Are interested in someone, but are not dating"	double
+	pr5		1	q		"Are interested in general, but not in anyone in particular"	double
+	pr6		1	]		Are not interested in a romantic relationship	double
+PERODV4	PERODV4		PEENET2>0	q		Do your friends think it?s a good idea to have a boyfriend or girlfriend?	list|0|no|1|yes|2|don't know
+PERODV5A	PERODV5A		pr2>0||pr3>0	q		How do your friends spend time with their boyfriends or girlfriends? 	list|0|only in groups of friends|1|mostly in groups of friends|2|about half and half|3|mostly as a couple|4|only as a couple
+	ND100A		PEENET2>0	q		Please get out the white answer card and use that scale for the following questions.	nothing
+PERODV7	PERODV7		PEENET2>0	[;number;1;10		"If someone in your group of friends really didn?t like your `(SEX==1&&OPSXDV1==1)||(SEX==0&&OPSXDV2A==1)?'girlfriend':'boyfriend'`, do you think that you would break up with the `(SEX==1&&OPSXDV1==1)||(SEX==0&&OPSXDV2A==1)?'her':'him'`? Please rate on the scale where 1 is DEFINTELY NOT to 10, DEFINITELY WOULD."	double
+PERODV8	PERODV8		PEENET2>0	q;number;1;10		"What if all your friends didn't like that `(SEX==1&&OPSXDV1==1)||(SEX==0&&OPSXDV2A==1)?'girlfriend':'boyfriend'`, do you think you'd break up with `(SEX==1&&OPSXDV1==1)||(SEX==0&&OPSXDV2A==1)?'her':'him'`? "	double
+PERODV9	PERODV9		PEENET2>0	];number;1;10		"If you had problems with your `(SEX==1&&OPSXDV1==1)||(SEX==0&&OPSXDV2A==1)?'girlfriend':'boyfriend'`, how likely is them that you would talk about it with your friends?"	double
+PEOROM1	PEOROM1		PEENET2>0	[		How long do your friends think a boy and girl should know each other before they start going out casually (not exclusive)?  	list|1|less than one week|2|  1 to 2 weeks|3| 2 weeks to 1 month|4|1 to 3 months|5| 3 to 6 months|6|6 months to 1 year|7|more than 1 year
+PEOROM2	PEOROM2		PEENET2>0	q		How long do your friends think that a boy and girl should wait before they kiss? 	list|1|less than one week|2|  1 to 2 weeks|3| 2 weeks to 1 month|4|1 to 3 months|5| 3 to 6 months|6|6 months to 1 year|7|more than 1 year
+PEOROM3	PEOROM3		PEENET2>0	q		"How long do your friends think a boy and girl should know each other before start going out alone, as a couple? "	list|1|less than one week|2|  1 to 2 weeks|3| 2 weeks to 1 month|4|1 to 3 months|5| 3 to 6 months|6|6 months to 1 year|7|more than 1 year
+PEOROM4	PEOROM4		PEENET2>0	q		How long do your friends think a boy and girl should know each other before they start touching each other sexually? 	list|1|less than one week|2|  1 to 2 weeks|3| 2 weeks to 1 month|4|1 to 3 months|5| 3 to 6 months|6|6 months to 1 year|7|more than 1 year|8|after they are engaged or married
+PEOROM5	PEOROM5		PEENET2>0	]		How long do they think a boy and girl should know each other before they have sex? 	list|1|less than one week|2|  1 to 2 weeks|3| 2 weeks to 1 month|4|1 to 3 months|5| 3 to 6 months|6|6 months to 1 year|7|more than 1 year|8|after they are engaged or married
+	ND29		1	[		I'm going to read you some characteristics of people. Please tell me how important you and your friends think each is in choosing a boyfriend or girlfriend. (Use the scale on the white response card.)	nothing
+PEOROM6	PEOROM6		1	q;number;1;10		Does really well in school	double
+PEOROM7	PEOROM7		1	q;number;1;10		Hangs out with older kids 	double
+PEOROM8	PEOROM8		1	];number;1;10		Spends a lot of time with his family	double
+PEOROM9	PEOROM9		1	[;number;1;10		"In choosing a girlfriend or boyfriend, how important is it that the person has a reputation for being tough"	double
+PEOROM10	PEOROM10		1	q;number;1;10		Is older than you by a few years	double
+PEOROM11	PEOROM11		1	q;number;1;10		Gets in trouble with teachers	double
+PEOROM12	PEOROM12		1	];number;1;10		Has had lots of experience going out with girls/guys? 	double
+PEOROM13	PEOROM13		1	[;number;1;10		"In choosing a girlfriend or boyfriend, how important is it that the person is quiet or shy"	double
+PEOROM14	PEOROM14		1	q;number;1;10		Likes to drink	double
+PEOROM15	PEOROM15		1	q;number;1;10		Is wild or bad	double
+PEOROM16	PEOROM16		1	];number;1;10		Has a lot of money	double
+PEOROM17	PEOROM17		1	[;number;1;10		"In choosing a girlfriend or boyfriend, how important is it that the person plans to go to college"	double
+PEOROM18	PEOROM18		1	q;number;1;10		Fights with other people	double
+PEOROM19	PEOROM19		1	q;number;1;10		Is sensitive or intense.	double
+PEOROM20	PEOROM20		1	];number;1;10		Wants to be close to you emotionally	double
+	ND29A		PEENET2>0	q		Please get out the gold answer card for the following questions.	nothing
+PEOROM21	PEOROM21		PEENET2>0	[		"How many of your friends would agree with this: At your age, the most important thing about having a boyfriend/girlfriend is having someone special who cares about you and who you care about, and knowing each other really well?  "	list|0|none|1|less than half|2|about half |3|more than half|4|all
+PEOROM22	PEOROM22		PEENET2>0	Q		"How many of your friends would agree with this: At your age, the most important thing about having a boyfriend/girlfriend is mostly to get experience with sex? "	list|0|none|1|less than half|2|about half |3|more than half|4|all
+PEOROM23	PEOROM23		PEENET2>0	Q		"How many of your friends would agree with this: At your age, the most important thing about having a boyfriend/girlfriend is mostly to get respect from other people for having a boyfriend or girlfriend? "	list|0|none|1|less than half|2|about half |3|more than half|4|all
+PEOROM24	PEOROM24		PEENET2>0	Q		"How many of your friends would agree with this: At your age, the most important thing about having a boyfriend/girlfriend is mostly to be seen with someone who is good-looking?  "	list|0|none|1|less than half|2|about half |3|more than half|4|all
+PEOROM25	PEOROM25		PEENET2>0	]		"How many of your friends would agree with this: A boy should be the one who has the last word about things in a relationship, and he should have the upper hand?  "	list|0|none|1|less than half|2|about half |3|more than half|4|all
+	ND29B		OPSXDV4==1||OPSXDV4C==1	q		Please get out the blue answer card again.	nothing
+	ND30		OPSXDV4==1||OPSXDV4C==1	[		The following questions ask you about things that may have happened to you with your `(SEX==1&&OPSXDV1==1)||(SEX==0&&OPSXDV2A==1)?'girlfriend':'boyfriend'` while you were having an argument. Tell me your best guess about how often these things happened with your `OPSXDV4C==1?'girlfriend':'ex-girlfriend'` in the past year	nothing
+CADRI1	CADRI1		OPSXDV4==1||OPSXDV4C==1	Q		You tried to turn `(SEX==1&&OPSXDV1==1)||(SEX==0&&OPSXDV2A==1)?'her':'his'` friends against `(SEX==1&&OPSXDV1==1)||(SEX==0&&OPSXDV2A==1)?'her':'him'`.	list|1|Never|2|hardly ever|3|sometimes  |4|often |5| almost all the time 
+CADRI2	CADRI2		OPSXDV4==1||OPSXDV4C==1	Q		`(SEX==1&&OPSXDV1==1)||(SEX==0&&OPSXDV2A==1)?'She':'He'` tried to turn your friends against you.	list|1|Never|2|hardly ever|3|sometimes  |4|often |5| almost all the time 
+CADRI3	CADRI3		OPSXDV4==1||OPSXDV4C==1	Q		You did something to make `(SEX==1&&OPSXDV1==1)||(SEX==0&&OPSXDV2A==1)?'her':'him'` feel jealous	list|1|Never|2|hardly ever|3|sometimes  |4|often |5| almost all the time 
+CADRI4	CADRI4		OPSXDV4==1||OPSXDV4C==1	Q		`(SEX==1&&OPSXDV1==1)||(SEX==0&&OPSXDV2A==1)?'She':'He'` did something to make you feel jealous	list|1|Never|2|hardly ever|3|sometimes  |4|often |5| almost all the time 
+CADRI5	CADRI5		OPSXDV4==1||OPSXDV4C==1	Q		You said things just to make `(SEX==1&&OPSXDV1==1)||(SEX==0&&OPSXDV2A==1)?'her':'him'` angry	list|1|Never|2|hardly ever|3|sometimes  |4|often |5| almost all the time 
+CADRI6	CADRI6		OPSXDV4==1||OPSXDV4C==1	]		`(SEX==1&&OPSXDV1==1)||(SEX==0&&OPSXDV2A==1)?'She':'He'` said things just to make you angry	list|1|Never|2|hardly ever|3|sometimes  |4|often |5| almost all the time 
+CADRI7	CADRI7		OPSXDV4==1||OPSXDV4C==1	[		"How often while you were arguing (in the past year), did this happen? You threw something at `(SEX==1&&OPSXDV1==1)||(SEX==0&&OPSXDV2A==1)?'her':'him'`."	list|1|Never|2|hardly ever|3|sometimes  |4|often |5| almost all the time 
+CADRI8	CADRI8		OPSXDV4==1||OPSXDV4C==1	Q		`(SEX==1&&OPSXDV1==1)||(SEX==0&&OPSXDV2A==1)?'She':'He'`  threw something at you.	list|1|Never|2|hardly ever|3|sometimes  |4|often |5| almost all the time 
+CADRI9	CADRI9		OPSXDV4==1||OPSXDV4C==1	Q		You spoke to `(SEX==1&&OPSXDV1==1)||(SEX==0&&OPSXDV2A==1)?'her':'him'` in a mean tone of voice	list|1|Never|2|hardly ever|3|sometimes  |4|often |5| almost all the time 
+CADRI10	CADRI10		OPSXDV4==1||OPSXDV4C==1	Q		`(SEX==1&&OPSXDV1==1)||(SEX==0&&OPSXDV2A==1)?'She':'He'` spoke to you in a mean tone of voice	list|1|Never|2|hardly ever|3|sometimes  |4|often |5| almost all the time 
+CADRI11	CADRI11		OPSXDV4==1||OPSXDV4C==1	Q		I insulted `(SEX==1&&OPSXDV1==1)||(SEX==0&&OPSXDV2A==1)?'her':'him'`.	list|1|Never|2|hardly ever|3|sometimes  |4|often |5| almost all the time 
+CADRI12	CADRI12		OPSXDV4==1||OPSXDV4C==1	Q		`(SEX==1&&OPSXDV1==1)||(SEX==0&&OPSXDV2A==1)?'She':'He'` insulted me	list|1|Never|2|hardly ever|3|sometimes  |4|often |5| almost all the time 
+CADRI13	CADRI13		OPSXDV4==1||OPSXDV4C==1	Q		I kept track of who `(SEX==1&&OPSXDV1==1)||(SEX==0&&OPSXDV2A==1)?'she':'he'` was with and where `(SEX==1&&OPSXDV1==1)||(SEX==0&&OPSXDV2A==1)?'she':'he'` was.	list|1|Never|2|hardly ever|3|sometimes  |4|often |5| almost all the time 
+CADRI14	CADRI14		OPSXDV4==1||OPSXDV4C==1	]		`(SEX==1&&OPSXDV1==1)||(SEX==0&&OPSXDV2A==1)?'She':'He'` kept track of who I was with and where I was.	list|1|Never|2|hardly ever|3|sometimes  |4|often |5| almost all the time 
+CADRI15	CADRI15		OPSXDV4==1||OPSXDV4C==1	[		"How often while you were arguing (in the past year), did this happen? I kicked, hit or punched `(SEX==1&&OPSXDV1==1)||(SEX==0&&OPSXDV2A==1)?'her':'him'`."	list|1|Never|2|hardly ever|3|sometimes  |4|often |5| almost all the time 
+CADRI16	CADRI16		OPSXDV4==1||OPSXDV4C==1	Q		"`(SEX==1&&OPSXDV1==1)||(SEX==0&&OPSXDV2A==1)?'She':'He'` kicked, hit or punched me"	list|1|Never|2|hardly ever|3|sometimes  |4|often |5| almost all the time 
+CADRI17	CADRI17		OPSXDV4==1||OPSXDV4C==1	Q		I accused `(SEX==1&&OPSXDV1==1)||(SEX==0&&OPSXDV2A==1)?'her':'him'` of flirting with someone else.	list|1|Never|2|hardly ever|3|sometimes  |4|often |5| almost all the time 
+CADRI18	CADRI18		OPSXDV4==1||OPSXDV4C==1	Q		`(SEX==1&&OPSXDV1==1)||(SEX==0&&OPSXDV2A==1)?'She':'He'` accused me of flirting with someone else.	list|1|Never|2|hardly ever|3|sometimes  |4|often |5| almost all the time 
+CADRI19	CADRI19		OPSXDV4==1||OPSXDV4C==1	Q		I slapped `(SEX==1&&OPSXDV1==1)||(SEX==0&&OPSXDV2A==1)?'her':'him'` or pulled `(SEX==1&&OPSXDV1==1)||(SEX==0&&OPSXDV2A==1)?'her':'his'` hair	list|1|Never|2|hardly ever|3|sometimes  |4|often |5| almost all the time 
+CADRI20	CADRI20		OPSXDV4==1||OPSXDV4C==1	Q		`(SEX==1&&OPSXDV1==1)||(SEX==0&&OPSXDV2A==1)?'She':'He'` slapped me or pulled my hair	list|1|Never|2|hardly ever|3|sometimes  |4|often |5| almost all the time 
+CADRI21	CADRI21		OPSXDV4==1||OPSXDV4C==1	Q		I threatened to end the relationship	list|1|Never|2|hardly ever|3|sometimes  |4|often |5| almost all the time 
+CADRI22	CADRI22		OPSXDV4==1||OPSXDV4C==1	Q		`(SEX==1&&OPSXDV1==1)||(SEX==0&&OPSXDV2A==1)?'She':'He'` threatened to end the relationship	list|1|Never|2|hardly ever|3|sometimes  |4|often |5| almost all the time 
+CADRI23	CADRI23		OPSXDV4==1||OPSXDV4C==1	Q		"I pushed, shoved or shook `(SEX==1&&OPSXDV1==1)||(SEX==0&&OPSXDV2A==1)?'her':'him'`."	list|1|Never|2|hardly ever|3|sometimes  |4|often |5| almost all the time 
+CADRI24	CADRI24		OPSXDV4==1||OPSXDV4C==1	]		"`(SEX==1&&OPSXDV1==1)||(SEX==0&&OPSXDV2A==1)?'She':'He'` pushed, shoved or shook me"	list|1|Never|2|hardly ever|3|sometimes  |4|often |5| almost all the time 
+	ND31a		OPSXDV4==1||OPSXDV4C==1||OPSXDV5==1	q		Now I want to ask you some things about `OPSXDV6`.	nothing
+PARCHA1	PARCHA1		OPSXDV4==1||OPSXDV4C==1	[		"`OPSXDV4C==1?'Has':'Did'` `OPSXDV6` have a period of at least 6 months when `(SEX==1&&OPSXDV1==1)||(SEX==0&&OPSXDV2A==1)?'she':'he'`  stole valuable property, got into physical fights, skipped school a lot, or broke a lot of rules?     "	list|0|No|1|Yes|2|Don't know
+PARCHA2	PARCHA2		OPSXDV4==1||OPSXDV4C==1	q		"`OPSXDV4C==1?'Does':'Did'` `OPSXDV6`  get pretty depressed, like not talking, seeming really down, losing or gaining weight, having trouble sleeping, or losing hope for the future?."	list|0|No|1|Yes|2|Don't know
+PARCHA3	PARCHA3		OPSXDV4==1||OPSXDV4C==1	q		`OPSXDV4C==1?'Has':'Did'` `OPSXDV6` `OPSXDV4C==0?'have':''`  any mental or emotional problems that you know of?	list|0|No|1|Yes|2|Don't know
+PARCHA4	PARCHA4		OPSXDV4==1||OPSXDV4C==1	q		"`OPSXDV4C==1?'Has':'Had'` `OPSXDV6`  been seen by a psychiatrist, psychologist, counselor or other mental health professional?"	list|0|No|1|Yes|2|Don't know
+PARCHA5	PARCHA5		OPSXDV4==1||OPSXDV4C==1	q		`OPSXDV4C==1?'Does':'Did'` `OPSXDV6` have a drinking or drug problem or `OPSXDV4C==1?'do':'did'` people think `(SEX==1&&OPSXDV1==1)||(SEX==0&&OPSXDV2A==1)?'she':'he'` had one?	list|0|No|1|Yes|2|Don't know
+PARCHA6	PARCHA6		OPSXDV4==1||OPSXDV4C==1	q		"`OPSXDV4C==1?'Has':'Had'` `(SEX==1&&OPSXDV1==1)||(SEX==0&&OPSXDV2A==1)?'she':'he'`  been arrested, in jail, or convicted of a crime, other than drunk driving?"	list|0|No|1|Yes|2|Don't know
+PARCHAR7	PARCHAR7		OPSXDV4==1||OPSXDV4C==1	]		`OPSXDV4C==1?'Has':'Did'` `OPSXDV6` `OPSXDV4C==1?'tended':'tend'` to get angry or moody really easily or have a lot of trouble with relationships?	list|0|No|1|Yes|2|Don't know
+	ND201		OPSXDV4A>1	[		"Okay, let's do the same thing now for the `(SEX==1&&OPSXDV1==1)||(SEX==0&&OPSXDV2A==1)?'girlfriend':'boyfriend'`  you had before that. When `(SEX==1&&OPSXDV1==1)||(SEX==0&&OPSXDV2A==1)?'she':'he'` was your `(SEX==1&&OPSXDV1==1)||(SEX==0&&OPSXDV2A==1)?'girlfriend':'boyfriend'`:"	nothing
+PARCHA8	PARCHA8		OPSXDV4A>1	q		"Did `(SEX==1&&OPSXDV1==1)||(SEX==0&&OPSXDV2A==1)?'she':'he'`  have a period of at least 6 months when `(SEX==1&&OPSXDV1==1)||(SEX==0&&OPSXDV2A==1)?'she':'he'`  stole valuable property, got into physical fights, skipped school a lot, or broke a lot of rules?     "	list|0|No|1|Yes|2|Don't know
+PARCHA9	PARCHA9		OPSXDV4A>1	q		"Did `(SEX==1&&OPSXDV1==1)||(SEX==0&&OPSXDV2A==1)?'she':'he'` get pretty depressed, like not talking, seeming really down, losing or gaining weight, having trouble sleeping, or losing hope for the future?"	list|0|No|1|Yes|2|Don't know
+PARCHA11	PARCHA11		OPSXDV4A>1	q		Did `(SEX==1&&OPSXDV1==1)||(SEX==0&&OPSXDV2A==1)?'she':'he'`  have any mental or emotional problems that you know of?	list|0|No|1|Yes|2|Don't know
+PARCHA12	PARCHA12		OPSXDV4A>1	q		"Was `(SEX==1&&OPSXDV1==1)||(SEX==0&&OPSXDV2A==1)?'she':'he'`  seen by a psychiatrist, psychologist, counselor or other mental health professional?"	list|0|No|1|Yes|2|Don't know
+PARCHA13	PARCHA13		OPSXDV4A>1	q		Did `(SEX==1&&OPSXDV1==1)||(SEX==0&&OPSXDV2A==1)?'she':'he'`  have a drinking or drug problem or did people think `(SEX==1&&OPSXDV1==1)||(SEX==0&&OPSXDV2A==1)?'she':'he'`  had one?	list|0|No|1|Yes|2|Don't know
+PARCHA14	PARCHA14		OPSXDV4A>1	q		"Had `(SEX==1&&OPSXDV1==1)||(SEX==0&&OPSXDV2A==1)?'she':'he'`  been arrested, in jail, or convicted of a crime, other than drunk driving?"	list|0|No|1|Yes|2|Don't know
+PARCHA15	PARCHA15		OPSXDV4A>1	]		"Did `(SEX==1&&OPSXDV1==1)||(SEX==0&&OPSXDV2A==1)?'she':'he'`  tend to get angry or moody really easily, have a lot of trouble with relationships?"	list|0|No|1|Yes|2|Don't know
+	ND202		1	[		How often do you think a girl might do these things when she is upset with her boyfriend?	nothing
+VIONOR1	VIONOR1		1	q		Spread rumors about him   	list|1|Never|2|hardly ever|3|sometimes  |4|often |5| almost all the time 
+VIONOR2	VIONOR2		1	q		Do something to make him feel jealous  	list|1|Never|2|hardly ever|3|sometimes  |4|often |5| almost all the time 
+VIONOR3	VIONOR3		1	q		Destroy or threaten to destroy something that means something to him	list|1|Never|2|hardly ever|3|sometimes  |4|often |5| almost all the time 
+VIONOR4	VIONOR4		1	]		Threaten to hurt him   	list|1|Never|2|hardly ever|3|sometimes  |4|often |5| almost all the time 
+	ND202A		1	[		"When a girl is upset with her boyfriend, how often do you think she might"	nothing
+VIONOR5	VIONOR5		1	q		Keep track of who he was with and where he was  	list|1|Never|2|hardly ever|3|sometimes  |4|often |5| almost all the time 
+VIONOR6	VIONOR6		1	q		Threaten to end the relationship  	list|1|Never|2|hardly ever|3|sometimes  |4|often |5| almost all the time 
+VIONOR7	VIONOR7		1	q		Make fun of him in front of others  	list|1|Never|2|hardly ever|3|sometimes  |4|often |5| almost all the time 
+VIONOR8	VIONOR8		1	q		Say things just to make him angry  	list|1|Never|2|hardly ever|3|sometimes  |4|often |5| almost all the time 
+VIONOR9	VIONOR9		1	q		Speak to him in a mean voice  	list|1|Never|2|hardly ever|3|sometimes  |4|often |5| almost all the time 
+VIONOR10	VIONOR10		1	q		Accuse him of flirting with another girl   	list|1|Never|2|hardly ever|3|sometimes  |4|often |5| almost all the time 
+VIONOR11	VIONOR11		1	]		Insult him	list|1|Never|2|hardly ever|3|sometimes  |4|often |5| almost all the time 
+	ND203		1	[		How often do you think a boy might do these things when he is upset with his girlfriend?	nothing
+VIONOR12	VIONOR12		1	q		Spread rumors about her  	list|1|Never|2|hardly ever|3|sometimes  |4|often |5| almost all the time 
+VIONOR13	VIONOR13		1	q		Do something to make her feel jealous  	list|1|Never|2|hardly ever|3|sometimes  |4|often |5| almost all the time 
+VIONOR14	VIONOR14		1	q		Destroy or threaten to destroy something that means something to her? 	list|1|Never|2|hardly ever|3|sometimes  |4|often |5| almost all the time 
+VIONOR15	VIONOR15		1	]		Threaten to hurt her  	list|1|Never|2|hardly ever|3|sometimes  |4|often |5| almost all the time 
+	ND203A		1	[		"When a boy is upset with his girlfriend, how often do you think he might"	nothing
+VIONOR16	VIONOR16		1	q		Keep track of who she was with and where she was  	list|1|Never|2|hardly ever|3|sometimes  |4|often |5| almost all the time 
+VIONOR17	VIONOR17		1	q		Threaten to end the relationship  	list|1|Never|2|hardly ever|3|sometimes  |4|often |5| almost all the time 
+VIONOR18	VIONOR18		1	q		Make fun of her in front of others  	list|1|Never|2|hardly ever|3|sometimes  |4|often |5| almost all the time 
+VIONOR19	VIONOR19		1	q		Say things just to make her angry  	list|1|Never|2|hardly ever|3|sometimes  |4|often |5| almost all the time 
+VIONOR20	VIONOR20		1	q		Speak to her in a mean voice 	list|1|Never|2|hardly ever|3|sometimes  |4|often |5| almost all the time 
+VIONOR21	VIONOR21		1	q		Accuse her of flirting with another boy   	list|1|Never|2|hardly ever|3|sometimes  |4|often |5| almost all the time 
+VIONOR22	VIONOR22		1	]		Insult her	list|1|Never|2|hardly ever|3|sometimes  |4|often |5| almost all the time 
+	ND203B		1	q		The next few questions ask about what girls might do to their boyfriends. First we ask if your friends did these things and then we ask how many girls in this country you think might do them.	nothing
+VIONOR24	VIONOR24		PEENET2>0	q		"Has any of your female friends hit, kicked, bit, choked, or beat up a boy?"	list|0|No|1|Yes
+VIONOR23	VIONOR23		1	q		"Out of 10 girls your age in this country, how many girls do you think would hit, kick, bite, choke, or beat up a boy?"	double
+VIONOR24	VIONR24A		PEENET2>0	q		"Has any of your female friends used a knife or gun, or threaten to use a knife or gun on a boy?"	list|0|No|1|Yes
+	VIONR23A		1	q;number;0;10		"Out of 10 girls your age in this country, how many girls do you think might use a knife or gun, or threaten to use a knife or gun on a boy?"	double
+VIONOR26	VIONOR26		PEENET2>0	q		"Has any of your female friends pushed, slapped, shoved, or thrown something at a boy?"	list|0|No|1|Yes
+VIONOR25	VIONOR25		1	q;number;0;10		"Out of 10 girls your age in this country, how many girls do you think would push, slap, shove, or throw something at a boy?"	double
+	ND203C		1	q		Now I am going to ask if a boy would do those things to a girl.	nothing
+VIONOR28	VIONOR28		PEENET2>0	q		"Has any of your male friends hit, kicked, bit, choked, or beat up a girl?"	list|0|No|1|Yes
+VIONOR27	VIONOR27		1	q;number;0;10		"Out of 10 boys your age in this country, how many boys do you think would hit, kick, bite, choke, beat up or try to beat up a girl?"	double
+VIONOR28	VIONR28A		PEENET2>0	q		"Has any of your male friends used a knife or gun, or threaten to use a knife or gun on a girl?"	list|0|No|1|Yes
+VIONOR27	VIONR27A		1	q;number;0;10		"Out of 10 boys your age in this country, how many boys do you think might use a knife or gun, or threaten to use a knife or gun on a girl?"	double
+VIONOR30	VIONOR30		PEENET2>0	q		"Has any of your male friends pushed, slapped, shoved, or thrown something at a girl?"	list|0|No|1|Yes
+VIONOR29	VIONOR29		1	q;number;0;10		"Out of 10 boys your age in this country, how many boys do you think would push, slap, shove, or throw something at a girl?"	double
+	ND204		OPSXDV4==1||OPSXDV4C==1	[		"What would happen if you hurt your `(SEX==1&&OPSXDV1==1)||(SEX==0&&OPSXDV2A==1)?'girlfriend':'boyfriend'`  physically (like if you caused her to get bruises, cuts or need to go to the doctor)?  How likely, on a scale from 1 to 10 (1 = definitely not to 10 definitely would happen) is it that:"	nothing
+VIOSAN1	VIOSAN1		OPSXDV4==1||OPSXDV4C==1	q;number;1;10		`(SEX==1&&OPSXDV1==1)||(SEX==0&&OPSXDV2A==1)?'She':'He'`  would hit you.	double
+VIOSAN2	VIOSAN2		OPSXDV4==1||OPSXDV4C==1	q;number;1;10		`(SEX==1&&OPSXDV1==1)||(SEX==0&&OPSXDV2A==1)?'She':'He'`  would hurt you physically	double
+VIOSAN3	VIOSAN3		OPSXDV4==1||OPSXDV4C==1	q;number;1;10		`(SEX==1&&OPSXDV1==1)||(SEX==0&&OPSXDV2A==1)?'She':'He'`  would break up with you	double
+VIOSAN4	VIOSAN4		OPSXDV4==1||OPSXDV4C==1	q;number;1;10		`(SEX==1&&OPSXDV1==1)||(SEX==0&&OPSXDV2A==1)?'She':'He'`  would tell your friends	double
+VIOSAN5	VIOSAN5		OPSXDV4==1||OPSXDV4C==1	q;number;1;10		You would be less popular at school	double	
+VIOSAN6	VIOSAN6		OPSXDV4==1||OPSXDV4C==1	q;number;1;10		You'd get in trouble with your family	double	
+VIOSAN7	VIOSAN7		OPSXDV4==1||OPSXDV4C==1	q;number;1;10		You would get in trouble with the police	double	
+VIOSAN8	VIOSAN8		OPSXDV4==1||OPSXDV4C==1	];number;1;10		You would be expelled from school	double	
+	ND204C		1	e		"count(OPSXDV1==0,OPSXDV1A==0)"	nothing	
+	ND204A		1	q		Please get out the white answer card and use that scale for the following questions.	nothing	
+	ND204B		ND204C==2||OPSXDV4==0	q		"For the next few questions, I want you to imagine you have a boyfriend or girlfriend and tell me what would think would happen in certain situations."	nothing	nothing
+	ND205		1	[;number;1;10		"What would happen if your `(SEX==1&&OPSXDV1==1)||(SEX==0&&OPSXDV2A==1)?'girlfriend':'boyfriend'`  hurt you physically (like if `(SEX==1&&OPSXDV1==1)||(SEX==0&&OPSXDV2A==1)?'she':'he'` caused you to get bruises, cuts or need to go to the doctor)? How likely, on that scale from 1 to 10 (1 definitely NOT to  10  definitely would happen) is it that:"	nothing	
+VIOSAN9	VIOSAN9		1	q;number;1;10		You would hit `(SEX==1&&OPSXDV1==1)||(SEX==0&&OPSXDV2A==1)?'her':'him'` .	double	
+VIOSAN10	VIOSAN10		1	q;number;1;10		You would hurt `(SEX==1&&OPSXDV1==1)||(SEX==0&&OPSXDV2A==1)?'her':'him'` physically. 	double	
+VIOSAN11	VIOSAN11		1	q;number;1;10		You would break up with `(SEX==1&&OPSXDV1==1)||(SEX==0&&OPSXDV2A==1)?'her':'him'`.	double	
+VIOSAN12	VIOSAN12		1	q;number;1;10		You would tell `(SEX==1&&OPSXDV1==1)||(SEX==0&&OPSXDV2A==1)?'her':'his'` friends	double	
+VIOSAN13	VIOSAN13		1	q;number;1;10		You'd get in trouble with your family	double	
+VIOSAN14	VIOSAN14		1	q;number;1;10		`(SEX==1&&OPSXDV1==1)||(SEX==0&&OPSXDV2A==1)?'She':'He'` would be less popular at school	double	
+VIOSAN15	VIOSAN15		1	q;number;1;10		`(SEX==1&&OPSXDV1==1)||(SEX==0&&OPSXDV2A==1)?'She':'He'` would get in trouble with the police	double	
+VIOSAN16	VIOSAN16		1	];number;1;10		`(SEX==1&&OPSXDV1==1)||(SEX==0&&OPSXDV2A==1)?'She':'He'` would be expelled from school.	double	
+VIOSUP1	VIOSUP1		OPSXDV4==1||OPSXDV4C==1	[;number;1;10		"How likely is it that you would tell either your mother or your father if a `(SEX==1&&OPSXDV1==1)||(SEX==0&&OPSXDV2A==1)?'girlfriend':'boyfriend'` hurt you physically, or threatened to hurt you? On a scale from 0 to 10"	double
+VIOSUP2	VIOSUP2		OPSXDV4==1||OPSXDV4C==1	];number;1;10		"How supportive do you think your parent would be if that happened and you told them (listening and trying to help you, not blaming you)?"	double
+WITDV1	WITDV1		1	q		"Not counting what you've seen on TV or in movies, how many times have you ever seen these kinds of things  in real life between two adults in a romantic relationship: Push, slap, shove, grab, threaten to hurt, hit, kick, punch, choke, or beat up? "	double
+WITDV2	WITDV2		WITDV1>0	[		"Did the man or woman get hurt (bruises, cuts, broken bones, having to go to doctor)? (Interviewer reads options)"	list|0|neither|1|man|2|woman|3|both
+WITDV3	WITDV3		WITDV1>0	q		When was the last time you saw this happen?  	list|1|less than 1 week|2|  1 to 2 weeks|3| 2 weeks to 1 month|4|1 to 3 months|5| 3 to 6 months|6|6 months to 1 year|7|more than 1 year
+WITDV4	WITDV4		WITDV1>0	]		Would you say you knew those people: 	list|0|not at all |1|a little |2|medium |3|pretty much  |4|Very much
+MEDEXP1	MEDEXP1		1	[		How many hours of television do you watch per day? 	double
+	ND205A		1	q		Please get out the yellow response card and use it to answer the next few questions.	nothing
+MEDEXP2	MEDEXP2		1	q		"How much is there violence (hitting, using a knife or gun, threatening to hurt someone) in the shows you watch the most?"	list|0|not at all |1|a little |2|somewhat |3|quite a bit|4|a lot
+MEDEXP3	MEDEXP3		1	]		How much are you like the people in the shows you watch the most? 	list|0|not at all |1|a little |2|somewhat |3|quite a bit|4|a lot
+MEDEXP4	MEDEXP4		1	[		"In videogames or Game Boy types of computer games, how often have you seen someone shoot another person?"	list|0|not at all |1|a little |2|somewhat |3|quite a bit|4|a lot
+MEDEXP5	MEDEXP5		1	q		How much does the music you listen to talk about using violence? 	list|0|not at all |1|a little |2|somewhat |3|quite a bit|4|a lot
+MEDEXP6	MEDEXP6		1	]		"How much does the music you listen to talk about a guy needing to control his girl, keep her in line, or not letting her talk to other guys? "	list|0|not at all |1|a little |2|somewhat |3|quite a bit|4|a lot
+MEDEXP7	MEDEXP7		1	[		"On television, how many times have you ever seen a man hit or slap a girlfriend or wife?  "	list|1|Never|2|hardly ever|3|sometimes  |4|often |5| almost all the time 
+MEDEXP8	MEDEXP8		1	]		Whose fault was it when the man did that? (Interviewer reads options)	list|0|neither|1|female?s fault|2|Male?s fault|3|Both
+MEDEXP9	MEDEXP9		1	q		"In videogames or Game Boy types of computer games, how often have you seen someone shoot another person? Would you say:"	list|1|Never|2|hardly ever|3|sometimes  |4|often |5| almost all the time 
+MEDEXP10	MEDEXP10		1	q		How often have you pulled up on purpose or even by accident a website or email that showed males or females doing sexual things (except just kissing)?	list|1|Never|2|hardly ever|3|sometimes  |4|often |5| almost all the time 
+MEDEXP11	MEDEXP11		MEDEXP10>1	q		Were you alone or with a friend? 	list|0|alone|1|With friend
+MEDEXP12	MEDEXP12		1	q		"How often have you pulled up websites that show how to use guns, knives or make bombs?"	list|1|Never|2|hardly ever|3|sometimes  |4|often |5| almost all the time 
+MEDEXP13	MEDEXP13		MEDEXP12>1	q		Were you alone or with a friend? 	list|0|alone|1|With friend
+	ND206		1	[		"I'm now going to read you a series of statements that people might use to describe themselves. The statements are about different kinds of activities and attitudes.  For each statement, please tell me how true it is for you, using the lavendar colored card."	nothing
+EATQRAG1	EATQRAG1		1	q		"If I'm mad at somebody, I tend to say things that I know will hurt their feelings"	list|1|Almost never or never true about me|2|Seldom true about me|3|Sometimes true about me|4|Often true about me|5|Almost always true about me
+EATQRDE1	EATQRDE1		1	q		I feel pretty happy most of the day	list|1|Almost never or never true about me|2|Seldom true about me|3|Sometimes true about me|4|Often true about me|5|Almost always true about me
+EATQRAG2	EATQRAG2		1	q		"When I am angry, I throw or break things"	list|1|Almost never or never true about me|2|Seldom true about me|3|Sometimes true about me|4|Often true about me|5|Almost always true about me
+EATQRDE2	EATQRDE2		1	q		My friends seem to enjoy themselves more than I do	list|1|Almost never or never true about me|2|Seldom true about me|3|Sometimes true about me|4|Often true about me|5|Almost always true about me
+EATQRAG3	EATQRAG3		1	q		"If I get really mad at someone, I might hit them"	list|1|Almost never or never true about me|2|Seldom true about me|3|Sometimes true about me|4|Often true about me|5|Almost always true about me
+EATQRDE3	EATQRDE3		1	q		It often takes very little to make me feel like crying	list|1|Almost never or never true about me|2|Seldom true about me|3|Sometimes true about me|4|Often true about me|5|Almost always true about me
+EATQRAG4	EATQRAG4		1	q		I tend to be rude to people I don't like	list|1|Almost never or never true about me|2|Seldom true about me|3|Sometimes true about me|4|Often true about me|5|Almost always true about me
+EATQRDE4	EATQRDE4		1	q		I get sad more than other people realize	list|1|Almost never or never true about me|2|Seldom true about me|3|Sometimes true about me|4|Often true about me|5|Almost always true about me
+EATQRAG5	EATQRAG5		1	q		"When I am really mad at a friend, I tend to explode at them"	list|1|Almost never or never true about me|2|Seldom true about me|3|Sometimes true about me|4|Often true about me|5|Almost always true about me
+EATQRDE5	EATQRDE5		1	q		I get sad when a lot of things are going wrong	list|1|Almost never or never true about me|2|Seldom true about me|3|Sometimes true about me|4|Often true about me|5|Almost always true about me
+EATQRAG6	EATQRAG6		1	q		I pick on people for no real reason	list|1|Almost never or never true about me|2|Seldom true about me|3|Sometimes true about me|4|Often true about me|5|Almost always true about me
+EATQRDE6	EATQRDE6		1	]		"I feel sad even when I should be enjoying myself, like at Christmas or on a trip"	list|1|Almost never or never true about me|2|Seldom true about me|3|Sometimes true about me|4|Often true about me|5|Almost always true about me
+	ND207		1	[		"For each of the next series of statements, please tell me how much you agree or disagree, using the green colored card."	nothing
+BEQSTR1	BEQSTR1		1	q		I experience my emotions very strongly	list|1|disagree strongly |2| disagree somewhat |3|  neither |4| agree somewhat|5|agree strongly 
+BEQSTR2	BEQSTR2		1	q		"I am sometimes unable to hide my feelings, even though I would like to"	list|1|disagree strongly |2| disagree somewhat |3|  neither |4| agree somewhat|5|agree strongly 
+BEQSTR3	BEQSTR3		1	q		There have been times when I have not been able to stop crying even though I tried to stop	list|1|disagree strongly |2| disagree somewhat |3|  neither |4| agree somewhat|5|agree strongly 
+BEQSTR4	BEQSTR4		1	q		My body reacts very strongly to emotional situations	list|1|disagree strongly |2| disagree somewhat |3|  neither |4| agree somewhat|5|agree strongly 
+BEQSTR5	BEQSTR5		1	q		I sometimes cry during sad movies	list|1|disagree strongly |2| disagree somewhat |3|  neither |4| agree somewhat|5|agree strongly 
+BEQSTR6	BEQSTR6		1	]		I have strong emotions	list|1|disagree strongly |2| disagree somewhat |3|  neither |4| agree somewhat|5|agree strongly 
+	ND208		1	[		"These next questions are to find out what people believe they can do about upsetting emotions and feelings. Remember, these questions are about what you believe you can do, not about whether you usually do these things or not. When I'm upset, I believe that:"	nothing
+NMR1	NMR1		1	q		I can usually find a way to cheer myself up	list|1|disagree strongly |2| disagree somewhat |3|  neither |4| agree somewhat|5|agree strongly 
+NMR2	NMR2		1	q		I can do something to feel better	list|1|disagree strongly |2| disagree somewhat |3|  neither |4| agree somewhat|5|agree strongly 
+NMR3	NMR3		1	q		I can feel better by treating myself to something I like	list|1|disagree strongly |2| disagree somewhat |3|  neither |4| agree somewhat|5|agree strongly 
+NMR4	NMR4		1	q		I won't be able to get myself to do anything about it	list|1|disagree strongly |2| disagree somewhat |3|  neither |4| agree somewhat|5|agree strongly 
+NMR5	NMR5		1	q		Telling myself it will pass will help calm me down	list|1|disagree strongly |2| disagree somewhat |3|  neither |4| agree somewhat|5|agree strongly 
+NMR6	NMR6		1	q		It won't be long before I can calm myself down	list|1|disagree strongly |2| disagree somewhat |3|  neither |4| agree somewhat|5|agree strongly 
+NMR7	NMR7		1	q		Planning how I'll deal with things will help	list|1|disagree strongly |2| disagree somewhat |3|  neither |4| agree somewhat|5|agree strongly 
+NMR8	NMR8		1	q		Seeing a movie won't help me feel better	list|1|disagree strongly |2| disagree somewhat |3|  neither |4| agree somewhat|5|agree strongly 
+NMR9	NMR9		1	q		I'll be upset for long time	list|1|disagree strongly |2| disagree somewhat |3|  neither |4| agree somewhat|5|agree strongly 
+NMR10	NMR10		1	]		The advice of friends won't help me feel better	list|1|disagree strongly |2| disagree somewhat |3|  neither |4| agree somewhat|5|agree strongly 

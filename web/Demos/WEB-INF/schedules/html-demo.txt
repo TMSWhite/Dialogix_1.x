@@ -1,0 +1,94 @@
+RESERVED	__TRICEPS_FILE_TYPE__	SCHEDULE
+RESERVED	__TRICEPS_FILE_TYPE__	SCHEDULE
+RESERVED	__TITLE__	Triceps: Demo of Inline HTML Features
+RESERVED	__ICON__	cpmc_dmi.jpg
+RESERVED	__HEADER_MSG__	Triceps: Demo of Inline HTML Features
+RESERVED	__STARTING_STEP__	0
+RESERVED	__PASSWORD_FOR_ADMIN_MODE__	bypass
+RESERVED	__SHOW_QUESTION_REF__	TRUE
+RESERVED	__AUTOGEN_OPTION_NUM__	FALSE
+RESERVED	__DEVELOPER_MODE__	TRUE
+RESERVED	__LANGUAGES__	en_US|es|fr
+COMMENT concept	internalName	externalName	dependencies	questionOrEvalType	readback[0]	questionOrEval[0]	answerChoices[0]	helpURL[0]	languageNum	questionAsAsked	answerGiven	comment	timeStamp
+	IDprefix		1	[;number;1;99;00		Enter the Cluster number	double
+	ID		1	];number;1;9999;0000		Enter the HUID	double
+	Filename		1	e;string		IDprefix . '-' . ID	nothing
+	announceChangeFilename		1	q		The filename will be <B>`Filename`</B>	nothing
+	changeFilename		1	e		__FILENAME__ = Filename	nothing
+	entities	entities	1	[		Triceps ensures that the HTML sent to the browser is relatively bug-free.<BR>The following HTML entities are supported:<br>&quot; &amp; &lt; &gt; &nbsp; &iexcl; &cent; &pound; &curren; &yen; &brvbar; &sect; &uml; &copy; &ordf; &laquo; &not; &shy; &reg; &macr; &deg; &plusmn; &sup2; &sup3; &acute; &micro; &para; &middot; &cedil; &sup1; &ordm; &raquo; &frac14; &frac12; &frac34; &iquest; &Agrave; &Aacute; &Acirc; &Atilde; &Auml; &Aring; &AElig; &Ccedil; &Egrave; &Eacute; &Ecirc; &Euml; &Igrave; &Iacute; &Icirc; &Iuml; &ETH; &Ntilde; &Ograve; &Oacute; &Ocirc; &Otilde; &Ouml; &times; &Oslash; &Ugrave; &Uacute; &Ucirc; &Uuml; &Yacute; &THORN; &szlig; &agrave; &aacute; &acirc; &atilde; &auml; &aring; &aelig; &ccedil; &egrave; &eacute; &ecirc; &euml; &igrave; &iacute; &icirc; &iuml; &eth; &ntilde; &ograve; &oacute; &ocirc; &otilde; &ouml; &divide; &oslash; &ugrave; &uacute; &ucirc; &uuml; &yacute; &thorn; &yuml;	nothing
+	HTMLtags	HTMLtags	1	q		The following HTML styles are supported:<br><b>Bold</b>, <i>Italic</i>, <u>Underlined</u>, <s>Strike-through</s>, <font size='+3'>large fonts</font>, <sup>superscript</sup>, <sub>subscript</sub>, etc.<br>It is also possible to have embedded <a href="/triceps/index.htm">links</a>, and images:<br><img src="/triceps/images/ciclogo.gif">	nothing
+	HTMLsyntax_checking	HTMLsyntax_checking	1	q		HTML is syntax checked and converted to valid XML.  In the following examples, 'AEV' means 'Attribute-Equals-Value':<br><unknownTagName><br><a AEPmissingEP><br><a AEPmissingP = ><br><a AEPmissingE "a value"><br><a invalid*name="bad name"><br><a name='wrong closing quote"><br><b><i><u>Missing closed tags are corrected</i><br>Bad unary tags are exluded: </hr><br><b>Ending tags may not have attribute value pairs: </b name='bad'>	nothing
+	HTMLsecurity	HTMLsecurity	1	]		HTML tags which are security risks are explicitly excluded:<br><applet>delete all files</applet><br><embed>a virus</embed><br><object>a Trojan</object><br><script><!-- function deleteAllFiles() { } --></script>	nothing
+interview;date;month	_410	Month	1	q		What is the current month?	month
+ED;introduction	_2000	Intro	1	[		The following questions calculate the <B>Body Mass Index</B>	nothing
+subject;height;current	_2001	Q1	1	q		How tall are you?<br> (use inches)	double
+subject;weight;current	_2002	Q2	1	q		How much do you weigh now?<BR> (use pounds)	double
+subject;weight;past year;lowest	_2003	Q3	1	]		"In the last six months, that is, since  <B><i>`_410 - 6`</I></B>, what was your <U>lowest</u> weight?"	double
+subject;weight;past year;lowest BMI	_2004		1	e		((_2002 < _2003?(_2002 * 0.45359):(_2003 * 0.45359)) / ((_2001 * 0.0254) * (_2001 * 0.0254)))	nothing
+ED;underweight criteria;anorexic	_2005	low	1	e		_2004 <= 17.5	nothing
+ED;underweight criteria;overweight	_2006	overweight	1	e		_2004 > 25 && _2004 <= 30	nothing
+ED;underweight criteria;obese	_2007	obese	1	e		_2004 > 30	nothing
+	_2008	BMI	1	q		"Your BMI is `_2004`, which is `_2005?'too low':(_2006?'overweight':(_2007?'obese':'within normal range'))`"	nothing
+	_1	_1	1	[		The following INPUT STYLES are available (the spreadsheet command to specify these is listed in parentheses)	nothing
+	_2	_2	1	q		message not requiring input (nothing)	nothing
+	_3	_3	1	q		text field (text)	text
+	_4	_4	1	q		memo field (memo)	memo
+	_5	_5	1	q		password (password)	password
+	_6	_6	1	q		check-box (check)	check|1|ok
+	_7	_7	1	q		pick list (combo)	combo|0|no|1|maybe|2|yes|7|unknown|9|refused
+	_7a	_7a	1	q		pick list (list)	list|0|no|1|maybe|2|yes|7|unknown|9|refused
+	_7b	_7b	1	q		radio buttons (radio)	radio|0|no|1|maybe|2|yes
+	_7c	_7c	1	]		Note that HTML markup is <b>not</b> supported within combo and list boxes.  This is a deficiency of the web browser standards, not Triceps	list|0|supercripts &sup1;,&sup2;,and &sup3; are supported using entities|1|However &lt;sup&gt; delimited text for superscript is ignored: <sup>1,2,3</sup>|2|So is &lt;sub&gt; delimited text: <sub>1,2,3</sub>|3|As are <font size='+3'>font size changes</font>,<b>bold</b>, <i>italic</i>, <u>underline</u>, and any other markup that might make the lengthly contents of list boxes more readable|4|Oh well
+	_8	_8	1	[		Longer answer choices are also handled gracefully:	nothing
+	_8a	_8a	1	q		radio buttons - horizontally oriented (radio2)	"radio2|0|Not present|1|Indicates feelings of worthlessness (loss of self-esteem) only on questioning|2|Spontaneously indicated feelings of worthlessness (loss of self-esteem)|3|Different from 2 by degree.  Patient volunteers that he is ""no good,"" ""inferior,"" or its equivalent|4|Delusional notions of worthlessness - i.e., ""I am a heap of garbage"" or its equivalent"
+	_8b	_8b	1	q		combo box (combo)	"combo|0|Not present|1|Indicates feelings of worthlessness (loss of self-esteem) only on questioning|2|Spontaneously indicated feelings of worthlessness (loss of self-esteem)|3|Different from 2 by degree.  Patient volunteers that he is ""no good,"" ""inferior,"" or its equivalent|4|Delusional notions of worthlessness - i.e., ""I am a heap of garbage"" or its equivalent"
+	_8c	_8c	1	]		list box (list)	"list|0|Not present|1|Indicates feelings of worthlessness (loss of self-esteem) only on questioning|2|Spontaneously indicated feelings of worthlessness (loss of self-esteem)|3|Different from 2 by degree.  Patient volunteers that he is ""no good,"" ""inferior,"" or its equivalent|4|Delusional notions of worthlessness - i.e., ""I am a heap of garbage"" or its equivalent"
+	_10	_10	1	[		The following DATA types are available:	nothing
+	_11	_11	1	q		"number (can use text, check, list, combo, or radio2 styles)"	double
+	_12	_12	1	q		"text (can use text, check, list, combo, or radio2 styles)"	text
+	_13	_13	1	q		date	date
+	_14	_14	1	q		time	time
+	_15	_15	1	q		year	year
+	_16	_16	1	q		month	month
+	_17	_17	1	q		day	day
+	_18	_18	1	q		weekday	weekday
+	_19	_19	1	q		hour	hour
+	_20	_20	1	q		minute	minute
+	_21	_21	1	]		second	second
+	_22	_22	1	[		Data validation is supported	nothing
+	_23	_23	1	q;number;0;;;77;99		number (greater than a constant)	double
+	_24	_24	1	q;number;;0;;55;77		number (less than a constant)	double
+	_25	_25	1	];number;5;10;;_20;_21		number (between two constants)	double
+	_26	_26	1	[		Dynamic calculations of data validation ranges is also supported	nothing
+min	min	_27	1	q;number;		set min value	double
+max	max	_28	1	q;number;		set max value	double
+unknown	unknown	_28a	1	q;number		set a value for UNKNOWN	double
+refused	refused	_28b	1	];number		set a value for REFUSED	double
+	_29	_29	1	[		Questions can be customized to reference previous answers	nothing
+	_30	_30	1	q		"For example, the following questions use the min (`min`) and max (`max`) values you just specified"	nothing
+	_31	_31	1	q;number;min;;;unknown;refused		enter a number greater than your min	double
+	_32	_32	1	q;number;;max;;unknown;refused		enter a number less than your max	double
+	_33	_33	1	q;number;min;max;;refused		enter a number between your min and max	double
+	_33a	_33a	1	];number;min;max;;refused		enter a number between your min and max<br>[This question is the same as the one above it, but since it is a password protected field, you are not prompted with the range of valid values]	password
+	birthDay	birthDay	1	[;date;newDate(1900,1,1);getNow()		When were you born?	date
+	PBY09	PBY09	1	];number		How old are you?	double
+	today	today	1	e		getNow()	date
+	calcAge	_33c	1	e;number		toYear(today) - toYear(birthDay) - ((toDayNum(today) <= toDayNum(birthDay)) ? 1 : 0)	nothing
+	checkAge	_33e	calcAge != PBY09	q;number;'b';'a'		The age you entered, <b>`PBY09`</b> does not match the calculated age <b>`calcAge`</b>.<br>Please press the back button and change the your birthday or age so that they agree.	password
+	_34	_34	1	[		These static and/or dynamic range checks can be used for text and dates too	nothing
+	_35	_35	1	q;string;'q';;		text (greater than)	text
+	_36	_36	1	q;string;;'q';		text (less than)	text
+	_37	_37	1	q;string;'f';'t';		text (between)	text
+	_38	_38	1	q;string;'hello';'hello';		text (exact match)	text
+	_39	_39	1	];string;'pass';'pass';		password (exact match - 'pass')	password
+	_53	_53	1	[		Enter a date and time so see how their components can be extracted and validated	nothing
+date	date	_54	1	q;date		date	text
+time	time	_55	1	];time		time	text
+	_64	_64	1	[;year;date		year	text
+	_65	_65	1	q;month;date		month	text
+	_66	_66	1	q;day;date		day	text
+	_67	_67	1	q;weekday;date		weekday	text
+	_68	_68	1	q;hour;time		hour	text
+	_69	_69	1	q;minute;time		minute	text
+	_70	_70	1	];second;time		second	text
+	_71	_71	1	q		Thanks for looking	nothing

@@ -1,0 +1,98 @@
+RESERVED	__TRICEPS_FILE_TYPE__	SCHEDULE					
+RESERVED	__TITLE__	SCID I/P (v. 2.0) - Structured Clinical Interview for DSM-IV (Draft/Subset)					
+RESERVED	__ICON__	nypi.jpg					
+RESERVED	__HEADER_MSG__	SCID I/P (v. 2.0) - Structured Clinical Interview for DSM-IV (Draft/Subset)				
+RESERVED	__PASSWORD_FOR_ADMIN_MODE__	bypass					
+RESERVED	__SHOW_QUESTION_REF__	TRUE					
+RESERVED	__AUTOGEN_OPTION_NUM__	FALSE					
+RESERVED	__DEVELOPER_MODE__	TRUE					
+RESERVED	__DEBUG_MODE__	FALSE					
+scid1/overview/Intro	_OverviewIntro		1	[		"I'm going to be asking you about problems or difficulties you may have had, and I'll be making some notes as we go along.  Do you have any questions before we begin?"	nothing
+scid1/overview/sex	Dsex	P123	1	q		What is your sex?	list|1|male|2|female
+scid1/overview/DOB	Ddob	P124	1	q		What's your date of birth?	date
+scid1/overview/Age	Dage	P125	1	q		How old are you?	double
+scid1/overview/nowMarried	Dmarital		1	q		What is your marital status?	list|1|married or living with someone as if married|2|widowed|3|divorced or annulled|4|separated|5|never married
+scid1/overview/hasChildren	DhasChildren		1	]		Do you have any children?	list|1|no|3|yes
+scid1/overview/numChildren	DnumChildren		DhasChildren!= 1	q		How many children do you have?	double
+scid1/overview/whereLive	DwhereLive		1	[		Where do you live?	text
+scid1/overview/whoLiveWith	DwhoLiveWith		1	q		Who do you live with?	text
+scid1/overview/education	Deducation	P127	1	]		How far did you get in school?	list|1|grade 6 or less|2|grade 7 to 12 (without graduation high school)|3|graduated high school or high school equivalent|4|part college|5|graduate 2 year college|6|graduated 4 year college|7|part graduate/professional school|8|completed graduate/professional school
+scid1/overview/whyPartEducation	DwhyPartEducation		Deducation==4 || Deducation==7	q		Why didn't you finish?	text
+scid1/overview/workType	DworkType		1	[		What kind of work do you do? (Do you work outside of your home?)	text
+scid1/overview/workingNow	DworkingNow		1	q		Are you working now?	list|1|no|3|yes
+scid1/overview/CurrentTreatmentStatus	DcurrentTreatmentStatus	P128	1	]		Have you been in any kind of treatment in the past month?	list|1|Current inpatient (including residential treatment)|2|Current outpatient|3|Other (e.g. 12 step program)|4|No current treatment
+scid1/overview/WeeksSinceAdmission	SiOvWeeksSinceAdmission	P129	DcurrentTreatmentStatus==1	q		Number of weeks since admission to facility	list|1|< 1 week|2|1-4 weeks|3|> 4 weeks
+scid1/overview/NumTimesInpatient	DnumTimesInpatient	P130	1	q		How many times have you been a patient in a psychiatric hospital?	list|0|0|1|1|2|2|3|3|4|4|5|5 (or more)
+scid1/screen/Intro	_ScreenIntro		1	[		Now I want to ask you some more specific questions about problems you may have had.  We'll go into more detail about them later.	nothing
+scid1/screen/1	S1	1	1	q		"Has there been any time in your life when you had five or more drinks (beer, wine, or liquor) on one occasion"	list|1|no|2|maybe|3|yes
+scid1/screen/2	S2	2	1	q		Have you ever used street drugs?	list|1|no|2|maybe|3|yes
+scid1/screen/3	S3	3	1	q		"Have you ever gotten ""hooked"" on prescribed medication or take a lot more of it than you were supposed to?"	list|1|no|2|maybe|3|yes
+scid1/screen/4	S4	4	1	q		"Have you ever had a panic attack, when you suddently felt frightened or anxious or suddenly developed a lot of physical symptoms?"	list|1|no|2|maybe|3|yes
+scid1/screen/5	S5	5	1	q		"Were you ever afraid of going out the house alone, being in crowds, standing in a line, or traveling on buses or trains?"	list|1|no|2|maybe|3|yes
+scid1/screen/6	S6	6	1	q		"Is there anything that you have been afraid to do or felt uncomfortable doing in front of other people, like speaking, eating, or writing?"	list|1|no|2|maybe|3|yes
+scid1/screen/7	S7	7	1	q		"Are there any other things that you have been especially afraid of, like flying, seeing blood, getting a shot, heights, closed places, or certain kinds of animals or insects?"	list|1|no|2|maybe|3|yes
+scid1/screen/8	S8	8	1	q		Have you ever been bothered by thoughts that didn't make any sense and kept coming back to you even when you tried not to have them?	list|1|no|2|maybe|3|yes
+scid1/screen/9	S9	9	1	q		"Was there ever anything that you had to do over and over again and couldn't resist doing, like washing your hands again and again, counting up to a certain number, or checking something several times to make sure that you'd done it right?"	list|1|no|2|maybe|3|yes
+scid1/screen/10	S10	10	1	q		"In the last six months, have you been particularly nervous or anxious?"	list|1|no|2|maybe|3|yes
+scid1/screen/11	S11	11	1	q		Have you ever had a time when you weighed much less than other people thought you ought to weigh?	list|1|no|2|maybe|3|yes
+scid1/screen/12	S12	12	1	]		Have you often had times when you eating was out of control?	list|1|no|2|maybe|3|yes
+scid1/A/Overview	_Aoverview		1	[		"A.  Mood Episodes<br>In this section, major depressive, manic, hypomanic episodes, dysthymic disorder, mood disorder due to a general medical condition, substance-induced mood disorder, and episode specifiers are evaluated.  Major depressive disorder and bipolar disorders are diagnosed in module D."	nothing
+scid1/A/Intro	_Aintro		1	q		Now I am going to ask you some more questions about your mood	nothing
+scid1/A/MDE Criteria	_AMDEcriteria		1	]		"MDE Criteria: Five (or more) of the following symptoms have been present during the same two-week period and represent a change from previous functioning;  at least one of the symptoms is either (1) depressed modd, or (2) loss of interest or pleasure."	nothing
+scid1/A1q	qA1	A1	1	[		"In the last moth, has there been a period of time when you were feeling depressed or down most of the day?   (What was that like?)"	nothing
+scid1/A1qd	qfA1	A1	1	q		IF YES:  How long did it last?  (As long as two weeks?)	nothing
+scid1/A1	A1	A1	1	]		"Subject has depressed mood most of the day, nearly every day, as indicated either by subjective report (e.g. feels sad or empty) or observation made by others (e.g. appears tearful).  Note, in children and adolescents can be irritable mood"	list|1|absent or false|2|subthreshold|3|threshold or true|'?'|inadequate information
+scid1/A2q	qA2	A2	1	[		"In the last month, what about losing interest or pleasure in things you usually enjoyed?"	nothing
+scid1/A2qd	qfA2	A2	1	q		IF YES:  Was it nearly every day?  How long did it last?  (As long as two weeks?)	nothing
+scid1/A2	A2	A2	1	]		"Subject has markedly diminished interest or pleasure in all, or almost all, activities most of the day, nearly every day (as indicated either by subjective account or observation made by others)."	list|1|absent or false|2|subthreshold|3|threshold or true|'?'|inadequate information
+scid1/A3intro	qiA3	A3	(A1==3||A2==3)	[		"For the following questions, focus on thee worst two weeks in the past month (or else the past two weeks if equally depressed for the entire month)"	nothing
+scid1/A3q	qA3	A3	(A1==3||A2==3)	q		"During this (two-week period), did you lose or gain any weight?  (How much?)  (Were you trying to lose weight?)"	nothing
+scid1/A3qd	qfA3	A3	(A1==3||A2==3)	q		IF NO:  How was your appetite?  (What about compared to your usual appetite?)  (Did you have to force yourself to eat?) (Eat [less/more] than usual?)  (Was that nearly every day?)	nothing
+scid1/A3	A3	A3	(A1==3||A2==3)	]		"Subject had significant weight loss when not dieting, or weight gain (e.g. a change of more than 5% of body weight in a month) or decrease or increase in appetite nearly every day.  Note: in children, consider failure to make expected weight gains"	list|1|absent or false|2|subthreshold|3|threshold or true|'?'|inadequate information
+scid1/A4	A4	A4	(A1==3||A2==3) && A3>=2	[		Did the subject have weight loss or decreased appetite?	list|1|no|3|yes
+scid1/A5	A5	A5	(A1==3||A2==3) && A3>=2	]		Did the subject have weight gain or increased appetite?	list|1|no|3|yes
+scid1/A6q	qA6	A6	(A1==3||A2==3)	[		"During this (two-week period), how were you sleeping?"	nothing
+scid1/A6qd	qfA6	A6	(A1==3||A2==3)	q		"(Trouble falling asleep, waking frequently, trouble staying asleep, waking too early, OR sleeping too much?  How many hours a night compared to usual?  Was that nearly every night?)"	nothing
+scid1/A6	A6	A6	(A1==3||A2==3)	]		Subject had insomnia or hypersomnia nearly every day	list|1|absent or false|2|subthreshold|3|threshold or true|'?'|inadequate information
+scid1/A7	A7	A7	(A1==3||A2==3) && A6>=2	[		Did subject have insomnia?	list|1|no|3|yes
+scid1/A8	A8	A8	(A1==3||A2==3) && A6>=2	]		Did subject have hypersomnia?	list|1|no|3|yes
+scid1/A9q	qA9	A9	(A1==3||A2==3)	[		"During this (two-week period), were you so fidgety or restless that you were unable to sit still?  (Was it so bad that other people noticed it?  What did they notice?  Was that nearly every day?)"	nothing
+scid1/A9qd	qfA9	A9	(A1==3||A2==3)	q		IF NO:  What about the opposite -- talking or moving more slowly that is normal for you?  (Was it so bad that other people noticed it?  What did they notice?  Was that nearly every day?)	nothing
+scid1/A9	A9	A9	(A1==3||A2==3)	]		"Subject has psychomotor agitation or retardation nearly every day (observable by others, not merely subjectvie feelings of restlessness or being slowed down).  NOTE:  Also consider behavior during interview"	list|1|absent or false|2|subthreshold|3|threshold or true|'?'|inadequate information
+scid1/A10	A10	A10	(A1==3||A2==3) && A9>=2	[		Did the subject have psychomotor retardation?	list|1|no|3|yes
+scid1/A11	A11	A11	(A1==3||A2==3) && A9>=2	]		Did the subject have psychomotor agitation?	list|1|no|3|yes
+scid1/A12q	qA12	A12	(A1==3||A2==3)	[		"During this (two-week period), what was your energy like?"	nothing
+scid1/A12qd	qfA12	A12	(A1==3||A2==3)	q		(Tired all the time?  Nearly every day?)	nothing
+scid1/A12	A12	A12	(A1==3||A2==3)	]		Subject had fatigue or loss of energy nearly every day	list|1|absent or false|2|subthreshold|3|threshold or true|'?'|inadequate information
+scid1/A13q	qA13	A13	(A1==3||A2==3)	[		"During this time, how did you feel about yoiurself?  (Worthless?)  (Nearly every day?)"	nothing
+scid1/A13qd	qfA13	A13	(A1==3||A2==3)	q		IF NO:  What about feeling guilty about things you had done or not done?  (Nearly every day?)	nothing
+scid1/A13	A13	A13	(A1==3||A2==3)	]		"Subject has feelings of worthlessness or excessive or inappropriate guilt (which may be delusional) nearly every day (notr merely self-reproach or guilt about being sick).  NOTE:  code ""1"" or ""2"" if only slow self-esteem."	list|1|absent or false|2|subthreshold|3|threshold or true|'?'|inadequate information
+scid1/A14	A14	A14	(A1==3||A2==3) && A13>=2	[		Did subject feel worthlessness?	list|1|no|3|yes
+scid1/A15	A15	A15	(A1==3||A2==3) && A13>=2	]		Did subject have inappropriate guilt?	list|1|no|3|yes
+scid1/A16q	qA16	A16	(A1==3||A2==3)	[		"During this time, did you have trouble thinking or concentrating?  (What kinds of things did it interfere with?)  (Nearly every day?)"	nothing
+scid1/A16qd	qfA16	A16	(A1==3||A2==3)	q		IF NO:  Was it hard to make decisions about everday things?  (Nearly every day?)	nothing
+scid1/A16	A16	A16	(A1==3||A2==3)	]		"Subject has diminished ability to think or concentrate, or indecisiveness, nearly every day (either by subjective account or as observed by others)"	list|1|absent or false|2|subthreshold|3|threshold or true|'?'|inadequate information
+scid1/A17	A17	A17	(A1==3||A2==3) && A16>=2	[		Did subject have diminished ability to think?	list|1|no|3|yes
+scid1/A18	A18	A18	(A1==3||A2==3) && A16>=2	]		Did subject have indecisiveness?	list|1|no|3|yes
+scid1/A19q	qA19	A19	(A1==3||A2==3)	[		"During this time, were things so bad that you were thinking a lot about death or that you would be better off dead?  What about thinking about hurting yourself?"	nothing
+scid1/A19qd	qfA19	A19	(A1==3||A2==3)	q		IF YES:  Did you do anything to hurt yourself?	nothing
+scid1/A19	A19	A19	(A1==3||A2==3)	]		"Subject has recurrent thoughts of death (not just fear of dying), recurrent suicidal ideation without a specific plan, or a suicide attempt or a specific plan for committing suicide.<br>NOTE: code ""1"" for self-mutilation without suicidal intent."	list|1|absent or false|2|subthreshold|3|threshold or true|'?'|inadequate information
+scid1/A20	A20	A20	(A1==3||A2==3) && A19>=2	[		Did subject have thoughts of own death?	list|1|no|3|yes
+scid1/A21	A21	A21	(A1==3||A2==3) && A19>=2	q		Did subject have suicidal ideation?	list|1|no|3|yes
+scid1/A22	A22	A22	(A1==3||A2==3) && A19>=2	q		Did subject have specific plan?	list|1|no|3|yes
+scid1/A23	A23	A23	(A1==3||A2==3) && A19>=2	]		Did subject have suicide attempt?	list|1|no|3|yes
+scid1/A24/MDE	A24	MDE	1	e		"(count(A1==3, A2==3, A3==3, A6==3, A9==3, A12==3, A13==3, A16==3, A19==3)>=5 && (A1==3 || A2==3)) ? 3 : 1"	nothing
+TESTscid1/MDE/report	MDE	MDE	1	q		"Based on these answers, you `(A24==3)?'do':'do not'` meet criteria for a Major Depressive Episode"	nothing
+scid1/A25q	A25q	A25	(A24==3)	[		"IF UNCLEAR: Has (DEPRESSIVE EPISODE / OWN WORDS) made it hard for you to do you work, take care of things at home, or get along with other people?"	nothing
+scid1/A25	A25	A25	(A24==3)	]		"The symptoms cause clinically significant distress or impairment in social, occupational, or other important areas of functioning."	list|1|absent or false|2|subthreshold|3|threshold or true|'?'|inadequate information
+scid1/A26q	qA26	A26	(A24==3)	[		Just before this began were you physically ill?  (IF YES:  What did the doctor say?)	nothing
+scid1/A26qd	qfA26	A26	(A24==3)	q		"Just before this began, were you using any medication?  (IF YES:  Any change in the amount you were using?)  Were you drinking or using any street drugs?"	nothing
+scid1/A26	A26	A26	(A24==3)	q		"The symptoms are not due to the direct physiological effects of a substance (e.g. a drug or abuse, medication) or to a general medical condition"	list|1|false (possibly due to substance use or general medical condition)|3|true (primary mood disorder)|'?'|inadequate information
+scid1/A26i	qiA26	A26	(A24==3)	q		"<b>Etiological general medical conditions include</b>: degenerative neurological illnesses (e.g. Parkinson's disease); cerebrovascular disease (e.g. stroke); metabolic conditions (e.g. Vitamin B-12 deficiency); endocrine conditions (e.g. hyper- or hypo-thyroidism, hyper- or hypo-adrenocorticism); viral or other infections (e.g. hepatitis, mononucleosis, HIV); and certain cancers (e.g. carcinoma of the pancreas)"	nothing
+scid1/A26i2	qi2A26	A26	(A24==3)	]		"<b>Etiological substances include</b>:  alcohol, amphetamines, cocaine, hallucinogens, inhalants, opiiods, phencyclidine, sedatives, hypnotics, anxiolytics.<br>Medications include antihypertensives, oral contraceptives, anticancer agents, analgesics, anticholinergics, cardiac medications."	nothing
+scid1/A27q	qA27	A27	(A26==3)	[		(Did this begin soon after someone close to you died?)	nothing
+scid1/A27	A27	A27	(A26==3)	]		"The symptoms are not better accounted for by Bereavement (i.e. after the loss of a loved one), the symptoms persist for longer than 2 months or are characterized by marked functional impairment, morbid preoccupation with worthlessness, suicidal ideation, psychotic symptoms, or psychomotor retardation."	list|1|false (Simple Bereavement)|3|true (not simple bereavement)|'?'|inadequate information
+scid1/A28/Current MDE	A28	A28	1	e		"(count(A24==3,A25==3,A26==3,A27==3)==4)? 3:1"	nothing
+TESTscid1/CurrentMDE/report	CMDE	CMDE	1	q		"Based on these answers, you `(A24==3)?'do':'do not'` meet criteria for a <b>current</b> Major Depressive Episode"	nothing
+scid1/A29q	qA29	A29	(A28==3)	[		"How many separate times in your life have you been (depressed / OWN WORDS) nearly every day for at least two weeks and had several of the symptoms that you described, like (SX OF WORST EPISODE)?"	nothing
+scid1/A29	A29	A29	(A28==3)	];number;1;20;;99		"Total number of Major Depressive Episodes, including current<br>CODE 99 IF TOO NUMEROUS OR INDISTINCT TO COUNT)"	double

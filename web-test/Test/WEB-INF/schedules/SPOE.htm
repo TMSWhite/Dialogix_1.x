@@ -1,0 +1,118 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2//EN">
+<HTML>
+	<HEAD>
+		<META HTTP-EQUIV="Content-Type" CONTENT="text/html;CHARSET=iso-8859-1">
+	</HEAD>
+	<TITLE>Translation File for Adult SPOE (Draft/Subset) v. 0.0 2004-10-19</TITLE>
+<BODY>
+	<P ALIGN='center'><b>Logic File for Adult SPOE (Draft/Subset) v. 0.0 2004-10-19</b></P>
+	<TABLE border='1'>
+		<tr><td width="5%"><b>#</b></td><td width="%15"><b>Variable Name</b></td><td width="15%"><b>Relevance</b></td><td width='40%'><b>Question</b></td><td width='20%'><b>Answers</b></td></tr>
+		<tr><td>1</td><td>q1</td><td>1</td><td>Applicant Name</td><td><font color='blue'><b>[Data type = </b>text]</font></td></tr>
+		<tr><td>2</td><td>q2</td><td>1</td><td>SSN#</td><td><font color='blue'><b>[Data type = </b>text]</font></td></tr>
+		<tr><td>3</td><td>q3</td><td>1</td><td>MCD# (if applicable)</td><td><font color='blue'><b>[Data type = </b>text]</font></td></tr>
+		<tr><td>4</td><td>q3b</td><td>1</td><td>Other numeric identifier or NYC LGU assigned client number</td><td><font color='blue'><b>[Data type = </b>text]</font></td></tr>
+		<tr><td>5</td><td>q5</td><td>1</td><td>DOB</td><td><font color='blue'><b>[Data type = </b>date]</font></td></tr>
+		<tr><td>6</td><td>q7</td><td>1</td><td>Gender</td><td>[1] Male<br />[2] Female<br />[9] Unknown<br />&nbsp;</td></tr>
+		<tr><td>7</td><td>_today</td><td>1</td><td>getNow()</td><td><font color='blue'><b>[Data type = </b>date]</font></td></tr>
+		<tr><td>8</td><td>_age_calc</td><td>1</td><td>toYear(_today) - toYear(q5) - ((toDayNum(_today) <= toDayNum(q5)) ? 1 : 0)</td><td><font color='blue'><b>[Data type = </b>instructions]</font></td></tr>
+		<tr><td>9</td><td>_demo_intro</td><td>1</td><td><b>Applicant Demographics</b></td><td><font color='blue'><b>[Data type = </b>instructions]</font></td></tr>
+		<tr><td>10</td><td>_age_disp</td><td>1</td><td>"<table border=""1"" width=""100%""><tr><td>DOB</td><td>`q5`</td><td>Age</td><td>`_age_calc`</td><td>Gender</td><td>`getAnsOption(q7)`</td></tr></table>"</td><td><font color='blue'><b>[Data type = </b>instructions]</font></td></tr>
+		<tr><td>11</td><td>q8</td><td>1</td><td>Enthnicity</td><td>[1] White (Non-Hispanic)<br />[2] Black/African American (Non-Hispanic)<br />[3] Latino/Hispanic<br />[4] Asian/Asian-American<br />[5] Native American/Alaska Native<br />[6] Native Hawaian/Other Pacific Islander<br />[7] Other<br />[9] Unknown<br />&nbsp;</td></tr>
+		<tr><td>12</td><td>q9</td><td>1</td><td>Current Educational Level</td><td>[1] Some grade school 1-8th grade<br />[2] Completed grade school<br />[3] Some HS 9th-12th grade, but not diploma<br />[4] HS diploma or GED<br />[5] Vocational or business school<br />[6] Some college, but not degree<br />[7] College degree<br />[8] Masters degree<br />[9] Ungraded<br />[10] No formal education<br />[11] Other"<br />&nbsp;</td></tr>
+		<tr><td>13</td><td>q10</td><td>1</td><td>Current Employment Status</td><td>[1] Full Time<br />[2] Part Time<br />[3] No Employment<br />[4] Other<br />&nbsp;</td></tr>
+		<tr><td>14</td><td>q11</td><td>1</td><td>Current Criminal Justice Status</td><td>[0] None<br />[1] Currently incarcerated-jail<br />[2] Currently incarcerated-prison<br />[3] Parole<br />[4] Probation<br />[5] Alternatives to incarceration (any cocational or addicitons treatment<br />[6] CPL 330.20<br />[7] Released from prison/jail in last 30 days<br />[8] Other<br />&nbsp;</td></tr>
+		<tr><td>15</td><td>q12</td><td>1</td><td>Primary Language</td><td>[1] English<br />[2] Spanish<br />[3] Chinese<br />[4] Creole<br />[5] French<br />[6] Russian<br />[7] German<br />[8] Greek<br />[9] Italian<br />[10] Japanese<br />[11] Vietnamese<br />[12] Urdu<br />[13] Hindi<br />[14] No language<br />[15] American sign language<br />[16] Other<br />&nbsp;</td></tr>
+		<tr><td>16</td><td>q14</td><td>1</td><td>Current Marital Status</td><td>[1] Single, never married<br />[2] Currently married<br />[3] Cohabiting with significant other/Domestic Partner<br />[4] Divorced/separated<br />[5] Widowed"<br />&nbsp;</td></tr>
+		<tr><td>17</td><td>q15</td><td>1</td><td>Custody Status of Children</td><td>[1] No children<br />[2] Have children all > 18 years old<br />[3] Minor Children currently in client's custody<br />[4] Minor children not in client's custody, but have access<br />[5] Minor children not in client's custody -- no access"<br />&nbsp;</td></tr>
+		<tr><td>18</td><td>q8b</td><td>q8==7</td><td>Enthnicity (other) -- please specify</td><td><font color='blue'><b>[Data type = </b>text]</font></td></tr>
+		<tr><td>19</td><td>q9b</td><td>q9==11</td><td>Current Educational Level (other) -- please specify</td><td><font color='blue'><b>[Data type = </b>text]</font></td></tr>
+		<tr><td>20</td><td>q10b</td><td>q10==4</td><td>Current Employment Status (other) -- please specify</td><td><font color='blue'><b>[Data type = </b>text]</font></td></tr>
+		<tr><td>21</td><td>q11b</td><td>q11==8</td><td>Current Criminal Justice Status (other) -- please specify</td><td><font color='blue'><b>[Data type = </b>text]</font></td></tr>
+		<tr><td>22</td><td>q12b</td><td>q12==16</td><td>Primary Language (other) -- please specity</td><td><font color='blue'><b>[Data type = </b>text]</font></td></tr>
+		<tr><td>23</td><td>q13</td><td>q12!=1</td><td>English Proficiency</td><td>[1] Does not speak English<br />[2] Poor<br />[3] Fair<br />[4] Good<br />[5] Excellent<br />&nbsp;</td></tr>
+		<tr><td>24</td><td>q16</td><td>1</td><td>Referral Source</td><td>[1] Self, family, or friend<br />[2] Mental health inpatient<br />[3] General hospital ER<br />[4] Police<br />[5] Probation<br />[6] State psychiatric institute (inpatient)<br />[7] Emergency nonresidential program<br />[8] Other medical provider<br />[9] Family court<br />[10] Parole<br />[11] General hospital (inpatient)<br />[12] CSP mental health program<br />[13] MR/DD facility<br />[14] Criminal court<br />[15] Shelter for homeless<br />[16] Mental health residential<br />[17] Local MH practitioner<br />[18] Susbstance abuse program<br />[19] Jail, penitentiary, etc.<br />[20] Other"<br />&nbsp;</td></tr>
+		<tr><td>25</td><td>q16b</td><td>q16==20</td><td>Referral Source (other) -- please specify</td><td><font color='blue'><b>[Data type = </b>text]</font></td></tr>
+		<tr><td>26</td><td>q17</td><td>1</td><td>Date of referral</td><td><font color='blue'><b>[Data type = </b>date]</font></td></tr>
+		<tr><td>27</td><td>q18c</td><td>1</td><td>Current services (check all that apply)</td><td>[1] State Psychiatric Center (inpatient)<br />[2] General Hospital<br />[3] Mental health residential<br />[4] Mental health outpatient<br />[5] CSP mental health program<br />[6] Case management<br />[7] Emergency mental health (nonresidential)<br />[8] Prison, jail, or court<br />[9] Local mental health practitioner<br />[10] Other<br />[0] None"<br />&nbsp;</td></tr>
+		<tr><td>28</td><td>q18h</td><td>1</td><td>Historical services (check all that apply)</td><td>[1] State Psychiatric Center (inpatient)<br />[2] General Hospital<br />[3] Mental health residential<br />[4] Mental health outpatient<br />[5] CSP mental health program<br />[6] Case management<br />[7] Emergency mental health (nonresidential)<br />[8] Prison, jail, or court<br />[9] Local mental health practitioner<br />[10] Other<br />[0] None"<br />&nbsp;</td></tr>
+		<tr><td>29</td><td>q18c_other</td><td>q18c==20</td><td>Current Services (other) -- please specify</td><td><font color='blue'><b>[Data type = </b>text]</font></td></tr>
+		<tr><td>30</td><td>q18h_other</td><td>q18h==20</td><td>Historical services (other) -- please specify</td><td><font color='blue'><b>[Data type = </b>text]</font></td></tr>
+		<tr><td>31</td><td>q18last</td><td>q18c==0</td><td>If no current services -- date of last service</td><td><font color='blue'><b>[Data type = </b>date]</font></td></tr>
+		<tr><td>32</td><td>q19</td><td>1</td><td>Services referred to (check all that apply)</td><td>[1] Housing<br />[2] Case management<br />[3] AOT<br />&nbsp;</td></tr>
+		<tr><td>33</td><td>q20</td><td>1</td><td>Living situation at time of referral</td><td>[1] Lives alone<br />[2] Lives with spouse<br />[3] lives with other relatives<br />[4] Lives with parents<br />[5] Assisted/supported living<br />[6] Surpervised living<br />[7] Nursing home/medical setting<br />[8] Psychiatric hospital<br />[9] Homeless (streets)<br />[10] Homeless (shelter)<br />[11] Correctional facility<br />[12] Other<br />&nbsp;</td></tr>
+		<tr><td>34</td><td>q20b</td><td>q20==12</td><td>Living situation (other) -- please specify</td><td><font color='blue'><b>[Data type = </b>text]</font></td></tr>
+		<tr><td>35</td><td>_entitlements_intro</td><td>1</td><td>Entitlements and Income (check appropriate column -- item from HRA)</td><td><font color='blue'><b>[Data type = </b>instructions]</font></td></tr>
+		<tr><td>36</td><td>q21a</td><td>1</td><td>Social security</td><td>[1] Currently receives<br />[2] Pending -- application submitted<br />[3] Eligible -- no application submitted<br />[4] Ineligible<br />[5] Unknown<br />&nbsp;</td></tr>
+		<tr><td>37</td><td>q21b</td><td>1</td><td>SSI/SSDS</td><td>[1] Currently receives<br />[2] Pending -- application submitted<br />[3] Eligible -- no application submitted<br />[4] Ineligible<br />[5] Unknown<br />&nbsp;</td></tr>
+		<tr><td>38</td><td>q21c</td><td>1</td><td>Public assistance</td><td>[1] Currently receives<br />[2] Pending -- application submitted<br />[3] Eligible -- no application submitted<br />[4] Ineligible<br />[5] Unknown<br />&nbsp;</td></tr>
+		<tr><td>39</td><td>q21d</td><td>1</td><td>Veterans</td><td>[1] Currently receives<br />[2] Pending -- application submitted<br />[3] Eligible -- no application submitted<br />[4] Ineligible<br />[5] Unknown<br />&nbsp;</td></tr>
+		<tr><td>40</td><td>q21e</td><td>1</td><td>Medicare/Medicaid</td><td>[1] Currently receives<br />[2] Pending -- application submitted<br />[3] Eligible -- no application submitted<br />[4] Ineligible<br />[5] Unknown<br />&nbsp;</td></tr>
+		<tr><td>41</td><td>q21f</td><td>1</td><td>Food stamps</td><td>[1] Currently receives<br />[2] Pending -- application submitted<br />[3] Eligible -- no application submitted<br />[4] Ineligible<br />[5] Unknown<br />&nbsp;</td></tr>
+		<tr><td>42</td><td>q21g</td><td>1</td><td>Pension</td><td>[1] Currently receives<br />[2] Pending -- application submitted<br />[3] Eligible -- no application submitted<br />[4] Ineligible<br />[5] Unknown<br />&nbsp;</td></tr>
+		<tr><td>43</td><td>q21h</td><td>1</td><td>Wages - earned income</td><td>[1] Currently receives<br />[2] Pending -- application submitted<br />[3] Eligible -- no application submitted<br />[4] Ineligible<br />[5] Unknown<br />&nbsp;</td></tr>
+		<tr><td>44</td><td>q21i</td><td>1</td><td>Workers Comp</td><td>[1] Currently receives<br />[2] Pending -- application submitted<br />[3] Eligible -- no application submitted<br />[4] Ineligible<br />[5] Unknown<br />&nbsp;</td></tr>
+		<tr><td>45</td><td>q21j</td><td>1</td><td>Unemployment</td><td>[1] Currently receives<br />[2] Pending -- application submitted<br />[3] Eligible -- no application submitted<br />[4] Ineligible<br />[5] Unknown<br />&nbsp;</td></tr>
+		<tr><td>46</td><td>q21k</td><td>1</td><td>Private Insurance / Third Party Payor</td><td>[1] Currently receives<br />[2] Pending -- application submitted<br />[3] Eligible -- no application submitted<br />[4] Ineligible<br />[5] Unknown<br />&nbsp;</td></tr>
+		<tr><td>47</td><td>q21l</td><td>1</td><td>Trust Fund</td><td>[1] Currently receives<br />[2] Pending -- application submitted<br />[3] Eligible -- no application submitted<br />[4] Ineligible<br />[5] Unknown<br />&nbsp;</td></tr>
+		<tr><td>48</td><td>q21m</td><td>1</td><td>Medication grant</td><td>[1] Currently receives<br />[2] Pending -- application submitted<br />[3] Eligible -- no application submitted<br />[4] Ineligible<br />[5] Unknown<br />&nbsp;</td></tr>
+		<tr><td>49</td><td>q21n</td><td>1</td><td>Other</td><td>[1] Currently receives<br />[2] Pending -- application submitted<br />[3] Eligible -- no application submitted<br />[4] Ineligible<br />[5] Unknown<br />&nbsp;</td></tr>
+		<tr><td>50</td><td>_dx_intro</td><td>1</td><td>Psychiatric Diagnosis (enter 0.0 for N/A)</td><td><font color='blue'><b>[Data type = </b>instructions]</font></td></tr>
+		<tr><td>51</td><td>q22_1_a1</td><td>1</td><td>Axis I:  Primary</td><td><font color='blue'><b>[Data type = </b>number]</font></td></tr>
+		<tr><td>52</td><td>q22_2_a1</td><td>1</td><td>Axis I:  Secondary</td><td><font color='blue'><b>[Data type = </b>number]</font></td></tr>
+		<tr><td>53</td><td>q22_1_a2</td><td>1</td><td>Axis II: Primary</td><td><font color='blue'><b>[Data type = </b>number]</font></td></tr>
+		<tr><td>54</td><td>q22_2_a2</td><td>1</td><td>Axis II: Secondary</td><td><font color='blue'><b>[Data type = </b>number]</font></td></tr>
+		<tr><td>55</td><td>q22_1_a3</td><td>1</td><td>Axis III: Primary</td><td><font color='blue'><b>[Data type = </b>number]</font></td></tr>
+		<tr><td>56</td><td>q22_2_a3</td><td>1</td><td>Axis III: Secondary</td><td><font color='blue'><b>[Data type = </b>number]</font></td></tr>
+		<tr><td>57</td><td>q22_1_a4</td><td>1</td><td>Axis IV: Primary</td><td><font color='blue'><b>[Data type = </b>number]</font></td></tr>
+		<tr><td>58</td><td>q22_2_a4</td><td>1</td><td>Axis IV: Secondary</td><td><font color='blue'><b>[Data type = </b>number]</font></td></tr>
+		<tr><td>59</td><td>q22_1_a5</td><td>1</td><td>Axis V: Primary</td><td><font color='blue'><b>[Data type = </b>number]</font></td></tr>
+		<tr><td>60</td><td>_subst_intro</td><td>1</td><td>Substance Use History</td><td><font color='blue'><b>[Data type = </b>instructions]</font></td></tr>
+		<tr><td>61</td><td>q23</td><td>1</td><td>Drugs of Choice</td><td>[0] None<br />[1] Cocaine<br />[3] Amphetamines<br />[4] Prescription Drugs<br />[5] Any IV Drug use<br />[6] Crack<br />[7] PCP<br />[8] Inhalant: sniffing glue, other household product<br />[9] Alcohol<br />[10] Heroin/Opiates<br />[11] Sedative/hypnotic<br />[12] Marijuana/Cannabis<br />[13] Hallucinogens<br />[14] Benzodiazepines<br />[15] Other<br />&nbsp;</td></tr>
+		<tr><td>62</td><td>q23b</td><td>q23==15</td><td>Drug of Choice (other) -- please specify</td><td><font color='blue'><b>[Data type = </b>text]</font></td></tr>
+		<tr><td>63</td><td>q24</td><td>q23!=0</td><td>Use</td><td>[1] Not in last month<br />[2] 1-3 times in last month<br />[3] 1-2 times/week<br />[4] 3-6 times/week<br />[5] daily<br />&nbsp;</td></tr>
+		<tr><td>64</td><td>q25</td><td>q23!=0</td><td>Longest period of sobriety</td><td><font color='blue'><b>[Data type = </b>text]</font></td></tr>
+		<tr><td>65</td><td>q26</td><td>q23!=0</td><td>Chemical Dependency Treatment</td><td>[0] No<br />[1] Yes<br />&nbsp;</td></tr>
+		<tr><td>66</td><td>q26b</td><td>q26==1</td><td>Type of Chemical Dependency Treatment</td><td>[1] Inpatient<br />[2] Outpatient<br />&nbsp;</td></tr>
+		<tr><td>67</td><td>q27</td><td>q26==1</td><td>Number of treatment episodes</td><td><font color='blue'><b>[Data type = </b>number]</font></td></tr>
+		<tr><td>68</td><td>q28</td><td>1</td><td>Functional Medical Problems (check all that appply)</td><td>[0] None<br />[1] Incontinent<br />[2] Impaired ability to walk<br />[3] Impaired vision<br />[4] Hearing impairment<br />[5] Requires special medical equipment<br />[6] Other medical problem/condition<br />&nbsp;</td></tr>
+		<tr><td>69</td><td>q28b</td><td>q28==6</td><td>Functional Medical Problem (other) -- please specify</td><td><font color='blue'><b>[Data type = </b>text]</font></td></tr>
+		<tr><td>70</td><td>q29</td><td>1</td><td>Cognitive impairment?</td><td>[0] No<br />[1] Yes<br />&nbsp;</td></tr>
+		<tr><td>71</td><td>_utilization_intro</td><td>1</td><td>Utilization of High Intensity Services</td><td><font color='blue'><b>[Data type = </b>instructions]</font></td></tr>
+		<tr><td>72</td><td>q30</td><td>1</td><td>Number of psychiatric hospitalizations in past 12 months</td><td><font color='blue'><b>[Data type = </b>number]</font></td></tr>
+		<tr><td>73</td><td>q31</td><td>1</td><td>Number of psychiatric ER visits in past 12 months</td><td><font color='blue'><b>[Data type = </b>number]</font></td></tr>
+		<tr><td>74</td><td>q32</td><td>1</td><td>Number of arrests in past 12 months</td><td><font color='blue'><b>[Data type = </b>number]</font></td></tr>
+		<tr><td>75</td><td>q33</td><td>1</td><td>Number of incarcerations in past 12 months</td><td><font color='blue'><b>[Data type = </b>number]</font></td></tr>
+		<tr><td>76</td><td>q34</td><td>1</td><td>Current Case Management / ACT</td><td>[0] No<br />[1] Yes<br />&nbsp;</td></tr>
+		<tr><td>77</td><td>q35</td><td>1</td><td>Current AOT</td><td>[0] No<br />[1] Yes<br />&nbsp;</td></tr>
+		<tr><td>78</td><td>q36</td><td>1</td><td>Any adult history of homelessness</td><td>[0] No<br />[1] Yes<br />&nbsp;</td></tr>
+		<tr><td>79</td><td>_viol_self_intro</td><td>1</td><td>Safety</td><td><font color='blue'><b>[Data type = </b>instructions]</font></td></tr>
+		<tr><td>80</td><td>q37a</td><td>1</td><td>Suicidal ideation?</td><td>[0] No<br />[1] Yes<br />&nbsp;</td></tr>
+		<tr><td>81</td><td>q37b</td><td>1</td><td>Suicidal attempts?</td><td>[0] No<br />[1] Yes<br />&nbsp;</td></tr>
+		<tr><td>82</td><td>q38</td><td>1</td><td>Violence to others?</td><td>[0] No<br />[1] Yes<br />&nbsp;</td></tr>
+		<tr><td>83</td><td>q39</td><td>1</td><td>Victim of physical or sexual abuse?</td><td>[0] No<br />[1] Yes<br />&nbsp;</td></tr>
+		<tr><td>84</td><td>q40</td><td>1</td><td>Arson?</td><td>[0] No<br />[1] Yes<br />&nbsp;</td></tr>
+		<tr><td>85</td><td>q41</td><td>1</td><td>Destruction of property?</td><td>[0] No<br />[1] Yes<br />&nbsp;</td></tr>
+		<tr><td>86</td><td>q37c</td><td>q37b==1</td><td>Date of most recent suicidal attempt</td><td><font color='blue'><b>[Data type = </b>date]</font></td></tr>
+		<tr><td>87</td><td>q37d</td><td>q37b==1</td><td>Method of most recent suicidal attempt</td><td><font color='blue'><b>[Data type = </b>text]</font></td></tr>
+		<tr><td>88</td><td>q38b</td><td>q38==1</td><td>Date of most recent episode of violence to others</td><td><font color='blue'><b>[Data type = </b>date]</font></td></tr>
+		<tr><td>89</td><td>q39b</td><td>q39==1</td><td>Date of most recent episode of physical or sexual abuse</td><td><font color='blue'><b>[Data type = </b>date]</font></td></tr>
+		<tr><td>90</td><td>q40b</td><td>q40==1</td><td>Date of most recent episode of arson</td><td><font color='blue'><b>[Data type = </b>date]</font></td></tr>
+		<tr><td>91</td><td>q41b</td><td>q41==1</td><td>Date of most recent episode of destruction to property</td><td><font color='blue'><b>[Data type = </b>date]</font></td></tr>
+		<tr><td>92</td><td>_comm_survival_intro</td><td>1</td><td>Community Survival Skills</td><td><font color='blue'><b>[Data type = </b>instructions]</font></td></tr>
+		<tr><td>93</td><td>q42</td><td>1</td><td>ADLs (eatingf, hygeine, grooming, dressing, toileting)</td><td>[1] Independent (requires no assistance)<br />[2] Can do with help<br />[3] Dependent<br />&nbsp;</td></tr>
+		<tr><td>94</td><td>q43</td><td>1</td><td>Personal safety (crossing streets, not getting lost, exist in emergency, smoking safety if applicable)</td><td>[1] Independent (requires no assistance)<br />[2] Can do with help<br />[3] Dependent<br />&nbsp;</td></tr>
+		<tr><td>95</td><td>q44</td><td>1</td><td>Community living (using public transportation, cooking, cleaning, shopping)</td><td>[1] Independent (requires no assistance)<br />[2] Can do with help<br />[3] Dependent<br />&nbsp;</td></tr>
+		<tr><td>96</td><td>q45</td><td>1</td><td>Use/engagement with mental health services (taking medications, making appointments, adherence to regimen/programs)</td><td>[1] Independent (requires no assistance)<br />[2] Can do with help<br />[3] Dependent<br />[4] Rejects services<br />&nbsp;</td></tr>
+		<tr><td>97</td><td>q46</td><td>1</td><td>Use/engagement in medical services (annual physical, and if applicable, taking medications, making appointments, adherence to regimen/programs, special diets, etc.)</td><td>[1] Independent (requires no assistance)<br />[2] Can do with help<br />[3] Dependent<br />[4] Rejects services<br />&nbsp;</td></tr>
+		<tr><td>98</td><td>_recommend_intro</td><td>1</td><td>Recommendations</td><td><font color='blue'><b>[Data type = </b>instructions]</font></td></tr>
+		<tr><td>99</td><td>q47</td><td>1</td><td>Recommended for SPOE priority services</td><td>[0] No<br />[1] Yes<br />&nbsp;</td></tr>
+		<tr><td>100</td><td>q47b</td><td>1</td><td>Date of recommendation</td><td><font color='blue'><b>[Data type = </b>date]</font></td></tr>
+		<tr><td>101</td><td>q47c</td><td>1</td><td>Name and title of person making this recommendation</td><td><font color='blue'><b>[Data type = </b>text]</font></td></tr>
+		<tr><td>102</td><td>q47d</td><td>q47==1</td><td>Recommended Program or Agency Name(s)</td><td><font color='blue'><b>[Data type = </b>text]</font></td></tr>
+		<tr><td>103</td><td>q47e</td><td>q47==1</td><td>Alternative recommendations if services are unavailable</td><td><font color='blue'><b>[Data type = </b>text]</font></td></tr>
+		<tr><td>104</td><td>q47f</td><td>q47==0</td><td>Alternative recommendations</td><td><font color='blue'><b>[Data type = </b>text]</font></td></tr>
+		<tr><td>105</td><td>end</td><td>1</td><td>Thanks.  Press the "Next" arrow one more time to save data.</td><td><font color='blue'><b>[Data type = </b>instructions]</font></td></tr>
+	</TABLE>
+</BODY>
+</HTML>

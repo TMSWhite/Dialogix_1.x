@@ -1,0 +1,26 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2//EN">
+<HTML>
+	<HEAD>
+		<META HTTP-EQUIV="Content-Type" CONTENT="text/html;CHARSET=iso-8859-1">
+	</HEAD>
+	<TITLE>Translation File for AUDIT: Alcohol Use Disorders Identification Test v. 0.0 2002-03-9</TITLE>
+<BODY>
+	<P ALIGN='center'><b>Logic File for AUDIT: Alcohol Use Disorders Identification Test v. 0.0 2002-03-9</b></P>
+	<TABLE border='1'>
+		<tr><td width="5%"><b>#</b></td><td width="%15"><b>Variable Name</b></td><td width="15%"><b>Relevance</b></td><td width='40%'><b>Question</b></td><td width='20%'><b>Answers</b></td></tr>
+		<tr><td>1</td><td>q1</td><td>1</td><td>How often do you have a drink containing alcohol?</td><td>[0] Never<br />[1] Monthly or less<br />[2] Two to four times a month<br />[3] Two to three times per week<br />[4] Four or more times per week<br />&nbsp;</td></tr>
+		<tr><td>2</td><td>q2</td><td>1</td><td>How many drinks containing alcohol do you have on a typical day when you are drinking?</td><td>[0] 1 or 2<br />[1] 3 or 4<br />[2] 5 or 6<br />[3] 7 to 9<br />[4] 10 or more<br />&nbsp;</td></tr>
+		<tr><td>3</td><td>q3</td><td>1</td><td>How often do you have six or more drinks on one occasion?</td><td>[0] Never<br />[1] Less than monthly<br />[2] Monthly<br />[3] Weekly<br />[4] Daily or almost daily<br />&nbsp;</td></tr>
+		<tr><td>4</td><td>qc</td><td>1</td><td>How often <i><b>during the last year</b></i> have you ...</td><td><font color='blue'><b>[Data type = </b>instructions]</font></td></tr>
+		<tr><td>5</td><td>q4</td><td>1</td><td>found that you were not able to stop drinking once you had started?</td><td>[0] Never<br />[1] Less than monthly<br />[2] Monthly<br />[3] Weekly<br />[4] Daily or almost daily<br />&nbsp;</td></tr>
+		<tr><td>6</td><td>q5</td><td>1</td><td>failed to do what was normally expected from you because you were drinking?</td><td>[0] Never<br />[1] Less than monthly<br />[2] Monthly<br />[3] Weekly<br />[4] Daily or almost daily<br />&nbsp;</td></tr>
+		<tr><td>7</td><td>q6</td><td>1</td><td>needed a first drink in the morning to get yourself going after a heavy drinking session?</td><td>[0] Never<br />[1] Less than monthly<br />[2] Monthly<br />[3] Weekly<br />[4] Daily or almost daily<br />&nbsp;</td></tr>
+		<tr><td>8</td><td>q7</td><td>1</td><td>had a feeling of guilt or remorse after drinking?</td><td>[0] Never<br />[1] Less than monthly<br />[2] Monthly<br />[3] Weekly<br />[4] Daily or almost daily<br />&nbsp;</td></tr>
+		<tr><td>9</td><td>q8</td><td>1</td><td>been unable to remember what happened the might before because you had been drinking?</td><td>[0] Never<br />[1] Less than monthly<br />[2] Monthly<br />[3] Weekly<br />[4] Daily or almost daily<br />&nbsp;</td></tr>
+		<tr><td>10</td><td>q9</td><td>1</td><td>Have you or someone else been injured as a result of your drinking?</td><td>[0] No<br />[2] Yes, but not in the last year<br />[4] Yes, during the last year<br />&nbsp;</td></tr>
+		<tr><td>11</td><td>q10</td><td>1</td><td>Has a relative or friend, or a doctor or other health worker been concerned about your drinking or suggested you cut down?</td><td>[0] No<br />[2] Yes, but not in the last year<br />[4] Yes, during the last year<br />&nbsp;</td></tr>
+		<tr><td>12</td><td>AUDITscore</td><td>1</td><td><font color='blue'>[CALCULATED VALUE:]</font></br>(q1+q2+q3+q4+q5+q6+q7+q8+q9+q10)</td><td>&nbsp;</td></tr>
+		<tr><td>13</td><td>Report</td><td>1</td><td>The minimum score is 0 and the maximum is 40.<br><br>A score of 8 or more indicates a strong likelihood of hazardous or harmful alcohol consumption.  <br><br>You scored   `AUDITscore`, so you `AUDITscore > 7?'<b>do</b>':'do not'` share that likelihood.</td><td><font color='blue'><b>[Data type = </b>instructions]</font></td></tr>
+	</TABLE>
+</BODY>
+</HTML>
