@@ -79,6 +79,7 @@ public class TricepsEngine implements VersionIF {
 	private boolean showSaveToFloppyInAdminMode = false;
 	private boolean wrapAdminIcons = true;
 	private boolean disallowComments = false;	// prevents comments from ever being shown
+	private boolean displayWorking = false;	// whether to allow the working files to be visible - even in Web-server versions
 
 	private String directive = null;	// the default
 	private Triceps triceps = Triceps.NULL;
@@ -101,6 +102,7 @@ public class TricepsEngine implements VersionIF {
 		logoIcon = getInitParam(config,"logoIcon");
 		floppyDir = getInitParam(config,"floppyDir");
 		helpURL = getInitParam(config,"helpURL");
+		displayWorking = Boolean.valueOf(config.getInitParameter("displayWorking")).booleanValue();
 	}
 	
 	private String getInitParam(ServletConfig config, String which) {
@@ -737,7 +739,7 @@ if (DISPLAY_SPLASH) {
 			sb.append(buildSubmit("START"));
 			sb.append("</td></tr>");
 			
-if (DISPLAY_WORKING) {			
+if (DISPLAY_WORKING || displayWorking) {			
 			/* Build the list of suspended interviews */
 			sb.append("<tr><td>");
 			sb.append(triceps.get("or_restore_an_interview_in_progress"));
