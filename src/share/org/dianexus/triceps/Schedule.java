@@ -53,9 +53,13 @@ public class Schedule implements VersionIF  {
 	public static final int HELP_ICON = 41;
 	public static final int ACTIVE_BUTTON_PREFIX = 42;
 	public static final int ACTIVE_BUTTON_SUFFIX = 43;
+	public static final int TRICEPS_FILE_TYPE = 44;
 
 	private static final String DEFAULT_LANGUAGE = "en_US";
-
+	public static final String TRICEPS_DATA_FILE = "DATA";
+	public static final String TRICEPS_SCHEDULE_FILE = "SCHEDULE";
+	public static final String TRICEPS_UNKNOWN_FILE = "UNKNOWN";
+	
 	public static final String[] RESERVED_WORDS = {
 		"__LANGUAGES__",
 		"__TITLE__",
@@ -101,6 +105,7 @@ public class Schedule implements VersionIF  {
 		"__HELP_ICON__",
 		"__ACTIVE_BUTTON_PREFIX__",
 		"__ACTIVE_BUTTON_SUFFIX__",
+		"__TRICEPS_FILE_TYPE__",
 	};
 
 	private Date startTime = null;
@@ -136,6 +141,7 @@ public class Schedule implements VersionIF  {
 	public String getLoadedFrom() { return ((isFound) ? getReserved(LOADED_FROM) : ""); }
 
 	private void setDefaultReserveds() {
+		setReserved(TRICEPS_FILE_TYPE,TRICEPS_UNKNOWN_FILE);
 		setReserved(TITLE,VERSION_NAME);
 		setReserved(STARTING_STEP,"0",true);
 		// START_TIME and *_DIR must preceed FILENAME, which uses the values from each of those //
@@ -434,6 +440,17 @@ if (DEBUG) Logger.writeln("##IOException @ Schedule.load()" + e.getMessage());
 			case HELP_ICON: s = value; break;
 			case ACTIVE_BUTTON_PREFIX: s = value; break;
 			case ACTIVE_BUTTON_SUFFIX: s = value; break;
+			case TRICEPS_FILE_TYPE: 
+				if (value.equalsIgnoreCase(TRICEPS_DATA_FILE)) {
+					s = TRICEPS_DATA_FILE;
+				}
+				else if (value.equalsIgnoreCase(TRICEPS_SCHEDULE_FILE)) {
+					s = TRICEPS_SCHEDULE_FILE;
+				}
+				else {
+					s = TRICEPS_UNKNOWN_FILE;
+				}
+				break;
 			default: return false;
 		}
 		if (s != null) {
@@ -565,26 +582,31 @@ if (DEBUG) Logger.writeln("##NoSuchElementException @ Schedule.setLanguages()" +
 	public String setLanguage(String s) {
 		Locale loc = null;
 
+		int lang = -1;
+		
 		if (s == null || s.trim().length() == 0) {
-			currentLanguage = 0;
+			lang = 0;
 		}
 		else {
 			for (int i=0;i<languageNames.size();++i) {
 				if (s.equals((String) languageNames.elementAt(i))) {
-					currentLanguage = i;
+					lang = i;
 				}
 			}
 			for (int i=0;i<locales.size();++i) {
 				loc = (Locale) locales.elementAt(i);
 				if (s.equals(loc.toString())) {
-					currentLanguage = i;
+					lang = i;
 				}
 			}
-			setError(triceps.get("tried_to_switch_to_unsupported_language") + s);
+			if (lang == -1) 
+				setError(triceps.get("tried_to_switch_to_unsupported_language") + s);
+			else
+				currentLanguage = lang;
 		}
 
 		loc = (Locale) locales.elementAt(currentLanguage);
-		triceps.setLocale(loc);
+		if (triceps != null) triceps.setLocale(loc);	// FIXME - hack
 
 		recalculateInNewLanguage();
 
