@@ -12,11 +12,11 @@ import java.io.FileReader;
 import java.util.Vector;
 import java.util.Hashtable;
 
-import java.util.jar.JarFile;
+import java.util.zip.ZipFile;
 import java.io.IOException;
-import java.util.jar.JarEntry;
+import java.util.zip.ZipEntry;
 import java.io.InputStreamReader;
-import java.security.cert.Certificate;
+//import java.security.cert.Certificate;
 import java.io.ByteArrayInputStream;
 
 /*public*/ final class ScheduleSource implements VersionIF {
@@ -146,12 +146,12 @@ if (DEBUG)	Logger.writeln("##Throwable @ ScheduleSource.readFromAscii() " + e.ge
 	
 	private boolean readFromJar() {
 		// load from Jar file
-		JarFile jf = null;
-		JarEntry je = null;
+		ZipFile jf = null;
+		ZipEntry je = null;
 		boolean ok = true;
 		
 		try {
-			jf = new JarFile(sourceInfo.getSource());
+			jf = new ZipFile(sourceInfo.getSource());
 			headers = jarEntryToVector(jf, "headers");
 			body = jarEntryToVector(jf, "body");
 			reservedCount = headers.size();
@@ -164,11 +164,11 @@ if (DEBUG) Logger.writeln("##readFromJar " + e.getMessage());
 		return ok;
 	}
 	
-	private Vector jarEntryToVector(JarFile jf, String name) {
+	private Vector jarEntryToVector(ZipFile jf, String name) {
 		Vector v = new Vector();
 		
 		try {
-			JarEntry je = jf.getJarEntry(name);
+			ZipEntry je = jf.getEntry(name);
 			
 			/* first read the data */
 								

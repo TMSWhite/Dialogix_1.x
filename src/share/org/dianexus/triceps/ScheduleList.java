@@ -12,8 +12,8 @@ import java.io.File;
 import java.io.IOException;
 import java.io.BufferedInputStream;
 import java.io.FileOutputStream;
-import java.util.jar.JarFile;
-import java.util.jar.JarEntry;
+import java.util.zip.ZipFile;
+import java.util.zip.ZipEntry;
 import java.util.Enumeration;
 import java.io.BufferedReader;
 import java.io.FileReader;
@@ -165,15 +165,15 @@ if (DEBUG) Logger.writeln("##parseErrorLog(" + file.getName() + ") " + e.getMess
     }
     
     private boolean unjar(File file) {
-		JarFile jf = null;
+		ZipFile jf = null;
 		boolean ok = true;
 		
 		try {
-			jf = new JarFile(file);
+			jf = new ZipFile(file);
 			Enumeration entries = jf.entries();
 			
 			while(entries.hasMoreElements()) {
-				if (!saveUnjaredFile(jf, (JarEntry) entries.nextElement())) {
+				if (!saveUnjaredFile(jf, (ZipEntry) entries.nextElement())) {
 					ok = false;
 					break;
 				}
@@ -187,7 +187,7 @@ if (DEBUG) Logger.writeln("##parseErrorLog(" + file.getName() + ") " + e.getMess
 		return ok;
 	}
 	
-	private boolean saveUnjaredFile(JarFile jf, JarEntry je) {
+	private boolean saveUnjaredFile(ZipFile jf, ZipEntry je) {
 		BufferedInputStream bis = null;
 		FileOutputStream fos = null;
 		File file = null;
