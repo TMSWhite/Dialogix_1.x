@@ -173,7 +173,7 @@ public class TricepsServlet extends HttpServlet {
 			/* Store appropriate stuff in the session */
 			session.putValue("triceps", triceps);
 
-			if (lingua.get("next").equals(directive)) {
+			if (lingua.get("next").equals(directive) && !triceps.isAtEnd()) {
 				triceps.toTSV(workingFilesDir);
 			}
 		}
@@ -684,11 +684,13 @@ public class TricepsServlet extends HttpServlet {
 				String filename = triceps.getFilename();
 
 				info.println(lingua.get("the_interview_is_completed"));
-				triceps.toTSV(workingFilesDir,filename);
+//				triceps.toTSV(workingFilesDir,filename);
 				savedOK = triceps.toTSV(completedFilesDir,filename);
 				ok = savedOK && ok;
 				if (savedOK) {
 					info.println(lingua.get("interview_saved_successfully_as") + (completedFilesDir + filename));
+					/* also remove the file from the working directory */
+					triceps.deleteFile(workingFilesDir,filename);
 				}
 
 				savedOK = triceps.toTSV(floppyDir,filename);
@@ -867,8 +869,13 @@ public class TricepsServlet extends HttpServlet {
 			sb.append("</TR>");
 		}
 		sb.append("<TR><TD COLSPAN='" + ((showQuestionNum) ? 4 : 3) + "' ALIGN='center'>");
-		sb.append("<input type='SUBMIT' name='directive' value='" + lingua.get("next") + "'>");
-		sb.append("<input type='SUBMIT' name='directive' value='" + lingua.get("previous") + "'>");
+		
+		if (!triceps.isAtEnd()) {
+			sb.append("<input type='SUBMIT' name='directive' value='" + lingua.get("next") + "'>");
+		}
+		if (!triceps.isAtBeginning()) {
+			sb.append("<input type='SUBMIT' name='directive' value='" + lingua.get("previous") + "'>");
+		}
 
 		if (allowEasyBypass || okToShowAdminModeIcons) {
 			/* enables TEMP_ADMIN_MODE going forward for one screen */
