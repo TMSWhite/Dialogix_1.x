@@ -1179,6 +1179,12 @@ if (XML) {
 		colpad = (needQuestionNumColumn ? 1 : 0) + (needSpecialOptions ? 1 : 0);
 
 		questionNames = triceps.getQuestions();
+		
+		int answerOptionFieldWidth = 0;
+		try {
+			answerOptionFieldWidth = Integer.parseInt(schedule.getReserved(Schedule.ANSWER_OPTION_FIELD_WIDTH));
+		}
+		catch (Exception e) { }
 
 		sb.append("<table cellpadding='2' cellspacing='1' width='100%' border='1'>");
 		for(int count=0;questionNames.hasMoreElements();++count) {
@@ -1262,7 +1268,12 @@ if (XML) {
 					}
 					sb.append("</td>");
 					if (node.getAnswerType() != Node.NOTHING) {
-						sb.append("<td>" + errMsg + node.prepareChoicesAsHTML(datum,autogenOptionNums) + "</td>");
+						if (answerOptionFieldWidth > 0) {
+							sb.append("<td width='" + answerOptionFieldWidth + "%' NOWRAP>" + errMsg + node.prepareChoicesAsHTML(datum,autogenOptionNums) + "</td>");
+						}
+						else {
+							sb.append("<td>" + errMsg + node.prepareChoicesAsHTML(datum,autogenOptionNums) + "</td>");
+						}
 					}
 					if (needSpecialOptions) {
 						sb.append("<td width='1%' NOWRAP>" + clickableOptions + "</td>");

@@ -78,6 +78,7 @@ import java.io.ByteArrayInputStream;
 	/*public*/ static final int REDIRECT_ON_FINISH_URL= 52;
 	/*public*/ static final int REDIRECT_ON_FINISH_MSG = 53;
 	/*public*/ static final int SWAP_NEXT_AND_PREVIOUS = 54;
+	/*public*/ static final int ANSWER_OPTION_FIELD_WIDTH = 55;
 
 	private static final String DEFAULT_LANGUAGE = "en_US";
 	/*public*/ static final String TRICEPS_DATA_FILE = "DATA";
@@ -140,6 +141,7 @@ import java.io.ByteArrayInputStream;
 		"__REDIRECT_ON_FINISH_URL__",
 		"__REDIRECT_ON_FINISH_MSG__",
 		"__SWAP_NEXT_AND_PREVIOUS__",
+		"__ANSWER_OPTION_FIELD_WIDTH__",
 	};
 
 	private Date startTime = null;
@@ -243,6 +245,7 @@ import java.io.ByteArrayInputStream;
 		setReserved(REDIRECT_ON_FINISH_URL,"");
 		setReserved(REDIRECT_ON_FINISH_MSG,"");
 		setReserved(SWAP_NEXT_AND_PREVIOUS,"false");
+		setReserved(ANSWER_OPTION_FIELD_WIDTH,"0");
 		
 	}
 		
@@ -745,6 +748,7 @@ if (DEPLOYABLE) {
 			case REDIRECT_ON_FINISH_URL: if (expert) s = value.trim(); break;
 			case REDIRECT_ON_FINISH_MSG: if (expert) s = value.trim(); break;
 			case SWAP_NEXT_AND_PREVIOUS: s = Boolean.valueOf(value.trim()).toString(); break;
+			case ANSWER_OPTION_FIELD_WIDTH: s = setAnswerOptionFieldWidth(value); break;
 			default: return false;
 		}
 		
@@ -769,6 +773,19 @@ if (DEPLOYABLE) {
 		catch(NumberFormatException e) {
 if (DEBUG) Logger.writeln("##NumberFormatException @ Schedule.setDisplayCount('" + value + "')" + e.getMessage());
 			setError(triceps.get("invalid_number_for_starting_step") + ": '" + value + "': " + e.getMessage());
+			ii = new Integer(0);
+		}
+		return ii.toString();
+	}
+	
+	private String setAnswerOptionFieldWidth(String value) {
+		Integer ii = new Integer(0);
+		try {
+			ii = new Integer(value);
+		}
+		catch(NumberFormatException e) {
+if (DEBUG) Logger.writeln("##NumberFormatException @ Schedule.setAnswerOptionFieldWidth('" + value + "')" + e.getMessage());
+			setError(triceps.get("invalid_number_for_field_width") + ": '" + value + "': " + e.getMessage());
 			ii = new Integer(0);
 		}
 		return ii.toString();
