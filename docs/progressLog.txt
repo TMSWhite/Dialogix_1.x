@@ -232,3 +232,11 @@ Reorganization & Documentation
     - comments allowed for nothing nodes, but Refused excluded
     - fixed final screen (so only shows Thank You message)
     - schedule load error - now gives error on splashscreen, not "you are already at end"
+
+<< changes from version 2.7.7 to 2.7.8
+  TricepsServlet
+    - now only logs GET and POST when in state WEB_SERVER
+      - otherwise, the reverseDNS lookup adds and extra 6 seconds to each screen on non-networked Windows computers
+  ALLOW_JUMP_TO
+    - when true, lets jump-to button be visible and active
+    - should only be used in reviewer mode
