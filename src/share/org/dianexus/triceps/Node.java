@@ -473,6 +473,11 @@ public class Node  {
 	public String prepareChoicesAsHTML(Datum datum, boolean autogen) {
 		return prepareChoicesAsHTML(datum,"",autogen);
 	}
+	
+	public boolean isSelected(Datum datum, AnswerChoice ac) {
+		return DatumMath.eq(datum,new Datum(triceps, ac.getValue(),DATA_TYPES[answerType])).booleanVal();
+	}
+	
 
 	public String prepareChoicesAsHTML(Datum datum, String errMsg, boolean autogen) {
 		/* errMsg is a hack - only applies to RADIO_HORIZONTAL */
@@ -488,7 +493,7 @@ public class Node  {
 				ac = (AnswerChoice) ans.nextElement();
 				ac.parse(triceps);
 				sb.append("<input type='radio' name='" + getLocalName() + "' " + "value='" + ac.getValue() + "'" +
-					(DatumMath.eq(datum,new Datum(triceps, ac.getValue(),DATA_TYPES[answerType])).booleanVal() ? " checked" : "") + ">" + ac.getMessage() + "<br>");
+					(isSelected(datum,ac) ? " checked" : "") + ">" + ac.getMessage() + "<br>");
 			}
 			break;
 		case RADIO_HORIZONTAL: // will store integers
@@ -507,7 +512,7 @@ public class Node  {
 					ac.parse(triceps);
 					sb.append("<td valign='top' width='" + pct.toString() + "%'>");
 					sb.append("<input type='radio' name='" + getLocalName() + "' " + "value='" + ac.getValue() + "'" +
-						(DatumMath.eq(datum,new Datum(triceps, ac.getValue(),DATA_TYPES[answerType])).booleanVal() ? " checked" : "") + ">" + ac.getMessage());
+						(isSelected(datum,ac)? " checked" : "") + ">" + ac.getMessage());
 					sb.append("</td>");
 				}
 			}
@@ -524,7 +529,7 @@ public class Node  {
 				ac = (AnswerChoice) ans.nextElement();
 				ac.parse(triceps);
 				sb.append("<input type='checkbox' name='" + getLocalName() + "' " + "value='" + ac.getValue() + "'" +
-					(DatumMath.eq(datum, new Datum(triceps, ac.getValue(),DATA_TYPES[answerType])).booleanVal() ? " checked" : "") + ">" + ac.getMessage() + "<br>");
+					(isSelected(datum,ac) ? " checked" : "") + ">" + ac.getMessage() + "<br>");
 			}
 			break;
 		case COMBO:	// stores integers as value
@@ -542,7 +547,7 @@ public class Node  {
 				
 				String messageStr = ac.getMessage();
 				String prefix = "<option value='" + ac.getValue() + "'";
-				boolean selected = DatumMath.eq(datum, new Datum(triceps, ac.getValue(),DATA_TYPES[answerType])).booleanVal();
+				boolean selected = isSelected(datum,ac);
 				int stop;
 				int start=0;
 				int line=0;
@@ -853,6 +858,7 @@ public class Node  {
 	
 	public Vector getAnswerChoices(int langNum) { return getValuesAt(answerChoicesVector,langNum); }
 	public Vector getAnswerChoices() { return getValuesAt(answerChoicesVector,answerLanguageNum); }
+	public int numAnswerChoices() { return getValuesAt(answerChoicesVector,answerLanguageNum).size(); }
 	public String getHelpURL() { return getValueAt(helpURL,answerLanguageNum); }
 
 	public void setQuestionAsAsked(String s) { questionAsAsked = s; }
