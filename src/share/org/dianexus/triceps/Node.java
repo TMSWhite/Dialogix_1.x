@@ -160,6 +160,7 @@ public class Node  {
 						i = Integer.parseInt(fixExcelisms(s));
 					}
 					catch (NumberFormatException t) {
+Logger.writeln("##NumberFormatException @ Node.languageNum" + t.getMessage());
 						setParseError(triceps.get("languageNum_must_be_an_integer") + t.getMessage());
 						i = 0; // default language
 					}
@@ -375,6 +376,7 @@ public class Node  {
 			token = ans.nextToken();
 		}
 		catch (NoSuchElementException t) {
+Logger.writeln("##NoSuchElementException @ Node.parseAnswerOptions" + t.getMessage());
 			setParseError(triceps.get("missing_display_type") + t.getMessage());
 		}
 
@@ -395,8 +397,6 @@ public class Node  {
 
 		if (questionOrEvalType == EVAL) {
 			answerType = NOTHING;	// so no further processing
-			datumType = Datum.STRING;	// this isn't really true - should allow anything (and be overridden appropriately
-			return true;	// XXX? - should this really return?
 		}
 		else if (answerType == BADTYPE) {
 			setParseError(triceps.get("invalid_answerType"));
