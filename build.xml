@@ -111,7 +111,9 @@
   <property name="compile.debug"       value="true"/>
   <property name="compile.deprecation" value="false"/>
   <property name="compile.optimize"    value="true"/>
+  <!--
   <property name="build.compiler"		value="jikes"/>
+  -->
  
 
 
@@ -305,9 +307,6 @@
   <target name="deploy" depends="compile"
    description="Deploy application to servlet container">
    
-    <delete dir="${deploy.home}"/>
-    <delete dir="${tomcat.home}"/>
-    
     <mkdir dir="${deploy.home}"/>
     <mkdir dir="${tomcat.home}"/>
     
@@ -566,7 +565,6 @@
    description="Create binary distribution for Unix platforms">
    
     <mkdir dir="${dist.home}"/>
-    
     <!-- Create application Zip file -->
     <zip zipfile="${dist.home}/${zip.name}.zip"
          basedir="/">
