@@ -65,7 +65,8 @@ sub answers {
 	
 	unless (@args) {
 		# not a list
-		$type = 'nothing (instructions)'	if ($type == 'nothing');
+		$type = 'instructions'	if ($type eq 'nothing');
+		$type = 'number' if ($type eq 'double');
 		$str = "<font color='blue'><b>[Data type = </b>$type]</font>";
 		return $str;
 	}
