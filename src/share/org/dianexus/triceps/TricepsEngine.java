@@ -1083,6 +1083,36 @@ if (AUTHORABLE) {
 		return triceps.isValid();
 	}
 	
+	boolean setExtraParameters(String strStartingStep, Hashtable mappings) {
+		int startingStep = -1;
+		Evidence evidence = triceps.getEvidence();
+		boolean status = true;
+
+		try {
+			startingStep = Integer.parseInt(strStartingStep);
+			if (startingStep >= 0) {
+				schedule.setReserved(Schedule.STARTING_STEP,strStartingStep);
+			}
+		}
+		catch (Exception e) { }
+		
+		if (mappings != null) {
+			Enumeration keys = mappings.keys();
+			while (keys.hasMoreElements()) {
+				String key = (String) keys.nextElement();
+				String value = (String) mappings.get(key);
+				
+				Node node = evidence.getNode(key);		
+				status = triceps.storeValue(node, value, "", "", true) && status;
+			}	
+		}
+		if (triceps.hasErrors()) {
+			errors.println(triceps.getErrors());
+		}
+		
+		return status;
+	}
+	
 	private String nodesXML() {
 		StringBuffer sb = new StringBuffer();
 if (XML) {

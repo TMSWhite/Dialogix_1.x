@@ -40,7 +40,7 @@ public class LoginTricepsServlet extends TricepsServlet {
 	static final String LOGIN_ERR_NEW_SESSION = "Please login";
 	static final String LOGIN_ERR_MISSING_UNAME_OR_PASS = "Please enter both your username and password";
 	static final String LOGIN_ERR_INVALID_UNAME_OR_PASS = "The username or password you entered was incorrect";	/* don't mix so many messages? */
-	static final String LOGIN_ERR_INVALID = "Please login again --  You will resume from where you left off.<br><br>(Your login session was invalided either because you accidentaly pressed the browser's back button (instead of the 'prevous' button, or you attempted to use a bookmarked page from the instrument)";
+	static final String LOGIN_ERR_INVALID = "Please login again --  You will resume from where you left off.<br><br>(Your login session was invalided either because you accidentaly pressed the browser's back button (instead of the 'previous' button, or you attempted to use a bookmarked page from the instrument)";
 	static final String LOGIN_ERR_ALREADY_COMPLETED = "Thank you!  You have already completed this instrument.";
 	static final String LOGIN_ERR_UNABLE_TO_LOAD_FILE = "Please contact the administrator -- the program was unable to load the interview: ";
 	
@@ -174,7 +174,7 @@ if (DEBUG) Logger.printStackTrace(t);
 		/* N.B. This approach assumes that a single username / password is never used more than once -- one to one mapping between uname/pass and instrument instance */
 		String s = config.getInitParameter("loginInfoFile");
 		loginRecords = new LoginRecords(s);
-		loginRecords.showValues();
+//		loginRecords.showValues();
 		return loginRecords.isLoaded();
 	}
 	
@@ -322,6 +322,12 @@ if (DEBUG) Logger.printStackTrace(t);
 			boolean ok = tricepsEngine.getNewTricepsInstance(tricepsEngine.getCanonicalPath(src));
 			if (ok) {
 				String filename = tricepsEngine.getTriceps().dataLogger.getFilename();
+				
+				if (!loginRecord.isWorking()) {
+					/* This is a new file, so add additional config information to data file */
+					tricepsEngine.setExtraParameters(loginRecord.getStartingStep(),loginRecord.getMappings());
+				}
+				
 				loginRecord.setFilename(filename);
 				loginRecord.setStatusWorking();
 				loginRecords.updateLoginInfo();
@@ -417,6 +423,7 @@ class LoginRecords implements VersionIF  {
 	private boolean addLoginRecord(String line) {
 		int field = 0;
 		StringTokenizer st = new StringTokenizer(line,"\t",true);
+		String varname=null, value=null;
 		
 		LoginRecord lr = new LoginRecord();
 
@@ -443,6 +450,21 @@ class LoginRecords implements VersionIF  {
 					break;
 				case 4:
 					lr.setStatus(s);
+					break;
+				case 5:
+					lr.setStartingStep(s);
+					break;
+				default:
+					/* can add arbitrary number of additional parmeters, in pairs of tab delimited (VARIABLE_NAME, VALUE)
+					I have not done robust checking to ensure that the variable names are valid, since this is a hack.
+					When a new instrument is started, these pairs of values will be added to the end of the data file, before any subject interaction */
+					if (((field - 6) % 2) == 0) {
+						varname = s;
+					}
+					else {
+						value = s;
+						lr.addMapping(varname,value);
+					}
 					break;
 			}
 		}
@@ -522,6 +544,8 @@ class LoginRecord {
 	String filename = null;
 	String instrument = null;
 	String status = null;
+	String startingStep = null;
+	Hashtable mappings  = new Hashtable();
 	
 	LoginRecord() {
 	}
@@ -590,6 +614,37 @@ class LoginRecord {
 		status = STATUS_COMPLETED;
 	}
 	
+	void setStartingStep(String s) {
+		this.startingStep = s;
+	}
+	
+	String getStartingStep() {
+		return this.startingStep;
+	}
+	
+	boolean addMapping(String varname, String value) {
+		if (varname == null || value == null) {
+			return false;
+		}
+		
+		mappings.put(varname,value);
+		return true;
+	}
+	
+	String getMapping(String varname) {
+		if (varname == null) {
+			return null;
+		}
+		else {
+			return (String) mappings.get(varname);
+		}
+	}
+	
+	Hashtable getMappings() {
+		/* assumes that they won't be changed */
+		return mappings;
+	}
+	
 	/* should I also validate that the status value is valid? */
 	boolean isValid() {
 		if (username == null || password == null || filename == null || instrument == null || status == null) {
@@ -611,6 +666,18 @@ class LoginRecord {
 		sb.append(instrument);
 		sb.append("\t");
 		sb.append(status);
+		sb.append("\t");
+		sb.append(startingStep);
+		
+		Enumeration keys = mappings.keys();
+		while (keys.hasMoreElements()) {
+			String key = (String) keys.nextElement();
+			sb.append("\t");
+			sb.append(key);
+			sb.append("\t");
+			sb.append((String) mappings.get(key));
+		}
+		
 		return sb.toString();
 	}
 }
