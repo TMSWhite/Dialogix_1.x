@@ -32,19 +32,7 @@ public class Schedule  {
 		"__START_TIME__", "__FILENAME__", "__SHOW_INVISIBLE_OPTIONS__"
 	};
 
-	private String title = null;
-	private Integer startingStep = null;
 	private Date startTime = null;
-	private String passwordForRefused = null;
-	private String filename = null;
-	private String passwordForUnknown = null;
-	private String passwordForNotUnderstood = null;
-	private String icon = null;
-	private String headerMsg = null;
-	private boolean developerMode = false;
-	private boolean showQuestionRef = false;
-	private boolean debugMode = false;
-	private boolean autoGenOptionNum = true;
 	private int languageCount = 0;
 	private Vector languages = null;
 	private int currentLanguage = 0;
@@ -183,26 +171,33 @@ public class Schedule  {
 
 	public boolean setReserved(int resIdx, String value) {
 		String s;
+		if (value == null)
+			value = "";
 		switch (resIdx) {
-			case TITLE: s = setTitle(value); break;
+			case TITLE: s = value; break;
 			case STARTING_STEP: s = setStartingStep(value); break;
 			case START_TIME: s = setStartTime(value); break;
-			case PASSWORD_FOR_REFUSED: s = setPasswordForRefused(value); break;
-			case AUTOGEN_OPTION_NUM: s = setAutoGenOptionNum(value); break;
-			case FILENAME: s = setFilename(value); break;
-			case PASSWORD_FOR_UNKNOWN: s = setPasswordForUnknown(value); break;
-			case PASSWORD_FOR_NOT_UNDERSTOOD: s = setPasswordForNotUnderstood(value); break;
-			case ICON: s = setIcon(value); break;
-			case HEADER_MSG: s = setHeaderMsg(value); break;
-			case SHOW_QUESTION_REF: s = setShowQuestionRef(value); break;
-			case DEVELOPER_MODE: s = setDeveloperMode(value); break;
-			case DEBUG_MODE: s = setDebugMode(value); break;
+			case PASSWORD_FOR_REFUSED: s = value; break;
+			case AUTOGEN_OPTION_NUM: s = Boolean.valueOf(value.trim()).toString(); break;
+			case FILENAME: s = value; break;
+			case PASSWORD_FOR_UNKNOWN: s = value; break;
+			case PASSWORD_FOR_NOT_UNDERSTOOD: s = value; break;
+			case ICON: s = value; break;
+			case HEADER_MSG: s = value; break;
+			case SHOW_QUESTION_REF: s = Boolean.valueOf(value.trim()).toString(); break;
+			case DEVELOPER_MODE: s = Boolean.valueOf(value.trim()).toString(); break;
+			case DEBUG_MODE: s = Boolean.valueOf(value.trim()).toString(); break;
 			case LANGUAGES: s = setLanguages(value); break;
-			case SHOW_INVISIBLE_OPTIONS: s = setShowInvisibleOptions(value); break;
+			case SHOW_INVISIBLE_OPTIONS: s = Boolean.valueOf(value.trim()).toString(); break;
 			default: return false;
 		}
-		reserved.put(RESERVED_WORDS[resIdx], s);
-		return true;
+		if (s != null) {
+			reserved.put(RESERVED_WORDS[resIdx], s);
+			return true;
+		}
+		else {
+			return false;
+		}
 	}
 
 	public String getReserved(int resIdx) {
@@ -213,71 +208,8 @@ public class Schedule  {
 			return null;
 	}
 
-	private String setAutoGenOptionNum(String s) {
-		Boolean b = Boolean.valueOf(s);
-		autoGenOptionNum = b.booleanValue();
-		return b.toString();
-	}
-	public boolean isAutoGenOptionNum() { return autoGenOptionNum; }
-
-	private String setPasswordForRefused(String s) {
-		passwordForRefused = s;
-		return s;
-	}
-	private String setPasswordForUnknown(String s) {
-		passwordForUnknown = s;
-		return s;
-	}
-	private String setPasswordForNotUnderstood(String s) {
-		passwordForNotUnderstood = s;
-		return s;
-	}
-	private String setShowInvisibleOptions(String s) {
-		Boolean b = Boolean.valueOf(s);
-		autoGenOptionNum = b.booleanValue();
-		return b.toString();
-	}
-	private String setIcon(String s) {
-		icon = s;
-		return s;
-	}
-
-	private String setHeaderMsg(String s) {
-		headerMsg = s;
-		return s;
-	}
-
-	private String setTitle(String s) {
-		if (s == null)
-			title = "";
-		else
-			title = s;
-
-		return title;
-	}
-
-	private String setShowQuestionRef(String s) {
-		Boolean b = Boolean.valueOf(s);
-		showQuestionRef = b.booleanValue();
-		return b.toString();
-	}
-	public boolean isShowQuestionRef() { return showQuestionRef; }
-
-	private String setDeveloperMode(String s) {
-		Boolean b = Boolean.valueOf(s);
-		developerMode = b.booleanValue();
-		return b.toString();
-	}
-	public boolean isDeveloperMode() { return developerMode; }
-
-	private String setDebugMode(String s) {
-		Boolean b = Boolean.valueOf(s);
-		debugMode = b.booleanValue();
-		return b.toString();
-	}
-	public boolean isDebugMode() { return debugMode; }
-
 	private String setStartingStep(String s) {
+		Integer startingStep = null;
 		try {
 			startingStep = new Integer(s);
 		}
@@ -290,7 +222,7 @@ public class Schedule  {
 
 	private String setStartTime(Date t) {
 		startTime = t;
-		String str = Datum.TIME_MASK.format(startTime);
+		String str = Datum.TIME_MASK.format(t);
 		reserved.put(RESERVED_WORDS[START_TIME], str);
 		return str;
 	}
@@ -307,11 +239,6 @@ public class Schedule  {
 			time = new Date(System.currentTimeMillis());
 		}
 		return setStartTime(time);
-	}
-
-	private String setFilename(String value) {
-		filename = value;
-		return filename;
 	}
 
 	private String setLanguages(String value) {
