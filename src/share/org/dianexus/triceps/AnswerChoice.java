@@ -62,6 +62,17 @@ import java.util.Vector;
 		return sb.toString();
 	}
 	
+	/*public*/ static String toXML(String emptyVal, boolean selected) {
+		StringBuffer sb = new StringBuffer();
+		
+		sb.append("<ac val=\"\" key=\"\" on=\"");
+		sb.append((selected) ? "1" : "0");	// only mark the first instance as selected
+		sb.append("\">");
+		sb.append(XMLAttrEncoder.encode(emptyVal));
+		sb.append("</ac>");
+		return sb.toString();
+	}
+	
 	private Vector subdivideMessage(int maxLen) {
 		Vector choices = new Vector();
 
