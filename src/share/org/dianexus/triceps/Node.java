@@ -141,8 +141,8 @@ public class Node implements Serializable {
 			case RADIO:	// will store integers
 				while (ans.hasMoreElements()) { // for however many radio buttons there are
 					ac = (AnswerChoice) ans.nextElement();
-					sb.append("<input type='radio'" + "name='" + getName() + "' " + "value=" + ac.getValue() + 
-						(DatumMath.eq(datum,new Datum(ac.getValue(),Datum.DOUBLE)).booleanVal() ? " CHECKED" : "") + ">" + ac.getMessage() + "<br>");
+					sb.append("<input type='radio'" + "name='" + Node.encodeHTML(getName()) + "' " + "value='" + Node.encodeHTML(ac.getValue()) + "'" + 
+						(DatumMath.eq(datum,new Datum(ac.getValue(),Datum.DOUBLE)).booleanVal() ? " CHECKED" : "") + ">" + Node.encodeHTML(ac.getMessage()) + "<br>");
 				}
 				break;
 			case RADIO2: // will store integers
@@ -153,8 +153,8 @@ public class Node implements Serializable {
 				while (ans.hasMoreElements()) { // for however many radio buttons there are
 					ac = (AnswerChoice) ans.nextElement();
 					sb.append("<TD VALIGN='top'>");
-					sb.append("<input type='radio'" + "name='" + getName() + "' " + "value=" + ac.getValue() + 
-						(DatumMath.eq(datum,new Datum(ac.getValue(),Datum.DOUBLE)).booleanVal() ? " CHECKED" : "") + ">" + ac.getMessage());
+					sb.append("<input type='radio'" + "name='" + Node.encodeHTML(getName()) + "' " + "value='" + Node.encodeHTML(ac.getValue()) + "'" +
+						(DatumMath.eq(datum,new Datum(ac.getValue(),Datum.DOUBLE)).booleanVal() ? " CHECKED" : "") + ">" + Node.encodeHTML(ac.getMessage()));
 					sb.append("</TD>");
 				}
 				sb.append("</TR>");
@@ -164,17 +164,17 @@ public class Node implements Serializable {
 			case CHECK:
 				while (ans.hasMoreElements()) { // for however many radio buttons there are
 					ac = (AnswerChoice) ans.nextElement();
-					sb.append("<input type='checkbox'" + "name='" + getName() + "' " + "value=" + ac.getValue() + 
-						(DatumMath.eq(datum, new Datum(ac.getValue(),Datum.DOUBLE)).booleanVal() ? " CHECKED" : "") + ">" + ac.getMessage() + "<br>");
+					sb.append("<input type='checkbox'" + "name='" + Node.encodeHTML(getName()) + "' " + "value='" + Node.encodeHTML(ac.getValue()) + "'" +
+						(DatumMath.eq(datum, new Datum(ac.getValue(),Datum.DOUBLE)).booleanVal() ? " CHECKED" : "") + ">" + Node.encodeHTML(ac.getMessage()) + "<br>");
 				}		
 				break;
 			case COMBO:	// stores integers as value
-				sb.append("<select name='" + getName() + "'>");
+				sb.append("<select name='" + Node.encodeHTML(getName()) + "'>");
 				sb.append("<option value=''>--please select one of these choices--");	// first choice is empty
 				while (ans.hasMoreElements()) { // for however many radio buttons there are
 					ac = (AnswerChoice) ans.nextElement();
-					sb.append("<option value='" + ac.getValue() + "'" + 
-						(DatumMath.eq(datum, new Datum(ac.getValue(),Datum.STRING)).booleanVal() ? " SELECTED" : "") + ">" + ac.getMessage() + "</option>");
+					sb.append("<option value='" + Node.encodeHTML(ac.getValue()) + "'" + 
+						(DatumMath.eq(datum, new Datum(ac.getValue(),Datum.STRING)).booleanVal() ? " SELECTED" : "") + ">" + Node.encodeHTML(ac.getMessage()) + "</option>");
 				}
 				sb.append("</select>");		
 				break;
@@ -184,22 +184,22 @@ public class Node implements Serializable {
 					if (date != null)
 						defaultValue = Datum.mdy.format(date);
 				}
-				sb.append("<input type='text' name='" + getName() + "' value='" + defaultValue + "'>");
+				sb.append("<input type='text' name='" + Node.encodeHTML(getName()) + "' value='" + Node.encodeHTML(defaultValue) + "'>");
 				break;
 			case MONTH: // stores Month type
 				if (datum != null && datum.exists())
 					defaultValue = datum.monthVal();			
-				sb.append("<input type='text' name='" + getName() + "' value='" + defaultValue + "'>");
+				sb.append("<input type='text' name='" + Node.encodeHTML(getName()) + "' value='" + Node.encodeHTML(defaultValue) + "'>");
 				break;
 			case TEXT:	// stores Text type
 				if (datum != null && datum.exists())
 					defaultValue = datum.stringVal();
-				sb.append("<input type='text' name='" + getName() + "' value='" + defaultValue + "'>");
+				sb.append("<input type='text' name='" + Node.encodeHTML(getName()) + "' value='" + Node.encodeHTML(defaultValue) + "'>");
 				break;
 			case DOUBLE:	// stores Double type
 				if (datum != null && datum.exists())
 					defaultValue = datum.stringVal();
-				sb.append("<input type='text' name='" + getName() + "' value='" + defaultValue + "'>");
+				sb.append("<input type='text' name='" + Node.encodeHTML(getName()) + "' value='" + Node.encodeHTML(defaultValue) + "'>");
 				break;
 			default:
 			case NOTHING:
@@ -233,15 +233,33 @@ public class Node implements Serializable {
 	 * Prints out the components of a node in the schedule.
 	 */
 	public String toString() {
-		return "Node (" + step + "): <B>" + stepName + "</B><BR>\n" + "Concept: <B>" + concept + "</B><BR>\n" +
-			"Description: <B>" + description + "</B><BR>\n" + "Dependencies: <B>" + dependencies + "</B><BR>\n" +
-			"Question Reference: <B>" + questionRef + "</B><BR>\n" + "Action Type: <B>" + actionType + "</B><BR>\n" +
-			"Action: <B>" + action + "</B><BR>\n" + "AnswerType: <B>" + QUESTION_TYPES[answerType] + "</B><BR>\n" + "AnswerOptions: <B>" +
-			answerOptions + "</B><BR>\n";
+		return "Node (" + step + "): <B>" + Node.encodeHTML(stepName) + "</B><BR>\n" + "Concept: <B>" + Node.encodeHTML(concept) + "</B><BR>\n" +
+			"Description: <B>" + Node.encodeHTML(description) + "</B><BR>\n" + "Dependencies: <B>" + Node.encodeHTML(dependencies) + "</B><BR>\n" +
+			"Question Reference: <B>" + Node.encodeHTML(questionRef) + "</B><BR>\n" + "Action Type: <B>" + Node.encodeHTML(actionType) + "</B><BR>\n" +
+			"Action: <B>" + Node.encodeHTML(action) + "</B><BR>\n" + "AnswerType: <B>" + Node.encodeHTML(QUESTION_TYPES[answerType]) + "</B><BR>\n" + "AnswerOptions: <B>" +
+			Node.encodeHTML(answerOptions) + "</B><BR>\n";
 	}
 	
 	public String toTSV() {
 		return concept + "\t" + description + "\t" + stepName + "\t" + dependencies + "\t" + questionRef +
 			"\t" + actionType + "\t" + action + "\t" + answerOptions;
 	}
+	
+	
+	static public String encodeHTML(String s) {
+		char[] src = s.toCharArray();
+		StringBuffer dst = new StringBuffer();
+		
+		for (int i=0;i<src.length;++i) {
+			switch (src[i]) {
+				case '\'': dst.append("&#39;"); break;
+				case '\"': dst.append("&#34;"); break;
+				case '<': dst.append("&#60;"); break;
+				case '>': dst.append("&#62;"); break;
+				case '&': dst.append("&#38;"); break;
+				default: dst.append(src[i]); break;
+			}
+		}
+		return dst.toString();
+	}	
 }

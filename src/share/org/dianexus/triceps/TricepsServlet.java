@@ -53,9 +53,11 @@ public class TricepsServlet extends HttpServlet {
 
 		res.setContentType("text/html");
 		out = res.getWriter();
+		out.println("<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 3.2//EN\">");
 		out.println("<html>");
 		out.println("<body bgcolor='white'>");
 		out.println("<head>");
+		out.println("<META HTTP-EQUIV='Content-Type' CONTENT='text/html;CHARSET=iso-8859-1'>");
 		out.println("<title>TRICEPS SYSTEM</title>");
 		out.println("</head>");
 		out.println("<body>");
@@ -209,7 +211,7 @@ public class TricepsServlet extends HttpServlet {
 			
 			ok = triceps.toTSV(file);
 			if (ok) {
-				out.println("<B>Interview saved successfully as " + name + " (" + file + ")</B><HR>");
+				out.println("<B>Interview saved successfully as " + Node.encodeHTML(name) + " (" + file + ")</B><HR>");
 			}
 		}
 		else if (directive.equals("evaluate expr:")) {
@@ -218,8 +220,8 @@ public class TricepsServlet extends HttpServlet {
 				Datum datum = triceps.parser.parse(triceps.evidence, expr);
 				
 				out.println("<TABLE WIDTH='100%' CELLPADDING='2' CELLSPACING='1' BORDER=1>");
-				out.println("<TR><TD>Equation</TD><TD><B>" + expr + "</B></TD><TD>Type</TD><TD><B>" + Datum.TYPES[datum.type()] + "</B></TD></TR>");
-				out.println("<TR><TD>String</TD><TD><B>" + datum.stringVal() + "</B></TD><TD>boolean</TD><TD><B>" + datum.booleanVal() + "</B></TD></TR>");
+				out.println("<TR><TD>Equation</TD><TD><B>" + Node.encodeHTML(expr) + "</B></TD><TD>Type</TD><TD><B>" + Datum.TYPES[datum.type()] + "</B></TD></TR>");
+				out.println("<TR><TD>String</TD><TD><B>" + Node.encodeHTML(datum.stringVal()) + "</B></TD><TD>boolean</TD><TD><B>" + datum.booleanVal() + "</B></TD></TR>");
 				out.println("<TR><TD>double</TD><TD><B>" + datum.doubleVal() + "</B></TD><TD>long</TD><TD><B>" + datum.longVal() + "</B></TD></TR>");
 				out.println("<TR><TD>date</TD><TD><B>" + datum.dateVal() + "</B></TD><TD>month</TD><TD><B>" + datum.monthVal() + "</B></TD></TR>");
 				out.println("</TABLE>");
@@ -267,7 +269,7 @@ public class TricepsServlet extends HttpServlet {
 			Enumeration errs = triceps.getErrors();
 			if (errs.hasMoreElements()) {
 				while (errs.hasMoreElements()) {
-					out.println("<B>" + (String) errs.nextElement() + "</B><BR>");
+					out.println("<B>" + Node.encodeHTML((String) errs.nextElement()) + "</B><BR>");
 				}
 			}
 			out.println("<HR>");
@@ -297,8 +299,8 @@ public class TricepsServlet extends HttpServlet {
 			Datum datum = triceps.getDatum(node);
 			
 			out.println("	<TR>");
-			out.println("		<TD><B>" + node.getQuestionRef() + "</B></TD>");
-			out.println("		<TD>" + triceps.getQuestionStr(node) + "</TD>");
+			out.println("		<TD><B>" + Node.encodeHTML(node.getQuestionRef()) + "</B></TD>");
+			out.println("		<TD>" + Node.encodeHTML(triceps.getQuestionStr(node)) + "</TD>");
 			out.println("		<TD>" + node.prepareChoicesAsHTML(datum) + "</TD>");
 			out.println("	</TR>");
 		}
@@ -349,12 +351,12 @@ public class TricepsServlet extends HttpServlet {
 			while(questionNames.hasMoreElements()) {
 				Node n = (Node) questionNames.nextElement();
 				out.println("<TR>" + 
-					"<TD>" + n.getQuestionRef() + "</TD>" +
-					"<TD><B>" + triceps.toString(n) + "</B></TD>" +
-					"<TD>" + n.getName() + "</TD>" +
-					"<TD>" + n.getConcept() + "</TD>" +
-					"<TD>" + n.getDependencies() + "</TD>" +
-					"<TD>" + n.getAction() + "</TD>" +
+					"<TD>" + Node.encodeHTML(n.getQuestionRef()) + "</TD>" +
+					"<TD><B>" + Node.encodeHTML(triceps.toString(n)) + "</B></TD>" +
+					"<TD>" + Node.encodeHTML(n.getName()) + "</TD>" +
+					"<TD>" + Node.encodeHTML(n.getConcept()) + "</TD>" +
+					"<TD>" + Node.encodeHTML(n.getDependencies()) + "</TD>" +
+					"<TD>" + Node.encodeHTML(n.getAction()) + "</TD>" +
 					"</TR>\n");			
 			}		
 			out.println("</TABLE>");
@@ -369,13 +371,13 @@ public class TricepsServlet extends HttpServlet {
 					continue;
 				out.println("<TR>" + 
 					"<TD>" + (i + 1) + "</TD>" + 
-					"<TD>" + n.getQuestionRef() + "</TD>" +
-					"<TD><B>" + triceps.toString(n) + "</B></TD>" +
+					"<TD>" + Node.encodeHTML(n.getQuestionRef()) + "</TD>" +
+					"<TD><B>" + Node.encodeHTML(triceps.toString(n)) + "</B></TD>" +
 					"<TD>" + Datum.TYPES[n.getDatumType()] + "</TD>" +
-					"<TD>" + n.getName() + "</TD>" +
-					"<TD>" + n.getConcept() + "</TD>" +
-					"<TD>" + n.getDependencies() + "</TD>" +
-					"<TD>" + n.getAction() + "</TD>" +
+					"<TD>" + Node.encodeHTML(n.getName()) + "</TD>" +
+					"<TD>" + Node.encodeHTML(n.getConcept()) + "</TD>" +
+					"<TD>" + Node.encodeHTML(n.getDependencies()) + "</TD>" +
+					"<TD>" + Node.encodeHTML(n.getAction()) + "</TD>" +
 					"</TR>\n");
 			}
 			out.println("</TABLE>");
