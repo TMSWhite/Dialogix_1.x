@@ -930,11 +930,11 @@ if (AUTHORABLE) {
 					break;
 				case Node.RADIO_HORIZONTAL:
 					sb.append("<td colspan='3'>");
-					sb.append("<input type='hidden' name='" + (inputName + "_COMMENT") + "' value='" + (node.getComment()) + "'>");
+					sb.append("<input type='hidden' name='" + (inputName + "_COMMENT") + "' value='" + Node.EMPTY_NODE.attEncode(node.getComment()) + "'>");
 					sb.append("<input type='hidden' name='" + (inputName + "_SPECIAL") + "' value='" +
 						((isSpecial) ? (triceps.toString(node,true)) : "") +
 						"'>");
-					sb.append("<input type='hidden' name='" + (inputName + "_HELP") + "' value='" + (node.getHelpURL()) + "'>");
+					sb.append("<input type='hidden' name='" + (inputName + "_HELP") + "' value='" + node.getHelpURL() + "'>");
 					if (color != null) {
 						sb.append("<font" + color + ">" + triceps.getQuestionStr(node) + "</font>");
 					}
@@ -954,7 +954,7 @@ if (AUTHORABLE) {
 					break;
 				default:
 					sb.append("<td>");
-					sb.append("<input type='hidden' name='" + (inputName + "_COMMENT") + "' value='" + node.getComment() + "'>");
+					sb.append("<input type='hidden' name='" + (inputName + "_COMMENT") + "' value='" + Node.EMPTY_NODE.attEncode(node.getComment()) + "'>");
 					sb.append("<input type='hidden' name='" + (inputName + "_SPECIAL") + "' value='" +
 						((isSpecial) ? (triceps.toString(node,true)) : "") +
 						"'>");
@@ -1208,9 +1208,10 @@ if (DEPLOYABLE) {
 		sb.append("function keyHandler(e) {\n");
 //		if (allowRecordEvents) {
 			sb.append("	now = new Date();\n");
-			sb.append("	val = String.fromCharCode(e.which) + ',' + e.target.value;\n");
+//			sb.append("	val = String.fromCharCode(e.which) + ',' + e.target.value;\n");
+			sb.append("	val = String.fromCharCode(e.which) + ',';\n");
 			sb.append("	name = e.target.name;\n");
-			sb.append("	msg = name + ',' + e.target.type + ',' + e.type + ',' + now.getTime() + ',' + (now.getTime() - startTime.getTime()) + ',' + val + '|';\n");
+			sb.append("	msg = name + ',' + e.target.type + ',' + e.type + ',' + now.getTime() + ',' + (now.getTime() - startTime.getTime()) + ',' + val + '\t';\n");
 			sb.append("	document.myForm.EVENT_TIMINGS.value += msg;\n");
 //		}
 		sb.append("	return true;\n");
@@ -1222,7 +1223,7 @@ if (DEPLOYABLE) {
 //		if (allowRecordEvents) {
 			sb.append("	now = new Date();\n");
 			sb.append("	val = ',';\n");
-			sb.append("	msg = e.target.name + ',' + e.target.type + ',' + e.type + ',' + now.getTime() + ',' + (now.getTime() - startTime.getTime()) + ',' + val + '|';\n");
+			sb.append("	msg = e.target.name + ',' + e.target.type + ',' + e.type + ',' + now.getTime() + ',' + (now.getTime() - startTime.getTime()) + ',' + val + '\t';\n");
 			sb.append("	document.myForm.EVENT_TIMINGS.value += msg;\n");
 //		}
 }
@@ -1239,7 +1240,7 @@ if (DEPLOYABLE) {
 			sb.append("	now = new Date();\n");
 			sb.append("	val = e.target.options[e.target.selectedIndex].value + ',' + e.target.options[e.target.selectedIndex].text;\n");
 			sb.append("	name = e.target.name;\n");
-			sb.append("	msg = name + ',' + e.target.type + ',' + e.type + ',' + now.getTime() + ',' + (now.getTime() - startTime.getTime()) + ',' + val + '|';\n");
+			sb.append("	msg = name + ',' + e.target.type + ',' + e.type + ',' + now.getTime() + ',' + (now.getTime() - startTime.getTime()) + ',' + val + '\t';\n");
 			sb.append("	document.myForm.EVENT_TIMINGS.value += msg;\n");
 //		}
 		sb.append("	return true;\n");
@@ -1251,7 +1252,7 @@ if (DEPLOYABLE) {
 			sb.append("	now = new Date();\n");
 			sb.append("	val = ',' + e.target.value;\n");
 			sb.append("	name = e.target.name;\n");
-			sb.append("	msg = name + ',' + e.target.type + ',' + e.type + ',' + now.getTime() + ',' + (now.getTime() - startTime.getTime()) + ',' + val + '|';\n");
+			sb.append("	msg = name + ',' + e.target.type + ',' + e.type + ',' + now.getTime() + ',' + (now.getTime() - startTime.getTime()) + ',' + val + '\t';\n");
 			sb.append("	document.myForm.EVENT_TIMINGS.value += msg;\n");
 //		}
 }
