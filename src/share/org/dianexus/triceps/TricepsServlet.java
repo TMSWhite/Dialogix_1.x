@@ -431,7 +431,7 @@ public class TricepsServlet extends HttpServlet {
 		else if (directive.equals("evaluate expr:")) {
 			String expr = req.getParameter("evaluate expr:");
 			if (expr != null) {
-				Datum datum = triceps.parser.parse(triceps.evidence, expr);
+				Datum datum = triceps.evaluateExpr(expr);
 
 				sb.append("<TABLE WIDTH='100%' CELLPADDING='2' CELLSPACING='1' BORDER=1>\n");
 				sb.append("<TR><TD>Equation</TD><TD><B>" + Node.encodeHTML(expr) + "</B></TD><TD>Type</TD><TD><B>" + Datum.TYPES[datum.type()] + "</B></TD></TR>\n");
@@ -439,16 +439,14 @@ public class TricepsServlet extends HttpServlet {
 				sb.append("<TR><TD>double</TD><TD><B>" + datum.doubleVal() + "</B></TD><TD>long</TD><TD><B>" + datum.longVal() + "</B></TD></TR>\n");
 				sb.append("<TR><TD>date</TD><TD><B>" + datum.dateVal() + "</B></TD><TD>month</TD><TD><B>" + datum.monthVal() + "</B></TD></TR>\n");
 				sb.append("</TABLE>\n");
-
-				if (triceps.parser.hasErrors()) {
-					Vector v = triceps.parser.getErrors();
+				
+				Enumeration errs = triceps.getErrors();
+				if (errs.hasMoreElements()) {
 					sb.append("<B>There were errors parsing that equation:</B><BR>");
-					for (int j=0;j<v.size();++j) {
-						if (j > 0)
-							sb.append("<BR>");
-						sb.append(Node.encodeHTML((String) v.elementAt(j)));
+					while (errs.hasMoreElements()) {
+						sb.append("<B>" + Node.encodeHTML((String) errs.nextElement()) + "</B><BR>\n");
 					}
-				}
+				}				
 			}
 		}
 		else if (directive.equals("show XML")) {
@@ -708,16 +706,16 @@ public class TricepsServlet extends HttpServlet {
 
 			while(questionNames.hasMoreElements()) {
 				Node n = (Node) questionNames.nextElement();
-				sb.append("<TR>" +
-					"<TD>" + Node.encodeHTML(n.getQuestionRef(),true) + "</TD>" +
-					"<TD><B>" + Node.encodeHTML(triceps.toString(n,true),true) + "</B></TD>" +
-					"<TD>" + Datum.TYPES[n.getDatumType()] + "</TD>" +
-					"<TD>" + Node.encodeHTML(n.getName(),true) + "</TD>" +
-					"<TD>" + Node.encodeHTML(n.getConcept(),true) + "</TD>" +
-					"<TD>" + Node.encodeHTML(n.getDependencies(),true) + "</TD>" +
-					"<TD>" + Node.encodeHTML(n.getActionTypeField(),true) + "</TD>" +
-					"<TD>" + Node.encodeHTML(n.getAction(),true) + "</TD>" +
-					"</TR>\n");
+				sb.append("<TR>");
+				sb.append("<TD>" + Node.encodeHTML(n.getQuestionRef(),true) + "</TD>");
+				sb.append("<TD><B>" + Node.encodeHTML(triceps.toString(n,true),true) + "</B></TD>");
+				sb.append("<TD>" + Node.encodeHTML(Datum.TYPES[n.getDatumType()]) + "</TD>");
+				sb.append("<TD>" + Node.encodeHTML(n.getName(),true) + "</TD>");
+				sb.append("<TD>" + Node.encodeHTML(n.getConcept(),true) + "</TD>");
+				sb.append("<TD>" + Node.encodeHTML(n.getDependencies(),true) + "</TD>");
+				sb.append("<TD>" + Node.encodeHTML(n.getActionTypeField(),true) + "</TD>");
+				sb.append("<TD>" + Node.encodeHTML(n.getAction(),true) + "</TD>");
+				sb.append("</TR>\n");
 			}
 			sb.append("</TABLE>\n");
 
@@ -729,17 +727,17 @@ public class TricepsServlet extends HttpServlet {
 				Node n = triceps.getNode(i);
 				if (!triceps.isSet(n))
 					continue;
-				sb.append("<TR>" +
-					"<TD>" + (i + 1) + "</TD>" +
-					"<TD>" + Node.encodeHTML(n.getQuestionRef(),true) + "</TD>" +
-					"<TD><B>" + Node.encodeHTML(triceps.toString(n,true),true) + "</B></TD>" +
-					"<TD>" + Datum.TYPES[n.getDatumType()] + "</TD>" +
-					"<TD>" + Node.encodeHTML(n.getName(),true) + "</TD>" +
-					"<TD>" + Node.encodeHTML(n.getConcept(),true) + "</TD>" +
-					"<TD>" + Node.encodeHTML(n.getDependencies(),true) + "</TD>" +
-					"<TD>" + Node.encodeHTML(n.getActionTypeField(),true) + "</TD>" +
-					"<TD>" + Node.encodeHTML(n.getAction(),true) + "</TD>" +
-					"</TR>\n");
+				sb.append("<TR>");
+				sb.append("<TD>" + (i + 1) + "</TD>");
+				sb.append("<TD>" + Node.encodeHTML(n.getQuestionRef(),true) + "</TD>");
+				sb.append("<TD><B>" + Node.encodeHTML(triceps.toString(n,true),true) + "</B></TD>");
+				sb.append("<TD>" +  Node.encodeHTML(Datum.TYPES[n.getDatumType()]) + "</TD>");
+				sb.append("<TD>" + Node.encodeHTML(n.getName(),true) + "</TD>");
+				sb.append("<TD>" + Node.encodeHTML(n.getConcept(),true) + "</TD>");
+				sb.append("<TD>" + Node.encodeHTML(n.getDependencies(),true) + "</TD>");
+				sb.append("<TD>" + Node.encodeHTML(n.getActionTypeField(),true) + "</TD>");
+				sb.append("<TD>" + Node.encodeHTML(n.getAction(),true) + "</TD>");
+				sb.append("</TR>\n");
 			}
 			sb.append("</TABLE>\n");
 		}

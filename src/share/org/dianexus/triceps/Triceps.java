@@ -17,8 +17,8 @@ public class Triceps {
 	private String scheduleURL = null;
 	private String scheduleUrlPrefix = null;
 	private Schedule nodes = new Schedule();
-	public Evidence evidence = null;	// XXX - should be private - made public for debugging from TricepsServlet
-	static public Parser parser = new Parser();	// XXX - should not be public - only making it so for debugging
+	private Evidence evidence = null;
+	static private Parser parser = new Parser();
 
 	private Vector errors = new Vector();
 	private int currentStep=0;
@@ -507,7 +507,7 @@ public class Triceps {
 		Vector actionErrors;
 		Vector nodeErrors;
 		boolean hasErrors;
-		Evidence ev = new Evidence(nodes);
+//		Evidence ev = new Evidence(nodes);
 
 		for (int i=0;i<size();++i) {
 			n = nodes.getNode(i);
@@ -519,7 +519,7 @@ public class Triceps {
 			actionErrors = EMPTY_LIST;
 			nodeErrors = EMPTY_LIST;
 
-			parser.booleanVal(ev, n.getDependencies());
+			parser.booleanVal(evidence, n.getDependencies());
 
 			if (parser.hasErrors()) {
 				hasErrors = true;
@@ -531,10 +531,10 @@ public class Triceps {
 
 			if (action != null) {
 				if (actionType == Node.QUESTION) {
-					parser.parseJSP(ev, action);
+					parser.parseJSP(evidence, action);
 				}
 				else if (actionType == Node.EVAL) {
-					parser.stringVal(ev, action);
+					parser.stringVal(evidence, action);
 				}
 			}
 
@@ -723,4 +723,8 @@ public class Triceps {
 	
 	public String getPasswordForRefused() { return nodes.getPasswordForRefused(); }
 	public void setPasswordForRefused(String s) { nodes.setPasswordForRefused(s); }
+	
+	public Datum evaluateExpr(String expr) {
+		return parser.parse(evidence,expr);
+	}
 }
