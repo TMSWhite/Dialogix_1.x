@@ -450,31 +450,64 @@ public class Schedule  {
 	public Vector getLanguages() { return languageNames; }
 
 	public String setLanguage(String s) {
+		Locale loc = null;
+		
 		if (s == null || s.trim().length() == 0) {
 			currentLanguage = 0;
-			triceps.setLocale((Locale) locales.elementAt(currentLanguage));
 		}
 		else {
 			for (int i=0;i<languageNames.size();++i) {
 				if (s.equals((String) languageNames.elementAt(i))) {
 					currentLanguage = i;
-					Locale loc = (Locale) locales.elementAt(i);
-					triceps.setLocale(loc);
-					return loc.toString();
 				}
 			}
 			for (int i=0;i<locales.size();++i) {
-				Locale loc = (Locale) locales.elementAt(i);
+				loc = (Locale) locales.elementAt(i);
 				if (s.equals(loc.toString())) {
 					currentLanguage = i;
-					triceps.setLocale(loc);
-					return loc.toString();
 				}
 			}			
 			setError(triceps.get("tried_to_switch_to_unsupported_language") + s);
 		}
-		return ((Locale) locales.elementAt(currentLanguage)).toString();
+		
+		loc = (Locale) locales.elementAt(currentLanguage);
+		triceps.setLocale(loc);
+		
+		recalculateInNewLanguage();
+		
+		return loc.toString();
 	}
+	
+	public boolean recalculateInNewLanguage() {
+		boolean ok = false;
+		
+		if (!isLoaded())
+			return ok;
+			
+		Evidence evidence = triceps.getEvidence();
+		Parser parser = triceps.getParser();
+		
+		/* re-calculate all eval nodes that meet dependencies, using the new language */
+		for (int i=0;i<triceps.getCurrentStep();++i) {
+			Node node = getNode(i);
+			if (node == null)
+				continue;
+				
+			if (node.getQuestionOrEvalType() == Node.EVAL) {
+				node.setAnswerLanguageNum(currentLanguage);	// don't change the language for non-EVAL nodes - want to know what was asked
+				if (parser.booleanVal(triceps, node.getDependencies())) {
+					Datum datum = parser.parse(triceps, node.getQuestionOrEval());
+					node.setDatumType(datum.type());
+					evidence.set(node, datum);
+				}
+				else {
+					evidence.set(node, Datum.getInstance(triceps,Datum.NA));	// if doesn't satisfy dependencies, store NA
+				}
+			}
+		}
+		return true;
+	}
+	
 
 	public int getLanguage() { return currentLanguage; }
 
