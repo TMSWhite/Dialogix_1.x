@@ -1,3 +1,4 @@
 <tomcat-users>
   <user name="root" password="cv#9gxi" roles="tomcat,role1,tomcat_admin,tomcat_root" />
+  <user name="CHOICEs" password="##test987##" roles="CHOICEs" />
 </tomcat-users>

@@ -375,8 +375,9 @@
     </copy>         
 
     <!-- Copy external dependencies as required -->
+    
    <!-- Tomcat 3.3 puts common jar files into /lib/app -->
-    <mkdir dir="${tomcat.home}/lib/apps"/>	<!-- just in case neede -->
+    <mkdir dir="${tomcat.home}/lib/apps"/>	<!-- just in case needed -->
     <jar jarfile="${tomcat.home}/lib/apps/${app.name}.jar" whenempty="skip">
          <fileset dir="${build.home}/classes">
          	<include name="**" if="using.tomcat_3_3"/>
@@ -397,13 +398,53 @@
     	</fileset>
     </copy>
     
+    
+    <!-- Make Tomcat-specific directories (so that build doesn't fail) - delete them later if empty -->
+    <mkdir dir="${tomcat.home}/lib/common"/>	<!-- in case needed for Tomcat 3.3 -->
+    <mkdir dir="${tomcat.home}/common/lib"/>	<!-- in case needed for Tomcat 4.0 -->
+
+    <!-- Copy ssl libraries -->
+    <copy todir="${tomcat.home}/lib/common">
+    	<fileset dir="src/ssl-lib">
+    		<include name="*.jar" if="using.tomcat_3_3"/>
+    	</fileset>
+    </copy>
+    
+    <copy todir="${tomcat.home}/lib">
+    	<fileset dir="src/ssl-lib">
+    		<include name="*.jar" if="using.tomcat_3_2"/>
+    	</fileset>
+    </copy>    
+    
+    <copy todir="${tomcat.home}/common/lib">
+    	<fileset dir="src/ssl-lib">
+    		<include name="*.jar" if="using.tomcat_4_0"/>
+    	</fileset>
+    </copy>
+    
+    <!-- delete dirs that are not pertinent to a given distro -->    
+    
     <delete includeEmptyDirs="true">
     	<fileset dir="${tomcat.home}/lib/apps">
     		<include name="**" if="using.tomcat_3_2"/>
     		<include name="**" if="using.tomcat_4_0"/>
     	</fileset>
     </delete>
- 
+    
+    <delete includeEmptyDirs="true">
+    	<fileset dir="${tomcat.home}/common/lib">
+    		<include name="**" if="using.tomcat_3_2"/>
+    		<include name="**" if="using.tomcat_3_3"/>
+    	</fileset>
+    </delete>    
+    
+    <delete includeEmptyDirs="true">
+    	<fileset dir="${tomcat.home}/lib/common">
+    		<include name="**" if="using.tomcat_3_2"/>
+    		<include name="**" if="using.tomcat_4_0"/>
+    	</fileset>
+    </delete>        
+    
     <!-- Tomcat 3.2 puts common jar files into /lib -->
     <!-- Tomcat 4.0 puts common jar files into /lib -->
 	<jar jarfile="${tomcat.home}/lib/${app.name}.jar" whenempty="skip">

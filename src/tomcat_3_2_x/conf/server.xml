@@ -244,7 +244,6 @@
             You can set parameter keystore and keypass if you want 
             to change the default ( user.home/.keystore with changeit )
          -->
-<!--
         <Connector className="org.apache.tomcat.service.PoolTcpConnector">
             <Parameter name="handler" 
                 value="org.apache.tomcat.service.http.HttpConnectionHandler"/>
@@ -253,7 +252,6 @@
             <Parameter name="socketFactory" 
                 value="org.apache.tomcat.net.SSLSocketFactory" />
         </Connector>
--->        
 
         <!-- Apache AJP12 support. This is also used to shut down tomcat.
           -->
