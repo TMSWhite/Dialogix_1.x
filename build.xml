@@ -111,6 +111,7 @@
   <property name="compile.debug"       value="true"/>
   <property name="compile.deprecation" value="false"/>
   <property name="compile.optimize"    value="true"/>
+  <property name="build.compiler"		value="jikes"/>
  
 
 
