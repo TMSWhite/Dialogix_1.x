@@ -437,3 +437,20 @@ Reorganization & Documentation
     -- modified Isso install to better deal with Window 98 -- still imperfect
     -- added support for Tomcat 4.0.3
     -- added BASIC authentication for Prefs project
+
+   PERL TODO
+    -- need to modify all called perl files so that they have correct path and uniqueID information.
+    -- sched2sas must have verbose instrument name for cross-validating data with instrument
+    -- should read all *UNASKED* variables from data file and confirm that match number, naming, and order with instrument (else have wrong one)
+    -- add support for the following issues:
+      (1) ensuring that the variable names for each questions are
+      non-ambiguous (e.g. ensuring that variable XXX is not used for different
+      purposes in different versions of the instrument).  If ambiguous
+      variable names are found, then a mapping / translation system needs to
+      be created to convert them to new, disambiguated variable names.
+      (2) creating a non-duplicated list of all variable names
+      (3) creating a mapping / translation of these long variable names to
+      unique 8 character variables names that can be used by SPSS.
+      (4) creating new SPSS import and data-dictionary-creation files for each
+      version of the instrument.  These SPSS files must refer to the master
+      list of variable names in order for data to be properly merged.
