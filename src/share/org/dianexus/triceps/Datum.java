@@ -23,19 +23,23 @@ public class Datum  {
 	private static final Double SAMPLE_NUMBER = new Double(123.456);
 	public static final String TYPES[] = { "*UNKNOWN*", "*NOT APPLICABLE*", "*REFUSED*", "*INVALID*", 
 		"Number", "String", "Date", "Time", "Year", "Month", "Day", "Weekday", "Hour", "Minute", "Second" };
-
+		
 	private static final SimpleDateFormat defaultDateFormat = new SimpleDateFormat("MM/dd/yyyy");
 	private static final SimpleDateFormat defaultMonthFormat = new SimpleDateFormat("MMMM");
 	private static final SimpleDateFormat defaultTimeFormat = new SimpleDateFormat("HH:mm:ss");
 	private static final SimpleDateFormat defaultYearFormat = new SimpleDateFormat("yyyy");
 	private static final SimpleDateFormat defaultDayFormat = new SimpleDateFormat("d");
-	private static final SimpleDateFormat defaultWeekdayFormat = new SimpleDateFormat("E");
+	private static final SimpleDateFormat defaultWeekdayFormat = new SimpleDateFormat("EE");
 	private static final SimpleDateFormat defaultHourFormat = new SimpleDateFormat("H");
 	private static final SimpleDateFormat defaultMinuteFormat = new SimpleDateFormat("m");
 	private static final SimpleDateFormat defaultSecondFormat = new SimpleDateFormat("s");
 	private static final DecimalFormat defaultNumberFormat = new DecimalFormat();
 	
 	public static final SimpleDateFormat TIME_MASK = new SimpleDateFormat("yyyy.MM.dd..HH.mm.ss");
+	
+	/* XXX:  SimpleDateFormat.parse() buggy for WEEKDAY.  Default date is Thu 1/1/1970.  Add weekday to WEEKDAY_STR */
+	private static final String WEEKDAY_STRS[] = { "thu", "fri", "sat", "sun", "mon", "tue", "wed" };
+	public static final GregorianCalendar calendar = new GregorianCalendar();
 	
 
 	private int type = UNKNOWN;
@@ -128,20 +132,30 @@ public class Datum  {
 				try {
 					if (mask != null && mask instanceof NumberFormat) {
 						dVal = ((NumberFormat) mask).parse(s).doubleValue();
-						sVal = ((NumberFormat) mask).format(dVal);
-						type = NUMBER;	// only if successfully parsed
+						sVal = Datum.format(new Double(dVal),t,mask);
+						if (TYPES[INVALID].equals(sVal)) {
+							type = INVALID;
+						}
+						else {
+							type = NUMBER;	// only if successfully parsed
+						}
 					}
 					else {
 						type = INVALID;
 					}
 				}
 				catch (java.text.ParseException e) {
-					String ex = Datum.getExampleFormatStr(mask,t);
-					if (ex.length() > 0)
-						ex = " (e.g. " + ex + ")";
-					error = "Please enter a " + TYPES[t] + ex;
-					sVal = "";
-					dVal = Double.NaN;
+					type = INVALID;
+				}
+				finally {
+					if (type == INVALID) {
+						String ex = Datum.getExampleFormatStr(mask,t);
+						if (ex.length() > 0)
+							ex = " (e.g. " + ex + ")";
+						error = "Please enter a " + TYPES[t] + ex;
+						sVal = "";
+						dVal = Double.NaN;
+					}
 				}
 				bVal = (Double.isNaN(dVal) || (dVal == 0)) ? false : true;
 				break;
@@ -159,31 +173,64 @@ public class Datum  {
 					bVal = (Double.isNaN(dVal) || (dVal == 0)) ? false : true;
 				}
 				break;
+			case WEEKDAY:	{ // XXX: need a hack for this, since SimpleDateFormat has bug in way parses Weekdays
+				String day = s.trim().toLowerCase();
+				int i=0;
+				for (i=0;i<WEEKDAY_STRS.length;++i) {
+					if (day.startsWith(WEEKDAY_STRS[i])) {
+						try {
+							date = defaultWeekdayFormat.parse("Thu");	// -> 1/1/1970
+						}
+						catch (Exception e) {}
+						calendar.setTime(date);
+						calendar.roll(Calendar.DAY_OF_WEEK,i);
+						date = calendar.getTime();
+						type = WEEKDAY;
+						break;
+					}
+				}
+				if (i == WEEKDAY_STRS.length) {
+					type = INVALID;
+				}
+			}
+			/** Fall through **/
 			case MONTH:
 			case DATE:
 			case TIME:
 			case YEAR:
 			case DAY:
-			case WEEKDAY:
 			case HOUR:
 			case MINUTE:
 			case SECOND:
 				try {
-					if (mask != null && mask instanceof DateFormat) {
-						date = ((DateFormat) mask).parse(s);
-						sVal = ((DateFormat) mask).format(date);
-						type = t;	// only if successfully parsed
+					if (t != WEEKDAY) {
+						if (mask != null && mask instanceof DateFormat) {
+							date = ((DateFormat) mask).parse(s);
+						}
+						else {
+							type = INVALID;
+						}
+					}
+
+					sVal = Datum.format(date, t, mask);
+					if (TYPES[INVALID].equals(sVal)) {
+						type = INVALID;
 					}
 					else {
-						type = INVALID;
+						type = t;	// only if successfully parsed
 					}
 				}
 				catch (java.text.ParseException e) {
-					String ex = Datum.getExampleFormatStr(mask,t);
-					if (ex.length() > 0)
-						ex = " (e.g. " + ex + ")";
-					error = "Please enter a " + TYPES[t] + ex;
-					date = null;
+					type = INVALID;
+				}
+				finally {
+					if (type == INVALID) {
+						String ex = Datum.getExampleFormatStr(mask,t);
+						if (ex.length() > 0)
+							ex = " (e.g. " + ex + ")";
+						error = "Please enter a " + TYPES[t] + ex;
+						date = null;
+					}
 				}
 				break;
 			case REFUSED:
