@@ -49,6 +49,8 @@ public class Node  {
 
 	private static final int MAX_TEXT_LEN_FOR_COMBO = 60;
 	private static final int MAX_ITEMS_IN_LIST = 20;
+	
+	private static final String INTRA_OPTION_LINE_BREAK = "<br>";
 
 	private static final Vector EMPTY_VECTOR = new Vector();
 
@@ -536,51 +538,69 @@ public class Node  {
 				ac = (AnswerChoice) ans.nextElement();
 				ac.parse(parser,ev);
 				++optionNum;
-
-				String option = ac.getMessage();
+				
+				String messageStr = ac.getMessage();
 				String prefix = "<option value='" + ac.getValue() + "'";
 				boolean selected = DatumMath.eq(datum, new Datum(lingua, ac.getValue(),DATA_TYPES[answerType])).booleanVal();
 				int stop;
+				int start=0;
 				int line=0;
-
-				while (option.length() > 0) {
-					if (option.length() < MAX_TEXT_LEN_FOR_COMBO) {
-						stop = option.length();
+				String option = null;
+				
+				/* must also detect <br> for intra-option line-breaks */
+				
+				int lineBreak = 0;
+				
+				while (start < messageStr.length()) {
+					lineBreak = messageStr.indexOf(INTRA_OPTION_LINE_BREAK,start);
+					if (lineBreak == -1) {
+						option = messageStr.substring(start,messageStr.length());
+						start = messageStr.length();
 					}
 					else {
-						stop = option.lastIndexOf(' ',MAX_TEXT_LEN_FOR_COMBO);
-						if (stop <= 0) {
-							stop = MAX_TEXT_LEN_FOR_COMBO;	// if no extra space, take entire string
-						}
+						option = messageStr.substring(start,lineBreak);
+						start = lineBreak + INTRA_OPTION_LINE_BREAK.length();
 					}
-
-					choices.append(prefix);
-					if (line++ == 0) {
-						if (selected) {
-							choices.append(" SELECTED>" +
-								((autogen) ? String.valueOf(optionNum) : ac.getValue()) +
-								")&nbsp;");
-							nothingSelected = false;
+					
+					while (option.length() > 0) {
+						if (option.length() < MAX_TEXT_LEN_FOR_COMBO) {
+							stop = option.length();
 						}
 						else {
-							choices.append(">" +
-								((autogen) ? String.valueOf(optionNum) : ac.getValue()) +
-								")&nbsp;");
+							stop = option.lastIndexOf(' ',MAX_TEXT_LEN_FOR_COMBO);
+							if (stop <= 0) {
+								stop = MAX_TEXT_LEN_FOR_COMBO;	// if no extra space, take entire string
+							}
 						}
+	
+						choices.append(prefix);
+						if (line++ == 0) {
+							if (selected) {
+								choices.append(" SELECTED>" +
+									((autogen) ? String.valueOf(optionNum) : ac.getValue()) +
+									")&nbsp;");
+								nothingSelected = false;
+							}
+							else {
+								choices.append(">" +
+									((autogen) ? String.valueOf(optionNum) : ac.getValue()) +
+									")&nbsp;");
+							}
+						}
+						else {
+							choices.append(">&nbsp;&nbsp;&nbsp;");
+						}
+						choices.append(option.substring(0,stop));
+	
+						if (stop<option.length())
+							option = option.substring(stop+1,option.length());
+						else
+							option = "";
+	
+						choices.append("</option>");
 					}
-					else {
-						choices.append(">&nbsp;&nbsp;&nbsp;");
-					}
-					choices.append(option.substring(0,stop));
-
-					if (stop<option.length())
-						option = option.substring(stop+1,option.length());
-					else
-						option = "";
-
-					choices.append("</option>");
 				}
-				totalLines += line;
+				totalLines += line;		
 			}
 			sb.append("<select name='" + getLocalName() + "'" +
 				((answerType == LIST) ? (" size = '" + Math.min(MAX_ITEMS_IN_LIST,totalLines+1) + "'") : "") +
