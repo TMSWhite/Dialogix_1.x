@@ -89,6 +89,11 @@ if (DEBUG) Logger.printStackTrace(t);
 	private void okPage(HttpServletRequest req, HttpServletResponse res) {
 		HttpSession session = req.getSession(true);
 		
+		if (session.isNew()) {
+//			Logger.writeln("session timeout (secs) = " + session.getMaxInactiveInterval());
+			session.setMaxInactiveInterval(43200);	// so expires after 12 hours
+		}
+		
 		sessionID = session.getId();
 		String fullSessionID = TRICEPS_ENGINE + "." + sessionID;
 		
@@ -119,7 +124,7 @@ if (DEBUG) {
 	/* standard Apache log format (after the #@# prefix for easier extraction) */
 	Logger.writeln("#@#(" + req.getParameter("DIRECTIVE") + ") [" + new Date(System.currentTimeMillis()) + "] " + 
 		sessionID + 
-		((WEB_SERVER) ? (" " + req.getRemoteAddr() + " \"" + req.getMethod() + " " + req.getRequestURI() + "\" \"" +
+		((WEB_SERVER) ? (" " + req.getRemoteAddr() + " \"" +
 		req.getHeader(USER_AGENT) + "\" \"" + req.getHeader(ACCEPT_LANGUAGE) + "\" \"" + req.getHeader(ACCEPT_CHARSET) + "\"") : "") +
 		((tricepsEngine != null) ? tricepsEngine.getScheduleStatus() : ""));
 		
