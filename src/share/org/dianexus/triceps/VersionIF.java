@@ -7,7 +7,7 @@ package org.dianexus.triceps;
 
 import java.lang.String;
 
-/*public*/ interface VersionIF extends @@DIALOGIX.LICENSE@@LicenseIF {
+/*public*/ interface VersionIF extends LicenseIF {
     /*public*/ final static boolean DEBUG = true;
     /*public*/ final static boolean AUTHORABLE = @@DIALOGIX.AUTHORABLE@@;
     /*public*/ final static boolean DEPLOYABLE = @@DIALOGIX.DEPLOYABLE@@;
