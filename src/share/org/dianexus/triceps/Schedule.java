@@ -426,7 +426,11 @@ public class Schedule  {
 	public Vector getLanguages() { return languageNames; }
 
 	public String setLanguage(String s) {
-		if (s != null) {
+		if (s == null || s.trim().length() == 0) {
+			currentLanguage = 0;
+			lingua.setLocale((Locale) locales.elementAt(currentLanguage));
+		}
+		else {
 			for (int i=0;i<languageNames.size();++i) {
 				if (s.equals((String) languageNames.elementAt(i))) {
 					currentLanguage = i;
@@ -444,10 +448,6 @@ public class Schedule  {
 				}
 			}			
 			setError(lingua.get("tried_to_switch_to_unsupported_language") + s);
-		}
-		else {
-			currentLanguage = 0;
-			lingua.setLocale((Locale) locales.elementAt(currentLanguage));
 		}
 		return ((Locale) locales.elementAt(currentLanguage)).toString();
 	}
