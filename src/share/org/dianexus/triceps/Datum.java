@@ -626,7 +626,7 @@ public class Datum  {
 	
 	static public Datum parseSpecialType(Triceps lang, String s) {
 		if (s == null || s.trim().length() == 0)
-			return getInstance(lang,UNASKED);
+			return null;	// not a special datatype
 			
 		for (int i=0;i<SPECIAL_TYPES.length;++i) {
 			if (SPECIAL_TYPES[i].equals(s))
