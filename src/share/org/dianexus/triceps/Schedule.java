@@ -179,8 +179,8 @@ public class Schedule implements VersionIF  {
 		setReserved(SCHED_VERSION_MINOR,null);
 		setReserved(SCHED_HELP_URL,null);
 		setReserved(HELP_ICON,"help_true.gif");
-		setReserved(ACTIVE_BUTTON_PREFIX,"${");
-		setReserved(ACTIVE_BUTTON_SUFFIX,"}$");
+		setReserved(ACTIVE_BUTTON_PREFIX,"««");
+		setReserved(ACTIVE_BUTTON_SUFFIX,"»»");
 	}
 		
 	public boolean init() {
