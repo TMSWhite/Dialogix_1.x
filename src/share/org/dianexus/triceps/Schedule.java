@@ -21,6 +21,8 @@ import java.util.Locale;
 import java.io.File;
 import java.io.FileReader;
 import java.io.ByteArrayInputStream;
+import java.util.Stack;
+import java.util.Enumeration;
 
 /*public*/ class Schedule implements VersionIF  {
 	/*public*/ static final int LANGUAGES = 0;
@@ -143,6 +145,7 @@ import java.io.ByteArrayInputStream;
 	private Evidence evidence = null;
 	private ScheduleSource scheduleSource = null;
 	private boolean isDatafile = false;
+	private Stack stepHistory = new Stack();
 	
 	private Hashtable headerMsgs = new Hashtable();
 
@@ -226,13 +229,8 @@ import java.io.ByteArrayInputStream;
 		
 	/*public*/ boolean init() {
 		boolean ok = init2();
-if (DEBUG && false) {
-		String source = null;
-		SourceInfo si = null;
-		if (scheduleSource != null && ((si = scheduleSource.getSourceInfo()) != null)) {
-			source = si.getSource();
-		}
-		Logger.writeln("##@@Schedule.load(" + source + "," + getReserved(SCHEDULE_SOURCE) + ")-> " + ((ok) ? "SUCCESS" : "FAILURE"));
+if (DEBUG) {	// && false
+		Logger.writeln("##@@Schedule.load(" + getReserved(SCHEDULE_SOURCE) + ")-> " + ((ok) ? "SUCCESS" : "FAILURE"));
 }		
 		return ok;
 	}
@@ -653,7 +651,7 @@ if (DEPLOYABLE) {
 		boolean ok = true;
 		
 		boolean oldIsLoaded = isLoaded;
-		isLoaded = false;	// so that don't write out values
+		isLoaded = false;	// so that don't write out values	FIXME - this might be preventing the setRerved updating on reload
 
 		for (int i=0;i<RESERVED_WORDS.length;++i) {
 			ok = setReserved(i,oldNodes.getReserved(i)) && ok;
@@ -799,9 +797,70 @@ if (DEBUG) Logger.writeln("##NumberFormatException @ Schedule.setStartingStep('"
 			setError(triceps.get("invalid_number_for_starting_step") + ": '" + s + "': " + e.getMessage());
 			startingStep = new Integer(0);
 		}
+		addCurrentStep(startingStep);	
 		return startingStep.toString();
 	}
-
+	
+	void resetStepHistory() {	// package access
+		stepHistory = new Stack();
+		setReserved(STARTING_STEP,"0");	// FIXME - should be separately maintained value - minimum?
+	}
+	
+	boolean hasPreviousStep() { 
+		return (!stepHistory.empty());
+	}
+	
+	int getPreviousStep() {	// package access
+		if (!stepHistory.empty()) {
+			stepHistory.pop();	// remove last value added by gotoNext()
+			if (!stepHistory.empty()) {
+				return ((Integer) stepHistory.peek()).intValue();
+			}
+		}
+if (DEBUG) Logger.writeln("#*#stepHistory empty - resetting");	
+		resetStepHistory();	// FIXME should this be the something to prevent going back too far
+		return 0;
+	}
+	
+	private void addCurrentStep(Integer step) {
+		int peek = 0;
+		
+		if (!stepHistory.empty()) {
+			peek = ((Integer) stepHistory.peek()).intValue();
+			if (step.intValue() > peek) {
+				stepHistory.push(step);
+			}
+			else if (step.intValue() < peek) {
+				if (isLoaded) {
+					// should never happen
+if (DEBUG)			Logger.writeln("#@#getPrevious() from " + peek + " to " + step);
+				}
+				else {				
+					// if going backwards - e.g. restoring an interview in progress
+					addCurrentStep(new Integer(getPreviousStep()));
+				}
+			}
+			else {
+				if (!isLoaded)	return;	// don't append to log if the value is unchanged
+			}
+		}
+		else {
+			stepHistory.push(step);
+		}
+		
+if (DEBUG && isLoaded) {
+			Enumeration steps = stepHistory.elements();
+			StringBuffer ssb = new StringBuffer("STEPS: ");
+			if (!isLoaded) ssb.append("[loading] ");
+			while(steps.hasMoreElements()) {
+				ssb.append((Integer) steps.nextElement());
+				ssb.append(" ");
+			}
+			Logger.writeln(ssb.toString());
+}		
+	}
+	
+	
 	private String setStartTime(Date t) {
 		startTime = t;
 		String str = null;
