@@ -19,6 +19,8 @@ public class Node implements Serializable {
 	private static final int DATA_TYPES[] = { Datum.STRING, Datum.STRING, Datum.STRING, Datum.DATE, Datum.MONTH, Datum.STRING, Datum.DOUBLE, Datum.STRING, Datum.STRING, Datum.STRING};
 	private static final String QUESTION_MASKS[] = { "", "", "", " (e.g. 7/23/1982)", " (e.g. February)", "", "", "", "", ""};
 
+	private static final int MAX_OPTION_LEN = 60;
+
 	private String concept = "";
 	private String description = "";
 	private int step = 0;
@@ -199,18 +201,26 @@ public class Node implements Serializable {
 				break;
 			case RADIO2: // will store integers
 				/* table underneath questions */
-				sb.append("&nbsp;</TD></TR><TR><TD>&nbsp;</TD><TD COLSPAN='2' BGCOLOR='lightgrey'>");
-				sb.append("<TABLE CELLPADDING='0' CELLSPACING='2' BORDER='1'>");
-				sb.append("<TR>");
-				while (ans.hasMoreElements()) { // for however many radio buttons there are
-					ac = (AnswerChoice) ans.nextElement();
-					sb.append("<TD VALIGN='top'>");
-					sb.append("<input type='radio'" + "name='" + Node.encodeHTML(getName()) + "' " + "value='" + Node.encodeHTML(ac.getValue()) + "'" +
-						(DatumMath.eq(datum,new Datum(ac.getValue(),DATA_TYPES[answerType])).booleanVal() ? " CHECKED" : "") + ">" + Node.encodeHTML(ac.getMessage()));
-					sb.append("</TD>");
+				int count = answerChoices.size();
+
+				sb.append("&nbsp;</TD></TR>");
+
+				if (count > 0) {
+					Double pct = new Double(100. / (double) count);
+					sb.append("<TR><TD>&nbsp;</TD>");
+					sb.append("<TD COLSPAN='2' BGCOLOR='lightgrey'>");
+					sb.append("\n<TABLE CELLPADDING='0' CELLSPACING='2' BORDER='1' WIDTH='100%'>");
+					sb.append("\n<TR>");
+					while (ans.hasMoreElements()) { // for however many radio buttons there are
+						ac = (AnswerChoice) ans.nextElement();
+						sb.append("\n<TD VALIGN='top' WIDTH='" + pct.toString() + "%'>");
+						sb.append("<input type='radio'" + "name='" + Node.encodeHTML(getName()) + "' " + "value='" + Node.encodeHTML(ac.getValue()) + "'" +
+							(DatumMath.eq(datum,new Datum(ac.getValue(),DATA_TYPES[answerType])).booleanVal() ? " CHECKED" : "") + ">" + Node.encodeHTML(ac.getMessage()));
+						sb.append("</TD>");
+					}
 				}
-				sb.append("</TR>");
-				sb.append("</TABLE>");
+				sb.append("\n</TR>");
+				sb.append("\n</TABLE>");
 //				sb.append("</TD></TR>");	// closing the outside is reserverd for TricepsServlet
 				break;
 			case CHECK:
@@ -221,12 +231,51 @@ public class Node implements Serializable {
 				}
 				break;
 			case COMBO:	// stores integers as value
-				sb.append("<select name='" + Node.encodeHTML(getName()) + "'>");
-				sb.append("<option value=''>--please select one of these choices--");	// first choice is empty
+				sb.append("\n<select name='" + Node.encodeHTML(getName()) + "'>");
+				sb.append("\n<option value=''>--select one of the following--");	// first choice is empty
+				int optionNum=0;
 				while (ans.hasMoreElements()) { // for however many radio buttons there are
 					ac = (AnswerChoice) ans.nextElement();
-					sb.append("<option value='" + Node.encodeHTML(ac.getValue()) + "'" +
-						(DatumMath.eq(datum, new Datum(ac.getValue(),DATA_TYPES[answerType])).booleanVal() ? " SELECTED" : "") + ">" + Node.encodeHTML(ac.getMessage()) + "</option>");
+					++optionNum;
+
+					String option = ac.getMessage();
+					String prefix = "<option value='" + Node.encodeHTML(ac.getValue()) + "'";
+					boolean selected = DatumMath.eq(datum, new Datum(ac.getValue(),DATA_TYPES[answerType])).booleanVal();
+					int stop;
+					int line=0;
+
+					while (option.length() > 0) {
+						if (option.length() < MAX_OPTION_LEN) {
+							stop = option.length();
+						}
+						else {
+							stop = option.lastIndexOf(' ',MAX_OPTION_LEN);
+							if (stop <= 0) {
+								stop = MAX_OPTION_LEN;	// if no extra space, take entire string
+							}
+						}
+
+						sb.append(prefix);
+						if (line++ == 0) {
+							if (selected) {
+								sb.append(" SELECTED>" + optionNum + ")&nbsp;");
+							}
+							else {
+								sb.append(">" + optionNum + ")&nbsp;");
+							}
+						}
+						else {
+							sb.append(">&nbsp;&nbsp;&nbsp;");
+						}
+						sb.append(Node.encodeHTML(option.substring(0,stop)));
+
+						if (stop<option.length())
+							option = option.substring(stop+1,option.length());
+						else
+							option = "";
+					}
+
+					sb.append("</option>");
 				}
 				sb.append("</select>");
 				break;

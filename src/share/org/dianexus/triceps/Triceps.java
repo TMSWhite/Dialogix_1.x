@@ -378,7 +378,7 @@ public class Triceps implements Serializable {
 		}
 
 		if ((answer == null || answer.trim().equals("")) && currentStep >= 0) {
-			q.setError("<- Please answer this question");
+			q.setError("");
 			return false;
 		}
 		else {	// got a proper answer -- handle it
