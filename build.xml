@@ -70,6 +70,7 @@
 -->
 
   <property file="build.properties"  />  
+  <property file="${build.license_file}" />
 
 
   <property name="app.name"      value="dialogix"/>
@@ -192,7 +193,6 @@
   <target name="clean"
    description="Delete old build and dist directories">
     <delete dir="${build.home}"/>
-    <delete dir="${dist.home}"/>
     <delete dir="${deploy.home}"/>
     <delete dir="${tomcat.home}"/>
   </target>
@@ -212,10 +212,15 @@
 
   <target name="compile" depends="prepare"
    description="Compile Java sources">
+   
+   <!-- remove source files, since always re-parsed -->
+   <delete dir="${build.home}/src"/>
+   <delete dir="${build.home}/classes"/>
 
-    <!-- Compile Java classes as necessary -->
     <copy  todir="${build.home}/src/" filtering="true">
-    <fileset dir="src/share" includes="**/*.java"/>
+	    <fileset dir="src/share">
+	    	<include name="**/*.java" />
+	    </fileset>
        <filterset begintoken="@@" endtoken="@@">
          <filter token="DIALOGIX.AUTHORABLE" value="${dialogix.authorable}"/>
          <filter token="DIALOGIX.DEPLOYABLE" value="${dialogix.deployable}"/>
@@ -223,7 +228,12 @@
          <filter token="DIALOGIX.XML" value="${dialogix.xml}"/>
          <filter token="DIALOGIX.VERSION_MAJOR" value="${dialogix.version_major}"/>
          <filter token="DIALOGIX.VERSION_MINOR" value="${dialogix.version_minor}"/>
-         <filter token="DIALOGIX.LICENSE" value="${dialogix.license}"/>
+         <filter token="LICENSE.STUDY_ALIAS" value="${LICENSE.STUDY_ALIAS}"/>
+         <filter token="LICENSE.STUDY_NAME" value="${LICENSE.STUDY_NAME}"/>
+         <filter token="LICENSE.STUDY_ICON" value="${LICENSE.STUDY_ICON}"/>
+         <filter token="LICENSE.PRINCIPAL_INVESTIGATOR" value="${LICENSE.PRINCIPAL_INVESTIGATOR}"/>
+         <filter token="LICENSE.GRANT_NAME" value="${LICENSE.GRANT_NAME}"/>
+         <filter token="LICENSE.GRANT_TITLE" value="${LICENSE.GRANT_TITLE}"/>
        </filterset>
     </copy>
     
@@ -287,25 +297,37 @@
     
     <mkdir dir="${deploy.home}"/>
     <mkdir dir="${tomcat.home}"/>
-    <mkdir dir="${tomcat.home}/archive"/>
-    <mkdir dir="${tomcat.home}/logs"/>
     
+    	<!-- copy tomcat specific files to the appropriate target locations -->    
+     <copy    todir="${tomcat.home}/archive">
+     	<fileset dir="src/archive" includes="**"/>
+    </copy>
+    <copy    todir="${tomcat.home}/logs">
+     	<fileset dir="src/logs" includes="**"/>
+    </copy>   
 
     <!-- Copy the contents of the build directory -->
     
      <copy toDir="${deploy.home}/" >
       <fileset dir="${build.home}/web" >
+      	<include name="ROOT/**"/>
+      	<include name="images/**"/>
+      	<include name="${LICENSE.PACKAGE_DIR}/**"/>
       	<exclude name="**/web.xml"/>
       </fileset>
      </copy>      
     
      <copy toDir="${deploy.home}/" filtering="true">
-      <fileset dir="${build.home}/web" includes="**/web.xml"/>
+      <fileset dir="${build.home}/web">
+      	<include name="ROOT/**/web.xml"/>
+      	<include name="images/**/web.xml"/>
+      	<include name="${LICENSE.PACKAGE_DIR}/**/web.xml"/>
+      </fileset>
        <filterset begintoken="@@" endtoken="@@">
          <filter token="DIALOGIX.DIR" value="${dialogix.dir}"/>
          <filter token="FLOPPY.DIR" value="${floppy.dir}"/>
        </filterset>
-     </copy>    
+     </copy>  
 
 	<!-- copy tomcat specific files to the appropriate target locations -->    
      <copy    todir="${tomcat.home}/">
@@ -357,6 +379,22 @@
 			<include name="**" if="using.win2000"/>
 		</fileset>
 	</copy>
+	
+    <copy  todir="${tomcat.home}" filtering="true">
+	    <fileset dir="src">
+	    	<include name="License.txt" />
+	    </fileset>
+       <filterset begintoken="@@" endtoken="@@">
+         <filter token="DIALOGIX.VERSION_MAJOR" value="${dialogix.version_major}"/>
+         <filter token="DIALOGIX.VERSION_MINOR" value="${dialogix.version_minor}"/>
+         <filter token="LICENSE.STUDY_ALIAS" value="${LICENSE.STUDY_ALIAS}"/>
+         <filter token="LICENSE.STUDY_NAME" value="${LICENSE.STUDY_NAME}"/>
+         <filter token="LICENSE.STUDY_ICON" value="${LICENSE.STUDY_ICON}"/>
+         <filter token="LICENSE.PRINCIPAL_INVESTIGATOR" value="${LICENSE.PRINCIPAL_INVESTIGATOR}"/>
+         <filter token="LICENSE.GRANT_NAME" value="${LICENSE.GRANT_NAME}"/>
+         <filter token="LICENSE.GRANT_TITLE" value="${LICENSE.GRANT_TITLE}"/>
+       </filterset>
+    </copy>	
     
   </target>
 
@@ -379,6 +417,35 @@
   <target name="dist" depends="deploy,javadoc"
    description="Create binary distribution">
    
+    <mkdir dir="${dist.home}"/>
+    
+    <!-- Create application Zip file -->
+    <zip zipfile="${dist.home}/${zip.name}.zip"
+         basedir="/">
+		<include name="${zip.basedir}/archive/**"/>
+		<include name="${zip.basedir}/bin/**"/>
+		<include name="${zip.basedir}/conf/**"/>
+		<include name="${zip.basedir}/lib/**"/>
+		<include name="${zip.basedir}/webapps/${LICENSE.PACKAGE_DIR}/**"/>
+		<include name="${zip.basedir}/webapps/ROOT/**"/>
+		<include name="${zip.basedir}/webapps/images/**"/>                         																																																																																																																								
+		<include name="${win98.desktop}/Dialogix/**" if="using.win98"/>    																																																																																																																								
+		<include name="${win2000.desktop}/Dialogix/**" if="using.win2000"/>																																																																																																																																										
+    </zip>
+  </target>
+  
+<!-- ==================== Src Target ===================================== -->
+
+
+<!--
+
+  The "src" target creates a jar of all of the source files for the package
+
+-->
+
+  <target name="src" depends=""
+   description="Create src distribution">
+   
     <!-- backup project source -->
     <mkdir dir="${dist.home}"/>
     
@@ -387,20 +454,6 @@
        <exclude name="${cvs.basedir}/${build.home}/**"/>
         <exclude name="${cvs.basedir}/${dist.home}/**"/>
     </jar>
-
-    <!-- Create application Zip file -->
-    <zip zipfile="${dist.home}/${zip.name}.zip"
-         basedir="/">
-		<include name="${zip.basedir}/archive/**"/>
-		<include name="${zip.basedir}/bin/**"/>
-		<include name="${zip.basedir}/conf/**"/>
-		<include name="${zip.basedir}/lib/**"/>
-		<include name="${zip.basedir}/webapps/${dialogix.package}/**"/>
-		<include name="${zip.basedir}/webapps/ROOT/**"/>
-		<include name="${zip.basedir}/webapps/images/**"/>                         																																																																																																																								
-		<include name="${win98.desktop}/Dialogix/**" if="using.win98"/>    																																																																																																																								
-		<include name="${win2000.desktop}/Dialogix/**" if="using.win2000"/>																																																																																																																																										
-    </zip>
   </target>
 
 
@@ -447,10 +500,6 @@
     <!-- Create build directory and copy static content -->
     <mkdir  dir="${build.home}"/>
 
-    <copy todir="${build.home}/web">
-      <fileset dir="web"/>
-    </copy>
-    
     <echo message="compile.target=${compile.target}"/>
     <echo message="tomcat.home=${tomcat.home}"/>
     <echo message="dialogix.dir=${dialogix.dir}"/>
@@ -466,7 +515,22 @@
     <echo message="dialogix.version_minor=${dialogix.version_minor}"/>
     <echo message="dialogix.xml=${dialogix.xml}"/>
     
+    <echo message="LICENSE.PACKAGE_DIR=${LICENSE.PACKAGE_DIR}"/>
+    <echo message="LICENSE.STUDY_ALIAS=${LICENSE.STUDY_ALIAS}"/>
+    <echo message="LICENSE.STUDY_NAME=${LICENSE.STUDY_NAME}"/>
+    <echo message="LICENSE.STUDY_ICON=${LICENSE.STUDY_ICON}"/>
+    <echo message="LICENSE.PRINCIPAL_INVESTIGATOR=${LICENSE.PRINCIPAL_INVESTIGATOR}"/>
+    <echo message="LICENSE.GRANT_NAME=${LICENSE.GRANT_NAME}"/>
+    <echo message="LICENSE.GRANT_TITLE=${LICENSE.GRANT_TITLE}"/>
     <!-- Copy static files from external dependencies as needed -->
+    
+    <copy toDir="${build.home}/web" >
+      <fileset dir="web" >
+      	<include name="ROOT/**"/>
+      	<include name="images/**"/>
+      	<include name="${LICENSE.PACKAGE_DIR}/**"/>
+      </fileset>
+     </copy>
 
   </target>
   
@@ -516,11 +580,11 @@
     </condition>   
     
     <condition property="dialogix.package_name" value="ALL">
-    	<equals arg1="${dialogix.package}" arg2="**" />
+    	<equals arg1="${LICENSE.PACKAGE_DIR}" arg2="**" />
     </condition>    
-    <condition property="dialogix.package_name" value="${dialogix.package}">
+    <condition property="dialogix.package_name" value="${LICENSE.PACKAGE_DIR}">
     	<not>
-    		<equals arg1="${dialogix.package}" arg2="**" />
+    		<equals arg1="${LICENSE.PACKAGE_DIR}" arg2="**" />
     	</not>
     </condition>  
     
