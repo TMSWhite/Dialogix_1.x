@@ -9,6 +9,8 @@ import java.util.Date;
 import java.util.StringTokenizer;
 import java.util.NoSuchElementException;
 import java.util.Enumeration;
+import java.net.URLEncoder;
+import java.text.DecimalFormat;
 
 /*public*/ class Node implements VersionIF  {
 	/*public*/ static final Node EMPTY_NODE = new Node();
@@ -61,6 +63,14 @@ import java.util.Enumeration;
 	private static final String INTRA_OPTION_LINE_BREAK = "<br>";
 
 	private static final Vector EMPTY_VECTOR = new Vector();
+	private static DecimalFormat ATT_ENTITY_FORMAT = null;
+	
+	static {
+		try {
+			ATT_ENTITY_FORMAT = new DecimalFormat("'&#'000';'");
+		}
+		catch (IllegalArgumentException e) { }
+	}
 
 	/* These are the columns in the flat file database */
 	private String conceptName = "";
@@ -665,21 +675,21 @@ else setParseError("syntax error");
 				defaultValue = datum.stringVal();
 			sb.append("<input type='text'" +
 				" onfocus='evHandler(event);select();'" +
-				" name='" + getLocalName() + "' value='" + defaultValue + "'>");
+				" name='" + getLocalName() + "' value='" + attEncode(defaultValue) + "'>");
 			break;
 		case MEMO:
 			if (datum != null && datum.exists())
 				defaultValue = datum.stringVal();
 			sb.append("<textarea rows='5'" +
 				" onfocus='evHandler(event);select();'" +
-				" name='" + getLocalName() + "'>" + defaultValue + "</textarea>");
+				" name='" + getLocalName() + "'>" + attEncode(defaultValue) + "</textarea>");
 			break;
 		case PASSWORD:	// stores Text type
 			if (datum != null && datum.exists())
 				defaultValue = datum.stringVal();
 			sb.append("<input type='password'" +
 				" onfocus='evHandler(event);select();'" +
-				" name='" + getLocalName() + "' value='" + defaultValue + "'>");
+				" name='" + getLocalName() + "' value='" + attEncode(defaultValue) + "'>");
 			break;
 		case DOUBLE:	// stores Double type
 			if (datum != null && datum.exists())
@@ -714,6 +724,35 @@ else setParseError("syntax error");
 		}
 
 		return sb.toString();
+	}
+	
+	/*public*/ String attEncode(String s) {
+		// prevent early termination of value, and protect against control characters
+		// XXX this needs to be extended to support Unicode gracefully
+		StringBuffer sb = new StringBuffer();
+		char[] chars = s.toCharArray();
+		char c;
+		
+		for (int i=0;i<chars.length;++i) {
+			c = chars[i];
+			if (Character.isISOControl(c) || c == '\'' || c == '<' || c == '>' || c == '"' || c == '&') {
+				sb.append(attEntityFormat(c));
+			}
+			else {
+				sb.append(c);
+			}
+		}
+		return sb.toString();
+	}
+	
+	private String attEntityFormat(char c) {
+		try {
+			return ATT_ENTITY_FORMAT.format((long) (c & 0x00ff));	// must strip high byte for HTML
+		}
+		catch (Throwable t) {
+if (DEBUG) Logger.writeln("##Node.attEntityFormat()" + t.getMessage());
+			return "";
+		}
 	}
 
 	/*public*/ boolean isWithinRange(Datum d) {
