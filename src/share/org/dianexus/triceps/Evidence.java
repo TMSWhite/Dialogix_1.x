@@ -37,9 +37,11 @@ public class Evidence implements Serializable {
 			this.nodes = ev.nodes;
 			this.size = ev.size;
 			this.lastNode = ev.lastNode;
+			System.out.println("Restored interview from " + filename);
+
 		}
 		catch (IOException e) {
-			System.out.println("There's some error " + e + "getting evidence from " + filename +".");
+			System.out.println("There's some error " + e + "restoring interview from " + filename +".");
 		}
 	}
 
@@ -50,9 +52,10 @@ public class Evidence implements Serializable {
 			out.writeObject(this);
 			out.flush();
 			out.close();
+			System.out.println("Saved interview to " + filename);
 		}
 		catch (IOException e) {
-			System.out.println(e);
+			System.out.println("Error saving interview to " + filename + ":  " + e);
 		}
 	}
 		

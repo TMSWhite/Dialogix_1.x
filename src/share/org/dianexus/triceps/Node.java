@@ -1,7 +1,9 @@
 import java.lang.*;
 import java.util.*;
+import java.io.*;
 
-public class Node {
+
+public class Node implements Serializable {
 	private String concept = "";
 	private String description = "";
 	private int step = 0;

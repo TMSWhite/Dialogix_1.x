@@ -138,15 +138,15 @@ public class TricepsServlet extends HttpServlet {
 				
 				/* prepare the Evidence -- either new or retrieved */
 				if ("test-suspended".equals(req.getParameter("interview"))) {
-//					evidence = new Evidence("/tmp/test-suspended");
 					try {
 						FileInputStream fis = new FileInputStream("/tmp/test-suspended");
 						ObjectInputStream ois = new ObjectInputStream(fis);
 						evidence = (Evidence) ois.readObject();
 						ois.close();
+						System.out.println("Restored interview from /tmp/test-suspended");
 					}
 					catch (IOException e) {
-						System.out.println(e);
+						System.out.println("Error restoring interview: " + e);
 					}
 					// gotta get the last node stored in the evidence
 					if (evidence == null) evidence = new Evidence(nodes.size());
