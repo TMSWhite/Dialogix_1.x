@@ -5,7 +5,7 @@ import java.text.Format;
 
 
 public class Node  {
-	public static final int UNKNOWN = 0;
+	public static final int BADTYPE = 0;
 	public static final int NOTHING=1;	// do nothing
 	public static final int RADIO = 2;
 	public static final int CHECK = 3;
@@ -28,7 +28,7 @@ public class Node  {
 	public static final int MONTH_NUM = 20;
 	
 	private static final String QUESTION_TYPES[] = {
-		"*unknown*", "nothing", "radio", "check", "combo", "list",
+		"*badtype*", "nothing", "radio", "check", "combo", "list",
 		"text", "double", "radio2", "password","memo", 
 		"date", "time", "year", "month", "day", "weekday", "hour", "minute", "second", "month_num"};
 	private static final int DATA_TYPES[] = { 
@@ -65,10 +65,10 @@ public class Node  {
 	private String stepName = "";
 	private String dependencies = "";
 	private String questionRef = ""; // name within DISC
-	private int actionType = UNKNOWN;
+	private int actionType = BADTYPE;
 	private String actionTypeField = "";	// actionType;datumType;parseRangeType;min;max;mask
 	private String action = "";
-	private int answerType = UNKNOWN;
+	private int answerType = BADTYPE;
 	private int datumType = Datum.INVALID;
 	private String answerOptions = "";
 	private Vector answerChoices = new Vector();
@@ -98,6 +98,7 @@ public class Node  {
 	private String questionAsAsked = "";
 	private Date timeStamp = null;
 	private String timeStampStr = null;
+	private String comment = null;
 
 	public Node(int sourceLine, String sourceFile, String tsv) {
 		String token;
@@ -392,7 +393,7 @@ public class Node  {
 			datumType = Datum.STRING;
 			return true;
 		}
-		else if (answerType == UNKNOWN) {
+		else if (answerType == BADTYPE) {
 			setParseError("Unknown data type for answer <B>" + Node.encodeHTML(token) + "</B>");
 			answerType = NOTHING;
 		}
@@ -689,7 +690,7 @@ public class Node  {
 	public String getMinStr() { return minStr; }
 	public String getMaxStr() { return maxStr; }
 
-	public boolean focusable() { return (answerType != UNKNOWN && answerType != NOTHING); }
+	public boolean focusable() { return (answerType != BADTYPE && answerType != NOTHING); }
 	public boolean focusableArray() { return (answerType == RADIO || answerType == RADIO_HORIZONTAL || answerType == CHECK); }
 	
 
@@ -841,4 +842,7 @@ public class Node  {
 	}
 	
 	public static void setAutoGenOptionAccelerator(boolean t) { AUTOGEN_OPTION_ACCELERATOR = t; }
+	
+	public void setComment(String c) { comment = (comment == null) ? c : (comment + c); }
+	public String getComment() { return comment; }
 }

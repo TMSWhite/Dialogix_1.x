@@ -4,30 +4,32 @@ import java.io.*;
 import java.text.*;
 
 public class Datum  {
-	public static final int UNKNOWN = 0;		// haven't asked
+	public static final int UNASKED = 0;		// haven't asked
 	public static final int NA = 1;				// don't need to ask - not applicable
 	public static final int REFUSED = 2;		// question asked, but subject refuses to answer
 	public static final int INVALID = 3;		// if an exception occurs - so propagated
-	public static final int NUMBER = 4;
-	public static final int STRING = 5;
-	public static final int DATE = 6;
-	public static final int TIME = 7;
-	public static final int YEAR = 8;
-	public static final int MONTH = 9;
-	public static final int DAY = 10;
-	public static final int WEEKDAY = 11;
-	public static final int HOUR = 12;
-	public static final int MINUTE = 13;
-	public static final int SECOND = 14;
-	public static final int MONTH_NUM = 15;
+	public static final int UNKNOWN = 4;		// subject indicates that they don't know the answer
+	public static final int NUMBER = 5;
+	public static final int STRING = 6;
+	public static final int DATE = 7;
+	public static final int TIME = 8;
+	public static final int YEAR = 9;
+	public static final int MONTH = 10;
+	public static final int DAY = 11;
+	public static final int WEEKDAY = 12;
+	public static final int HOUR = 13;
+	public static final int MINUTE = 14;
+	public static final int SECOND = 15;
+	public static final int MONTH_NUM = 16;
 	private static final Date SAMPLE_DATE = new Date(System.currentTimeMillis());
 	private static final Double SAMPLE_NUMBER = new Double(123.456);
-	public static final String TYPES[] = { "*UNKNOWN*", "*NOT APPLICABLE*", "*REFUSED*", "*INVALID*", 
+	public static final String TYPES[] = { "*UNASKED*", "*NOT APPLICABLE*", "*REFUSED*", "*INVALID*", "*UNKNOWN*", 
 		"Number", "String", "Date", "Time", "Year", "Month", "Day", "Weekday", "Hour", "Minute", "Second", "Month_Num" };
 	private static Datum NA_DATUM = null;
 	private static Datum UNKNOWN_DATUM = null;
 	private static Datum REFUSED_DATUM = null;
 	private static Datum INVALID_DATUM = null;
+	private static Datum UNASKED_DATUM = null;
 		
 	private static final SimpleDateFormat defaultDateFormat = new SimpleDateFormat("MM/dd/yyyy");
 	private static final SimpleDateFormat defaultMonthFormat = new SimpleDateFormat("MMMM");
@@ -51,7 +53,7 @@ public class Datum  {
 	private static final int CALENDAR_WEEKDAYS[] = { Calendar.SUNDAY, Calendar.MONDAY, Calendar.TUESDAY, Calendar.WEDNESDAY,
 		Calendar.THURSDAY, Calendar.FRIDAY, Calendar.SATURDAY };
 
-	private int type = UNKNOWN;
+	private int type = UNASKED;
 	private String sVal = TYPES[type];
 	private double dVal = Double.NaN;
 	private boolean bVal = false;
@@ -83,6 +85,11 @@ public class Datum  {
 					Datum.REFUSED_DATUM = new Datum(REFUSED);
 				}
 				return Datum.REFUSED_DATUM;
+			case UNASKED: 
+				if (Datum.UNASKED_DATUM == null) {
+					Datum.UNASKED_DATUM = new Datum(UNASKED);
+				}
+				return Datum.UNASKED_DATUM;				
 			default:
 			case INVALID: 
 				if (Datum.INVALID_DATUM == null) {
@@ -102,6 +109,7 @@ public class Datum  {
 		switch (i) {
 			case NA:
 			case UNKNOWN:
+			case UNASKED:
 			case REFUSED:
 				break;
 			default:
@@ -198,6 +206,7 @@ public class Datum  {
 			case STRING:
 			case INVALID:
 			case UNKNOWN:
+			case UNASKED:
 			case REFUSED:
 			case NA:
 		}
@@ -379,7 +388,7 @@ public class Datum  {
 
 	public boolean exists() {
 		/* not only must it be valid, but STRING vals must be non-null */
-		return (type != UNKNOWN && isValid() && ((type == STRING) ? !sVal.equals("") : true));
+		return (type != UNASKED && isValid() && ((type == STRING) ? !sVal.equals("") : true));
 	}
 
 	public boolean isType(int t) {
@@ -407,6 +416,8 @@ public class Datum  {
 				return (type == UNKNOWN);
 			case REFUSED:
 				return (type == REFUSED);
+			case UNASKED:
+				return (type == UNASKED);
 			default:
 				return false;
 		}
@@ -454,6 +465,7 @@ public class Datum  {
 			case STRING:
 			case NA:
 			case UNKNOWN:
+			case UNASKED:
 			case REFUSED:
 				break;
 		}
@@ -488,6 +500,7 @@ public class Datum  {
 			case INVALID:
 			case NA:
 			case UNKNOWN:
+			case UNASKED:
 			case STRING:
 			case REFUSED:
 				break;
@@ -537,8 +550,9 @@ public class Datum  {
 			case INVALID:
 			case NA:
 			case REFUSED:
-				return TYPES[d.type()];
 			case UNKNOWN:
+				return TYPES[d.type()];
+			case UNASKED:
 				return "";	// empty string to indicate that has not been assessed yet.
 			case STRING:
 				return d.stringVal();
@@ -584,8 +598,9 @@ public class Datum  {
 			case INVALID:
 			case NA:
 			case REFUSED:
-				return TYPES[t];
 			case UNKNOWN:
+				return TYPES[t];
+			case UNASKED:
 				return "";	// empty string to indicate that has not been assessed yet.
 			case STRING:
 				return o.toString();
@@ -617,6 +632,7 @@ public class Datum  {
 			case INVALID:
 			case NA:
 			case UNKNOWN:
+			case UNASKED:
 			case STRING:
 			case REFUSED:
 				return "";	// no formatting string to contrain input

@@ -25,7 +25,8 @@ public class TricepsServlet extends HttpServlet {
 	/* hidden variables */
 	private boolean debug = false;
 	private boolean developerMode = false;
-	private boolean refuseToAnswerCurrent = false;
+	private boolean okPasswordForRefused = false;
+	private boolean okPasswordForUnknown = false;
 	private boolean showQuestionNum = false;
 
 	private String directive = null;	// the default
@@ -144,32 +145,66 @@ public class TricepsServlet extends HttpServlet {
 		else
 			showQuestionNum = false;
 
-		String attemptingToRefuse = null;
-		refuseToAnswerCurrent = false;	// the default value
+		String settingAsRefused = null;
+		String settingAsUnknown = null;
+		String language = null;
+		okPasswordForRefused = false;	// the default value
+		okPasswordForUnknown = false;	// the default value
 
 		if (triceps != null) {
-			/* XXX: Refusals only apply once Triceps has been initialized */
-			attemptingToRefuse = req.getParameter("passwordForRefused");
-			if (attemptingToRefuse != null && !attemptingToRefuse.equals("")) {
+			/* Refusals only apply once Triceps has been initialized */
+			settingAsRefused = req.getParameter("PASSWORD_FOR_REFUSED");
+			if (settingAsRefused != null && !settingAsRefused.equals("")) {
 				/* if try to enter a password, make sure that doesn't reset the form if password fails */
 				directive = "next";	// XXX - since JavaScript can't set a SUBMIT value in the answerRefused() function
 
 				if (triceps.getPasswordForRefused() == null) {
-					sb.append("You are not allowed to refuse to answer these questions<BR>");
+					sb.append("You are not allowed to *REFUSE* to answer any questions<BR>");
 				}
 				else {
-					if (triceps.getPasswordForRefused().equals(attemptingToRefuse)) {
-						refuseToAnswerCurrent = true;
+					if (triceps.getPasswordForRefused().equals(settingAsRefused)) {
+						okPasswordForRefused = true;
 					}
 					else {
-						sb.append("Incorrect password to refuse to answer these questions<BR>");
+						sb.append("Incorrect password to *REFUSE* to answer these questions<BR>");
 					}
+				}
+			}
+			/* Refusals only apply once Triceps has been initialized */
+			settingAsUnknown = req.getParameter("PASSWORD_FOR_UNKNOWN");
+			if (settingAsUnknown != null && !settingAsUnknown.equals("")) {
+				/* if try to enter a password, make sure that doesn't reset the form if password fails */
+				directive = "next";	// XXX - since JavaScript can't set a SUBMIT value in the answerRefused() function
+
+				if (triceps.getPasswordForUnknown() == null) {
+					sb.append("You are not allowed to set any answers as *UNKNOWN*<BR>");
+				}
+				else {
+					if (triceps.getPasswordForUnknown().equals(settingAsUnknown)) {
+						okPasswordForUnknown = true;
+					}
+					else {
+						sb.append("Incorrect password to set these answers as *UNKNOWN*<BR>");
+					}
+				}
+			}
+			language = req.getParameter("LANGUAGE");
+			if (language != null) {
+				if (language.equals("English")) {
+					System.err.println("Setting language to English");
+					directive = "next";	// XXX - since JavaScript can't set a SUBMIT value in the answerRefused() function
+				}
+				else if (language.equals("Spanish")) {
+					System.err.println("Setting language to Spanish");
+					directive = "next";	// XXX - since JavaScript can't set a SUBMIT value in the answerRefused() function
 				}
 			}
 		}
 
-		sb.append("<input type='HIDDEN' name='passwordForRefused' value=''>\n");	// must manually bypass each time
-		sb.append("<input type='HIDDEN' name='passwordForUnknown' value=''>\n");	// must manually bypass each time
+		sb.append("<input type='HIDDEN' name='PASSWORD_FOR_REFUSED' value=''>\n");	// must manually bypass each time
+		sb.append("<input type='HIDDEN' name='PASSWORD_FOR_UNKNOWN' value=''>\n");	// must manually bypass each time
+		sb.append("<input type='HIDDEN' name='LANGUAGE' value=''>\n");	// must manually bypass each time
+		
 
 		return sb.toString();
 	}
@@ -205,7 +240,7 @@ public class TricepsServlet extends HttpServlet {
 			sb.append("&nbsp;");
 		}
 		else {
-			sb.append("			<IMG NAME='icon' SRC='" + icon + "' ALIGN='BOTTOM' BORDER='0'>\n");
+			sb.append("			<IMG NAME='icon' SRC='" + icon + "' ALIGN='BOTTOM' BORDER='0' onmousedown='showMain(event)'>\n");
 		}
 		sb.append("	</TD>\n");
 		sb.append("	<TD WIDTH='82%'><FONT SIZE='5'><B>" + Node.encodeHTML((triceps != null) ? triceps.getHeaderMsg() : "Triceps System") + "</B></FONT></TD>\n");
@@ -242,16 +277,20 @@ public class TricepsServlet extends HttpServlet {
 			/* read list of available schedules from file */
 
 			BufferedReader br = Triceps.getReader(scheduleList, urlPrefix, scheduleSrcDir);
+System.err.println("got here 1");
 			if (br == null) {
+System.err.println("got here 2");
 				sb.append("<B>" + Triceps.getReaderError() + "</B><HR>");
 			}
 			else {
+System.err.println("got here 3");
 				try {
 					int count = 0;
 					int line=0;
 					String fileLine;
 					String src;
 					while ((fileLine = br.readLine()) != null) {
+System.err.println("got here 4");
 						++line;
 
 						if (fileLine.startsWith("COMMENT"))
@@ -261,16 +300,21 @@ public class TricepsServlet extends HttpServlet {
 							StringTokenizer schedule = new StringTokenizer(fileLine,"\t");
 							String title = schedule.nextToken();
 							String fileLoc = schedule.nextToken();
+System.err.println("got here 5");
 
 							if (title == null || fileLoc == null)
 								continue;
 
 							/* Test whether these files exist */
+System.err.println("got here 6");
 							Reader target = Triceps.getReader(fileLoc,urlPrefix, scheduleSrcDir);
+System.err.println("got here 7");
 							if (target == null) {
+System.err.println("got here 8");
 								sb.append("<B>" + Triceps.getReaderError() + "</B><HR>");
 							}
 							else {
+System.err.println("got here 9");
 								try { target.close(); } catch (Throwable t) { System.err.println("Error closing reader: " + t.getMessage()); }
 
 								++count;
@@ -278,6 +322,7 @@ public class TricepsServlet extends HttpServlet {
 							}
 						}
 						catch (Throwable t) {
+System.err.println("got here 10");
 							String msg = "Error tokenizing schedule list '" + scheduleList + "' on line " + line + ": " + t.getMessage();
 							sb.append(msg);
 							System.err.println(msg);
@@ -285,57 +330,72 @@ public class TricepsServlet extends HttpServlet {
 					}
 				}
 				catch(Throwable t) {
+System.err.println("got here 11");
 					String msg = "Error reading from " + scheduleList + ": " + t.getMessage();
 					sb.append(msg);
 					System.err.println(msg);
 				}
 				finally {
+System.err.println("got here 12");
 					if (br != null) {
 						try { br.close(); } catch (Throwable t) {
 							System.err.println("Error closing reader: " + t.getMessage());							
 						}
 					}
+System.err.println("got here 13");
 				}
 
 				/* Now build the list of uncompleted interviews */
 
 				try {
+System.err.println("got here 14");
 					File dir = new File(workingFilesDir);
 
+System.err.println("got here 15");
 					if (dir.isDirectory() && dir.canRead()) {
 						String[] files = dir.list();
 
 						int count=0;
 						for (int i=0;i<files.length;++i) {
+System.err.println("got here 16");
 							try {
 								File f = new File(files[i]);
+System.err.println("got here 17");
 								if (!f.isDirectory()) {
 									if (count == 0) {
+System.err.println("got here 18");
 										suspendedInterviews.append("<select name='RestoreSuspended'>\n	<option value=''></option>\n");
 									}
 									suspendedInterviews.append("	<option value='" + files[i] + "'>" + files[i] + "</option>\n");
+System.err.println("got here 19");
 									++count;
 								}
 							}
 							catch (Throwable t) {
+System.err.println("got here 20");
 								System.err.println("Error reading from file " + dir + ": " + t.getMessage());
 							}
 						}
 						if (count > 0) {
+System.err.println("got here 21");
 							suspendedInterviews.append("</select><BR>");
 						}
 						else {
+System.err.println("got here 22");
 							suspendedInterviews.append("&nbsp;");
 						}
 					}
 					else {
+System.err.println("got here 23");
 						System.err.println("can't read from dir " + dir.toString());
 					}
 				}
 				catch(Throwable t) {
+System.err.println("got here 24");
 					System.err.println("Error reading from file: "  + t.getMessage());
 				}
 			}
+System.err.println("got here 25");
 
 			/* Now construct splash screen */
 
@@ -523,8 +583,12 @@ public class TricepsServlet extends HttpServlet {
 			while(questionNames.hasMoreElements()) {
 				Node q = (Node) questionNames.nextElement();
 				boolean status;
-
-				status = triceps.storeValue(q, req.getParameter(q.getName()),refuseToAnswerCurrent);
+				
+				String answer = req.getParameter(q.getName());
+				String comment = req.getParameter(q.getName() + "_COMMENT");
+				
+				q.setComment(comment);
+				status = triceps.storeValue(q, answer ,okPasswordForRefused, okPasswordForUnknown);
 				ok = status && ok;
 
 			}
@@ -657,6 +721,8 @@ public class TricepsServlet extends HttpServlet {
 			if (showQuestionNum) {
 				sb.append("<TD><FONT" + color + "><B>" + Node.encodeHTML(node.getQuestionRef()) + "</FONT></B></TD>\n");
 			}
+			
+			String inputName = Node.encodeHTML(node.getName());
 
 			switch(node.getAnswerType()) {
 				case Node.NOTHING:
@@ -668,13 +734,15 @@ public class TricepsServlet extends HttpServlet {
 					if (showQuestionNum) {
 						sb.append("<TD>&nbsp;</TD>");
 					}
-					sb.append("	<TD WIDTH='1%'><IMG SRC='file:///C|/cic/images/help.gif' ALIGN='BOTTOM' BORDER='0' ALT='Help'></TD>\n");
+					sb.append("	<TD WIDTH='1%'><IMG SRC='file:///C|/cic/images/help.gif' ALIGN='BOTTOM' BORDER='0' ALT='Help' onmousedown='showPopup(\"" + inputName + "\",event)'></TD>\n");
 					sb.append(node.prepareChoicesAsHTML(datum,errMsg));
+					sb.append("<input type='HIDDEN' name='" + inputName + "_COMMENT" + "' value=''>\n");
 					break;
 				default:
 					sb.append("		<TD><FONT" + color + ">" + Node.encodeHTML(triceps.getQuestionStr(node)) + "</FONT></TD>\n");
-					sb.append("	<TD WIDTH='1%'><IMG SRC='file:///C|/cic/images/help.gif' ALIGN='BOTTOM' BORDER='0' ALT='Help'></TD>\n");
+					sb.append("		<TD WIDTH='1%'><IMG SRC='file:///C|/cic/images/help.gif' ALIGN='BOTTOM' BORDER='0' ALT='Help' onmousedown='showPopup(\"" + inputName + "\",event)'></TD>\n");
 					sb.append("		<TD>" + node.prepareChoicesAsHTML(datum) + errMsg + "</TD>\n");
+					sb.append("<input type='HIDDEN' name='" + inputName + "_COMMENT" + "' value=''>\n");
 					break;
 			}
 
@@ -737,12 +805,18 @@ public class TricepsServlet extends HttpServlet {
 			sb.append("<TABLE CELLPADDING='2' CELLSPACING='1'  WIDTH='100%' BORDER='1'>\n");
 			for (int i = triceps.size()-1; i >= 0; i--) {
 				Node n = triceps.getNode(i);
+				Datum d = triceps.getDatum(n);
 				if (!triceps.isSet(n))
 					continue;
 				sb.append("<TR>");
 				sb.append("<TD>" + (i + 1) + "</TD>");
 				sb.append("<TD>" + Node.encodeHTML(n.getQuestionRef(),true) + "</TD>");
-				sb.append("<TD><B>" + Node.encodeHTML(triceps.toString(n,true),true) + "</B></TD>");
+				if (!d.isType(Datum.STRING)) {
+					sb.append("<TD><B><I>" + Node.encodeHTML(triceps.toString(n,true),true) + "</I></B></TD>");
+				}
+				else {
+					sb.append("<TD><B>" + Node.encodeHTML(triceps.toString(n,true),true) + "</B></TD>");
+				}
 				sb.append("<TD>" +  Node.encodeHTML(Datum.TYPES[n.getDatumType()]) + "</TD>");
 				sb.append("<TD>" + Node.encodeHTML(n.getName(),true) + "</TD>");
 				sb.append("<TD>" + Node.encodeHTML(n.getConcept(),true) + "</TD>");
@@ -775,65 +849,103 @@ public class TricepsServlet extends HttpServlet {
 		StringBuffer sb = new StringBuffer();
 
 		sb.append("<SCRIPT> <!--\n");
-		sb.append("var showing=false;\n");
-		sb.append("var xNow, yNow, css, n, ie;\n");
+		sb.append("var xNow, yNow, popup, main, n, ie;\n");
+		sb.append("var actionTarget, commentTarget;\n");
 		sb.append("\n");
 		sb.append("function init() {\n");
-		sb.append("	n = (document.layers) ? 1:0\n");
-		sb.append("	ie = (document.all) ? 1:0\n");		
-		sb.append("	if (n) { css = document.layers['popup']; }\n");
-		sb.append("	if (ie) { css = document.all['popup'].style; }\n");
-//		sb.append("	hidePopup();\n");
-		sb.append("	for (var c=0;c<document.images.length;++c) {\n");
-		sb.append("		document.images[c].onmousedown = togglePopup;\n");
-		sb.append("	}\n");
-		sb.append("	if (document.images['icon']) document.images['icon'].onmousedown =  answerRefused;\n");
+		sb.append("	n = (document.layers) ? 1:0;\n");
+		sb.append("	ie = (document.all) ? 1:0;\n");
+		sb.append("	if (n) { popup = document.layers['POPUP']; main = document.layers['MAIN']; }\n");
+		sb.append("	if (ie) { popup = document.all['POPUP'].style; main = document.layers['MAIN'].style; }\n");
+		sb.append("	popup.onmouseout = hidePopup;\n");
+		sb.append("	main.onmouseout = hideMain;\n");
+		
 		if (firstFocus != null) {
-			sb.append(" document.myForm." + firstFocus + ".focus();\n");
+			sb.append("	document.myForm." + firstFocus + ".focus();\n");
 		}
+		
 		sb.append("}\n");
-		sb.append("function togglePopup(e) {\n");
-		sb.append("	if (showing == false) { showPopup(e); }\n");
-		sb.append("	else { hidePopup(); }\n");
-		sb.append("}\n");
-		sb.append("function showPopup(e) {\n");
+		sb.append("function showPopup(name,e) {\n");
+		sb.append("	actionTarget = document.myForm.elements[name];\n");
+//		sb.append(" if (actionTarget.length && actionTarget.length > 0) { actionTarget = actionTarget[0]; }\n");
+		sb.append("	commentTarget = document.myForm.elements[name + '_COMMENT'];\n");
 		sb.append("	if (n) {xNow=e.pageX; yNow=e.pageY}\n");
 		sb.append("	if (ie) {xNow=event.x; yNow=event.y}\n");
-		sb.append("	css.left = xNow - css.clip.width;\n");
-		sb.append("	css.top = yNow + 5;\n");
-		sb.append(" css.zIndex = 100;\n");
-		sb.append("	if (n) { css.visibility = 'show'; }\n");
-		sb.append("	else if (ie) { css.visibility = 'showing'; }\n");
-		sb.append("	showing = true;\n");
+		sb.append("	popup.left = xNow+3-popup.clip.width\n");
+		sb.append("	popup.top = yNow-3;\n");
+		sb.append("	if (n) { popup.visibility = 'show'; }\n");
+		sb.append("	else if (ie) { popup.visibility = 'showing'; }\n");
 		sb.append("}\n");
 		sb.append("function hidePopup() {\n");
-		sb.append("	if (n) { document.layers['popup'].visibility = 'hide'; }\n");
-		sb.append("	else if (ie) { document.all['popup'].style.visibility = 'hidden'; }\n");
-		sb.append("	showing = false;\n");
+		sb.append("	if (n) { popup.visibility = 'hide'; }\n");
+		sb.append("	else if (ie) { popup.visibility = 'hidden'; }\n");
+		sb.append("	actionTarget.focus();\n");
 		sb.append("}\n");
-		
-		/* This is where code would be added to deal with Help, Comment, Refused, and Unknown */
+		sb.append("function showMain(e) {\n");
+		sb.append("	actionTarget = null;\n");
+		sb.append("	if (n) {xNow=e.pageX; yNow=e.pageY}\n");
+		sb.append("	if (ie) {xNow=event.x; yNow=event.y}\n");
+		sb.append("	main.left = xNow-3;\n");
+		sb.append("	main.top = yNow-3;\n");
+		sb.append("	if (n) { main.visibility = 'show'; }\n");
+		sb.append("	else if (ie) { main.visibility = 'showing'; }\n");
+		sb.append("}\n");
+		sb.append("function hideMain() {\n");
+		sb.append("	if (n) { main.visibility = 'hide'; }\n");
+		sb.append("	else if (ie) { main.visibility = 'hidden'; }\n");
+		sb.append("}\n");
 		sb.append("function answerRefused() {\n");
 		sb.append("	var ans = prompt('Enter password to *REFUSE* to answer this question','');\n");
-		sb.append("	if (ans == null || ans.length == 0) { return; /* to avoid submit */ }\n");
-		sb.append("	document.myForm.passwordForRefused.value = ans;\n");
-		sb.append("	document.myForm.submit();\n");
+		sb.append("	if (ans == null || ans.length == 0) return;\n");
+		sb.append("	document.myForm.PASSWORD_FOR_REFUSED.value = ans;\n");
+		sb.append("	setValue('*REFUSED*');\n");
+		sb.append("}\n");
+		sb.append("function setValue(type) {\n");
+		sb.append("	if (!actionTarget)\n");
+		sb.append("		return;\n");
+		sb.append("	if (actionTarget.type == 'radio' || actionTarget.type == 'checkbox') {\n");
+		sb.append("		if (type != '') actionTarget.value = type;\n");
+		sb.append("		actionTarget.checked;\n");
+		sb.append("	} else if (actionTarget.type == 'select') {\n");
+		sb.append("		actionTarget.selectedIndex = 0;\n");
+		sb.append("		if (type != '') actionTarget.options[0].value = type;\n");
+		sb.append("	} else {\n");
+		sb.append("		if (type != '') actionTarget.value = type;\n");
+		sb.append("	}\n");
 		sb.append("}\n");
 		sb.append("function answerUnknown() {\n");
 		sb.append("	var ans = prompt('Enter password to indicate that the answer is *UNKNOWN*','');\n");
-		sb.append("	if (ans == null || ans.length == 0) { return; /* to avoid submit */ }\n");
-		sb.append("	document.myForm.passwordForUnknown.value = ans;\n");
+		sb.append("	if (ans == null || ans.length == 0) return;\n");
+		sb.append("	document.myForm.PASSWORD_FOR_UNKNOWN.value = ans;\n");
+		sb.append("	setValue('*UNKNOWN*');\n");
+		sb.append("}\n");
+		sb.append("function help() {\n");
+		sb.append("	alert(\"There is no custom help for '\" + actionTarget.name + \"' whose current value is '\" + actionTarget.value + \"'\");\n");
+		sb.append("}\n");
+		sb.append("function comment() {\n");
+		sb.append("	var ans = prompt('Enter a comment for this question',commentTarget.value);\n");
+		sb.append("	if (ans == null || ans.length == 0) return;\n");
+		sb.append("	if (ans != '') commentTarget.value = ans;\n");
+		sb.append("}\n");
+		sb.append("function setLanguage(lang) {\n");
+		sb.append("	document.myForm.LANGUAGE.value = lang;\n");
 		sb.append("	document.myForm.submit();\n");
-		sb.append("}\n");		
-
+		sb.append("}\n");
 		sb.append("// --> </SCRIPT>\n");
-		sb.append("<DIV NAME=\"popup\" STYLE=\"Layer-Background-Color : silver; position : absolute; visibility : hidden\">\n");
+		sb.append("<DIV NAME=\"POPUP\" STYLE=\"Layer-Background-Color : silver; position : absolute; visibility : hidden\">\n");
 		sb.append("	<A HREF=\"javascript:help();hidePopup();\">Help</A><BR>\n");
 		sb.append("	<A HREF=\"javascript:comment();hidePopup();\">Add&nbsp;Comment</A><BR>\n");
 		sb.append("	<A HREF=\"javascript:answerUnknown();hidePopup();\">Mark&nbsp;as&nbsp;Unknown</A><BR>\n");
 		sb.append("	<A HREF=\"javascript:answerRefused();hidePopup();\">Mark&nbsp;as&nbsp;Refused</A>\n");
 		sb.append("</DIV>\n");
+		sb.append("<DIV NAME=\"MAIN\" STYLE=\"Layer-Background-Color : silver; position : absolute; visibility : hidden\">\n");
+		sb.append("	<A HREF=\"javascript:setLanguage('English');hideMain();\">Language:&nbsp;ENGLIGH</A><BR>\n");
+		sb.append("	<A HREF=\"javascript:setLanguage('Spanish');hideMain();\">Language:&nbsp;SPANISH</A><BR>\n");
+		sb.append("	<A HREF=\"javascript:answerUnknown();hideMain();\">Enter&nbsp;password&nbsp;for&nbsp;Unknown</A><BR>\n");
+		sb.append("	<A HREF=\"javascript:answerRefused();hideMain();\">Enter&nbsp;password&nbsp;for&nbsp;Refused</A>\n");
+		sb.append("</DIV>\n");
 
+		
 		return sb.toString();
 	}
 }

@@ -12,7 +12,7 @@ public class Triceps {
 
 	static private final Vector EMPTY_LIST = new Vector();
 
-	public static final String NULL = "not set";	// a default value to represent null in config files
+//	public static final String NULL = "not set";	// a default value to represent null in config files
 
 	private String scheduleURL = null;
 	private String scheduleUrlPrefix = null;
@@ -393,8 +393,9 @@ public class Triceps {
 
 			init = n.getDefaultAnswer();
 
-			if (init == null || init.length() == 0 || init.equals(NULL)) {
-				d = Datum.getInstance(Datum.UNKNOWN);
+//			if (init == null || init.length() == 0 || init.equals(NULL) || init.equals(Datum.TYPES[Datum.UNASKED])) {
+			if (init == null || init.length() == 0 || init.equals(Datum.TYPES[Datum.UNASKED])) {
+				d = Datum.getInstance(Datum.UNASKED);
 			}
 			else if (init.equals(Datum.TYPES[Datum.UNKNOWN])) {
 				d = Datum.getInstance(Datum.UNKNOWN);
@@ -420,22 +421,27 @@ public class Triceps {
 		return true;
 	}
 
-	public boolean storeValue(Node q, String answer, boolean bypass) {
+	public boolean storeValue(Node q, String answer, boolean okToRefuse, boolean okToUnknown) {
 		if (q == null) {
 			errors.addElement("null node");
 			return false;
 		}
 
 		if (answer == null || answer.trim().equals("")) {
-			if (bypass) {
-				evidence.set(q,Datum.getInstance(Datum.REFUSED));
-				return true;
-			}
 			if (q.getAnswerType() == Node.CHECK) {
 				answer = "0";	// unchecked defaults to false
 			}
 		}
 		Datum d;
+		
+		if (okToRefuse && answer != null && answer.startsWith(Datum.TYPES[Datum.REFUSED])) {
+			evidence.set(q,Datum.getInstance(Datum.REFUSED));
+			return true;
+		}
+		if (okToUnknown && answer != null && answer.startsWith(Datum.TYPES[Datum.UNKNOWN])) {
+			evidence.set(q,Datum.getInstance(Datum.UNKNOWN));
+			return true;
+		}
 		
 		if (q.getAnswerType() == Node.NOTHING && q.getActionType() != Node.EVAL) {
 			d = Datum.getInstance(Datum.NA);
@@ -453,13 +459,13 @@ public class Triceps {
 			else {
 				q.setError("<- " + s);
 			}
-			evidence.set(q,Datum.getInstance(Datum.UNKNOWN));
+			evidence.set(q,Datum.getInstance(Datum.UNASKED));
 			return false;
 		}
 
 		/* check if out of range */
 		if (!q.isWithinRange(d)) {
-			evidence.set(q,Datum.getInstance(Datum.UNKNOWN));
+			evidence.set(q,Datum.getInstance(Datum.UNASKED));
 			return false;	// shouldn't wording of error be done here, not in Node?
 		}
 		else {
@@ -488,7 +494,7 @@ public class Triceps {
 
 	public boolean isSet(Node n) {
 		Datum d = getDatum(n);
-		if (d == null || d.isType(Datum.UNKNOWN))
+		if (d == null || d.isType(Datum.UNASKED))
 			return false;
 		else
 			return true;
@@ -637,13 +643,16 @@ public class Triceps {
 
 				d = evidence.getDatum(n);
 				if (d == null) {
-					ans = NULL;
+					ans = "";	// NULL
 				}
 				else {
 					ans = d.stringVal(true);
 				}
+				String comment = n.getComment();
+				if (comment == null)
+					comment = "";
 
-				out.write(n.toTSV() + "\t" + n.getQuestionAsAsked() + "\t" + ans + "\t" + n.getTimeStampStr() + "\n");
+				out.write(n.toTSV() + "\t" + n.getQuestionAsAsked() + "\t" + ans + "\t" + n.getTimeStampStr() + "\t" + comment + "\n");
 			}
 			out.flush();
 			return true;

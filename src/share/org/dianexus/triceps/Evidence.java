@@ -34,7 +34,7 @@ public class Evidence  {
 		/* then assign the user-defined words */
 		for (int i = 0; i < size; ++i, ++val) {
 			node = schedule.getNode(i);
-			value = new Value(node, Datum.getInstance(Datum.UNKNOWN),node.getDefaultAnswerTimeStampStr());
+			value = new Value(node, Datum.getInstance(Datum.UNASKED),node.getDefaultAnswerTimeStampStr());
 			
 			values.addElement(value);
 
@@ -48,7 +48,8 @@ public class Evidence  {
 	}
 
 	private void addAlias(Node n, String alias, Integer index) {
-		if (alias == null || alias.equals(Triceps.NULL) || alias.equals(""))
+//		if (alias == null || alias.equals(Triceps.NULL) || alias.equals(""))
+		if (alias == null || alias.equals(""))
 			return;	// ignore invalid aliases
 
 		Object o = aliases.put(alias,index);
