@@ -30,7 +30,7 @@ public class TricepsServlet extends HttpServlet {
 	 */
 	public void init(ServletConfig config) throws ServletException {
 		super.init(config);
-		loadSchedule(schedToUse);
+//		loadSchedule(schedToUse);
 	}
 
 	public void destroy() {
@@ -43,7 +43,7 @@ public class TricepsServlet extends HttpServlet {
 	 * invoke the POST method on further requests.
 	 */
 	public void doGet(HttpServletRequest req, HttpServletResponse res) throws ServletException, IOException {
-		doPost(req, res);
+//		doPost(req, res);
 
 		HttpSession session = req.getSession(true);
 		res.setContentType("text/html");
@@ -150,7 +150,7 @@ public class TricepsServlet extends HttpServlet {
 					}
 					// gotta get the last node stored in the evidence
 					if (evidence == null) evidence = new Evidence(nodes.size());
-					else node = evidence.getNode("_400");
+					else node = evidence.getNode("_400");	// XXX
 				}
 				else if ("new".equals(req.getParameter("interview"))) {
 					evidence = new Evidence(nodes.size());	//  initialize the Evidence object
@@ -399,12 +399,21 @@ public class TricepsServlet extends HttpServlet {
 		// Complete printout of what's been collected per node
 		out.println("<hr>");
 		out.println("<H4>EVIDENCE AREA</H4>");
-		for (int i = 0; i < nodes.size(); i++) {
+		out.println("<TABLE CELLPADDING='0' CELLSPACING='0' BORDER='1'>");
+		for (int i = nodes.size()-1; i >= 0; i--) {
 			Node n = nodes.getNode(i);
 			if (evidence.toString(n) == "null")
 				continue;
-			out.println("" + (i + 1) + "(" + n.getName() + "): " + n.getConcept() + ": <B>" +
-				evidence.toString(n) + "</B><BR>");
+			out.println("<TR>" + 
+				"<TD>" + (i + 1) + "</TD>" + 
+				"<TD>" + n.getQuestionRef() + "</TD>" +
+				"<TD><B>" + evidence.toString(n) + "</B></TD>" +
+				"<TD>" + n.getName() + "</TD>" +
+				"<TD>" + n.getConcept() + "</TD>" +
+				"<TD>" + n.getDependencies() + "</TD>" +
+				"<TD>" + n.getAction() + "</TD>" +
+				"</TR>\n");
 		}
+		out.println("</TABLE>");
 	}
 }
