@@ -11,7 +11,7 @@ my $prefix = "/usr/local/dialogix";
 #my $java_home = "/usr/local/bin/jdk1.3";
 my $java_home = "/usr/java/jdk1.3.1_01";
 my $logs = "$prefix/logs";
-my $logname = "Triceps.log.err";
+my $logname = "Dialogix.log.err";
 my $bin = "$prefix/bin";
 my $datefmt = "%04d.%02d.%02d";
 
@@ -40,14 +40,14 @@ my $date = sprintf($datefmt,(1900+$tm[5]),(1+$tm[4]),$tm[3]);
 
 # otherwise, have re-name date be the day when the log file was started
 if ($startDate =~ /started on \w{3} (\w{3}) (\d+) \d+:\d+:\d+ \w+ (\d{4})/) {
-#	**DEV version of Dialogix Interviewing System version 2.9.4 Log file started on Thu Jan 17 16:36:06 EST 2002
+#	**CET version of Dialogix Interviewing System version 2.9.4 Log file started on Thu Jan 17 16:36:06 EST 2002
 	$date = sprintf($datefmt,$3,&month($1),$2);
 }
 
 rename("$logs/$logname","$logs/$logname.$date") if (-e "$logs/$logname");
 
-#sleep for 10 seconds to ensure that Tomcat fully stopped (else get a bind -- port in use error
-sleep(10);
+#wait a few seconds to ensure that Tomcat completely stopped
+sleep(60);
 
 #restart server
 $val = system("$bin/startup.sh 1>/tmp/dialogix_startup.stdout 2>/tmp/dialogix_startup.stderr");	
@@ -85,3 +85,4 @@ sub month {
 	return '12' if (/Dec/i);
 	return '00';
 }
+
