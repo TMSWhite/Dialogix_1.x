@@ -5,10 +5,6 @@ import java.net.*;
 
 /**
  * Schedule holds a collection of nodes.
- * TODO:
- *	know how to read from URL
- *	implemented as Object Pool
- *	delegate how to read from various file formats (CSV, XML, ...)
 */
 public class Schedule implements Serializable {
 	private Vector nodes;
@@ -24,7 +20,7 @@ public class Schedule implements Serializable {
 
 		String filename = file.toString();
 		try {
-			int line = 1;
+			int line = 0;
 			int count=0;
 			String fileLine;
 			br = new BufferedReader(new FileReader(file));

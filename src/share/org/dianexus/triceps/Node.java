@@ -1,6 +1,7 @@
 import java.lang.*;
 import java.util.*;
 import java.io.*;
+import java.text.Format;
 
 
 public class Node implements Serializable {
@@ -16,9 +17,9 @@ public class Node implements Serializable {
 	public static final int RADIO2=9;	// different layout
 	public static final int PASSWORD=10;
 	public static final int MEMO=11;
-	private static final String QUESTION_TYPES[] = {"*unknown*","radio", "check", "combo", "date", "month", "text", "double", "nothing", "radio2", "password","memo" };
-	private static final int DATA_TYPES[] = { Datum.STRING, Datum.STRING, Datum.STRING, Datum.STRING, Datum.DATE, Datum.MONTH, Datum.STRING, Datum.DOUBLE, Datum.STRING, Datum.STRING, Datum.STRING, Datum.STRING};
-	private static final String QUESTION_MASKS[] = { "", "", "", "", " (e.g. 7/23/1982)", " (e.g. February)", "", "", "", "", "", ""};
+	public static final int TIME = 12;
+	private static final String QUESTION_TYPES[] = {"*unknown*","radio", "check", "combo", "date", "month", "text", "double", "nothing", "radio2", "password","memo","time" };
+	private static final int DATA_TYPES[] = { Datum.STRING, Datum.STRING, Datum.STRING, Datum.STRING, Datum.DATE, Datum.MONTH, Datum.STRING, Datum.DOUBLE, Datum.STRING, Datum.STRING, Datum.STRING, Datum.STRING, Datum.TIME};
 
 	public static final int QUESTION = 1;
 	public static final int EVAL = 2;
@@ -30,6 +31,13 @@ public class Node implements Serializable {
 	public static final String ACTION_TYPE_NAMES[] = {"*unknown*","question", "expression", "group_open", "group_close", "brace_open", "brace_close", "call_schedule"};
 	public static final String ACTION_TYPES[] = {"?","q","e","[","]", "{", "}", "call" };
 
+	public static final int PARSE_NEITHER = 0;
+	public static final int PARSE_MIN = 1;
+	public static final int PARSE_MAX = 2;
+	public static final int PARSE_MIN_AND_MAX = 3;
+	public static final String PARSE_RANGE_TYPES[] = { "", "m", "M", "B" };
+	public static final String PARSE_RANGE_TYPE_STRS[] = { "", "parse min value", "parse max value", "parse both min and max values" };
+
 	private static final int MAX_TEXT_LEN_FOR_COMBO = 60;
 
 	private String concept = "";
@@ -40,7 +48,7 @@ public class Node implements Serializable {
 	private String dependencies = "";
 	private String questionRef = ""; // name within DISC
 	private int actionType = UNKNOWN;
-	private String actionTypeField = "";	// actionType;datumType;min;max;mask
+	private String actionTypeField = "";	// actionType;datumType;parseRangeType;min;max;mask
 	private String action = "";
 	private int answerType = UNKNOWN;
 	private int datumType = Datum.INVALID;
@@ -54,11 +62,15 @@ public class Node implements Serializable {
 	private String minStr = null;
 	private String maxStr = null;
 	private String maskStr = null;
+	private String parseRangeTypeStr = "";
+	private int parseRangeType = PARSE_NEITHER;
 
 	private Datum minDatum = null;
 	private Datum maxDatum = null;
 	private String rangeStr = null;
 
+	private Format mask = null;
+	private String exampleFormatStr = null;
 
 	// loading from extended Schedule with default answers
 	// XXX hack - Node shouldn't know values of evidence - Schedule should know how to load itself.
@@ -66,6 +78,8 @@ public class Node implements Serializable {
 	private transient String questionAsAsked = "";
 
 	public Node(int sourceLine, String sourceFile, String tsv) {
+//		initialize();
+
 		String token;
 		int field = 0;
 		int count = 0;
@@ -118,6 +132,9 @@ public class Node implements Serializable {
 
 		parseActionTypeField();
 		parseAnswerOptions();
+		processFormattingMask();
+		parseRange();
+		createParseRangeStr();
 	}
 
 	private String fixExcelisms(String s) {
@@ -163,9 +180,17 @@ public class Node implements Serializable {
 			switch(field) {
 				case 0:	actionTypeStr = s; break;
 				case 1: datumTypeStr = s; break;
-				case 2: minStr = s; break;
-				case 3: maxStr = s; break;
-				case 4: maskStr = s; break;
+				case 2: parseRangeTypeStr = s; break;
+				case 3: minStr = s; break;
+				case 4: maxStr = s; break;
+				case 5: maskStr = s; break;
+			}
+		}
+
+		for (int z=0;z<PARSE_RANGE_TYPES.length;++z) {
+			if (parseRangeTypeStr.equals(PARSE_RANGE_TYPES[z])) {
+				parseRangeType = z;
+				break;
 			}
 		}
 
@@ -185,23 +210,130 @@ public class Node implements Serializable {
 				break;
 			}
 		}
+	}
 
-		if (minStr != null)
-			minDatum = new Datum(minStr,datumType,maskStr);
-		if (maxStr != null)
-			maxDatum = new Datum(maxStr, datumType, maskStr);
-
-
-		if (minDatum == null && maxDatum == null) {
-			rangeStr = "";
+	private void processFormattingMask() {
+		if (maskStr == null) {
+			mask = Datum.getDefaultMask(datumType);
+			/* this is allowed to be null - means nothing is done with it */
 		}
 		else {
-			rangeStr = " (" +
-				((minDatum != null) ? minDatum.stringVal() : "") +
-				" - " +
-				((maxDatum != null) ? maxDatum.stringVal() : "") +
-				")";
+			mask = Datum.buildMask(maskStr, datumType);
+			/* if mask is null here, it means that the maskStr is invalid */
+			if (mask == null) {
+				setParseError("Invalid formatting mask <B>" + maskStr + "</B>");
+			}
 		}
+		String s = Datum.getExampleFormatStr(mask, datumType);
+		if (s.equals(""))
+			exampleFormatStr = "";
+		else
+			exampleFormatStr = " (e.g. " + s + ")";
+	}
+
+	private void parseRange() {
+		if (parseRangeType == PARSE_MIN || parseRangeType == PARSE_MIN_AND_MAX) {
+			if (minStr == null) {
+				setParseError("Discrepency:  requested <B>" + PARSE_RANGE_TYPE_STRS[parseRangeType] + "</B>, but no min value specified");
+			}
+			else {
+				/* To check this, need access to Triceps' parser!  Highly intertwined. */
+			}
+		}
+		else {
+			if (minStr == null) {
+				minDatum = null;
+			}
+			else {
+				minDatum = new Datum(minStr,datumType,mask);
+				if (!minDatum.isValid()) {
+					setParseError("Invalid value <B>" + minStr + "</B> for formatter <B>" + maskStr + "</B>");
+					minDatum = null;
+				}
+			}
+		}
+		if (parseRangeType == PARSE_MAX || parseRangeType == PARSE_MIN_AND_MAX) {
+			if (maxStr == null) {
+				setParseError("Discrepency:  requested <B>" + PARSE_RANGE_TYPE_STRS[parseRangeType] + "</B>, but no max value specified");
+			}
+			else {
+				/* To check this, need access to Triceps' parser!  Highly intertwined. */
+			}
+		}
+		else {
+			if (maxStr == null) {
+				maxDatum = null;
+			}
+			else {
+				maxDatum = new Datum(maxStr,datumType,mask);
+				if (!maxDatum.isValid()) {
+					setParseError("Invalid value <B>" + maxStr + "</B> for formatter <B>" + maskStr + "</B>");
+					maxDatum = null;
+				}
+			}
+		}		
+	}
+
+	public void createParseRangeStr() {
+		/* Create the help-string showing allowable range of input values.
+			Can be re-created (e.g. if range dynamically changes */
+
+		String min = null;
+		String max = null;
+
+		if ((minStr == null && maxStr == null) || answerType == PASSWORD) {
+			rangeStr = null;
+			return;
+		}
+
+		if (mask == null) {
+			min = minStr;
+			max = maxStr;
+		}
+		else {
+			/* Show the range of valid values, in the appropriate format */
+
+			if (minStr != null) {
+				if (parseRangeType == PARSE_MIN || parseRangeType == PARSE_MIN_AND_MAX) {
+					if (minDatum == null || !minDatum.isValid()) {
+						setError("Invalid value <B>" + minStr + "</B> for formatter <B>" + maskStr + "</B>");
+						min = minStr;
+					}
+					else {
+						min = Datum.format(minDatum,mask);
+					}
+				}
+				else {
+					if (minDatum == null)
+						min = minStr;
+					else
+						min = Datum.format(minDatum,mask);
+				}
+			}
+			if (maxStr != null) {
+				if (parseRangeType == PARSE_MAX || parseRangeType == PARSE_MIN_AND_MAX) {
+					if (maxDatum == null || !maxDatum.isValid()) {
+						setError("Invalid value <B>" + maxStr + "</B> for formatter <B>" + maskStr + "</B>");
+						max = maxStr;
+					}
+					else {
+						max = Datum.format(maxDatum,mask);
+					}
+				}
+				else {
+					if (maxDatum == null)
+						max = maxStr;
+					else
+						max = Datum.format(maxDatum,mask);
+				}
+			}
+		}
+
+		rangeStr = " (" +
+			((min != null) ? min : "") +
+			" - " +
+			((max != null) ? max : "") +
+			")";
 	}
 
 	private boolean parseAnswerOptions() {
@@ -224,7 +356,7 @@ public class Node implements Serializable {
 			answerType = NOTHING;
 		}
 		else if (answerType == UNKNOWN) {
-			setParseError("Unknown data type for answer<B>" + Node.encodeHTML(token) + "</B>");
+			setParseError("Unknown data type for answer <B>" + Node.encodeHTML(token) + "</B>");
 			answerType = NOTHING;
 
 		}
@@ -287,9 +419,7 @@ public class Node implements Serializable {
 			case DOUBLE:
 			case NOTHING:
 			case MEMO:
-				break;
 			case PASSWORD:
-				rangeStr = "";	// so not prompted with the password
 				break;
 		}
 
@@ -393,9 +523,7 @@ public class Node implements Serializable {
 				break;
 			case DATE:	// stores Date type
 				if (datum != null) {
-					Date date = datum.dateVal();
-					if (date != null)
-						defaultValue = Datum.mdy.format(date);
+					defaultValue = datum.stringVal();
 				}
 				sb.append("<input type='text' name='" + Node.encodeHTML(getName()) + "' value='" + Node.encodeHTML(defaultValue) + "'>");
 				break;
@@ -440,14 +568,20 @@ public class Node implements Serializable {
 
 	public boolean isWithinRange(Datum d) {
 		boolean err = false;
+		
+		System.out.println("(" + minStr + "|" + ((minDatum != null) ? minDatum.stringVal() : "") +
+			"," + d.stringVal() +
+			"," + maxStr + "|" + ((maxDatum != null) ? maxDatum.stringVal() : "") + ")");
 
-		if (minDatum != null && !DatumMath.ge(d,minDatum).booleanVal()) {
-			err = true;
+		if (minDatum != null) {
+			if (!DatumMath.ge(d,minDatum).booleanVal())
+				err = true;
 		}
-		if (maxDatum != null && !DatumMath.le(d,maxDatum).booleanVal()) {
-			err = true;
+		if (maxDatum != null) {
+			if (!DatumMath.le(d,maxDatum).booleanVal())
+				err = true;
 		}
-
+		
 		if (err) {
 			if (answerType == PASSWORD) {
 				setError("Incorrect password.  Please try again.");
@@ -461,6 +595,7 @@ public class Node implements Serializable {
 
 	public String getAction() { return action; }
 	public int getActionType() { return actionType; }
+	public String getActionTypeField() { return actionTypeField; }
 	public String getAnswerOptions() { return answerOptions; }
 	public int getAnswerType() { return answerType; }
 	public int getDatumType() { return datumType; }
@@ -470,13 +605,26 @@ public class Node implements Serializable {
 	public String getName() { return stepName; }
 	public String getQuestionRef() { return questionRef; }
 	public String getDebugAnswer() { return debugAnswer; }
-	public String getQuestionMask() { return QUESTION_MASKS[answerType] + rangeStr; }
+//	public String getQuestionMask() { return ((maskStr == null) ? DATATYPE_EG_STRS[answerType] : maskStr) + rangeStr; }
+	public String getQuestionMask() {
+		if (rangeStr != null)
+			return rangeStr;
+		else
+			return exampleFormatStr;
+	 }
 	public int getSourceLine() { return sourceLine; }
 	public String getSourceFile() { return sourceFile; }
 	public String getQuestionAsAsked() { return questionAsAsked; }
 	public void setQuestionAsAsked(String s) { questionAsAsked = s; }
-	public Datum getRangeMin() { return minDatum; }
-	public Datum getRangeMax() { return maxDatum; }
+//	public Datum getRangeMin() { return minDatum; }
+//	public Datum getRangeMax() { return maxDatum; }
+	public String getMaskStr() { return maskStr; }
+	public Format getMask() { return mask; }
+	public int getParseRangeType() { return parseRangeType; }
+	public void setMinDatum(Datum d) { minDatum = d; }
+	public void setMaxDatum(Datum d) { maxDatum = d; }
+	public String getMinStr() { return minStr; }
+	public String getMaxStr() { return maxStr; }
 
 	public boolean focusable() { return (answerType != UNKNOWN && answerType != NOTHING); }
 

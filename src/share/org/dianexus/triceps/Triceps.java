@@ -2,7 +2,7 @@ import java.lang.*;
 import java.util.*;
 import java.io.*;
 import java.net.*;
-import java.text.*;
+import java.text.Format;
 
 /* Triceps
  */
@@ -10,8 +10,8 @@ public class Triceps implements Serializable {
 	public static final int ERROR = 1;
 	public static final int OK = 2;
 	public static final int AT_END = 3;
+	public static final Format TIME_MASK = Datum.buildMask("yyyy.MM.dd..hh.mm.ss.z",Datum.DATE);
 
-	private static final SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy.MM.dd..hh.mm.ss z");
 	static private final Vector EMPTY_LIST = new Vector();
 
 	public static final String NULL = "not set";	// a default value to represent null in config files
@@ -26,6 +26,8 @@ public class Triceps implements Serializable {
 	private int numQuestions=0;	// so know how many to skip for compount question
 	private Date startTime = null;
 	private Date stopTime = null;
+	private String startTimeStr = null;
+	private String stopTimeStr = null;
 
 	public Triceps() {
 	}
@@ -78,6 +80,13 @@ public class Triceps implements Serializable {
 		return startTime;
 	}
 
+	public String getStartTimeStr() {
+		return startTimeStr;
+	}
+	public String getStopTimeStr() {
+		return stopTimeStr;
+	}
+
 	public Enumeration getErrors() {
 		/* when there is an error in getting a node */
 		Vector tmp = errors;
@@ -108,20 +117,20 @@ public class Triceps implements Serializable {
 				++braceLevel;
 			}
 			else if (actionType == Node.EVAL) {
-				errors.addElement("Should not have expression evaluations within a query block (brace level " + braceLevel);
+				node.setError("Should not have expression evaluations within a query block (brace level " + braceLevel);
 				break;
 			}
 			else if (actionType == Node.GROUP_CLOSE) {
 				--braceLevel;
 				if (braceLevel < 0) {
-					errors.addElement("Extra closing brace");
+					node.setError("Extra closing brace");
 					break;
 				}
 			}
 			else if (actionType == Node.QUESTION) {
 			}
 			else {
-				errors.addElement("Invalid action type");
+				node.setError("Invalid action type");
 				break;
 			}
 		} while (braceLevel > 0);
@@ -131,6 +140,17 @@ public class Triceps implements Serializable {
 	}
 
 	public String getQuestionStr(Node q) {
+		/* recompute the min and max ranges, if necessary - must be done before premature abort (if invalid entry)*/
+		int parseRangeType = q.getParseRangeType();
+
+		if (parseRangeType == Node.PARSE_MIN || parseRangeType == Node.PARSE_MIN_AND_MAX) {
+			q.setMinDatum(parser.parse(evidence,q.getMinStr()));
+		}
+		if (parseRangeType == Node.PARSE_MAX || parseRangeType == Node.PARSE_MIN_AND_MAX) {
+			q.setMaxDatum(parser.parse(evidence,q.getMaxStr()));
+		}
+		q.createParseRangeStr();
+				
 		q.setQuestionAsAsked(parser.parseJSP(evidence, q.getAction()) + q.getQuestionMask());
 		if (parser.hasErrors()) { Vector v=parser.getErrors(); for (int c=0;c<v.size();++c) { errors.addElement(v.elementAt(c)); }  }
 		return q.getQuestionAsAsked();
@@ -188,7 +208,7 @@ public class Triceps implements Serializable {
 			else if (actionType == Node.GROUP_CLOSE) {
 				--braceLevel;	// close an open block
 				if (braceLevel < 0) {
-					errors.addElement("Extra closing brace");
+					node.setError("Extra closing brace");
 					return ERROR;
 				}
 			}
@@ -199,7 +219,7 @@ public class Triceps implements Serializable {
 				else {
 					if (parser.booleanVal(evidence, node.getDependencies())) {
 						if (parser.hasErrors()) { Vector v=parser.getErrors(); for (int c=0;c<v.size();++c) { errors.addElement(v.elementAt(c)); }  }
-						evidence.set(node, new Datum(parser.stringVal(evidence, node.getAction()),node.getDatumType()));
+						evidence.set(node, new Datum(parser.stringVal(evidence, node.getAction()),node.getDatumType(),node.getMask()));
 						if (parser.hasErrors()) { Vector v=parser.getErrors(); for (int c=0;c<v.size();++c) { errors.addElement(v.elementAt(c)); }  }
 					}
 					else {
@@ -223,7 +243,7 @@ public class Triceps implements Serializable {
 				}
 			}
 			else {
-				errors.addElement("INvalid action type");
+				node.setError("Invalid action type");
 				return ERROR;
 			}
 			++step;
@@ -302,7 +322,7 @@ public class Triceps implements Serializable {
 				}
 			}
 			else {
-				errors.addElement("Invalid action type");
+				node.setError("Invalid action type");
 				return ERROR;
 			}
 		}
@@ -318,16 +338,15 @@ public class Triceps implements Serializable {
 
 	private void startTimer() {
 		startTime = new Date(System.currentTimeMillis());
+		startTimeStr = Datum.format(startTime,Datum.DATE,TIME_MASK);
 		stopTime = null;	// reset stopTime, since re-starting
 	}
 
 	private void stopTimer() {
-		if (stopTime == null)
+		if (stopTime == null) {
 			stopTime = new Date(System.currentTimeMillis());
-	}
-
-	public String formatDate(Date d) {
-		return dateFormat.format(d);
+			stopTimeStr = Datum.format(stopTime,Datum.DATE,TIME_MASK);
+		}
 	}
 
 	private boolean setDebugEvidence() {
@@ -350,7 +369,7 @@ public class Triceps implements Serializable {
 				evidence.set(n,new Datum(Datum.INVALID));
 			}
 			else {
-				evidence.set(n,new Datum(init,n.getDatumType()));	// set an initial value for the node
+				evidence.set(n,new Datum(init,n.getDatumType(),n.getMask()));	// set an initial value for the node
 			}
 		}
 		return true;
@@ -387,13 +406,18 @@ public class Triceps implements Serializable {
 				answer = "0";
 			}
 		}
+		/* get entered value */
 
-		Datum d = new Datum(answer,q.getDatumType()); // use expected value type
+		Datum d = new Datum(answer,q.getDatumType(),q.getMask()); // use expected value type
+
+		/* check for type error */
 		if (!d.exists()) {
 			q.setError("<- " + d.getError());
 			return false;
 		}
-		else if (!q.isWithinRange(d)) {
+		
+		/* check if out of range */
+		if (!q.isWithinRange(d)) {
 			return false;	// shouldn't wording of error be done here, not in Node?
 		}
 		else {
@@ -435,16 +459,20 @@ public class Triceps implements Serializable {
 	}
 
 	public String toString(Node n) {
+		return toString(n,false);
+	}
+
+	public String toString(Node n, boolean showReserved) {
 		Datum d = getDatum(n);
 		if (d == null)
 			return "null";
 		else
-			return d.stringVal();
+			return d.stringVal(showReserved);
 	}
 
 	public boolean isSet(Node n) {
 		Datum d = getDatum(n);
-		if (d == null || d.isUnknown())
+		if (d == null || d.isType(Datum.UNKNOWN))
 			return false;
 		else
 			return true;
@@ -468,7 +496,7 @@ public class Triceps implements Serializable {
 			if (d == null)
 				continue;
 
-			sb.append(" <datum name='" + n.getName() + "' value='" + d.stringVal() + "'/>\n");
+			sb.append(" <datum name='" + n.getName() + "' value='" + d.stringVal(true) + "'/>\n");
 		}
 		sb.append("</Evidence>\n");
 		return sb.toString();
@@ -569,8 +597,8 @@ public class Triceps implements Serializable {
 			/* Write header information */
 
 			out.write("COMMENT " + "Schedule: " + scheduleURL + "\n");
-			out.write("COMMENT " + "Started: " + formatDate(startTime) + "\n");
-			out.write("COMMENT " + "Stopped: " + formatDate(stopTime) + "\n");
+			out.write("COMMENT " + "Started: " + getStartTimeStr() + "\n");
+			out.write("COMMENT " + "Stopped: " + getStopTimeStr() + "\n");
 			out.write("COMMENT " + "\n");
 
 			for (int i=0;i<size();++i) {
@@ -583,7 +611,7 @@ public class Triceps implements Serializable {
 					ans = NULL;
 				}
 				else {
-					ans = d.stringVal();
+					ans = d.stringVal(true);
 				}
 
 				out.write(n.toTSV() + "\t" + n.getQuestionAsAsked() + "\t" + ans + "\n");

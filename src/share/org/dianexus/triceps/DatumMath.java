@@ -1,27 +1,21 @@
 import java.lang.*;
 import java.util.*;
-import java.text.*;
+import java.text.Format;
 
 /** This class provides the basic logic and mathematical functions for relating objects of type datum. */
 public class DatumMath {
-	private static final SimpleDateFormat month2num = new SimpleDateFormat("M");
+	private static final Format MONTH_AS_NUM_MASK = Datum.buildMask("M",Datum.MONTH);
 
 	/** This method returns the sum of two Datum objects of type double. */
 	static Datum add(Datum a, Datum b) {
 		switch (a.type()) {
 			default:
 				return new Datum(a.doubleVal() + b.doubleVal());
-			case Datum.MONTH: 
-				try {
-					int val = Integer.parseInt(month2num.format(a.dateVal()));
-					val += (int) b.doubleVal();
-					Date d = month2num.parse("" + val);
-					return new Datum(Datum.month.format(d),Datum.MONTH);
-				}
-				catch (java.text.ParseException e) {
-					System.out.println(e);
-					return new Datum(Datum.INVALID);
-				}
+			case Datum.MONTH:
+				int val = Integer.parseInt(Datum.format(a.dateVal(),Datum.DATE,MONTH_AS_NUM_MASK));
+				val += (int) b.doubleVal();
+				Date newMonth = (new Datum("" + val, Datum.MONTH, MONTH_AS_NUM_MASK)).dateVal();
+				return (new Datum(newMonth, Datum.MONTH));
 		}
 	}
 	static Datum and(Datum a, Datum b) {
@@ -78,10 +72,21 @@ public class DatumMath {
 	 */
 	static Datum ge(Datum a, Datum b) {
 		try {
-			if ((a.stringVal().compareTo(b.stringVal()) >= 0) || (a.doubleVal() >= b.doubleVal()))
-				return new Datum(true);
-			else
-				return new Datum(false);
+			switch (a.type()) {
+				case Datum.DATE:
+				case Datum.TIME:
+				case Datum.MONTH:
+					return new Datum(
+						(a.dateVal().after(b.dateVal())) ||
+						(a.dateVal().equals(b.dateVal()))
+						);
+				case Datum.STRING:
+					return new Datum(a.stringVal().compareTo(b.stringVal()) >= 0);
+				case Datum.DOUBLE:
+					return new Datum(a.doubleVal() >= b.doubleVal());
+				default:
+					return new Datum(false);
+			}
 		}
 		catch(NullPointerException e) {}
 		return new Datum(false);
@@ -91,10 +96,20 @@ public class DatumMath {
 	 */
 	static Datum gt(Datum a, Datum b) {
 		try {
-			if ((a.stringVal().compareTo(b.stringVal()) > 0) || (a.doubleVal() > b.doubleVal()))
-				return new Datum(true);
-			else
-				return new Datum(false);
+			switch (a.type()) {
+				case Datum.DATE:
+				case Datum.TIME:
+				case Datum.MONTH:
+					return new Datum(
+						(a.dateVal().after(b.dateVal()))
+						);
+				case Datum.STRING:
+					return new Datum(a.stringVal().compareTo(b.stringVal()) > 0);
+				case Datum.DOUBLE:
+					return new Datum(a.doubleVal() > b.doubleVal());
+				default:
+					return new Datum(false);
+			}
 		}
 		catch(NullPointerException e) {}
 		return new Datum(false);
@@ -105,10 +120,21 @@ public class DatumMath {
 	 */
 	static Datum le(Datum a, Datum b) {
 		try {
-			if ((a.stringVal().compareTo(b.stringVal()) <= 0) || (a.doubleVal() <= b.doubleVal()))
-				return new Datum(true);
-			else
-				return new Datum(false);
+			switch (a.type()) {
+				case Datum.DATE:
+				case Datum.TIME:
+				case Datum.MONTH:
+					return new Datum(
+						(a.dateVal().before(b.dateVal())) ||
+						(a.dateVal().equals(b.dateVal()))
+						);
+				case Datum.STRING:
+					return new Datum(a.stringVal().compareTo(b.stringVal()) <= 0);
+				case Datum.DOUBLE:
+					return new Datum(a.doubleVal() <= b.doubleVal());
+				default:
+					return new Datum(false);
+			}
 		}
 		catch(NullPointerException e) {}
 		return new Datum(false);
@@ -116,10 +142,20 @@ public class DatumMath {
 	/** This method returns a Datum of type boolean upon comparing two Datum objects of type String or double for less than. */
 	static Datum lt(Datum a, Datum b) {
 		try {
-			if ((a.stringVal().compareTo(b.stringVal()) < 0) || (a.doubleVal() < b.doubleVal()))
-				return new Datum(true);
-			else
-				return new Datum(false);
+			switch (a.type()) {
+				case Datum.DATE:
+				case Datum.TIME:
+				case Datum.MONTH:
+					return new Datum(
+						(a.dateVal().before(b.dateVal()))
+						);
+				case Datum.STRING:
+					return new Datum(a.stringVal().compareTo(b.stringVal()) < 0);
+				case Datum.DOUBLE:
+					return new Datum(a.doubleVal() < b.doubleVal());
+				default:
+					return new Datum(false);
+			}
 		}
 		catch(NullPointerException e) {}
 		return new Datum(false);
@@ -147,10 +183,20 @@ public class DatumMath {
 	 */
 	static Datum neq(Datum a, Datum b) {
 		try {
-			if ((a.stringVal().compareTo(b.stringVal()) != 0) || (a.doubleVal() != b.doubleVal()))
-				return new Datum(true);
-			else
-				return new Datum(false);
+			switch (a.type()) {
+				case Datum.DATE:
+				case Datum.TIME:
+				case Datum.MONTH:
+					return new Datum(
+						(!a.dateVal().equals(b.dateVal()))
+						);
+				case Datum.STRING:
+					return new Datum(a.stringVal().compareTo(b.stringVal()) != 0);
+				case Datum.DOUBLE:
+					return new Datum(a.doubleVal() != b.doubleVal());
+				default:
+					return new Datum(false);
+			}			
 		}
 		catch(NullPointerException e) {}
 		return new Datum(false);
@@ -171,17 +217,11 @@ public class DatumMath {
 		switch (a.type()) {
 			default:
 				return new Datum(a.doubleVal() - b.doubleVal());
-			case Datum.MONTH: 
-				try {
-					int val = Integer.parseInt(month2num.format(a.dateVal()));
-					val -= (int) b.doubleVal();
-					Date d = month2num.parse("" + val);
-					return new Datum(Datum.month.format(d),Datum.MONTH);
-				}
-				catch (java.text.ParseException e) {
-					System.out.println(e);
-					return new Datum(Datum.INVALID);
-				}
+			case Datum.MONTH:
+				int val = Integer.parseInt(Datum.format(a.dateVal(),Datum.DATE,MONTH_AS_NUM_MASK));
+				val -= (int) b.doubleVal();
+				Date newMonth = (new Datum("" + val, Datum.MONTH, MONTH_AS_NUM_MASK)).dateVal();
+				return (new Datum(newMonth, Datum.MONTH));
 		}
 	}
 	static Datum xor(Datum a, Datum b) {

@@ -16,9 +16,10 @@ public class TricepsServlet extends HttpServlet {
 	private HttpServletResponse res;
 	private PrintWriter out;
 	private String firstFocus = null;
-	private String scheduleList = "";
-	private String scheduleFileRoot = "";
-	private String scheduleSaveDir = "";
+
+	private String scheduleList = "TricepsSchedules.txt";	// default value
+	private String scheduleFileRoot = "c:/cvs/triceps/docs/";	// default value
+	private String scheduleSaveDir = "c:/tmp/";		// default value
 
 
 	/**
@@ -31,14 +32,14 @@ public class TricepsServlet extends HttpServlet {
 		super.init(config);
 		String s;
 
-		s = config.getInitParameter("scheduleList");
-		if (s != null)
+		s = config.getInitParameter("scheduleList").trim();
+		if (s != null && !s.equals(""))
 			scheduleList = s;
-		s = config.getInitParameter("scheduleFileRoot");
-		if (s != null)
+		s = config.getInitParameter("scheduleFileRoot").trim();
+		if (s != null && !s.equals(""))
 			scheduleFileRoot = s;
-		s = config.getInitParameter("scheduleSaveDir");
-		if (s != null)
+		s = config.getInitParameter("scheduleSaveDir").trim();
+		if (s != null && !s.equals(""))
 			scheduleSaveDir = s;
 	}
 
@@ -141,8 +142,10 @@ public class TricepsServlet extends HttpServlet {
 			/* read list of available schedules from file */
 			File file = new File(scheduleFileRoot + scheduleList);
 
+			String filename = scheduleFileRoot + scheduleList;
+
 			if (file == null || !file.exists() || !file.isFile() || !file.canRead()) {
-				sb.append("<B>Unable to find '" + file + "'</B><HR>");
+				sb.append("<B>Unable to find '" + filename + "'</B><HR>");
 			}
 			else {
 				BufferedReader br = null;
@@ -362,7 +365,7 @@ public class TricepsServlet extends HttpServlet {
 
 				sb.append("<TABLE WIDTH='100%' CELLPADDING='2' CELLSPACING='1' BORDER=1>\n");
 				sb.append("<TR><TD>Equation</TD><TD><B>" + Node.encodeHTML(expr) + "</B></TD><TD>Type</TD><TD><B>" + Datum.TYPES[datum.type()] + "</B></TD></TR>\n");
-				sb.append("<TR><TD>String</TD><TD><B>" + Node.encodeHTML(datum.stringVal()) + "</B></TD><TD>boolean</TD><TD><B>" + datum.booleanVal() + "</B></TD></TR>\n");
+				sb.append("<TR><TD>String</TD><TD><B>" + Node.encodeHTML(datum.stringVal(true)) + "</B></TD><TD>boolean</TD><TD><B>" + datum.booleanVal() + "</B></TD></TR>\n");
 				sb.append("<TR><TD>double</TD><TD><B>" + datum.doubleVal() + "</B></TD><TD>long</TD><TD><B>" + datum.longVal() + "</B></TD></TR>\n");
 				sb.append("<TR><TD>date</TD><TD><B>" + datum.dateVal() + "</B></TD><TD>month</TD><TD><B>" + datum.monthVal() + "</B></TD></TR>\n");
 				sb.append("</TABLE>\n");
@@ -481,7 +484,7 @@ public class TricepsServlet extends HttpServlet {
 			if (gotoMsg == Triceps.AT_END) {
 				// save the file, but still give the option to go back and change answers
 				boolean savedOK;
-				String name = triceps.formatDate(triceps.getStartTime());
+				String name = Datum.format(triceps.getStartTime(),Datum.DATE,Triceps.TIME_MASK);
 				String file = scheduleSaveDir + name + "." + req.getRemoteUser() + "." + req.getRemoteHost() + ".tsv";
 
 				sb.append("<B>Thank you, the interview is completed</B><BR>\n");
@@ -638,13 +641,13 @@ public class TricepsServlet extends HttpServlet {
 			while(questionNames.hasMoreElements()) {
 				Node n = (Node) questionNames.nextElement();
 				sb.append("<TR>" +
-					"<TD>" + Node.encodeHTML(n.getQuestionRef()) + "</TD>" +
-					"<TD><B>" + Node.encodeHTML(triceps.toString(n)) + "</B></TD>" +
+					"<TD>" + Node.encodeHTML(n.getQuestionRef(),true) + "</TD>" +
+					"<TD><B>" + Node.encodeHTML(triceps.toString(n,true),true) + "</B></TD>" +
 					"<TD>" + Datum.TYPES[n.getDatumType()] + "</TD>" +
-					"<TD>" + Node.encodeHTML(n.getName()) + "</TD>" +
-					"<TD>" + Node.encodeHTML(n.getConcept()) + "</TD>" +
-					"<TD>" + Node.encodeHTML(n.getDependencies()) + "</TD>" +
-					"<TD>" + Node.encodeHTML(n.getAction()) + "</TD>" +
+					"<TD>" + Node.encodeHTML(n.getName(),true) + "</TD>" +
+					"<TD>" + Node.encodeHTML(n.getConcept(),true) + "</TD>" +
+					"<TD>" + Node.encodeHTML(n.getDependencies(),true) + "</TD>" +
+					"<TD>" + Node.encodeHTML(n.getAction(),true) + "</TD>" +
 					"</TR>\n");
 			}
 			sb.append("</TABLE>\n");
@@ -659,13 +662,14 @@ public class TricepsServlet extends HttpServlet {
 					continue;
 				sb.append("<TR>" +
 					"<TD>" + (i + 1) + "</TD>" +
-					"<TD>" + Node.encodeHTML(n.getQuestionRef()) + "</TD>" +
-					"<TD><B>" + Node.encodeHTML(triceps.toString(n)) + "</B></TD>" +
+					"<TD>" + Node.encodeHTML(n.getQuestionRef(),true) + "</TD>" +
+					"<TD><B>" + Node.encodeHTML(triceps.toString(n,true),true) + "</B></TD>" +
 					"<TD>" + Datum.TYPES[n.getDatumType()] + "</TD>" +
-					"<TD>" + Node.encodeHTML(n.getName()) + "</TD>" +
-					"<TD>" + Node.encodeHTML(n.getConcept()) + "</TD>" +
-					"<TD>" + Node.encodeHTML(n.getDependencies()) + "</TD>" +
-					"<TD>" + Node.encodeHTML(n.getAction()) + "</TD>" +
+					"<TD>" + Node.encodeHTML(n.getName(),true) + "</TD>" +
+					"<TD>" + Node.encodeHTML(n.getConcept(),true) + "</TD>" +
+					"<TD>" + Node.encodeHTML(n.getDependencies(),true) + "</TD>" +
+					"<TD>" + Node.encodeHTML(n.getActionTypeField(),true) + "</TD>" +
+					"<TD>" + Node.encodeHTML(n.getAction(),true) + "</TD>" +
 					"</TR>\n");
 			}
 			sb.append("</TABLE>\n");

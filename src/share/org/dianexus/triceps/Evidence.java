@@ -44,7 +44,7 @@ public class Evidence implements Serializable {
 	}
 
 	private void addAlias(Node n, String alias, Integer index) {
-		if (alias == null || alias.equals(Triceps.NULL))
+		if (alias == null || alias.equals(Triceps.NULL) || alias.equals(""))
 			return;	// ignore invalid aliases
 
 		Object o = aliases.put(alias,index);
