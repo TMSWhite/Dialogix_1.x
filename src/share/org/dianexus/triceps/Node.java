@@ -487,7 +487,7 @@ public class Node  {
 				ac = (AnswerChoice) ans.nextElement();
 				ac.parse(triceps);
 				sb.append("<input type='radio' name='" + getLocalName() + "' " + "value='" + ac.getValue() + "'" +
-					(DatumMath.eq(datum,new Datum(triceps, ac.getValue(),DATA_TYPES[answerType])).booleanVal() ? " CHECKED" : "") + ">" + ac.getMessage() + "<br>");
+					(DatumMath.eq(datum,new Datum(triceps, ac.getValue(),DATA_TYPES[answerType])).booleanVal() ? " checked" : "") + ">" + ac.getMessage() + "<br>");
 			}
 			break;
 		case RADIO_HORIZONTAL: // will store integers
@@ -498,24 +498,24 @@ public class Node  {
 
 			if (count > 0) {
 				Double pct = new Double(100. / (double) count);
-				sb.append("<TD COLSPAN='2' BGCOLOR='lightgrey'>");
-				sb.append("<TABLE CELLPADDING='0' CELLSPACING='2' BORDER='1' WIDTH='100%'>");
-				sb.append("<TR>");
+				sb.append("<td colspan='2' bgcolor='lightgrey'>");
+				sb.append("<table cellpadding='0' cellspacing='2' border='1' width='100%'>");
+				sb.append("<tr>");
 				while (ans.hasMoreElements()) { // for however many radio buttons there are
 					ac = (AnswerChoice) ans.nextElement();
 					ac.parse(triceps);
-					sb.append("<TD VALIGN='top' WIDTH='" + pct.toString() + "%'>");
+					sb.append("<td valign='top' width='" + pct.toString() + "%'>");
 					sb.append("<input type='radio' name='" + getLocalName() + "' " + "value='" + ac.getValue() + "'" +
-						(DatumMath.eq(datum,new Datum(triceps, ac.getValue(),DATA_TYPES[answerType])).booleanVal() ? " CHECKED" : "") + ">" + ac.getMessage());
-					sb.append("</TD>");
+						(DatumMath.eq(datum,new Datum(triceps, ac.getValue(),DATA_TYPES[answerType])).booleanVal() ? " checked" : "") + ">" + ac.getMessage());
+					sb.append("</td>");
 				}
 			}
-			sb.append("</TR>");
-			sb.append("</TABLE>");
+			sb.append("</tr>");
+			sb.append("</table>");
 			/* XXX: add Node errors here - a kludge */
 			sb.append(errMsg);
-			sb.append("</TD>");
-//				sb.append("</TR>");	// closing the outside is reserverd for TricepsServlet
+			sb.append("</td>");
+//				sb.append("</tr>");	// closing the outside is reserverd for TricepsServlet
 			break;
 		case CHECK:
 			ans = getAnswerChoices().elements();
@@ -523,7 +523,7 @@ public class Node  {
 				ac = (AnswerChoice) ans.nextElement();
 				ac.parse(triceps);
 				sb.append("<input type='checkbox' name='" + getLocalName() + "' " + "value='" + ac.getValue() + "'" +
-					(DatumMath.eq(datum, new Datum(triceps, ac.getValue(),DATA_TYPES[answerType])).booleanVal() ? " CHECKED" : "") + ">" + ac.getMessage() + "<br>");
+					(DatumMath.eq(datum, new Datum(triceps, ac.getValue(),DATA_TYPES[answerType])).booleanVal() ? " checked" : "") + ">" + ac.getMessage() + "<br>");
 			}
 			break;
 		case COMBO:	// stores integers as value
@@ -576,7 +576,7 @@ public class Node  {
 						choices.append(prefix);
 						if (line++ == 0) {
 							if (selected) {
-								choices.append(" SELECTED>" +
+								choices.append(" selected>" +
 									((autogen) ? String.valueOf(optionNum) : ac.getValue()) +
 									")&nbsp;");
 								nothingSelected = false;
@@ -606,7 +606,7 @@ public class Node  {
 				((answerType == LIST) ? (" size = '" + Math.min(MAX_ITEMS_IN_LIST,totalLines+1) + "'") : "") +
 				">");
 			sb.append("<option value=''" +
-				((nothingSelected) ? " SELECTED" : "") + ">" +	// so that focus is properly shifted on List box
+				((nothingSelected) ? " selected" : "") + ">" +	// so that focus is properly shifted on List box
 				triceps.get("select_one_of_the_following") +
 				"</option>");	// first choice is empty
 			sb.append(choices);
@@ -616,22 +616,30 @@ public class Node  {
 		case TEXT:	// stores Text type
 			if (datum != null && datum.exists())
 				defaultValue = datum.stringVal();
-			sb.append("<input type='text' onfocus='javascript:select()' name='" + getLocalName() + "' value='" + defaultValue + "'>");
+			sb.append("<input type='text'" + 
+				" onfocus='select();'" +
+				" name='" + getLocalName() + "' value='" + defaultValue + "'>");
 			break;
 		case MEMO:
 			if (datum != null && datum.exists())
 				defaultValue = datum.stringVal();
-			sb.append("<TEXTAREA rows='5' onfocus='javascript:select()' name='" + getLocalName() + "'>" + defaultValue + "</TEXTAREA>");
+			sb.append("<textarea rows='5'" +
+				" onfocus='select();'" +
+				" name='" + getLocalName() + "'>" + defaultValue + "</textarea>");
 			break;
 		case PASSWORD:	// stores Text type
 			if (datum != null && datum.exists())
 				defaultValue = datum.stringVal();
-			sb.append("<input type='password' onfocus='javascript:select()' name='" + getLocalName() + "'>");
+			sb.append("<input type='password'" + 
+				" onfocus='select();'" +
+				" name='" + getLocalName() + "' value='" + defaultValue + "'>");
 			break;
 		case DOUBLE:	// stores Double type
 			if (datum != null && datum.exists())
 				defaultValue = datum.stringVal();
-			sb.append("<input type='text' onfocus='javascript:select()' name='" + getLocalName() + "' value='" + defaultValue + "'>");
+			sb.append("<input type='text'" + 
+				" onfocus='select();'" +
+				" name='" + getLocalName() + "' value='" + defaultValue + "'>");
 			break;
 		default:
 /*
@@ -648,7 +656,9 @@ public class Node  {
 */
 			if (datum != null && datum.exists())
 				defaultValue = datum.stringVal();
-			sb.append("<input type='text' onfocus='javascript:select()' name='" + getLocalName() + "' value='" + defaultValue + "'>");
+			sb.append("<input type='text'" + 
+				" onfocus='select();'" +
+				" name='" + getLocalName() + "' value='" + defaultValue + "'>");
 			break;
 		case NOTHING:
 			sb.append("&nbsp;");
