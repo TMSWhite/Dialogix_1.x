@@ -488,6 +488,15 @@ if (DEBUG) Logger.writeln("##Throwable @ Servlet.getSortedNames()" + t.getMessag
 		}
 	}
 	
+	/*public*/ String getCurrentStep() {
+		if (schedule == null || schedule == Schedule.NULL) {
+			return " null";
+		}
+		else {
+			return schedule.getReserved(Schedule.STARTING_STEP);
+		}
+	}
+	
 
 	private String getScheduleInfo(Schedule sched, boolean isSuspended) {
 		if (sched == null)
