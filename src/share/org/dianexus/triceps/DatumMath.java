@@ -9,7 +9,7 @@ public class DatumMath {
 	static Datum hasError(Datum a, Datum b) {
 		// This function needs to be reconsidered as to the proper way to handle error propagation
 		if (a.isType(Datum.INVALID) || (b != null && b.isType(Datum.INVALID))) {
-			return Datum.getInstance(a.lingua,Datum.INVALID);
+			return Datum.getInstance(a.triceps,Datum.INVALID);
 		}
 		/*
 		if (a.isType(Datum.REFUSED) || (b != null && b.isType(Datum.REFUSED))) {
@@ -60,11 +60,11 @@ public class DatumMath {
 			default:
 			case Datum.NUMBER:
 			case Datum.STRING:
-				return new Datum(a.lingua, a.doubleVal() + b.doubleVal());
+				return new Datum(a.triceps, a.doubleVal() + b.doubleVal());
  			case Datum.DATE:
  			case Datum.TIME:
  				/* need way to throw error here */
-				return Datum.getInstance(a.lingua,Datum.INVALID);
+				return Datum.getInstance(a.triceps,Datum.INVALID);
 			case Datum.WEEKDAY:
 			case Datum.MONTH:
 			case Datum.YEAR:
@@ -75,7 +75,7 @@ public class DatumMath {
 			case Datum.MONTH_NUM:
 				if (!b.isNumeric()) {
 					/* need way to throw an error here */
-					return Datum.getInstance(a.lingua,Datum.INVALID);
+					return Datum.getInstance(a.triceps,Datum.INVALID);
 				}
 				else {
 					int field = DatumMath.datumToCalendar(a.type());
@@ -83,7 +83,7 @@ public class DatumMath {
 	
 					gc.setTime(a.dateVal());
 					gc.add(field, (int) b.doubleVal());
-					return new Datum(a.lingua,gc.getTime(),a.type());	// set to type of first number in expression
+					return new Datum(a.triceps,gc.getTime(),a.type());	// set to type of first number in expression
 				}
 		}
 	}
@@ -93,14 +93,14 @@ public class DatumMath {
 		if (d != null)
 			return d;
 
-		return new Datum(a.lingua, (double) ((long) a.doubleVal() & (long) b.doubleVal()));
+		return new Datum(a.triceps, (double) ((long) a.doubleVal() & (long) b.doubleVal()));
 	}
 	static /* synchronized */ Datum andand(Datum a, Datum b) {
 		Datum d = DatumMath.hasError(a,b);
 		if (d != null)
 			return d;
 
-		return new Datum(a.lingua, a.booleanVal() && b.booleanVal());
+		return new Datum(a.triceps, a.booleanVal() && b.booleanVal());
 	}
 	/** This method concatenates two Datum objects of type String and returns the resulting Datum object. */
 	static /* synchronized */ Datum concat(Datum a, Datum b) {
@@ -109,10 +109,10 @@ public class DatumMath {
 			return d;
 
 		try {
-			return new Datum(a.lingua, a.stringVal().concat(b.stringVal()),Datum.STRING);
+			return new Datum(a.triceps, a.stringVal().concat(b.stringVal()),Datum.STRING);
 		}
 		catch(NullPointerException e) {
-			return new Datum(a.lingua, a.stringVal(),Datum.STRING);
+			return new Datum(a.triceps, a.stringVal(),Datum.STRING);
 		}
 	}
 	/**
@@ -136,10 +136,10 @@ public class DatumMath {
 			return d;
 
 		try {
-			return new Datum(a.lingua, a.doubleVal() / b.doubleVal());
+			return new Datum(a.triceps, a.doubleVal() / b.doubleVal());
 		}
 		catch(ArithmeticException e) {
-			return Datum.getInstance(a.lingua,Datum.INVALID);
+			return Datum.getInstance(a.triceps,Datum.INVALID);
 		}
 	}
 	/**
@@ -155,7 +155,7 @@ public class DatumMath {
 			switch (a.type()) {
 				case Datum.DATE:
 				case Datum.TIME:
-					return new Datum(a.lingua, (a.dateVal().equals(b.dateVal())));
+					return new Datum(a.triceps, (a.dateVal().equals(b.dateVal())));
 				case Datum.WEEKDAY:
 				case Datum.MONTH:
 				case Datum.YEAR:
@@ -164,21 +164,21 @@ public class DatumMath {
 				case Datum.MINUTE:
 				case Datum.SECOND:
 				case Datum.MONTH_NUM:
-					return new Datum(a.lingua, DatumMath.getCalendarField(a,a.type()) == DatumMath.getCalendarField(b,a.type()));
+					return new Datum(a.triceps, DatumMath.getCalendarField(a,a.type()) == DatumMath.getCalendarField(b,a.type()));
 				case Datum.STRING:
 					if (a.isNumeric())
-						return new Datum(a.lingua, a.doubleVal() == b.doubleVal());
+						return new Datum(a.triceps, a.doubleVal() == b.doubleVal());
 					else {
-						return new Datum(a.lingua, a.stringVal().compareTo(b.stringVal()) == 0);
+						return new Datum(a.triceps, a.stringVal().compareTo(b.stringVal()) == 0);
 					}
 				case Datum.NUMBER:
-					return new Datum(a.lingua, a.doubleVal() == b.doubleVal());
+					return new Datum(a.triceps, a.doubleVal() == b.doubleVal());
 				default:
-					return new Datum(a.lingua, false);
+					return new Datum(a.triceps, false);
 			}
 		}
 		catch(NullPointerException e) {}
-		return new Datum(a.lingua, false);
+		return new Datum(a.triceps, false);
 	}
 	/**
 	 * This method returns a Datum of type boolean upon comparing two Datum objects of type String or double for
@@ -193,7 +193,7 @@ public class DatumMath {
 			switch (a.type()) {
 				case Datum.DATE:
 				case Datum.TIME:
-					return new Datum(a.lingua, 
+					return new Datum(a.triceps, 
 						(a.dateVal().after(b.dateVal())) ||
 						(a.dateVal().equals(b.dateVal()))
 						);
@@ -205,21 +205,21 @@ public class DatumMath {
 				case Datum.MINUTE:
 				case Datum.SECOND:
 				case Datum.MONTH_NUM:
-					return new Datum(a.lingua, DatumMath.getCalendarField(a,a.type()) >= DatumMath.getCalendarField(b,a.type()));
+					return new Datum(a.triceps, DatumMath.getCalendarField(a,a.type()) >= DatumMath.getCalendarField(b,a.type()));
 				case Datum.STRING:
 					if (a.isNumeric())
-						return new Datum(a.lingua, a.doubleVal() >= b.doubleVal());
+						return new Datum(a.triceps, a.doubleVal() >= b.doubleVal());
 					else {
-						return new Datum(a.lingua, a.stringVal().compareTo(b.stringVal()) >= 0);
+						return new Datum(a.triceps, a.stringVal().compareTo(b.stringVal()) >= 0);
 					}
 				case Datum.NUMBER:
-					return new Datum(a.lingua, a.doubleVal() >= b.doubleVal());
+					return new Datum(a.triceps, a.doubleVal() >= b.doubleVal());
 				default:
-					return new Datum(a.lingua, false);
+					return new Datum(a.triceps, false);
 			}
 		}
 		catch(NullPointerException e) {}
-		return new Datum(a.lingua, false);
+		return new Datum(a.triceps, false);
 	}
 	/**
 	 * This method returns a Datum of type boolean upon comparing two Datum objects of type String or double for greater than.
@@ -233,7 +233,7 @@ public class DatumMath {
 			switch (a.type()) {
 				case Datum.DATE:
 				case Datum.TIME:
-					return new Datum(a.lingua, 
+					return new Datum(a.triceps, 
 						(a.dateVal().after(b.dateVal()))
 						);
 				case Datum.WEEKDAY:
@@ -244,21 +244,21 @@ public class DatumMath {
 				case Datum.MINUTE:
 				case Datum.SECOND:
 				case Datum.MONTH_NUM:
-					return new Datum(a.lingua, DatumMath.getCalendarField(a,a.type()) > DatumMath.getCalendarField(b,a.type()));
+					return new Datum(a.triceps, DatumMath.getCalendarField(a,a.type()) > DatumMath.getCalendarField(b,a.type()));
 				case Datum.STRING:
 					if (a.isNumeric())
-						return new Datum(a.lingua, a.doubleVal() > b.doubleVal());
+						return new Datum(a.triceps, a.doubleVal() > b.doubleVal());
 					else {
-						return new Datum(a.lingua, a.stringVal().compareTo(b.stringVal()) > 0);
+						return new Datum(a.triceps, a.stringVal().compareTo(b.stringVal()) > 0);
 					}
 				case Datum.NUMBER:
-					return new Datum(a.lingua, a.doubleVal() > b.doubleVal());
+					return new Datum(a.triceps, a.doubleVal() > b.doubleVal());
 				default:
-					return new Datum(a.lingua, false);
+					return new Datum(a.triceps, false);
 			}
 		}
 		catch(NullPointerException e) {}
-		return new Datum(a.lingua, false);
+		return new Datum(a.triceps, false);
 	}
 	/**
 	 * This method returns a Datum of type boolean upon comparing two Datum objects of type String or double for
@@ -273,7 +273,7 @@ public class DatumMath {
 			switch (a.type()) {
 				case Datum.DATE:
 				case Datum.TIME:
-					return new Datum(a.lingua, 
+					return new Datum(a.triceps, 
 						(a.dateVal().before(b.dateVal())) ||
 						(a.dateVal().equals(b.dateVal()))
 						);
@@ -285,21 +285,21 @@ public class DatumMath {
 				case Datum.MINUTE:
 				case Datum.SECOND:
 				case Datum.MONTH_NUM:
-					return new Datum(a.lingua, DatumMath.getCalendarField(a,a.type()) <= DatumMath.getCalendarField(b,a.type()));
+					return new Datum(a.triceps, DatumMath.getCalendarField(a,a.type()) <= DatumMath.getCalendarField(b,a.type()));
 				case Datum.STRING:
 					if (a.isNumeric())
-						return new Datum(a.lingua, a.doubleVal() <= b.doubleVal());
+						return new Datum(a.triceps, a.doubleVal() <= b.doubleVal());
 					else {
-						return new Datum(a.lingua, a.stringVal().compareTo(b.stringVal()) <= 0);
+						return new Datum(a.triceps, a.stringVal().compareTo(b.stringVal()) <= 0);
 					}
 				case Datum.NUMBER:
-					return new Datum(a.lingua, a.doubleVal() <= b.doubleVal());
+					return new Datum(a.triceps, a.doubleVal() <= b.doubleVal());
 				default:
-					return new Datum(a.lingua, false);
+					return new Datum(a.triceps, false);
 			}
 		}
 		catch(NullPointerException e) {}
-		return new Datum(a.lingua, false);
+		return new Datum(a.triceps, false);
 	}
 	/** This method returns a Datum of type boolean upon comparing two Datum objects of type String or double for less than. */
 	static /* synchronized */ Datum lt(Datum a, Datum b) {
@@ -311,7 +311,7 @@ public class DatumMath {
 			switch (a.type()) {
 				case Datum.DATE:
 				case Datum.TIME:
-					return new Datum(a.lingua, 
+					return new Datum(a.triceps, 
 						(a.dateVal().before(b.dateVal()))
 						);
 				case Datum.WEEKDAY:
@@ -322,21 +322,21 @@ public class DatumMath {
 				case Datum.MINUTE:
 				case Datum.SECOND:
 				case Datum.MONTH_NUM:
-					return new Datum(a.lingua, DatumMath.getCalendarField(a,a.type()) < DatumMath.getCalendarField(b,a.type()));
+					return new Datum(a.triceps, DatumMath.getCalendarField(a,a.type()) < DatumMath.getCalendarField(b,a.type()));
 				case Datum.STRING:
 					if (a.isNumeric())
-						return new Datum(a.lingua, a.doubleVal() < b.doubleVal());
+						return new Datum(a.triceps, a.doubleVal() < b.doubleVal());
 					else {
-						return new Datum(a.lingua, a.stringVal().compareTo(b.stringVal()) < 0);
+						return new Datum(a.triceps, a.stringVal().compareTo(b.stringVal()) < 0);
 					}
 				case Datum.NUMBER:
-					return new Datum(a.lingua, a.doubleVal() < b.doubleVal());
+					return new Datum(a.triceps, a.doubleVal() < b.doubleVal());
 				default:
-					return new Datum(a.lingua, false);
+					return new Datum(a.triceps, false);
 			}
 		}
 		catch(NullPointerException e) {}
-		return new Datum(a.lingua, false);
+		return new Datum(a.triceps, false);
 	}
 	/** This method returns a Datum object of type double that is the modulus of two Datum objects of type double. */
 	static /* synchronized */ Datum modulus(Datum a, Datum b) {
@@ -345,10 +345,10 @@ public class DatumMath {
 			return d;
 
 		try {
-			return new Datum(a.lingua, a.doubleVal() % b.doubleVal());
+			return new Datum(a.triceps, a.doubleVal() % b.doubleVal());
 		}
 		catch(ArithmeticException e) {
-			return Datum.getInstance(a.lingua,Datum.INVALID);
+			return Datum.getInstance(a.triceps,Datum.INVALID);
 		}
 	}
 	/** This method returns the product of two Datum objects of type double. */
@@ -357,7 +357,7 @@ public class DatumMath {
 		if (d != null)
 			return d;
 
-		return new Datum(a.lingua, a.doubleVal() * b.doubleVal());
+		return new Datum(a.triceps, a.doubleVal() * b.doubleVal());
 	}
 	/** This method returns a Datum object of type double that is the negative of the passed Datum object. */
 	static /* synchronized */ Datum neg(Datum a) {
@@ -365,7 +365,7 @@ public class DatumMath {
 		if (d != null)
 			return d;
 
-		return new Datum(a.lingua, -a.doubleVal());
+		return new Datum(a.triceps, -a.doubleVal());
 	}
 	/**
 	 * This method returns a Datum of type boolean, value true, if two Datum objects of type String or double are not equal
@@ -380,7 +380,7 @@ public class DatumMath {
 			switch (a.type()) {
 				case Datum.DATE:
 				case Datum.TIME:
-					return new Datum(a.lingua, !
+					return new Datum(a.triceps, !
 						(a.dateVal().equals(b.dateVal()))
 						);
 				case Datum.WEEKDAY:
@@ -391,21 +391,21 @@ public class DatumMath {
 				case Datum.MINUTE:
 				case Datum.SECOND:
 				case Datum.MONTH_NUM:
-					return new Datum(a.lingua, DatumMath.getCalendarField(a,a.type()) != DatumMath.getCalendarField(b,a.type()));
+					return new Datum(a.triceps, DatumMath.getCalendarField(a,a.type()) != DatumMath.getCalendarField(b,a.type()));
 				case Datum.STRING:
 					if (a.isNumeric())
-						return new Datum(a.lingua, a.doubleVal() != b.doubleVal());
+						return new Datum(a.triceps, a.doubleVal() != b.doubleVal());
 					else {
-						return new Datum(a.lingua, a.stringVal().compareTo(b.stringVal()) != 0);
+						return new Datum(a.triceps, a.stringVal().compareTo(b.stringVal()) != 0);
 					}
 				case Datum.NUMBER:
-					return new Datum(a.lingua, a.doubleVal() != b.doubleVal());
+					return new Datum(a.triceps, a.doubleVal() != b.doubleVal());
 				default:
-					return new Datum(a.lingua, false);
+					return new Datum(a.triceps, false);
 			}
 		}
 		catch(NullPointerException e) {}
-		return new Datum(a.lingua, false);
+		return new Datum(a.triceps, false);
 	}
 	/** This method returns a Datum object of the opposite value of the Datum object passed. */
 	static /* synchronized */ Datum not(Datum a) {
@@ -413,7 +413,7 @@ public class DatumMath {
 		if (d != null)
 			return d;
 
-		return new Datum(a.lingua, !a.booleanVal());
+		return new Datum(a.triceps, !a.booleanVal());
 	}
 	/** This method returns a Datum of type boolean, value true, if either of two Datum objects of type long are true. */
 	static /* synchronized */ Datum or(Datum a, Datum b) {
@@ -421,14 +421,14 @@ public class DatumMath {
 		if (d != null)
 			return d;
 
-		return new Datum(a.lingua, (double) ((long) a.doubleVal() | (long) b.doubleVal()));
+		return new Datum(a.triceps, (double) ((long) a.doubleVal() | (long) b.doubleVal()));
 	}
 	static /* synchronized */ Datum oror(Datum a, Datum b) {
 		Datum d = DatumMath.hasError(a,b);
 		if (d != null)
 			return d;
 
-		return new Datum(a.lingua, a.booleanVal() || b.booleanVal());
+		return new Datum(a.triceps, a.booleanVal() || b.booleanVal());
 	}
 	/** This method returns the difference between two Datum objects of type double. */
 	static /* synchronized */ Datum subtract(Datum a, Datum b) {
@@ -438,11 +438,11 @@ public class DatumMath {
 
 		switch (a.type()) {
 			default:
-				return new Datum(a.lingua, a.doubleVal() - b.doubleVal());
+				return new Datum(a.triceps, a.doubleVal() - b.doubleVal());
  			case Datum.DATE:
  			case Datum.TIME:
  				/* need way to throw error here */
-				return Datum.getInstance(a.lingua,Datum.INVALID);
+				return Datum.getInstance(a.triceps,Datum.INVALID);
 			case Datum.WEEKDAY:
 			case Datum.MONTH:
 			case Datum.YEAR:
@@ -453,7 +453,7 @@ public class DatumMath {
 			case Datum.MONTH_NUM:
 				if (!b.isNumeric()) {
 					/* need way to throw an error here */
-					return Datum.getInstance(a.lingua,Datum.INVALID);
+					return Datum.getInstance(a.triceps,Datum.INVALID);
 				}
 				else {
 					int field = DatumMath.datumToCalendar(a.type());
@@ -461,7 +461,7 @@ public class DatumMath {
 	
 					gc.setTime(a.dateVal());
 					gc.add(field, -((int) b.doubleVal()));
-					return new Datum(a.lingua,gc.getTime(),a.type());	// set to type of first number in expression
+					return new Datum(a.triceps,gc.getTime(),a.type());	// set to type of first number in expression
 				}				
 		}
 	}
@@ -470,6 +470,6 @@ public class DatumMath {
 		if (d != null)
 			return d;
 
-		return new Datum(a.lingua, (double) ((long) a.doubleVal() ^ (long) b.doubleVal()));
+		return new Datum(a.triceps, (double) ((long) a.doubleVal() ^ (long) b.doubleVal()));
 	}
 }

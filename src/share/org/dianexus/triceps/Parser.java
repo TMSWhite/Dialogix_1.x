@@ -14,27 +14,27 @@ public class Parser {
 		setErrorLogger(new Logger());
 	}
 
-	public boolean booleanVal(Evidence ev, String exp) {
-		return parse(ev, exp).booleanVal();
+	public boolean booleanVal(Triceps triceps, String exp) {
+		return parse(triceps, exp).booleanVal();
 	}
 
-	public String stringVal(Evidence ev, String exp) {
-		return parse(ev, exp).stringVal(false);
+	public String stringVal(Triceps triceps, String exp) {
+		return parse(triceps, exp).stringVal(false);
 	}
 
-	public String stringVal(Evidence ev, String exp, boolean showReserved) {
-		return parse(ev,exp).stringVal(showReserved);
+	public String stringVal(Triceps triceps, String exp, boolean showReserved) {
+		return parse(triceps,exp).stringVal(showReserved);
 	}
 
-	public double doubleVal(Evidence ev, String exp) {
-		return parse(ev, exp).doubleVal();
+	public double doubleVal(Triceps triceps, String exp) {
+		return parse(triceps, exp).doubleVal();
 	}
 
-	public Datum parse(Evidence ev, String exp) {
+	public Datum parse(Triceps triceps, String exp) {
 		debugLogger.println(exp);
 
 		qss.ReInit(new StringReader(exp));
-		Datum ans = qss.parse(ev);
+		Datum ans = qss.parse(triceps);
 
 		return ans;
 	}
@@ -47,7 +47,7 @@ public class Parser {
 		return errorLogger.toString();
 	}
 
-	public String parseJSP(Evidence ev, String msg) {
+	public String parseJSP(Triceps triceps, String msg) {
 		java.util.StringTokenizer st = new java.util.StringTokenizer(msg,"`",true);
 		StringBuffer sb = new StringBuffer();
 		String s;
@@ -63,7 +63,7 @@ public class Parser {
 			}
 			else {
 				if (inside) {
-					sb.append(stringVal(ev,s,true));	// so that see the *REFUSED*, etc as part of questions
+					sb.append(stringVal(triceps,s,true));	// so that see the *REFUSED*, etc as part of questions
 				}
 				else {
 					sb.append(s);

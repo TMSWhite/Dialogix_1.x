@@ -64,10 +64,10 @@ public class Schedule  {
 	private Vector nodes = null;
 	private Vector comments = null;
 	private Hashtable reserved = new Hashtable();
-	private Lingua lingua = Lingua.NULL;
+	private Triceps triceps = Triceps.NULL;
 
-	public Schedule(Lingua lang, String source) {
-    	lingua = (lang == null) ? Lingua.NULL : lang;
+	public Schedule(Triceps lang, String source) {
+    	triceps = (lang == null) ? Triceps.NULL : lang;
     	
 		setDefaultReserveds();
 
@@ -86,7 +86,7 @@ public class Schedule  {
 	private void setDefaultReserveds() {
 		setReserved(TITLE,"Triceps");
 		setReserved(STARTING_STEP,"0");
-		setReserved(START_TIME,lingua.formatDate(new Date(System.currentTimeMillis()),Datum.TIME_MASK));
+		setReserved(START_TIME,triceps.formatDate(new Date(System.currentTimeMillis()),Datum.TIME_MASK));
 		setReserved(PASSWORD_FOR_ADMIN_MODE,"");
 		setReserved(AUTOGEN_OPTION_NUM,"true");
 		setReserved(FILENAME,getReserved(START_TIME));
@@ -154,7 +154,7 @@ public class Schedule  {
 					return false;	// must have some reserved lines before nodes, else can't be a schedule file
 				}
 
-				Node node = new Node(lingua, line, source, fileLine, languageCount);
+				Node node = new Node(triceps, line, source, fileLine, languageCount);
 				++count;
 				nodes.addElement(node);
 			}
@@ -171,7 +171,7 @@ public class Schedule  {
 			for (int i=0;i<count;++i) {
 				node = getNode(i);
 				if (node == null) {
-					setError(lingua.get("null_node_at_index") + i);
+					setError(triceps.get("null_node_at_index") + i);
 					continue;
 				}
 				switch(node.getQuestionOrEvalType()) {
@@ -179,37 +179,37 @@ public class Schedule  {
 						break;
 					case Node.EVAL:
 						if (braceLevel > 0)
-							setError(lingua.get("evaluations_disallowed_within_block") + node.getSourceLine());
+							setError(triceps.get("evaluations_disallowed_within_block") + node.getSourceLine());
 						break;
 					case Node.GROUP_OPEN:
 						if (++braceLevel > 1) {
-							setError(lingua.get("starting_nested_group_at_line") + node.getSourceLine());
+							setError(triceps.get("starting_nested_group_at_line") + node.getSourceLine());
 						}
 						break;
 					case Node.GROUP_CLOSE:
 						if (--braceLevel < 0) {
-							setError(lingua.get("extra_closing_brace_at_line") + node.getSourceLine());
+							setError(triceps.get("extra_closing_brace_at_line") + node.getSourceLine());
 						}
 						break;
 					case Node.BRACE_OPEN:
 					case Node.BRACE_CLOSE:
 					case Node.CALL_SCHEDULE:
-						setError(node.getQuestionOrEvalTypeField() + lingua.get("not_yet_suppported___line") + node.getSourceLine());
+						setError(node.getQuestionOrEvalTypeField() + triceps.get("not_yet_suppported___line") + node.getSourceLine());
 						break;
 					default:
-						setError(lingua.get("unknown_actionType_at_line") + node.getSourceLine());
+						setError(triceps.get("unknown_actionType_at_line") + node.getSourceLine());
 						break;
 				}
 			}
 			if (braceLevel > 0) {
-				setError(lingua.get("missing") + braceLevel + lingua.get("closing_braces"));
+				setError(triceps.get("missing") + braceLevel + triceps.get("closing_braces"));
 			}
 		}
 		catch(IOException e) { }
 		if (br != null) {
 			try { br.close(); } catch (IOException t) { }
 		}
-		setReserved(START_TIME,lingua.formatDate(startTime,Datum.TIME_MASK));	// XXX is this really needed?
+		setReserved(START_TIME,triceps.formatDate(startTime,Datum.TIME_MASK));	// XXX is this really needed?
 
 		String s = getReserved(TITLE_FOR_PICKLIST_WHEN_IN_PROGRESS);
 		if (s == null || s.trim().length() == 0) {
@@ -261,7 +261,7 @@ public class Schedule  {
 			}
 		}
 		if (field < 2) {
-			setError(lingua.get("incorrect_syntax_for") + ((name != null) ? name : "") + " [" + filename + "(" + line + ")]");
+			setError(triceps.get("incorrect_syntax_for") + ((name != null) ? name : "") + " [" + filename + "(" + line + ")]");
 		}
 		if (name == null || value == null)
 			return false;
@@ -275,7 +275,7 @@ public class Schedule  {
 		}
 
 		if (!setReserved(resIdx, value)) {
-			setError(name + lingua.get("not_recognized") + filename + "(" + line + ")]");
+			setError(name + triceps.get("not_recognized") + filename + "(" + line + ")]");
 			return false;
 		}
 		return true;
@@ -342,7 +342,7 @@ public class Schedule  {
 			startingStep = new Integer(s);
 		}
 		catch(NumberFormatException e) {
-			setError(lingua.get("invalid_number_for_starting_step") + e.getMessage());
+			setError(triceps.get("invalid_number_for_starting_step") + e.getMessage());
 			startingStep = new Integer(0);
 		}
 		return startingStep.toString();
@@ -350,13 +350,13 @@ public class Schedule  {
 
 	private String setStartTime(Date t) {
 		startTime = t;
-		String str = lingua.formatDate(t,Datum.TIME_MASK);
+		String str = triceps.formatDate(t,Datum.TIME_MASK);
 		return str;
 	}
 
 	private String setStartTime(String t) {
 		Date time = null;
-		time = lingua.parseDate(t,Datum.TIME_MASK);
+		time = triceps.parseDate(t,Datum.TIME_MASK);
 		if (time == null) {
 			time = new Date(System.currentTimeMillis());
 		}
@@ -405,7 +405,7 @@ public class Schedule  {
 			}
 			catch (NoSuchElementException e) { }
 			
-			Locale loc = Lingua.getLocale(lang,country,extra);
+			Locale loc = Triceps.getLocale(lang,country,extra);
 				
 			locales.addElement(loc);
 		}
@@ -428,14 +428,14 @@ public class Schedule  {
 	public String setLanguage(String s) {
 		if (s == null || s.trim().length() == 0) {
 			currentLanguage = 0;
-			lingua.setLocale((Locale) locales.elementAt(currentLanguage));
+			triceps.setLocale((Locale) locales.elementAt(currentLanguage));
 		}
 		else {
 			for (int i=0;i<languageNames.size();++i) {
 				if (s.equals((String) languageNames.elementAt(i))) {
 					currentLanguage = i;
 					Locale loc = (Locale) locales.elementAt(i);
-					lingua.setLocale(loc);
+					triceps.setLocale(loc);
 					return loc.toString();
 				}
 			}
@@ -443,11 +443,11 @@ public class Schedule  {
 				Locale loc = (Locale) locales.elementAt(i);
 				if (s.equals(loc.toString())) {
 					currentLanguage = i;
-					lingua.setLocale(loc);
+					triceps.setLocale(loc);
 					return loc.toString();
 				}
 			}			
-			setError(lingua.get("tried_to_switch_to_unsupported_language") + s);
+			setError(triceps.get("tried_to_switch_to_unsupported_language") + s);
 		}
 		return ((Locale) locales.elementAt(currentLanguage)).toString();
 	}
@@ -463,7 +463,7 @@ public class Schedule  {
 				out.write("RESERVED\t" + s + "\t" + reserved.get(s).toString() + "\n");
 			}
 			catch (IOException e) {
-				setError(lingua.get("error_writing_to") + out + ": " + e.getMessage());
+				setError(triceps.get("error_writing_to") + out + ": " + e.getMessage());
 			}
 		}
 
@@ -472,7 +472,7 @@ public class Schedule  {
 				out.write((String) comments.elementAt(i) + "\n");
 			}
 			catch (IOException e) {
-				setError(lingua.get("error_writing_to") + out + ": " + e.getMessage());
+				setError(triceps.get("error_writing_to") + out + ": " + e.getMessage());
 			}
 		}
 	}
@@ -486,13 +486,13 @@ public class Schedule  {
 			if (source != null) {
 				File file = new File(source);
 				if (!file.exists()) {
-					setError(lingua.get("error_file") + " '" + source + "' " + lingua.get("does_not_exist"));
+					setError(triceps.get("error_file") + " '" + source + "' " + triceps.get("does_not_exist"));
 				}
 				else if (!file.isFile()) {
-					setError(lingua.get("error_file") + " '" + source + "' " + lingua.get("is_not_a_file"));
+					setError(triceps.get("error_file") + " '" + source + "' " + triceps.get("is_not_a_file"));
 				}
 				else if (!file.canRead()) {
-					setError(lingua.get("error_file") + " '" + source + "' " + lingua.get("is_not_accessible"));
+					setError(triceps.get("error_file") + " '" + source + "' " + triceps.get("is_not_accessible"));
 				}
 				else {
 					br = new BufferedReader(new FileReader(file));
@@ -500,11 +500,11 @@ public class Schedule  {
 				}
 			}
 			else {
-				setError(lingua.get("error_null_filename"));
+				setError(triceps.get("error_null_filename"));
 			}
 		}
 		catch (IOException e) {
-			setError(lingua.get("error_accessing_file") + e.getMessage());
+			setError(triceps.get("error_accessing_file") + e.getMessage());
 			Logger.printStackTrace(e);
 		}
 		if (ok) {

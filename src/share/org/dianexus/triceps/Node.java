@@ -99,18 +99,18 @@ public class Node  {
 
 	private Date timeStamp = null;
 	private String timeStampStr = null;
-	private Lingua lingua = Lingua.NULL;
+	private Triceps triceps = Triceps.NULL;
 	
 	private Node() {
 	}
 
-	public Node(Lingua lang, int sourceLine, String sourceFile, String tsv, int numLanguages) {
-    	lingua = (lang == null) ? Lingua.NULL : lang;
+	public Node(Triceps lang, int sourceLine, String sourceFile, String tsv, int numLanguages) {
+    	triceps = (lang == null) ? Triceps.NULL : lang;
 		String token;
 		int field = 0;
 
 		if (numLanguages < 1) {
-			setParseError(lingua.get("numLanguages_must_be_greater_than_zero") + numLanguages);
+			setParseError(triceps.get("numLanguages_must_be_greater_than_zero") + numLanguages);
 			numLanguages = 1;	// the default
 		}
 
@@ -157,11 +157,11 @@ public class Node  {
 						i = Integer.parseInt(fixExcelisms(s));
 					}
 					catch (NumberFormatException t) {
-						setParseError(lingua.get("languageNum_must_be_an_integer") + t.getMessage());
+						setParseError(triceps.get("languageNum_must_be_an_integer") + t.getMessage());
 						i = 0; // default language
 					}
 					if (i < 0 || i >= numLanguages) {
-						setParseError(lingua.get("languageNum_must_be_in_range_zero_to") + (numLanguages - 1) + "): " + i);
+						setParseError(triceps.get("languageNum_must_be_in_range_zero_to") + (numLanguages - 1) + "): " + i);
 						i = 0;	// default language
 					}
 					answerLanguageNum = i;
@@ -175,34 +175,34 @@ public class Node  {
 			}
 		}
 		if (dependencies == null || dependencies.trim().length() == 0) {
-			setParseError(lingua.get("dependencies_column_is_missing"));
+			setParseError(triceps.get("dependencies_column_is_missing"));
 		}
 
 		if (conceptName != null && conceptName.trim().length() > 0) {
 			conceptName = conceptName.trim();
 			if (Character.isDigit(conceptName.charAt(0))) {
-				setNamingError(lingua.get("conceptName_may_not_begin_with_a_digit") + conceptName);
+				setNamingError(triceps.get("conceptName_may_not_begin_with_a_digit") + conceptName);
 				conceptName = "_" + conceptName;
 			}
 		}
 		if (localName != null && localName.trim().length() > 0) {
 			localName = localName.trim();
 			if (Character.isDigit(localName.charAt(0))) {
-				setNamingError(lingua.get("localName_may_not_begin_with_a_digit") + localName);
+				setNamingError(triceps.get("localName_may_not_begin_with_a_digit") + localName);
 				localName = "_" + localName;
 			}
 			if (!XmlString.NULL.isNMTOKEN(localName)) {
-				setNamingError(lingua.get("localName_should_only_contain_letters_digits_and_underscores") + localName);
+				setNamingError(triceps.get("localName_should_only_contain_letters_digits_and_underscores") + localName);
 			}
 		}
 		else {
-			setNamingError(lingua.get("localName_must_be_specified"));
+			setNamingError(triceps.get("localName_must_be_specified"));
 		}
 
 		parseQuestionOrEvalTypeField();
 
 		if (questionOrEvalType == BADTYPE) {
-			setParseError(lingua.get("invalid_questionOrEvalType") + questionOrEvalTypeField);
+			setParseError(triceps.get("invalid_questionOrEvalType") + questionOrEvalTypeField);
 		}
 
 		for (int i=0;i<answerChoicesStr.size();++i) {
@@ -210,7 +210,7 @@ public class Node  {
 		}
 
 		if (datumType == Datum.INVALID) {
-			setParseError(lingua.get("invalid_dataType"));
+			setParseError(triceps.get("invalid_dataType"));
 		}
 	}
 
@@ -243,7 +243,7 @@ public class Node  {
 		int z;
 
 		if (questionOrEvalTypeField == null) {
-			setParseError(lingua.get("questionOrEvalTypeField_must_exist"));
+			setParseError(triceps.get("questionOrEvalTypeField_must_exist"));
 			return;
 		}
 
@@ -271,7 +271,7 @@ public class Node  {
 					datumTypeStr = s;
 					datumType = Datum.parseDatumType(s);
 					if (datumType == -1) {
-						setParseError(lingua.get("invalid_dataType") + datumTypeStr);
+						setParseError(triceps.get("invalid_dataType") + datumTypeStr);
 						datumType = Datum.INVALID;
 					}
 					break;
@@ -297,7 +297,7 @@ public class Node  {
 		String rangeStr = null;
 		String s = null;
 		
-		s = Datum.getExampleFormatStr(lingua,mask,datumType);
+		s = Datum.getExampleFormatStr(triceps,mask,datumType);
 		
 		if (s == null || s.equals(""))
 			rangeStr = "";
@@ -319,7 +319,7 @@ public class Node  {
 
 		if (minDatum != null && maxDatum != null) {
 			if (DatumMath.lt(maxDatum,minDatum).booleanVal()) {
-				setError(lingua.get("max_less_than_min") + "(" + minStr + " - " + maxStr + ")");
+				setError(triceps.get("max_less_than_min") + "(" + minStr + " - " + maxStr + ")");
 			}
 		}
 
@@ -335,7 +335,7 @@ public class Node  {
 	private boolean parseAnswerOptions(int langNum, String src) {
 		/* Need to make sure that the answer type, order of answers, and internal values of answers are the same across all languages */
 		if (src == null) {
-			setParseError(lingua.get("answerOptions_column_missing"));
+			setParseError(triceps.get("answerOptions_column_missing"));
 			return false;
 		}
 
@@ -347,7 +347,7 @@ public class Node  {
 			token = ans.nextToken();
 		}
 		catch (NoSuchElementException t) {
-			setParseError(lingua.get("missing_display_type") + t.getMessage());
+			setParseError(triceps.get("missing_display_type") + t.getMessage());
 		}
 
 		if (langNum == 0) {
@@ -360,7 +360,7 @@ public class Node  {
 		}
 		else {
 			if (!QUESTION_TYPES[answerType].equalsIgnoreCase(token)) {
-				setParseError(lingua.get("mismatch_across_languages_in_answerType"));
+				setParseError(triceps.get("mismatch_across_languages_in_answerType"));
 			}
 			// don't change the known value for answerType
 		}
@@ -371,7 +371,7 @@ public class Node  {
 			return true;	// XXX? - should this really return?
 		}
 		else if (answerType == BADTYPE) {
-			setParseError(lingua.get("invalid_answerType"));
+			setParseError(triceps.get("invalid_answerType"));
 			answerType = NOTHING;
 		}
 
@@ -423,7 +423,7 @@ public class Node  {
 								catch (NullPointerException t) { err = true; }
 								catch (ArrayIndexOutOfBoundsException t) { err = true; }
 								if (err) {
-									setParseError(lingua.get("mismatch_across_languages_in_return_value_for_answerChoice_num") + (ansPos-1));
+									setParseError(triceps.get("mismatch_across_languages_in_return_value_for_answerChoice_num") + (ansPos-1));
 									val = s2;	// reset it to the previously known return value for consistency (?)
 								}
 							}
@@ -431,7 +431,7 @@ public class Node  {
 						case 2: msg = s;
 							field = 0;	// so that cycle between val & msg;
 							if (val == null || msg == null) {
-								setParseError(lingua.get("missing_value_or_message_for_answerChoice_num") + (ansPos-1));
+								setParseError(triceps.get("missing_value_or_message_for_answerChoice_num") + (ansPos-1));
 							}
 							else {
 								AnswerChoice ac = new AnswerChoice(val,msg);
@@ -440,7 +440,7 @@ public class Node  {
 								/* check for duplicate answer choice values */
 								if (langNum == 0) {	// only for first pass
 									if (answerChoicesHash.put(val, ac) != null) {
-										setParseError(lingua.get("answerChoice_value_already_used") + val);
+										setParseError(triceps.get("answerChoice_value_already_used") + val);
 									}
 								}
 							}
@@ -450,14 +450,14 @@ public class Node  {
 					}
 				}
 				if (ansOptions.size() == 0) {
-					setParseError(lingua.get("answerChoices_must_be_specified"));
+					setParseError(triceps.get("answerChoices_must_be_specified"));
 				}
 				if (field == 1) {
-					setParseError(lingua.get("missing_message_for_answerChoice_num") + (ansPos-1));
+					setParseError(triceps.get("missing_message_for_answerChoice_num") + (ansPos-1));
 				}
 				if (langNum > 0) {
 					if (prevAnsOptions.size() != ansOptions.size()) {
-						setParseError(lingua.get("mismatch_across_languages_in_number_of_answerChoices") + prevAnsOptions.size() + " != " + ansOptions.size());
+						setParseError(triceps.get("mismatch_across_languages_in_number_of_answerChoices") + prevAnsOptions.size() + " != " + ansOptions.size());
 					}
 				}
 				answerChoicesVector.addElement(ansOptions);
@@ -469,11 +469,11 @@ public class Node  {
 		return true;
 	}
 
-	public String prepareChoicesAsHTML(Parser parser, Evidence ev, Datum datum, boolean autogen) {
-		return prepareChoicesAsHTML(parser, ev, datum,"",autogen);
+	public String prepareChoicesAsHTML(Datum datum, boolean autogen) {
+		return prepareChoicesAsHTML(datum,"",autogen);
 	}
 
-	public String prepareChoicesAsHTML(Parser parser, Evidence ev, Datum datum, String errMsg, boolean autogen) {
+	public String prepareChoicesAsHTML(Datum datum, String errMsg, boolean autogen) {
 		/* errMsg is a hack - only applies to RADIO_HORIZONTAL */
 		StringBuffer sb = new StringBuffer();
 		String defaultValue = "";
@@ -485,9 +485,9 @@ public class Node  {
 			ans = getAnswerChoices().elements();
 			while (ans.hasMoreElements()) { // for however many radio buttons there are
 				ac = (AnswerChoice) ans.nextElement();
-				ac.parse(parser,ev);
+				ac.parse(triceps);
 				sb.append("<input type='radio' name='" + getLocalName() + "' " + "value='" + ac.getValue() + "'" +
-					(DatumMath.eq(datum,new Datum(lingua, ac.getValue(),DATA_TYPES[answerType])).booleanVal() ? " CHECKED" : "") + ">" + ac.getMessage() + "<br>");
+					(DatumMath.eq(datum,new Datum(triceps, ac.getValue(),DATA_TYPES[answerType])).booleanVal() ? " CHECKED" : "") + ">" + ac.getMessage() + "<br>");
 			}
 			break;
 		case RADIO_HORIZONTAL: // will store integers
@@ -503,10 +503,10 @@ public class Node  {
 				sb.append("<TR>");
 				while (ans.hasMoreElements()) { // for however many radio buttons there are
 					ac = (AnswerChoice) ans.nextElement();
-					ac.parse(parser,ev);
+					ac.parse(triceps);
 					sb.append("<TD VALIGN='top' WIDTH='" + pct.toString() + "%'>");
 					sb.append("<input type='radio' name='" + getLocalName() + "' " + "value='" + ac.getValue() + "'" +
-						(DatumMath.eq(datum,new Datum(lingua, ac.getValue(),DATA_TYPES[answerType])).booleanVal() ? " CHECKED" : "") + ">" + ac.getMessage());
+						(DatumMath.eq(datum,new Datum(triceps, ac.getValue(),DATA_TYPES[answerType])).booleanVal() ? " CHECKED" : "") + ">" + ac.getMessage());
 					sb.append("</TD>");
 				}
 			}
@@ -521,9 +521,9 @@ public class Node  {
 			ans = getAnswerChoices().elements();
 			while (ans.hasMoreElements()) { // for however many radio buttons there are
 				ac = (AnswerChoice) ans.nextElement();
-				ac.parse(parser,ev);
+				ac.parse(triceps);
 				sb.append("<input type='checkbox' name='" + getLocalName() + "' " + "value='" + ac.getValue() + "'" +
-					(DatumMath.eq(datum, new Datum(lingua, ac.getValue(),DATA_TYPES[answerType])).booleanVal() ? " CHECKED" : "") + ">" + ac.getMessage() + "<br>");
+					(DatumMath.eq(datum, new Datum(triceps, ac.getValue(),DATA_TYPES[answerType])).booleanVal() ? " CHECKED" : "") + ">" + ac.getMessage() + "<br>");
 			}
 			break;
 		case COMBO:	// stores integers as value
@@ -536,12 +536,12 @@ public class Node  {
 			boolean nothingSelected = true;
 			while (ans.hasMoreElements()) { // for however many radio buttons there are
 				ac = (AnswerChoice) ans.nextElement();
-				ac.parse(parser,ev);
+				ac.parse(triceps);
 				++optionNum;
 				
 				String messageStr = ac.getMessage();
 				String prefix = "<option value='" + ac.getValue() + "'";
-				boolean selected = DatumMath.eq(datum, new Datum(lingua, ac.getValue(),DATA_TYPES[answerType])).booleanVal();
+				boolean selected = DatumMath.eq(datum, new Datum(triceps, ac.getValue(),DATA_TYPES[answerType])).booleanVal();
 				int stop;
 				int start=0;
 				int line=0;
@@ -607,7 +607,7 @@ public class Node  {
 				">");
 			sb.append("<option value=''" +
 				((nothingSelected) ? " SELECTED" : "") + ">" +	// so that focus is properly shifted on List box
-				lingua.get("select_one_of_the_following") +
+				triceps.get("select_one_of_the_following") +
 				"</option>");	// first choice is empty
 			sb.append(choices);
 			sb.append("</select>");
@@ -672,10 +672,10 @@ public class Node  {
 
 		if (err) {
 			if (answerType == PASSWORD) {
-				setError(lingua.get("incorrect_password"));
+				setError(triceps.get("incorrect_password"));
 			}
 			else {
-				setError(lingua.get("please_enter_a") + Datum.getTypeName(lingua,datumType) + lingua.get("in_the_range") + getSampleInputString());
+				setError(triceps.get("please_enter_a") + Datum.getTypeName(triceps,datumType) + triceps.get("in_the_range") + getSampleInputString());
 			}
 		}
 		return !(err);
@@ -765,7 +765,7 @@ public class Node  {
 
 	public void setTimeStamp() {
 		timeStamp = new Date(System.currentTimeMillis());
-		timeStampStr = lingua.formatDate(timeStamp,Datum.TIME_MASK);
+		timeStampStr = triceps.formatDate(timeStamp,Datum.TIME_MASK);
 	}
 
 	public void setTimeStamp(String timeStr) {
@@ -775,7 +775,7 @@ public class Node  {
 		}
 
 		Date time = null;
-		time = lingua.parseDate(time,Datum.TIME_MASK);
+		time = triceps.parseDate(time,Datum.TIME_MASK);
 
 		if (time == null) {
 			setTimeStamp();

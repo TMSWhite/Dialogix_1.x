@@ -140,12 +140,12 @@ public class XmlString extends Object {
 	private Writer dst = null;
 	private Vector tagStack = new Vector();
 	private Logger logger = new Logger();	// will always use an HTML eol
-	private Lingua lingua = Lingua.NULL;
+	private Triceps triceps = Triceps.NULL;
 	private int lineNum = 1;
 	private int column = 1;
 
-    public XmlString(Lingua lang, String src) {
-    	lingua = (lang == null) ? Lingua.NULL : lang;
+    public XmlString(Triceps lang, String src) {
+    	triceps = (lang == null) ? Triceps.NULL : lang;
     	if (src == null)
     		return;
     	try {
@@ -156,8 +156,8 @@ public class XmlString extends Object {
     	catch (IOException e){ }
     }
 
-    public XmlString(Lingua lang, String src, Writer out) {
-    	lingua = (lang == null) ? Lingua.NULL : lang;
+    public XmlString(Triceps lang, String src, Writer out) {
+    	triceps = (lang == null) ? Triceps.NULL : lang;
     	if (src == null || out == null)
     		return;
     	try {
@@ -169,10 +169,6 @@ public class XmlString extends Object {
     }
 
     public	String toString() { return dst.toString(); }
-
-    public void setLingua(Lingua lang) {
-    	lingua = (lang == null) ? Lingua.NULL : lang;
-    }
 
     private static final int TAG = 0;
     private static final int NMTOKEN = 1;
@@ -212,24 +208,24 @@ public class XmlString extends Object {
 				String endTag = tag.substring(1,tag.length());
 
 				if (st.hasMoreTokens()) {
-					error(lingua.get("ending_tags_may_not_have_attribute_value_pairs") + asElement(element));
+					error(triceps.get("ending_tags_may_not_have_attribute_value_pairs") + asElement(element));
 					return false;
 				}
 				if (UNARY_TAGS.containsKey(endTag)) {
-					error(lingua.get("unary_tags_may_not_have_closing_tags") + asElement(element));
+					error(triceps.get("unary_tags_may_not_have_closing_tags") + asElement(element));
 					return false;
                 }
                 if (!BINARY_TAGS.containsKey(endTag)) {
-					error(lingua.get("invalid_end_tag") + asElement(element));
+					error(triceps.get("invalid_end_tag") + asElement(element));
 					return false;
 				}
                 if (DISALLOWED_TAGS.containsKey(endTag)) {
-                	error(lingua.get("disallowed_for_security_reasons") + asElement(element));
+                	error(triceps.get("disallowed_for_security_reasons") + asElement(element));
                 	return false;
                 }
 
 				if (!tagStack.contains(endTag)) {
-					error(lingua.get("rejecting_mismatched_endTag") + asElement(element));
+					error(triceps.get("rejecting_mismatched_endTag") + asElement(element));
 					return false;
 				}
 
@@ -248,7 +244,7 @@ public class XmlString extends Object {
 			}
 
 			if (DISALLOWED_TAGS.containsKey(tag)) {
-				error(lingua.get("disallowed_for_security_reasons") + asElement(element));
+				error(triceps.get("disallowed_for_security_reasons") + asElement(element));
 				return false;
 			}
 
@@ -281,7 +277,7 @@ public class XmlString extends Object {
 						break;
 					case EQUALS_SIGN:
 						if (!"=".equals(token)) {
-							error(lingua.get("expected_equals_sign") + asElement(element));
+							error(triceps.get("expected_equals_sign") + asElement(element));
 							return false;
 						}
 						which = START_OF_STRING;
@@ -289,7 +285,7 @@ public class XmlString extends Object {
 					case START_OF_STRING:
 						quoteChar = token;
 						if (!("\"".equals(quoteChar) || "\'".equals(quoteChar))) {
-							error(lingua.get("expected_start_of_a_string") + asElement(element));
+							error(triceps.get("expected_start_of_a_string") + asElement(element));
 							return false;
 						}
 						withinEscape = false;
@@ -322,12 +318,12 @@ public class XmlString extends Object {
 				return true;
 			}
 			else {
-				error(lingua.get("prematurely_terminated_element") + parsingPosition[which] + " " + asElement(element));
+				error(triceps.get("prematurely_terminated_element") + parsingPosition[which] + " " + asElement(element));
 				return false;	// unterminated attribute-value pairs
 			}
 		}
 		catch (Throwable t) {
-			error(lingua.get("prematurely_terminated_element") + parsingPosition[which] + " " + asElement(element));
+			error(triceps.get("prematurely_terminated_element") + parsingPosition[which] + " " + asElement(element));
 			return false;
 		}
 	}
@@ -380,7 +376,7 @@ public class XmlString extends Object {
 				break;
 			}
 			else {
-				error(lingua.get("inserting_missing_endTag_for") + asElement(t));
+				error(triceps.get("inserting_missing_endTag_for") + asElement(t));
 			}
 		}
 	}
@@ -415,7 +411,7 @@ public class XmlString extends Object {
 								}
 							}
 							else {
-								error(lingua.get("no_closing_right_angle_bracket"));
+								error(triceps.get("no_closing_right_angle_bracket"));
 								dst.write(LT);
 								column += LT.length();
 							}
@@ -471,7 +467,7 @@ public class XmlString extends Object {
 		char[] chars = token.toCharArray();
 		for (int i=0;i<chars.length;++i) {
 			if (!(Character.isLetterOrDigit(chars[i]) || chars[i] == '_')) {
-				error(lingua.get("name_contains_invalid_character") + chars[i]);
+				error(triceps.get("name_contains_invalid_character") + chars[i]);
 				return false;
 			}
 		}

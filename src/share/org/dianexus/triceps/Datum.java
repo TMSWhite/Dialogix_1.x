@@ -38,7 +38,7 @@ public class Datum  {
 	private static final String defaultHourFormat = "H";
 	private static final String defaultMinuteFormat = "m";
 	private static final String defaultSecondFormat = "s";
-	private static final String defaultNumberFormat = null;	// so that Lingua pretty-prints it.
+	private static final String defaultNumberFormat = null;	// so that Triceps pretty-prints it.
 
 	public static final String defaultMonthNumFormat = "M";
 	public static final String TIME_MASK = "yyyy.MM.dd..HH.mm.ss";	
@@ -50,13 +50,13 @@ public class Datum  {
 	private String mask = null;
 	private String error = null;
 	private String variableName = null;
-	Lingua lingua = null;	// need package level access in DatumMath
+	Triceps triceps = null;	// need package level access in DatumMath
 	private static final HashMap SPECIAL_DATA = new HashMap();
 
-	public Datum(Lingua lang, double d) { init(lang, new Double(d), NUMBER, null); }
-	public Datum(Lingua lang, long l) { init(lang, new Long(l), NUMBER, null); }
+	public Datum(Triceps lang, double d) { init(lang, new Double(d), NUMBER, null); }
+	public Datum(Triceps lang, long l) { init(lang, new Long(l), NUMBER, null); }
 	
-	public static Datum getInstance(Lingua lang, int i) {
+	public static Datum getInstance(Triceps lang, int i) {
 		String key = (lang.toString() + i);
 		Datum datum = (Datum) SPECIAL_DATA.get(key);
 		if (datum != null)
@@ -67,9 +67,9 @@ public class Datum  {
 		return datum;
 	}
 	
-	private Datum(Lingua lang, int i) {
+	private Datum(Triceps lang, int i) {
 		// only for creating reserved instances
-		lingua = lang;
+		triceps = lang;
 		type = i;
 	}
 
@@ -79,22 +79,24 @@ public class Datum  {
 		date = val.date;
 		type = val.type;
 		mask = val.mask;
-		lingua = val.lingua;
+		triceps = val.triceps;
+		error = val.error;
+		variableName = val.variableName;
 	}
 
-	public Datum(Lingua lang, Date d, int t) {
+	public Datum(Triceps lang, Date d, int t) {
 		this(lang,d,t,Datum.getDefaultMask(t));
 	}
 
-	public Datum(Lingua lang, Date d, int t, String mask) {
+	public Datum(Triceps lang, Date d, int t, String mask) {
 		init(lang,d,t,mask);
 	}
 
-	public Datum(Lingua lang, String s, int t) {
+	public Datum(Triceps lang, String s, int t) {
 		init(lang,s,t,Datum.getDefaultMask(t));
 	}
 
-	public Datum(Lingua lang, String s, int t, String mask) {
+	public Datum(Triceps lang, String s, int t, String mask) {
 		init(lang,s,t,mask);
 	}
 	
@@ -133,16 +135,16 @@ public class Datum  {
 				}
 				else if (newType == STRING) {
 					return datum;	// don't cast to STRING
-//					datum = new Datum(lingua,this.stringVal(),STRING);
+//					datum = new Datum(triceps,this.stringVal(),STRING);
 				}
 				else {
-					datum = new Datum(lingua,INVALID);
+					datum = new Datum(triceps,INVALID);
 				}	
 				break;
 			case NUMBER:
 				if (isDate(newType)) {
 					if (newType == TIME || newType == DATE) {
-						datum = new Datum(lingua,INVALID);
+						datum = new Datum(triceps,INVALID);
 					}
 					else {
 						datum = new Datum(this);
@@ -155,15 +157,15 @@ public class Datum  {
 				}
 				else if (newType == STRING) {
 					return datum;
-//					datum = new Datum(lingua,this.stringVal(),STRING);
+//					datum = new Datum(triceps,this.stringVal(),STRING);
 				}
 				else {
-					datum = new Datum(lingua,INVALID);
+					datum = new Datum(triceps,INVALID);
 				}
 				break;
 			case STRING:
 				/* try to parse the string using a new format */
-				datum = new Datum(lingua,this.stringVal(),newType,useMask);
+				datum = new Datum(triceps,this.stringVal(),newType,useMask);
 				break;
 			default:
 			case INVALID:
@@ -173,14 +175,14 @@ public class Datum  {
 			case UNASKED:
 			case NOT_UNDERSTOOD:
 				/* can't cast any of these to a new type */
-				datum = new Datum(lingua,this.type);
+				datum = new Datum(triceps,this.type);
 		}	
 		return datum;		
 	}
 	
 	
-	private void init(Lingua lang, Object obj, int t, String maskStr) {
-    	lingua = (lang == null) ? Lingua.NULL : lang;
+	private void init(Triceps lang, Object obj, int t, String maskStr) {
+    	triceps = (lang == null) ? Triceps.NULL : lang;
 		
 		if (obj == null) {
 			t = INVALID;
@@ -201,7 +203,7 @@ public class Datum  {
 
 		switch (t) {
 			case NUMBER: 
-				num = lingua.parseNumber(obj,mask);
+				num = triceps.parseNumber(obj,mask);
 					
 				if (num == null) {
 					type = INVALID;
@@ -213,7 +215,7 @@ public class Datum  {
 			case STRING:
 				sVal = obj.toString();
 				/* also check whether can be considered a number */
-				num = lingua.parseNumber(obj,null);
+				num = triceps.parseNumber(obj,null);
 				if (num != null) {
 					dVal = num.doubleValue();
 				}
@@ -228,12 +230,12 @@ public class Datum  {
 			case MINUTE:
 			case SECOND:
 			case MONTH_NUM:
-				date = lingua.parseDate(obj,mask);
+				date = triceps.parseDate(obj,mask);
 				if (date == null) {
 					type = INVALID;
 				}
 				else {
-					num = lingua.parseNumber(obj,null);
+					num = triceps.parseNumber(obj,null);
 					if (num != null) {
 						dVal = num.doubleValue();
 					}
@@ -250,13 +252,13 @@ public class Datum  {
 		if (type == INVALID) {
 			if (type == INVALID) {
 				if (t == INVALID) {
-					error = lingua.get("Please_answer_this_question");
+					error = triceps.get("Please_answer_this_question");
 				}
 				else {
 					String ex = getExampleFormatStr(mask,t);
 					if (ex.length() > 0)
 						ex = " (e.g. " + ex + ")";
-					error = lingua.get("please_enter_a") + getTypeName(lingua,t) + ex;
+					error = triceps.get("please_enter_a") + getTypeName(triceps,t) + ex;
 				}
 			}		
 			sVal = null;
@@ -265,8 +267,8 @@ public class Datum  {
 		}
 	}
 
-	public Datum(Lingua lang, boolean b) {
-    	lingua = (lang == null) ? Lingua.NULL : lang;
+	public Datum(Triceps lang, boolean b) {
+    	triceps = (lang == null) ? Triceps.NULL : lang;
 
 		type = NUMBER;
 		dVal = (b ? 1 : 0);
@@ -288,19 +290,19 @@ public class Datum  {
 			case SECOND:
 			case MONTH_NUM:
 				if (mask == null)
-					return format(lingua, this,type,Datum.getDefaultMask(type));
+					return format(triceps, this,type,Datum.getDefaultMask(type));
 				else
-					return format(lingua, this, type, mask);
+					return format(triceps, this, type, mask);
 			case NUMBER:
 				if (mask == null)
-					return format(lingua, this, type, Datum.getDefaultMask(type));
+					return format(triceps, this, type, Datum.getDefaultMask(type));
 				else
-					return format(lingua, this, type, mask);
+					return format(triceps, this, type, mask);
 			case STRING:
 				return sVal;
 			default:
 				if (showReserved)
-					return getTypeName(lingua,INVALID);
+					return getTypeName(triceps,INVALID);
 				else
 					return "";
 			case INVALID:
@@ -310,7 +312,7 @@ public class Datum  {
 			case UNASKED:
 			case NOT_UNDERSTOOD:
 				if (showReserved) 
-					return getTypeName(lingua,type);
+					return getTypeName(triceps,type);
 				else
 					return "";
 		}	
@@ -424,10 +426,10 @@ public class Datum  {
 	}
 
 	public String getExampleFormatStr(String mask, int t) {
-		return getExampleFormatStr(lingua, mask, t);
+		return getExampleFormatStr(triceps, mask, t);
 	}
 	
-	static public String getExampleFormatStr(Lingua lang, String mask, int t) {
+	static public String getExampleFormatStr(Triceps lang, String mask, int t) {
 		switch (t) {
 			case MONTH:
 			case DATE:
@@ -498,10 +500,10 @@ public class Datum  {
 	}
 
 	public String format(Datum d, String mask) {
-		return format(lingua, d, d.type(), mask);
+		return format(triceps, d, d.type(), mask);
 	}
 		
-	static public String format(Lingua lang, Object o, int type, String mask) {
+	static public String format(Triceps lang, Object o, int type, String mask) {
 		String s;
 
 		switch (type) {
@@ -556,10 +558,10 @@ public class Datum  {
 	}
 
 	public String format(Object o, int t) {
-		return format(lingua, o,t,Datum.getDefaultMask(t));
+		return format(triceps, o,t,Datum.getDefaultMask(t));
 	}
 	
-	public String getTypeName() { return getTypeName(lingua,type); }
+	public String getTypeName() { return getTypeName(triceps,type); }
 	
 	static public String getSpecialName(int t) {
 		switch (t) {
@@ -576,7 +578,7 @@ public class Datum  {
 		}
 	}
 
-	static public String getTypeName(Lingua lang, int t) {
+	static public String getTypeName(Triceps lang, int t) {
 		switch (t) {
 			// must have static strings for reserved words so that correctly parsed from data files
 			case UNASKED:
@@ -605,7 +607,7 @@ public class Datum  {
 		}		
 	}
 	
-	static public Datum parseSpecialType(Lingua lang, String s) {
+	static public Datum parseSpecialType(Triceps lang, String s) {
 		if (s == null || s.trim().length() == 0)
 			return getInstance(lang,UNASKED);
 			

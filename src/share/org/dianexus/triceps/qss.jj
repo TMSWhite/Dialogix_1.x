@@ -11,13 +11,13 @@ import java.util.*;
 
 public class Qss {
     private Stack stack;
-    private Evidence evidence;
-    Logger debugLogger = Logger.NULL;
-    Logger errorLogger = Logger.NULL;
+    private Triceps triceps;
+    Logger debugLogger = Logger.NULL;	// Parser directly assigns this value
+    Logger errorLogger = Logger.NULL;	// Parser directly assigns this value
 
-	public Datum parse(Evidence ev) {
-		evidence = ev;
-    	Datum d = Datum.INVALID_DATUM;
+	public Datum parse(Triceps tri) {
+		triceps = tri;
+    	Datum d = Datum.getInstance(triceps,Datum.INVALID);
 
 		try {
 			stack = new Stack();
@@ -25,7 +25,7 @@ public class Qss {
 			d = (Datum) stack.pop();
 		}
 		catch (EmptyStackException e) {
-			error(evidence.lingua.get("stack_underflow"),token.beginLine,token.beginColumn);
+			error(triceps.get("stack_underflow"),token.beginLine,token.beginColumn);
 		}
 		catch (ParseException e) {
 			error(e.getMessage());
@@ -56,12 +56,22 @@ public class Qss {
 
 	/* Prints stack trace in tab delimited format - operator, arguments, ->, answer */
 	private void debug(String s,Datum d) {
+		String varName = d.getName();
+		
 		debugLogger.println(((s != null) ? (s + "\t") : "") + "->\t" +
-					d.stringVal(true) + "\t" + d.doubleVal() + "\t" + d.dateVal() + "\t" + d.monthVal());
+					"'" + d.stringVal(true) + "'\t" + 
+					d.doubleVal() + "\t" + 
+					d.dateVal() + "\t" + 
+					d.monthVal());
+					((varName != null) ? ("VAR_NAME='" + varName + "'") : ""));
 	}
 
 	private String datumValue(Datum d) {
-		return ("(" + d.getName() + "," + d.stringVal(true) + ")");
+		String varName = d.getName();
+		if (varName == null)
+			return d.stringVal(true);
+		else
+			return ("(" + varName + "," + d.stringVal(true) + ")");
 	}
 
 	private String opName(int op) {
@@ -70,7 +80,7 @@ public class Qss {
 
 	private void unaryOp(int op, Object arg1) {
 		Datum a = getParam(arg1);
-		Datum ans = Datum.INVALID_DATUM;
+		Datum ans = Datum.getInstance(triceps,Datum.INVALID);
 		switch(op) {
 			case PLUS: ans = a; break;
 			case MINUS: ans = DatumMath.neg(a); break;
@@ -84,14 +94,14 @@ public class Qss {
 
 	private Datum getParam(Object o) {
 		if (o == null)
-			return Datum.INVALID_DATUM;
+			return Datum.getInstance(triceps,Datum.INVALID);
 		return (Datum) o;
 	}
 
 	private void binaryOp(int op, Object arg2, Object arg1) {
 		Datum a = getParam(arg1);
 		Datum b = getParam(arg2);
-		Datum ans = Datum.INVALID_DATUM;
+		Datum ans = Datum.getInstance(triceps,Datum.INVALID);
 		switch(op) {
 			case PLUS: ans = DatumMath.add(a,b); break;
 			case MINUS: ans = DatumMath.subtract(a,b); break;
@@ -110,7 +120,7 @@ public class Qss {
 			case XOR: ans = DatumMath.xor(a,b); break;
 			case AND: ans = DatumMath.and(a,b); break;
 			case OR: ans = DatumMath.or(a,b); break;
-			case ASSIGN: evidence.set(a.stringVal(),b); ans = evidence.getDatum(a.stringVal()); break;
+			case ASSIGN: triceps.getEvidence().set(a.stringVal(),b); ans = triceps.getEvidence().getDatum(a.stringVal()); break;
 		}
 		stack.push(ans);
 		if (debugLogger != Logger.NULL) {
@@ -122,7 +132,7 @@ public class Qss {
 		Datum a = getParam(arg1);
 		Datum b = getParam(arg2);
 		Datum c = getParam(arg3);
-		Datum ans = Datum.INVALID_DATUM;
+		Datum ans = Datum.getInstance(triceps,Datum.INVALID);
 		switch(op) {
 			case QUEST: ans = DatumMath.conditional(a,b,c); break;
 		}
@@ -133,8 +143,8 @@ public class Qss {
 	}
 
 	private void functionOp(Token func, Stack params) {
-		Datum ans = Datum.INVALID_DATUM;
-		ans = evidence.function(func.image, params, func.beginLine, func.beginColumn);
+		Datum ans = Datum.getInstance(triceps,Datum.INVALID);
+		ans = triceps.getEvidence().function(func.image, params, func.beginLine, func.beginColumn);
 		stack.push(ans);
 		if (debugLogger != Logger.NULL) {
 			StringBuffer sb = new StringBuffer("function\t" + func.image);
@@ -285,7 +295,7 @@ void AssignmentExpression(): { Token t; }
 {
 	<NMTOKEN> { t = token; } <ASSIGN> ConditionalExpression()
     	{
-    		binaryOp(ASSIGN,stack.pop(), new Datum(evidence.lingua, t.image,Datum.STRING));
+    		binaryOp(ASSIGN,stack.pop(), new Datum(triceps, t.image,Datum.STRING));
     	}
 }
 
@@ -392,10 +402,10 @@ void PrimaryExpression() : { }
 |	Constant()
 |	<NMTOKEN>
 		{
-			Datum d = evidence.getDatum(token.image);
+			Datum d = triceps.getEvidence().getDatum(token.image);
 			if (d == null) {
-				error(evidence.lingua.get("undefined_variable") + " '" + token.image + "'", token.beginLine, token.beginColumn);
-				stack.push(Datum.INVALID_DATUM);
+				error(triceps.get("undefined_variable") + " '" + token.image + "'", token.beginLine, token.beginColumn);
+				stack.push(Datum.getInstance(triceps,Datum.INVALID));
 			}
 			else {
 				stack.push(d);
@@ -409,7 +419,7 @@ void PrimaryExpression() : { }
 void Constant() : { }
 {
 	( <INTEGER_LITERAL> |<FLOATING_POINT_LITERAL> )
-		{ stack.push(new Datum(evidence.lingua, token.image,Datum.NUMBER)); }
+		{ stack.push(new Datum(triceps, token.image,Datum.NUMBER)); }
 |	( <STRING_LITERAL> | <CHARACTER_LITERAL> )
 		{
 			/* replace special characters before storing value */
@@ -440,10 +450,10 @@ void Constant() : { }
 				}
 			}
 			catch (IndexOutOfBoundsException e) {
-				error(evidence.lingua.get("unterminated_escaped_character"), token.beginLine, token.beginColumn + i);
+				error(triceps.get("unterminated_escaped_character"), token.beginLine, token.beginColumn + i);
 			}
 
-			stack.push(new Datum(evidence.lingua, sb.toString(),Datum.STRING));
+			stack.push(new Datum(triceps, sb.toString(),Datum.STRING));
 		}
 }
 

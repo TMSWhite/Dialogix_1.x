@@ -5,19 +5,19 @@ public class ScheduleList {
 	private Vector schedules = new Vector();
 	private String sourceDir = null;
 	private Logger logger = new Logger();
-	private Lingua lingua = Lingua.NULL;
+	private Triceps triceps = Triceps.NULL;
 
-    public ScheduleList(Lingua lang, String sourceDir) {
-     	lingua = (lang == null) ? Lingua.NULL : lang;
+    public ScheduleList(Triceps lang, String sourceDir) {
+     	triceps = (lang == null) ? Triceps.NULL : lang;
 	   	this.sourceDir = sourceDir;
 	    File dir = new File(sourceDir);
 
 	    if (!dir.isDirectory()) {
-	    	logger.println(sourceDir + lingua.get("is_not_a_directory"));
+	    	logger.println(sourceDir + triceps.get("is_not_a_directory"));
 	    	return;
 	    }
 	    else if (!dir.canRead()) {
-	    	logger.println(sourceDir + lingua.get("is_not_accessible"));
+	    	logger.println(sourceDir + triceps.get("is_not_accessible"));
 	    	return;
 	    }
 
@@ -27,7 +27,7 @@ public class ScheduleList {
 		for (int i=0;i<files.length;++i) {
 			File f = new File(dir.toString() + File.separator + files[i]);
 			if (!f.isDirectory()) {
-				Schedule schedule = new Schedule(lingua, f.toString());
+				Schedule schedule = new Schedule(triceps, f.toString());
 				if (schedule.isFound()) {
 					schedules.addElement(schedule);
 					++count;
@@ -37,7 +37,7 @@ public class ScheduleList {
 				}
 			}
 		}
-		lingua.setLocale(null);	// set it to the default
+		triceps.setLocale(null);	// set it to the default
     }
 
 	public boolean hasErrors() { return (logger.size() > 0); }

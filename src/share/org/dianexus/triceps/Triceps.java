@@ -1,5 +1,6 @@
 import java.lang.*;
 import java.util.*;
+import java.text.*;
 import java.io.*;
 import java.net.*;
 
@@ -9,7 +10,6 @@ public class Triceps {
 	public static final int ERROR = 1;
 	public static final int OK = 2;
 	public static final int AT_END = 3;
-	public static final int AT_BEGINNING = 4;
 
 	private Schedule nodes = null;
 	private Evidence evidence = null;
@@ -27,18 +27,32 @@ public class Triceps {
 	private Random random = new Random();
 	private String tempPassword = null;
 	private int currentLanguage = -1;
-	private Lingua lingua =  null;
+	
+	
+	/** formerly from Lingua */
+	private static final Locale defaultLocale = Locale.getDefault();
+	private ResourceBundle bundle = null;
+	private static final String BUNDLE_NAME = "TricepsBundle";
+	private Locale locale = defaultLocale;	
+	
+	/* Hold on to instances of Date and Number format for fast and easy retrieval */
+	private static final HashMap dateFormats = new HashMap();
+	private static final HashMap numFormats = new HashMap();
+	private static final String DEFAULT = "null";	
+	
+	public static final Triceps NULL = new Triceps();	
+	
+	private Triceps() {
+		this(null);
+		isValid = false;
+	}
 	
 	public Triceps(String scheduleLoc) {
-		/* initialize required variables */
-		lingua = new Lingua("TricepsBundle");
-		nodes = new Schedule(lingua, scheduleLoc);
+			/* initialize required variables */
+		setLocale(null);	// the default
+		nodes = new Schedule(this, scheduleLoc);
 		setLanguage(null);	// the default until overidden
 		
-		/* if this is a null instance, don't initialize the unnecessary, expensive variables */
-		if (scheduleLoc == null)
-			return;
-			
 		parser = new Parser();
 		if (!nodes.init()) {
 			setError(nodes.getErrors());
@@ -63,10 +77,10 @@ public class Triceps {
 		boolean ok = false;
 
 		if (name != null) {
-			nodes = new Schedule(lingua, name);
+			nodes = new Schedule(this, name);
 		}
 		else {
-			nodes = new Schedule(lingua, nodes.getScheduleSource());
+			nodes = new Schedule(this, nodes.getScheduleSource());
 		}
 
 		if (!nodes.init()) {
@@ -118,7 +132,7 @@ public class Triceps {
 		do {
 			if (step >= size()) {
 				if (braceLevel > 0) {
-					setError(lingua.get("missing") + braceLevel + lingua.get("closing_braces"));
+					setError(get("missing") + braceLevel + get("closing_braces"));
 				}
 				break;
 			}
@@ -133,20 +147,20 @@ public class Triceps {
 				++braceLevel;
 			}
 			else if (actionType == Node.EVAL) {
-				node.setError(lingua.get("evals_disallowed_within_question_block") + braceLevel);
+				node.setError(get("evals_disallowed_within_question_block") + braceLevel);
 				break;
 			}
 			else if (actionType == Node.GROUP_CLOSE) {
 				--braceLevel;
 				if (braceLevel < 0) {
-					node.setError(lingua.get("extra_closing_brace"));
+					node.setError(get("extra_closing_brace"));
 					break;
 				}
 			}
 			else if (actionType == Node.QUESTION) {
 			}
 			else {
-				node.setError(lingua.get("invalid_action_type"));
+				node.setError(get("invalid_action_type"));
 				break;
 			}
 		} while (braceLevel > 0);
@@ -162,7 +176,7 @@ public class Triceps {
 
 		s = q.getMinStr();
 		if (s != null) {
-			Datum d = parser.parse(evidence,s);
+			Datum d = parser.parse(this,s);
 			q.setMinDatum(d);
 		}
 		else
@@ -170,13 +184,13 @@ public class Triceps {
 
 		s = q.getMaxStr();
 		if (s != null) {
-			Datum d = parser.parse(evidence,s);
+			Datum d = parser.parse(this,s);
 			q.setMaxDatum(d);
 		}
 		else
 			q.setMaxDatum(null);
 
-		q.setQuestionAsAsked(parser.parseJSP(evidence, q.getQuestionOrEval()) + q.getSampleInputString());
+		q.setQuestionAsAsked(parser.parseJSP(this, q.getQuestionOrEval()) + q.getSampleInputString());
 		return q.getQuestionAsAsked();
 	}
 
@@ -205,14 +219,14 @@ public class Triceps {
 
 		if (currentStep == size()) {
 			/* then already at end */
-			setError(lingua.get("already_at_end_of_interview"));
+			setError(get("already_at_end_of_interview"));
 			return ERROR;
 		}
 
 		do {		// loop forward through nodes -- break to query user or to end
 			if (step >= size()) {	// then the schedule is complete
 				if (braceLevel > 0) {
-					setError(lingua.get("missing") + braceLevel + lingua.get("closing_braces"));
+					setError(get("missing") + braceLevel + get("closing_braces"));
 				}
 				currentStep = size();	// put at last node
 				numQuestions = 0;
@@ -223,7 +237,7 @@ public class Triceps {
 				return AT_END;
 			}
 			if ((node = nodes.getNode(step)) == null) {
-				setError(lingua.get("invalid_node_at_step") + step);
+				setError(get("invalid_node_at_step") + step);
 				return ERROR;
 			}
 
@@ -232,59 +246,59 @@ public class Triceps {
 
 			if (actionType == Node.GROUP_OPEN) {
 				if (braceLevel == 0) {
-					if (parser.booleanVal(evidence, node.getDependencies())) {
+					if (parser.booleanVal(this, node.getDependencies())) {
 						break;	// this is the first node of a block - break out of loop to ask it
 					}
 					else {
 						++braceLevel;	// XXX:  skip this entire section
-						evidence.set(node, Datum.getInstance(lingua,Datum.NA));	// and set all of this brace's values to NA
+						evidence.set(node, Datum.getInstance(this,Datum.NA));	// and set all of this brace's values to NA
 					}
 				}
 				else {
 					++braceLevel;	// skip this inner block
-					evidence.set(node, Datum.getInstance(lingua,Datum.NA));	// set all of this brace's values to NA
+					evidence.set(node, Datum.getInstance(this,Datum.NA));	// set all of this brace's values to NA
 				}
 			}
 			else if (actionType == Node.GROUP_CLOSE) {
 				--braceLevel;	// close an open block
-				evidence.set(node, Datum.getInstance(lingua,Datum.NA));	// closing an open block, so set value to NA
+				evidence.set(node, Datum.getInstance(this,Datum.NA));	// closing an open block, so set value to NA
 				if (braceLevel < 0) {
-					node.setError(lingua.get("extra_closing_brace"));
+					node.setError(get("extra_closing_brace"));
 					return OK;	// otherwise won't be able to progress past the dangling closing brace!
 //					return ERROR;
 				}
 			}
 			else if (actionType == Node.EVAL) {
 				if (braceLevel > 0) {
-					evidence.set(node, Datum.getInstance(lingua,Datum.NA));	// NA if internal to a brace when going forwards
+					evidence.set(node, Datum.getInstance(this,Datum.NA));	// NA if internal to a brace when going forwards
 				}
 				else {
-					if (parser.booleanVal(evidence, node.getDependencies())) {
-						Datum datum = parser.parse(evidence, node.getQuestionOrEval());
+					if (parser.booleanVal(this, node.getDependencies())) {
+						Datum datum = parser.parse(this, node.getQuestionOrEval());
 						node.setDatumType(datum.type());
 						evidence.set(node, datum);						
 					}
 					else {
-						evidence.set(node, Datum.getInstance(lingua,Datum.NA));	// if doesn't satisfy dependencies, store NA
+						evidence.set(node, Datum.getInstance(this,Datum.NA));	// if doesn't satisfy dependencies, store NA
 					}
 				}
 			}
 			else if (actionType == Node.QUESTION) {
 				if (braceLevel > 0) {
-					evidence.set(node, Datum.getInstance(lingua,Datum.NA));	// NA if internal to a brace when going forwards
+					evidence.set(node, Datum.getInstance(this,Datum.NA));	// NA if internal to a brace when going forwards
 				}
 				else {
-					if (parser.booleanVal(evidence, node.getDependencies())) {
+					if (parser.booleanVal(this, node.getDependencies())) {
 						break;	// ask this question
 					}
 					else {
-						evidence.set(node, Datum.getInstance(lingua,Datum.NA));	// if doesn't satisfy dependencies, store NA
+						evidence.set(node, Datum.getInstance(this,Datum.NA));	// if doesn't satisfy dependencies, store NA
 					}
 				}
 			}
 			else {
-				node.setError(lingua.get("invalid_action_type"));
-				evidence.set(node, Datum.getInstance(lingua,Datum.NA));
+				node.setError(get("invalid_action_type"));
+				evidence.set(node, Datum.getInstance(this,Datum.NA));
 				return ERROR;
 			}
 			++step;
@@ -302,12 +316,12 @@ public class Triceps {
 
 		Node n = evidence.getNode(val);
 		if (n == null) {
-			setError(lingua.get("unknown_node") + val.toString());
+			setError(get("unknown_node") + val.toString());
 			return ERROR;
 		}
 		int result = evidence.getStep(n);
 		if (result == -1) {
-			setError(lingua.get("node_does_not_exist_within_schedule") + n);
+			setError(get("node_does_not_exist_within_schedule") + n);
 			return ERROR;
 		} else {
 			currentStep = result;
@@ -324,9 +338,9 @@ public class Triceps {
 		while (true) {
 			if (--step < 0) {
 				if (braceLevel < 0)
-					setError(lingua.get("missing") + braceLevel + lingua.get("opening_braces"));
+					setError(get("missing") + braceLevel + get("opening_braces"));
 
-				setError(lingua.get("already_at_beginning"));
+				setError(get("already_at_beginning"));
 				return ERROR;
 			}
 			if ((node = nodes.getNode(step)) == null)
@@ -344,10 +358,10 @@ public class Triceps {
 			else if (actionType == Node.GROUP_OPEN) {
 				++braceLevel;
 				if (braceLevel > 0) {
-					setError(lingua.get("extra_opening_brace"));
+					setError(get("extra_opening_brace"));
 					return ERROR;
 				}
-				if (braceLevel == 0 && parser.booleanVal(evidence, node.getDependencies())) {
+				if (braceLevel == 0 && parser.booleanVal(this, node.getDependencies())) {
 					break;	// ask this block of questions
 				}
 				else {
@@ -355,7 +369,7 @@ public class Triceps {
 				}
 			}
 			else if (actionType == Node.QUESTION) {
-				if (braceLevel == 0 && parser.booleanVal(evidence, node.getDependencies())) {
+				if (braceLevel == 0 && parser.booleanVal(this, node.getDependencies())) {
 					break;	// ask this block of questions
 				}
 				else {
@@ -363,7 +377,7 @@ public class Triceps {
 				}
 			}
 			else {
-				node.setError(lingua.get("invalid_action_type"));
+				node.setError(get("invalid_action_type"));
 				return ERROR;
 			}
 		}
@@ -373,7 +387,7 @@ public class Triceps {
 
 	private void startTimer(Date time) {
 		startTime = time;
-		startTimeStr = lingua.formatDate(startTime,Datum.TIME_MASK);
+		startTimeStr = formatDate(startTime,Datum.TIME_MASK);
 		stopTime = null;	// reset stopTime, since re-starting
 		nodes.setReserved(Schedule.START_TIME,startTimeStr);	// so that saved schedule knows when it was started
 	}
@@ -381,12 +395,12 @@ public class Triceps {
 	private void stopTimer() {
 		if (stopTime == null) {
 			stopTime = new Date(System.currentTimeMillis());
-			stopTimeStr = lingua.formatDate(stopTime,Datum.TIME_MASK);
+			stopTimeStr = formatDate(stopTime,Datum.TIME_MASK);
 		}
 	}
 
 	public void resetEvidence() {
-		evidence = new Evidence(lingua, this);
+		evidence = new Evidence(this);
 	}
 
 	private void setDefaultValues() {
@@ -402,10 +416,10 @@ Logger.writeln("null node at index " + i);
 
 			init = n.getAnswerGiven();
 			
-			d = Datum.parseSpecialType(lingua,init);
+			d = Datum.parseSpecialType(this,init);
 			
 			if (d == null) {
-				d = new Datum(lingua, init,n.getDatumType(),n.getMask());
+				d = new Datum(this, init,n.getDatumType(),n.getMask());
 			}
 
 			evidence.set(n,d,n.getAnswerTimeStampStr());
@@ -416,7 +430,7 @@ Logger.writeln("null node at index " + i);
 
 	public boolean storeValue(Node q, String answer, String comment, String special, boolean adminMode) {
 		if (q == null) {
-			setError(lingua.get("node_does_not_exist"));
+			setError(get("node_does_not_exist"));
 			return false;
 		}
 
@@ -433,44 +447,44 @@ Logger.writeln("null node at index " + i);
 
 		if (special != null && special.trim().length() > 0) {
 			if (adminMode) {
-				d = Datum.parseSpecialType(lingua, special);
+				d = Datum.parseSpecialType(this, special);
 				if (d != null) {
 					evidence.set(q,d);
 					return true;
 				}
-				setError(lingua.get("unknown_special_datatype"));
+				setError(get("unknown_special_datatype"));
 				return false;
 			}
 			else {
-				setError(lingua.get("entry_into_admin_mode_disallowed"));
+				setError(get("entry_into_admin_mode_disallowed"));
 				return false;
 			}
 		}
 
 		if (q.getAnswerType() == Node.NOTHING && q.getQuestionOrEvalType() != Node.EVAL) {
-			evidence.set(q,new Datum(lingua, "",Datum.STRING));
+			evidence.set(q,new Datum(this, "",Datum.STRING));
 			return true;
 		}
 		else {
-			d = new Datum(lingua, answer,q.getDatumType(),q.getMask()); // use expected value type
+			d = new Datum(this, answer,q.getDatumType(),q.getMask()); // use expected value type
 		}
 
 		/* check for type error */
 		if (!d.exists()) {
 			String s = d.getError();
 			if (s.length() == 0) {
-				q.setError("<- " + lingua.get("answer_this_question"));
+				q.setError("<- " + get("answer_this_question"));
 			}
 			else {
 				q.setError("<- " + s);
 			}
-			evidence.set(q,Datum.getInstance(lingua,Datum.UNASKED));
+			evidence.set(q,Datum.getInstance(this,Datum.UNASKED));
 			return false;
 		}
 
 		/* check if out of range */
 		if (!q.isWithinRange(d)) {
-			evidence.set(q,Datum.getInstance(lingua,Datum.UNASKED));
+			evidence.set(q,Datum.getInstance(this,Datum.UNASKED));
 			return false;	// shouldn't wording of error be done here, not in Node?
 		}
 		else {
@@ -558,7 +572,7 @@ Logger.writeln("null node at index " + i);
 			nodeParseErrors = null;
 			nodeNamingErrors = null;
 
-			parser.booleanVal(evidence, n.getDependencies());
+			parser.booleanVal(this, n.getDependencies());
 
 			if (parser.hasErrors()) {
 				hasErrors = true;
@@ -571,21 +585,21 @@ Logger.writeln("null node at index " + i);
 			/* Check questionOrEval for syntax errors */
 			if (s != null) {
 				if (actionType == Node.QUESTION) {
-					parser.parseJSP(evidence, s);
+					parser.parseJSP(this, s);
 				}
 				else if (actionType == Node.EVAL) {
-					parser.stringVal(evidence, s);
+					parser.stringVal(this, s);
 				}
 			}
 
 			/* Check min & max range delimiters for syntax errors */
 			s = n.getMinStr();
 			if (s != null) {
-				parser.stringVal(evidence, s);
+				parser.stringVal(this, s);
 			}
 			s = n.getMaxStr();
 			if (s != null) {
-				parser.stringVal(evidence, s);
+				parser.stringVal(this, s);
 			}
 
 			if (parser.hasErrors()) {
@@ -598,7 +612,7 @@ Logger.writeln("null node at index " + i);
 				for (int j=0;j<v.size();++j) {
 					AnswerChoice ac = (AnswerChoice) v.elementAt(j);
 					if (ac != null)
-						ac.parse(parser, evidence);	// any errors will be associated with the parser, not the node (although this is misleading)
+						ac.parse(this);	// any errors will be associated with the parser, not the node (although this is misleading)
 				}
 			}
 
@@ -617,7 +631,7 @@ Logger.writeln("null node at index " + i);
 			}
 
 			if (n.getReadback(currentLanguage) != null) {
-				parser.parseJSP(evidence,n.getReadback(currentLanguage));
+				parser.parseJSP(this,n.getReadback(currentLanguage));
 			}
 			if (parser.hasErrors()) {
 				hasErrors = true;
@@ -648,10 +662,11 @@ Logger.writeln("null node at index " + i);
 			ok = f.delete();
 		}
 		catch (SecurityException e) {
-			String msg = lingua.get("error_deleting") + filename + ": " + e.getMessage();
+			String msg = get("error_deleting") + filename + ": " + e.getMessage();
 			setError(msg);
 		}
-Logger.writeln("delete(" + filename + ") -> " + ok);			
+		if (!ok)
+			Logger.writeln("delete(" + filename + ") -> " + ok);			
 		return ok;
 	}
 
@@ -669,13 +684,14 @@ Logger.writeln("delete(" + filename + ") -> " + ok);
 			ok = writeTSV(fw);
 		}
 		catch (IOException e) {
-			String msg = lingua.get("error_writing_to") + filename + ": " + e.getMessage();
+			String msg = get("error_writing_to") + filename + ": " + e.getMessage();
 			setError(msg);
 		}
 		if (fw != null) {
 			try { fw.close(); } catch (IOException t) { }
 		}
-Logger.writeln("save(" + filename + ") -> " + ok);			
+		if (!ok) 
+			Logger.writeln("save(" + filename + ") -> " + ok);			
 		return ok;
 	}
 
@@ -716,7 +732,7 @@ Logger.writeln("save(" + filename + ") -> " + ok);
 
 				d = evidence.getDatum(n);
 				if (d == null) {
-					ans = "";	// NULL
+					ans = "";	// null values displayed as empty string
 				}
 				else {
 					ans = d.stringVal(true);
@@ -736,7 +752,7 @@ Logger.writeln("save(" + filename + ") -> " + ok);
 			return true;
 		}
 		catch (IOException e) {
-			String msg = lingua.get("Unable_to_write_schedule_file") + e.getMessage();
+			String msg = get("Unable_to_write_schedule_file") + e.getMessage();
 			setError(msg);
 			return false;
 		}
@@ -782,7 +798,7 @@ Logger.writeln("save(" + filename + ") -> " + ok);
 	public void setPasswordForAdminMode(String s) { nodes.setReserved(Schedule.PASSWORD_FOR_ADMIN_MODE,s); }
 
 	public Datum evaluateExpr(String expr) {
-		return parser.parse(evidence,expr);
+		return parser.parse(this,expr);
 	}
 
 	public String getFilename() { return nodes.getReserved(Schedule.FILENAME); }
@@ -810,13 +826,13 @@ Logger.writeln("save(" + filename + ") -> " + ok);
 				
 			if (node.getQuestionOrEvalType() == Node.EVAL) {
 				node.setAnswerLanguageNum(currentLanguage);	// don't change the language for non-EVAL nodes - want to know what was asked
-				if (parser.booleanVal(evidence, node.getDependencies())) {
-					Datum datum = parser.parse(evidence, node.getQuestionOrEval());
+				if (parser.booleanVal(this, node.getDependencies())) {
+					Datum datum = parser.parse(this, node.getQuestionOrEval());
 					node.setDatumType(datum.type());
 					evidence.set(node, datum);
 				}
 				else {
-					evidence.set(node, Datum.getInstance(lingua,Datum.NA));	// if doesn't satisfy dependencies, store NA
+					evidence.set(node, Datum.getInstance(this,Datum.NA));	// if doesn't satisfy dependencies, store NA
 				}
 			}
 		}
@@ -847,8 +863,254 @@ Logger.writeln("save(" + filename + ") -> " + ok);
 	public Schedule getSchedule() { return nodes; }
 	public Evidence getEvidence() { return evidence; }
 	public Parser getParser() { return parser; }
-	public Lingua getLingua() { return lingua; }
 	
 	public boolean isAtBeginning() { return (currentStep <= firstStep); }
 	public boolean isAtEnd() { return (currentStep >= size()); }
+
+	/* Formerly from Lingua */
+
+	public static Locale getLocale(String lang, String country, String extra) {
+		return new Locale((lang == null) ? "" : lang,
+			(country == null) ? "" : country,
+			(extra == null) ? "" : extra);
+	}
+	
+	public void setLocale(Locale loc) {
+		locale = (loc == null) ? defaultLocale : loc;
+		loadBundle();
+	}
+	
+	private void loadBundle() {
+		try {
+			bundle = ResourceBundle.getBundle(BUNDLE_NAME,locale);
+		}
+		catch (MissingResourceException t) {
+			Logger.writeln("error loading resources '" + BUNDLE_NAME + "': " + t.getMessage());
+		}
+	}
+
+	public String get(String localizeThis) {
+		if (bundle == null || localizeThis == null) {
+			return "";
+		}
+		else {
+			String s = null;
+			
+			try {
+				s = bundle.getString(localizeThis);
+			}
+			catch (MissingResourceException e) { }
+ 
+			if (s == null || s.trim().length() == 0) {
+				Logger.writeln("error accessing resource '" + BUNDLE_NAME + "[" + localizeThis + "]'");
+				return "";
+			}
+			else {
+				return s;
+			}
+		}
+	}
+	
+	private DateFormat getDateFormat(String mask) {
+		String key = locale.toString() + "_" + ((mask == null) ? DEFAULT : mask);
+
+		Object obj = dateFormats.get(key);
+		if (obj != null) {
+			return (DateFormat) obj;
+		}
+
+		DateFormat sdf = null;
+		
+		if (mask != null) {
+			sdf = new SimpleDateFormat(mask,locale);
+		}
+
+		if (sdf == null) {
+			Locale.setDefault(locale);
+			sdf = new SimpleDateFormat();	// get the default for the locale
+			Locale.setDefault(defaultLocale);
+		}
+		synchronized (dateFormats) {
+			dateFormats.put(key,sdf);
+		}
+		return sdf;
+	}
+	
+	private DecimalFormat getDecimalFormat(String mask) {
+		String key = locale.toString() + "_" + ((mask == null) ? DEFAULT : mask);
+
+		Object obj = numFormats.get(key);
+		DecimalFormat df = null;
+		
+		if (obj != null) {
+			return (DecimalFormat) obj;
+		}
+		else {
+			try {
+				if (mask != null) {
+					Locale.setDefault(locale);
+					df = new DecimalFormat(mask);
+					Locale.setDefault(defaultLocale);
+				}
+			}
+			catch (SecurityException e ) { }
+			catch (NullPointerException e) { 
+				Logger.writeln("error creating DecimalFormat for locale " + locale.toString() + " using mask " + mask);
+			}
+			if (df == null) {
+				;	// allow this - will use Double.format() internally
+			}
+			synchronized (numFormats) {
+				numFormats.put(key,df);
+			}
+			return df;
+		}
+	}
+	
+	public Number parseNumber(Object obj, String mask) {
+		Number num = null;
+
+		if (obj == null || obj instanceof Date) {
+			num = null;
+		}
+		else if (obj instanceof Number) {
+			num = (Number) obj;
+		}
+		else {
+			DecimalFormat df;
+			String str = (String) obj;
+			if (mask == null || ((df = getDecimalFormat(mask)) == null)) {
+				Long l = null;
+				Double d = null;
+					
+				try {
+					d = Double.valueOf(str);
+				}
+				catch (NumberFormatException t) { }
+				if (d != null) {
+					num = assessDouble(d);
+				}
+			}
+			else {
+				try {
+					num = df.parse(str);
+				}
+				catch (java.text.ParseException e) {
+				}
+			}
+		}
+
+		return num;
+	}
+	
+	public Date parseDate(Object obj, String mask) {
+		Date date = null;
+		if (obj == null) {
+			date = null;
+		}
+		else if (obj instanceof Date) {
+			date = (Date) obj;
+		}
+		else if (obj instanceof String) {
+			try {
+				DateFormat df = getDateFormat(mask);
+				date = df.parse((String) obj);
+			}
+			catch (java.text.ParseException e) { }
+		}
+		else {
+			date = null;
+		}
+		return date;
+	}	
+	
+	public boolean parseBoolean(Object obj) {
+		if (obj == null) {
+			return false;
+		}
+		else if (obj instanceof Number) {
+			return (((Number) obj).doubleValue() != 0);
+		}
+		else if (obj instanceof String) {
+			return Boolean.valueOf((String) obj).booleanValue();
+		}
+		else {
+			return false;
+		}
+	}
+	
+	private Number assessDouble(Double d) {
+		Double nd = new Double((double) d.longValue());
+		if (nd.equals(d)) {
+			return new Long(d.longValue());
+		}
+		else {
+			return d;
+		}
+	}
+	
+	
+	public String formatNumber(Object obj, String mask) {
+		String s = null;
+		
+		if (obj == null) {
+			return null;
+		}
+			
+		DecimalFormat df;
+			
+		if (mask == null || ((df = getDecimalFormat(mask)) == null)) {
+			if (obj instanceof Date) {
+				s = "**DATE**";		// FIXME
+			}
+			else if (obj instanceof Long) {
+				s = ((Long) obj).toString();
+			}
+			else if (obj instanceof Boolean) {
+				s = ((Boolean) obj).toString();
+			}
+			else if (obj instanceof Double) {
+				Number num = assessDouble((Double) obj);
+				s = num.toString();
+			}
+			else if (obj instanceof Number) {
+				s = ((Number) obj).toString();
+			}
+			else {
+				try {
+					Double d = Double.valueOf((String) obj);
+					if (d == null) {
+						s = null;
+					}
+					else {
+						s = d.toString();
+					}
+				}
+				catch(NumberFormatException t) { }
+			}
+		}
+		else {
+			try {
+				s = df.format(obj);
+			}
+			catch(IllegalArgumentException e) { }
+		}	
+
+		return s;
+	}
+	
+	public String formatDate(Object obj, String mask) {
+		if (obj == null) {
+			return null;
+		}
+		
+		DateFormat df = getDateFormat(mask);
+		
+		try {
+			return df.format(obj);
+		}
+		catch (IllegalArgumentException e) {
+			return null;
+		}
+	}
 }

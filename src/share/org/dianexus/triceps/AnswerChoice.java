@@ -22,9 +22,10 @@ public class AnswerChoice  {
 		this(value,message,"");
 	}
 	
-	public void parse(Parser parser, Evidence ev) {
-		value_parsed = parser.stringVal(ev,value);
-		message_parsed = parser.parseJSP(ev,message);
+	public void parse(Triceps triceps) {
+		Parser parser = triceps.getParser();
+		value_parsed = parser.stringVal(triceps,value);
+		message_parsed = parser.parseJSP(triceps,message);
 	}
 	
 	public void setValue(String value) { this.value = value; }
