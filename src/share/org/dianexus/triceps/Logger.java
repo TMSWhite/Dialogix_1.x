@@ -22,6 +22,7 @@ public class Logger {
 	public static final String UNIX_EOL = "\n";
 	public static final String HTML_EOL = "<br>";
 
+	private File file = null;
 	private Writer out = null;
 	private String eol = HTML_EOL;
 	private int callCount = 0;
@@ -33,15 +34,37 @@ public class Logger {
 
 	public Logger() { this(null,HTML_EOL,false); }
 	public Logger(String eol) { this(null,eol,false); }
+	
+	public Logger(File out) { this(HTML_EOL,false,out); }
+	public Logger(File out, String eol) { this(eol,false,out); }
+
+	public Logger(String eol, boolean discard, File w) {
+		this.discard = discard;
+		file = w;
+		if (file != null) {
+			try {
+				out = new BufferedWriter(new FileWriter(file.toString(),true));	// append to file, if it exists
+			}
+			catch (IOException e) {
+				writeln(file + ": " + e.getMessage());
+			}
+			catch (SecurityException e) {
+				writeln(file + ": " + e.getMessage());
+			}
+		}
+		this.eol = ((eol == null) ? HTML_EOL : eol);
+		reset();
+	}
+	
 	public Logger(Writer out) { this(out,HTML_EOL,false); }
 	public Logger(Writer out, String eol) { this(out,eol,false); }
-
 	public Logger(Writer w, String eol, boolean discard) {
 		this.discard = discard;
 		out = w;
 		this.eol = ((eol == null) ? HTML_EOL : eol);
 		reset();
 	}
+	
 
 	public void setAlsoLogToStderr(boolean ok) { alsoLogToStderr = ok; }
 	public boolean isAlsoLogToStderr() { return alsoLogToStderr; }
@@ -157,5 +180,18 @@ public class Logger {
 		catch (IOException e) {
 			writeln(e.getMessage());
 		}
+	}
+	
+	public boolean delete() {
+		close();
+		try {
+			if (file != null)
+				file.delete();
+		}
+		catch (SecurityException e) {
+			writeln(e.getMessage());
+			return false;
+		}
+		return true;
 	}
 }
