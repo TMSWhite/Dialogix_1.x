@@ -20,6 +20,7 @@ public class TricepsServlet extends HttpServlet {
 	private HttpServletRequest req;
 	private HttpServletResponse res;
 	private PrintWriter out;
+	private String schedToUse = "ADHD.txt";	// default value for now
 
 	/**
 	 * This method runs only when the servlet is first loaded by the
@@ -29,7 +30,7 @@ public class TricepsServlet extends HttpServlet {
 	 */
 	public void init(ServletConfig config) throws ServletException {
 		super.init(config);
-		loadSchedule();
+		loadSchedule(schedToUse);
 	}
 
 	public void destroy() {
@@ -59,8 +60,8 @@ public class TricepsServlet extends HttpServlet {
 		out.println("<pre>");
 		out.println("The system currently supports one schedule.");
 		out.println("Select a schedule:	<select name='schedule'>");
-		out.println("							<option selected>navigation.txt");
-//		out.println("							<option navigation2.txt");
+		out.println("							<option selected>ADHD.txt");
+		out.println("							<option>EatDis.txt");
 		out.println("							</select>");
 //		out.println("The system currently only starts a new interview.");
 		out.println("Select an interview:	<select name='interview'>");
@@ -86,6 +87,7 @@ public class TricepsServlet extends HttpServlet {
 
 		node = (Node)session.getValue("currentNode");			// retrieve the node stored in the session
 		evidence = (Evidence)session.getValue("evidence");		// retrieve the evidence stored in the session
+		schedToUse = (String)session.getValue("schedToUse");	// retrieve the schedule used in this session
 
 		res.setContentType("text/html");
 		out = res.getWriter();
@@ -102,11 +104,13 @@ public class TricepsServlet extends HttpServlet {
 		out.println("</body>");
 		out.println("</html>");
 		
-		/* Store the node and evidence in the session */
+		/* Store appropriate stuff in the session */
 		if (node != null)
 			session.putValue("currentNode", node);
 		if (evidence != null)
 			session.putValue("evidence", evidence);
+		if (schedToUse != null)
+			session.putValue("schedToUse", schedToUse);
 	}
 	/**
 	 * This method basically gets the next node in the schedule, checks the activation
@@ -127,6 +131,10 @@ public class TricepsServlet extends HttpServlet {
 				directive = "forward"; 				// to avoid null pointer exception
 				forward = true;
 				step = -1; 								// will increment to 0 below - allows bypassing of first question, if necessary
+				
+				/* get the right Schedule */
+				schedToUse = req.getParameter("schedule");
+				loadSchedule(schedToUse);
 				
 				/* prepare the Evidence -- either new or retrieved */
 				if ("test-suspended".equals(req.getParameter("interview"))) {
@@ -168,7 +176,7 @@ public class TricepsServlet extends HttpServlet {
 				directive = "forward";
 			}
 			else if (directive.equals("reload questions")) { // debugging option
-				loadSchedule();
+				loadSchedule(schedToUse);
 				queryUser();	// re-display current node
 				return;
 			}
@@ -293,8 +301,8 @@ public class TricepsServlet extends HttpServlet {
 	 * these are represented as tuples in a tab-delimited
 	 * spreadsheet file called "navigation.txt".
 	 */
-	public void loadSchedule() {
-		nodes = new Schedule("http://localhost/navigation.txt");
+	public void loadSchedule(String sched) {
+		nodes = new Schedule("http://localhost/" + sched);
 	}
 
 	/**
