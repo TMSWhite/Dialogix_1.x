@@ -10,6 +10,9 @@ public class Triceps {
 	public static final int ERROR = 1;
 	public static final int OK = 2;
 	public static final int AT_END = 3;
+	public static final int WORKING_DIR = 1;
+	public static final int COMPLETED_DIR = 2;
+	public static final int FLOPPY_DIR = 3;
 
 	private Schedule nodes = null;
 	private Evidence evidence = null;
@@ -48,19 +51,22 @@ public class Triceps {
 	}
 	
 	public Triceps(String scheduleLoc) {
-			/* initialize required variables */
+		/* initialize required variables */
+		parser = new Parser();
 		setLocale(null);	// the default
+		setSchedule(scheduleLoc);
+	}
+	
+	public void setSchedule(String scheduleLoc) {
 		nodes = new Schedule(this, scheduleLoc);
 		setLanguage(null);	// the default until overidden
 		
-		parser = new Parser();
 		if (!nodes.init()) {
 			setError(nodes.getErrors());
 		}
 		resetEvidence();
 		setDefaultValues();
 		createTempPassword();
-		
 		isValid = true;
 	}
 
@@ -791,6 +797,18 @@ Logger.writeln("null node at index " + i);
 	public boolean isAllowLanguageSwitching() {
 		return Boolean.valueOf(nodes.getReserved(Schedule.ALLOW_LANGUAGE_SWITCHING)).booleanValue();
 	}
+	public boolean isAllowRefused() {
+		return Boolean.valueOf(nodes.getReserved(Schedule.ALLOW_REFUSED)).booleanValue();
+	}
+	public boolean isAllowUnknown() {
+		return Boolean.valueOf(nodes.getReserved(Schedule.ALLOW_UNKNOWN)).booleanValue();
+	}
+	public boolean isAllowNotUnderstood() {
+		return Boolean.valueOf(nodes.getReserved(Schedule.ALLOW_DONT_UNDERSTAND)).booleanValue();
+	}		
+	public boolean isRecordEvents() {
+		return Boolean.valueOf(nodes.getReserved(Schedule.RECORD_EVENTS)).booleanValue();
+	}
 
 	public String getIcon() { return nodes.getReserved(Schedule.ICON); }
 	public String getHeaderMsg() { return nodes.getReserved(Schedule.HEADER_MSG); }
@@ -979,8 +997,10 @@ Logger.writeln("null node at index " + i);
 		else {
 			DecimalFormat df;
 			String str = (String) obj;
+			if (str.trim().length() == 0) 
+				return null;
+				
 			if (mask == null || ((df = getDecimalFormat(mask)) == null)) {
-				Long l = null;
 				Double d = null;
 					
 				try {
@@ -1012,11 +1032,19 @@ Logger.writeln("null node at index " + i);
 			date = (Date) obj;
 		}
 		else if (obj instanceof String) {
+			String src = (String) obj;
 			try {
-				DateFormat df = getDateFormat(mask);
-				date = df.parse((String) obj);
+				if (src.trim().length() > 0) {
+					DateFormat df = getDateFormat(mask);
+					date = df.parse(src);
+				}
+				else {
+					date = null;
+				}
 			}
-			catch (java.text.ParseException e) { }
+			catch (java.text.ParseException e) { 
+Logger.writeln("Error parsing date " + obj + " with mask " + mask);
+			}
 		}
 		else {
 			date = null;
