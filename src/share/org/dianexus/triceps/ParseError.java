@@ -18,8 +18,8 @@ public class ParseError  {
 
 	public String getDependencies() { return node.getDependencies(); }
 	public Vector getDependenciesErrors() { return dependenciesErrors; }
-	public String getAction() { return node.getAction(); }
-	public Vector getActionErrors() { return actionErrors; }
+	public String getQuestionOrEval() { return node.getQuestionOrEval(); }
+	public Vector getQuestionOrEvalErrors() { return actionErrors; }
 	public Vector getNodeErrors() { return nodeErrors; }
 	public Node getNode() { return node; }
 }
