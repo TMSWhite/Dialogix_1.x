@@ -859,22 +859,24 @@ public class Evidence  {
 					
 					try {
 						fname = sched.getReserved(Schedule.WORKING_DIR) + fext;
-Logger.writeln("exists(" + fname + ")");					
+Logger.writeln("##exists(" + fname + ")");					
 						file = new File(fname);
 						if (file.exists())
 							return new Datum(triceps,true);;
 					}
 					catch (SecurityException e) {
+Logger.writeln("##SecurityException @ Evidence.fileExists()" + e.getMessage());
 						return Datum.getInstance(triceps,Datum.INVALID);	
 					}
 					try {
 						fname = sched.getReserved(Schedule.COMPLETED_DIR) + fext;
-Logger.writeln("exists(" + fname + ")");					
+Logger.writeln("##exists(" + fname + ")");					
 						file = new File(fname);
 						if (file.exists())
 							return new Datum(triceps,true);
 					}
 					catch (SecurityException e) {
+Logger.writeln("##SecurityException @ Evidence.fileExists()" + e.getMessage());
 						return Datum.getInstance(triceps,Datum.INVALID);	
 					}					
 					return new Datum(triceps,false);
@@ -882,6 +884,7 @@ Logger.writeln("exists(" + fname + ")");
 			}
 		}
 		catch (Throwable t) { 
+Logger.writeln("##Throwable @ Evidence.function()" + t.getMessage());
 			Logger.printStackTrace(t);
 		}
 		setError("unexpected error running function " + name, line, column, null);
@@ -900,7 +903,7 @@ Logger.writeln("exists(" + fname + ")");
 			msg = s;
 		}
 		errorLogger.print(msg,line,column); 
-		Logger.writeln(msg);
+		Logger.writeln("##" + msg);
 	}
 	private void setError(String s, Object val) { 
 		String msg = null;
@@ -911,7 +914,7 @@ Logger.writeln("exists(" + fname + ")");
 			msg = s;
 		}
 		errorLogger.println(msg); 
-		Logger.writeln(msg);
+		Logger.writeln("##" + msg);
 	}
 	public boolean hasErrors() { return (errorLogger.size() > 0); }
 	public String getErrors() { return errorLogger.toString(); }

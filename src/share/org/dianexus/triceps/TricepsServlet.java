@@ -184,7 +184,8 @@ public class TricepsServlet extends HttpServlet {
 			}
 		}
 		catch (Throwable t) {
-			Logger.writeln(triceps.get("unexpected_error") + t.getMessage());
+Logger.writeln("##Throwable @ Servlet.doPost()" + t.getMessage());
+			Logger.writeln("##" + triceps.get("unexpected_error") + t.getMessage());
 			Logger.printStackTrace(t);
 		}
 	}
@@ -364,6 +365,7 @@ public class TricepsServlet extends HttpServlet {
 						}
 					}
 					catch (Throwable t) {
+Logger.writeln("##Throwable @ Servlet.getSortedNames()" + t.getMessage());
 						errors.println(triceps.get("unexpected_error") + t.getMessage());
 						Logger.printStackTrace(t);
 					}
@@ -371,6 +373,7 @@ public class TricepsServlet extends HttpServlet {
 			}
 		}
 		catch (Throwable t) {
+Logger.writeln("##Throwable @ Servlet.getSortedNames()" + t.getMessage());
 			errors.println(triceps.get("unexpected_error") + t.getMessage());
 			Logger.printStackTrace(t);
 		}
@@ -433,6 +436,7 @@ public class TricepsServlet extends HttpServlet {
 			}
 		}
 		catch (Throwable t) {
+Logger.writeln("##Throwable @ Servlet.selectFromInterviewsInDir" + t.getMessage());
 			errors.println(triceps.get("error_building_sorted_list_of_interviews") + t.getMessage());
 			Logger.printStackTrace(t);
 		}

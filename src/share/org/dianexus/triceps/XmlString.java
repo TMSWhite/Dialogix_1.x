@@ -153,7 +153,9 @@ public final class XmlString extends Object {
     		encodeHTML(src);
     		dst.close();
     	}
-    	catch (IOException e){ }
+    	catch (IOException e){ 
+Logger.writeln("##IOException @ new XMLString()" + e.getMessage());
+		}
     }
 
     public XmlString(Triceps lang, String src, Writer out) {
@@ -165,7 +167,9 @@ public final class XmlString extends Object {
     		encodeHTML(src);
     		dst.flush();	// don't close, since externally presented
     	}
-    	catch (IOException e) { }
+    	catch (IOException e) { 
+Logger.writeln("##IOException @ new XMLString()" + e.getMessage());
+    		}
     }
 
     public	String toString() { return dst.toString(); }
@@ -323,6 +327,7 @@ public final class XmlString extends Object {
 			}
 		}
 		catch (Throwable t) {
+Logger.writeln("##Throwable @ XMLString.isValidElement()" + t.getMessage());
 			error(triceps.get("prematurely_terminated_element") + parsingPosition[which] + " " + asElement(element));
 			return false;
 		}
@@ -343,7 +348,9 @@ public final class XmlString extends Object {
 			dst.write(s);
 			column += s.length();
 		}
-		catch (IOException e) { }
+		catch (IOException e) { 
+Logger.writeln("##IOException @ XMLString.prettyPrint()" + e.getMessage());
+			}
 	}
 
 	private void insertMissingEndTags(String endTag) {
@@ -360,7 +367,9 @@ public final class XmlString extends Object {
 					try {
 						dst.write(tagToPrint);
 					}
-					catch (IOException e) { }
+					catch (IOException e) { 
+Logger.writeln("##IOException @ XMLString.insertMissingEndTags()" + e.getMessage());
+						}
 					prettyPrint("",true);
 				}
 				else {
@@ -451,7 +460,9 @@ public final class XmlString extends Object {
 					}
 				}
 			}
-			catch (IOException e) { }
+			catch (IOException e) { 
+Logger.writeln("##IOException @ XMLString.encodeHTML()" + e.getMessage());
+				}
 		}
 		insertMissingEndTags(null);
 	}
