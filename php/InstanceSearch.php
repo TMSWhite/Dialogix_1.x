@@ -4,11 +4,11 @@
 
 // extract($_GET);
 
-if(!isset($_GET['InstrumentName'])) {
+if(!isset($_GET['Instrument'])) {
 	DialogixError("Must specify an instrument name");
 }
 
-$InstrumentName = $_GET['InstrumentName'];
+$InstrumentName = $_GET['Instrument'];
 
 require_once("conn_dialogix.php");
 
@@ -37,10 +37,11 @@ while($r  = mysql_fetch_assoc($res))
 <?php include("Dialogix_Table_PartA.php"); ?>
 
 <table border=1 width=100% align=center>
-<tr><td colspan="4" align="center"><FONT SIZE="5">Instances for <?php echo "$InstrumentName" ?> (<?php echo "$num_rows" ?> rows)</FONT></td></tr>
+<tr><td colspan="5" align="center"><FONT SIZE="5">Instances for <?php echo "$InstrumentName" ?> (<?php echo "$num_rows" ?> rows)</FONT></td></tr>
 <tr>
 	<td><b>StartDate</b></td>
 	<td><b>Filename</b></td>
+	<td><b>Completed</b></td>
 	<td><b>NumPagesViewed</b></td>
 	<td><b>Duration hh:mm:ss</b></td>
 </tr>
@@ -58,6 +59,7 @@ while($r  = mysql_fetch_assoc($res))
 		echo "<tr>\t
 		<td>$StartDate</td>
 		<td><a href=\"ShowInstrumentData.php?Instance=$InstanceName&Instrument=$InstrumentName&StartDate=$StartDate\">$InstanceName</a></td>
+		<td>$Finished</td>
 		<td>$NumPagesViewed</td>
 		<td>$hours:$minutes:$seconds</td>
 		</tr>\n";

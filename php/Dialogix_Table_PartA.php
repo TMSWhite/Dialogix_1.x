@@ -25,8 +25,11 @@ Welcome, <i><?php echo $_COOKIE['dgx_username']; ?></i>
 <hr>
 Review:</br>
  <a href="UserManual.php">User Manual</a><br>
- <a href="InstrumentSearch.php">Data</a><br>
+ <a href="InstrumentSearch.php">Results</a><br>
  <a href="InstrumentDetails.php">Instruments</a><br>
+ <a href="Workplan.php">Work Plan</a><br>
+ <a href="http://psychinformatics.nyspi.org/phpmyadmin/">phpMyAdmin</a><br>
+ <br>
  <a href="Logout.php">Logout</a><br>
 <?php } else { ?>
  <a href="Login.php">Login</a><br>

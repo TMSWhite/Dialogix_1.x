@@ -30,10 +30,15 @@ while($r  = mysql_fetch_assoc($res))
 <?php include("Dialogix_Table_PartA.php"); ?>
 
 <table border=1 width=100% align=center>
-<tr><td colspan="8" align="center"><FONT SIZE="5">Instruments with Data (<?php echo "$num_instruments" ?>)</FONT></td></tr>
+<tr><td colspan="7" align="center"><FONT SIZE="5">Instruments with Data (<?php echo "$num_instruments" ?>)</FONT></td></tr>
 <tr>
-	<td><b>InstrumentName</b></td>
-	<td><b>NumInstances</b></td>
+	<td><b>InstrumentName</b></td>	
+	<td><b># Instances</b></td>
+	<td><b>All Results</b></td>			
+	<td><b>What Subject Saw</b></td>			
+	<td><b>Changed Answers</b></td>		
+	<td><b>Timing by Screen</b></td>	
+	<td><b>Timing by Var</b></td>	
 </tr>
 
 <?php
@@ -43,10 +48,19 @@ while($r  = mysql_fetch_assoc($res))
 		extract($s);
 		
 		echo "<tr>\t
-		<td><a title='View path taken through individual instances -- what the subject saw' 
-			href=\"InstanceSearch.php?InstrumentName=$InstrumentName\">$InstrumentName</a></td>
+		<td><a title='View logic file for this instrument'
+			href=\"InstrumentLogicFile.php?Instrument=$InstrumentName\">$InstrumentName</td>
+		<td>$NumInstances</td>
 		<td><a title='View final data from all instances of this instrument'
-			href=\"StructuredDataView.php?InstrumentName=$InstrumentName\">$NumInstances</a></td>
+			href=\"StructuredDataView.php?Instrument=$InstrumentName\">Results</a></td>
+		<td><a title='View what the subject saw for each instance' 
+			href=\"InstanceSearch.php?Instrument=$InstrumentName\">Recap</a></td>
+		<td><a title='View how answers were changed, by variable'
+			href=\"ChangesByVar.php?Instrument=$InstrumentName\">Changes</a></td>
+		<td><a title='View timing per screen'
+			href=\"TimingByScreen.php?Instrument=$InstrumentName\">Per-Screen</a></td>
+		<td><a title='View timing per variable'
+			href=\"TimingByVar.php?Instrument=$InstrumentName\">Per-Var</a></td>		
 		</tr>\n";
 	}
 ?>

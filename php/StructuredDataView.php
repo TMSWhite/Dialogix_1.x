@@ -2,11 +2,11 @@
 
 <?php
 
-if(!isset($_GET['InstrumentName'])) {
+if(!isset($_GET['Instrument'])) {
 	DialogixError("Must specify an Instrument Name");
 }
 
-$InstrumentName= $_GET['InstrumentName'];
+$InstrumentName= $_GET['Instrument'];
 
 $pattern = "/\W/i";
 $replacement = "_";
@@ -48,12 +48,16 @@ while($r  = mysql_fetch_assoc($res))
 <?php include("Dialogix_Table_PartA.php"); ?>
 
 <table border=1 width=100% align=center>
-<tr><td colspan="<?php echo $num_cols; ?>" align="center"><FONT SIZE="5">Up to 30 rows of data from (<?php echo "$InstrumentName" ?>)</FONT></td></tr>
+<tr><td colspan="<?php echo ($num_cols-1); ?>" align="left"><FONT SIZE="5">Up to 30 rows of data from (<?php echo "$InstrumentName" ?>)</FONT></td></tr>
 <tr>
 <?php
+	$colCount = 0;
 	foreach($cols as $c) {
-		extract($c);
-		echo "<td><b>$Field</b></td>";
+		++$colCount;
+		if ($colCount != 2) {
+			extract($c);
+			echo "<td><b>$Field</b></td>";
+		}
 	}
 ?>
 <?php
@@ -62,7 +66,11 @@ while($r  = mysql_fetch_assoc($res))
 		echo "<tr>";
 		$colCount = 0;
 		foreach ($r as $c) {
-			if (++$colCount == 3) {
+			++$colCount;
+			if ($colCount == 2) {
+				;	/* Skip the instrument name -- already know it */
+			}
+			else if ($colCount == 3) {
 				echo "<td><a href=\"ShowInstrumentData.php?Instance=$c\">$c</td>";
 			}
 			else {

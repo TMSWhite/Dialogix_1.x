@@ -33,13 +33,12 @@ while($r  = mysql_fetch_assoc($res))
 	<td><b>ID</b></td>
 	<td><b>Title</b></td>
 	<td><b>Version</b></td>
-	<td><b>NumVars</b></td>
-	<td><b>LanguageList</b></td>
-	<td><b>NumQuestions</b></td>
-	<td><b>NumEquations</b></td>
-	<td><b>NumBranches</b></td>
-	<td><b>NumTailorings</b></td>
-	<td><b>InstrumentName</b></td>
+	<td><b>Vars</b></td>
+	<td><b>Languages</b></td>
+	<td><b>Questions</b></td>
+	<td><b>Equations</b></td>
+	<td><b>Branches</b></td>
+	<td><b>Tailorings</b></td>
 </tr>
 
 <?php
@@ -58,7 +57,6 @@ while($r  = mysql_fetch_assoc($res))
 		<td>$NumEquations</td>
 		<td>$NumBranches</td>
 		<td>$NumTailorings</td>	
-		<td>$InstrumentName</td>
 		</tr>\n";
 	}
 ?>

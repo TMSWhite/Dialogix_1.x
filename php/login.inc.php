@@ -7,6 +7,7 @@
 require_once("conn_dialogix.php");
 
 $failed_authentication=0;
+$session_timedout=0;
 $statusMessage = '';
 // If hitting the login page, reset the username and authentication variables
 $_COOKIE['dgx_authenticated'] = 0;
@@ -17,7 +18,7 @@ extract($_POST);
 /* If just posted a username password, then that is enough to authenticate */
 if (isset($UserID) && isset($Password)) {
 
-  $query = "select * from AuthenticatedUsers where UserID = '$UserID' and Password = '$Password'";
+  $query = "select * from AuthenticatedUsers where UserID = '$UserID' and Password = password('$Password')";
 //  echo "$query\n";
 
   if ( !($dbq = mysql_query($query))) {
@@ -32,13 +33,13 @@ if (isset($UserID) && isset($Password)) {
   if ($lim != 1) {
 	$failed_authentication=1;
 	}
-
-  if ($lim == 1) {
+	else if ($lim == 1) {
 	//make unique session id and store it in Database
-	  $timer = md5(time());
+	  $time = time();
+	  $timer = md5($time);
 	  $sid = $UserID . "+" . $timer;
 	  SetCookie("$Cookiename",$sid); //Set Cookie to expire at end of session
-	  $query = "update AuthenticatedUsers set sid='$timer' where UserID='$UserID'";
+	  $query = "update AuthenticatedUsers set sid='$timer', LastAccess=$time where UserID='$UserID'";
 //	  echo "$query\n";
 	
 	  if( !($dbq = mysql_query( $query))) {
@@ -60,11 +61,19 @@ else if (isset($_COOKIE["$Cookiename"])) {
   $statusMessage .= "($query) succeeded<br>";
 
   if (mysql_num_rows( $dbq ) == 1) {
-  	$_COOKIE['dgx_authenticated']=1;
-	$_COOKIE['dgx_username']=$sidarray[0];
+  	$r  = mysql_fetch_assoc($dbq);
+  	extract($r);
   	
-    $statusMessage .= "Successfully Authenticated!<br>";
-
+  	$time = time();
+  	if ($time - $LastAccess > 600) {
+  		$session_timedout = 1;
+  		$statusMessage .= "Session Timedout!<br>";
+  	}
+  	else {
+	  	$_COOKIE['dgx_authenticated']=1;
+		$_COOKIE['dgx_username']=$sidarray[0];
+	    $statusMessage .= "Successfully Authenticated!<br>";
+	}
   }
 }
 else {
@@ -79,7 +88,10 @@ if (!($_COOKIE['dgx_authenticated'] == 1)) {
 	echo "<Form Action='$php_self' METHOD=POST>";
 	echo "<DIV ALIGN='center'>";
 	echo "<H1>Dialogix Management Interface</H1>";
-	if ($failed_authentication == 1) {
+	if ($session_timedout == 1) {
+		echo "<H3>You session timed out due to inactivity.  Please login again</H3><BR>";
+	}
+	else if ($failed_authentication == 1) {
 		echo "<H3>Invalid User ID or Password. Please Try again</H3><BR>";
 	}
 	echo "<H2>User Name</H2>";
