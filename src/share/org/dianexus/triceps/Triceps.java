@@ -8,6 +8,8 @@ import java.net.*;
  */
 public class Triceps {
 	public static final boolean AUTHORABLE = true;
+	public static final String VERSION_MAJOR = "1.3";
+	public static final String VERSION_MINOR = "4";
 	
 	public static final int ERROR = 1;
 	public static final int OK = 2;
@@ -755,40 +757,6 @@ Logger.writeln("##IOException @ Triceps.toTSV()" + e.getMessage());
 			return null;
 		else
 			return s;
-	}
-
-	public boolean isShowAdminModeIcons() {
-		return Boolean.valueOf(nodes.getReserved(Schedule.SHOW_ADMIN_ICONS)).booleanValue();
-	}
-	public boolean isShowQuestionRef() {
-		return Boolean.valueOf(nodes.getReserved(Schedule.SHOW_QUESTION_REF)).booleanValue();
-	}
-	public boolean isAutoGenOptionNum() {
-		return Boolean.valueOf(nodes.getReserved(Schedule.AUTOGEN_OPTION_NUM)).booleanValue();
-	}
-	public boolean isDebugMode() {
-		return Boolean.valueOf(nodes.getReserved(Schedule.DEBUG_MODE)).booleanValue();
-	}
-	public boolean isDeveloperMode() {
-		return Boolean.valueOf(nodes.getReserved(Schedule.DEVELOPER_MODE)).booleanValue();
-	}
-	public boolean isAllowComments() {
-		return Boolean.valueOf(nodes.getReserved(Schedule.ALLOW_COMMENTS)).booleanValue();
-	}
-	public boolean isAllowLanguageSwitching() {
-		return Boolean.valueOf(nodes.getReserved(Schedule.ALLOW_LANGUAGE_SWITCHING)).booleanValue();
-	}
-	public boolean isAllowRefused() {
-		return Boolean.valueOf(nodes.getReserved(Schedule.ALLOW_REFUSED)).booleanValue();
-	}
-	public boolean isAllowUnknown() {
-		return Boolean.valueOf(nodes.getReserved(Schedule.ALLOW_UNKNOWN)).booleanValue();
-	}
-	public boolean isAllowNotUnderstood() {
-		return Boolean.valueOf(nodes.getReserved(Schedule.ALLOW_DONT_UNDERSTAND)).booleanValue();
-	}		
-	public boolean isRecordEvents() {
-		return Boolean.valueOf(nodes.getReserved(Schedule.RECORD_EVENTS)).booleanValue();
 	}
 
 	public String getIcon() { return nodes.getReserved(Schedule.ICON); }
