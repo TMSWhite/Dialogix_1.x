@@ -26,7 +26,7 @@ sub main {
 	print OUT  qq|<BODY>|, "\n";
 	print OUT  qq|	<P ALIGN='center'><b>Logic File for $ARGV[2]</b></P>|, "\n";
 	print OUT  qq|	<TABLE border='1'>|, "\n";
-	print OUT  qq|		<tr><td width="5%">#</td><td width="%15">Variable Name</td><td width="15%">Relevance</td><td width='40%'>Question</td><td width='20%'>Answers</td></tr>|, "\n";
+	print OUT  qq|		<tr><td width="5%"><b>#</b></td><td width="%15"><b>Variable Name</b></td><td width="15%"><b>Relevance</b></td><td width='40%'><b>Question</b></td><td width='20%'><b>Answers</b></td></tr>|, "\n";
 	
 	my $count = 0;
 	
@@ -37,9 +37,14 @@ sub main {
 		
 		++$count;
 		
-		next if ($args[4] eq 'e');	# skip eval nodes
+#		next if ($args[4] eq 'e');	# skip eval nodes
 		
-		print OUT  qq|		<tr><td>$count</td><td>$args[1]</td><td>$args[3]</td><td>$args[6]</td><td>| . &answers($args[7]) . qq|</td></tr>|, "\n";
+		if ($args[4] eq 'e') {
+			print OUT  qq|		<tr><td>$count</td><td>$args[1]</td><td>$args[3]</td><td><font color='blue'>[calculated value]</font></td><td>$args[6]</td></tr>|, "\n";
+		}
+		else {
+			print OUT  qq|		<tr><td>$count</td><td>$args[1]</td><td>$args[3]</td><td>$args[6]</td><td>| . &answers($args[7]) . qq|</td></tr>|, "\n";
+		}
 	}
 
 	print OUT  qq|	</TABLE>|, "\n";
@@ -54,9 +59,16 @@ sub answers {
 	
 	my @args = split(/\|/,$arg);
 	
-	shift(@args);
+	my $type = shift(@args);
 	
 	my $str;
+	
+	unless (@args) {
+		# not a list
+		$type = 'nothing (instructions)'	if ($type == 'nothing');
+		$str = "<font color='blue'><b>[Data type = </b>$type]</font>";
+		return $str;
+	}
 	
 	while (@args) {
 		$str .= "[" . $args[0] . "] " . $args[1] . "<br />";
