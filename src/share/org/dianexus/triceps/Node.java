@@ -26,12 +26,12 @@ public class Node  {
 	public static final int MINUTE = 18;
 	public static final int SECOND = 19;
 	public static final int MONTH_NUM = 20;
-	
+
 	private static final String QUESTION_TYPES[] = {
 		"*badtype*", "nothing", "radio", "check", "combo", "list",
-		"text", "double", "radio2", "password","memo", 
+		"text", "double", "radio2", "password","memo",
 		"date", "time", "year", "month", "day", "weekday", "hour", "minute", "second", "month_num"};
-	private static final int DATA_TYPES[] = { 
+	private static final int DATA_TYPES[] = {
 		Datum.STRING, Datum.STRING, Datum.STRING, Datum.STRING, Datum.STRING, Datum.STRING,
 		Datum.STRING, Datum.NUMBER, Datum.STRING, Datum.STRING, Datum.STRING,
 		Datum.DATE, Datum.TIME, Datum.YEAR, Datum.MONTH, Datum.DAY, Datum.WEEKDAY, Datum.HOUR, Datum.MINUTE, Datum.SECOND, Datum.MONTH_NUM};
@@ -46,56 +46,47 @@ public class Node  {
 	public static final String ACTION_TYPE_NAMES[] = {"*unknown*","question", "expression", "group_open", "group_close", "brace_open", "brace_close", "call_schedule"};
 	public static final String ACTION_TYPES[] = {"?","q","e","[","]", "{", "}", "call" };
 
-	public static final int PARSE_NEITHER = 0;
-	public static final int PARSE_MIN = 1;
-	public static final int PARSE_MAX = 2;
-	public static final int PARSE_MIN_AND_MAX = 3;
-	public static final String PARSE_RANGE_TYPES[] = { "", "m", "M", "B" };
-	public static final String PARSE_RANGE_TYPE_STRS[] = { "", "parse min value", "parse max value", "parse both min and max values" };
-
 	private static final int MAX_TEXT_LEN_FOR_COMBO = 60;
 	private static final int MAX_ITEMS_IN_LIST = 20;
 
-	
+
 	/* These are the columns in the flat file database */
 	private String conceptName = "";
 	private String localName = "";
 	private String externalName = ""; // name within DISC
 	private String dependencies = "";
-	
+
 	private Vector readback = new Vector();
 	private Vector questionOrEval = new Vector();
 	private Vector answerChoicesStr = new Vector();
 	private Vector answerChoicesVector = new Vector();	// of Vectors
 	private Vector helpURL = new Vector();
-	
+
 	private int numLanguages = 0;
 	private int answerLanguageNum = 0;
 	private String questionAsAsked = "";
 	private String answerGiven = "";
 	private String answerTimeStampStr = "";
 	private String comment = "";
-	
+
 	private Hashtable answerChoicesHash = new Hashtable();
-	
+
 	/* These are local variables */
-	
+
 	private int sourceLine = 0;
 	private String sourceFile = "";
 	private int questionOrEvalType = BADTYPE;
-	private String questionOrEvalTypeField = "";	// questionOrEvalType;datumType;parseRangeType;min;max;mask
+	private String questionOrEvalTypeField = "";	// questionOrEvalType;datumType;min;max;mask
 	private int answerType = BADTYPE;
 	private int datumType = Datum.INVALID;
 	private Vector runtimeErrors = new Vector();
-	private Vector parseErrors = new Vector();	
-	
+	private Vector parseErrors = new Vector();
+
 	private String questionOrEvalTypeStr = "";
 	private String datumTypeStr = "";
 	private String minStr = null;
 	private String maxStr = null;
 	private String maskStr = null;
-	private String parseRangeTypeStr = "";
-	private int parseRangeType = PARSE_NEITHER;
 
 	private Datum minDatum = null;
 	private Datum maxDatum = null;
@@ -111,18 +102,18 @@ public class Node  {
 	try {
 		String token;
 		int field = 0;
-		
+
 		if (numLanguages < 1) {
 			setParseError("Invalid language number (" + numLanguages + "): must be >= 1");
 			numLanguages = 1;	// the default
-		}		
+		}
 
 		this.sourceLine = sourceLine;
 		this.sourceFile = sourceFile;
 		this.numLanguages = numLanguages;	// needs to be validated?
-		
+
 		int numLanguagesFound = 0;
-		int numAnswersFound = 0;		
+		int numAnswersFound = 0;
 
 		StringTokenizer ans = new StringTokenizer(tsv,"\t",true);
 
@@ -146,7 +137,7 @@ public class Node  {
 				}
 				continue;
 			}
-			
+
 			switch(field) {
 				/* there should be one copy of each of these */
 				case 0: conceptName = Node.fixExcelisms(s); break;
@@ -158,7 +149,7 @@ public class Node  {
 				case 5: readback.addElement(Node.fixExcelisms(s)); break;
 				case 6: questionOrEval.addElement(Node.fixExcelisms(s)); break;
 				case 7: answerChoicesStr.addElement(Node.fixExcelisms(s)); break;
-				case 8: helpURL.addElement(Node.fixExcelisms(s)); break;		
+				case 8: helpURL.addElement(Node.fixExcelisms(s)); break;
 				/* there are as many copies of each of these are there are answers - rudimentary support for arrays? */
 				case 9: {
 					int i = 0;
@@ -191,7 +182,7 @@ public class Node  {
 		if (numLanguagesFound < numLanguages) {
 			setParseError("Missing entries for languages " + (numLanguages - numLanguagesFound) + " to " + (numLanguages - 1));
 		}
-					
+
 		if (conceptName != null && conceptName.trim().length() > 0) {
 			conceptName = conceptName.trim();
 			if (Character.isDigit(conceptName.charAt(0))) {
@@ -212,18 +203,17 @@ public class Node  {
 				setParseError("Invalid externalName '" + externalName + "':  it begins with a digit - prepending '_'");
 				externalName = "_" + externalName;
 			}
-		}	
+		}
 
 		parseQuestionOrEvalTypeField();
-		
+
 		for (int i=0;i<answerChoicesStr.size();++i) {
 			parseAnswerOptions(i,(String) answerChoicesStr.elementAt(i));
 		}
-		
+
 		processFormattingMask();
-		parseRange();
 		createParseRangeStr();
-		
+
 		if (datumType == Datum.INVALID) {
 			setParseError("Invalid dataType");
 		}
@@ -260,7 +250,7 @@ public class Node  {
 	private void parseQuestionOrEvalTypeField() {
 		StringTokenizer ans;
 		int z;
-		
+
 		if (questionOrEvalTypeField == null) {
 			setParseError("Syntax error - must specify questionOrEvalTypeField");
 			return;
@@ -283,8 +273,8 @@ public class Node  {
 				continue;
 			}
 			switch(field) {
-				case 0:	
-					questionOrEvalTypeStr = s; 
+				case 0:
+					questionOrEvalTypeStr = s;
 					for (z=0;z<ACTION_TYPES.length;++z) {
 						if (questionOrEvalTypeStr.equalsIgnoreCase(ACTION_TYPES[z])) {
 							questionOrEvalType = z;
@@ -295,7 +285,7 @@ public class Node  {
 						setParseError("Unknown questionOrEval type <B>" + Node.encodeHTML(questionOrEvalTypeStr) + "</B>");
 					}
 					break;
-				case 1: 
+				case 1:
 					datumTypeStr = s;
 					for (z=0;z<Datum.TYPES.length;++z) {
 						if (datumTypeStr.equalsIgnoreCase(Datum.TYPES[z])) {
@@ -305,28 +295,16 @@ public class Node  {
 					}
 					if (z == Datum.TYPES.length) {
 						setParseError("Unknown datum type <B>" + Node.encodeHTML(datumTypeStr) + "</B>");
-					}		
-					break;
-				case 2: 
-					parseRangeTypeStr = s;
-					for (z=0;z<PARSE_RANGE_TYPES.length;++z) {
-						if (parseRangeTypeStr.equals(PARSE_RANGE_TYPES[z])) {
-							parseRangeType = z;
-							break;
-						}
 					}
-					if (z == PARSE_RANGE_TYPES.length) {
-						setParseError("Unknown parse range type <B>" + Node.encodeHTML(parseRangeTypeStr) + "</B>");
-					}		
 					break;
-				case 3: 
-					minStr = s; 
+				case 2:
+					minStr = s;
 					break;
-				case 4: 
-					maxStr = s; 
+				case 3:
+					maxStr = s;
 					break;
-				case 5: 
-					maskStr = s; 
+				case 4:
+					maskStr = s;
 					break;
 			}
 		}
@@ -352,56 +330,6 @@ public class Node  {
 			exampleFormatStr = " (e.g. " + s + ")";
 	}
 
-	private void parseRange() {
-		if (parseRangeType == PARSE_MIN || parseRangeType == PARSE_MIN_AND_MAX) {
-			if (minStr == null) {
-				setParseError("Discrepency:  requested <B>" + PARSE_RANGE_TYPE_STRS[parseRangeType] + "</B>, but no min value specified");
-				// change boundary conditions?
-			}
-			else {
-				/* check to see whether value exists? Too highly intertwined.  */
-			}
-		}
-		else {
-			if (minStr == null) {
-				minDatum = null;	// no minumum bound
-			}
-			else {
-				minDatum = new Datum(minStr,datumType,mask);
-				if (!minDatum.isValid()) {
-					setParseError("Invalid value <B>" + minStr + "</B> for formatter <B>" + mask + "</B>");
-					minDatum = null;	// if unknown, don't use a minimum bound
-				}
-			}
-		}
-		if (parseRangeType == PARSE_MAX || parseRangeType == PARSE_MIN_AND_MAX) {
-			if (maxStr == null) {
-				setParseError("Discrepency:  requested <B>" + PARSE_RANGE_TYPE_STRS[parseRangeType] + "</B>, but no max value specified");
-				// change boundary conditions?
-			}
-			else {
-				/* To check this, need access to Triceps' parser!  Highly intertwined. */
-			}
-		}
-		else {
-			if (maxStr == null) {
-				maxDatum = null;	// no maximum bound
-			}
-			else {
-				maxDatum = new Datum(maxStr,datumType,mask);
-				if (!maxDatum.isValid()) {
-					setParseError("Invalid value <B>" + maxStr + "</B> for formatter <B>" + mask + "</B>");
-					maxDatum = null;	// if unknown, don't use maximum bound
-				}
-			}
-		}
-		if (minDatum != null && maxDatum != null) {
-			if (DatumMath.lt(maxDatum,minDatum).booleanVal()) {
-				setParseError("Max value (" + maxStr + ") less than Min value (" + minStr + ")");
-			}
-		}
-	}
-
 	public void createParseRangeStr() {
 		/* Create the help-string showing allowable range of input values.
 			Can be re-created (e.g. if range dynamically changes */
@@ -421,7 +349,7 @@ public class Node  {
 		}
 		else {
 			/* Show the range of valid values, in the appropriate format */
-			
+
 			if (minStr != null) {
 				if (minDatum == null || !minDatum.isValid()) {
 					min = null;
@@ -458,7 +386,7 @@ public class Node  {
 			setParseError("Syntax error - must specify answerOptions");
 			return false;
 		}
-		
+
 		StringTokenizer ans = new StringTokenizer(src,";",true);	// return ';' tokens too
 		String token = "";
 
@@ -470,7 +398,7 @@ public class Node  {
 			setParseError("tokenization error: " + t.getMessage());
 			System.err.println("tokenization error: " + t.getMessage());
 		}
-		
+
 		if (langNum == 0) {
 			for (int z=0;z<QUESTION_TYPES.length;++z) {
 				if (token.equalsIgnoreCase(QUESTION_TYPES[z])) {
@@ -512,7 +440,7 @@ public class Node  {
 				int field=0;
 				Vector ansOptions = new Vector();
 				Vector prevAnsOptions = null;
-				
+
 				if (langNum > 0) {
 					prevAnsOptions = (Vector) answerChoicesVector.elementAt(0);
 					/*
@@ -521,7 +449,7 @@ public class Node  {
 					}
 					*/
 				}
-				
+
 				int ansPos = 0;
 
 				while(ans.hasMoreTokens()) {
@@ -567,7 +495,7 @@ public class Node  {
 							else {
 								AnswerChoice ac = new AnswerChoice(val,msg);
 								ansOptions.addElement(ac);
-								
+
 								/* check for duplicate answer choice values */
 								if (langNum == 0) {	// only for first pass
 									if (answerChoicesHash.put(val, ac) != null) {
@@ -594,7 +522,7 @@ public class Node  {
 
 		return true;
 	}
-	
+
 	public String prepareChoicesAsHTML(Parser parser, Evidence ev, Datum datum, boolean autogen) {
 		return prepareChoicesAsHTML(parser, ev, datum,"",autogen);
 	}
@@ -605,7 +533,7 @@ public class Node  {
 		String defaultValue = "";
 		AnswerChoice ac;
 		Enumeration ans = null;
-		
+
 		try {
 			switch (answerType) {
 			case RADIO:	// will store integers
@@ -657,7 +585,7 @@ public class Node  {
 			case LIST: {
 				StringBuffer choices = new StringBuffer();
 				ans = getAnswerChoices().elements();
-				
+
 				int optionNum=0;
 				int totalLines = 0;
 				boolean nothingSelected = true;
@@ -686,14 +614,14 @@ public class Node  {
 						choices.append(prefix);
 						if (line++ == 0) {
 							if (selected) {
-								choices.append(" SELECTED>" + 
-									((autogen) ? String.valueOf(optionNum) : Node.encodeHTML(ac.getValue())) + 
+								choices.append(" SELECTED>" +
+									((autogen) ? String.valueOf(optionNum) : Node.encodeHTML(ac.getValue())) +
 									")&nbsp;");
 								nothingSelected = false;
 							}
 							else {
-								choices.append(">" + 
-									((autogen) ? String.valueOf(optionNum) : Node.encodeHTML(ac.getValue())) + 
+								choices.append(">" +
+									((autogen) ? String.valueOf(optionNum) : Node.encodeHTML(ac.getValue())) +
 									")&nbsp;");
 							}
 						}
@@ -714,9 +642,9 @@ public class Node  {
 				sb.append("\n<select name='" + Node.encodeHTML(getLocalName()) + "'" +
 					((answerType == LIST) ? " size = '" + Math.min(MAX_ITEMS_IN_LIST,totalLines+1) + "'" : "") +
 					">");
-				sb.append("\n<option value=''" + 
+				sb.append("\n<option value=''" +
 					((nothingSelected) ? " SELECTED" : "") +	// so that focus is properly shifted on List box
-					">--select one of the following--");	// first choice is empty				
+					">--select one of the following--");	// first choice is empty
 				sb.append(choices);
 				sb.append("</select>");
 			}
@@ -742,7 +670,7 @@ public class Node  {
 				sb.append("<input type='text' onfocus='javascript:select()' name='" + Node.encodeHTML(getLocalName()) + "' value='" + Node.encodeHTML(defaultValue) + "'>");
 				break;
 			default:
-/*			
+/*
 			case DATE:
 			case TIME:
 			case YEAR:
@@ -774,12 +702,12 @@ public class Node  {
 
 	public boolean isWithinRange(Datum d) {
 		boolean err = false;
-		
+
 /*
 		System.err.println("(" + minStr + "|" + ((minDatum != null) ? Datum.format(minDatum,mask) : "") +
 			"," + d.stringVal() +
 			"," + maxStr + "|" + ((maxDatum != null) ? Datum.format(maxDatum,mask) : "") + ")");
-*/			
+*/
 
 		if (minDatum != null) {
 			if (!DatumMath.ge(d,minDatum).booleanVal())
@@ -789,7 +717,7 @@ public class Node  {
 			if (!DatumMath.le(d,maxDatum).booleanVal())
 				err = true;
 		}
-		
+
 		if (err) {
 			if (answerType == PASSWORD) {
 				setError("Incorrect password.  Please try again.");
@@ -817,7 +745,6 @@ public class Node  {
 	public String getQuestionOrEvalTypeField() { return questionOrEvalTypeField; }
 	public String getMaskStr() { return maskStr; }
 	public Format getMask() { return mask; }
-	public int getParseRangeType() { return parseRangeType; }
 	public void setMinDatum(Datum d) { minDatum = d; }
 	public void setMaxDatum(Datum d) { maxDatum = d; }
 	public String getMinStr() { return minStr; }
@@ -825,7 +752,7 @@ public class Node  {
 
 	public boolean focusable() { return (answerType != BADTYPE && answerType != NOTHING); }
 	public boolean focusableArray() { return (answerType == RADIO || answerType == RADIO_HORIZONTAL || answerType == CHECK); }
-	
+
 
 	public void setParseError(String error) {
 		if (error != null)
@@ -833,7 +760,7 @@ public class Node  {
 
 	}
 	public void setError(String error) {
-		if (error != null) 
+		if (error != null)
 			runtimeErrors.addElement(error);
 	}
 
@@ -872,7 +799,7 @@ public class Node  {
 
 	public String toTSV() {
 		StringBuffer sb = new StringBuffer(conceptName + "\t" + localName + "\t" + externalName + "\t" + dependencies + "\t" + questionOrEvalTypeField);
-		
+
 		for (int i = 0;i<numLanguages;++i) {
 			try { sb.append("\t"); sb.append(readback.elementAt(i)); } catch (ArrayIndexOutOfBoundsException e) { }
 			try { sb.append("\t"); sb.append(questionOrEval.elementAt(i)); } catch (ArrayIndexOutOfBoundsException e) { }
@@ -891,16 +818,16 @@ public class Node  {
 			<BR>
 		*/
 		StringBuffer dst = new StringBuffer();
-		
+
 		if (s != null) {
 			try {
 				char[] src = s.toCharArray();
-				
+
 				for (int i=0;i<src.length;++i) {
 					switch (src[i]) {
 						case '\'': dst.append("&#39;"); break;
 						case '\"': dst.append("&#34;"); break;
-						case '<': 
+						case '<':
 							if (((i+2) < src.length) && src[i+2] == '>') {
 								switch(src[i+1]) {
 									case 'B': case 'b': dst.append("<B>"); i+=2; break;
@@ -916,7 +843,7 @@ public class Node  {
 									case 'U': case 'u': dst.append("</U>"); i+=3; break;
 									default: dst.append("&#60;"); break;
 								}
-							}						
+							}
 							else if (((i+3) < src.length) && src[i+3] == '>') {
 								if ((src[i+1] == 'b' || src[i+1] == 'B') &&
 										(src[i+2] == 'r' || src[i+2] == 'R')) {
@@ -953,23 +880,23 @@ public class Node  {
 	static public String encodeHTML(String s) {
 		return encodeHTML(s,false);
 	}
-	
-		
+
+
 	public String getTimeStampStr() { return timeStampStr; }
 	public Date getTimeStamp() { return timeStamp; }
-		
-		
+
+
 	public void setTimeStamp() {
 		timeStamp = new Date(System.currentTimeMillis());
 		timeStampStr = Datum.format(timeStamp,Datum.DATE,Datum.TIME_MASK);
 	}
-		
+
 	public void setTimeStamp(String timeStr) {
 		if (timeStr == null || timeStr.trim().length() == 0) {
 			setTimeStamp();
 			return;
 		}
-			
+
 		Date time = null;
 		try {
 			time = Datum.TIME_MASK.parse(timeStr);
@@ -986,19 +913,19 @@ public class Node  {
 			timeStampStr = timeStr;
 		}
 	}
-	
+
 	/* These are the get functions for the language specific vectors */
-	// these only occur once 
+	// these only occur once
 	public String getConcept() { return conceptName; }
 	public String getLocalName() { return localName; }
 	public String getExternalName() { return externalName; }
 	public String getDependencies() { return dependencies; }
-	
-	// these are a Vector of length #languages 
+
+	// these are a Vector of length #languages
 	static private /* synchronized */ String elementAt(Vector v, int i) {
 		/* Get the language most furthest to the right (or the exact match) as the value for an element */
 		String s = null;
-		try { 
+		try {
 			for (int j=i;j>=0;--j) {
 				if (j >= v.size()) {
 					continue;
@@ -1022,31 +949,31 @@ public class Node  {
 			return "";
 		}
 	}
-	
+
 	public String getReadback() { return Node.elementAt(readback,answerLanguageNum); }
 	public String getQuestionOrEval() { return Node.elementAt(questionOrEval, answerLanguageNum); }
-	public Vector getAnswerChoices() { 
+	public Vector getAnswerChoices() {
 		try {
 			return (Vector) answerChoicesVector.elementAt(answerLanguageNum);
 		}
 		catch (Throwable t) {
-			System.err.println("internal error accessing answerChoices # " + answerLanguageNum);
+//			System.err.println("internal error accessing answerChoices # " + answerLanguageNum);
 			return null;
 		}
-	}	
+	}
 	public void	setHelpURL(String h) { helpURL.setElementAt(h,answerLanguageNum); }
 	public String getHelpURL() { return Node.elementAt(helpURL,answerLanguageNum); }
-	
+
 	public void setQuestionAsAsked(String s) { questionAsAsked = s; }
 	public String getQuestionAsAsked() { return questionAsAsked; }
 	public String getAnswerGiven() { return answerGiven; }
 	public String getAnswerTimeStampStr() { return answerTimeStampStr; }
 	public void setComment(String c) { comment = c; }
 	public String getComment() { return comment; }
-	
-	public void setAnswerLanguageNum(int langNum) { 
+
+	public void setAnswerLanguageNum(int langNum) {
 		if (langNum < 0 || langNum >= numLanguages) {
-			setParseError("LanguageNum must be between 0 and " + (numLanguages - 1)); 
+			setParseError("LanguageNum must be between 0 and " + (numLanguages - 1));
 			return;
 		}
 		answerLanguageNum = langNum;
