@@ -17,6 +17,7 @@
  <a href="http://psychinformatics.nyspi.org/Dialogix/Collaborations.php">Collaborations</a><br>
  <a href="http://psychinformatics.nyspi.org/Dialogix/Instruments.php">Instruments</a><br>
  <a href="http://psychinformatics.nyspi.org/Dialogix/Publications.php">Publications</a><br>
+ <a href="http://psychinformatics.nyspi.org/Dialogix/InstrumentSearch.php">Administration</a><br>
  <a href="http://psychinformatics.nyspi.org/Dialogix/Contact.php">Contact</a><br>
 </td>
 <td style="vertical-align: top;">
