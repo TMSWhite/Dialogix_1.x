@@ -9,7 +9,6 @@
 
 <project name="dialogix" default="compile" basedir=".">
 
-
 <!-- ===================== Property Definitions =========================== -->
 
 <!--
@@ -70,7 +69,7 @@
 -->
 
   <property file="build.properties"  />  
-  <property file="${build.license_file}" />
+	<property file="${build.license_file}" />  
   
   <!-- Static properties - Do not change these -->
   <property name="dialogix.version_major" value="2.9"/>
@@ -157,6 +156,7 @@
   that you explicitly added.
 
 -->
+
 
   <path id="compile.classpath">
 
@@ -285,6 +285,8 @@
            debug="${compile.debug}"
      deprecation="${compile.deprecation}"
         optimize="${compile.optimize}"
+        compiler="modern"
+        source="1.3"
         target="${compile.target}">
         <classpath refid="compile.classpath"/>
     </javac>
@@ -325,7 +327,7 @@
     <mkdir dir="${deploy.home}"/>
     <mkdir dir="${tomcat.home}"/>
     
-    	<!-- copy tomcat specific files to the appropriate target locations -->    
+    	<!-- copy tomcat specific files to the appropriate target locations --> 
      <copy    todir="${tomcat.home}/archive">
      	<fileset dir="src/archive" includes="**"/>
     </copy>
@@ -421,7 +423,7 @@
     <!-- Copy external dependencies as required -->
     
    <!-- Tomcat 3.3 puts common jar files into /lib/app -->
-    <mkdir dir="${tomcat.home}/lib/apps"/>	<!-- just in case needed -->
+    <mkdir dir="${tomcat.home}/lib/apps"/>
     <jar jarfile="${tomcat.home}/lib/apps/${app.name}.jar" whenempty="skip">
          <fileset dir="${build.home}/classes">
          	<include name="**" if="using.tomcat_3_3"/>
@@ -492,6 +494,7 @@
          	<include name="**" if="using.tomcat_4_0"/>
          </fileset>
     </jar>	
+    
     <!-- Tomcat 4.1 puts common jar files into /common/lib -->
 	<jar jarfile="${tomcat.home}/common/lib/${app.name}.jar" whenempty="skip">
          <fileset dir="${build.home}/classes">
@@ -600,9 +603,126 @@
     		<include name="*.keystore"/>
     	</fileset>
     </copy>
-    
+ 
   </target>
 
+<!--
+
+  The "war" target creates the test WAR file for Dialogix
+
+-->
+
+  <target name="war" depends="clean,remove,compile"
+   description="Create War application in catalina servlet container">
+   
+    <!-- remove dependent files to ensure that rebuilds what is needed
+	<delete file="${build.home}/${LICENSE.PACKAGE_DIR}.war"/>
+	<delete file="${build.home}/lib/${app.name}_${app.version}-bin.jar"/>
+ 	<delete file="${build.home}/context.xml"/>
+ 	<delete file="${build.home}/web.xml"/>
+ 	-->
+ 	  
+    <!-- Make Jar file for Dialogix -->
+    <mkdir dir="${build.home}/lib"/>
+    
+	<jar jarfile="${build.home}/lib/${app.name}_${app.version}-bin.jar">
+         <fileset dir="${build.home}/classes">
+         	<include name="**"/>
+         </fileset>
+    </jar>
+    
+	<!-- Copy master web.xml to the build directory -->
+	<copy filtering="true" file="src/war/dialogix-webxml.xml" tofile="${build.home}/web.xml">
+		<filterset begintoken="@@" endtoken="@@">
+			<filter token="DIALOGIX.DIR" value="${dialogix.dir}"/>
+			<filter token="FLOPPY.DIR" value="${floppy.dir}"/>
+			<filter token="CATALINA.DIR" value="${catalina.home}"/>		   
+			<filter token="DB.COMMENT_START" value="${DB.COMMENT_START}"/>
+			<filter token="DB.COMMENT_END" value="${DB.COMMENT_END}"/>	
+			<filter token="SUPPORT.PHONE" value="${SUPPORT.PHONE}"/>
+			<filter token="SUPPORT.EMAIL" value="${SUPPORT.EMAIL}"/>
+			<filter token="SUPPORT.PERSON" value="${SUPPORT.PERSON}"/>    				   
+         	<filter token="LICENSE.STUDY_NAME" value="${LICENSE.STUDY_NAME}"/>
+         	<filter token="LICENSE.STUDY_ICON" value="${LICENSE.STUDY_ICON}"/>
+         	<filter token="LICENSE.PACKAGE_DIR" value="${dialogix.package_name}"/>
+		</filterset>
+	</copy>
+	
+	<!-- Copy master context.xml to the build directory -->
+	<copy filtering="true" file="src/war/dialogix-context.xml" tofile="${build.home}/context.xml">
+		<filterset begintoken="@@" endtoken="@@">
+			<filter token="DB.COMMENT_START" value="${DB.COMMENT_START}"/>
+			<filter token="DB.COMMENT_END" value="${DB.COMMENT_END}"/>		
+			<filter token="DB.HOST" value="${DB.HOST}"/>		
+			<filter token="DB.PORT" value="${DB.PORT}"/>		
+			<filter token="DB.NAME" value="${DB.NAME}"/>	
+			<filter token="DB.USERNAME" value="${DB.USERNAME}"/>		
+			<filter token="DB.PASSWORD" value="${DB.PASSWORD}"/>		
+		</filterset>
+	</copy>	
+	
+	<copy filtering="true" file="src/war/index.htm" tofile="${build.home}/index.htm">
+		<filterset begintoken="@@" endtoken="@@">
+			<filter token="DIALOGIX.DIR" value="${dialogix.dir}"/>
+			<filter token="FLOPPY.DIR" value="${floppy.dir}"/>
+			<filter token="CATALINA.DIR" value="${catalina.home}"/>		   
+			<filter token="DB.COMMENT_START" value="${DB.COMMENT_START}"/>
+			<filter token="DB.COMMENT_END" value="${DB.COMMENT_END}"/>	
+			<filter token="SUPPORT.PHONE" value="${SUPPORT.PHONE}"/>
+			<filter token="SUPPORT.EMAIL" value="${SUPPORT.EMAIL}"/>
+			<filter token="SUPPORT.PERSON" value="${SUPPORT.PERSON}"/>    				   
+         	<filter token="LICENSE.STUDY_NAME" value="${LICENSE.STUDY_NAME}"/>
+         	<filter token="LICENSE.STUDY_ICON" value="${LICENSE.STUDY_ICON}"/>
+         	<filter token="LICENSE.PACKAGE_DIR" value="${dialogix.package_name}"/>
+         	<filter token="LICENSE.PRINCIPAL_INVESTIGATOR" value="${LICENSE.PRINCIPAL_INVESTIGATOR}"/>
+         	<filter token="LICENSE.GRANT_NAME" value="${LICENSE.GRANT_NAME}"/>
+         	<filter token="LICENSE.GRANT_TITLE" value="${LICENSE.GRANT_TITLE}"/>
+         	
+		</filterset>
+	</copy>	
+	
+	<mkdir dir="${build.home}/thirdpartylibs"/>
+	<copy toDir="${build.home}/thirdpartylibs">
+	  	<fileset file="${build.home}/lib/${app.name}_${app.version}-bin.jar"/>
+	  	<fileset file="src/share-lib/jakarta-oro-2.0.8.jar"/>
+	  	<fileset file="src/share-lib/mysql-connector-java-3.0.16-ga-bin.jar"/>
+	</copy>
+	
+	<mkdir dir="${build.home}/flatweb/schedules"/>
+	<copy toDir="${build.home}/flatweb/schedules" flatten="true" preservelastmodified="true">
+		<fileset dir="${build.home}/web" includes="*/WEB-INF/schedules/*"/>
+	</copy>
+	<mkdir dir="${build.home}/flatweb/completed"/>
+	<copy toDir="${build.home}/flatweb/completed" flatten="true" preservelastmodified="true">
+		<fileset dir="${build.home}/web" includes="*/WEB-INF/completed/*"/>
+	</copy>	
+	<mkdir dir="${build.home}/flatweb/working"/>
+	<copy toDir="${build.home}/flatweb/working" flatten="true" preservelastmodified="true">
+		<fileset dir="${build.home}/web" includes="*/WEB-INF/working/*"/>
+	</copy>
+	
+	<war destfile="${build.home}/${dialogix.package_name}.war" webxml="${build.home}/web.xml" update="true">
+	  <fileset dir="${build.home}/web">
+	  	<include name="images/*"/>
+	  </fileset>
+	  <fileset dir="${build.home}">
+	  	<include name="index.htm"/>
+	  </fileset>
+	  <lib dir="${build.home}/thirdpartylibs">
+	  	<include name="*.jar"/>
+	  </lib>
+	  <webinf dir="${build.home}/flatweb">
+	  	<include name="*/*.txt"/>
+	  	<include name="*/*.jar"/>
+	  </webinf>
+	  <metainf dir="${build.home}">
+	  	<include name="context.xml"/>
+	  </metainf>
+    </war>	
+    
+	<copy toDir="${catalina.home}/webapps" file="${build.home}/${dialogix.package_name}.war"/>
+    
+  </target>
 
 
 <!-- ==================== Dist Target ===================================== -->
@@ -747,9 +867,9 @@
 -->
 
   <target name="prepare" depends="detect">
-
     <!-- Create build directory and copy static content -->
     <mkdir  dir="${build.home}"/>
+	<mkdir dir="${build.home}/web"/>
 
     <echo message="compile.target=${compile.target}"/>
     <echo message="tomcat.home=${tomcat.home}"/>
@@ -985,5 +1105,19 @@
     </pathconvert>            
   </target>
   
+	<target name="remove" depends="prepare" description="Remove application on servlet container">
+		<delete dir="${catalina.home}/webapps/${dialogix.package_name}.war" quiet="true"/>
+		<delete dir="${catalina.home}/webapps/${dialogix.package_name}" quiet="true"/>
+	</target>
+	
+	<!--
+	<target name="war_all">
+		<ant target="war" inheritAll="false"><property name="build.license_file" value="license/BYS.license"/></ant>
+		<ant target="war" inheritAll="false"><property name="build.license_file" value="license/CET.license"/></ant>
+		<ant target="war" inheritAll="false"><property name="build.license_file" value="license/NANPCS.license"/></ant>
+		<ant target="war" inheritAll="false"><property name="build.license_file" value="license/OMH.license"/></ant>
+		<ant target="war" inheritAll="false"><property name="build.license_file" value="license/Wave6.license"/></ant>
+	</target>
+	-->
 
 </project>
