@@ -55,7 +55,6 @@ public class Node  {
 
 	private static final int MAX_TEXT_LEN_FOR_COMBO = 60;
 	private static final int MAX_ITEMS_IN_LIST = 20;
-	private static boolean AUTOGEN_OPTION_ACCELERATOR = true;
 	
 
 	private String concept = "";
@@ -99,6 +98,7 @@ public class Node  {
 	private Date timeStamp = null;
 	private String timeStampStr = null;
 	private String comment = null;
+	private String helpURL = null;
 
 	public Node(int sourceLine, String sourceFile, String tsv) {
 		String token;
@@ -135,14 +135,11 @@ public class Node  {
 				case 8: questionAsAsked = Node.fixExcelisms(s); break;
 				case 9: defaultAnswer = Node.fixExcelisms(s); break;
 				case 10: defaultAnswerTimeStampStr = Node.fixExcelisms(s); break;
+				case 11: comment = Node.fixExcelisms(s); break;
+				case 12: helpURL = Node.fixExcelisms(s); break;
 				default:	break;	// discard any extras
 			}
 		}
-		/*
-		if (field < 6 || field > 10) {
-			setParseError("Expected 8-11 tokens; found " + (field + 1));
-		}
-		*/
 
 		/* Fix step names */
 		try {
@@ -463,11 +460,11 @@ public class Node  {
 		return true;
 	}
 	
-	public String prepareChoicesAsHTML(Datum datum) {
-		return prepareChoicesAsHTML(datum,"");
+	public String prepareChoicesAsHTML(Datum datum, boolean autogen, int language) {
+		return prepareChoicesAsHTML(datum,"",autogen,language);
 	}
 
-	public String prepareChoicesAsHTML(Datum datum, String errMsg) {
+	public String prepareChoicesAsHTML(Datum datum, String errMsg, boolean autogen, int language) {
 		/* errMsg is a hack - only applies to RADIO_HORIZONTAL */
 		StringBuffer sb = new StringBuffer();
 		String defaultValue = "";
@@ -546,13 +543,13 @@ public class Node  {
 						if (line++ == 0) {
 							if (selected) {
 								choices.append(" SELECTED>" + 
-									((AUTOGEN_OPTION_ACCELERATOR) ? String.valueOf(optionNum) : Node.encodeHTML(ac.getValue())) + 
+									((autogen) ? String.valueOf(optionNum) : Node.encodeHTML(ac.getValue())) + 
 									")&nbsp;");
 								nothingSelected = false;
 							}
 							else {
 								choices.append(">" + 
-									((AUTOGEN_OPTION_ACCELERATOR) ? String.valueOf(optionNum) : Node.encodeHTML(ac.getValue())) + 
+									((autogen) ? String.valueOf(optionNum) : Node.encodeHTML(ac.getValue())) + 
 									")&nbsp;");
 							}
 						}
@@ -839,8 +836,8 @@ public class Node  {
 		}
 	}
 	
-	public static void setAutoGenOptionAccelerator(boolean t) { AUTOGEN_OPTION_ACCELERATOR = t; }
-	
 	public void setComment(String c) { comment = (comment == null) ? c : (comment + c); }
 	public String getComment() { return comment; }
+	public void setHelpURL(String h) { helpURL = h; }
+	public String getHelpURL() { return helpURL; }	
 }
