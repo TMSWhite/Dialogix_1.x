@@ -47,7 +47,7 @@ my $levelTypes = {
 my @reservedVars = ('STARTDAT', 'STOPDATE', 'UNIQUEID', 'FINISHED', 'TITLE', 'VERSION' );
 
 # formats reference SPSS data types -- the date formats have not been validated yet
-my $formats = {
+my $SPSSformats = {
 	check => 'F8.0',
 	combo => 'F8.0',
 	combo2 => 'F8.0',
@@ -72,6 +72,62 @@ my $formats = {
 	time => 'A9',	# was TIME5.3, but seemed to cause problems on import
 	weekday => 'WKDAY',	# since name of weekday
 	year => 'date|yyyy',	
+};
+
+# informats reference SAS data types -- the date formats have not been validated yet
+my $SASinformats = {
+	check => 'best32.',
+	combo => 'best32.',
+	combo2 => 'best32.',
+	date => 'mmddyy10.',
+	day => '$6.',			# wrong
+	day_num => 'best32.',	# hack
+	double => 'best32.',
+	hour => 'best32.',
+	list => 'best32.',
+	list2 => 'best32.',
+	memo => '$254.',
+	minute => 'best32.',
+	month => '$10.',		# hack
+	month_num => 'best32.',	# hack
+	nothing => 'best32.',
+	password => '$50.',
+	radio => 'best32.',
+	radio2 => 'best32.',
+	radio3 => 'best32.',
+	second => 'best32.',
+	text => '$100.',
+	time => 'time8.0',	
+	weekday => '$10.',	# hack
+	year => 'best32.',	# hack
+};
+
+# formats reference SAS data types -- the date formats have not been validated yet
+my $SASformats = {
+	check => 'best12.',
+	combo => 'best12.',
+	combo2 => 'best12.',
+	date => 'mmddyy10.',
+	day => '$6.',			# wrong
+	day_num => 'day2.',	# hack
+	double => 'best12.',
+	hour => 'hour2.',
+	list => 'best12.',
+	list2 => 'best12.',
+	memo => '$254.',
+	minute => 'best12.',
+	month => '$10.',		# hack
+	month_num => 'best12',	# hack
+	nothing => 'best12.',
+	password => '$50.',
+	radio => 'best12.',
+	radio2 => 'best12.',
+	radio3 => 'best12.',
+	second => 'best12.',
+	text => '$100.',
+	time => 'time8.0',	
+	weekday => '$10.',	# hack
+	year => 'best12.',				# hack
 };
 
 # formats reference SPSS data types -- the date formats have not been validated yet
@@ -142,35 +198,35 @@ sub compileMissingValueList {
 	if ($Prefs->{NA} ne '*' && $Prefs->{NA} ne '.') {
 		if ($Prefs->{NA} =~ /^[0-9]+$/) { $val = $Prefs->{NA}; } else { $val = "\"$Prefs->{NA}\""; }
 		push @missings, $val;
-		$num_missing .= "\t$val \"*NA*\"\n";
-		$str_missing .= "\t\"$Prefs->{NA}\" \"*NA*\"\n";
+		$num_missing .= "\t$val SAS_SPSS \"*NA*\"\n";
+		$str_missing .= "\t\"$Prefs->{NA}\" SAS_SPSS \"*NA*\"\n";
 	}
 	if ($Prefs->{REFUSED} ne '*' && $Prefs->{REFUSED} ne '.') {
 		if ($Prefs->{REFUSED} =~ /^[0-9]+$/) { $val = $Prefs->{REFUSED}; } else { $val = "\"$Prefs->{REFUSED}\""; }
 		push @missings, $val;
-		$num_missing .= "\t$val \"*REFUSED*\"\n";
-		$str_missing .= "\t\"$Prefs->{REFUSED}\" \"*REFUSED*\"\n";
+		$num_missing .= "\t$val SAS_SPSS \"*REFUSED*\"\n";
+		$str_missing .= "\t\"$Prefs->{REFUSED}\" SAS_SPSS \"*REFUSED*\"\n";
 	}
 	if ($Prefs->{UNKNOWN} ne '*' && $Prefs->{UNKNOWN} ne '.') {
 		if ($Prefs->{UNKNOWN} =~ /^[0-9]+$/) { $val = $Prefs->{UNKNOWN}; } else { $val = "\"$Prefs->{UNKNOWN}\""; }
 		push @missings, $val;
-		$num_missing .= "\t$val \"*UNKNOWN*\"\n";
-		$str_missing .= "\t\"$Prefs->{UNKNOWN}\" \"*UNKNOWN*\"\n";
+		$num_missing .= "\t$val SAS_SPSS \"*UNKNOWN*\"\n";
+		$str_missing .= "\t\"$Prefs->{UNKNOWN}\" SAS_SPSS \"*UNKNOWN*\"\n";
 	}	if ($Prefs->{HUH} ne '*' && $Prefs->{HUH} ne '.') {
 		if ($Prefs->{HUH} =~ /^[0-9]+$/) { $val = $Prefs->{HUH}; } else { $val = "\"$Prefs->{HUH}\""; }
 		push @missings, $val;
-		$num_missing .= "\t$val \"*HUH*\"\n";
-		$str_missing .= "\t\"$Prefs->{HUH}\" \"*HUH*\"\n";
+		$num_missing .= "\t$val SAS_SPSS \"*HUH*\"\n";
+		$str_missing .= "\t\"$Prefs->{HUH}\" SAS_SPSS \"*HUH*\"\n";
 	}	if ($Prefs->{INVALID}  ne '*' && $Prefs->{INVALID}  ne '.') {
 		if ($Prefs->{INVALID}  =~ /^[0-9]+$/) { $val = $Prefs->{INVALID} ; } else { $val = "\"$Prefs->{INVALID} \""; }
 		push @missings, $val;
-		$num_missing .= "\t$val \"*INVALID*\"\n";
-		$str_missing .= "\t\"$Prefs->{INVALID} \" \"*INVALID*\"\n";
+		$num_missing .= "\t$val SAS_SPSS \"*INVALID*\"\n";
+		$str_missing .= "\t\"$Prefs->{INVALID} \" SAS_SPSS \"*INVALID*\"\n";
 	}	if ($Prefs->{UNASKED} ne '*' && $Prefs->{UNASKED} ne '.') {
 		if ($Prefs->{UNASKED} =~ /^[0-9]+$/) { $val = $Prefs->{UNASKED}; } else { $val = "\"$Prefs->{UNASKED}\""; }
 		push @missings, $val;
-		$num_missing .= "\t$val \"*UNASKED*\"\n";
-		$str_missing .= "\t\"$Prefs->{UNASKED}\" \"*UNASKED*\"\n";
+		$num_missing .= "\t$val SAS_SPSS \"*UNASKED*\"\n";
+		$str_missing .= "\t\"$Prefs->{UNASKED}\" SAS_SPSS \"*UNASKED*\"\n";
 	}	
 	$missingListForNums = "(" . join(',',@missings) . ")";
 	$missingListForStrings = "(\"" . join("\",\"",@missings) . "\")";
@@ -269,7 +325,7 @@ sub transform_schedule {
 	}
 	
 	foreach my $line (@lines) {
-		my ($atype, $ansMap, $atext, $alen, $isString, $isNum, $level, $format);
+		my ($atype, $ansMap, $atext, $alen, $isString, $isNum, $level, $SPSSformat, $SASinformat, $SASformat);
 
 		chomp($line);
 		next if ($line =~ /^\s*((RESERVED)|(COMMENT))/);
@@ -286,7 +342,7 @@ sub transform_schedule {
 		my $question = &deExcelize($vals[6]);
 		my $ansOptions = &deExcelize($vals[7]);
 		my $type = lc($vals[4]);		
-		($atype, $ansMap, $atext, $alen, $isString, $isNum, $level, $format) = &cat_ans($ansOptions);
+		($atype, $ansMap, $atext, $alen, $isString, $isNum, $level, $SPSSformat, $SASinformat, $SASformat) = &cat_ans($ansOptions);
 		
 		
 		if ($Prefs->{discardVarsMatchingPattern} ne '*' && $vals[1] =~ /^$Prefs->{discardVarsMatchingPattern}$/) {
@@ -317,7 +373,9 @@ sub transform_schedule {
 			isString => $isString,
 			isNum => $isNum,
 			level => $level,
-			format => $format,
+			SPSSformat => $SPSSformat,
+			SASinformat => $SASinformat,
+			SASformat => $SASformat,
 			module => $module,
 			c8name => $c8name,	# will be the "true" variable name
 		}
@@ -720,6 +778,7 @@ sub createSPSSdictionaries {
 		$file =~ s/\//\\/g;
 			
 		&createSPSSdictionary($_,$file,$sched_root,$nodes);
+		&createSASdictionary($_,$file,$sched_root,$nodes);
 		
 		$allSpss .= "INCLUDE FILE='$file.sps'.\n";
 	}
@@ -773,6 +832,7 @@ sub createSPSSdictionary {
 	}
 	
 	open (SPSS, ">$file-summary.sps") or die "uanble to open $file-summary.sps";
+	print "Writing to file $file-summary.sps ...";
 	
 	print SPSS "\n/**********************************************/\n";
 	print SPSS "/* Module $_-summary */\n";
@@ -798,7 +858,7 @@ sub createSPSSdictionary {
 		my %n = %{ $_ };
 		next if ($n{'module'} ne $module);
 		
-		print SPSS "\t$n{'c8name'} $n{'format'}\n";
+		print SPSS "\t$n{'c8name'} $n{'SPSSformat'}\n";
 		push @freqVars, $n{'c8name'};
 	}		
 
@@ -822,8 +882,8 @@ sub createSPSSdictionary {
 		if ($n{'alen'} > 0) {
 			# then has a data dictionary
 			print SPSS "VALUE LABELS $n{'c8name'}\n";
-			print SPSS $missingValLabelsForStrings	if $n{'isString'};
-			print SPSS $missingValLabelsForNums		if $n{'isNum'};
+			print SPSS &makeMissingList($missingValLabelsForStrings,"SPSS")	if $n{'isString'};
+			print SPSS &makeMissingList($missingValLabelsForNums,"SPSS")		if $n{'isNum'};
 
 			my %amap = %{ $n{'amap'} };
 			foreach my $key (sort(keys(%amap))) {
@@ -835,7 +895,7 @@ sub createSPSSdictionary {
 		}
 	
 		print SPSS "VARIABLE LEVEL $n{'c8name'} ($n{'level'}).\n";
-		print SPSS "FORMATS $n{'c8name'} ($n{'format'}).\n";
+		print SPSS "FORMATS $n{'c8name'} ($n{'SPSSformat'}).\n";
 		print SPSS "MISSING VALUES $n{'c8name'} $missingListForNums.\n"		if ($n{'isNum'});
 		print SPSS "MISSING VALUES $n{'c8name'} $missingListForStrings.\n"	if ($n{'isString'});
 		print SPSS "\n";
@@ -866,6 +926,8 @@ sub createSPSSdictionary {
 	} while (@freqVars);	
 	
 	close (SPSS);
+	print "... Done\n";
+	
 	
 	########################################
 	# Now create dictionaries for *-complete
@@ -984,9 +1046,9 @@ sub splitLongLabel {
 			# add continuation characters
 			$text .= "\n\t+";
 		}
-		if (length($arg) > 55) {
-			$text .= "\"" . substr($arg,0,55) . "\"";
-			$arg = substr($arg,55,length($arg));
+		if (length($arg) > ($maxlen-5)) {
+			$text .= "\"" . substr($arg,0,($maxlen-5)) . "\"";
+			$arg = substr($arg,($maxlen-5),length($arg));
 		}
 		else {
 			$text .= "\"" . $arg . "\"";
@@ -1005,7 +1067,7 @@ sub qlen {
 
 sub cat_ans {
 	my $arg = shift;
-	my (@vals, $atype, $count, $text, %ansMap, $isString, $isNum, $level, $format);
+	my (@vals, $atype, $count, $text, %ansMap, $isString, $isNum, $level, $SPSSformat, $SASinformat, $SASformat);
 	
 	if ($arg !~ /\|/) {
 		# then double, date, etc.
@@ -1054,12 +1116,14 @@ sub cat_ans {
 	}
 	
 	$level = $levelTypes->{$atype};
-	$format = $formats->{$atype};
+	$SPSSformat = $SPSSformats->{$atype};
+	$SASinformat = $SASinformats->{$atype};
+	$SASformat = $SASformats->{$atype};
 	
-	if ($format =~ /^F/) {
-		if ($isString) {
-			$format = 'A8';	# must be short enough that can do frequency analyses
-		}
+	if ($isString) {
+		$SPSSformat = 'A8' if ($SPSSformat =~ /^F/); # must be short enough that can do frequency analyses
+		$SASinformat = '$25.';
+		$SASformat = '$25.';
 	}
 	
 	$isNum = !$isString;
@@ -1069,7 +1133,7 @@ sub cat_ans {
 		$isNum = 0;
 	}
 	
-	return ($atype, \%ansMap, $text, length($text), $isString, $isNum, $level, $format);
+	return ($atype, \%ansMap, $text, length($text), $isString, $isNum, $level, $SPSSformat, $SASinformat, $SASformat);
 }
 
 sub strip_html {
@@ -1079,3 +1143,147 @@ sub strip_html {
 	return $text;
 }
 	
+#********* Here is the code for SAS ***************#
+
+
+sub createSASdictionary {
+	my $module = shift;
+	my $file = shift;
+	my $sched_root = shift;
+	my $nodelist = shift;
+	my @nodes = @{ $nodelist };
+	my @freqVars;
+	my $sortfn;
+	
+	if ($Prefs->{SORTBY} eq 'sortby_order_asked') {
+		print "Using sortby='sortby_order_asked'\n";
+		$sortfn = \&sortbyOrderAsked;
+	}
+	else {
+		# default sort alphabetically by name
+		print "Using sortby='sortby_variable_name'\n";
+		$sortfn = \&sortbyVariableName;
+	}
+	
+	open (SAS, ">$file-summary.sas") or die "uanble to open $file-summary.sas";
+	print "Writing to file $file-summary.sas ...";
+	
+	print SAS "\n/**********************************************/\n";
+	print SAS "/* SAS Module $_-summary */\n";
+	print SAS "/**********************************************/\n\n";
+	
+	# [] Should I determine maximum line length for data files so that lrecl can be set accordingly?
+	# Create import file for SAS
+	print SAS "data WORK.SUMMARY;\n";
+	print SAS "	%let _EFIERR_ = 0; /* set the ERROR detection macro variable */\n";
+	print SAS "	infile '$file-summary.tsv'\n";
+	print SAS "	delimiter='09'x MISSOVER DSD lrecl=32767 firstobs=2;\n";
+	
+	# Define input and display formats for variables
+	print SAS "\tinformat UniqueID \$50.; format UniqueID \$50.;\n";
+	print SAS "\tinformat Finished best32.; format Finished best12.;\n";
+	print SAS "\tinformat StartDat mmddyy10.; format StartDat mmddyy10.;\n";
+	print SAS "\tinformat StopDate mmddyy10.; format StopDate mmddyy10.;\n";
+	print SAS "\tinformat Title \$50.; format Title \$50.;\n";
+	print SAS "\tinformat Version \$50.; format Version \$50.;\n";
+	
+	foreach (sort $sortfn @nodes) {
+		my %n = %{ $_ };
+		next if ($n{'module'} ne $module);
+		
+		print SAS "\tinformat $n{'name'} $n{'SASinformat'};  format $n{'name'} $n{'SASformat'};\n";
+		push @freqVars, $n{'name'};
+	}		
+	
+	# Create input statement to load data
+	print SAS "\n\n\tINPUT\n";
+	print SAS "\t\tUniqueID \$\n";
+	print SAS "\t\tFinished\n";
+	print SAS "\t\tStartDat\n";
+	print SAS "\t\tStopDate\n";
+	print SAS "\t\tTitle \$\n";
+	print SAS "\t\tVersion \$\n";
+	
+	foreach (sort $sortfn @nodes) {
+		my %n = %{ $_ };
+		next if ($n{'module'} ne $module);
+		
+		if ($n{'isString'}) {
+			print SAS "\t\t$n{'name'} \$\n";
+		}
+		else {
+			print SAS "\t\t$n{'name'}\n";
+		}
+	}
+	print SAS "\t\t;\n";
+	
+	# Add error checking conditions
+	
+	print SAS "\tif _ERROR_ then call symput('_EFIERR_',1);  /* set ERROR detection macro variable */\n";
+	print SAS "run;\n\n";
+	
+	my @sasformatted;
+	my $sasfmt_counter = 0;
+	
+	# Create proc format statements so can optionally display text of answer options
+	print SAS "proc format;\n";
+	foreach (sort $sortfn @nodes) {
+		my %n = %{ $_ };
+		
+		next if ($n{'module'} ne $module);
+		
+		# want correct data types.  If pick list, unclear whether nominal or ordinal (but not likely to be scale).  Double and date are scale
+		
+		if ($n{'alen'} > 0) {
+			# then has a data dictionary
+			++$sasfmt_counter;
+			my $fmtname = 	sprintf("%sDF%04df",($n{'isString'}?'$':''),$sasfmt_counter);
+
+			print SAS "\tvalue $fmtname\n";
+			
+			my %amap = %{ $n{'amap'} };
+			foreach my $key (sort(keys(%amap))) {
+				# determine data type first (so don't mix text and numbers?
+				print SAS "\t\t$key = " . &splitLongLabel("[$key]$amap{$key}",10000) . "\n";
+			}
+			print SAS &makeMissingList($missingValLabelsForStrings,"SAS")	if $n{'isString'};
+			print SAS &makeMissingList($missingValLabelsForNums,"SAS")		if $n{'isNum'};
+			print SAS "\t\t. = ' '\n";
+			print SAS "\t\tOTHER = '?'\n";
+			print SAS "\t;\n";	# line terminator
+
+			push @sasformatted, { name=>$n{'name'}, fmt=>$fmtname };
+		}
+	}
+	print SAS "run;\n";
+	
+	# Add the sas formatting to the data set
+	print SAS "data WORK.SUMMARY; set WORK.summary;\n";
+	
+	foreach (@sasformatted) {
+		my %n = %{ $_ };
+		print SAS "\tformat $n{'name'} $n{'fmt'}.;\n";
+	}
+	print SAS "run;\n";
+	
+	# Save it somewhere 
+	print SAS "options compress=BINARY;\n";
+	print SAS "data '${file}summary.sas7bdat'; set WORK.summary; run;\n";
+	print SAS "/*proc sql; drop table WORK.summary;*/\n";
+	
+	close (SAS);
+	print "... Done\n";
+}
+
+sub makeMissingList {
+	my $txt = shift;
+	my $type = shift;
+	
+	if ($type eq 'SAS') {
+		$txt =~ s/SAS_SPSS/=/g;
+	}
+	elsif ($type eq 'SPSS') {
+		$txt =~ s/SAS_SPSS//g;
+	}
+	return $txt;
+}
