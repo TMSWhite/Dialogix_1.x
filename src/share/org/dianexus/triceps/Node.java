@@ -830,7 +830,7 @@ public class Node  {
 		}
 
 		Date time = null;
-		time = triceps.parseDate(time,Datum.TIME_MASK);
+		time = triceps.parseDate(timeStr,Datum.TIME_MASK);
 
 		if (time == null) {
 			setTimeStamp();
