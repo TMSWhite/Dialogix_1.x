@@ -127,25 +127,29 @@ import java.io.FileReader;
 	private Logger errorLogger = new Logger();
 
 	private Vector nodes = null;
-	private Vector comments = null;
 	private Hashtable reserved = new Hashtable();
 	private Triceps triceps = null;
 	private Evidence evidence = null;
+	private ScheduleSource scheduleSource = null;
+	private boolean isDatafile = false;
 
 	/*public*/ static final Schedule NULL = new Schedule(null,null);
 	
-	/*public*/ Schedule(Triceps lang, String source) {
+	/*public*/ Schedule(Triceps lang, String src) {
    		triceps = (lang == null) ? Triceps.NULL : lang;
    		evidence = 	(lang == null) ? Evidence.NULL : triceps.getEvidence();
+   		source = src;
   
 		setReserved(LANGUAGES,DEFAULT_LANGUAGE);	// needed for language changing
-  		
-//   		if (lang != null) {
-			setDefaultReserveds();
-			setReserved(SCHEDULE_SOURCE,source);	// this defaults to LOADED_FROM, but want to keep track of the original source location
+		setDefaultReserveds();
+		setReserved(SCHEDULE_SOURCE,source);	// this defaults to LOADED_FROM, but want to keep track of the original source location
 			
 		if (lang != null) {
-			if (source != null && preparse(source)) {
+			scheduleSource = ScheduleSource.getInstance(source);
+			if (scheduleSource.isValid() && parseHeaders()) {
+				// LOADED_FROM used to by ScheduleList to know from where to load the selected file
+				setReserved(LOADED_FROM,source);	
+				
 				isFound = true;
 			}
 		}
@@ -206,12 +210,20 @@ import java.io.FileReader;
 	}
 		
 	/*public*/ boolean init() {
+		boolean ok = true;
+		
 		nodes = new Vector();
-		comments = new Vector();
 		evidence.createReserved();
 		evidence.initReserved();
 		
-		isLoaded = load(getLoadedFrom(),false);
+		ok = load();
+		
+if (DEBUG) Logger.writeln("##@@Schedule.load()-> " + ((ok) ? "SUCESS" : "FAILURE"));
+
+		ok = bracesMatch() && ok;
+		ok = prepareDataLogging() && ok;
+		isLoaded = ok;
+		
 		setReserved(START_TIME,triceps.formatDate(new Date(System.currentTimeMillis()),Datum.TIME_MASK));
 		if (getReserved(FILENAME) == null) {
 			setReserved(FILENAME,getReserved(START_TIME));	// sets the default value
@@ -220,220 +232,173 @@ import java.io.FileReader;
 		return isLoaded;
 	}
 	
-	private boolean preparse(String source) {
-		BufferedReader br = getReader(source);
-		
-		if (br == null)
-			return false;
-			
-		setReserved(LOADED_FROM,source);	// LOADED_FROM used to by ScheduleList to know from where to load the selected file
-		
-		int line=0;
+	private boolean parseHeaders() {
 		int reservedCount = 0;
-		String fileLine = null;
-		try {
-			/* only parse for RESERVED lines, then return */
-			while ((fileLine = br.readLine()) != null) {
-				++line;
-				if (fileLine.trim().equals("")) {
-					continue;
-				}
-				if (fileLine.startsWith("RESERVED")) {
-					if (parseReserved(line, source, fileLine)) {
-						++reservedCount;
-					}
-					continue;
-				}
-				if (fileLine.startsWith("COMMENT")) {
-					continue;
-				}
-				/* otherwise, if it is not a datafile, then stop parsing reserveds */
-				String fileType = getReserved(TRICEPS_FILE_TYPE);
-				
-				if (fileType == null || !fileType.equals(TRICEPS_DATA_FILE))
-					break;
+		Vector lines = scheduleSource.getHeaders();
+		
+		for (int i=0;i<lines.size();++i) {
+			if (parseReserved(i, source, (String) lines.elementAt(i))) {
+				++reservedCount;
 			}
 		}
-		catch(IOException e) {
-if (DEBUG) Logger.writeln("##IOException @ Schedule.preparse()" + e.getMessage());
-			 }
-		if (br != null) {
-			try { br.close(); } catch (IOException t) { }
-		}
-		if (reservedCount == 0)
+		
+		String fileType = getReserved(TRICEPS_FILE_TYPE);
+		
+		if (fileType == null || fileType.equals(TRICEPS_UNKNOWN_FILE))
 			return false;
-		return true;		
+		return (reservedCount > 0);
 	}
-	
 
 	/* Can either create a new schedule, or load a datafile */
-	private boolean load(String source, boolean recursive) {
-		BufferedReader br = getReader(source);
-		Vector reservedLines = new Vector();
-		boolean isDatafile = false;
+	private boolean load() {
+		isDatafile = TRICEPS_DATA_FILE.equals(getReserved(TRICEPS_FILE_TYPE));
 		
-		if (br == null)
-			return false;
-
-		boolean err = false;
-
-		setReserved(LOADED_FROM,source);	// keep LOADED_FROM up to date
-
-		try {
-			int line = 0;
-			int count=0;
-			int reservedCount=0;
-			String fileLine;
-			
-			while ((fileLine = br.readLine()) != null) {
-				++line;
-				
-				if (fileLine.trim().equals(""))
-					continue;
-
-				if (fileLine.startsWith("COMMENT")) {
-					comments.addElement(fileLine);
-					continue;
-				}
-				else if (fileLine.startsWith("RESERVED")) {
-					reservedLines.addElement(fileLine);	// a backup copy for overwriting subsequently loaded data
-					if (parseReserved(line, source, fileLine)) {
-						++reservedCount;
-					}					
-					continue;
-				}
-				else {
-					/* Must have TRICEPS_FILE_TYPE in first block of RESERVEDs */
-					break;
-				}
-			}
-			if (reservedCount == 0) {
-				return false;	// must have some reserved lines before nodes, else can't be a schedule file
-			}
-				
-			String fileType = getReserved(TRICEPS_FILE_TYPE);
-			
-			if (fileType == null || fileType.equals(TRICEPS_UNKNOWN_FILE))
+		if (isDatafile) {
+/*
+if (DEBUG) Logger.writeln("##@@Schedule.load(DATA)");
+			if (!loadDataHeaders(scheduleSource)) {
+if (DEBUG) Logger.writeln("##@@Error loading dataHeaders");				
 				return false;
-				
-				
-			/* if restoring from a data file, then first load the schedule data */
-			if (fileType.equals(TRICEPS_DATA_FILE)) {
-				isDatafile = true;
-if (DEBUG) Logger.writeln("##Schedule.load(DATA)");
-				if (!load(getReserved(SCHEDULE_SOURCE),true)) {
-					throw new IOException("Unable to load Schedule sourcefile: " + getReserved(SCHEDULE_SOURCE));
-					/* will be caught below */
-				}
-								
-				/* overload old reserved values */
-				for (int ii=0;ii<reservedLines.size();++ii) {
-					parseReserved(line, source, (String) reservedLines.elementAt(ii));
-				}
-				
-				/* load remainder of data */
-				do {
-					++line;
-					if (fileLine.trim().equals(""))
-						continue;
+			}
+*/
+			// load schedule
+			if (!loadSchedule(ScheduleSource.getInstance(getReserved(SCHEDULE_SOURCE)))) {
+if (DEBUG) Logger.writeln("##@@Error loading schedule");				
+				return false;
+			}
+			if (!loadDataBody(scheduleSource)) {
+if (DEBUG) Logger.writeln("##@@Error loading dataBody");				
+				return false;
+			}
+			return true;
+		}
+		else {
+			return loadSchedule(scheduleSource);
+		}
+	}
 	
-					if (fileLine.startsWith("COMMENT")) {
-						comments.addElement(fileLine);
-						continue;
-					}
-					else if (fileLine.startsWith("RESERVED")) {
-						parseReserved(line, source, fileLine);
-						continue;
-					}
-					else {
-						parseNode(fileLine);
-					}
-				} while ((fileLine = br.readLine()) != null);
+	private boolean loadDataHeaders(ScheduleSource ss) {
+if (DEBUG) Logger.writeln("##@@Schedule.loadDataHeaders()");
+		if (ss == null || !ss.isValid()) {
+			return false;
+		}
+				// overload data
+		Vector lines = ss.getHeaders();
+		String source = ss.getSourceInfo().getSource();
+		int lineNum = 0;
+		
+		for (int i=0;i<lines.size();++i,++lineNum) {
+			if (!parseReserved(lineNum,source,(String) lines.elementAt(i)))
+				return false;
+		}
+		return true;
+	}
+	
+	private boolean loadDataBody(ScheduleSource ss) {
+if (DEBUG) Logger.writeln("##@@Schedule.loadDataBody()");
+		// overload data
+		if (ss == null || !ss.isValid()) {
+			return false;
+		}
+		
+		Vector lines = ss.getBody();
+		String source = ss.getSourceInfo().getSource();
+		int lineNum = 0;
+		String line=null;
+		
+		for (int i=0;i<lines.size();++i,++lineNum) {
+			line = (String) lines.elementAt(i);
+			if (line.startsWith("RESERVED")) {
+if (DEBUG) Logger.writeln("##**Schedule.parseReserved(" + i + "," + line + ")");
+				if (!parseReserved(i,source,line))
+					return false;
 			}
 			else {
-if (DEBUG) Logger.writeln("##Schedule.load(SCHEDULE)");
-				do {
-					++line;
-					if (fileLine.trim().equals(""))
-						continue;
+				if (!parseNode(line))
+					return false;
+			}
+		}
+		return true;
+	}	
 	
-					if (fileLine.startsWith("COMMENT")) {
-						comments.addElement(fileLine);
-						continue;
-					}
-					else if (fileLine.startsWith("RESERVED")) {
-						parseReserved(line, source, fileLine);
-						continue;
-					}
-					else {					
-						Node node = new Node(triceps, line, source, fileLine, languageCount);
-		
+	private boolean loadSchedule(ScheduleSource ss) {
+if (DEBUG) Logger.writeln("##@@Schedule.loadSchedule()");
+		if (ss == null || !ss.isValid()) {
+			return false;
+		}
+			
+		Vector lines = ss.getHeaders();
+		String source = ss.getSourceInfo().getSource();
+
+		int lineNum = 0;
+		boolean ok = false;
+		for (int i=0;i<lines.size();++i,++lineNum) {
+			ok = parseReserved(i,source,(String) lines.elementAt(i));
+if (!AUTHORABLE) if (!ok) return false;	
+		}
+		lines = ss.getBody();
+		for (int i=0;i<lines.size();++i,++lineNum) {
+			Node node = new Node(triceps, lineNum, source, (String) lines.elementAt(i), languageCount);
 if (!AUTHORABLE) {
-	if (node.hasParseErrors()) {
-		err = true;	// schedule must be fully debugged before deployment, otherwise won't load
-	}
-}
-						++count;
-						nodes.addElement(node);	
-					}
-				} while ((fileLine = br.readLine()) != null);
-				
-				/* once schedule is loaded, set initial values */
-				evidence.init(); // if this is a Datafile, should load the default values, then overwrite them with the data values
-			}
-
-if (AUTHORABLE) {
-			/* check for mismatching braces */
-			int braceLevel = 0;
-			Node node = null;
-			for (int i=0;i<count;++i) {
-				node = getNode(i);
-				if (node == null) {
-					setError(triceps.get("null_node_at_index") + i);
-					continue;
-				}
-				switch(node.getQuestionOrEvalType()) {
-					case Node.QUESTION:
-						break;
-					case Node.EVAL:
-						if (braceLevel > 0)
-							setError(triceps.get("evaluations_disallowed_within_block") + node.getSourceLine());
-						break;
-					case Node.GROUP_OPEN:
-						if (++braceLevel > 1) {
-							setError(triceps.get("starting_nested_group_at_line") + node.getSourceLine());
-						}
-						break;
-					case Node.GROUP_CLOSE:
-						if (--braceLevel < 0) {
-							setError(triceps.get("extra_closing_brace_at_line") + node.getSourceLine());
-						}
-						break;
-					case Node.BRACE_OPEN:
-					case Node.BRACE_CLOSE:
-					case Node.CALL_SCHEDULE:
-						setError(node.getQuestionOrEvalTypeField() + triceps.get("not_yet_suppported___line") + node.getSourceLine());
-						break;
-					default:
-						setError(triceps.get("unknown_actionType_at_line") + node.getSourceLine());
-						break;
-				}
-			}
-			if (braceLevel > 0) {
-				setError(triceps.get("missing") + braceLevel + triceps.get("closing_braces"));
+			if (node.hasParseErrors()) {
+				return false;	// schedule must be fully debugged before deployment, otherwise won't load
 			}
 }
+			nodes.addElement(node);	
 		}
-		catch(IOException e) {
-if (DEBUG) Logger.writeln("##IOException @ Schedule.load()" + e.getMessage());
-			 }
-		if (br != null) {
-			try { br.close(); } catch (IOException t) { }
-		}
-
-		if (recursive)
-			return (!err);
 		
+		/* once schedule is loaded, set initial values */
+		evidence.init(); //
+		return true;
+	}
+	
+	private boolean bracesMatch() {
+if (AUTHORABLE) {
+		/* check for mismatching braces */
+		int braceLevel = 0;
+		Node node = null;
+		for (int i=0;i<nodes.size();++i) {
+			node = getNode(i);
+			if (node == null) {
+				setError(triceps.get("null_node_at_index") + i);
+				continue;
+			}
+			switch(node.getQuestionOrEvalType()) {
+				case Node.QUESTION:
+					break;
+				case Node.EVAL:
+					if (braceLevel > 0)
+						setError(triceps.get("evaluations_disallowed_within_block") + node.getSourceLine());
+					break;
+				case Node.GROUP_OPEN:
+					if (++braceLevel > 1) {
+						setError(triceps.get("starting_nested_group_at_line") + node.getSourceLine());
+					}
+					break;
+				case Node.GROUP_CLOSE:
+					if (--braceLevel < 0) {
+						setError(triceps.get("extra_closing_brace_at_line") + node.getSourceLine());
+					}
+					break;
+				case Node.BRACE_OPEN:
+				case Node.BRACE_CLOSE:
+				case Node.CALL_SCHEDULE:
+					setError(node.getQuestionOrEvalTypeField() + triceps.get("not_yet_suppported___line") + node.getSourceLine());
+					break;
+				default:
+					setError(triceps.get("unknown_actionType_at_line") + node.getSourceLine());
+					break;
+			}
+		}
+		if (braceLevel > 0) {
+			setError(triceps.get("missing") + braceLevel + triceps.get("closing_braces"));
+			return false;
+		}
+}
+		return true;
+	}
+	
+	private boolean prepareDataLogging() {
 		String s = getReserved(TITLE_FOR_PICKLIST_WHEN_IN_PROGRESS);
 		if (s == null || s.trim().length() == 0) {
 			// set a reasonable default value
@@ -444,7 +409,6 @@ if (DEBUG) Logger.writeln("##IOException @ Schedule.load()" + e.getMessage());
 		/* initialize datafiles */
 if (DEPLOYABLE) {		
 		if (isDatafile) {
-//			triceps.deleteDataLoggers();
 			triceps.createDataLogger(getReserved(WORKING_DIR), source);
 		}
 		else {
@@ -452,11 +416,10 @@ if (DEPLOYABLE) {
 			evidence.writeStartingValues();			
 		}
 }		
-
-		return (!err);
+		return true;
 	}
 	
-	/*public*/ void parseNode(String tsv) {
+	/*public*/ boolean parseNode(String tsv) {
 		StringTokenizer tokens = new StringTokenizer(tsv,"\t",true);
 		int field = 0;
 		String localName = null;
@@ -467,6 +430,7 @@ if (DEPLOYABLE) {
 		Datum datum = null;
 		Node node = null;
 		Value val = null;
+		boolean ok = true;
 		
 		while(tokens.hasMoreTokens()) {
 			String s = null;
@@ -491,7 +455,7 @@ if (DEPLOYABLE) {
 		val = evidence.getValue(localName);
 		if (val == null) {
 if (DEBUG) Logger.writeln("##Schedule.parseNode(" + tsv + ")-unknown Value");
-			return;
+			return false;
 		}
 		
 		node = val.getNode();
@@ -516,6 +480,7 @@ if (DEBUG) Logger.writeln("##Schedule.parseNode(" + tsv + ")-unknown Value");
 if (DEBUG) Logger.writeln("##NumberFormatException @ Evidence.parseNode" + t.getMessage());
 if (AUTHORABLE) 	node.setParseError(triceps.get("languageNum_must_be_an_integer") + t.getMessage());
 else node.setParseError("syntax error");
+				ok = false;
 			}
 			node.setAnswerLanguageNum(langNum);
 			evidence.set(node,datum,timeStamp,false);	// must be called last, since my try to write to data file.
@@ -524,6 +489,7 @@ else node.setParseError("syntax error");
 			/* a reserved word */
 			evidence.set(localName,new Datum(triceps,ans,Datum.STRING,null));
 		}
+		return ok;
 	}
 		
 
@@ -548,7 +514,6 @@ else node.setParseError("syntax error");
 		int field = 0;
 		String name=null;
 		String value=null;
-		boolean ok = false;
 
 		while(tokens.hasMoreTokens()) {
 			String s = null;
@@ -566,11 +531,10 @@ else node.setParseError("syntax error");
 				default: break;
 			}
 		}
-		if (field < 2) {
+		if (field < 2 || name == null) {
 			setError(triceps.get("incorrect_syntax_for") + ((name != null) ? name : "") + " [" + filename + "(" + line + ")]");
-		}
-		if (name == null || value == null)
 			return false;
+		}
 
 		int resIdx=-1;
 		for (int i=0;i<RESERVED_WORDS.length;++i) {
@@ -897,92 +861,6 @@ if (DEBUG) Logger.writeln("##NoSuchElementException @ Schedule.setLanguages()" +
 
 	/*public*/ int getLanguage() { return currentLanguage; }
 	
-	private BufferedReader getReader(String source) {
-		boolean ok = false;
-		BufferedReader br = null;
-
-		/* First try to access the source as a file */
-		try {
-			if (source != null && source.trim().length() > 0) {
-				File file = new File(source);
-				if (!file.exists()) {
-					setError(triceps.get("error_file") + " '" + source + "' " + triceps.get("does_not_exist"));
-				}
-				else if (!file.isFile()) {
-					setError(triceps.get("error_file") + " '" + source + "' " + triceps.get("is_not_a_file"));
-				}
-				else if (!file.canRead()) {
-					setError(triceps.get("error_file") + " '" + source + "' " + triceps.get("is_not_accessible"));
-				}
-				else {
-					br = new BufferedReader(new FileReader(file));
-					ok = true;
-				}
-			}
-			else {
-if (DEBUG) Logger.writeln("##Null Filename @ Schedule.getReader()");
-				setError(triceps.get("error_null_filename"));
-			}
-		}
-		catch (IOException e) {
-if (DEBUG) Logger.writeln("##IOException @ Schedule.getReader()" + e.getMessage());
-			setError(triceps.get("error_accessing_file") + e.getMessage());
-			Logger.printStackTrace(e);
-		}
-		if (ok) {
-			return br;
-		}
-		else {
-			if (br != null) {
-				try { br.close(); } catch (IOException t) { }
-			}
-		}
-
-/* Shows how URLs can be accessed.  No longer supported.
-		// Is source a URL pointing to a file? If so, try reading from it
-		try {
-			URL url = new URL(source);
-			br = new BufferedReader(new InputStreamReader(url.openStream()));
-
-			String fileLine;
-			while ((fileLine = br.readLine()) != null) {
-				fileLine = fileLine.trim();
-				if (fileLine.equals(""))
-					continue;
-
-				// If this is an HTML page instead of a text file, then an error has occurred
-				if (fileLine.startsWith("<")) {
-					setError("unable to access " + url.toExternalForm());
-					break;
-				}
-				else {
-					// Close, then re-open the stream (resetting a BufferedReader isn't supported on all platforms)
-					if (br != null) {
-						try { br.close(); } catch (IOException t) { }
-					}
-					br = new BufferedReader(new InputStreamReader(url.openStream()));
-					ok = true;
-					break;
-				}
-			}
-		}
-		catch (MalformedURLException t) {
-		}
-		catch (Throwable t) {
-			setError("can't access as url: " + t.getMessage());
-		}
-		if (ok) {
-			return br;
-		}
-		else {
-			if (br != null) {
-				try { br.close(); } catch (IOException t) { }
-			}
-		}
-*/
-		return null;
-	}
-
 	private void setError(String s) { 
 if (DEBUG) Logger.writeln("##Schedule.setError()" + s);
 		errorLogger.println(s); 
