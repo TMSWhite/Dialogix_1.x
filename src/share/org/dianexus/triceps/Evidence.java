@@ -334,18 +334,6 @@ public class Evidence  {
 		return values.size();
 	}
 
-	public String toXML() {
-		StringBuffer sb = new StringBuffer("<Evidence>\n");
-		Enumeration e = aliases.keys();
-
-		while (e.hasMoreElements()) {
-			String s = (String)e.nextElement();
-			sb.append("	<datum name='" + s + "' value='" + toString(s) + "'/>\n");
-		}
-		sb.append("</Evidence>");
-		return sb.toString();
-	}
-
 	public String toString(Object val) {
 		Datum d = getDatum(val);
 		if (d == null)
