@@ -56,22 +56,45 @@ while($r  = mysql_fetch_assoc($res))
 		<td>$VarName</td>
 		<td>$LanguageName</td>
 		<td>$ActionType</td>
-		<td>$ActionPhrase</td>
 		<td>";
 		
-		$ansarray = explode("|", $AnswerOptions);
-		$toggle = 0;
-		foreach ($ansarray as $ans) {
-			if ($toggle == 0) {
-				echo "[$ans] ";
-				$toggle = 1;
-			}
-			else {
-				echo "$ans<br>";
-				$toggle = 0;
+		if ($ActionType == 'e') {
+			echo "<font color='blue'>$ActionPhrase</font>";
+		}
+		else {
+			echo "$ActionPhrase";
+		}
+		
+		echo "</td><td><font color='blue'>";
+		if ($ActionType == 'e') {
+			echo "equation";
+		}
+		else if ($DisplayType == 'double') {
+			echo "number";
+		}
+		else if ($DisplayType == 'nothing') {
+			echo "message";
+		}
+		else {
+			echo "$DisplayType";
+		}
+		echo "</font>";
+		if ($AnswerOptions != '') {
+			echo "<br>";
+			$ansarray = explode("|", $AnswerOptions);
+			$toggle = 0;
+			foreach ($ansarray as $ans) {
+				if ($toggle == 0) {
+					echo "[$ans] ";
+					$toggle = 1;
+				}
+				else {
+					echo "$ans<br>";
+					$toggle = 0;
+				}
 			}
 		}
-		echo "</td></tr>\n";
+		echo "</td></tr>\n";		
 	}
 ?>
 
