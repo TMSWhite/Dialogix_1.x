@@ -173,7 +173,7 @@ if (AUTHORABLE)	new XmlString(triceps, "<b>" + form.getErrors() + "</b>",out);
 			/* Store appropriate stuff in the session */
 			session.putValue("triceps", triceps);
 
-			if (directive.equals(triceps.get("next"))) {
+			if (directive != null && directive.equals(triceps.get("next"))) {
 				if (triceps.isAtEnd()) {
 //					System.runFinalization();	// could offer to let subject confirm that done, at which point written to floppy, etc.?
 				}
