@@ -70,8 +70,11 @@ public class Datum implements Serializable {
 		dVal = Double.NaN;
 		bVal = false;
 		date = null;
+		sVal = null;
 		type = INVALID;	// default is to indicate failure to create new Datum object
-		sVal = TYPES[type];	// so that *INVALID* string shows as default
+		if (s == null || s.trim().equals("")) {
+			t = INVALID;
+		}
 
 		switch (t) {
 			case DOUBLE:
@@ -125,7 +128,12 @@ public class Datum implements Serializable {
 					date = null;
 				}
 				break;
+			case INVALID:
+				type = INVALID;
+				error = "Please answer this question";
+				break;
 			default:
+				type = INVALID;
 				error = "Internal error: Unexpected data format: " + type;
 				break;
 		}
@@ -150,7 +158,7 @@ public class Datum implements Serializable {
 	public boolean isInvalid() { return (type == INVALID); }
 	public boolean isUnknown() { return (type == UNKNOWN); }
 	public boolean isNA() { return (type == NA); }
-	public boolean exists() { return !(isInvalid() || isUnknown() || isNA()); }
+	public boolean exists() { return !(sVal == null || isInvalid() || isUnknown() || isNA()); }
 
 
 	public String getError() {

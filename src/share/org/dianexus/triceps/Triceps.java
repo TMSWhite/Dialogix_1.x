@@ -20,7 +20,7 @@ public class Triceps implements Serializable {
 	public Evidence evidence = null;	// XXX - should be private - made public for debugging from TricepsServlet
 	static public transient Parser parser = new Parser();	// XXX - should not be public - only making it so for debugging
 
-	private Stack errors = new Stack();
+	private Vector errors = new Vector();
 	private int currentStep=0;
 	private int numQuestions=0;	// so know how many to skip for compount question
 	private Date startTime = null;
@@ -79,8 +79,8 @@ public class Triceps implements Serializable {
 
 	public Enumeration getErrors() {
 		/* when there is an error in getting a node */
-		Stack tmp = errors;
-		errors = new Stack();
+		Vector tmp = errors;
+		errors = new Vector();
 		return tmp.elements();
 	}
 
@@ -95,7 +95,7 @@ public class Triceps implements Serializable {
 		do {
 			if (step >= size()) {
 				if (braceLevel > 0) {
-					errors.push("missing " + braceLevel + " closing brace(s)");
+					errors.addElement("missing " + braceLevel + " closing brace(s)");
 				}
 				break;
 			}
@@ -107,20 +107,20 @@ public class Triceps implements Serializable {
 				++braceLevel;
 			}
 			else if ("e".equals(actionType)) {
-				errors.push("Should not have expression evaluations within a query block (brace level " + braceLevel);
+				errors.addElement("Should not have expression evaluations within a query block (brace level " + braceLevel);
 				break;
 			}
 			else if ("]".equals(actionType)) {
 				--braceLevel;
 				if (braceLevel < 0) {
-					errors.push("Extra closing brace");
+					errors.addElement("Extra closing brace");
 					break;
 				}
 			}
 			else if ("q".equals(actionType)) {
 			}
 			else {
-				errors.push("Invalid action type: " + Node.encodeHTML(actionType));
+				errors.addElement("Invalid action type: " + Node.encodeHTML(actionType));
 				break;
 			}
 		} while (braceLevel > 0);
@@ -131,6 +131,7 @@ public class Triceps implements Serializable {
 
 	public String getQuestionStr(Node q) {
 		q.setQuestionAsAsked(parser.parseJSP(evidence, q.getAction()) + q.getQuestionMask());
+		if (parser.hasErrors()) { Vector v=parser.getErrors(); for (int c=0;c<v.size();++c) { errors.addElement(v.elementAt(c)); }  }
 		return q.getQuestionAsAsked();
 	}
 
@@ -148,22 +149,22 @@ public class Triceps implements Serializable {
 
 		if (currentStep == size()) {
 			/* then already at end */
-			errors.push("You are already at the end of interview.  Thanks again.");
+			errors.addElement("You are already at the end of interview.  Thanks again.");
 			return ERROR;
 		}
 
 		do {		// loop forward through nodes -- break to query user or to end
 			if (step >= size()) {	// then the schedule is complete
 				if (braceLevel > 0) {
-					errors.push("Missing " + braceLevel + " closing brace(s)");
+					errors.addElement("Missing " + braceLevel + " closing brace(s)");
 				}
-//				errors.push("The interview is completed.");
+//				errors.addElement("The interview is completed.");
 				currentStep = size();	// put at last node
 				numQuestions = 0;
 				return AT_END;
 			}
 			if ((node = nodes.getNode(step)) == null) {
-				errors.push("Invalid node at step " + step);
+				errors.addElement("Invalid node at step " + step);
 				return ERROR;
 			}
 
@@ -177,6 +178,7 @@ public class Triceps implements Serializable {
 					else {
 						++braceLevel;	// skip this entire section
 					}
+					if (parser.hasErrors()) { Vector v=parser.getErrors(); for (int c=0;c<v.size();++c) { errors.addElement(v.elementAt(c)); }  }
 				}
 				else {
 					++braceLevel;	// skip this inner block
@@ -185,7 +187,7 @@ public class Triceps implements Serializable {
 			else if ("]".equals(actionType)) {
 				--braceLevel;	// close an open block
 				if (braceLevel < 0) {
-					errors.push("Extra closing brace");
+					errors.addElement("Extra closing brace");
 					return ERROR;
 				}
 			}
@@ -195,9 +197,12 @@ public class Triceps implements Serializable {
 				}
 				else {
 					if (parser.booleanVal(evidence, node.getDependencies())) {
+						if (parser.hasErrors()) { Vector v=parser.getErrors(); for (int c=0;c<v.size();++c) { errors.addElement(v.elementAt(c)); }  }
 						evidence.set(node, new Datum(parser.stringVal(evidence, node.getAction()),node.getDatumType()));
+						if (parser.hasErrors()) { Vector v=parser.getErrors(); for (int c=0;c<v.size();++c) { errors.addElement(v.elementAt(c)); }  }
 					}
 					else {
+						if (parser.hasErrors()) { Vector v=parser.getErrors(); for (int c=0;c<v.size();++c) { errors.addElement(v.elementAt(c)); }  }
 						evidence.set(node, new Datum(Datum.NA));	// if doesn't satisfy dependencies, store NA
 					}
 				}
@@ -213,10 +218,11 @@ public class Triceps implements Serializable {
 					else {
 						evidence.set(node, new Datum(Datum.NA));	// if doesn't satisfy dependencies, store NA
 					}
+					if (parser.hasErrors()) { Vector v=parser.getErrors(); for (int c=0;c<v.size();++c) { errors.addElement(v.elementAt(c)); }  }
 				}
 			}
 			else {
-				errors.push("Unknown actionType " + Node.encodeHTML(actionType));
+				errors.addElement("Unknown actionType " + Node.encodeHTML(actionType));
 				return ERROR;
 			}
 			++step;
@@ -231,12 +237,12 @@ public class Triceps implements Serializable {
 
 		Node n = evidence.getNode(val);
 		if (n == null) {
-			errors.push("Unknown node: " + Node.encodeHTML(val.toString()));
+			errors.addElement("Unknown node: " + Node.encodeHTML(val.toString()));
 			return ERROR;
 		}
 		int result = evidence.getStep(n);
 		if (result == -1) {
-			errors.push("Unable to find index for node: " + n);
+			errors.addElement("Unable to find index for node: " + n);
 			return ERROR;
 		} else {
 			currentStep = result;
@@ -253,9 +259,9 @@ public class Triceps implements Serializable {
 		while (true) {
 			if (--step < 0) {
 				if (braceLevel < 0)
-					errors.push("Missing " + braceLevel + " openining braces");
+					errors.addElement("Missing " + braceLevel + " openining braces");
 
-				errors.push("You are already at the beginning.");
+				errors.addElement("You are already at the beginning.");
 				return ERROR;
 			}
 			if ((node = nodes.getNode(step)) == null)
@@ -273,21 +279,29 @@ public class Triceps implements Serializable {
 			else if ("[".equals(actionType)) {
 				++braceLevel;
 				if (braceLevel > 0) {
-					errors.push("extra opening brace");
+					errors.addElement("extra opening brace");
 					return ERROR;
 				}
 				if (braceLevel == 0 && parser.booleanVal(evidence, node.getDependencies())) {
+					if (parser.hasErrors()) { Vector v=parser.getErrors(); for (int c=0;c<v.size();++c) { errors.addElement(v.elementAt(c)); }  }
 					break;	// ask this block of questions
+				}
+				else {
+					if (parser.hasErrors()) { Vector v=parser.getErrors(); for (int c=0;c<v.size();++c) { errors.addElement(v.elementAt(c)); }  }
 				}
 			}
 			else if ("q".equals(actionType)) {
 				if (braceLevel == 0 && parser.booleanVal(evidence, node.getDependencies())) {
+					if (parser.hasErrors()) { Vector v=parser.getErrors(); for (int c=0;c<v.size();++c) { errors.addElement(v.elementAt(c)); }  }
 					break;	// ask this block of questions
 				}
-				// else within a brace, or not applicable, so skip it.
+				else {
+					// else within a brace, or not applicable, so skip it.
+					if (parser.hasErrors()) { Vector v=parser.getErrors(); for (int c=0;c<v.size();++c) { errors.addElement(v.elementAt(c)); }  }
+				}
 			}
 			else {
-				errors.push("invalid actionType " + Node.encodeHTML(actionType));
+				errors.addElement("invalid actionType " + Node.encodeHTML(actionType));
 				return ERROR;
 			}
 		}
@@ -362,36 +376,26 @@ public class Triceps implements Serializable {
 	}
 
 	public boolean storeValue(Node q, String answer) {
-		if (currentStep >= size()) {
+		if (q == null) {
+			errors.addElement("null node");
 			return false;
 		}
 
-		try {	// set answer to the value returned with the "name" of the node
-			if (answer == null) {
-				if (q.getAnswerType() == Node.CHECK || q.getAnswerType() == Node.NOTHING) {
-					answer = "0";
-				}
+		if (answer == null) {
+			if (q.getAnswerType() == Node.CHECK || q.getAnswerType() == Node.NOTHING) {
+				answer = "0";
 			}
-		}
-		catch(NullPointerException e) {
-			e.printStackTrace();
 		}
 
-		if ((answer == null || answer.trim().equals("")) && currentStep >= 0) {
-			q.setError("");
+		Datum d = new Datum(answer,q.getDatumType()); // use expected value type
+		if (!d.exists()) {
+			q.setError("<- " + d.getError());
 			return false;
 		}
-		else {	// got a proper answer -- handle it
-			if (currentStep >= 0 && q != null) {
-				Datum d = new Datum(answer,q.getDatumType()); // use expected value type
-				if (d.isInvalid()) {
-					q.setError("<- " + d.getError());
-					return false;
-				}
-				evidence.set(q, d);
-			}
+		else {
+			evidence.set(q, d);
 			return true;
-		}	// end handling of proper answer
+		}
 	}
 
 	public static Triceps restore(String filename) {
@@ -466,6 +470,57 @@ public class Triceps implements Serializable {
 		return sb.toString();
 	}
 
+	public Vector collectParseErrors() {
+		/* Simply cycle through nodes, processing dependencies & actions */
+
+		Node n;
+		Datum d;
+		Vector parseErrors = new Vector();
+		Vector dependenciesErrors;
+		Vector actionErrors;
+		boolean hasErrors;
+		Evidence ev = new Evidence(nodes);
+
+		for (int i=0;i<size();++i) {
+			n = nodes.getNode(i);
+			if (n == null)
+				continue;
+
+			hasErrors = false;
+			dependenciesErrors = new Vector();
+			actionErrors = new Vector();
+
+			parser.booleanVal(ev, n.getDependencies());
+
+			if (parser.hasErrors()) {
+				hasErrors = true;
+				dependenciesErrors = parser.getErrors();
+			}
+
+			String actionType = n.getActionType();
+			String action = n.getAction();
+
+			if (action != null) {
+				if ("q".equals(actionType)) {
+					parser.parseJSP(ev, action);
+				}
+				else if ("e".equals(actionType)) {
+					parser.stringVal(ev, action);
+				}
+			}
+
+			if (parser.hasErrors()) {
+				hasErrors = true;
+				actionErrors = parser.getErrors();
+			}
+
+			if (hasErrors) {
+				parseErrors.addElement(new ParseError(n, dependenciesErrors, actionErrors));
+			}
+		}
+		return parseErrors;
+	}
+
 	public boolean toTSV(String filename) {
 		FileWriter fw = null;
 
@@ -477,7 +532,7 @@ public class Triceps implements Serializable {
 			return ok;
 		}
 		catch (IOException e) {
-			errors.push("error writing to " + Node.encodeHTML(filename) + ": " + e);
+			errors.addElement("error writing to " + Node.encodeHTML(filename) + ": " + e);
 			return false;
 		}
 		finally {
@@ -523,7 +578,7 @@ public class Triceps implements Serializable {
 			return true;
 		}
 		catch (IOException e) {
-			errors.push("Unable to write schedule file: " + Node.encodeHTML(e.getMessage()));
+			errors.addElement("Unable to write schedule file: " + Node.encodeHTML(e.getMessage()));
 			return false;
 		}
 	}

@@ -366,6 +366,16 @@ public class TricepsServlet extends HttpServlet {
 				sb.append("<TR><TD>double</TD><TD><B>" + datum.doubleVal() + "</B></TD><TD>long</TD><TD><B>" + datum.longVal() + "</B></TD></TR>\n");
 				sb.append("<TR><TD>date</TD><TD><B>" + datum.dateVal() + "</B></TD><TD>month</TD><TD><B>" + datum.monthVal() + "</B></TD></TR>\n");
 				sb.append("</TABLE>\n");
+
+				if (triceps.parser.hasErrors()) {
+					Vector v = triceps.parser.getErrors();
+					sb.append("<B>There were errors parsing that equation:</B><BR>");
+					for (int j=0;j<v.size();++j) {
+						if (j > 0)
+							sb.append("<BR>");
+						sb.append((String) v.elementAt(j));
+					}
+				}
 			}
 		}
 /*
@@ -386,6 +396,50 @@ public class TricepsServlet extends HttpServlet {
 			sb.append("<B>Use 'Show Source' to see data in Schedule as XML</B><BR>\n");
 			sb.append("<!--\n" + triceps.toXML() + "\n-->\n");
 			sb.append("<HR>\n");
+		}
+		else if (directive.equals("show Errors")) {
+			Vector pes = triceps.collectParseErrors();
+			Vector errs;
+
+			sb.append("<TABLE CELLPADDING='2' CELLSPACING='1' WIDTH='100%' border='1'>\n");
+			sb.append("<TR><TD>#</TD><TD>name</TD><TD>Dependencies</TD><TD>Dependency Errors</TD><TD>Action Type</TD><TD>Action</TD><TD>Action Errors</TD></TR>\n");
+
+			for (int i=0;i<pes.size();++i) {
+				ParseError pe = (ParseError) pes.elementAt(i);
+				Node n = pe.getNode();
+
+				sb.append("\n<TR><TD>" + n.getStep() + "</TD><TD>" + Node.encodeHTML(n.getQuestionRef(),true) + "</TD>");
+				sb.append("\n<TD>" + Node.encodeHTML(pe.getDependencies(),true) + "</TD>\n<TD>");
+
+				errs = pe.getDependenciesErrors();
+				if (errs.size() == 0) {
+					sb.append("&nbsp;");
+				}
+				else {
+					for (int j=0;j<errs.size();++j) {
+						if (j > 0)
+							sb.append("<BR>");
+						sb.append("" + (j+1) + ")&nbsp;" + Node.encodeHTML((String) errs.elementAt(j)));
+					}
+				}
+
+				sb.append("</TD>\n<TD>" + Node.encodeHTML(n.getActionType(),true) + "</TD><TD>" + Node.encodeHTML(pe.getAction(),true) + "</TD><TD>");
+
+				errs = pe.getActionErrors();
+				if (errs.size() == 0) {
+					sb.append("&nbsp;");
+				}
+				else {
+					for (int j=0;j<errs.size();++j) {
+						if (j > 0)
+							sb.append("<BR>");
+						sb.append("" + (j+1) + ")&nbsp;" + Node.encodeHTML((String) errs.elementAt(j)));
+					}
+				}
+
+				sb.append("</TD></TR>");
+			}
+			sb.append("</TABLE><HR>\n");
 		}
 		else if (directive.equals("forward")) {
 			// store current answer(s)
@@ -519,6 +573,7 @@ public class TricepsServlet extends HttpServlet {
 			sb.append("	</TD></TR>\n");
 			sb.append("	<TR><TD COLSPAN='3' ALIGN='center'>\n");
 			sb.append("<input type='SUBMIT' name='directive' value='reload questions'>\n");
+			sb.append("<input type='SUBMIT' name='directive' value='show Errors'>\n");
 			sb.append("<input type='SUBMIT' name='directive' value='show XML'>\n");
 			sb.append("<input type='SUBMIT' name='directive' value='evaluate expr:'>\n");
 			sb.append("<input type='text' name='evaluate expr:'>\n");

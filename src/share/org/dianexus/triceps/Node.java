@@ -88,7 +88,7 @@ public class Node implements Serializable {
 				}
 			}
 			if ("e".equals(actionType) || answerType == UNKNOWN) {
-//				System.out.println("Unknown data type (" + token + ") on line " + (step + 1));
+				setError("Unknown data type (" + token + ") on line " + (step + 1));
 				answerType = NOTHING;
 				datumType = DATA_TYPES[answerType];
 			}
@@ -101,7 +101,7 @@ public class Node implements Serializable {
 		}
 		catch(NoSuchElementException e) {
 			if (count < 8) {
-				System.out.println("Error tokenizing line " + (step + 1) + " (" + count + "/8 tokens found)" + e.getMessage());
+				setError("Error tokenizing line " + (step + 1) + " (" + count + "/8 tokens found)" + e.getMessage());
 			}
 		}
 	}
@@ -138,7 +138,7 @@ public class Node implements Serializable {
 			return "";
 		}
 		catch (IndexOutOfBoundsException e) {
-			System.out.println("Internal error: " + e.getMessage());
+			setError("Internal error: " + e.getMessage());
 			return "";
 		}
 	}
@@ -165,10 +165,10 @@ public class Node implements Serializable {
 					}
 				}
 				catch (NullPointerException e) {
-					System.out.println("Error tokenizing answer options: " + e);
+					setError("Error tokenizing answer options: " + e);
 				}
 				catch (NoSuchElementException e) {
-					System.out.println("Error tokenizing answer options: " + e);
+					setError("Error tokenizing answer options: " + e);
 				}
 				break;
 			default:
@@ -309,6 +309,7 @@ public class Node implements Serializable {
 				break;
 			default:
 			case NOTHING:
+				sb.append("&nbsp;");
 				break;
 			}
 		}
@@ -372,7 +373,7 @@ public class Node implements Serializable {
 	}
 
 
-	static public String encodeHTML(String s) {
+	static public String encodeHTML(String s, boolean disallowEmpty) {
 		char[] src = s.toCharArray();
 		StringBuffer dst = new StringBuffer();
 
@@ -386,6 +387,16 @@ public class Node implements Serializable {
 				default: dst.append(src[i]); break;
 			}
 		}
-		return dst.toString();
+		String ans = dst.toString().trim();
+		if (disallowEmpty && ans.length() == 0) {
+			return "&nbsp;";
+		}
+		else {
+			return ans;
+		}
+	}
+
+	static public String encodeHTML(String s) {
+		return encodeHTML(s,false);
 	}
 }

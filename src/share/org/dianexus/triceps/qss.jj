@@ -7,33 +7,35 @@ options {
 PARSER_BEGIN(Qss)
 
 import java.io.*;
+import java.util.*;
 
 public class Qss {
     /*static*/ java.util.Stack stack;
     /*static*/ Evidence data;
     /*static*/ Datum d = null;
+    /*static*/ Vector errors = new Vector();
 
-	
+
 	public Datum parse(Evidence ev) {
 		this.data = ev;
-		
+
 		try {
 			stack = new java.util.Stack();
-			
-			this.one_line();
-			
+
+			this.Expressions();
+
 			if (!stack.empty()) {
 				d = (Datum) stack.pop();
 			}
 		}
 		catch (java.util.EmptyStackException e) {
-			System.out.println("Stack underflow");
+			errors.addElement("Stack underflow");
 		}
 		catch (ParseException e) {
-			System.out.println("Parse error: " + e.getMessage());
+			errors.addElement("Parse error: " + e.getMessage());
 		}
 		catch (TokenMgrError e) {
-			System.out.println("Tokenization error: " + e.getMessage());
+			errors.addElement("Tokenization error: " + e.getMessage());
 		}
 		finally {
 			if (d == null)
@@ -41,6 +43,16 @@ public class Qss {
 			else
 				return d;
 		}
+	}
+
+	public boolean hasErrors() {
+		return (errors.size() > 0);
+	}
+
+	public Vector getErrors() {
+		Vector temp = errors;
+		errors = new Vector();
+		return temp;
 	}
 }
 
@@ -124,24 +136,17 @@ TOKEN : /* Function names */
 {
  	<  ID : ["a"-"z","A"-"Z", "_"] (["a"-"z","A"-"Z","0"-"9","_"])* >
  |	< EOL: "\n" >
-} 
-
-void one_line() : {}
-{
-	Expressions() (<EOL> | <EOF>)
-| <EOL>
-| <EOF>
 }
 
 void Expressions() : {}
 {
-	Expression() (LOOKAHEAD(2) <COMMA> { d = (Datum) stack.pop(); } Expression() )*
+	Expression() (LOOKAHEAD(2) (<COMMA> | <SEMICOLON> | <EOF>) { d = (Datum) stack.pop(); } Expression() )*
 }
 
 void Expression() : {}
 {
 	LOOKAHEAD(2) AssignmentExpression()
-	| ConditionalExpression()	
+	| ConditionalExpression()
 }
 
 void AssignmentExpression(): { Token t; }
@@ -168,7 +173,7 @@ void ConditionalExpression() : {}
 
 void LogicalORExpression() : {}
 {
-	LogicalANDExpression()	( <OROR> LogicalANDExpression() 
+	LogicalANDExpression()	( <OROR> LogicalANDExpression()
 	{
 		Datum b = (Datum) stack.pop();
 		Datum a = (Datum) stack.pop();
@@ -179,7 +184,7 @@ void LogicalORExpression() : {}
 
 void LogicalANDExpression() : {}
 {
-	InclusiveORExpression() ( <ANDAND> InclusiveORExpression() 
+	InclusiveORExpression() ( <ANDAND> InclusiveORExpression()
 	{
 		Datum b = (Datum) stack.pop();
 		Datum a = (Datum) stack.pop();
@@ -190,7 +195,7 @@ void LogicalANDExpression() : {}
 
 void InclusiveORExpression() : {}
 {
-	ExclusiveORExpression() ( <OR> ExclusiveORExpression() 
+	ExclusiveORExpression() ( <OR> ExclusiveORExpression()
 	{
 		Datum b = (Datum) stack.pop();
 		Datum a = (Datum) stack.pop();
@@ -201,7 +206,7 @@ void InclusiveORExpression() : {}
 
 void ExclusiveORExpression() : {}
 {
-	ANDExpression() ( <XOR> ANDExpression() 
+	ANDExpression() ( <XOR> ANDExpression()
 	{
 		Datum b = (Datum) stack.pop();
 		Datum a = (Datum) stack.pop();
@@ -212,7 +217,7 @@ void ExclusiveORExpression() : {}
 
 void ANDExpression() : {}
 {
-	EqualityExpression() ( LOOKAHEAD(2) <AND> EqualityExpression() 
+	EqualityExpression() ( LOOKAHEAD(2) <AND> EqualityExpression()
 	{
 		Datum b = (Datum) stack.pop();
 		Datum a = (Datum) stack.pop();
@@ -223,7 +228,7 @@ void ANDExpression() : {}
 
 void EqualityExpression() : { Token op; }
 {
-	RelationalExpression() ( ( <EQ> | <NEQ> ) { op = token; } RelationalExpression() 
+	RelationalExpression() ( ( <EQ> | <NEQ> ) { op = token; } RelationalExpression()
 	{
 		Datum b = (Datum) stack.pop();
 		Datum a = (Datum) stack.pop();
@@ -233,13 +238,13 @@ void EqualityExpression() : { Token op; }
 	    else if (op.kind == NEQ) {
 			  stack.push(DatumMath.neq(a,b));
 		}
-	}	
+	}
 	)*
 }
 
 void RelationalExpression() : { Token op; }
 {
-	AdditiveExpression() ( ( <LT> | <GT> | <LE> | <GE> ) { op = token; } AdditiveExpression() 
+	AdditiveExpression() ( ( <LT> | <GT> | <LE> | <GE> ) { op = token; } AdditiveExpression()
 	{
 		Datum b = (Datum) stack.pop();
 		Datum a = (Datum) stack.pop();
@@ -255,7 +260,7 @@ void RelationalExpression() : { Token op; }
 
 void AdditiveExpression() : { Token op; }
 {
-	MultiplicativeExpression() ( LOOKAHEAD(2) ( <PLUS> | <MINUS> | <DOT> ) { op = token;} MultiplicativeExpression() 
+	MultiplicativeExpression() ( LOOKAHEAD(2) ( <PLUS> | <MINUS> | <DOT> ) { op = token;} MultiplicativeExpression()
 	{
 		Datum b = (Datum) stack.pop();
 		Datum a = (Datum) stack.pop();
@@ -274,7 +279,7 @@ void AdditiveExpression() : { Token op; }
 
 void MultiplicativeExpression() : { Token op; }
 {
-	UnaryExpression() ( LOOKAHEAD(2) ( <MULTIPLY> | <DIVIDE> ) { op = token; } UnaryExpression() 
+	UnaryExpression() ( LOOKAHEAD(2) ( <MULTIPLY> | <DIVIDE> ) { op = token; } UnaryExpression()
 	{
 		Datum b = (Datum) stack.pop();
 		Datum a = (Datum) stack.pop();
@@ -290,8 +295,8 @@ void MultiplicativeExpression() : { Token op; }
 
 void UnaryExpression() : { Token op; }
 {
-	(op = UnaryOperator()) PrimaryExpression() 
-	{ 
+	(op = UnaryOperator()) PrimaryExpression()
+	{
 		switch(op.kind) {
 			default:
 				break;
@@ -301,7 +306,7 @@ void UnaryExpression() : { Token op; }
 	    	}
 	    	case NOT: {
 	    		stack.push(DatumMath.not((Datum) stack.pop()));
-	    		break;	
+	    		break;
 	    	}
 	    }
 	}
@@ -315,22 +320,22 @@ Token UnaryOperator() : {}
 
 void Count() : { long total; }
 {
-	<COUNT> 
-		<LP> 
-			(total = TruthTestList()) 
-		<RP> 
+	<COUNT>
+		<LP>
+			(total = TruthTestList())
+		<RP>
 		{ stack.push(new Datum(total)); }
 }
 
 void StringList(): { java.util.Vector v = new java.util.Vector(); }
 {
-	<LIST> <LP> 
+	<LIST> <LP>
 		Expression() {v.addElement(stack.pop());}
 		( "," (Expression()) {v.addElement(stack.pop());} )*
 		<RP>
 	{
 		StringBuffer sb = new StringBuffer();
-		
+
 		/* Remove null strings from list */
 		for (int i=0;i<v.size();) {
 			if (((Datum) v.elementAt(i)).stringVal().length() == 0) {
@@ -340,7 +345,7 @@ void StringList(): { java.util.Vector v = new java.util.Vector(); }
 				++i;
 			}
 		}
-		
+
 		for (int i=0;i<v.size();++i) {
 			if (i > 0) {
 				if (i < (v.size()-1)) {
@@ -377,8 +382,8 @@ boolean TruthTest() : {}
 	Expression() {
 		try {
 			return ((Datum) stack.pop()).booleanVal();
-		} catch (java.util.EmptyStackException e) { 
-			System.out.println(e.getMessage());
+		} catch (java.util.EmptyStackException e) {
+			errors.addElement(e.getMessage());
 		 }
 		return false;
 	}
@@ -387,7 +392,7 @@ boolean TruthTest() : {}
 void Constant() : { Token t; }
 {
 	((t = <INTEGER_LITERAL>) | (t = <FLOATING_POINT_LITERAL>))
-	{   
+	{
 		stack.push(new Datum(t.image,Datum.DOUBLE));
 	}
 |	((t = <STRING_LITERAL>) | (t = <CHARACTER_LITERAL>))
@@ -395,7 +400,7 @@ void Constant() : { Token t; }
 		// replace special characters before storing value
 		StringBuffer sb = new StringBuffer();
 		char c;
-		
+
 		try {
 			for (int i=1;i<t.image.length()-1;++i) {
 				c = t.image.charAt(i);
@@ -403,7 +408,7 @@ void Constant() : { Token t; }
 					c = t.image.charAt(++i);
 					switch (c) {
 						case 'b': sb.append('\b'); break;
-						case 'f': sb.append('\f'); break;					
+						case 'f': sb.append('\f'); break;
 						case 'n': sb.append('\n'); break;
 						case 'r': sb.append('\n'); break;
 						case 't': sb.append('\t'); break;
@@ -416,20 +421,20 @@ void Constant() : { Token t; }
 				else {
 					sb.append(c);
 				}
-			}	
+			}
 		}
 		catch (IndexOutOfBoundsException e) {
-			System.out.println("error parsing string: " + e.getMessage());
+			errors.addElement("Error parsing string '" + t.image + "': "  + e.getMessage());
 		}
-			
+
 		stack.push(new Datum(sb.toString(),Datum.STRING));
 	}
-	
+
 }
 
 void Description() : { Token t; }
 {
-	<DESC> <LP> (t = <ID>) <RP> 
+	<DESC> <LP> (t = <ID>) <RP>
 	{
 		if (data.containsKey(t.image)) {
 			try {
@@ -458,13 +463,13 @@ void Unset() : { Token t; }
 void Variable() : {}
 {
 	<ID>
-	{   
+	{
 		if (data.containsKey(token.image)) {
 			Datum d = data.getDatum(token.image);
 			stack.push(d);
 		}
 		else {
-			System.out.println("Variable " + token.image + " undefined");
+			errors.addElement("Undefined variable '" + token.image + "'");
 			stack.push(new Datum(Datum.INVALID));
 		}
 	}
