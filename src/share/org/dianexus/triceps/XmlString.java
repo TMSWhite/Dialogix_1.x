@@ -351,7 +351,16 @@ public class XmlString extends Object {
 			}
 				
 			if (TAGS_AFFECTED_BY_WHITESPACE.containsKey(t)) {
-				prettyPrint(tagToPrint,false);
+				if ("option".equals(t)) {
+					try {
+						dst.write(tagToPrint);
+					}
+					catch (IOException e) { }
+					prettyPrint("",true);
+				}
+				else {
+					prettyPrint(tagToPrint,false);
+				}
 			}
 			else {
 				prettyPrint(tagToPrint,true);
