@@ -842,7 +842,12 @@ public class Triceps {
 			return null;
 		else
 			return s;
-	}	
+	}
+	
+	public boolean isShowInvisibleOptions() {
+		return Boolean.valueOf(nodes.getReserved(Schedule.SHOW_INVISIBLE_OPTIONS)).booleanValue();
+	}
+	
 	public String getIcon() { return nodes.getReserved(Schedule.ICON); }
 	public String getHeaderMsg() { return nodes.getReserved(Schedule.HEADER_MSG); }
 	

@@ -21,6 +21,7 @@ public class Schedule  {
 	public static final int DEBUG_MODE = 11;
 	public static final int START_TIME = 12;	
 	public static final int FILENAME = 13;
+	public static final int SHOW_INVISIBLE_OPTIONS = 14;
 	
 	public static final String[] RESERVED_WORDS = {
 		"__TITLE__", "__ICON__", "__HEADER_MSG__", "__STARTING_STEP__", 
@@ -28,7 +29,7 @@ public class Schedule  {
 		"__LANGUAGES__",
 		"__SHOW_QUESTION_REF__", "__AUTOGEN_OPTION_NUM__", 
 		"__DEVELOPER_MODE__", "__DEBUG_MODE__",
-		"__START_TIME__", "__FILENAME__"
+		"__START_TIME__", "__FILENAME__", "__SHOW_INVISIBLE_OPTIONS__"
 	};
 	
 	private String title = null;
@@ -72,6 +73,7 @@ public class Schedule  {
 		setReserved(DEVELOPER_MODE,"false");
 		setReserved(DEBUG_MODE,"false");
 		setReserved(LANGUAGES,"English");
+		setReserved(SHOW_INVISIBLE_OPTIONS,"true");
 	}
 
 	public boolean load(BufferedReader br, String filename) {
@@ -196,6 +198,7 @@ public class Schedule  {
 			case DEVELOPER_MODE: s = setDeveloperMode(value); break;
 			case DEBUG_MODE: s = setDebugMode(value); break;
 			case LANGUAGES: s = setLanguages(value); break;
+			case SHOW_INVISIBLE_OPTIONS: s = setShowInvisibleOptions(value); break;
 			default: return false;
 		}
 		reserved.put(RESERVED_WORDS[resIdx], s);
@@ -228,7 +231,12 @@ public class Schedule  {
 	private String setPasswordForNotUnderstood(String s) { 
 		passwordForNotUnderstood = s; 
 		return s;
-	}	
+	}
+	private String setShowInvisibleOptions(String s) { 
+		Boolean b = Boolean.valueOf(s);
+		autoGenOptionNum = b.booleanValue();
+		return b.toString();
+	}		
 	private String setIcon(String s) {
 		icon = s;
 		return s;
