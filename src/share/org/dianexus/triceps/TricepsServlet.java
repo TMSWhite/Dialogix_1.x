@@ -37,6 +37,7 @@ public class TricepsServlet extends HttpServlet implements VersionIF {
 	static final String LOGIN_USERNAME = "_DlxUname";
 	static final String LOGIN_PASSWORD = "_DlxPass";
 	static final String LOGIN_RECORD = "_DlxLRec";	
+	static final String LOGIN_BROWSER = "_DlxBrws";
 	
 	/* Strings serving as messages for login error pages - these should really be JSP */
 	static final int LOGIN_ERR_NO_TOKEN = 0;
@@ -51,6 +52,7 @@ public class TricepsServlet extends HttpServlet implements VersionIF {
 	static final int LOGIN_ERR_UNSUPPORTED_BROWSER = 9;
 	static final int LOGIN_ERR_OK = 10;
 	static final int LOGIN_ERR_FINISHED = 11;
+	static final int LOGIN_ERR_ODD_CHANGE = 12;
 		
 	static final String[] LOGIN_ERRS_BRIEF = {
 		" LOGIN_ERR_NO_TOKEN",
@@ -65,6 +67,7 @@ public class TricepsServlet extends HttpServlet implements VersionIF {
 		" LOGIN_ERR_UNSUPPORTED_BROWSER",
 		" OK",
 		" FINISHED",
+		" LOGIN_ERR_ODD_CHANGE",
 	};
 	
 	static final String[] LOGIN_ERRS_VERBOSE = {
@@ -77,10 +80,13 @@ public class TricepsServlet extends HttpServlet implements VersionIF {
 		"Please contact the administrator -- the program was unable to load the interview: ",
 		"Please login again -- You will resume from where you left off.<br><br>(Your session expired, either because of prolonged inactivity, or because the server was restarted)",
 		"Please login again --  You will resume from where you left off.<br><br>(Your login session was invalidated because the login page was submitted twice)",
+		"Please login again -- You will resume from where you left off.<br><br>There was an unexpected error from your browser",
+		"OK",
+		"Thank you for completing this instrument",
+		"Please login again -- You will resume from where you left off.<br><br>(There was an unexpected network error)",
 	};	
 	
 	int accessCount = 0;
-
 	
 	public void init(ServletConfig config) throws ServletException {
 		super.init(config);
@@ -100,10 +106,10 @@ public class TricepsServlet extends HttpServlet implements VersionIF {
 	}
 
 	public void doPost(HttpServletRequest req, HttpServletResponse res)  {
-		initSession(req,res);
-		
-		int result = LOGIN_ERR_OK;
 		try {
+			initSession(req,res);
+		
+			int result = LOGIN_ERR_OK;
 			if (isSupportedBrowser(req)) {
 				result = okPage(req,res);
 			}
@@ -112,10 +118,15 @@ public class TricepsServlet extends HttpServlet implements VersionIF {
 			}
 			if (result >= 0) { logPageHit(req,LOGIN_ERRS_BRIEF[result]); }	// way to avoid re-logging post shutdown
 		}
-		catch (Throwable t) {
-if (DEBUG) Logger.writeln("##Throwable @ Servlet.doPost()" + t.getMessage());
+		catch (OutOfMemoryError oome) {
+			Runtime.getRuntime().gc();
+if (DEBUG) Logger.writeln("##OutOfMemoryError @ Servlet.doPost()" + oome.getMessage());
+if (DEBUG) Logger.printStackTrace(oome);			
+		}
+		catch (Exception t) {
+if (DEBUG) Logger.writeln("##Exception @ Servlet.doPost()" + t.getMessage());
 if (DEBUG) Logger.printStackTrace(t);
-			errorPage(req,res);
+//			errorPage(req,res);
 		}
 	}
 	
@@ -155,6 +166,7 @@ if (DEBUG) Logger.printStackTrace(t);
 		TricepsEngine tricepsEngine = (TricepsEngine) session.getAttribute(TRICEPS_ENGINE);
 		if (tricepsEngine == null) {
 			tricepsEngine = new TricepsEngine(this.getServletConfig());
+			session.setAttribute(TRICEPS_ENGINE, tricepsEngine);
 		}
 		
 		logAccess(req, " OK");
@@ -165,10 +177,10 @@ if (DEBUG) Logger.printStackTrace(t);
 			
 			tricepsEngine.doPost(req,res,out,null,null);
 						
+//			session.setAttribute(TRICEPS_ENGINE, tricepsEngine);
+
 			out.flush();
 			out.close();
-			
-			session.setAttribute(TRICEPS_ENGINE, tricepsEngine);
 			
 			/* disable session if completed */
 			if (tricepsEngine.isFinished()) {
@@ -177,7 +189,7 @@ if (DEBUG) Logger.printStackTrace(t);
 				return -1;
 			}			
 		}
-		catch (Throwable t) {
+		catch (Exception t) {
 if (DEBUG) Logger.printStackTrace(t);
 		}
 		return LOGIN_ERR_OK;
@@ -189,14 +201,16 @@ if (DEBUG) {
 	HttpSession session = req.getSession(false);
 	String sessionID = session.getId();
 	TricepsEngine tricepsEngine = (TricepsEngine) session.getAttribute(TRICEPS_ENGINE);
-	
+	Runtime rt = Runtime.getRuntime();
 	
 	/* standard Apache log format (after the #@# prefix for easier extraction) */
 	Logger.writeln("#@#(" + req.getParameter("DIRECTIVE") + ") [" + new Date(System.currentTimeMillis()) + "] " + 
 		sessionID + 
 		((WEB_SERVER) ? (" " + req.getRemoteAddr() + " \"" +
 		req.getHeader(USER_AGENT) + "\" \"" + req.getHeader(ACCEPT_LANGUAGE) + "\" \"" + req.getHeader(ACCEPT_CHARSET) + "\"") : "") +
-		((tricepsEngine != null) ? tricepsEngine.getScheduleStatus() : "") + msg + " " + (req.isSecure() ? "HTTPS" : "HTTP"));
+		((tricepsEngine != null) ? tricepsEngine.getScheduleStatus() : "") + msg + " " + (req.isSecure() ? "HTTPS" : "HTTP") +
+		" [" + rt.totalMemory() + ", " + rt.freeMemory() + "]"
+		);
 		
 // User-Agent = Mozilla/4.73 [en] (Win98; U)
 // Accept-Language = en
@@ -248,7 +262,7 @@ if (DEBUG && false) {
 			out.flush();
 			out.close();
 		}
-		catch (Throwable t) {
+		catch (Exception t) {
 if (DEBUG) Logger.printStackTrace(t);
 		}
 		return LOGIN_ERR_UNSUPPORTED_BROWSER;
@@ -287,7 +301,7 @@ if (DEBUG) Logger.printStackTrace(t);
 			out.flush();
 			out.close();
 		}
-		catch (Throwable t) {
+		catch (Exception t) {
 if (DEBUG) Logger.printStackTrace(t);
 		}		
 	}
@@ -342,7 +356,7 @@ if (DEBUG) Logger.printStackTrace(t);
 				/* otherwise this is a session that requires a login page? */
 			}
 			return true;
-		} catch (Throwable e) {
+		} catch (Exception e) {
 if (DEBUG) Logger.printStackTrace(e);
 			return false;
 		}
@@ -373,6 +387,7 @@ if (DEBUG) Logger.printStackTrace(e);
 	
 	boolean writeToDB(String command) {
 		try {
+			
 			if (ds == null) throw new Exception("Unable to access DataSource");
 			
 	        Connection conn = ds.getConnection();
@@ -381,12 +396,13 @@ if (DEBUG) Logger.printStackTrace(e);
 	        
 	        Statement stmt = conn.createStatement();
 			stmt.executeUpdate(command);
+			stmt.close();
 	
 	        conn.close();
 	        
 			return true;
 		}
-		catch (Throwable t) {
+		catch (Exception t) {
 			Logger.writeln("SQL-ERROR on: " + command);
 			Logger.writeln(t.getMessage());
 			return false;
@@ -394,31 +410,46 @@ if (DEBUG) Logger.printStackTrace(e);
 	}
 	
 	boolean logPageHit(HttpServletRequest req, String msg) {
-		/* 2/5/03:  Explicitly ask for session info everywhere (vs passing it as needed) */
 		HttpSession session = req.getSession(false);
-		String sessionID = session.getId();
-		TricepsEngine tricepsEngine = (TricepsEngine) session.getAttribute(TRICEPS_ENGINE);
+		String sessionID = null;
+		TricepsEngine tricepsEngine = null;
+		String workingFile = "null";
+		String currentStep = "null";
+		String displayCount = "null";
 		
-		StringBuffer pageHit = new StringBuffer("INSERT INTO pagehits VALUES ");
+		if (session != null) {
+			sessionID = session.getId();
+			tricepsEngine = (TricepsEngine) session.getAttribute(TRICEPS_ENGINE);
+			if (tricepsEngine != null) {
+				currentStep = tricepsEngine.getCurrentStep();
+				
+				Triceps triceps = tricepsEngine.getTriceps();
+				if (triceps != null) {
+					displayCount = triceps.getDisplayCount();
+					
+					Logger dl = triceps.dataLogger;
+					if (dl != null) {
+						String fn = dl.getFilename();
+						if (fn != null) {
+							workingFile = fn.replace('\\','/');
+						}
+					}
+				}
+			}
+		}
+		
+		StringBuffer pageHit = new StringBuffer("INSERT INTO pageHits VALUES ");
 		StringBuffer pageHitEvents = new StringBuffer("INSERT INTO pageHitEvents VALUES ");
 		int numPageHitEvents = 0;
 		StringBuffer pageHitDetails = new StringBuffer("INSERT INTO pageHitDetails VALUES ");
 		int numPageHitDetails = 0;
-		String workingFile = null;
 		String displayCountStr = null;
-		++accessCount;
+		Runtime rt = Runtime.getRuntime();
+		synchronized(this) {
+			++accessCount;
+		}
 		int lastPageHitIndex=-1;	
 
-		try {
-			workingFile = tricepsEngine.getTriceps().dataLogger.getFilename().replace('\\','/');
-		}
-		catch (Exception e) {
-			workingFile = "null";
-		}
-		
-		String currentStep = (tricepsEngine == null) ? "null" : tricepsEngine.getCurrentStep();
-		String displayCount = (tricepsEngine == null) ? "null" : tricepsEngine.getTriceps().getDisplayCount();
-		
 		pageHit.append("( NULL, NULL, '").append(accessCount).append("'");
 		pageHit.append(", '").append(req.getRemoteAddr()).append("'");
 		pageHit.append(", '").append(req.getParameter(LOGIN_USERNAME)).append("'");	
@@ -431,9 +462,11 @@ if (DEBUG) Logger.printStackTrace(e);
 		pageHit.append(", '").append(displayCount).append("'");
 		pageHit.append(", '").append(req.getParameter("DIRECTIVE")).append("'");
 		pageHit.append(", '").append(msg).append("'");
+		pageHit.append(", '").append(rt.totalMemory()).append("'");
+		pageHit.append(", '").append(rt.freeMemory()).append("'");
 		pageHit.append(")");
 		
-		/* Also want to log raw input parameters to a separate database */
+		// Also want to log raw input parameters to a separate database 
 		try {
 			if (ds == null) throw new Exception("Unable to access DataSource");
 			
@@ -444,13 +477,14 @@ if (DEBUG) Logger.printStackTrace(e);
 	        Statement stmt = conn.createStatement();
 	        int pageHitID = stmt.executeUpdate(pageHit.toString(), Statement.RETURN_GENERATED_KEYS);
 	        
-	        /* extract the value of the last insert */
+	        // extract the value of the last insert 
 	        ResultSet rst =  stmt.getGeneratedKeys();
         	rst.first();
         	lastPageHitIndex = rst.getInt(1);
+        	stmt.close();
         	
-	        /* now log the raw input */
-	        stmt.clearBatch();
+	        // now log the raw input 
+	        stmt = conn.createStatement();
 	        
 			java.util.Enumeration params = req.getParameterNames();
 			
@@ -458,7 +492,7 @@ if (DEBUG) Logger.printStackTrace(e);
 				String param = (String) params.nextElement();
 				String vals[] = req.getParameterValues(param);
 				if (param.startsWith("DIRECTIVE_") || param.equals("next") || param.equals("previous")) {
-					/* ignore these */
+					// ignore these 
 					;
 				}
 				else if (param.equals("EVENT_TIMINGS")) {
@@ -532,15 +566,16 @@ if (DEBUG) Logger.printStackTrace(e);
 				stmt.addBatch(pageHitEvents.toString());
 			}
 			stmt.executeBatch();
+			stmt.close();
 	
 	        conn.close();
 	        
 			return true;
 		}
-		catch (Throwable t) {
+		catch (Exception t) {
 			Logger.writeln("SQL-ERROR: ");
 			Logger.writeln(t.getMessage());
 			return false;
-		}		
+		}
 	}	
 }
