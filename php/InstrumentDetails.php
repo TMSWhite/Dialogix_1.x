@@ -4,7 +4,7 @@
 
 require_once("conn_dialogix.php");
 
-$query = "select * from InstrumentMeta order by InstrumentName";
+$query = "select * from InstrumentMeta order by Title, Version, NumVars";
 $res = mysql_query($query);
 
 if (!$res) {
