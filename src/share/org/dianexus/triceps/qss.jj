@@ -437,7 +437,7 @@ void Description() : { Token t; }
 		if (data.containsKey(t.image)) {
 			try {
 				Node node = data.getNode(t.image);
-				stack.push(new Datum(node.getDescription(),Datum.STRING));
+				stack.push(new Datum(node.getReadback(),Datum.STRING));
 			}
 			catch (Exception e) {
 				stack.push(Datum.getInstance(Datum.INVALID));
