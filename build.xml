@@ -512,7 +512,7 @@
     	<equals arg1="${dialogix.web_server}" arg2="true"/>
     </condition>
      <condition property="dialogix.webbable" value="">
-    	<equals arg1="${dialogix.web_server}" arg2="true"/>
+    	<equals arg1="${dialogix.web_server}" arg2="false"/>
     </condition>   
     
     <condition property="dialogix.package_name" value="ALL">
