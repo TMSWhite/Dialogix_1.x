@@ -415,3 +415,13 @@ Reorganization & Documentation
     -- build.properties has flags for compilation and deployment
     -- to re-compile, use "ant clean" followed by "ant dist" (to create zip files) or "ant deploy" to make working copy
     -- put all instruments in /web directory so that can re-create deployment tree cleanly
+
+
+<< changes from 2.9.6 to 2.9.7
+  BUGFIX
+    Node.java
+      -- list2 was displaying as combo box
+  ORGANIZATION
+    -- removed old XXXXLicense.java scheme.  Replaced with single License.java file, whose contents are set by ant build routine
+    -- modified ant build routine to read license information from /license/*.license files.
+    -- "ant src" now creates src archive of current code.
