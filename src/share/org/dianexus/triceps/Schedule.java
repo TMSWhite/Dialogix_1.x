@@ -8,21 +8,23 @@ import java.net.*;
 */
 public class Schedule  {
 	public static final int TITLE = 0;
-	public static final int STARTING_STEP = 1;
-	public static final int START_TIME = 2;
-	public static final int PASSWORD_FOR_REFUSED = 3;
-	public static final int AUTOGEN_OPTION_NUM = 4;
-	public static final int FILENAME = 5;
-	public static final int PASSWORD_FOR_UNKNOWN = 6;
-	public static final int ICON = 7;
-	public static final int HEADER_MSG = 8;
-	public static final int SHOW_QUESTION_REF = 9;
-	public static final int DEVELOPER_MODE = 10;
-	public static final int DEBUG_MODE = 11;
+	public static final int ICON = 1;
+	public static final int HEADER_MSG = 2;
+	public static final int STARTING_STEP = 3;
+	public static final int PASSWORD_FOR_REFUSED = 4;
+	public static final int PASSWORD_FOR_UNKNOWN = 5;
+	public static final int SHOW_QUESTION_REF = 6;
+	public static final int AUTOGEN_OPTION_NUM = 7;
+	public static final int DEVELOPER_MODE = 8;
+	public static final int DEBUG_MODE = 9;
+	public static final int START_TIME = 10;	
+	public static final int FILENAME = 11;
 	
 	public static final String[] RESERVED_WORDS = {
-		"__TITLE__", "__STARTING_STEP__", "__START_TIME__", "__PASSWORD_FOR_REFUSED__", "__AUTOGEN_OPTION_NUM__", "__FILENAME__",
-		"__PASSWORD_FOR_UNKNOWN__", "__ICON__", "__HEADER_MSG__", "__SHOW_QUESTION_REF__", "__DEVELOPER_MODE__", "__DEBUG_MODE__"
+		"__TITLE__", "__ICON__", "__HEADER_MSG__", "__STARTING_STEP__", 
+		"__PASSWORD_FOR_REFUSED__", "__PASSWORD_FOR_UNKNOWN__", "__SHOW_QUESTION_REF__", "__AUTOGEN_OPTION_NUM__", 
+		"__DEVELOPER_MODE__", "__DEBUG_MODE__",
+		"__START_TIME__", "__FILENAME__"
 	};
 	
 	private String title = null;
@@ -293,8 +295,8 @@ public class Schedule  {
 	public void toTSV(Writer out) {
 		Enumeration keys = reserved.keys();
 		
-		while (keys.hasMoreElements()) {
-			String s = (String) keys.nextElement();
+		for (int i=0;i<RESERVED_WORDS.length;++i) {
+			String s = RESERVED_WORDS[i];
 			try {
 				out.write("RESERVED\t" + s + "\t" + reserved.get(s).toString() + "\n");
 			}
