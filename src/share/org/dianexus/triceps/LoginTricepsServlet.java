@@ -13,6 +13,10 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpUtils;
 
+import javax.naming.*;
+import javax.sql.*;
+import java.sql.*;
+
 import java.util.Hashtable;
 import java.util.StringTokenizer;
 import java.io.BufferedReader;
@@ -24,6 +28,7 @@ import java.util.Enumeration;
 import java.io.PrintWriter;
 import java.io.BufferedWriter;
 import java.io.FileWriter;
+import java.text.DateFormat;
 
 public class LoginTricepsServlet extends TricepsServlet {
 	/* Strings for storing / retrieving state of authentication */
@@ -72,14 +77,12 @@ public class LoginTricepsServlet extends TricepsServlet {
 	};
 
 	
-	LoginRecords loginRecords = LoginRecords.NULL;
 	static Random random = new Random();
-		
+	
 	public void init(ServletConfig config) throws ServletException {
 		super.init(config);
 		
-		/* Load login info file from init param */
-		if (!loadLoginInfoFile(config)) {
+		if (!initLoginService()) {
 			Logger.writeln("Unable to initialize LoginTricepsServlet");
 		}
 	}
@@ -141,7 +144,7 @@ if (DEBUG) Logger.printStackTrace(t);
 				return;
 			}
 			
-			loginRecord = loginRecords.validateLogin(uname,pass);
+			loginRecord = validateLogin(uname,pass);
 			if (loginRecord == LoginRecord.NULL) {
 				/* then invalid */
 				loginPage(req,res,LOGIN_ERR_INVALID_UNAME_OR_PASS);
@@ -202,14 +205,6 @@ if (DEBUG) Logger.printStackTrace(t);
 	
 	private static String createLoginToken() {
 		return System.currentTimeMillis() + "." + Long.toString(random.nextLong());
-	}
-	
-	private boolean loadLoginInfoFile(ServletConfig config) {
-		/* N.B. This approach assumes that a single username / password is never used more than once -- one to one mapping between uname/pass and instrument instance */
-		String s = config.getInitParameter("loginInfoFile");
-		loginRecords = new LoginRecords(s);
-//		loginRecords.showValues();
-		return loginRecords.isLoaded();
 	}
 	
 	void loginPage(HttpServletRequest req, HttpServletResponse res, int login_err) {
@@ -367,7 +362,7 @@ if (DEBUG) Logger.printStackTrace(t);
 				
 				loginRecord.setFilename(filename);
 				loginRecord.setStatusWorking();
-				loginRecords.updateLoginInfo();
+				updateRecord(loginRecord, req);
 				
 				/* override whatever command was passed via req -- should be RESTORE */
 				restoreFile = filename;
@@ -400,7 +395,7 @@ if (DEBUG) Logger.printStackTrace(t);
 				try {
 					shutdown(req,"post-FINISHED",false);	// if don't remove the session, can't login as someone new
 					loginRecord.setStatusCompleted();
-					loginRecords.updateLoginInfo();
+					updateRecord(loginRecord, req);
 				}
 				catch (java.lang.IllegalStateException e) {
 					Logger.writeln(e.getMessage());
@@ -410,114 +405,40 @@ if (DEBUG) Logger.printStackTrace(t);
 if (DEBUG) Logger.printStackTrace(t);
 		}
 	}	
-}
-
-class LoginRecords implements VersionIF  {
-	static String LOCK_FILE = "LOCK_FILE";
+	
+	/** 
+		These functions are pulled  from the old LoginRecords, now that a database.  Better separation of function is desirable for the future
+	**/
+	private Context ctx = null;
+	private DataSource ds = null;	
 	private boolean isLoaded = false;
-	private Hashtable loginRecords = new Hashtable();
-	static LoginRecords NULL = new LoginRecords(null);
-	static String sourceFile = null;	// so can modify this as needed
 	
-	LoginRecords(String filename) {
-		this.sourceFile = filename;
-		if (filename != null) {
-			isLoaded = loadLoginInfo(filename);
-		}
-	}
-
-	private boolean loadLoginInfo(String filename) {
-		BufferedReader br = null;
-		boolean loaded = true;
-		synchronized(LOCK_FILE) {
-			try {
-				br = new BufferedReader(new FileReader(filename));
-				String fileLine = null;
-				while ((fileLine = br.readLine()) != null) {
-					if ("".equals(fileLine.trim())) {
-						continue;
-					}
-					if (fileLine.startsWith("#")) {
-						continue;
-					}
-					loaded = loaded && addLoginRecord(fileLine);
-				}
-			}
-			catch (Throwable e) {
-	if (DEBUG)	Logger.writeln("##Throwable @ loadLoginInfoFile() " + e.getMessage());
-				loaded = false;	// to incidate that an error occurred
-			}
-			if (br != null) {
-				try { br.close(); } catch (IOException t) { }
-			}
-		}
-		if (!loaded) {		
-			Logger.writeln("Unable to load loginInfoFile \"" + filename + "\"");
-			return false;
-		}
-		return true;
+	boolean initLoginService() {
+		/* Load login info file from init param */
+	    try {
+	      ctx = new InitialContext();
+	      if(ctx == null ) 
+	          throw new Exception("Boom - No Context");
+	
+	      ds = (DataSource)ctx.lookup("java:comp/env/jdbc/dialogix_users");
+	      if(ds == null ) 
+	          throw new Exception("Boom - No DataSource");	      
+	    }catch(Exception e) {
+if (DEBUG) Logger.printStackTrace(e);
+	      return false;
+	    }
+	    isLoaded = true;
+	    return true;
 	}
 	
-	private boolean addLoginRecord(String line) {
-		int field = 0;
-		StringTokenizer st = new StringTokenizer(line,"\t",true);
-		String varname=null, value=null;
-		
-		LoginRecord lr = new LoginRecord();
-
-		while(st.hasMoreTokens()) {
-			String s = null;
-			s = st.nextToken();
-
-			if (s.equals("\t")) {
-				++field;
-				continue;
-			}
-			switch(field) {
-				case 0:
-					lr.setUsername(s);
-					break;
-				case 1:
-					lr.setPassword(s);
-					break;
-				case 2:
-					lr.setFilename(s);
-					break;
-				case 3:
-					lr.setInstrument(s);
-					break;
-				case 4:
-					lr.setStatus(s);
-					break;
-				case 5:
-					lr.setStartingStep(s);
-					break;
-				default:
-					/* can add arbitrary number of additional parmeters, in pairs of tab delimited (VARIABLE_NAME, VALUE)
-					I have not done robust checking to ensure that the variable names are valid, since this is a hack.
-					When a new instrument is started, these pairs of values will be added to the end of the data file, before any subject interaction */
-					if (((field - 6) % 2) == 0) {
-						varname = s;
-					}
-					else {
-						value = s;
-						lr.addMapping(varname,value);
-					}
-					break;
-			}
-		}
-		if (lr.isValid()) {
-			loginRecords.put(lr.getUsername(),lr);
-			return true;
-		}
-		return false;
-	}
-
 	LoginRecord validateLogin(String username, String password) {
 		if (!isLoaded || username == null || username.trim().equals("") || password == null || password.trim().equals("")) {
 			return LoginRecord.NULL;
 		}
-		LoginRecord lr = (LoginRecord) loginRecords.get(username);
+		
+		/* query database to create a login record */
+		
+		LoginRecord lr = getRecord(username);
 		if (lr == null) {
 			return LoginRecord.NULL;
 		}
@@ -529,43 +450,126 @@ class LoginRecords implements VersionIF  {
 		}
 	}
 	
-	boolean isLoaded() {
-		return isLoaded;
+	LoginRecord getRecord(String username) {
+		/* This assumes that each unique username is only assigned to a single instrument */
+        LoginRecord lr = null;
+		
+		try {
+			StringBuffer sb = new StringBuffer();
+			sb.append("SELECT username, password, filename, instrument, status, startingStep,_clinpass, Dem1 FROM wave6users WHERE 1 AND username LIKE '");
+			sb.append(username).append("'");
+//			if (DEBUG) Logger.writeln(sb.toString());
+			if (DEBUG) Logger.writeln("LOGIN ATTEMPT: " + username);
+			
+			if (ds == null) throw new Exception("Unable to access DataSource");
+			
+	        Connection conn = ds.getConnection();
+	        
+	        if (conn == null)throw new Exception("Unable to connect to database");	// really need a way to report that there are database problems!
+	              
+	        Statement stmt = conn.createStatement();
+	        ResultSet rst = stmt.executeQuery(sb.toString());
+	        if(rst.next()) {
+	        	lr = new LoginRecord();
+	        	lr.setUsername(rst.getString(1));
+	        	lr.setPassword(rst.getString(2));
+	        	lr.setFilename(rst.getString(3));
+	        	lr.setInstrument(rst.getString(4));
+	        	lr.setStatus(rst.getString(5));
+	        	lr.setStartingStep(rst.getString(6));
+	        	lr.addMapping("_clinpass",rst.getString(7));
+	        	lr.addMapping("Dem1",rst.getString(8));
+//if (DEBUG) Logger.writeln("LOGIN: " + lr.showValue());
+	        }
+	        conn.close();
+	    } catch (Throwable t) {
+			Logger.writeln("Error updating database \"" + t.getMessage());
+if (DEBUG) Logger.printStackTrace(t);
+	    }
+        
+		return lr;
 	}
 	
-	void showValues() {
-		Enumeration enum = loginRecords.elements();
-		while (enum.hasMoreElements()) {
-			LoginRecord lr = (LoginRecord) enum.nextElement();
-			Logger.writeln(lr.showValue());
-		}
-	}
+	boolean updateRecord(LoginRecord lr, HttpServletRequest req) {
+		/* This assumes that each unique username is only assigned to a single instrument */
+		
+		try {
+			StringBuffer sb = new StringBuffer();
+			sb.append("UPDATE wave6users SET ");
+			sb.append("	filename='").append(lr.getFilename());
+			sb.append("',	status='").append(lr.getStatus());
+			sb.append("'	WHERE username='").append(lr.getUsername()).append("'");
+			
+//	if (DEBUG) Logger.writeln(sb.toString());	/* so that show the command about to be executed */
+	            			
+			if (ds == null) throw new Exception("Unable to access DataSource");
+			
+	        Connection conn = ds.getConnection();
+	        
+	        if (conn == null) throw new Exception("Unable to connect to database");	// really need a way to report that there are database problems!
+	        
+	        /* could benefit from prepared statement? */
+	        
+	        Statement stmt = conn.createStatement();
+	        ResultSet rst =  stmt.executeQuery(sb.toString());
 	
-	boolean updateLoginInfo() {
-		synchronized(LOCK_FILE) {
-			PrintWriter pw = null;
-			try {
-				pw = new PrintWriter(new BufferedWriter(new FileWriter(sourceFile)));
-				
-				Enumeration enum = loginRecords.elements();
-				while (enum.hasMoreElements()) {
-					LoginRecord lr = (LoginRecord) enum.nextElement();
-					pw.println(lr.showValue());
-				}			
-			}
-			catch (Throwable e) {
-	if (DEBUG)	Logger.writeln("##Throwable @ updateLoginInfo() " + e.getMessage());
-				isLoaded = false;	// since a fatal error?
-			}
-			if (pw != null) {
-				pw.close();
-			}
+	        conn.close();
+	        
+			return true;
 		}
-		if (!isLoaded) {		
-			Logger.writeln("Error updating loginInfoFile \"" + sourceFile + "\"");
+		catch (Throwable t) {
+			Logger.writeln("Error updating database: " + t.getMessage());
+if (DEBUG) Logger.printStackTrace(t);
 			return false;
 		}
-		return true;
+	}
+	
+	boolean updateStatus(HttpServletRequest req, String msg) {
+		/* This assumes that each unique username is only assigned to a single instrument */
+		
+		try {
+			LoginRecord lr = (LoginRecord) req.getSession().getAttribute(LOGIN_RECORD);
+			if (lr == null || tricepsEngine == null) { return false; }
+			
+			StringBuffer sb = new StringBuffer();
+			sb.append("UPDATE wave6users SET ");
+			sb.append("	status='").append(lr.getStatus());
+			sb.append("',	lastAccess='").append(DateFormat.getDateTimeInstance(DateFormat.MEDIUM,DateFormat.MEDIUM).format(new Date(System.currentTimeMillis())));
+			sb.append("',	currentStep='").append(tricepsEngine.getCurrentStep());
+			sb.append("',	currentIP='").append(req.getRemoteAddr());
+			sb.append("',	lastAction='").append(req.getParameter("DIRECTIVE"));
+			sb.append("',	sessionID='").append(sessionID);
+			sb.append("',	browser='").append(req.getHeader(USER_AGENT));
+			sb.append("',	statusMsg='").append(msg);
+			sb.append("'	WHERE username='").append(lr.getUsername()).append("'");
+			
+//	if (DEBUG) Logger.writeln(sb.toString());	/* so that show the command about to be executed */
+	            			
+			if (ds == null) throw new Exception("Unable to access DataSource");
+			
+	        Connection conn = ds.getConnection();
+	        
+	        if (conn == null) throw new Exception("Unable to connect to database");	// really need a way to report that there are database problems!
+	        
+	        /* could benefit from prepared statement? */
+	        
+	        Statement stmt = conn.createStatement();
+	        ResultSet rst =  stmt.executeQuery(sb.toString());
+	
+	        conn.close();
+	        
+			return true;
+		}
+		catch (Throwable t) {
+			Logger.writeln("Error updating database \"" + t.getMessage());
+if (DEBUG) Logger.printStackTrace(t);
+			return false;
+		}
+	}
+	
+	void logAccess(HttpServletRequest req, String msg) {
+		super.logAccess(req,msg);
+		updateStatus(req,msg);
 	}
 }
 
@@ -605,7 +609,8 @@ class LoginRecord {
 	}
 	
 	void setFilename(String filename) {
-		this.filename = filename;
+		/* convert from Windows to Unix file separator */
+		this.filename = filename.replace('\\','/');
 	}
 	
 	String getFilename() {
@@ -719,3 +724,12 @@ class LoginRecord {
 		return sb.toString();
 	}
 }
+
+/* Add status information to database */
+/* [] last access time:  new Date(System.currentTimeMillis()) */
+/* [] current step: tricepsEngine.getScheduleStatus() */
+/* [] get source IP address: req.getRemoteAddr() */
+/* [] last action: req.getParameter("DIRECTIVE") */
+/* [] sessionID: sessionID */
+/* [] browser: req.getHeader(USER_AGENT) */
+/* [] statusmsg: OK, ERROR, etc. */
