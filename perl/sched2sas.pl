@@ -39,7 +39,7 @@ my $levelTypes = {
 	radio3 => 'NOMINAL',
 	second => 'SCALE',
 	text => 'NOMINAL',
-	time => 'SCALE',
+	time => 'NOMINAL',
 	weekday => 'NOMINAL',	# since name of weekday
 	year => 'SCALE',
 };
@@ -69,7 +69,7 @@ my $formats = {
 	radio3 => 'F8.0',
 	second => 'date|ss',
 	text => 'A100',
-	time => 'TIME5',	# was TIME5.3, but seemed to cause problems on import
+	time => 'A9',	# was TIME5.3, but seemed to cause problems on import
 	weekday => 'WKDAY',	# since name of weekday
 	year => 'date|yyyy',	
 };
@@ -86,7 +86,7 @@ my $supportsMissing = {
 	hour => 1,
 	list => 1,
 	list2 => 1,
-	memo => 1,
+	memo => 0,
 	minute => 1,
 	month => 1,
 	month_num => 1,
@@ -96,7 +96,7 @@ my $supportsMissing = {
 	radio2 => 1,
 	radio3 => 1,
 	second => 1,
-	text => 1,
+	text => 0,
 	time => 0,
 	weekday => 1,
 	year => 1,
@@ -1025,7 +1025,7 @@ sub cat_ans {
 		while ($count < $#vals) {
 			$count += 2;
 			my $key = $vals[$count-1];
-			if ($key !~ /^[0-9]+$/) {
+			if ($key !~ /^-?[0-9.]+$/) {
 				# if not a number, then must be a string
 				$isString = 1;
 			}
@@ -1037,8 +1037,12 @@ sub cat_ans {
 			$text .= ' ' . $strippedAns;	# so have all text
 			my $key = $vals[$count-1];
 			if ($isString) {
-				if ($key =~ /^[0-9]$/) {	# if a number, add surrounding quotes
-					$key = qq|'$key'|;
+				# convert single to double quotes
+				if ($key =~ /^'(.+)'$/) {
+					$key = qq|"$1"|;
+				}
+				if ($key =~ /^-?[0-9.]$/) {	# if a number, add surrounding quotes
+					$key = qq|"$key"|;
 				}
 			}
 			$ansMap{$key} = $strippedAns; # so have mapping of answer to text for data dictionary

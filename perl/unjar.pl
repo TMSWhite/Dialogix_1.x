@@ -199,7 +199,7 @@ sub doit {
 
 sub removeOldAnalysisFiles {
 	my @files = glob("$Prefs->{RESULTS_DIR}/*.log");
-	push @files, glob("$Prefs->{RESULTS_DIR}/*.s*");
+	push @files, glob("$Prefs->{RESULTS_DIR}/*.sav");
 	push @files, glob("$Prefs->{RESULTS_DIR}/*.tsv");
 
 	foreach (@files) {
