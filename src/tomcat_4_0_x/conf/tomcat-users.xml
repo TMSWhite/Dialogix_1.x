@@ -11,4 +11,5 @@
   <user name="CHOICEs" password="##test987##" roles="CHOICEs" />
   <user name="dialogix" password="#aka#Triceps#" roles="manager,tomcat_admin" />
   <user name="wave6doc" password="J728J945" roles="Wave6clinician" />
+  <user name="wave6staff" password="K823G952" roles="Wave6clinician" />
 </tomcat-users>
