@@ -13,7 +13,7 @@ import java.lang.String;
 import java.util.Random;
 import java.util.Locale;
 import java.util.ResourceBundle;
-import java.util.HashMap;
+import java.util.Hashtable;
 import java.io.File;
 import java.util.Enumeration;
 import java.util.Vector;
@@ -71,8 +71,8 @@ import java.lang.SecurityException;
 	private Locale locale = defaultLocale;
 
 	/* Hold on to instances of Date and Number format for fast and easy retrieval */
-	private static final HashMap dateFormats = new HashMap();
-	private static final HashMap numFormats = new HashMap();
+	private static final Hashtable dateFormats = new Hashtable();
+	private static final Hashtable numFormats = new Hashtable();
 	private static final String DEFAULT = "null";
 
 	/*public*/ static final Triceps NULL = new Triceps();
@@ -106,6 +106,14 @@ import java.lang.SecurityException;
 		eventLogger = Logger.NULL;
 	}
 	
+	/*public*/ void closeDataLogger() {
+if (DEPLOYABLE) {
+		if (dataLogger != null)
+			dataLogger.close();
+		if (eventLogger != null)
+			eventLogger.close();
+}			
+	}
 	
 	/*public*/ void createDataLogger(String dir, String name) {
 if (DEPLOYABLE) {		
@@ -134,11 +142,11 @@ if (DEPLOYABLE) {
 		catch (Throwable t) {
 if (DEBUG) Logger.writeln("##Triceps.createDataLogger()-unable to create temp file" + t.getMessage());
 		}
-}	
+}	// DEPLOYABLE
 		if (dataLogger == null) {
 			dataLogger = Logger.NULL;
 if (DEBUG) Logger.writeln("##Triceps.createDataLogger()->writer is null");			
-	}
+		}
 		if (eventLogger == null) {
 			eventLogger = Logger.NULL;
 if (DEBUG) Logger.writeln("##Triceps.createEventLogger()->writer is null");			
@@ -1005,9 +1013,7 @@ if (DEBUG) Logger.writeln("##error accessing resource '" + BUNDLE_NAME + "[" + l
 			sdf = new SimpleDateFormat();	// get the default for the locale
 			Locale.setDefault(defaultLocale);
 		}
-		synchronized (dateFormats) {
-			dateFormats.put(key,sdf);
-		}
+		dateFormats.put(key,sdf);
 		return sdf;
 	}
 
@@ -1037,9 +1043,7 @@ if (DEBUG) Logger.writeln("##error creating DecimalFormat for locale " + locale.
 			if (df == null) {
 				;	// allow this - will use Double.format() internally
 			}
-			synchronized (numFormats) {
-				numFormats.put(key,df);
-			}
+			numFormats.put(key,df);
 			return df;
 		}
 	}
