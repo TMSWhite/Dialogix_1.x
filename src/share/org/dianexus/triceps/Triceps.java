@@ -148,16 +148,16 @@ if (DEPLOYABLE) {
 			eventLogger = new Logger(Logger.UNIX_EOL,true,tempEventFile);
 		}
 		catch (Throwable t) {
-if (DEBUG) Logger.writeln("##Triceps.createDataLogger()-unable to create temp file" + t.getMessage());
+			setError("Triceps.createDataLogger()-unable to create temp file" + t.getMessage());
 		}
 }	// DEPLOYABLE
 		if (dataLogger == null) {
 			dataLogger = Logger.NULL;
-if (DEBUG) Logger.writeln("##Triceps.createDataLogger()->writer is null");			
+			setError("Triceps.createDataLogger()->writer is null");			
 		}
 		if (eventLogger == null) {
 			eventLogger = Logger.NULL;
-if (DEBUG) Logger.writeln("##Triceps.createEventLogger()->writer is null");			
+			setError("Triceps.createEventLogger()->writer is null");			
 		}
 if (DEPLOYABLE) {
 		eventLogger.println("**" + VERSION_NAME + " Log file started on " + new Date(System.currentTimeMillis()));
@@ -211,7 +211,7 @@ if (AUTHORABLE) {
 			oldNodes.getReserved(Schedule.FLOPPY_DIR));
 			
 		if (!ok) {
-if (DEBUG) Logger.writeln("##Unable to reload schedule");			
+			setError("Unable to reload schedule");			
 			nodes = oldNodes;
 			evidence = oldEvidence;
 			return false;
@@ -783,12 +783,14 @@ if (AUTHORABLE) {
 	/*public*/ String saveCompletedInfo() {
 if (DEPLOYABLE) {
 		if (dataLogger == Logger.NULL || eventLogger == Logger.NULL) {
+			setError("Triceps.saveCompletedInfo:  data and/or event loggers already closed");			
 			return null;	// indicates that info was already logged, or some more fundamental error occurred
 		}
 		String name = saveAsJar(nodes.getReserved(Schedule.FILENAME));
 		if (name != null) {
 			return name;
 		}
+		setError("Triceps.saveCompletedInfo: unable to saveAsJar");						
 		return null;
 }
 		return null;		
@@ -810,6 +812,12 @@ if (DEPLOYABLE) {
 		ok = jf.addEntry(fn + DATAFILE_SUFFIX + EVENTFILE_SUFFIX, eventLogger.getInputStream()) && ok;
 		jf.close();
 		
+		File f = new File(name);
+		if (f.length() == 0L) {
+			setError("saveAsJar: file has 0 size");
+			ok = false;
+		}		
+		
 		return ((ok) ? name : null);
 }
 		return null;		
@@ -820,6 +828,9 @@ if (DEPLOYABLE) {
 		String floppyDir = nodes.getReserved(Schedule.FLOPPY_DIR) + name;
 		
 		boolean ok = JarWriter.NULL.copyFile(nodes.getReserved(Schedule.COMPLETED_DIR) + name, floppyDir);
+		if (JarWriter.NULL.hasErrors()) {
+			setError(JarWriter.NULL.getErrors());
+		}
 		if (ok)
 			return name;
 		else {
@@ -870,7 +881,7 @@ if (AUTHORABLE) {
 		return s.equals(temp);
 	}
 
-	private void setError(String s) { 
+	/*public*/ void setError(String s) { 
 if (DEBUG) Logger.writeln("##" + s);		
 		errorLogger.println(s); 
 	}
@@ -989,7 +1000,7 @@ if (DEPLOYABLE) {
 			bundle = ResourceBundle.getBundle(BUNDLE_NAME,locale);
 		}
 		catch (MissingResourceException t) {
-if (DEBUG) Logger.writeln("##error loading resources '" + BUNDLE_NAME + "': " + t.getMessage());
+			setError("error loading resources '" + BUNDLE_NAME + "': " + t.getMessage());
 		}
 	}
 
@@ -1004,11 +1015,11 @@ if (DEBUG) Logger.writeln("##error loading resources '" + BUNDLE_NAME + "': " + 
 				s = bundle.getString(localizeThis);
 			}
 			catch (MissingResourceException e) {
-if (DEBUG) Logger.writeln("##MissingResourceException @ Triceps.get()" + e.getMessage());
+				setError("MissingResourceException @ Triceps.get()" + e.getMessage());
 			}
 
 			if (s == null || s.trim().length() == 0) {
-if (DEBUG) Logger.writeln("##error accessing resource '" + BUNDLE_NAME + "[" + localizeThis + "]'");
+				setError("error accessing resource '" + BUNDLE_NAME + "[" + localizeThis + "]'");
 				return "";
 			}
 			else {
@@ -1211,7 +1222,7 @@ if (DEBUG) Logger.writeln("##Error parsing date " + obj + " with mask " + mask);
 			}
 			catch(IllegalArgumentException e) {
 if (DEBUG) Logger.writeln("##IllegalArgumentException @ Triceps.formatNumber()" + e.getMessage());
-				}
+			}
 		}
 
 		return s;
