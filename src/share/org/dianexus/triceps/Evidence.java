@@ -66,6 +66,7 @@ public class Evidence  {
 	private static final int TOUPPERCASE = 45;
 	private static final int TRIM = 46;
 	private static final int ISNUMBER = 47;
+	private static final int FILEEXISTS = 48;
 
 	private static final Object FUNCTION_ARRAY[][] = {
 		{ "desc",				ONE,		new Integer(DESC) },
@@ -116,6 +117,7 @@ public class Evidence  {
 		{ "toUpperCase",		ONE,		new Integer(TOUPPERCASE) },
 		{ "trim",				ONE,		new Integer(TRIM) },	
 		{ "isNumber",			ONE,		new Integer(ISNUMBER) },
+		{ "fileExists",			ONE,		new Integer(FILEEXISTS) },
 	};
 
 	private static final Hashtable FUNCTIONS = new Hashtable();
@@ -133,7 +135,7 @@ public class Evidence  {
 	private Logger errorLogger = new Logger();
 	Triceps triceps = null;	// need package-level access in Qss
 
-	public Evidence(Triceps tri) {
+	public Evidence(Triceps tri, boolean toUnasked) {
 		if (tri == null)
 			return;
 		triceps = tri;
@@ -141,8 +143,10 @@ public class Evidence  {
 
 		numReserved = Schedule.RESERVED_WORDS.length;	// these are always added at the beginning
 
-		Node node;
-		Value value;
+		Node node=null;
+		Value value=null;
+		String init=null;
+		Datum datum = null;
 		int idx=0;
 
 		/* first assign the reserved words */
@@ -153,12 +157,43 @@ public class Evidence  {
 		}
 
 		int size = schedule.size();
+		int startingStep = Integer.parseInt(schedule.getReserved(Schedule.STARTING_STEP));
+		String timeStamp = null;
+		String startTime = schedule.getReserved(Schedule.START_TIME);
+
 
 		/* then assign the user-defined words */
 		for (int i = 0; i < size; ++i, ++idx) {
 			node = schedule.getNode(i);
-			value = new Value(node, Datum.getInstance(triceps,Datum.UNASKED),node.getAnswerTimeStampStr());
-
+			
+			if (toUnasked) {
+				datum = Datum.getInstance(tri,Datum.UNASKED);
+				timeStamp = startTime;
+			}
+			else {
+				/* read default values from schedule file */
+				init = node.getAnswerGiven();
+				if (init == null || init.length() == 0) {
+					if (i < startingStep && node.getAnswerType() == Node.NOTHING) {
+						datum = new Datum(tri,"",Datum.STRING);	// so that not marked as UNASKED
+					}
+					else {
+						datum = Datum.getInstance(tri,Datum.UNASKED);
+					}
+				}
+				else {
+					datum = Datum.parseSpecialType(tri,init);
+					if (datum == null) {
+						/* then not special, so use the init value */
+						datum = new Datum(tri, init, node.getDatumType(), node.getMask());
+					}
+				}
+				timeStamp = node.getAnswerTimeStampStr();
+				if (timeStamp == null || timeStamp.trim().length() == 0)
+					timeStamp = startTime;
+			}
+				
+			value = new Value(node, datum, timeStamp);
 			values.addElement(value);
 
 			Integer j = new Integer(idx);
@@ -808,6 +843,42 @@ public class Evidence  {
 					return new Datum(triceps,datum.stringVal().trim(), Datum.STRING);
 				case ISNUMBER:
 					return new Datum(triceps,datum.isNumeric());
+				case FILEEXISTS:
+				{
+					String fext = datum.stringVal();
+					if (fext == null)
+						return new Datum(triceps,false);
+					fext = fext.trim();
+					if (fext.length() == 0)
+						return new Datum(triceps,false);;
+						
+					/* now check whether this name is available in both working and completed dirs */
+					File file;
+					Schedule sched = triceps.getSchedule();
+					String fname;
+					
+					try {
+						fname = sched.getReserved(Schedule.WORKING_DIR) + fext;
+Logger.writeln("exists(" + fname + ")");					
+						file = new File(fname);
+						if (file.exists())
+							return new Datum(triceps,true);;
+					}
+					catch (SecurityException e) {
+						return Datum.getInstance(triceps,Datum.INVALID);	
+					}
+					try {
+						fname = sched.getReserved(Schedule.COMPLETED_DIR) + fext;
+Logger.writeln("exists(" + fname + ")");					
+						file = new File(fname);
+						if (file.exists())
+							return new Datum(triceps,true);
+					}
+					catch (SecurityException e) {
+						return Datum.getInstance(triceps,Datum.INVALID);	
+					}					
+					return new Datum(triceps,false);
+				}
 			}
 		}
 		catch (Throwable t) { 
