@@ -39,6 +39,7 @@ while($r  = mysql_fetch_assoc($res))
 	<td><b>Equations</b></td>
 	<td><b>Branches</b></td>
 	<td><b>Tailorings</b></td>
+	<td><b>XML</b></td>
 </tr>
 
 <?php
@@ -58,6 +59,11 @@ while($r  = mysql_fetch_assoc($res))
 		<td>$NumEquations</td>
 		<td>$NumBranches</td>
 		<td>$NumTailorings</td>	
+		<td>
+			<a title='Generic XML Version' href=\"InstrumentAsXML.php?Instrument=$InstrumentName\">xml</a>
+			<a title='Voice XML Version' href=\"InstrumentAsVoiceXML.php?Instrument=$InstrumentName\">voice</a>
+			<a title='XForms Version' href=\"InstrumentAsXForms.php?Instrument=$InstrumentName\">xforms</a>
+		</td>
 		</tr>\n";
 	}
 ?>
