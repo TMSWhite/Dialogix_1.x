@@ -40,7 +40,7 @@ while($r  = mysql_fetch_assoc($res))
 <?php include("Dialogix_Table_PartA.php"); ?>
 
 <table border=1 width=100% align=center>
-<tr><td colspan="8" align="center"><FONT SIZE="5"><?php echo "$InstrumentName" ?><br\><?php echo "$InstanceName" ?></br><?php echo "$StartDate" ?> (<?php echo "$num_rows" ?> rows)</FONT></td></tr>
+<tr><td colspan="6" align="center"><FONT SIZE="5"><?php echo "$InstrumentName" ?><br\><?php echo "$InstanceName" ?></br><?php echo "$StartDate" ?> (<?php echo "$num_rows" ?> rows)</FONT></td></tr>
 <tr>
 	<td><b>Page</b></td>
 	<td><b>Group</b></td>

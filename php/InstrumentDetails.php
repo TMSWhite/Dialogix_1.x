@@ -28,7 +28,7 @@ while($r  = mysql_fetch_assoc($res))
 <?php include("Dialogix_Table_PartA.php"); ?>
 
 <table border=1 width=100% align=center>
-<tr><td colspan="8" align="center"><FONT SIZE="5">Instruments (<?php echo "$num_instruments" ?>)</FONT></td></tr>
+<tr><td colspan="10" align="center"><FONT SIZE="5">Instruments (<?php echo "$num_instruments" ?>)</FONT></td></tr>
 <tr>
 	<td><b>ID</b></td>
 	<td><b>Title</b></td>

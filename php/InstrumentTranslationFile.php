@@ -36,7 +36,7 @@ while($r  = mysql_fetch_assoc($res))
 <?php include("Dialogix_Table_PartA.php"); ?>
 
 <table border=1 width=100% align=center>
-<tr><td colspan="8" align="center"><FONT SIZE="5">Translation File for (<?php echo $InstrumentName; ?>)<br>
+<tr><td colspan="5" align="center"><FONT SIZE="5">Translation File for (<?php echo $InstrumentName; ?>)<br>
 	(<?php echo $NumLanguages; ?> languages; <?php echo "$num_instruments" ?> rows)</FONT></td></tr>
 <tr>
 	<td><b>VarName</b></td>

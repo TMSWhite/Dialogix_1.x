@@ -28,7 +28,7 @@ while($r  = mysql_fetch_assoc($res))
 <?php include("Dialogix_Table_PartA.php"); ?>
 
 <table border=1 width=100% align=center>
-<tr><td colspan="8" align="center"><FONT SIZE="5">Selected Instruments (<?php echo "$num_instruments" ?>)</FONT></td></tr>
+<tr><td colspan="7" align="center"><FONT SIZE="5">Selected Instruments (<?php echo "$num_instruments" ?>)</FONT></td></tr>
 <tr>
 	<td><b>Title</b></td>
 	<td><b>Version</b></td>
@@ -37,7 +37,7 @@ while($r  = mysql_fetch_assoc($res))
 	<td><b>Date Implemented</b></td>
 	<td><b>Questions<br>(min - max)</b></td>
 	<td><b>Equations<b></td>
-	<td><b>Logic<br>File</b></td>
+	<!--	<td><b>Logic<br>File</b></td> -->
 </tr>
 
 <?php
@@ -54,8 +54,10 @@ while($r  = mysql_fetch_assoc($res))
 		<td>$DateImplemented</td>
 		<td>($NumAlwaysQs - $NumQs)</td>
 		<td>$NumEs</td>
+		<!--
 		<td><a href=\"http://psychinformatics.nyspi.org:8080/$Project/$Base.htm\" target=\"_blank\">
 			<img src=\"http://psychinformatics.nyspi.org:8080/images/info_i.jpg\"></a></td>
+		-->
 		</tr>\n";
 	}
 ?>

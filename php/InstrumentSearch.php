@@ -4,7 +4,9 @@
 
 require_once("conn_dialogix.php");
 
-$query = "select * from UniqueInstruments order by InstrumentName";
+//$query = "select * from UniqueInstruments order by InstrumentName";
+$query = "select *, count(*) as NumInstances from Instances group by InstrumentName order by InstrumentName";
+
 $res = mysql_query($query);
 
 if (!$res) {
@@ -30,8 +32,8 @@ while($r  = mysql_fetch_assoc($res))
 <table border=1 width=100% align=center>
 <tr><td colspan="8" align="center"><FONT SIZE="5">Instruments with Data (<?php echo "$num_instruments" ?>)</FONT></td></tr>
 <tr>
-	<td><b>ID</b></td>
 	<td><b>InstrumentName</b></td>
+	<td><b>NumInstances</b></td>
 </tr>
 
 <?php
@@ -41,8 +43,10 @@ while($r  = mysql_fetch_assoc($res))
 		extract($s);
 		
 		echo "<tr>\t
-		<td>$ID</td>
-		<td><a href=\"http://psychinformatics.nyspi.org/Dialogix/InstanceSearch.php?InstrumentName=$InstrumentName\">$InstrumentName</a></td>
+		<td><a title='View path taken through individual instances -- what the subject saw' 
+			href=\"http://psychinformatics.nyspi.org/Dialogix/InstanceSearch.php?InstrumentName=$InstrumentName\">$InstrumentName</a></td>
+		<td><a title='View final data from all instances of this instrument'
+			href=\"http://psychinformatics.nyspi.org/Dialogix/StructuredDataView.php?InstrumentName=$InstrumentName\">$NumInstances</a></td>
 		</tr>\n";
 	}
 ?>
