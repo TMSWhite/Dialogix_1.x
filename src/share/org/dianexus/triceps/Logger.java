@@ -205,4 +205,11 @@ public class Logger implements VersionIF {
 		}
 		return true;
 	}
+	
+	public String getFilename() { 
+		if (file != null) {
+			return file.toString();
+		}
+		return null;
+	}
 }
