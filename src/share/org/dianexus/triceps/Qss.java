@@ -3,7 +3,6 @@ import java.io.*;
 import java.util.*;
 
 public class Qss implements QssConstants {
-    private static final Datum INVALID = Datum.getInstance(Datum.INVALID);
     private static final String DEFAULT_EOL = "\n\r";
 
     private Stack stack;
@@ -17,7 +16,7 @@ public class Qss implements QssConstants {
 
         public Datum parse(Evidence ev) {
                 evidence = ev;
-        Datum d = INVALID;
+        Datum d = Datum.INVALID_DATUM;
 
                 try {
                         stack = new Stack();
@@ -93,7 +92,7 @@ public class Qss implements QssConstants {
 
         private void unaryOp(int op, Object arg1) {
                 Datum a = getParam(arg1);
-                Datum ans = INVALID;
+                Datum ans = Datum.INVALID_DATUM;
                 switch(op) {
                         case PLUS: ans = a; break;
                         case MINUS: ans = DatumMath.neg(a); break;
@@ -107,14 +106,14 @@ public class Qss implements QssConstants {
 
         private Datum getParam(Object o) {
                 if (o == null)
-                        return Datum.getInstance(Datum.INVALID);
+                        return Datum.INVALID_DATUM;
                 return (Datum) o;
         }
 
         private void binaryOp(int op, Object arg2, Object arg1) {
                 Datum a = getParam(arg1);
                 Datum b = getParam(arg2);
-                Datum ans = INVALID;
+                Datum ans = Datum.INVALID_DATUM;
                 switch(op) {
                         case PLUS: ans = DatumMath.add(a,b); break;
                         case MINUS: ans = DatumMath.subtract(a,b); break;
@@ -145,7 +144,7 @@ public class Qss implements QssConstants {
                 Datum a = getParam(arg1);
                 Datum b = getParam(arg2);
                 Datum c = getParam(arg3);
-                Datum ans = INVALID;
+                Datum ans = Datum.INVALID_DATUM;
                 switch(op) {
                         case QUEST: ans = DatumMath.conditional(a,b,c); break;
                 }
@@ -156,7 +155,7 @@ public class Qss implements QssConstants {
         }
 
         private void functionOp(Token func, Stack params) {
-                Datum ans = INVALID;
+                Datum ans = Datum.INVALID_DATUM;
                 ans = evidence.function(func.image, params, func.beginLine, func.beginColumn);
                 stack.push(ans);
                 if (isDebug) {
@@ -558,7 +557,7 @@ public class Qss implements QssConstants {
                         Datum d = evidence.getDatum(token.image);
                         if (d == null) {
                                 error("undefined variable '" + token.image + "'", token.beginLine, token.beginColumn);
-                                stack.push(Datum.getInstance(Datum.INVALID));
+                                stack.push(Datum.INVALID_DATUM);
                         }
                         else {
                                 stack.push(d);
