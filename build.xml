@@ -351,7 +351,7 @@
          	<include name="**" if="using.tomcat_3_3"/>
          </fileset>
     </jar>
-    <delete>
+    <delete includeEmptyDirs="true">
     	<fileset dir="${tomcat.home}/lib/apps">
     		<include name="**" if="using.tomcat_3_3"/>
     		<include name="**" if="using.tomcat_4_0"/>
@@ -366,7 +366,7 @@
          	<include name="**" if="using.tomcat_4_0"/>
          </fileset>
     </jar>	
-    <delete>
+    <delete includeEmptyDirs="true">
     	<fileset dir="${tomcat.home}/lib">
     		<include name="${app.name}.jar" if="using.tomcat_3_3"/>
     	</fileset>
@@ -467,14 +467,7 @@
     <!-- Create application Zip file -->
     <zip zipfile="${dist.home}/${zip.name}.zip"
          basedir="/">
-      <include name="${zip.basedir}/*"/>
-		<include name="${zip.basedir}/archive/**"/>
-		<include name="${zip.basedir}/bin/**"/>
-		<include name="${zip.basedir}/conf/**"/>
-		<include name="${zip.basedir}/lib/**"/>
-		<include name="${zip.basedir}/webapps/${LICENSE.PACKAGE_DIR}/**"/>
-		<include name="${zip.basedir}/webapps/ROOT/**"/>
-		<include name="${zip.basedir}/webapps/images/**"/>                         																																																																																																																								
+      <include name="${zip.basedir}/**"/>
 		<include name="${win98.desktop}/Dialogix/**" if="using.win98"/>    																																																																																																																								
 		<include name="${win2000.desktop}/Dialogix/**" if="using.win2000"/>																																																																																																																																										
     </zip>
@@ -630,6 +623,12 @@
       	<include name="${LICENSE.PACKAGE_DIR}/**"/>
       </fileset>
      </copy>
+     
+    <copy toDir="${build.home}/web" >
+      <fileset dir="web-test" >
+      	<include name="${LICENSE.PACKAGE_DIR}/**" if="using.tomcat_4_0"/>
+      </fileset>
+     </copy>     
 
   </target>
   
@@ -701,7 +700,7 @@
     </condition>  
     
     <property name="zip.name" 
-    	value="${app.name}_${app.version}_${deploy.os}_${dialogix.package_name}${dialogix.webbable}_${dialogix.user_role}" />
+    	value="${app.name}_${app.version}_${deploy.os}_${dialogix.package_name}${dialogix.webbable}_${dialogix.user_role}_Tomcat_${tomcat.version}" />
     	
     <pathconvert targetos="windows" property="DIALOGIX.HOME">
     	<path>
