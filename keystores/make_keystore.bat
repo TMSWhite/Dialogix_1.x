@@ -18,7 +18,7 @@ del dianexus.keystore
 @echo Generate keystore and self-signed key
 @echo =====================================
 
-%JAVA_HOME%\bin\keytool -keystore dianexus.keystore -keypass aka##triceps -storepass aka##triceps -genkey -alias tomcat -keyalg RSA -dname "CN=www.dianexus.org, OU=Department of Medical Informatics, O=Columbia University, L=New York, ST=New York, C=US"
+%JAVA_HOME%\bin\keytool -keystore dianexus.keystore -keypass aka##triceps -storepass aka##triceps -genkey -alias tomcat -keyalg RSA -dname "CN=127.0.0.1, OU=Department of Medical Informatics, O=Columbia University, L=New York, ST=New York, C=US"
 
 @echo =====================================
 @echo Create a certificate signing request
@@ -35,6 +35,7 @@ del dianexus.keystore
 @echo "standard" format]
 @echo Save the reply as dianexus_test.cer
 @echo Ensure that it has final CR (return).
+@echo <https://www.thawte.com/cgi/server/try.exe>
 @echo =====================================
 
 pause
