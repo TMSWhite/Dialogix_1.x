@@ -18,6 +18,7 @@ import java.util.Vector;
 import java.util.Iterator;
 import java.util.Enumeration;
 import java.io.StringWriter;
+import java.util.StringTokenizer;
 
 
 public class TricepsEngine implements VersionIF {
@@ -427,11 +428,25 @@ if (DEBUG) Logger.writeln("##Throwable @ Servlet.getSortedNames()" + t.getMessag
 	/** Show name and step# of current state within schedule */
 	/*public*/ String getScheduleStatus() {
 		if (schedule == null || schedule == Schedule.NULL) {
-			return "";
+			return " null";
 		}
 		else {
-			return 
-				(" " + schedule.getReserved(Schedule.SCHEDULE_SOURCE) + "(" + schedule.getReserved(Schedule.STARTING_STEP) + ")");
+			String token=null;
+			StringTokenizer st = new StringTokenizer(schedule.getReserved(Schedule.SCHEDULE_SOURCE),"/\\:");	// for *n*x, DOS, and Mac
+			int count = st.countTokens();
+			StringBuffer sb = new StringBuffer(" ");
+			
+			for (int i=1;i<=count;++i) {
+				token = st.nextToken();
+				if (i == (count-3)) {
+					sb.append(token).append("/");
+				}
+				if (i == count) {
+					sb.append(token);
+				}
+			}
+			sb.append("(").append(schedule.getReserved(Schedule.STARTING_STEP)).append(")");
+			return sb.toString();
 		}
 	}
 	
@@ -660,7 +675,7 @@ if (DEPLOYABLE) {
 			if (!ok) {
 				directive = null;
 				
-				errors.println(triceps.get("unable_to_find_or_access_schedule") + " '" + restore + "'");
+				errors.println(triceps.get("unable_to_find_or_access_schedule") + " @'" + restore + "'");
 				return processDirective();
 			}
 			// re-check developerMode options - they aren't set via the hidden options, since a new copy of Triceps created
@@ -989,10 +1004,11 @@ if (AUTHORABLE) {
 		if (triceps.hasErrors()) {
 			errors.println(triceps.getErrors());
 		}
+		schedule = triceps.getSchedule();
+		
 		if (!AUTHORABLE && !schedule.isLoaded()) {
 			triceps = Triceps.NULL;
 		}
-		schedule = triceps.getSchedule();
 		schedule.setReserved(Schedule.IMAGE_FILES_DIR,imageFilesDir);
 		schedule.setReserved(Schedule.SCHEDULE_DIR,scheduleSrcDir);
 		schedule.setReserved(Schedule.BROWSER_TYPE, userAgent);
