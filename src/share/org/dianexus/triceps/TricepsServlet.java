@@ -174,8 +174,13 @@ public class TricepsServlet extends HttpServlet {
 			/* Store appropriate stuff in the session */
 			session.putValue("triceps", triceps);
 
-			if (triceps.get("next").equals(directive) && !triceps.isAtEnd()) {
-				triceps.saveWorkingInfo();	// don't I want to catch potential errors?
+			if (triceps.get("next").equals(directive)) {
+				if (triceps.isAtEnd()) {
+					System.runFinalization();	// could offer to let subject confirm that done, at which point written to floppy, etc.?
+				}
+				else {
+					triceps.saveWorkingInfo();	// don't I want to catch potential errors?
+				}
 			}
 		}
 		catch (Throwable t) {
@@ -763,12 +768,12 @@ public class TricepsServlet extends HttpServlet {
 			triceps = Triceps.NULL;
 		}
 		else {
-			if (triceps != Triceps.NULL) {
-				triceps.setSchedule(name);
-			}
-			else {
+//			if (triceps != Triceps.NULL) {
+//				triceps.setSchedule(name,workingFilesDir,completedFilesDir,floppyDir);
+//			}
+//			else {
 				triceps = new Triceps(name,workingFilesDir,completedFilesDir,floppyDir);
-			}
+//			}
 		}
 		return triceps.isValid();
 	}
