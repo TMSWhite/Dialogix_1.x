@@ -454,3 +454,24 @@ Reorganization & Documentation
       (4) creating new SPSS import and data-dictionary-creation files for each
       version of the instrument.  These SPSS files must refer to the master
       list of variable names in order for data to be properly merged.
+
+<< changes from 2.9.7 to 2.9.8
+	BUGFIX:
+		Datum for NUMBER - was passing wrong parameters
+	EDIT:
+		index.jsp - pointing to wrong BYS files
+	Additional options:
+		__ALWAYS_SHOW_ADMIN_ICONS__
+		__SHOW_SAVE_TO_FLOPPY_IN_ADMIN_MODE__
+		__WRAP_ADMIN_ICONS__
+		__DISALLOW_COMMENTS__
+	Additional browsers supported
+		Netscape 6
+		Opera 6.04
+	Authentication
+		LoginTricepsServlet.java
+		SUPPORT.PHONE
+		SUPPORT.EMAIL
+		SUPPORT.PERSON
+	Security
+		Added Thawte cert for www.dianexus.org
