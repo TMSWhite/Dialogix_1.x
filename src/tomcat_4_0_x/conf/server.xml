@@ -54,7 +54,7 @@
     <!-- Define a non-SSL HTTP/1.1 Connector on port 8080 -->
     <Connector className="org.apache.catalina.connector.http.HttpConnector"
                port="@@HTTP.PORT@@" minProcessors="5" maxProcessors="75"
-               enableLookups="true" redirectPort="@@HTTPS.PORT@@"
+               enableLookups="false" redirectPort="@@HTTPS.PORT@@"
                acceptCount="10" debug="0" connectionTimeout="60000"/>
     <!-- Note : To disable connection timeouts, set connectionTimeout value 
      to -1 -->
@@ -71,7 +71,7 @@
     @@SSL.COMMENT_START@@
     <Connector className="org.apache.catalina.connector.http.HttpConnector"
                port="@@HTTPS.PORT@@" minProcessors="5" maxProcessors="75"
-               enableLookups="true"
+               enableLookups="false"
 	       acceptCount="10" debug="0" scheme="https" secure="true">
       <Factory className="org.apache.catalina.net.SSLServerSocketFactory"
                protocol="TLS"
