@@ -64,7 +64,7 @@
                        distribution files are created.
                        Defaults to "dist".
                        
-  tomcat.version		The version of tomcat to use:  tomcat_3_2_x, tomcat_3_3_x, tomcat_4_0_x
+  tomcat.version		The version of tomcat to use:  tomcat_3_2_x, tomcat_3_3_x, tomcat_4_0_x, tomcat_4_1_x
   					   they all have different directory structures for bin, lib, and conf                   
 
 -->
@@ -161,13 +161,14 @@
   <path id="compile.classpath">
 
     <!-- Include all JAR files that will be included in /WEB-INF/lib -->
+    <fileset dir="src/tomcat_4_1_x/common/lib">
+      <include name="*.jar" if="using.tomcat_4_1"/>
+    </fileset>    
+    
     <!-- these are for Tomcat 4.0 -->
     <fileset dir="src/tomcat_4_0_x/common/lib">
       <include name="*.jar" if="using.tomcat_4_0"/>
     </fileset>
-    <fileset dir="src/tomcat_3_3_x/lib">
-      <include name="*.jar" if="using.tomcat_4_0"/>
-    </fileset>      
     
     <!-- these are for Tomcat 3.3 -->
     <fileset dir="src/tomcat_3_3_x/lib/common">
@@ -378,6 +379,9 @@
 		<fileset dir="src/tomcat_4_0_x/conf">
 			<include name="server.xml" if="using.tomcat_4_0"/>
 		</fileset>
+		<fileset dir="src/tomcat_4_1_x/conf">
+			<include name="server.xml" if="using.tomcat_4_1"/>
+		</fileset>		
        <filterset begintoken="@@" endtoken="@@"> 
          <filter token="HTTP.PORT" value="${http.port}"/>
          <filter token="HTTPS.PORT" value="${https.port}"/>
@@ -402,6 +406,9 @@
      	<fileset dir="src/tomcat_4_0_x">
      		<include name="**" if="using.tomcat_4_0"/>
      	</fileset>
+     	<fileset dir="src/tomcat_4_1_x">
+     		<include name="**" if="using.tomcat_4_1"/>
+     	</fileset>     	
     </copy>         
 
     <!-- Copy external dependencies as required -->
@@ -425,6 +432,7 @@
     	<fileset dir="src/share-lib">
     		<include name="*.jar" if="using.tomcat_3_2"/>
     		<include name="*.jar" if="using.tomcat_4_0"/>
+    		<include name="*.jar" if="using.tomcat_4_1"/>
     	</fileset>
     </copy>
     
@@ -449,6 +457,7 @@
     <copy todir="${tomcat.home}/common/lib">
     	<fileset dir="src/ssl-lib">
     		<include name="*.jar" if="using.tomcat_4_0.ssl"/>
+    		<include name="*.jar" if="using.tomcat_4_1.ssl"/>
     	</fileset>
     </copy>
     
@@ -468,13 +477,6 @@
     	</fileset>
     </delete>    
     
-    <delete includeEmptyDirs="true">
-    	<fileset dir="${tomcat.home}/lib/common">
-    		<include name="**" if="using.tomcat_3_2"/>
-    		<include name="**" if="using.tomcat_4_0"/>
-    	</fileset>
-    </delete>        
-    
     <!-- Tomcat 3.2 puts common jar files into /lib -->
     <!-- Tomcat 4.0 puts common jar files into /lib -->
 	<jar jarfile="${tomcat.home}/lib/${app.name}.jar" whenempty="skip">
@@ -483,9 +485,24 @@
          	<include name="**" if="using.tomcat_4_0"/>
          </fileset>
     </jar>	
+    <!-- Tomcat 4.1 puts common jar files into /common/lib -->
+	<jar jarfile="${tomcat.home}/common/lib/${app.name}.jar" whenempty="skip">
+         <fileset dir="${build.home}/classes">
+         	<include name="**" if="using.tomcat_4_1"/>
+         </fileset>
+    </jar>    
+    
+    <delete includeEmptyDirs="true">
+    	<fileset dir="${tomcat.home}/lib/common">
+    		<include name="**" if="using.tomcat_3_2"/>
+    		<include name="**" if="using.tomcat_4_0"/>
+    	</fileset>
+    </delete> 
+    
     <delete includeEmptyDirs="true">
     	<fileset dir="${tomcat.home}/lib">
     		<include name="${app.name}.jar" if="using.tomcat_3_3"/>
+    		<include name="**" if="using.tomcat_4_1"/>
     	</fileset>
     </delete>
     
@@ -804,6 +821,10 @@
     	<equals arg1="${tomcat.version}" arg2="4.0" />
     </condition>
     
+    <condition property="using.tomcat_4_1">
+    	<equals arg1="${tomcat.version}" arg2="4.1" />
+    </condition>    
+    
     <!-- these address SSL needs-->
     <condition property="dialogix.ssl_role" value="with_ssl">
     	<equals arg1="${SSL.USE}" arg2="true" />
@@ -849,6 +870,13 @@
     	</and>
     </condition>         
     
+    <condition property="using.tomcat_4_1.ssl">
+    	<and>
+	    	<equals arg1="${tomcat.version}" arg2="4.1" />
+    		<equals arg1="${SSL.USE}" arg2="true" />
+    	</and>
+    </condition>  
+        
     <condition property="using.win98">
     	<equals arg1="${deploy.os}" arg2="win98" />
     </condition>    

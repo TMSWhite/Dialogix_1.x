@@ -1,4 +1,5 @@
 # perl script for reading tab delimited instrument files and converting them to XML
+# added ability to generate SQL insert statements
 
 use strict;
 use IO::File;
@@ -53,12 +54,14 @@ my $dataTypes = {
 
 sub main {
 	if ($#ARGV != 4) {
-		die "usage\ninst2xml.pl <convert2xml> <createTidy> <validateXML> <calcDiffs> <recurseDirs>\n";
+		die "usage\ninst2xml.pl <convert2xml> <createTidy> <validateXML> <calcDiffs> <recurseDirs> <createSql>\n";
 	}
-	($CONVERT2XML, $CREATETIDY, $VALIDATEXML, $CALCDIFFS, $RECURSEDIRS) = @ARGV;
+	($CONVERT2XML, $CREATETIDY, $VALIDATEXML, $CALCDIFFS, $RECURSEDIRS, $CREATESQL) = @ARGV;
 	
 	my $srcdir = Cwd::cwd();
 	print "[$srcdir]\n";
+	
+	&setup_sql; if ($CREATESQL);
 	
 	foreach (@FILEGLOB) {
 		&look($_);
@@ -743,4 +746,14 @@ sub tokenize_string {
 		push @newtoks, $_ if ($_ ne '');
 	}
 	return @newtoks;
+}
+
+sub setup_sql {
+	# create the tables
+	my $file = "dialogix_create_sql.txt";
+	open (OUT, ">$file") or die "unable to write to $file";
+	
+	
+	
+	close(OUT);
 }

@@ -135,7 +135,7 @@
     <servlet-class>org.apache.jasper.servlet.JspServlet</servlet-class>
     <init-param>
       <param-name>logVerbosityLevel</param-name>
-      <param-value>WARNING</param-value>
+      <param-value>ERROR</param-value>
     </init-param>
     <load-on-startup>3</load-on-startup>
   </servlet>
