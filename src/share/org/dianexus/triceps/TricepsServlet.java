@@ -1050,6 +1050,7 @@ public class TricepsServlet extends HttpServlet {
 		sb.append("var actionName = null;\n");
 		sb.append("\n");
 		sb.append("function init() {\n");
+		sb.append("window.top.focus();\n");
 
 		if (firstFocus != null) {
 			sb.append("	document.myForm." + firstFocus + ".focus();\n");
