@@ -3,7 +3,7 @@
 
 use strict;
 
-my $dir = "/data/prefs2/analysis/";
+my $dir = "/data/prefs3/analysis/";
 my $NA = 99999;
 my $UNASKED = 44444;
 my (@varnames, @vartype);
@@ -125,6 +125,13 @@ sub print_diffs {
 	my @avals = @$aval;
 	my @cvals = @$cval;
 	my @dvals;
+	
+	# Schema for derived variables
+	# A-C
+	# if (A==0 && C==0) then D=. -- don't assess if not endorsed.
+	# if  (A == NA && C == NA) then D=.
+	# if (A== NA && C != NA) then D=NA
+	# if (A!= NA && C == NA) then D=UNASKED
 	
 	if ($#avals > 0 && $#cvals > 0) {
 		# have contents, so compute differences
