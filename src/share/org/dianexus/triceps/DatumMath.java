@@ -4,8 +4,8 @@ import java.text.Format;
 
 /** This class provides the basic logic and mathematical functions for relating objects of type datum. */
 public class DatumMath {
-	private static final Format MONTH_AS_NUM_MASK = Datum.buildMask("M",Datum.MONTH);
-//	private static GregorianCalendar calendar = new GregorianCalendar();
+	private static final Format MONTH_AS_NUM_MASK = Datum.getDefaultMask(Datum.MONTH_NUM);
+	private static GregorianCalendar calendar = new GregorianCalendar();
 	
 	static Datum hasError(Datum a, Datum b) {
 		if (a.isType(Datum.INVALID) || (b != null && b.isType(Datum.INVALID))) {
@@ -21,25 +21,29 @@ public class DatumMath {
 		return null;	// to indicate that there is no error that needs propagating
 	}
 	
-	static int getCalendarField(Datum d, int datumType) {
-		int field;
-		int value;
-		GregorianCalendar calendar = new GregorianCalendar();
-		
+	static int datumToCalendar(int datumType) {
 		switch (datumType) {
-			case Datum.YEAR: field = Calendar.YEAR; break;
-			case Datum.MONTH: field = Calendar.MONTH; break;
-			case Datum.DAY: field = Calendar.DAY_OF_MONTH; break;
-			case Datum.WEEKDAY: field = Calendar.DAY_OF_WEEK; break;
-			case Datum.HOUR: field = Calendar.HOUR_OF_DAY; break;
-			case Datum.MINUTE: field = Calendar.MINUTE; break;
-			case Datum.SECOND: field = Calendar.SECOND; break;
+			case Datum.YEAR: return Calendar.YEAR;
+			case Datum.MONTH: return Calendar.MONTH;
+			case Datum.DAY: return Calendar.DAY_OF_MONTH;
+			case Datum.WEEKDAY: return Calendar.DAY_OF_WEEK;
+			case Datum.HOUR: return Calendar.HOUR_OF_DAY;
+			case Datum.MINUTE: return Calendar.MINUTE;
+			case Datum.SECOND: return Calendar.SECOND;
+			case Datum.MONTH_NUM: return Calendar.MONTH;
 			default: return 0;	// should never get here
 		}
-//		synchronized (calendar) {
+
+	}
+	
+	static int getCalendarField(Datum d, int datumType) {
+		int field = DatumMath.datumToCalendar(datumType);
+		int value;
+		
+		synchronized (calendar) {
 			calendar.setTime(d.dateVal());
 			value = calendar.get(field);
-//		}
+		}
 		return value;
 	}
 
@@ -135,7 +139,8 @@ public class DatumMath {
 				case Datum.DAY:
 				case Datum.HOUR:
 				case Datum.MINUTE:
-				case Datum.SECOND: 
+				case Datum.SECOND:
+				case Datum.MONTH_NUM:
 					return new Datum(DatumMath.getCalendarField(a,a.type()) == DatumMath.getCalendarField(b,a.type()));
 				case Datum.STRING:
 					return new Datum(a.stringVal().compareTo(b.stringVal()) == 0);
@@ -172,6 +177,7 @@ public class DatumMath {
 				case Datum.HOUR:
 				case Datum.MINUTE:
 				case Datum.SECOND: 
+				case Datum.MONTH_NUM:
 					return new Datum(DatumMath.getCalendarField(a,a.type()) >= DatumMath.getCalendarField(b,a.type()));
 				case Datum.STRING:
 					return new Datum(a.stringVal().compareTo(b.stringVal()) >= 0);
@@ -206,6 +212,7 @@ public class DatumMath {
 				case Datum.HOUR:
 				case Datum.MINUTE:
 				case Datum.SECOND: 
+				case Datum.MONTH_NUM:
 					return new Datum(DatumMath.getCalendarField(a,a.type()) > DatumMath.getCalendarField(b,a.type()));
 				case Datum.STRING:
 					return new Datum(a.stringVal().compareTo(b.stringVal()) > 0);
@@ -242,6 +249,7 @@ public class DatumMath {
 				case Datum.HOUR:
 				case Datum.MINUTE:
 				case Datum.SECOND: 
+				case Datum.MONTH_NUM:
 					return new Datum(DatumMath.getCalendarField(a,a.type()) <= DatumMath.getCalendarField(b,a.type()));
 				case Datum.STRING:
 					return new Datum(a.stringVal().compareTo(b.stringVal()) <= 0);
@@ -274,6 +282,7 @@ public class DatumMath {
 				case Datum.HOUR:
 				case Datum.MINUTE:
 				case Datum.SECOND: 
+				case Datum.MONTH_NUM:
 					return new Datum(DatumMath.getCalendarField(a,a.type()) < DatumMath.getCalendarField(b,a.type()));
 				case Datum.STRING:
 					return new Datum(a.stringVal().compareTo(b.stringVal()) < 0);
@@ -338,6 +347,7 @@ public class DatumMath {
 				case Datum.HOUR:
 				case Datum.MINUTE:
 				case Datum.SECOND: 
+				case Datum.MONTH_NUM:
 					return new Datum(DatumMath.getCalendarField(a,a.type()) != DatumMath.getCalendarField(b,a.type()));
 				case Datum.STRING:
 					return new Datum(a.stringVal().compareTo(b.stringVal()) != 0);

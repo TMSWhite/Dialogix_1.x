@@ -19,28 +19,31 @@ public class Datum  {
 	public static final int HOUR = 12;
 	public static final int MINUTE = 13;
 	public static final int SECOND = 14;
+	public static final int MONTH_NUM = 15;
 	private static final Date SAMPLE_DATE = new Date(System.currentTimeMillis());
 	private static final Double SAMPLE_NUMBER = new Double(123.456);
 	public static final String TYPES[] = { "*UNKNOWN*", "*NOT APPLICABLE*", "*REFUSED*", "*INVALID*", 
-		"Number", "String", "Date", "Time", "Year", "Month", "Day", "Weekday", "Hour", "Minute", "Second" };
+		"Number", "String", "Date", "Time", "Year", "Month", "Day", "Weekday", "Hour", "Minute", "Second", "Month_Num" };
 		
 	private static final SimpleDateFormat defaultDateFormat = new SimpleDateFormat("MM/dd/yyyy");
 	private static final SimpleDateFormat defaultMonthFormat = new SimpleDateFormat("MMMM");
 	private static final SimpleDateFormat defaultTimeFormat = new SimpleDateFormat("HH:mm:ss");
 	private static final SimpleDateFormat defaultYearFormat = new SimpleDateFormat("yyyy");
 	private static final SimpleDateFormat defaultDayFormat = new SimpleDateFormat("d");
-	private static final SimpleDateFormat defaultWeekdayFormat = new SimpleDateFormat("EE");
+	private static final SimpleDateFormat defaultWeekdayFormat = new SimpleDateFormat("E");
 	private static final SimpleDateFormat defaultHourFormat = new SimpleDateFormat("H");
 	private static final SimpleDateFormat defaultMinuteFormat = new SimpleDateFormat("m");
 	private static final SimpleDateFormat defaultSecondFormat = new SimpleDateFormat("s");
 	private static final DecimalFormat defaultNumberFormat = new DecimalFormat();
 	
+	public static final SimpleDateFormat defaultMonthNumFormat = new SimpleDateFormat("M");
 	public static final SimpleDateFormat TIME_MASK = new SimpleDateFormat("yyyy.MM.dd..HH.mm.ss");
 	
-	/* XXX:  SimpleDateFormat.parse() buggy for WEEKDAY.  Default date is Thu 1/1/1970.  Add weekday to WEEKDAY_STR */
-	private static final String WEEKDAY_STRS[] = { "thu", "fri", "sat", "sun", "mon", "tue", "wed" };
-	public static final GregorianCalendar calendar = new GregorianCalendar();
+	private static final Date epoch = new Date(0);
+	private GregorianCalendar calendar = new GregorianCalendar();
 	
+	/* XXX:  SimpleDateFormat.parse() buggy for WEEKDAY.  Default date is Thu 1/1/1970.  Add weekday to WEEKDAY_STR */
+	private static final String WEEKDAY_STRS[] = { "thu", "fri", "sat", "sun", "mon", "tue", "wed" };	
 
 	private int type = UNKNOWN;
 	private String sVal = TYPES[type];
@@ -114,6 +117,66 @@ public class Datum  {
 	public Datum(String s, int t, Format mask) {
 		init(s,t,mask);
 	}
+/*
+	public static Datum cast(Datum d, int t, Format mask) {
+		int type = d.type();
+		
+		if (d.isType(DATE)) {
+			switch (t) {
+				case DATE:
+				case TIME:
+					return new Datum(d);
+				case YEAR:
+				case MONTH:
+				case WEEKDAY:			
+				case DAY:
+				case HOUR:
+				case MINUTE:
+				case SECOND: 
+				case MONTH_NUM: 
+				{
+					int val = DatumMath.getCalendarField(d,t);
+					calendar.setTime(epoch);
+					calendar.set(val,val);
+					return new calendar.getTime();
+				}
+			}
+		}
+		else if (isType(NUMBER)) {
+		}
+		else if (d.isType(STRING)) {
+		}
+		else {
+			// new data type is same as old?  INVALID, UNKNOWN, REFUSED, NA 
+		}
+				
+		switch (t) {
+			case DATE:
+			case TIME:
+			case YEAR:
+			case MONTH:
+			case WEEKDAY:			
+			case DAY:
+			case HOUR:
+			case MINUTE:
+			case SECOND:
+			case MONTH_NUM:
+				if (d.isType(Datum.DATE)) {
+				}
+				else if (d.isType(Datum.NUMBER)) {
+				}
+				else if (d.isType(Datum.STRING)) {
+				}
+				break;
+			case NUMBER:
+			case STRING:
+			case INVALID:
+			case UNKNOWN:
+			case REFUSED:
+			case NA:
+		}
+	}
+*/	
 
 	private void init(String s, int t, Format mask) {
 		dVal = Double.NaN;
@@ -178,11 +241,7 @@ public class Datum  {
 				int i=0;
 				for (i=0;i<WEEKDAY_STRS.length;++i) {
 					if (day.startsWith(WEEKDAY_STRS[i])) {
-						try {
-							date = defaultWeekdayFormat.parse("Thu");	// -> 1/1/1970
-						}
-						catch (Exception e) {}
-						calendar.setTime(date);
+						calendar.setTime(epoch);
 						
 						for (int j=0;j<i;++j) {
 							calendar.roll(Calendar.DAY_OF_WEEK,true);
@@ -206,6 +265,7 @@ public class Datum  {
 			case HOUR:
 			case MINUTE:
 			case SECOND:
+			case MONTH_NUM:
 				try {
 					if (t != WEEKDAY) {
 						if (mask != null && mask instanceof DateFormat) {
@@ -312,6 +372,7 @@ public class Datum  {
 			case HOUR:
 			case MINUTE:
 			case SECOND:
+			case MONTH_NUM:
 				return (date != null);
 			case NUMBER:
 				return (dVal != Double.NaN);
@@ -353,6 +414,7 @@ public class Datum  {
 			case HOUR:
 			case MINUTE:
 			case SECOND:
+			case MONTH_NUM:
 				try {
 					return new SimpleDateFormat(maskStr);
 				}
@@ -399,6 +461,8 @@ public class Datum  {
 				return defaultMinuteFormat;
 			case SECOND:
 				return defaultSecondFormat;
+			case MONTH_NUM:
+				return defaultMonthNumFormat;
 			default:
 			case INVALID:
 			case NA:
@@ -426,6 +490,7 @@ public class Datum  {
 			case HOUR:
 			case MINUTE:
 			case SECOND:
+			case MONTH_NUM:
 				try {
 					s = mask.format(d.dateVal());
 					if (s == null)
@@ -479,6 +544,7 @@ public class Datum  {
 			case HOUR:
 			case MINUTE:
 			case SECOND:
+			case MONTH_NUM:
 				if (mask == null)
 					return o.toString();
 
@@ -519,6 +585,7 @@ public class Datum  {
 			case HOUR:
 			case MINUTE:
 			case SECOND:
+			case MONTH_NUM:
 				return format(SAMPLE_DATE, t, mask);
 			case NUMBER:
 				if (mask == defaultNumberFormat)

@@ -25,15 +25,16 @@ public class Node  {
 	public static final int HOUR = 17;
 	public static final int MINUTE = 18;
 	public static final int SECOND = 19;
+	public static final int MONTH_NUM = 20;
 	
 	private static final String QUESTION_TYPES[] = {
 		"*unknown*", "nothing", "radio", "check", "combo", "list",
 		"text", "double", "radio2", "password","memo", 
-		"date", "time", "year", "month", "day", "weekday", "hour", "minute", "second"};
+		"date", "time", "year", "month", "day", "weekday", "hour", "minute", "second", "month_num"};
 	private static final int DATA_TYPES[] = { 
 		Datum.STRING, Datum.NA, Datum.STRING, Datum.STRING, Datum.STRING, Datum.STRING,
 		Datum.STRING, Datum.NUMBER, Datum.STRING, Datum.STRING, Datum.STRING,
-		Datum.DATE, Datum.TIME, Datum.YEAR, Datum.MONTH, Datum.DAY, Datum.WEEKDAY, Datum.HOUR, Datum.MINUTE, Datum.SECOND };
+		Datum.DATE, Datum.TIME, Datum.YEAR, Datum.MONTH, Datum.DAY, Datum.WEEKDAY, Datum.HOUR, Datum.MINUTE, Datum.SECOND, Datum.MONTH_NUM};
 
 	public static final int QUESTION = 1;
 	public static final int EVAL = 2;
@@ -598,6 +599,7 @@ public class Node  {
 			case HOUR:
 			case MINUTE:
 			case SECOND:
+			case MONTH_NUM:
 */
 				if (datum != null && datum.exists())
 					defaultValue = datum.stringVal();
