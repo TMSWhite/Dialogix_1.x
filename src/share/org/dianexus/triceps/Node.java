@@ -6,20 +6,33 @@ import java.text.Format;
 
 public class Node  {
 	public static final int UNKNOWN = 0;
-	public static final int RADIO = 1;
-	public static final int CHECK = 2;
-	public static final int COMBO = 3;
-	public static final int DATE = 4;
-	public static final int MONTH = 5;
-	public static final int TEXT = 6;
-	public static final int DOUBLE=7;
-	public static final int NOTHING=8;	// do nothing
-	public static final int RADIO2=9;	// different layout
-	public static final int PASSWORD=10;
-	public static final int MEMO=11;
-	public static final int TIME = 12;
-	private static final String QUESTION_TYPES[] = {"*unknown*","radio", "check", "combo", "date", "month", "text", "double", "nothing", "radio2", "password","memo","time" };
-	private static final int DATA_TYPES[] = { Datum.STRING, Datum.STRING, Datum.STRING, Datum.STRING, Datum.DATE, Datum.MONTH, Datum.STRING, Datum.NUMBER, Datum.NA, Datum.STRING, Datum.STRING, Datum.STRING, Datum.TIME};
+	public static final int NOTHING=1;	// do nothing
+	public static final int RADIO = 2;
+	public static final int CHECK = 3;
+	public static final int COMBO = 4;
+	public static final int TEXT = 5;
+	public static final int DOUBLE = 6;
+	public static final int RADIO2 = 7;	// different layout
+	public static final int PASSWORD = 8;
+	public static final int MEMO = 9;
+	public static final int DATE = 10;
+	public static final int TIME = 11;
+	public static final int YEAR = 12;
+	public static final int MONTH = 13;
+	public static final int DAY = 14;
+	public static final int WEEKDAY = 15;
+	public static final int HOUR = 16;
+	public static final int MINUTE = 17;
+	public static final int SECOND = 18;
+	
+	private static final String QUESTION_TYPES[] = {
+		"*unknown*", "nothing", "radio", "check", "combo", 
+		"text", "double", "radio2", "password","memo", 
+		"date", "time", "year", "month", "day", "weekday", "hour", "minute", "second" };
+	private static final int DATA_TYPES[] = { 
+		Datum.STRING, Datum.NA, Datum.STRING, Datum.STRING, Datum.STRING,
+		Datum.STRING, Datum.NUMBER, Datum.STRING, Datum.STRING, Datum.STRING,
+		Datum.DATE, Datum.TIME, Datum.YEAR, Datum.MONTH, Datum.DAY, Datum.WEEKDAY, Datum.HOUR, Datum.MINUTE, Datum.SECOND };
 
 	public static final int QUESTION = 1;
 	public static final int EVAL = 2;
@@ -80,8 +93,6 @@ public class Node  {
 	private String questionAsAsked = "";
 
 	public Node(int sourceLine, String sourceFile, String tsv) {
-//		initialize();
-
 		String token;
 		int field = 0;
 
@@ -241,6 +252,7 @@ public class Node  {
 			/* if mask is null here, it means that the maskStr is invalid */
 			if (mask == null) {
 				setParseError("Invalid formatting mask <B>" + maskStr + "</B>");
+				mask = Datum.getDefaultMask(datumType);	// set  to default to avoid NullPointerException
 			}
 		}
 		String s = Datum.getExampleFormatStr(mask, datumType);
@@ -254,26 +266,28 @@ public class Node  {
 		if (parseRangeType == PARSE_MIN || parseRangeType == PARSE_MIN_AND_MAX) {
 			if (minStr == null) {
 				setParseError("Discrepency:  requested <B>" + PARSE_RANGE_TYPE_STRS[parseRangeType] + "</B>, but no min value specified");
+				// change boundary conditions?
 			}
 			else {
-				/* To check this, need access to Triceps' parser!  Highly intertwined. */
+				/* check to see whether value exists? Too highly intertwined.  */
 			}
 		}
 		else {
 			if (minStr == null) {
-				minDatum = null;
+				minDatum = null;	// no minumum bound
 			}
 			else {
 				minDatum = new Datum(minStr,datumType,mask);
 				if (!minDatum.isValid()) {
-					setParseError("Invalid value <B>" + minStr + "</B> for formatter <B>" + maskStr + "</B>");
-					minDatum = null;
+					setParseError("Invalid value <B>" + minStr + "</B> for formatter <B>" + mask + "</B>");
+					minDatum = null;	// if unknown, don't use a minimum bound
 				}
 			}
 		}
 		if (parseRangeType == PARSE_MAX || parseRangeType == PARSE_MIN_AND_MAX) {
 			if (maxStr == null) {
 				setParseError("Discrepency:  requested <B>" + PARSE_RANGE_TYPE_STRS[parseRangeType] + "</B>, but no max value specified");
+				// change boundary conditions?
 			}
 			else {
 				/* To check this, need access to Triceps' parser!  Highly intertwined. */
@@ -281,19 +295,19 @@ public class Node  {
 		}
 		else {
 			if (maxStr == null) {
-				maxDatum = null;
+				maxDatum = null;	// no maximum bound
 			}
 			else {
 				maxDatum = new Datum(maxStr,datumType,mask);
 				if (!maxDatum.isValid()) {
-					setParseError("Invalid value <B>" + maxStr + "</B> for formatter <B>" + maskStr + "</B>");
-					maxDatum = null;
+					setParseError("Invalid value <B>" + maxStr + "</B> for formatter <B>" + mask + "</B>");
+					maxDatum = null;	// if unknown, don't use maximum bound
 				}
 			}
 		}
 		if (minDatum != null && maxDatum != null) {
 			if (DatumMath.lt(maxDatum,minDatum).booleanVal()) {
-				setParseError("Max value <B>" + maxStr + "</B> less than Min value <B>" + minStr + "</B>");
+				setParseError("Max value (" + maxStr + ") less than Min value (" + minStr + ")");
 			}
 		}
 	}
@@ -316,47 +330,29 @@ public class Node  {
 		}
 		else {
 			/* Show the range of valid values, in the appropriate format */
-
+			
 			if (minStr != null) {
-				if (parseRangeType == PARSE_MIN || parseRangeType == PARSE_MIN_AND_MAX) {
-					if (minDatum == null || !minDatum.isValid()) {
-						setError("Invalid value <B>" + minStr + "</B> for formatter <B>" + maskStr + "</B>");
-						min = minStr;
-					}
-					else {
-						min = Datum.format(minDatum,mask);
-					}
+				if (minDatum == null || !minDatum.isValid()) {
+					min = null;
 				}
 				else {
-					if (minDatum == null)
-						min = minStr;
-					else
-						min = Datum.format(minDatum,mask);
+					min = Datum.format(minDatum,mask);
 				}
 			}
 			if (maxStr != null) {
-				if (parseRangeType == PARSE_MAX || parseRangeType == PARSE_MIN_AND_MAX) {
-					if (maxDatum == null || !maxDatum.isValid()) {
-						setError("Invalid value <B>" + maxStr + "</B> for formatter <B>" + maskStr + "</B>");
-						max = maxStr;
-					}
-					else {
-						max = Datum.format(maxDatum,mask);
-					}
+				if (maxDatum == null || !maxDatum.isValid()) {
+					max = null;
 				}
 				else {
-					if (maxDatum == null)
-						max = maxStr;
-					else
-						max = Datum.format(maxDatum,mask);
+					max = Datum.format(maxDatum,mask);
 				}
 			}
 		}
 		if (minDatum != null && maxDatum != null) {
 			if (DatumMath.lt(maxDatum,minDatum).booleanVal()) {
-				setError("Max value <B>" + max + "</B> less than Min value <B>" + min + "</B>");
+				setError("Max value (" + max + ") less than Min value (" + min + ")");
 			}
-		}		
+		}
 
 		rangeStr = " (" +
 			((min != null) ? min : "") +
@@ -449,20 +445,18 @@ public class Node  {
 				}
 				break;
 			default:
-			case DATE:
-			case MONTH:
-			case TEXT:
-			case DOUBLE:
-			case NOTHING:
-			case MEMO:
-			case PASSWORD:
 				break;
 		}
 
 		return true;
 	}
-
+	
 	public String prepareChoicesAsHTML(Datum datum) {
+		return prepareChoicesAsHTML(datum,"");
+	}
+
+	public String prepareChoicesAsHTML(Datum datum, String errMsg) {
+		/* errMsg is a hack - only applies to RADIO2 */
 		StringBuffer sb = new StringBuffer();
 		String defaultValue = "";
 		AnswerChoice ac;
@@ -495,7 +489,10 @@ public class Node  {
 					}
 				}
 				sb.append("\n</TR>");
-				sb.append("\n</TABLE>\n</TD>");
+				sb.append("\n</TABLE>\n");
+				/* XXX: add Node errors here - a kludge */
+				sb.append(errMsg);
+				sb.append("</TD>");
 //				sb.append("</TR>");	// closing the outside is reserverd for TricepsServlet
 				break;
 			case CHECK:
@@ -554,26 +551,15 @@ public class Node  {
 				}
 				sb.append("</select>");
 				break;
-			case DATE:	// stores Date type
-				if (datum != null) {
-					defaultValue = datum.stringVal();
-				}
-				sb.append("<input type='text' name='" + Node.encodeHTML(getName()) + "' value='" + Node.encodeHTML(defaultValue) + "'>");
-				break;
-			case MONTH: // stores Month type
-				if (datum != null && datum.exists())
-					defaultValue = datum.monthVal();
-				sb.append("<input type='text' name='" + Node.encodeHTML(getName()) + "' value='" + Node.encodeHTML(defaultValue) + "'>");
-				break;
 			case TEXT:	// stores Text type
 				if (datum != null && datum.exists())
 					defaultValue = datum.stringVal();
-				sb.append("<input type='text' name='" + Node.encodeHTML(getName()) + "' value='" + Node.encodeHTML(defaultValue) + "'>");
+				sb.append("<input type='text' onfocus='javascript:select()' name='" + Node.encodeHTML(getName()) + "' value='" + Node.encodeHTML(defaultValue) + "'>");
 				break;
 			case MEMO:
 				if (datum != null && datum.exists())
 					defaultValue = datum.stringVal();
-				sb.append("<TEXTAREA rows='5' name='" + Node.encodeHTML(getName()) + "'>" + Node.encodeHTML(defaultValue) + "</TEXTAREA>");
+				sb.append("<TEXTAREA rows='5' onfocus='javascript:select()' name='" + Node.encodeHTML(getName()) + "'>" + Node.encodeHTML(defaultValue) + "</TEXTAREA>");
 				break;
 			case PASSWORD:	// stores Text type
 				if (datum != null && datum.exists())
@@ -583,9 +569,24 @@ public class Node  {
 			case DOUBLE:	// stores Double type
 				if (datum != null && datum.exists())
 					defaultValue = datum.stringVal();
-				sb.append("<input type='text' name='" + Node.encodeHTML(getName()) + "' value='" + Node.encodeHTML(defaultValue) + "'>");
+				sb.append("<input type='text' onfocus='javascript:select()' name='" + Node.encodeHTML(getName()) + "' value='" + Node.encodeHTML(defaultValue) + "'>");
 				break;
 			default:
+/*			
+			case DATE:
+			case TIME:
+			case YEAR:
+			case MONTH:
+			case DAY:
+			case WEEKDAY:
+			case HOUR:
+			case MINUTE:
+			case SECOND:
+*/
+				if (datum != null && datum.exists())
+					defaultValue = datum.stringVal();
+				sb.append("<input type='text' onfocus='javascript:select()' name='" + Node.encodeHTML(getName()) + "' value='" + Node.encodeHTML(defaultValue) + "'>");
+				break;
 			case NOTHING:
 				sb.append("&nbsp;");
 				break;
@@ -641,7 +642,6 @@ public class Node  {
 	public String getQuestionRef() { return questionRef; }
 	public String getDefaultAnswer() { return defaultAnswer; }
 	public String getDefaultAnswerTimeStampStr() { return defaultAnswerTimeStampStr; }
-//	public String getQuestionMask() { return ((maskStr == null) ? DATATYPE_EG_STRS[answerType] : maskStr) + rangeStr; }
 	public String getQuestionMask() {
 		if (rangeStr != null)
 			return rangeStr;
@@ -652,8 +652,6 @@ public class Node  {
 	public String getSourceFile() { return sourceFile; }
 	public String getQuestionAsAsked() { return questionAsAsked; }
 	public void setQuestionAsAsked(String s) { questionAsAsked = s; }
-//	public Datum getRangeMin() { return minDatum; }
-//	public Datum getRangeMax() { return maxDatum; }
 	public String getMaskStr() { return maskStr; }
 	public Format getMask() { return mask; }
 	public int getParseRangeType() { return parseRangeType; }
@@ -665,7 +663,6 @@ public class Node  {
 	public boolean focusable() { return (answerType != UNKNOWN && answerType != NOTHING); }
 
 	public void setParseError(String error) {
-//		parseErrors.addElement("[<B>" + sourceFile + "</B> line " + sourceLine + "] " + error);	// don't need to show line #
 		parseErrors.addElement(error);
 
 	}
