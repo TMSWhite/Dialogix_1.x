@@ -18,6 +18,11 @@ public class TricepsEngine implements VersionIF {
 	static final String USER_AGENT = "User-Agent";
 	static final String ACCEPT_LANGUAGE = "Accept-Language";
 	static final String ACCEPT_CHARSET = "Accept-Charset";
+	
+	static final int BROWSER_MSIE = 1;
+	static final int BROWSER_NS = 2;
+	static final int BROWSER_OTHER = 0;
+	private int browserType = BROWSER_OTHER;
 
 	private Logger errors = new Logger();
 	private Logger info = new Logger();
@@ -103,7 +108,7 @@ public class TricepsEngine implements VersionIF {
 			this.res = res;
 			XmlString form = null;
 			firstFocus = null; // reset it each time
-
+			
 			res.setContentType("text/html");
 			out = res.getWriter();
 
@@ -202,6 +207,7 @@ if (AUTHORABLE) {
 	}
 
 	private void setGlobalVariables() {
+		whichBrowser();
 		if (triceps.isValid()) {
 			debugMode = schedule.getBooleanReserved(Schedule.DEBUG_MODE);
 			developerMode = schedule.getBooleanReserved(Schedule.DEVELOPER_MODE);
@@ -495,7 +501,13 @@ if (DEBUG) Logger.writeln("##Throwable @ Servlet.selectFromInterviewsInDir" + t.
 if (DEPLOYABLE) {		
 		sb.append("<input type='hidden' name='EVENT_TIMINGS' value=''>");	// list of event timings
 }		
-		sb.append("<input type='hidden' name='DIRECTIVE' value='next'>");	// so that ENTER tries to go next, and will be trapped if needed
+		if (directive == null || directive.equals("select_new_interview")) {
+			sb.append("<input type='hidden' name='DIRECTIVE' value='START'>");	// so that ENTER tries to go next, and will be trapped if needed
+		}
+		else {
+			sb.append("<input type='hidden' name='DIRECTIVE' value='next'>");	
+		}
+		
 
 		sb.append("</FORM>");
 
@@ -952,6 +964,19 @@ if (XML) {
 }		
 		return sb.toString();
 	}
+	
+	private void whichBrowser() {
+		String userAgent = req.getHeader(USER_AGENT);
+		if (userAgent.indexOf("MSIE") != -1) {
+			browserType = BROWSER_MSIE;
+		}
+		else if (userAgent.indexOf("Mozilla") != -1) {
+			browserType = BROWSER_NS;
+		}
+		else {
+			browserType = BROWSER_OTHER;
+		}
+	}
 
 	private String responseXML() {
 		if (!triceps.isValid())
@@ -959,12 +984,11 @@ if (XML) {
 			
 		StringBuffer sb = new StringBuffer();
 if (XML) {		
-		String userAgent = req.getHeader(USER_AGENT);
 		String browser = null;
-		if (userAgent.indexOf("MSIE") != -1) {
+		if (browserType == BROWSER_MSIE) {
 			browser = "MSIE";
 		}
-		else if (userAgent.indexOf("Mozilla") != -1) {
+		else if (browserType == BROWSER_NS) {
 			browser = "NS";
 		}
 		else {
@@ -1315,8 +1339,8 @@ if (AUTHORABLE) {
 
 	private String createJavaScript() {
 		StringBuffer sb = new StringBuffer();
-		sb.append("<script  type=\"text/javascript\"> <!--\n");
-
+		sb.append("<script  language=\"JavaScript1.2\"> <!--\n");
+		
 		sb.append("var val = null;\n");
 		sb.append("var name = null;\n");
 		sb.append("var msg = null;\n");
@@ -1325,68 +1349,105 @@ if (AUTHORABLE) {
 		sb.append("var el = null;\n");
 		sb.append("var evH = null;\n");
 		sb.append("var ans = null;\n");
+		sb.append("var target = null;\n");
+		
+		sb.append("var Ns4 = false; var Ns5 = false; var Ns6 = false; var Ns4up = false; \n");
+		sb.append("var Ie4 = false; var Ie5 = false; var Ie6 = false; var Ie4up = false; \n");
+		
+		// note the workaround to get Ns6 
+		sb.append("if (navigator.appName.indexOf('Netscape') != -1) { \n");
+		sb.append("  if (navigator.userAgent.indexOf('Netscape6') != -1) Ns6 = true; \n");
+		sb.append("  else if (parseInt(navigator.appVersion) >= 5) Ns5 = true; \n");
+		sb.append("  else if (parseInt(navigator.appVersion) >= 4) Ns4 = true; \n");
+		sb.append("  if (Ns4 || Ns5 || Ns6) Ns4up = true; \n");
+		sb.append("} \n");
+		// and the workarounds to get Ie5 and Ie6 
+		sb.append("else if (navigator.appName.indexOf('Explorer') != -1) { \n");
+		sb.append("  if (navigator.userAgent.indexOf('MSIE 6') != -1) Ie6 = true; \n");
+		sb.append("  if (navigator.userAgent.indexOf('MSIE 5') != -1) Ie5 = true; \n");
+		sb.append("  else if (parseInt(navigator.appVersion) >= 4) Ie4 = true; \n");
+		sb.append("  if (Ie4 || Ie5 || Ie6) Ie4up = true; \n");
+		sb.append("} \n");
 
 if (DEPLOYABLE) {		
 		sb.append("function keyHandler(e) {\n");
-//		if (allowRecordEvents) {
-			sb.append("	now = new Date();\n");
-//			sb.append("	val = String.fromCharCode(e.which) + ',' + e.target.value;\n");
+		sb.append("	now = new Date();\n");
+		sb.append("	if (Ns4up) { target=e.target; } else { target=e.srcElement;}\n");
+		sb.append("	if (Ns4up) {\n");
 			sb.append("	val = String.fromCharCode(e.which) + ',';\n");
-			sb.append("	name = e.target.name;\n");
-			sb.append("	msg = name + ',' + e.target.type + ',' + e.type + ',' + now.getTime() + ',' + (now.getTime() - startTime.getTime()) + ',' + val + '\t';\n");
-			sb.append("	document.myForm.EVENT_TIMINGS.value += msg;\n");
-//		}
+			sb.append("	msg = target.name + ',' + target.type + ',' + e.type + ',' + now.getTime() + ',' + (now.getTime() - startTime.getTime()) + ',' + val + '\t';\n");
+		sb.append(" } else {\n");
+			sb.append("	val = String.fromCharCode(e.keyCode) + ',';\n");
+			sb.append("	msg = target.name + ',' + target.type + ',' + e.type + ',' + now.getTime() + ',' + (now.getTime() - startTime.getTime()) + ',' + val + '\t';\n");
+		sb.append("	} \n");
+		sb.append("	document.myForm.EVENT_TIMINGS.value += msg;\n");
 		sb.append("	return true;\n");
 		sb.append("}\n");
 }		
 
 		sb.append("function submitHandler(e) {\n");
 if (DEPLOYABLE) {		
-//		if (allowRecordEvents) {
-			sb.append("	now = new Date();\n");
+		sb.append("	now = new Date();\n");
+		sb.append("	if (Ns4up) { target=e.target; } else { target=e.srcElement;}\n");
+		sb.append("	if (Ns4up) {\n");
 			sb.append("	val = ',';\n");
-			sb.append("	msg = e.target.name + ',' + e.target.type + ',' + e.type + ',' + now.getTime() + ',' + (now.getTime() - startTime.getTime()) + ',' + val + '\t';\n");
-			sb.append("	document.myForm.EVENT_TIMINGS.value += msg;\n");
-//		}
+			sb.append("	msg = target.name + ',' + target.type + ',' + e.type + ',' + now.getTime() + ',' + (now.getTime() - startTime.getTime()) + ',' + val + '\t';\n");
+		sb.append(" } else {\n");
+			sb.append("	val = ',';\n");
+			sb.append("	msg = target.name + ',' + target.type + ',' + e.type + ',' + now.getTime() + ',' + (now.getTime() - startTime.getTime()) + ',' + val + '\t';\n");
+		sb.append("	} \n");
+		sb.append("	document.myForm.EVENT_TIMINGS.value += msg;\n");
 }
-		sb.append("	name = document.myForm.elements['DIRECTIVE_' + e.target.name].value;\n");
-		sb.append("	if (e.type == 'focus') { e.target.value='" + activePrefix + "' + name + '" + activeSuffix + "'; }\n");
-		sb.append("	else if (e.type == 'blur') { e.target.value='" + inactivePrefix + "' + name + '" + inactiveSuffix + "'; }\n");
-		sb.append("	document.myForm.elements['DIRECTIVE'].value = e.target.name;\n");
+		sb.append("	name = document.myForm.elements['DIRECTIVE_' + target.name].value;\n");
+		sb.append("	if (e.type == 'focus') { target.value='" + activePrefix + "' + name + '" + activeSuffix + "'; }\n");
+		sb.append("	else if (e.type == 'blur') { target.value='" + inactivePrefix + "' + name + '" + inactiveSuffix + "'; }\n");
+		sb.append("	document.myForm.elements['DIRECTIVE'].value = target.name;\n");
 		sb.append("	return true;\n");
 		sb.append("}\n");
 
 if (DEPLOYABLE) {		
 		sb.append("function selectHandler(e) {\n");
-//		if (allowRecordEvents) {
-			sb.append("	now = new Date();\n");
-			sb.append("	val = e.target.options[e.target.selectedIndex].value + ',' + e.target.options[e.target.selectedIndex].text;\n");
-			sb.append("	name = e.target.name;\n");
-			sb.append("	msg = name + ',' + e.target.type + ',' + e.type + ',' + now.getTime() + ',' + (now.getTime() - startTime.getTime()) + ',' + val + '\t';\n");
-			sb.append("	document.myForm.EVENT_TIMINGS.value += msg;\n");
-//		}
+		sb.append("	now = new Date();\n");
+		sb.append("	if (Ns4up) { target=e.target; } else { target=e.srcElement;}\n");
+		sb.append("	if (Ns4up) {\n");
+			sb.append("	val = target.options[target.selectedIndex].value + ',' + target.options[target.selectedIndex].text;\n");
+			sb.append("	msg = target.name + ',' + target.type + ',' + e.type + ',' + now.getTime() + ',' + (now.getTime() - startTime.getTime()) + ',' + val + '\t';\n");
+		sb.append(" } else {\n");
+			sb.append("	val = target.options[target.selectedIndex].value + ',' + target.options[target.selectedIndex].text;\n");
+			sb.append("	name = target.name;\n");
+			sb.append("	msg = target.name + ',' + target.type + ',' + e.type + ',' + now.getTime() + ',' + (now.getTime() - startTime.getTime()) + ',' + val + '\t';\n");
+		sb.append("	} \n");
+
+		sb.append("	document.myForm.EVENT_TIMINGS.value += msg;\n");
 		sb.append("	return true;\n");
 		sb.append("}\n");
 }		
 		sb.append("function evHandler(e) {\n");
 if (DEPLOYABLE) {		
-//		if (allowRecordEvents) {
-			sb.append("	now = new Date();\n");
-			sb.append("	val = ',' + e.target.value;\n");
-			sb.append("	name = e.target.name;\n");
-			sb.append("	msg = name + ',' + e.target.type + ',' + e.type + ',' + now.getTime() + ',' + (now.getTime() - startTime.getTime()) + ',' + val + '\t';\n");
-			sb.append("	document.myForm.EVENT_TIMINGS.value += msg;\n");
-//		}
+		sb.append("	now = new Date();\n");
+		sb.append("	if (Ns4up) { target=e.target; } else { target=e.srcElement;}\n");
+		sb.append("	if (Ns4up) {\n");
+			sb.append("	val = ',' + target.value;\n");
+			sb.append("	msg = target.name + ',' + target.type + ',' + e.type + ',' + now.getTime() + ',' + (now.getTime() - startTime.getTime()) + ',' + val + '\t';\n");
+		sb.append(" } else {\n");
+			sb.append(" if (target == null) {\n");
+			sb.append("	msg = 'null,null,' + e.type + ',' + now.getTime() + ',' + (now.getTime() - startTime.getTime()) + ',null\t';\n");
+		sb.append("	} else {\n");
+			sb.append("	val = ',' + target.value;\n");
+			sb.append("	msg = target.name + ',' + target.type + ',' + e.type + ',' + now.getTime() + ',' + (now.getTime() - startTime.getTime()) + ',' + val + '\t';\n");
+		sb.append("		}\n	} \n");
+		sb.append("	document.myForm.EVENT_TIMINGS.value += msg;\n");
 }
 		sb.append("	return true;\n");
 		sb.append("}\n");
 	
 if (DEPLOYABLE) {	
-		sb.append("window.captureEvents(Event.Load);\n");
+		sb.append("	if (Ns4up) { window.captureEvents(Event.Load); }\n");
 		sb.append("window.onLoad = evHandler;\n");
 }		
 
-		sb.append("function init() {\n");
+		sb.append("function init(e) {\n");
+		sb.append(" evHandler(e);\n");
 		sb.append("	for (var i=0;i<document.myForm.elements.length;++i) {\n");
 		sb.append("		el = document.myForm.elements[i];\n");
 if (DEPLOYABLE) {		
@@ -1468,8 +1529,8 @@ if (DEPLOYABLE) {
 			sb.append("		document.myForm.elements[name + '_NOT_UNDERSTOOD_ICON'].src = '" + getIcon(Schedule.DONT_UNDERSTAND_ICON_ON) + "';\n");
 		sb.append("	}\n");
 		sb.append("}\n");
-		sb.append("function help(name,target) {\n");
-		sb.append("	if (target != null && target.length != 0) { window.open(target,'__HELP__'); }\n");
+		sb.append("function help(nam,targ) {\n");
+		sb.append("	if (targ != null && targ.length != 0) { window.open(targ,'__HELP__'); }\n");
 		sb.append("}\n");
 		sb.append("function comment(name) {\n");
 		sb.append("	if (!name) return;\n");
@@ -1511,7 +1572,7 @@ if (DEPLOYABLE) {
 		sb.append(createJavaScript());
 
 		sb.append("</head>\n");
-		sb.append("<body bgcolor='white' onload='evHandler(event);init();'>");
+		sb.append("<body bgcolor='white' onload='init(event);'>");
 
 		return sb.toString();
 	}
