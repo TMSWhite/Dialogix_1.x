@@ -9,17 +9,18 @@ import java.net.*;
  * questions, or by the system evaluating previously stored evidence
  */
 public class Evidence  {
-	private Hashtable aliases;
-	private Vector values;
+	private Hashtable aliases = new Hashtable();
+	private Vector values = new Vector();
 	private int	numReserved = 0;
 
 	public Evidence(Schedule schedule) {
-		int size=schedule.size();
+		if (schedule == null) {
+			return;
+		}
+		
+		int size = schedule.size();
 
 		numReserved = Schedule.RESERVED_WORDS.length;	// these are always added at the beginning
-
-		aliases = new Hashtable();
-		values = new Vector(size + numReserved);
 
 		Node node;
 		Value value;
@@ -66,7 +67,7 @@ public class Evidence  {
 					n.setParseError("Duplicate alias <B>" + Node.encodeHTML(alias) + "</B> previously used for node <B>" + Node.encodeHTML(prevNode.getLocalName()) + "</B> on line " + prevNode.getSourceLine());
 				}
 			} catch (Throwable t) {
-				System.err.println("Trying to overwrite a reserved word");
+				System.err.println("Unexpected error: " + t.getMessage());
 			}
 		}
 	}
@@ -78,22 +79,25 @@ public class Evidence  {
 	}
 
 	public Datum getDatum(Object val) {
-		Integer i = (Integer) aliases.get(val);
-		if (i == null)
+		int i = getNodeIndex(val);
+		if (i == -1) {
 			return null;
-		return ((Value) values.elementAt(i.intValue())).getDatum();
+		}
+		return ((Value) values.elementAt(i)).getDatum();
 	}
 
 	public Node getNode(Object val) {
-		Integer i = (Integer) aliases.get(val);
-		if (i == null) {
-			System.err.println("Node not found: " + val);
+		int i = getNodeIndex(val);
+		if (i == -1) {
+//			System.err.println("Node not found: " + val);
 			return null;
 		}
-		return ((Value) values.elementAt(i.intValue())).getNode();
+		return ((Value) values.elementAt(i)).getNode();
 	}
 
 	public int getStep(Object n) {
+		if (n == null)
+			return -1;
 		int step = getNodeIndex(n);
 		if (step == -1)
 			return -1;
@@ -105,10 +109,19 @@ public class Evidence  {
 		if (n == null)
 			return -1;
 		Object o = aliases.get(n);
-		if (o == null)
-			return -1;
-		else
+		if (o != null || !(n instanceof Node))
 			return ((Integer) o).intValue();
+			
+		Node node = (Node) n;
+		o = aliases.get(node.getConcept());
+		if (o != null)
+			return ((Integer) o).intValue();
+		
+		o = aliases.get(node.getLocalName());
+		if (o != null)
+			return ((Integer) o).intValue();
+			
+		return -1;
 	}
 
 	public void set(Node node, Datum val, String time) {
