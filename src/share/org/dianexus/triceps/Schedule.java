@@ -22,6 +22,7 @@ public class Schedule  {
 	public static final int START_TIME = 12;
 	public static final int FILENAME = 13;
 	public static final int SHOW_INVISIBLE_OPTIONS = 14;
+	public static final int TITLE_FOR_PICKLIST_WHEN_IN_PROGRESS = 15;
 
 	public static final String[] RESERVED_WORDS = {
 		"__TITLE__", "__ICON__", "__HEADER_MSG__", "__STARTING_STEP__",
@@ -29,24 +30,37 @@ public class Schedule  {
 		"__LANGUAGES__",
 		"__SHOW_QUESTION_REF__", "__AUTOGEN_OPTION_NUM__",
 		"__DEVELOPER_MODE__", "__DEBUG_MODE__",
-		"__START_TIME__", "__FILENAME__", "__SHOW_INVISIBLE_OPTIONS__"
+		"__START_TIME__", "__FILENAME__", "__SHOW_INVISIBLE_OPTIONS__", "__TITLE_FOR_PICKLIST_WHEN_IN_PROGRESS__"
 	};
 
 	private Date startTime = null;
 	private int languageCount = 0;
 	private Vector languages = null;
 	private int currentLanguage = 0;
-
-
-	private Vector nodes = new Vector();
-	private Vector comments = new Vector();
+	private boolean isFound = false;
+	private boolean isLoaded = false;
+	private String source = null;
+	private String error = null;
+	
+	private Vector nodes = null;
+	private Vector comments = null;
 	private Hashtable reserved = new Hashtable();
 
-	public Schedule() {
+	public Schedule(String source) {
+		this.source = source;
+		
 		setDefaultReserveds();
+			
+		if (load(false)) {
+			isFound = true;
+		}
 	}
+	
+	public boolean isFound() { return isFound; }
+	public boolean isLoaded() { return isLoaded; }
+	public String getSource() { return ((isFound) ? source : ""); }
 
-	public void setDefaultReserveds() {
+	private void setDefaultReserveds() {
 		setReserved(TITLE,"Triceps System");
 		setReserved(STARTING_STEP,"0");
 		setReserved(START_TIME,Datum.TIME_MASK.format(new Date(System.currentTimeMillis())));
@@ -62,9 +76,22 @@ public class Schedule  {
 		setReserved(DEBUG_MODE,"false");
 		setReserved(LANGUAGES,"English");
 		setReserved(SHOW_INVISIBLE_OPTIONS,"false");
+		setReserved(TITLE_FOR_PICKLIST_WHEN_IN_PROGRESS,"");	// default is unnamed until initialized
+	}
+	
+	public boolean init() {
+		nodes = new Vector();
+		comments = new Vector();
+		isLoaded = load(true); 
+		return isLoaded;
+	}
+	
+	public boolean reload() {
+		return init();
 	}
 
-	public boolean load(BufferedReader br, String filename) {
+	private boolean load(boolean parseNodes) {
+		BufferedReader br = getReader(source);
 		if (br == null)
 			return false;
 
@@ -81,22 +108,28 @@ public class Schedule  {
 					continue;
 
 				if (fileLine.startsWith("COMMENT")) {
-					comments.addElement(fileLine);
+					if (parseNodes) {
+						comments.addElement(fileLine);
+					}
 					continue;
 				}
 				if (fileLine.startsWith("RESERVED")) {
-					parseReserved(line, filename, fileLine);
+					parseReserved(line, source, fileLine);
 					continue;
 				}
+				
+				if (!parseNodes)
+					break;	// so that only set RESERVED values
 
-				Node node = new Node(line, filename, fileLine, languageCount);
+				Node node = new Node(line, source, fileLine, languageCount);
 				++count;
 				nodes.addElement(node);
 			}
-			System.err.println("Read " + count + " nodes from " + filename);
+			if (parseNodes)
+				System.err.println("Read " + count + " nodes from " + source);
 		}
 		catch(Throwable t) {
-			System.err.println("Unable to access " + filename + ": " + t.getMessage());
+			System.err.println("Unable to access " + source + ": " + t.getMessage());
 			err = true;
 		}
 		if (br != null) {
@@ -104,7 +137,14 @@ public class Schedule  {
 				System.err.println("Error closing file:" + t.getMessage());
 			}
 		}
-		setStartTime(startTime);
+		setReserved(START_TIME,Datum.TIME_MASK.format(startTime));	// XXX is this really needed?
+		
+		String s = getReserved(TITLE_FOR_PICKLIST_WHEN_IN_PROGRESS);
+		if (s == null || s.trim().length() == 0) {
+			// set a reasonable default value
+			setReserved(TITLE_FOR_PICKLIST_WHEN_IN_PROGRESS,getReserved(TITLE) + " [" + getReserved(START_TIME) + "]");
+		}
+		
 		return (!err);
 	}
 
@@ -151,7 +191,7 @@ public class Schedule  {
 			}
 		}
 		if (field < 2) {
-			System.err.println("wrong number of tokens for RESERVED syntax (RESERVED\\tname\\tvalue\\n) on line " + line + " of file " + filename);
+			System.err.println("Incorrect syntax for " + ((name != null) ? name : "") + " [" + filename + "(" + line + ")]");
 		}
 		if (name == null || value == null)
 			return;
@@ -165,7 +205,7 @@ public class Schedule  {
 		}
 
 		if (!setReserved(resIdx, value)) {
-			System.err.println("unrecognized reserved word " + name + " on line " + line + " of file " + filename);
+			System.err.println(name + " not recognized [" + filename + "(" + line + ")]");
 		}
 	}
 
@@ -189,6 +229,7 @@ public class Schedule  {
 			case DEBUG_MODE: s = Boolean.valueOf(value.trim()).toString(); break;
 			case LANGUAGES: s = setLanguages(value); break;
 			case SHOW_INVISIBLE_OPTIONS: s = Boolean.valueOf(value.trim()).toString(); break;
+			case TITLE_FOR_PICKLIST_WHEN_IN_PROGRESS: s = value; break;
 			default: return false;
 		}
 		if (s != null) {
@@ -223,7 +264,7 @@ public class Schedule  {
 	private String setStartTime(Date t) {
 		startTime = t;
 		String str = Datum.TIME_MASK.format(t);
-		reserved.put(RESERVED_WORDS[START_TIME], str);
+//		reserved.put(RESERVED_WORDS[START_TIME], str);
 		return str;
 	}
 
@@ -318,4 +359,103 @@ public class Schedule  {
 			}
 		}
 	}
+	
+	private BufferedReader getReader(String source) {
+		boolean ok = false;
+		BufferedReader br = null;
+
+		/* First try to access the source as a file */
+		try {
+			if (source != null) {
+				File file = new File(source);
+				if (!file.exists()) {
+					error = "Error: file '" + source + "' doesn't exist";
+				}
+				else if (!file.isFile()) {
+					error = "Error: file '" + source + "' isn't a file";
+				}
+				else if (!file.canRead()) {
+					error = "Error: file '" + source + "' is not accessible";
+				}
+				else {
+					br = new BufferedReader(new FileReader(file));
+					ok = true;
+				}
+			}
+			else {
+				error = "Error: null filename";
+			}
+		}
+		catch (Throwable t) {
+			error = "error accessing file: " + t.getMessage();
+		}
+		if (ok) {
+			return br;
+		}
+		else {
+			if (br != null) {
+				try { br.close(); } catch (Throwable t) {
+					System.err.println("error closing reader: " + t.getMessage());
+				}
+			}
+			System.err.println(error);
+		}
+
+/* Shows how URLs can be accessed.  No longer supported.
+		// Is source a URL pointing to a file? If so, try reading from it
+		try {
+			URL url = new URL(source);
+			br = new BufferedReader(new InputStreamReader(url.openStream()));
+
+			String fileLine;
+			while ((fileLine = br.readLine()) != null) {
+				fileLine = fileLine.trim();
+				if (fileLine.equals(""))
+					continue;
+
+				// If this is an HTML page instead of a text file, then an error has occurred
+				if (fileLine.startsWith("<")) {
+					error = "unable to access " + url.toExternalForm();
+					break;
+				}
+				else {
+					// Close, then re-open the stream (resetting a BufferedReader isn't supported on all platforms)
+					if (br != null) {
+						try { br.close(); } catch (Throwable t) {
+							System.err.println("error closing reader: " + t.getMessage());
+						}
+					}
+					br = new BufferedReader(new InputStreamReader(url.openStream()));
+					ok = true;
+					break;
+				}
+			}
+		}
+		catch (MalformedURLException t) {
+		}
+		catch (Throwable t) {
+			error = "can't access as url: " + t.getMessage();
+		}
+		if (ok) {
+			return br;
+		}
+		else {
+			if (br != null) {
+				try { br.close(); } catch (Throwable t) {
+					System.err.println("error closing reader: " + t.getMessage());
+				}
+			}
+			System.err.println(error);
+		}
+*/
+		return null;
+	}
+
+	public String getErrors() {
+		String tmp = error;
+		error = null;
+		return tmp;
+	}
+	
+	public boolean hasErrors() { return (error != null); }
 }
