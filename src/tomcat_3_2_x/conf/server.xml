@@ -243,6 +243,8 @@
  
             You can set parameter keystore and keypass if you want 
             to change the default ( user.home/.keystore with changeit )
+        -->
+        @@SSL.COMMENT_START@@
         <Connector className="org.apache.tomcat.service.PoolTcpConnector">
             <Parameter name="handler" 
                 value="org.apache.tomcat.service.http.HttpConnectionHandler"/>
@@ -250,8 +252,13 @@
                 value="@@HTTPS.PORT@@"/>
             <Parameter name="socketFactory" 
                 value="org.apache.tomcat.net.SSLSocketFactory" />
+            <Parameter name="keystore"
+            		value="@@SSL.KEYSTORE@@" />
+            <Parameter name="keypass"
+            		value="@@SSL.KEYPASS@@" />
         </Connector>
-         -->
+        @@SSL.COMMENT_END@@
+
 
         <!-- Apache AJP12 support. This is also used to shut down tomcat.
           -->

@@ -60,15 +60,17 @@
      to -1 -->
 
     <!-- Define an SSL HTTP/1.1 Connector on port 8443 -->
-    <!--
+    @@SSL.COMMENT_START@@
     <Connector className="org.apache.catalina.connector.http.HttpConnector"
                port="@@HTTPS.PORT@@" minProcessors="5" maxProcessors="75"
                enableLookups="true"
 	       acceptCount="10" debug="0" scheme="https" secure="true">
       <Factory className="org.apache.catalina.net.SSLServerSocketFactory"
-               clientAuth="false" protocol="TLS"/>
+               protocol="TLS"
+               keystoreFile="@@SSL.KEYSTORE@@"
+               keystorePass="@@SSL.KEYPASS@@"/>
     </Connector>
-    -->
+    @@SSL.COMMENT_END@@
 
     <!-- Define an AJP 1.3 Connector on port 8009 -->
     <Connector className="org.apache.ajp.tomcat4.Ajp13Connector"

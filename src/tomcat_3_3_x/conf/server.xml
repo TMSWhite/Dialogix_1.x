@@ -209,7 +209,12 @@
                Use "changeit" as password. ( or add keypass attribute )
                You don't need to sign the certificate.
          -->
-        <Http10Connector  port="@@HTTPS.PORT@@" secure="true" />
+         @@SSL.COMMENT_START@@
+        <Http10Connector  port="@@HTTPS.PORT@@" secure="true" 
+        		keystore="@@SSL.KEYSTORE@@"
+        		keypass="@@SSL.KEYPASS@@"
+        		/>
+        	@@SSL.COMMENT_END@@
 
         <!--
              JNI connector. It assumes the library is located in 
