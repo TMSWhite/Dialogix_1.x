@@ -8,7 +8,7 @@ import java.net.*;
  * by the person running the interview in response to
  * questions, or by the system evaluating previously stored evidence
  */
-public class Evidence  {
+public class Evidence implements VersionIF  {
 	private static final int FUNCTION_INDEX = 2;
 	private static final int FUNCTION_NUM_PARAMS = 1;
 	private static final int FUNCTION_NAME = 0;
@@ -115,7 +115,7 @@ public class Evidence  {
 		{ "substring",			UNLIMITED,	new Integer(SUBSTRING) },
 		{ "toLowerCase",		ONE,		new Integer(TOLOWERCASE) },
 		{ "toUpperCase",		ONE,		new Integer(TOUPPERCASE) },
-		{ "trim",				ONE,		new Integer(TRIM) },	
+		{ "trim",				ONE,		new Integer(TRIM) },
 		{ "isNumber",			ONE,		new Integer(ISNUMBER) },
 		{ "fileExists",			ONE,		new Integer(FILEEXISTS) },
 	};
@@ -165,7 +165,7 @@ public class Evidence  {
 		/* then assign the user-defined words */
 		for (int i = 0; i < size; ++i, ++idx) {
 			node = schedule.getNode(i);
-			
+
 			if (toUnasked) {
 				datum = Datum.getInstance(tri,Datum.UNASKED);
 				timeStamp = startTime;
@@ -192,7 +192,7 @@ public class Evidence  {
 				if (timeStamp == null || timeStamp.trim().length() == 0)
 					timeStamp = startTime;
 			}
-				
+
 			value = new Value(node, datum, timeStamp);
 			values.addElement(value);
 
@@ -294,7 +294,7 @@ public class Evidence  {
 			setError(triceps.get("node_does_not_exist"),node.getLocalName());
 			return;
 		}
-		
+
 		Value value = (Value) values.elementAt(i);
 		value.setDatum(val,time);
 	}
@@ -365,7 +365,7 @@ public class Evidence  {
 				setError(triceps.get("unsupported_function") + name, line, column,null);
 				return Datum.getInstance(triceps,Datum.INVALID);
 			}
-			
+
 			Integer	numParams = (Integer) FUNCTION_ARRAY[funcNum][FUNCTION_NUM_PARAMS];
 
 			if (!(UNLIMITED.equals(numParams) || params.size() == numParams.intValue())){
@@ -381,7 +381,7 @@ public class Evidence  {
 
 
 			switch(funcNum) {
-				case DESC: 
+				case DESC:
 				{
 					String nodeName = datum.getName();
 					Node node = null;
@@ -508,7 +508,7 @@ public class Evidence  {
 						sb.append(getParam(params.elementAt(1)).stringVal() + ":");
 						sb.append(getParam(params.elementAt(2)).stringVal());
 						return new Datum(triceps, sb.toString(), Datum.TIME, "hh:mm:ss");
-					}			
+					}
 					break;
 				case MIN:
 					if (params.size() == 0) {
@@ -516,10 +516,10 @@ public class Evidence  {
 					}
 					else {
 						Datum minVal = null;
-						
+
 						for (int i=0;i<params.size();++i) {
 							Datum a = getParam(params.elementAt(i));
-							
+
 							if (i == 0) {
 								minVal = a;
 							}
@@ -537,10 +537,10 @@ public class Evidence  {
 					}
 					else {
 						Datum maxVal = null;
-						
+
 						for (int i=0;i<params.size();++i) {
 							Datum a = getParam(params.elementAt(i));
-							
+
 							if (i == 0) {
 								maxVal = a;
 							}
@@ -594,7 +594,7 @@ public class Evidence  {
 				{
 					if (params.size() < 1 || params.size() > 2)
 						break;
-						
+
 					String nodeName = datum.getName();
 					Node node = null;
 					if (nodeName == null || ((node = getNode(nodeName)) == null)) {
@@ -614,23 +614,23 @@ public class Evidence  {
 									return new Datum(triceps, ac.getMessage(), Datum.STRING);
 								}
 							}
-							return Datum.getInstance(triceps,Datum.INVALID);	
+							return Datum.getInstance(triceps,Datum.INVALID);
 						}
 					}
 					else { // if (params.size() == 2) {
 						datum = getParam(params.elementAt(1));
 						if (!datum.isNumeric()) {
 							setError(functionError(funcNum,Datum.NUMBER,2),datum);
-							return Datum.getInstance(triceps,Datum.INVALID);	
+							return Datum.getInstance(triceps,Datum.INVALID);
 						}
 						int index = (int) datum.doubleVal();
 						if (index < 0) {
 							setError(triceps.get("index_too_low"),index);
-							return Datum.getInstance(triceps,Datum.INVALID);	
+							return Datum.getInstance(triceps,Datum.INVALID);
 						}
 						else if (index >= choices.size()) {
 							setError(triceps.get("index_too_high"),index);
-							return Datum.getInstance(triceps,Datum.INVALID);	
+							return Datum.getInstance(triceps,Datum.INVALID);
 						}
 						else {
 							return new Datum(triceps,((AnswerChoice) choices.elementAt(index)).getMessage(), Datum.STRING);
@@ -643,16 +643,16 @@ public class Evidence  {
 					datum = getParam(params.elementAt(1));
 					if (!datum.isNumeric()) {
 						setError(functionError(funcNum,Datum.NUMBER,2),datum);
-						return Datum.getInstance(triceps,Datum.INVALID);	
+						return Datum.getInstance(triceps,Datum.INVALID);
 					}
 					int index = (int) datum.doubleVal();
 					if (index < 0) {
 						setError(triceps.get("index_too_low"),index);
-						return Datum.getInstance(triceps,Datum.INVALID);	
+						return Datum.getInstance(triceps,Datum.INVALID);
 					}
 					else if (index >= src.length()) {
 						setError(triceps.get("index_too_high"),index);
-						return Datum.getInstance(triceps,Datum.INVALID);	
+						return Datum.getInstance(triceps,Datum.INVALID);
 					}
 					else {
 						return new Datum(triceps,String.valueOf(src.charAt(index)), Datum.STRING);
@@ -664,14 +664,14 @@ public class Evidence  {
 					return new Datum(triceps,datum.stringVal().compareToIgnoreCase(getParam(params.elementAt(1)).stringVal()));
 				case ENDSWITH:
 					return new Datum(triceps,datum.stringVal().endsWith(getParam(params.elementAt(1)).stringVal()));
-				case INDEXOF: 
+				case INDEXOF:
 				{
 					if (params.size() < 2 || params.size() > 3)
 						break;
-						
+
 					String str1 = getParam(params.elementAt(0)).stringVal();
 					String str2 = getParam(params.elementAt(1)).stringVal();
-					
+
 					if (params.size() == 2) {
 						return new Datum(triceps, str1.indexOf(str2));
 					}
@@ -679,16 +679,16 @@ public class Evidence  {
 						Datum datum2 = getParam(params.elementAt(2));
 						if (!datum2.isNumeric()) {
 							setError(functionError(funcNum,Datum.NUMBER,3),datum2);
-							return Datum.getInstance(triceps,Datum.INVALID);	
+							return Datum.getInstance(triceps,Datum.INVALID);
 						}
 						int index = (int) datum2.doubleVal();
 						if (index < 0) {
 							setError(triceps.get("index_too_low"),index);
-							return Datum.getInstance(triceps,Datum.INVALID);	
+							return Datum.getInstance(triceps,Datum.INVALID);
 						}
 						else if (index >= str1.length()) {
 							setError(triceps.get("index_too_high"),index);
-							return Datum.getInstance(triceps,Datum.INVALID);	
+							return Datum.getInstance(triceps,Datum.INVALID);
 						}
 						else {
 							return new Datum(triceps, str1.indexOf(str2,index));
@@ -702,10 +702,10 @@ public class Evidence  {
 				{
 					if (params.size() < 2 || params.size() > 3)
 						break;
-						
+
 					String str1 = getParam(params.elementAt(0)).stringVal();
 					String str2 = getParam(params.elementAt(1)).stringVal();
-											
+
 					if (params.size() == 2) {
 						return new Datum(triceps, str1.lastIndexOf(str2));
 					}
@@ -713,16 +713,16 @@ public class Evidence  {
 						Datum datum2 = getParam(params.elementAt(2));
 						if (!datum2.isNumeric()) {
 							setError(functionError(funcNum,Datum.NUMBER,3),datum2);
-							return Datum.getInstance(triceps,Datum.INVALID);	
+							return Datum.getInstance(triceps,Datum.INVALID);
 						}
 						int index = (int) datum2.doubleVal();
 						if (index < 0) {
 							setError(triceps.get("index_too_low"),index);
-							return Datum.getInstance(triceps,Datum.INVALID);	
+							return Datum.getInstance(triceps,Datum.INVALID);
 						}
 						else if (index >= str1.length()) {
 							setError(triceps.get("index_too_high"),index);
-							return Datum.getInstance(triceps,Datum.INVALID);	
+							return Datum.getInstance(triceps,Datum.INVALID);
 						}
 						else {
 							return new Datum(triceps, str1.lastIndexOf(str2,index));
@@ -738,10 +738,10 @@ public class Evidence  {
 				{
 					if (params.size() < 2 || params.size() > 3)
 						break;
-						
+
 					String str1 = getParam(params.elementAt(0)).stringVal();
 					String str2 = getParam(params.elementAt(1)).stringVal();
-											
+
 					if (params.size() == 2) {
 						return new Datum(triceps, str1.startsWith(str2));
 					}
@@ -749,16 +749,16 @@ public class Evidence  {
 						Datum datum2 = getParam(params.elementAt(2));
 						if (!datum2.isNumeric()) {
 							setError(functionError(funcNum,Datum.NUMBER,3),datum2);
-							return Datum.getInstance(triceps,Datum.INVALID);	
+							return Datum.getInstance(triceps,Datum.INVALID);
 						}
 						int index = (int) datum2.doubleVal();
 						if (index < 0) {
 							setError(triceps.get("index_too_low"),index);
-							return Datum.getInstance(triceps,Datum.INVALID);	
+							return Datum.getInstance(triceps,Datum.INVALID);
 						}
 						else if (index >= str1.length()) {
 							setError(triceps.get("index_too_high"),index);
-							return Datum.getInstance(triceps,Datum.INVALID);	
+							return Datum.getInstance(triceps,Datum.INVALID);
 						}
 						else {
 							return new Datum(triceps, str1.startsWith(str2,index));
@@ -767,38 +767,38 @@ public class Evidence  {
 					else {
 						break;
 					}
-				}					
+				}
 				case SUBSTRING:
 				{
 					if (params.size() < 2 || params.size() > 3)
 						break;
-						
+
 					String str1 = getParam(params.elementAt(0)).stringVal();
 					Datum start = getParam(params.elementAt(1));
 					Datum end = null;
 					int from, to;
-					
+
 					if (params.size() == 3) {
 						end = getParam(params.elementAt(2));
 					}
-					
+
 					if (!start.isNumeric()) {
 						setError(functionError(funcNum,Datum.NUMBER,2),start);
-						return Datum.getInstance(triceps,Datum.INVALID);	
+						return Datum.getInstance(triceps,Datum.INVALID);
 					}
 					else {
 						from = (int) start.doubleVal();
 						if (from < 0) {
 							setError(triceps.get("index_too_low"),from);
-							return Datum.getInstance(triceps,Datum.INVALID);	
+							return Datum.getInstance(triceps,Datum.INVALID);
 						}
 						else if (from >= str1.length()) {
 							setError(triceps.get("index_too_high"),from);
-							return Datum.getInstance(triceps,Datum.INVALID);								
+							return Datum.getInstance(triceps,Datum.INVALID);
 						}
-						
+
 					}
-					
+
 					if (end != null) {
 						if (!end.isNumeric()) {
 							setError(functionError(funcNum,Datum.NUMBER,3),end);
@@ -808,11 +808,11 @@ public class Evidence  {
 							to = (int) end.doubleVal();
 							if (to < from) {
 								setError(triceps.get("index_too_low"),to);
-								return Datum.getInstance(triceps,Datum.INVALID);	
+								return Datum.getInstance(triceps,Datum.INVALID);
 							}
 							else if (to >= str1.length()) {
 								setError(triceps.get("index_too_high"),to);
-								return Datum.getInstance(triceps,Datum.INVALID);								
+								return Datum.getInstance(triceps,Datum.INVALID);
 							}
 							else {
 								return new Datum(triceps, str1.substring(from,to), Datum.STRING);
@@ -822,7 +822,7 @@ public class Evidence  {
 					else {
 						return new Datum(triceps, str1.substring(from), Datum.STRING);
 					}
-				}					
+				}
 				case TOLOWERCASE:
 					return new Datum(triceps,datum.stringVal().toLowerCase(), Datum.STRING);
 				case TOUPPERCASE:
@@ -839,50 +839,50 @@ public class Evidence  {
 					fext = fext.trim();
 					if (fext.length() == 0)
 						return new Datum(triceps,false);;
-						
+
 					/* now check whether this name is available in both working and completed dirs */
 					File file;
 					Schedule sched = triceps.getSchedule();
 					String fname;
-					
+
 					try {
 						fname = sched.getReserved(Schedule.WORKING_DIR) + fext;
-Logger.writeln("##exists(" + fname + ")");					
+if (DEBUG) Logger.writeln("##exists(" + fname + ")");
 						file = new File(fname);
 						if (file.exists())
 							return new Datum(triceps,true);;
 					}
 					catch (SecurityException e) {
-Logger.writeln("##SecurityException @ Evidence.fileExists()" + e.getMessage());
-						return Datum.getInstance(triceps,Datum.INVALID);	
+if (DEBUG) Logger.writeln("##SecurityException @ Evidence.fileExists()" + e.getMessage());
+						return Datum.getInstance(triceps,Datum.INVALID);
 					}
 					try {
 						fname = sched.getReserved(Schedule.COMPLETED_DIR) + fext;
-Logger.writeln("##exists(" + fname + ")");					
+if (DEBUG) Logger.writeln("##exists(" + fname + ")");
 						file = new File(fname);
 						if (file.exists())
 							return new Datum(triceps,true);
 					}
 					catch (SecurityException e) {
-Logger.writeln("##SecurityException @ Evidence.fileExists()" + e.getMessage());
-						return Datum.getInstance(triceps,Datum.INVALID);	
-					}					
+if (DEBUG) Logger.writeln("##SecurityException @ Evidence.fileExists()" + e.getMessage());
+						return Datum.getInstance(triceps,Datum.INVALID);
+					}
 					return new Datum(triceps,false);
 				}
 			}
 		}
-		catch (Throwable t) { 
-Logger.writeln("##Throwable @ Evidence.function()" + t.getMessage());
+		catch (Throwable t) {
+if (DEBUG) Logger.writeln("##Throwable @ Evidence.function()" + t.getMessage());
 			Logger.printStackTrace(t);
 		}
 		setError("unexpected error running function " + name, line, column, null);
 		return Datum.getInstance(triceps,Datum.INVALID);
 	}
-	
+
 	private void setError(String s, int line, int column, int val) { setError(s,line,column,new Integer(val)); }
 	private void setError(String s, int val) { setError(s,new Integer(val)); }
 
-	private void setError(String s, int line, int column, Object val) { 
+	private void setError(String s, int line, int column, Object val) {
 		String msg = null;
 		if (val != null) {
 			msg = s + ": " + triceps.get("got") + ((val instanceof Datum) ? ((Datum) val).stringVal() : val.toString());
@@ -890,10 +890,10 @@ Logger.writeln("##Throwable @ Evidence.function()" + t.getMessage());
 		else {
 			msg = s;
 		}
-		errorLogger.print(msg,line,column); 
+		errorLogger.print(msg,line,column);
 		Logger.writeln("##" + msg);
 	}
-	private void setError(String s, Object val) { 
+	private void setError(String s, Object val) {
 		String msg = null;
 		if (val != null) {
 			msg = s + ": " + triceps.get("got") + ((val instanceof Datum) ? ((Datum) val).stringVal() : val.toString());
@@ -901,16 +901,16 @@ Logger.writeln("##Throwable @ Evidence.function()" + t.getMessage());
 		else {
 			msg = s;
 		}
-		errorLogger.println(msg); 
+		errorLogger.println(msg);
 		Logger.writeln("##" + msg);
 	}
 	public boolean hasErrors() { return (errorLogger.size() > 0); }
 	public String getErrors() { return errorLogger.toString(); }
-	
+
 	private String functionError(int funcNum, int datumType, int index) {
-		return FUNCTION_ARRAY[funcNum][FUNCTION_NAME] + " " + 
-			triceps.get("expects") + " " + 
-			Datum.getTypeName(triceps,datumType) + " " + 
+		return FUNCTION_ARRAY[funcNum][FUNCTION_NAME] + " " +
+			triceps.get("expects") + " " +
+			Datum.getTypeName(triceps,datumType) + " " +
 			triceps.get("at_index") + " " +
 			index;
 	}

@@ -2,7 +2,7 @@
 import java.io.*;
 import java.util.*;
 
-public class Qss implements QssConstants {
+public class Qss implements QssConstants, VersionIF {
     private Stack stack;
     private Triceps triceps;
     Logger debugLogger = Logger.NULL;   // Parser directly assigns this value
@@ -18,19 +18,19 @@ public class Qss implements QssConstants {
                         d = (Datum) stack.pop();
                 }
                 catch (EmptyStackException e) {
-Logger.writeln("##EmptyStackException @ Qss.parse()" + e.getMessage());
+if (DEBUG) Logger.writeln("##EmptyStackException @ Qss.parse()" + e.getMessage());
                        error(triceps.get("stack_underflow"),token.beginLine,token.beginColumn);
                 }
                 catch (ParseException e) {
-Logger.writeln("##ParseException @ Qss.parse()" + e.getMessage());
+if (DEBUG) Logger.writeln("##ParseException @ Qss.parse()" + e.getMessage());
                         error(e.getMessage());
                 }
                 catch (TokenMgrError e) {
-Logger.writeln("##TokenMgrError @ Qss.parse()" + e.getMessage());
+if (DEBUG) Logger.writeln("##TokenMgrError @ Qss.parse()" + e.getMessage());
                         error(e.getMessage());
                 }
 
-                if (debugLogger != Logger.NULL) {
+                if (DEBUG && debugLogger != Logger.NULL) {
                         debug(null,d);
                 }
 
@@ -52,6 +52,7 @@ Logger.writeln("##TokenMgrError @ Qss.parse()" + e.getMessage());
 
         /* Prints stack trace in tab delimited format - operator, arguments, ->, answer */
         private void debug(String s,Datum d) {
+if (DEBUG) {
                 String varName = d.getName();
 
                 debugLogger.println(((s != null) ? (s + "\t") : "") + "->\t" +
@@ -60,6 +61,7 @@ Logger.writeln("##TokenMgrError @ Qss.parse()" + e.getMessage());
                                         d.dateVal() + "\t" +
                                         d.monthVal() +
                                         ((varName != null) ? ("VAR_NAME='" + varName + "'") : ""));
+}
         }
 
         private String datumValue(Datum d) {
@@ -84,7 +86,7 @@ Logger.writeln("##TokenMgrError @ Qss.parse()" + e.getMessage());
                         default: ans = Datum.getInstance(triceps,Datum.INVALID); break;
                 }
                 stack.push(ans);
-                if (debugLogger != Logger.NULL) {
+                if (DEBUG && debugLogger != Logger.NULL) {
                         debug(opName(op) + "\t" + datumValue(a),ans);
                 }
         }
@@ -121,7 +123,7 @@ Logger.writeln("##TokenMgrError @ Qss.parse()" + e.getMessage());
                         default: ans = Datum.getInstance(triceps,Datum.INVALID); break;
                 }
                 stack.push(ans);
-                if (debugLogger != Logger.NULL) {
+                if (DEBUG && debugLogger != Logger.NULL) {
                         debug(opName(op) + "\t" + datumValue(a) + "\t" + datumValue(b),ans);
                 }
         }
@@ -136,7 +138,7 @@ Logger.writeln("##TokenMgrError @ Qss.parse()" + e.getMessage());
                         default: ans = Datum.getInstance(triceps,Datum.INVALID); break;
                 }
                 stack.push(ans);
-                if (debugLogger != Logger.NULL) {
+                if (DEBUG && debugLogger != Logger.NULL) {
                         debug(opName(op) + "\t" + datumValue(a) + "\t" + datumValue(b) + "\t" + datumValue(c),ans);
                 }
         }
@@ -144,7 +146,7 @@ Logger.writeln("##TokenMgrError @ Qss.parse()" + e.getMessage());
         private void functionOp(Token func, Stack params) {
                 Datum ans = triceps.getEvidence().function(func.image, params, func.beginLine, func.beginColumn);
                 stack.push(ans);
-                if (debugLogger != Logger.NULL) {
+                if (DEBUG && debugLogger != Logger.NULL) {
                         StringBuffer sb = new StringBuffer("function\t" + func.image);
                         for (int i=0;i<params.size();++i) {
                                 Object o = params.elementAt(i);
@@ -632,7 +634,7 @@ Logger.writeln("##TokenMgrError @ Qss.parse()" + e.getMessage());
                                 }
                         }
                         catch (IndexOutOfBoundsException e) {
-Logger.writeln("##IndexOutOfBoundsException @ Qss.parseConstant()" + e.getMessage());
+if (DEBUG) Logger.writeln("##IndexOutOfBoundsException @ Qss.parseConstant()" + e.getMessage());
                                 error(triceps.get("unterminated_escaped_character"), token.beginLine, token.beginColumn + i);
                         }
 

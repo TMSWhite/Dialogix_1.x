@@ -6,12 +6,12 @@ import java.net.*;
 
 /* Triceps
  */
-public class Triceps {
+public class Triceps implements VersionIF {
 	public static final boolean AUTHORABLE = true;
 	public static final String VERSION_MAJOR = "1.3";
 	public static final String VERSION_MINOR = "5";
 	public static final String VERSION_NAME = "Triceps version " + VERSION_MAJOR + "." + VERSION_MINOR;
-	
+
 	public static final int ERROR = 1;
 	public static final int OK = 2;
 	public static final int AT_END = 3;
@@ -26,7 +26,7 @@ public class Triceps {
 	private Logger errorLogger = null;
 	private int currentStep=0;
 	private int numQuestions=0;	// so know how many to skip for compount question
-	private int firstStep = 0;	
+	private int firstStep = 0;
 	private Date startTime = null;
 	private Date stopTime = null;
 	private String startTimeStr = null;
@@ -34,27 +34,27 @@ public class Triceps {
 	private boolean isValid = false;
 	private Random random = new Random();
 	private String tempPassword = null;
-	
-	
+
+
 	/** formerly from Lingua */
 	private static final Locale defaultLocale = Locale.getDefault();
 	private ResourceBundle bundle = null;
 	private static final String BUNDLE_NAME = "TricepsBundle";
-	private Locale locale = defaultLocale;	
-	
+	private Locale locale = defaultLocale;
+
 	/* Hold on to instances of Date and Number format for fast and easy retrieval */
 	private static final HashMap dateFormats = new HashMap();
 	private static final HashMap numFormats = new HashMap();
-	private static final String DEFAULT = "null";	
-	
-	public static final Triceps NULL = new Triceps();	
-	
+	private static final String DEFAULT = "null";
+
+	public static final Triceps NULL = new Triceps();
+
 	private Triceps() {
 		this(null,null,null,null);
 		isValid = false;
 	}
-	
-	
+
+
 	public Triceps(String scheduleLoc, String workingFilesDir, String completedFilesDir, String floppyDir) {
 		/* initialize required variables */
 		parser = new Parser();
@@ -62,22 +62,22 @@ public class Triceps {
 		errorLogger = new Logger();
 		setSchedule(scheduleLoc,workingFilesDir,completedFilesDir,floppyDir);
 	}
-	
+
 	public void setSchedule(String scheduleLoc, String workingFilesDir, String completedFilesDir, String floppyDir) {
 		nodes = new Schedule(this, scheduleLoc);
 		setLanguage(null);	// the default until overidden
-		
+
 		nodes.setReserved(Schedule.WORKING_DIR,workingFilesDir,true);
 		nodes.setReserved(Schedule.COMPLETED_DIR,completedFilesDir,true);
-		nodes.setReserved(Schedule.FLOPPY_DIR,floppyDir,true);	
-		
+		nodes.setReserved(Schedule.FLOPPY_DIR,floppyDir,true);
+
 		if (!nodes.init()) {
 			setError(nodes.getErrors());
 		}
-		
+
 		resetEvidence(false);
 		createTempPassword();
-		
+
 		isValid = true;
 	}
 
@@ -88,7 +88,7 @@ public class Triceps {
 	}
 
 	public boolean loadDatafile(String name) {
-if (Triceps.AUTHORABLE) {		
+if (AUTHORABLE) {
 		Schedule oldNodes = nodes;
 		Evidence oldEvidence = evidence;
 
@@ -118,7 +118,7 @@ if (Triceps.AUTHORABLE) {
 
 		/* data/evidence is loaded from working file; but the nodes are from the schedule soruce directory */
 		nodes.overloadReserved(oldNodes);
-}		
+}
 		return true;
 	}
 
@@ -208,7 +208,7 @@ if (Triceps.AUTHORABLE) {
 		}
 		else
 			q.setMaxDatum(null);
-			
+
 		Vector v = q.getAllowableValues();
 		if (v != null) {
 			Vector vd = new Vector();
@@ -309,7 +309,7 @@ if (Triceps.AUTHORABLE) {
 						if (type != Datum.STRING && type != datum.type()) {
 							datum = datum.cast(type,null);
 						}
-						evidence.set(node, datum);					
+						evidence.set(node, datum);
 					}
 					else {
 						evidence.set(node, Datum.getInstance(this,Datum.NA));	// if doesn't satisfy dependencies, store NA
@@ -533,7 +533,7 @@ if (Triceps.AUTHORABLE) {
 		Node n = null;
 		Datum d = null;
 		Vector parseErrors = new Vector();
-if (Triceps.AUTHORABLE) {		
+if (AUTHORABLE) {
 		String dependenciesErrors = null;
 		String actionErrors = null;
 		String answerChoicesErrors = null;
@@ -631,17 +631,17 @@ if (Triceps.AUTHORABLE) {
 }
 		return parseErrors;
 	}
-	
+
 	public boolean saveWorkingInfo(String name) {
 		String dir = nodes.getReserved(Schedule.WORKING_DIR);
 		boolean ok = toTSV(dir,name);
 		return ok;
 	}
-	
+
 	public boolean saveWorkingInfo() {
 		return saveWorkingInfo(nodes.getReserved(Schedule.FILENAME));
 	}
-	
+
 	public boolean saveCompletedInfo() {
 		String name = nodes.getReserved(Schedule.FILENAME);
 		boolean ok = toTSV(nodes.getReserved(Schedule.COMPLETED_DIR),name);
@@ -650,11 +650,11 @@ if (Triceps.AUTHORABLE) {
 		}
 		return ok;
 	}
-	
+
 	public boolean saveToFloppy() {
 		return toTSV(nodes.getReserved(Schedule.FLOPPY_DIR),nodes.getReserved(Schedule.FILENAME));
 	}
-	
+
 	private boolean deleteFile(String dir, String targetName) {
 		String filename = dir + targetName;
 		boolean ok = false;
@@ -664,12 +664,12 @@ if (Triceps.AUTHORABLE) {
 			ok = f.delete();
 		}
 		catch (SecurityException e) {
-Logger.writeln("##SecurityException @ Triceps.deleteFile()" + e.getMessage());
+if (DEBUG) Logger.writeln("##SecurityException @ Triceps.deleteFile()" + e.getMessage());
 			String msg = get("error_deleting") + filename + ": " + e.getMessage();
 			setError(msg);
 		}
 		if (!ok)
-			Logger.writeln("##delete(" + filename + ") -> " + ok);			
+			Logger.writeln("##delete(" + filename + ") -> " + ok);
 		return ok;
 	}
 
@@ -682,15 +682,15 @@ Logger.writeln("##SecurityException @ Triceps.deleteFile()" + e.getMessage());
 
 		fw = nodes.getWriter(filename);
 		ok = writeTSV(fw);
-		
+
 		if (!ok) {
 			setError(get("error_writing_to") + filename);
 		}
 		if (fw != null) {
 			try { fw.close(); } catch (IOException t) { }
 		}
-		if (!ok) 
-			Logger.writeln("##save(" + filename + ") -> " + ok);			
+		if (!ok)
+			Logger.writeln("##save(" + filename + ") -> " + ok);
 		return ok;
 	}
 
@@ -741,7 +741,7 @@ Logger.writeln("##SecurityException @ Triceps.deleteFile()" + e.getMessage());
 			return true;
 		}
 		catch (IOException e) {
-Logger.writeln("##IOException @ Triceps.toTSV()" + e.getMessage());
+if (DEBUG) Logger.writeln("##IOException @ Triceps.toTSV()" + e.getMessage());
 			String msg = get("Unable_to_write_schedule_file") + e.getMessage();
 			setError(msg);
 			return false;
@@ -766,9 +766,9 @@ Logger.writeln("##IOException @ Triceps.toTSV()" + e.getMessage());
 	public void setPasswordForAdminMode(String s) { nodes.setReserved(Schedule.PASSWORD_FOR_ADMIN_MODE,s); }
 
 	public Datum evaluateExpr(String expr) {
-if (Triceps.AUTHORABLE) {		
+if (AUTHORABLE) {
 		return parser.parse(this,expr);
-} else { return null; }		
+} else { return null; }
 	}
 
 	public String getFilename() { return nodes.getReserved(Schedule.FILENAME); }
@@ -795,28 +795,28 @@ if (Triceps.AUTHORABLE) {
 	private void setError(String s) { errorLogger.println(s); }
 	public boolean hasErrors() { return (errorLogger.size() > 0); }
 	public String getErrors() { return errorLogger.toString(); }
-	
+
 	public Schedule getSchedule() { return nodes; }
 	public Evidence getEvidence() { return evidence; }
 	public Parser getParser() { return parser; }
-	
+
 	public boolean isAtBeginning() { return (currentStep <= firstStep); }
 	public boolean isAtEnd() { return (currentStep >= size()); }
 	public int getCurrentStep() { return currentStep; }
-	
+
 	public void processEventTimings(String src) {
 		if (src == null) {
 			return;
 		}
-			
+
 		StringTokenizer lines = new StringTokenizer(src,"|",false);
 
 		while(lines.hasMoreTokens()) {
 			String s = lines.nextToken();
 			Logger.writeln(s);
 		}
-	}	
-	
+	}
+
 	/* Formerly from Lingua */
 
 	public static Locale getLocale(String lang, String country, String extra) {
@@ -824,18 +824,18 @@ if (Triceps.AUTHORABLE) {
 			(country == null) ? "" : country,
 			(extra == null) ? "" : extra);
 	}
-	
+
 	public void setLocale(Locale loc) {
 		locale = (loc == null) ? defaultLocale : loc;
 		loadBundle();
 	}
-	
+
 	private void loadBundle() {
 		try {
 			bundle = ResourceBundle.getBundle(BUNDLE_NAME,locale);
 		}
 		catch (MissingResourceException t) {
-Logger.writeln("##error loading resources '" + BUNDLE_NAME + "': " + t.getMessage());
+if (DEBUG) Logger.writeln("##error loading resources '" + BUNDLE_NAME + "': " + t.getMessage());
 		}
 	}
 
@@ -845,16 +845,16 @@ Logger.writeln("##error loading resources '" + BUNDLE_NAME + "': " + t.getMessag
 		}
 		else {
 			String s = null;
-			
+
 			try {
 				s = bundle.getString(localizeThis);
 			}
-			catch (MissingResourceException e) { 
-Logger.writeln("##MissingResourceException @ Triceps.get()" + e.getMessage());
+			catch (MissingResourceException e) {
+if (DEBUG) Logger.writeln("##MissingResourceException @ Triceps.get()" + e.getMessage());
 			}
- 
+
 			if (s == null || s.trim().length() == 0) {
-Logger.writeln("##error accessing resource '" + BUNDLE_NAME + "[" + localizeThis + "]'");
+if (DEBUG) Logger.writeln("##error accessing resource '" + BUNDLE_NAME + "[" + localizeThis + "]'");
 				return "";
 			}
 			else {
@@ -862,7 +862,7 @@ Logger.writeln("##error accessing resource '" + BUNDLE_NAME + "[" + localizeThis
 			}
 		}
 	}
-	
+
 	private DateFormat getDateFormat(String mask) {
 		String key = locale.toString() + "_" + ((mask == null) ? DEFAULT : mask);
 
@@ -872,7 +872,7 @@ Logger.writeln("##error accessing resource '" + BUNDLE_NAME + "[" + localizeThis
 		}
 
 		DateFormat sdf = null;
-		
+
 		if (mask != null) {
 			sdf = new SimpleDateFormat(mask,locale);
 		}
@@ -887,13 +887,13 @@ Logger.writeln("##error accessing resource '" + BUNDLE_NAME + "[" + localizeThis
 		}
 		return sdf;
 	}
-	
+
 	private DecimalFormat getDecimalFormat(String mask) {
 		String key = locale.toString() + "_" + ((mask == null) ? DEFAULT : mask);
 
 		Object obj = numFormats.get(key);
 		DecimalFormat df = null;
-		
+
 		if (obj != null) {
 			return (DecimalFormat) obj;
 		}
@@ -905,11 +905,11 @@ Logger.writeln("##error accessing resource '" + BUNDLE_NAME + "[" + localizeThis
 					Locale.setDefault(defaultLocale);
 				}
 			}
-			catch (SecurityException e ) { 
-Logger.writeln("##SecurityException @ Triceps.getDecimalFormat()" + e.getMessage());
+			catch (SecurityException e ) {
+if (DEBUG) Logger.writeln("##SecurityException @ Triceps.getDecimalFormat()" + e.getMessage());
 				}
-			catch (NullPointerException e) { 
-Logger.writeln("##error creating DecimalFormat for locale " + locale.toString() + " using mask " + mask);
+			catch (NullPointerException e) {
+if (DEBUG) Logger.writeln("##error creating DecimalFormat for locale " + locale.toString() + " using mask " + mask);
 			}
 			if (df == null) {
 				;	// allow this - will use Double.format() internally
@@ -920,7 +920,7 @@ Logger.writeln("##error creating DecimalFormat for locale " + locale.toString() 
 			return df;
 		}
 	}
-	
+
 	public Number parseNumber(Object obj, String mask) {
 		Number num = null;
 
@@ -933,12 +933,12 @@ Logger.writeln("##error creating DecimalFormat for locale " + locale.toString() 
 		else {
 			DecimalFormat df;
 			String str = (String) obj;
-			if (str.trim().length() == 0) 
+			if (str.trim().length() == 0)
 				return null;
-				
+
 			if (mask == null || ((df = getDecimalFormat(mask)) == null)) {
 				Double d = null;
-					
+
 				try {
 					d = Double.valueOf(str);
 				}
@@ -952,15 +952,15 @@ Logger.writeln("##error creating DecimalFormat for locale " + locale.toString() 
 				try {
 					num = df.parse(str);
 				}
-				catch (java.text.ParseException e) { 
-Logger.writeln("##ParseException @ Triceps.parseNumber()" + e.getMessage());
+				catch (java.text.ParseException e) {
+if (DEBUG) Logger.writeln("##ParseException @ Triceps.parseNumber()" + e.getMessage());
 				}
 			}
 		}
 
 		return num;
 	}
-	
+
 	public Date parseDate(Object obj, String mask) {
 		Date date = null;
 		if (obj == null) {
@@ -980,16 +980,16 @@ Logger.writeln("##ParseException @ Triceps.parseNumber()" + e.getMessage());
 					date = null;
 				}
 			}
-			catch (java.text.ParseException e) { 
-Logger.writeln("##Error parsing date " + obj + " with mask " + mask);
+			catch (java.text.ParseException e) {
+if (DEBUG) Logger.writeln("##Error parsing date " + obj + " with mask " + mask);
 			}
 		}
 		else {
 			date = null;
 		}
 		return date;
-	}	
-	
+	}
+
 	public boolean parseBoolean(Object obj) {
 		if (obj == null) {
 			return false;
@@ -1004,7 +1004,7 @@ Logger.writeln("##Error parsing date " + obj + " with mask " + mask);
 			return false;
 		}
 	}
-	
+
 	private Number assessDouble(Double d) {
 		Double nd = new Double((double) d.longValue());
 		if (nd.equals(d)) {
@@ -1014,17 +1014,17 @@ Logger.writeln("##Error parsing date " + obj + " with mask " + mask);
 			return d;
 		}
 	}
-	
-	
+
+
 	public String formatNumber(Object obj, String mask) {
 		String s = null;
-		
+
 		if (obj == null) {
 			return null;
 		}
-			
+
 		DecimalFormat df;
-			
+
 		if (mask == null || ((df = getDecimalFormat(mask)) == null)) {
 			if (obj instanceof Date) {
 				s = "**DATE**";		// FIXME
@@ -1059,26 +1059,26 @@ Logger.writeln("##Error parsing date " + obj + " with mask " + mask);
 			try {
 				s = df.format(obj);
 			}
-			catch(IllegalArgumentException e) { 
-Logger.writeln("##IllegalArgumentException @ Triceps.formatNumber()" + e.getMessage());
+			catch(IllegalArgumentException e) {
+if (DEBUG) Logger.writeln("##IllegalArgumentException @ Triceps.formatNumber()" + e.getMessage());
 				}
-		}	
+		}
 
 		return s;
 	}
-	
+
 	public String formatDate(Object obj, String mask) {
 		if (obj == null) {
 			return null;
 		}
-		
+
 		DateFormat df = getDateFormat(mask);
-		
+
 		try {
 			return df.format(obj);
 		}
 		catch (IllegalArgumentException e) {
-Logger.writeln("##IllegalArgumentException @ Triceps.formatDate()" + e.getMessage());
+if (DEBUG) Logger.writeln("##IllegalArgumentException @ Triceps.formatDate()" + e.getMessage());
 			return null;
 		}
 	}

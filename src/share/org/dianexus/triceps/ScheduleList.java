@@ -1,7 +1,7 @@
 import java.io.*;
 import java.util.*;
 
-public final class ScheduleList {
+public final class ScheduleList implements VersionIF {
 	private Vector schedules = new Vector();
 	private String sourceDir = null;
 	private Logger logger = new Logger();

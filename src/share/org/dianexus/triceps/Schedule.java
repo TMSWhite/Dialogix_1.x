@@ -6,7 +6,7 @@ import java.net.*;
 /**
  * Schedule holds a collection of nodes.
 */
-public class Schedule  {
+public class Schedule implements VersionIF  {
 	public static final int LANGUAGES = 0;
 	public static final int TITLE = 1;
 	public static final int ICON = 2;
@@ -39,7 +39,7 @@ public class Schedule  {
 	public static final int REFUSED_ICON_ON = 29;
 	public static final int REFUSED_ICON_OFF = 30;
 	public static final int UNKNOWN_ICON_ON = 31;
-	public static final int UNKNOWN_ICON_OFF = 32;	
+	public static final int UNKNOWN_ICON_OFF = 32;
 	public static final int DONT_UNDERSTAND_ICON_ON = 33;
 	public static final int DONT_UNDERSTAND_ICON_OFF = 34;
 	public static final int TRICEPS_VERSION_MAJOR = 35;
@@ -48,7 +48,7 @@ public class Schedule  {
 	public static final int SCHED_VERSION_MAJOR = 38;
 	public static final int SCHED_VERSION_MINOR = 39;
 	public static final int SCHED_HELP_URL = 40;
-	
+
 	private static final String DEFAULT_LANGUAGE = "en_US";
 
 	public static final String[] RESERVED_WORDS = {
@@ -92,7 +92,7 @@ public class Schedule  {
 		"__SCHED_AUTHORS__",
 		"__SCHED_VERSION_MAJOR__",
 		"__SCHED_VERSION_MINOR__",
-		"__SCHED_HELP_URL__",	
+		"__SCHED_HELP_URL__",
 	};
 
 	private Date startTime = null;
@@ -112,7 +112,7 @@ public class Schedule  {
 
 	public Schedule(Triceps lang, String source) {
     	triceps = (lang == null) ? Triceps.NULL : lang;
-    	
+
 		setDefaultReserveds();
 
 		setReserved(SCHEDULE_SOURCE,source,true);	// this defaults to LOADED_FROM, but want to keep track of the original source location
@@ -128,18 +128,18 @@ public class Schedule  {
 	public String getLoadedFrom() { return ((isFound) ? getReserved(LOADED_FROM) : ""); }
 
 	private void setDefaultReserveds() {
-		setReserved(TITLE,Triceps.VERSION_NAME);
+		setReserved(TITLE,VERSION_NAME);
 		setReserved(STARTING_STEP,"0",true);
 		// START_TIME and *_DIR must preceed FILENAME, which uses the values from each of those //
 		setReserved(START_TIME,triceps.formatDate(new Date(System.currentTimeMillis()),Datum.TIME_MASK),true);
 		setReserved(WORKING_DIR,null,true);
 		setReserved(COMPLETED_DIR,null,true);
-		setReserved(FLOPPY_DIR,null,true);	
+		setReserved(FLOPPY_DIR,null,true);
 		setReserved(FILENAME,null);	// sets the default value
 		setReserved(PASSWORD_FOR_ADMIN_MODE,"");
 		setReserved(AUTOGEN_OPTION_NUM,"true");
 		setReserved(ICON,"");
-		setReserved(HEADER_MSG,Triceps.VERSION_NAME);
+		setReserved(HEADER_MSG,VERSION_NAME);
 		setReserved(SHOW_QUESTION_REF,"false");
 		setReserved(DEVELOPER_MODE,"false");
 		setReserved(DEBUG_MODE,"false");
@@ -161,11 +161,11 @@ public class Schedule  {
 		setReserved(REFUSED_ICON_ON,null);
 		setReserved(REFUSED_ICON_OFF,null);
 		setReserved(UNKNOWN_ICON_ON,null);
-		setReserved(UNKNOWN_ICON_OFF,null);	
+		setReserved(UNKNOWN_ICON_OFF,null);
 		setReserved(DONT_UNDERSTAND_ICON_ON,null);
 		setReserved(DONT_UNDERSTAND_ICON_OFF,null);
-		setReserved(TRICEPS_VERSION_MAJOR, Triceps.VERSION_MAJOR,true);
-		setReserved(TRICEPS_VERSION_MINOR, Triceps.VERSION_MINOR,true);
+		setReserved(TRICEPS_VERSION_MAJOR, VERSION_MAJOR,true);
+		setReserved(TRICEPS_VERSION_MINOR, VERSION_MINOR,true);
 		setReserved(SCHED_AUTHORS,null);
 		setReserved(SCHED_VERSION_MAJOR,null);
 		setReserved(SCHED_VERSION_MINOR,null);
@@ -225,8 +225,8 @@ public class Schedule  {
 				}
 
 				Node node = new Node(triceps, line, source, fileLine, languageCount);
-				
-if (!Triceps.AUTHORABLE) {
+
+if (!AUTHORABLE) {
 	if (node.hasParseErrors()) {
 		err = true;	// schedule must be fully debugged before deployment, otherwise won't load
 	}
@@ -237,8 +237,8 @@ if (!Triceps.AUTHORABLE) {
 			if (reservedCount == 0) {
 				return false;
 			}
-			
-if (Triceps.AUTHORABLE) {		
+
+if (AUTHORABLE) {
 			/* check for mismatching braces */
 			int braceLevel = 0;
 			Node node = null;
@@ -278,10 +278,10 @@ if (Triceps.AUTHORABLE) {
 			if (braceLevel > 0) {
 				setError(triceps.get("missing") + braceLevel + triceps.get("closing_braces"));
 			}
-}			
+}
 		}
 		catch(IOException e) {
-Logger.writeln("##IOException @ Schedule.load()" + e.getMessage());
+if (DEBUG) Logger.writeln("##IOException @ Schedule.load()" + e.getMessage());
 			 }
 		if (br != null) {
 			try { br.close(); } catch (IOException t) { }
@@ -369,11 +369,11 @@ Logger.writeln("##IOException @ Schedule.load()" + e.getMessage());
 		}
 		return ok;
 	}
-	
+
 	public boolean setReserved(int resIdx, String value) {
 		return setReserved(resIdx, value, true);	// should really be false, but bugs have crept in
 	}
-	
+
 	public boolean setReserved(int resIdx, String value, boolean expert) {
 		String s = null;
 		if (value == null)
@@ -403,15 +403,15 @@ Logger.writeln("##IOException @ Schedule.load()" + e.getMessage());
 			case ALLOW_DONT_UNDERSTAND: s = Boolean.valueOf(value.trim()).toString(); break;
 			case RECORD_EVENTS: s = Boolean.valueOf(value.trim()).toString(); break;
 			case WORKING_DIR: if (expert) s = value; break;
-			case COMPLETED_DIR: if (expert) s = value; break;		
-			case FLOPPY_DIR: if (expert) s = value; break;	
+			case COMPLETED_DIR: if (expert) s = value; break;
+			case FLOPPY_DIR: if (expert) s = value; break;
 			case IMAGE_FILES_DIR: if (expert) s = value; break;
 			case COMMENT_ICON_ON: s = value; break;
 			case COMMENT_ICON_OFF: s = value; break;
 			case REFUSED_ICON_ON: s = value; break;
 			case REFUSED_ICON_OFF: s = value; break;
 			case UNKNOWN_ICON_ON: s = value; break;
-			case UNKNOWN_ICON_OFF: s = value; break;	
+			case UNKNOWN_ICON_OFF: s = value; break;
 			case DONT_UNDERSTAND_ICON_ON: s = value; break;
 			case DONT_UNDERSTAND_ICON_OFF: s = value; break;
 			case TRICEPS_VERSION_MAJOR: if (expert) s = value; break;
@@ -419,7 +419,7 @@ Logger.writeln("##IOException @ Schedule.load()" + e.getMessage());
 			case SCHED_AUTHORS: s = value; break;
 			case SCHED_VERSION_MAJOR: s = value; break;
 			case SCHED_VERSION_MINOR: s = value; break;
-			case SCHED_HELP_URL: s = value; break;			
+			case SCHED_HELP_URL: s = value; break;
 			default: return false;
 		}
 		if (s != null) {
@@ -438,7 +438,7 @@ Logger.writeln("##IOException @ Schedule.load()" + e.getMessage());
 		else
 			return null;
 	}
-	
+
 	public boolean getBooleanReserved(int resIdx) {
 		if (resIdx >= 0 && resIdx < RESERVED_WORDS.length) {
 			return Boolean.valueOf((String) reserved.get(RESERVED_WORDS[resIdx])).booleanValue();
@@ -452,7 +452,7 @@ Logger.writeln("##IOException @ Schedule.load()" + e.getMessage());
 		if (name == null)
 			return null;
 		name = name.trim();
-		if (name.length() == 0) 
+		if (name.length() == 0)
 			return null;
 		return name;
 	}
@@ -463,7 +463,7 @@ Logger.writeln("##IOException @ Schedule.load()" + e.getMessage());
 			startingStep = new Integer(s);
 		}
 		catch(NumberFormatException e) {
-Logger.writeln("##NumberFormatException @ Schedule.setStartingStep()" + e.getMessage());
+if (DEBUG) Logger.writeln("##NumberFormatException @ Schedule.setStartingStep()" + e.getMessage());
 			setError(triceps.get("invalid_number_for_starting_step") + e.getMessage());
 			startingStep = new Integer(0);
 		}
@@ -502,10 +502,10 @@ Logger.writeln("##NumberFormatException @ Schedule.setStartingStep()" + e.getMes
 				if (s == null || s.trim().length() == 0)
 					continue;
 				s = s.trim();
-				
+
 			}
 			catch (NoSuchElementException e) {
-Logger.writeln("##NoSuchElementException @ Schedule.setLanguages()" + e.getMessage());
+if (DEBUG) Logger.writeln("##NoSuchElementException @ Schedule.setLanguages()" + e.getMessage());
 			}
 			/* regenerate the string, stipping excess pipe characters */
 			++languageCount;
@@ -515,11 +515,11 @@ Logger.writeln("##NoSuchElementException @ Schedule.setLanguages()" + e.getMessa
 			else {
 				sb.append(s);
 			}
-			
+
 			String lang = null;
 			String country = null;
 			String extra = null;
-			
+
 			try {
 				StringTokenizer part = new StringTokenizer(s,"_");
 				lang = part.nextToken();
@@ -527,19 +527,19 @@ Logger.writeln("##NoSuchElementException @ Schedule.setLanguages()" + e.getMessa
 				extra = part.nextToken();
 			}
 			catch (NoSuchElementException e) { /* if no subparts, keep as null */ }
-			
+
 			Locale loc = Triceps.getLocale(lang,country,extra);
-				
+
 			locales.addElement(loc);
 		}
 		buildLanguageNames();
-		
+
 		return sb.toString();
 	}
-	
+
 	private void buildLanguageNames() {
 		languageNames = new Vector();
-		
+
 		for (int i=0;i<locales.size();++i) {
 			Locale loc = (Locale) locales.elementAt(i);
 			languageNames.addElement(loc.getDisplayLanguage(loc));
@@ -550,7 +550,7 @@ Logger.writeln("##NoSuchElementException @ Schedule.setLanguages()" + e.getMessa
 
 	public String setLanguage(String s) {
 		Locale loc = null;
-		
+
 		if (s == null || s.trim().length() == 0) {
 			currentLanguage = 0;
 		}
@@ -565,33 +565,33 @@ Logger.writeln("##NoSuchElementException @ Schedule.setLanguages()" + e.getMessa
 				if (s.equals(loc.toString())) {
 					currentLanguage = i;
 				}
-			}			
+			}
 			setError(triceps.get("tried_to_switch_to_unsupported_language") + s);
 		}
-		
+
 		loc = (Locale) locales.elementAt(currentLanguage);
 		triceps.setLocale(loc);
-		
+
 		recalculateInNewLanguage();
-		
+
 		return loc.toString();
 	}
-	
+
 	public boolean recalculateInNewLanguage() {
 		boolean ok = false;
-		
+
 		if (!isLoaded())
 			return ok;
-			
+
 		Evidence evidence = triceps.getEvidence();
 		Parser parser = triceps.getParser();
-		
+
 		/* re-calculate all eval nodes that meet dependencies, using the new language */
 		for (int i=0;i<triceps.getCurrentStep();++i) {
 			Node node = getNode(i);
 			if (node == null)
 				continue;
-				
+
 			if (node.getQuestionOrEvalType() == Node.EVAL) {
 				node.setAnswerLanguageNum(currentLanguage);	// don't change the language for non-EVAL nodes - want to know what was asked
 				if (parser.booleanVal(triceps, node.getDependencies())) {
@@ -610,7 +610,7 @@ Logger.writeln("##NoSuchElementException @ Schedule.setLanguages()" + e.getMessa
 		}
 		return true;
 	}
-	
+
 
 	public int getLanguage() { return currentLanguage; }
 
@@ -623,7 +623,7 @@ Logger.writeln("##NoSuchElementException @ Schedule.setLanguages()" + e.getMessa
 				out.write("RESERVED\t" + s + "\t" + reserved.get(s).toString() + "\n");
 			}
 			catch (IOException e) {
-Logger.writeln("##IOException @ Schedule.toTSV()" + e.getMessage());
+if (DEBUG) Logger.writeln("##IOException @ Schedule.toTSV()" + e.getMessage());
 				setError(triceps.get("error_writing_to") + out + ": " + e.getMessage());
 			}
 		}
@@ -633,7 +633,7 @@ Logger.writeln("##IOException @ Schedule.toTSV()" + e.getMessage());
 				out.write((String) comments.elementAt(i) + "\n");
 			}
 			catch (IOException e) {
-Logger.writeln("##IOException @ Schedule.toTSV()" + e.getMessage());
+if (DEBUG) Logger.writeln("##IOException @ Schedule.toTSV()" + e.getMessage());
 				setError(triceps.get("error_writing_to") + out + ": " + e.getMessage());
 			}
 		}
@@ -666,7 +666,7 @@ Logger.writeln("##IOException @ Schedule.toTSV()" + e.getMessage());
 			}
 		}
 		catch (IOException e) {
-Logger.writeln("##IOException @ Schedule.getReader()" + e.getMessage());
+if (DEBUG) Logger.writeln("##IOException @ Schedule.getReader()" + e.getMessage());
 			setError(triceps.get("error_accessing_file") + e.getMessage());
 			Logger.printStackTrace(e);
 		}
@@ -723,11 +723,11 @@ Logger.writeln("##IOException @ Schedule.getReader()" + e.getMessage());
 */
 		return null;
 	}
-	
+
 	public FileWriter getWriter(String source) {
 		boolean ok = false;
 		FileWriter br = null;
-		
+
 		try {
 			if (source != null) {
 				br = new FileWriter(source);
@@ -738,10 +738,10 @@ Logger.writeln("##IOException @ Schedule.getReader()" + e.getMessage());
 			}
 		}
 		catch (Throwable t) {
-Logger.writeln("##Throwable @ Schedule.getWriter()" + t.getMessage());
+if (DEBUG) Logger.writeln("##Throwable @ Schedule.getWriter()" + t.getMessage());
 			setError(triceps.get("error_file") + " '" + source + "' " + triceps.get("is_not_accessible"));
 		}
-		
+
 		if (ok) {
 			return br;
 		}
@@ -752,7 +752,7 @@ Logger.writeln("##Throwable @ Schedule.getWriter()" + t.getMessage());
 		}
 		return null;
 	}
-	
+
 
 	private void setError(String s) { errorLogger.println(s); }
 	public boolean hasErrors() { return (errorLogger.size() > 0); }

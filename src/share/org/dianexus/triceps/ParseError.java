@@ -3,7 +3,7 @@ import java.util.*;
 import java.io.*;
 
 
-public final class ParseError  {
+public final class ParseError implements VersionIF  {
 	Node node = null;
 	String dependenciesErrors = null;
 	String actionErrors = null;
@@ -20,7 +20,7 @@ public final class ParseError  {
 		this.readbackErrors = readbackErrors;
 		this.nodeParseErrors = nodeParseErrors;
 		this.nodeNamingErrors = nodeNamingErrors;
-		
+
 	}
 
 	public String getDependenciesErrors() { return dependenciesErrors; }
@@ -29,14 +29,14 @@ public final class ParseError  {
 	public String getReadbackErrors() { return readbackErrors; }
 	public String getNodeParseErrors() { return nodeParseErrors; }
 	public String getNodeNamingErrors() { return nodeNamingErrors; }
-	
+
 	public Node getNode() { return node; }
-	
+
 	public boolean hasDependenciesErrors() { return (dependenciesErrors != null && dependenciesErrors.length() > 0); }
 	public boolean hasQuestionOrEvalErrors() { return (actionErrors != null && actionErrors.length() > 0); }
 	public boolean hasAnswerChoicesErrors() { return (answerChoicesErrors != null && answerChoicesErrors.length() > 0); }
 	public boolean hasReadbackErrors() { return (readbackErrors != null && readbackErrors.length() > 0); }
 	public boolean hasNodeParseErrors() { return (nodeParseErrors != null && nodeParseErrors.length() > 0); }
 	public boolean hasNodeNamingErrors() { return (nodeNamingErrors != null && nodeNamingErrors.length() > 0); }
-	
+
 }

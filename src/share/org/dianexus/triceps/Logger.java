@@ -2,12 +2,12 @@ import java.util.*;
 import java.io.*;
 
 /* Inner class for logging - this is needed to support localization of error messages */
-public class Logger {
+public class Logger implements VersionIF {
 	public static final Logger NULL = new Logger(null,null,true);
-	
+
 	private static PrintWriter STDERR = null;
 	private static final String STDERR_NAME = "Triceps.log.err";
-	
+
 	static {
 		try {
 			STDERR = new PrintWriter(new FileWriter(STDERR_NAME,true),true);	// append to log by default
@@ -35,7 +35,7 @@ public class Logger {
 
 	public Logger() { this(null,HTML_EOL,false); }
 	public Logger(String eol) { this(null,eol,false); }
-	
+
 	public Logger(File out) { this(HTML_EOL,false,out); }
 	public Logger(File out, String eol) { this(eol,false,out); }
 
@@ -56,7 +56,7 @@ public class Logger {
 		this.eol = ((eol == null) ? HTML_EOL : eol);
 		reset();
 	}
-	
+
 	public Logger(Writer out) { this(out,HTML_EOL,false); }
 	public Logger(Writer out, String eol) { this(out,eol,false); }
 	public Logger(Writer w, String eol, boolean discard) {
@@ -65,7 +65,7 @@ public class Logger {
 		this.eol = ((eol == null) ? HTML_EOL : eol);
 		reset();
 	}
-	
+
 
 	public void setAlsoLogToStderr(boolean ok) { alsoLogToStderr = ok; }
 	public boolean isAlsoLogToStderr() { return alsoLogToStderr; }
@@ -88,7 +88,7 @@ public class Logger {
 			if (addEol) {
 				++errCount;
 			}
-			
+
 			String msg =
 					((addEol && line != 0) ? ("[" + line + "," + column + "] " + errCount + ") ") : "") +
 					((s != null) ? s : "") +
@@ -109,10 +109,10 @@ public class Logger {
 			writeln(e.getMessage());
 		}
 	}
-	
+
 	public static void writeln(String s) { Logger.write(s,true); }
 	public static void write(String s) { Logger.write(s,false); }
-	
+
 	public static void write(String s, boolean eol) {
 		if (STDERR != null) {
 			STDERR.write(s);
@@ -126,7 +126,7 @@ public class Logger {
 				System.err.print(DOS_EOL);
 		}
 	}
-	
+
 	public static void printStackTrace(Throwable t) {
 		if (STDERR != null) {
 			t.printStackTrace(STDERR);
@@ -146,7 +146,7 @@ public class Logger {
 			sb = new StringBuffer();	// otherwise, this is the NULL Logger, which discards all messages
 		}
 	}
-	
+
 	public String toString() { return toString(true); }
 
 	public String toString(boolean erase) {
@@ -180,7 +180,7 @@ public class Logger {
 			writeln(e.getMessage());
 		}
 	}
-	
+
 	public boolean delete() {
 		close();
 		try {

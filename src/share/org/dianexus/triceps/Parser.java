@@ -4,7 +4,7 @@ import java.lang.*;
 import java.util.*;
 
 /* Wrapper to make it easier to call Qss */
-public class Parser {
+public class Parser implements VersionIF {
 	private Logger debugLogger = Logger.NULL;
 	private Logger errorLogger = Logger.NULL;
 	private Qss qss = null;
@@ -77,7 +77,7 @@ public class Parser {
 	public void resetErrorCount() {
 		qss.resetErrorCount();
 	}
-	
+
 	public void setDebugLogger(Logger l) {
 		if (l != null) {
 			debugLogger = l;
@@ -85,12 +85,12 @@ public class Parser {
 			l.reset();
 		}
 	}
-	
+
 	public void setErrorLogger(Logger l) {
 		if (l != null) {
 			errorLogger = l;
 			qss.errorLogger = l;
 			l.reset();
 		}
-	}	
+	}
 }

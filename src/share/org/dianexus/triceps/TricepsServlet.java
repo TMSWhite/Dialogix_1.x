@@ -10,10 +10,10 @@ import java.net.*;
  *	the connection to the display. In the first version, this is
  *	an http response as defined in the JSDK.
  */
-public class TricepsServlet extends HttpServlet {
+public class TricepsServlet extends HttpServlet implements VersionIF {
 	private Logger errors = new Logger();
-	private Logger info = new Logger();	
-	
+	private Logger info = new Logger();
+
 	public static String HELP_T_ICON = null;
 	public static String COMMENT_T_ICON = null;
 	public static String COMMENT_F_ICON = null;
@@ -58,7 +58,7 @@ public class TricepsServlet extends HttpServlet {
 	private Triceps triceps = Triceps.NULL;
 	private Schedule schedule = null;	// triceps.getSchedule()
 	private boolean isloaded = false;
-	
+
 
 	/**
 	 * This method runs only when the servlet is first loaded by the
@@ -69,7 +69,7 @@ public class TricepsServlet extends HttpServlet {
 	public void init(ServletConfig config) throws ServletException {
 		super.init(config);
 		String s;
-	
+
 		s = config.getInitParameter("scheduleSrcDir");
 		if (s != null)
 			scheduleSrcDir = s.trim();
@@ -141,7 +141,7 @@ public class TricepsServlet extends HttpServlet {
 
 			directive = req.getParameter("directive");	// XXX: directive must be set before calling processHidden
 			triceps.processEventTimings(req.getParameter("EVENT_TIMINGS"));
-			
+
 			setGlobalVariables();
 
 			processPreFormDirectives();
@@ -156,13 +156,13 @@ public class TricepsServlet extends HttpServlet {
 				out.println("<b>");
 				new XmlString(triceps, info.toString(),out);
 				out.println("</b><hr>");
-			}			
+			}
 			if (errors.size() > 0) {
 				out.println("<b>");
 				new XmlString(triceps, errors.toString(),out);
 				out.println("</b><hr>");
 			}
-			
+
 			if (form.hasErrors() && developerMode) {
 				new XmlString(triceps, "<b>" + form.getErrors() + "</b>",out);
 			}
@@ -190,7 +190,7 @@ public class TricepsServlet extends HttpServlet {
 			}
 		}
 		catch (Throwable t) {
-Logger.writeln("##Throwable @ Servlet.doPost()" + t.getMessage());
+if (DEBUG) Logger.writeln("##Throwable @ Servlet.doPost()" + t.getMessage());
 			Logger.writeln("##" + triceps.get("unexpected_error") + t.getMessage());
 			Logger.printStackTrace(t);
 		}
@@ -209,7 +209,7 @@ Logger.writeln("##Throwable @ Servlet.doPost()" + t.getMessage());
 			return;
 		}
 
-if (Triceps.AUTHORABLE) {
+if (AUTHORABLE) {
 		/* Want to evaluate expression before doing rest so can see results of changing global variable values */
 		if (triceps.get("evaluate_expr").equals(directive)) {
 			String expr = req.getParameter(triceps.get("evaluate_expr"));
@@ -231,7 +231,7 @@ if (Triceps.AUTHORABLE) {
 				errors.println("empty expression");
 			}
 		}
-}		
+}
 	}
 
 	private void setGlobalVariables() {
@@ -247,7 +247,7 @@ if (Triceps.AUTHORABLE) {
 			allowUnknown = schedule.getBooleanReserved(Schedule.ALLOW_UNKNOWN);
 			allowNotUnderstood = schedule.getBooleanReserved(Schedule.ALLOW_DONT_UNDERSTAND);
 			allowLanguageSwitching = schedule.getBooleanReserved(Schedule.ALLOW_LANGUAGE_SWITCHING);
-			
+
 		}
 		else {
 			debugMode = false;
@@ -293,7 +293,7 @@ if (Triceps.AUTHORABLE) {
 			okPasswordForTempAdminMode = true;	// allow AdminModeIcon values to be accepted
 		}
 
-if (Triceps.AUTHORABLE) {		
+if (AUTHORABLE) {
 		/** Process requests to change developerMode-type status **/
 		if (directive != null) {
 			/* Toggle these values, as requested */
@@ -329,13 +329,13 @@ if (Triceps.AUTHORABLE) {
 		}
 		else {
 			sb.append("<img name='icon' src='" + (imageFilesDir + logo) + "' align='top' border='0'" +
-				((!isSplashScreen) ? " onMouseUp='evHandler(event);setAdminModePassword();'":"") + 
+				((!isSplashScreen) ? " onMouseUp='evHandler(event);setAdminModePassword();'":"") +
 				((!isSplashScreen) ? (" alt='" + triceps.get("LogoMessage") + "'") : "") +
 				">");
 		}
 		sb.append("	</td>");
-		sb.append("	<td align='left'><font SIZE='5'><b>" + ((triceps.isValid() && !isSplashScreen) ? triceps.getHeaderMsg() : Triceps.VERSION_NAME) + "</b></font></td>");
-		
+		sb.append("	<td align='left'><font SIZE='5'><b>" + ((triceps.isValid() && !isSplashScreen) ? triceps.getHeaderMsg() : VERSION_NAME) + "</b></font></td>");
+
 		String globalHelp = null;
 		if (triceps.isValid() && !isSplashScreen) {
 			globalHelp = schedule.getReserved(Schedule.SCHED_HELP_URL);
@@ -343,7 +343,7 @@ if (Triceps.AUTHORABLE) {
 		else {
 			globalHelp = helpURL;
 		}
-		
+
 		sb.append("	<td width='1%'>");
 		if (globalHelp != null && globalHelp.trim().length() != 0) {
 			sb.append("<img src='" + HELP_T_ICON + "' alt='" + triceps.get("Help") + "' align='top' border='0' onMouseUp='evHandler(event);help(\"_TOP_\",\"" + globalHelp + "\");'>");
@@ -400,7 +400,7 @@ if (Triceps.AUTHORABLE) {
 						}
 					}
 					catch (Throwable t) {
-Logger.writeln("##Throwable @ Servlet.getSortedNames()" + t.getMessage());
+if (DEBUG) Logger.writeln("##Throwable @ Servlet.getSortedNames()" + t.getMessage());
 						errors.println(triceps.get("unexpected_error") + t.getMessage());
 						Logger.printStackTrace(t);
 					}
@@ -408,7 +408,7 @@ Logger.writeln("##Throwable @ Servlet.getSortedNames()" + t.getMessage());
 			}
 		}
 		catch (Throwable t) {
-Logger.writeln("##Throwable @ Servlet.getSortedNames()" + t.getMessage());
+if (DEBUG) Logger.writeln("##Throwable @ Servlet.getSortedNames()" + t.getMessage());
 			errors.println(triceps.get("unexpected_error") + t.getMessage());
 			Logger.printStackTrace(t);
 		}
@@ -471,7 +471,7 @@ Logger.writeln("##Throwable @ Servlet.getSortedNames()" + t.getMessage());
 			}
 		}
 		catch (Throwable t) {
-Logger.writeln("##Throwable @ Servlet.selectFromInterviewsInDir" + t.getMessage());
+if (DEBUG) Logger.writeln("##Throwable @ Servlet.selectFromInterviewsInDir" + t.getMessage());
 			errors.println(triceps.get("error_building_sorted_list_of_interviews") + t.getMessage());
 			Logger.printStackTrace(t);
 		}
@@ -495,7 +495,7 @@ Logger.writeln("##Throwable @ Servlet.selectFromInterviewsInDir" + t.getMessage(
 		sb.append(formStr);
 
 		sb.append("<input type='hidden' name='PASSWORD_FOR_ADMIN_MODE' value=''>");	// must manually bypass each time
-		sb.append("<input type='hidden' name='LANGUAGE' value=''>");	
+		sb.append("<input type='hidden' name='LANGUAGE' value=''>");
 		sb.append("<input type='hidden' name='EVENT_TIMINGS' value=''>");	// list of event timings
 
 		sb.append("</FORM>");
@@ -604,25 +604,25 @@ Logger.writeln("##Throwable @ Servlet.selectFromInterviewsInDir" + t.getMessage(
 			// ask question
 		}
 		else if (directive.equals(triceps.get("jump_to"))) {
-if (Triceps.AUTHORABLE) {		
+if (AUTHORABLE) {
 			gotoMsg = triceps.gotoNode(req.getParameter(triceps.get("jump_to")));
 			ok = (gotoMsg == Triceps.OK);
 			// ask this question
-}			
+}
 		}
 		else if (directive.equals("refresh current")) {
 			ok = true;
 			// re-ask the current question
 		}
 		else if (directive.equals(triceps.get("restart_clean"))) { // restart from scratch
-if (Triceps.AUTHORABLE) {		
+if (AUTHORABLE) {
 			triceps.resetEvidence();
 			ok = ((gotoMsg = triceps.gotoFirst()) == Triceps.OK);	// don't proceed if prior error
 			// ask first question
 }
 		}
 		else if (directive.equals(triceps.get("reload_questions"))) { // debugging option
-if (Triceps.AUTHORABLE) {		
+if (AUTHORABLE) {
 			ok = triceps.reloadSchedule();
 			if (ok) {
 				info.println(triceps.get("schedule_restored_successfully"));
@@ -631,7 +631,7 @@ if (Triceps.AUTHORABLE) {
 }
 		}
 		else if (directive.equals(triceps.get("save_to"))) {
-if (Triceps.AUTHORABLE) {		
+if (AUTHORABLE) {
 			String name = req.getParameter(triceps.get("save_to"));
 			ok = triceps.saveWorkingInfo(name);
 			if (ok) {
@@ -640,7 +640,7 @@ if (Triceps.AUTHORABLE) {
 }
 		}
 		else if (directive.equals(triceps.get("show_Syntax_Errors"))) {
-if (Triceps.AUTHORABLE) {		
+if (AUTHORABLE) {
 			Vector pes = triceps.collectParseErrors();
 
 			if (pes == null || pes.size() == 0) {
@@ -813,7 +813,7 @@ if (Triceps.AUTHORABLE) {
 
 		return sb.toString();
 	}
-	
+
 	private boolean getNewTricepsInstance(String name) {
 		if (name == null) {
 			triceps = Triceps.NULL;
@@ -826,10 +826,10 @@ if (Triceps.AUTHORABLE) {
 				triceps = new Triceps(name,workingFilesDir,completedFilesDir,floppyDir);
 //			}
 		}
-		if (!Triceps.AUTHORABLE && !triceps.getSchedule().isLoaded()) {
+		if (!AUTHORABLE && !triceps.getSchedule().isLoaded()) {
 			triceps = Triceps.NULL;
 		}
-		schedule = triceps.getSchedule();		
+		schedule = triceps.getSchedule();
 		return triceps.isValid();
 	}
 
@@ -910,14 +910,14 @@ if (Triceps.AUTHORABLE) {
 						sb.append(triceps.getQuestionStr(node));
 					}
 					sb.append("</td></tr><tr>");
-					
+
 					if (showQuestionNum) {
 						sb.append("<td>&nbsp;</td>");
 					}
 					sb.append("<td colspan='2' bgcolor='lightgrey'>");
 					sb.append(node.prepareChoicesAsHTML(datum,errMsg,autogenOptionNums));
 					sb.append(errMsg);
-					sb.append("</td>");					
+					sb.append("</td>");
 					sb.append("<td width='1%' NOWRAP>" + clickableOptions + "</td>");
 					break;
 				default:
@@ -941,7 +941,7 @@ if (Triceps.AUTHORABLE) {
 			sb.append("</tr>");
 		}
 		sb.append("<tr><td colspan='" + ((showQuestionNum) ? 4 : 3) + "' align='center'>");
-		
+
 		if (!triceps.isAtEnd()) {
 			sb.append("<input type='submit' name='directive' value='" + triceps.get("next") + "'>");
 		}
@@ -956,7 +956,7 @@ if (Triceps.AUTHORABLE) {
 
 		sb.append("</td></tr>");
 
-if (Triceps.AUTHORABLE) {
+if (AUTHORABLE) {
 		if (developerMode) {
 			sb.append("<tr><td colspan='" + ((showQuestionNum) ? 4 : 3 ) + "' align='center'>");
 			sb.append("<input type='submit' name='directive' value='" + triceps.get("select_new_interview") + "'>");
@@ -973,7 +973,7 @@ if (Triceps.AUTHORABLE) {
 			sb.append("<input type='text' name='" + triceps.get("evaluate_expr") + "'>");
 			sb.append("</td></tr>");
 		}
-}		
+}
 
 		sb.append(showOptions());
 
@@ -1053,7 +1053,7 @@ if (Triceps.AUTHORABLE) {
 
 	private String generateDebugInfo() {
 		StringBuffer sb = new StringBuffer();
-if (Triceps.AUTHORABLE) {		
+if (AUTHORABLE) {
 		// Complete printout of what's been collected per node
 		if (!triceps.isValid())
 			return "";
@@ -1090,7 +1090,7 @@ if (Triceps.AUTHORABLE) {
 			sb.append("<hr>");
 			sb.append(triceps.get("EVIDENCE_AREA"));
 			sb.append("<table cellpadding='2' cellspacing='1'  width='100%' border='1'>");
-			
+
 			for (int i = schedule.size()-1; i >= 0; i--) {
 				Node n = schedule.getNode(i);
 				Datum d = triceps.getDatum(n);
@@ -1115,12 +1115,12 @@ if (Triceps.AUTHORABLE) {
 			}
 			sb.append("</table>");
 		}
-}		
+}
 		return sb.toString();
 	}
 
 	private String showOptions() {
-if (Triceps.AUTHORABLE) {		
+if (AUTHORABLE) {
 		if (developerMode) {
 			StringBuffer sb = new StringBuffer();
 
@@ -1139,17 +1139,17 @@ if (Triceps.AUTHORABLE) {
 	private String createJavaScript() {
 		StringBuffer sb = new StringBuffer();
 		sb.append("<script  type=\"text/javascript\"> <!--\n");
-				
+
 		sb.append("var val = null;\n");
 		sb.append("var name = null;\n");
 		sb.append("var msg = null;\n");
-		
+
 		if (allowRecordEvents) {
 			sb.append("var startTime = new Date();\n");
 			sb.append("var el = null;\n");
 			sb.append("var evH = null;\n");
 			sb.append("var ans = null;\n");
-			
+
 			sb.append("function keyHandler(e) {\n");
 			sb.append("	now = new Date();\n");
 			sb.append("	val = String.fromCharCode(e.which) + ',' + e.target.value;\n");
@@ -1157,8 +1157,8 @@ if (Triceps.AUTHORABLE) {
 			sb.append("	msg = name + ',' + e.target.type + ',' + e.type + ',' + now.getTime() + ',' + (now.getTime() - startTime.getTime()) + ',' + val + '|';\n");
 			sb.append("	document.myForm.EVENT_TIMINGS.value += msg;\n");
 			sb.append("	return true;\n");
-			sb.append("}\n");		
-			
+			sb.append("}\n");
+
 			sb.append("function submitHandler(e) {\n");
 			sb.append("	now = new Date();\n");
 			sb.append("	val = ',';\n");
@@ -1167,7 +1167,7 @@ if (Triceps.AUTHORABLE) {
 			sb.append("	document.myForm.EVENT_TIMINGS.value += msg;\n");
 			sb.append("	return true;\n");
 			sb.append("}\n");
-	
+
 			sb.append("function selectHandler(e) {\n");
 			sb.append("	now = new Date();\n");
 			sb.append("	val = e.target.options[e.target.selectedIndex].value + ',' + e.target.options[e.target.selectedIndex].text;\n");
@@ -1177,10 +1177,10 @@ if (Triceps.AUTHORABLE) {
 			sb.append("	return true;\n");
 			sb.append("}\n");
 		}
-		
-			
+
+
 		sb.append("function evHandler(e) {\n");
-			
+
 		if (allowRecordEvents) {
 			sb.append("	now = new Date();\n");
 			sb.append("	val = ',' + e.target.value;\n");
@@ -1188,10 +1188,10 @@ if (Triceps.AUTHORABLE) {
 			sb.append("	msg = name + ',' + e.target.type + ',' + e.type + ',' + now.getTime() + ',' + (now.getTime() - startTime.getTime()) + ',' + val + '|';\n");
 			sb.append("	document.myForm.EVENT_TIMINGS.value += msg;\n");
 		}
-		
+
 		sb.append("	return true;\n");
 		sb.append("}\n");
-			
+
 		if (allowRecordEvents) {
 			sb.append("window.captureEvents(Event.Load);\n");
 			sb.append("window.onLoad = evHandler;\n");
@@ -1219,12 +1219,12 @@ if (Triceps.AUTHORABLE) {
 //			sb.append("		el.onClick = evHandler;\n");
 			sb.append("	}\n");
 		}
-		
+
 
 		if (firstFocus != null) {
 			sb.append("	document.myForm." + firstFocus + ".focus();\n");
 		}
-				
+
 		sb.append("}\n");
 		sb.append("function setAdminModePassword(name) {\n");
 		sb.append("	ans = prompt('" +
@@ -1310,7 +1310,7 @@ if (Triceps.AUTHORABLE) {
 		String title = null;
 
 		if (isSplashScreen || !triceps.isValid()) {
-			title = Triceps.VERSION_NAME;
+			title = VERSION_NAME;
 		}
 		else {
 			title = triceps.getTitle();

@@ -3,7 +3,7 @@ import java.util.*;
 import java.io.*;
 
 
-public class Node  {
+public class Node implements VersionIF  {
 	public static final Node EMPTY_NODE = new Node();
 
 	public static final int BADTYPE = 0;
@@ -50,7 +50,7 @@ public class Node  {
 
 	private static final int MAX_TEXT_LEN_FOR_COMBO = 60;
 	private static final int MAX_ITEMS_IN_LIST = 20;
-	
+
 	private static final String INTRA_OPTION_LINE_BREAK = "<br>";
 
 	private static final Vector EMPTY_VECTOR = new Vector();
@@ -103,7 +103,7 @@ public class Node  {
 	private Date timeStamp = null;
 	private String timeStampStr = null;
 	private Triceps triceps = Triceps.NULL;
-	
+
 	private Node() {
 	}
 
@@ -160,7 +160,7 @@ public class Node  {
 						i = Integer.parseInt(fixExcelisms(s));
 					}
 					catch (NumberFormatException t) {
-Logger.writeln("##NumberFormatException @ Node.languageNum" + t.getMessage());
+if (DEBUG) Logger.writeln("##NumberFormatException @ Node.languageNum" + t.getMessage());
 						setParseError(triceps.get("languageNum_must_be_an_integer") + t.getMessage());
 						i = 0; // default language
 					}
@@ -298,17 +298,17 @@ Logger.writeln("##NumberFormatException @ Node.languageNum" + t.getMessage());
 			}
 		}
 	}
-	
+
 	private String buildOrList(Vector v) {
 		StringBuffer sb = new StringBuffer();
-		
+
 		for (int i=0;i<v.size();++i) {
 			Datum d = (Datum) v.elementAt(i);
 			sb.append("," + ((i == v.size()-1) ? (" " + triceps.get("or")) : "") + " " + d.stringVal());
 		}
 		return sb.toString();
 	}
-	
+
 
 	public String getSampleInputString() {
 		/* Create the help-string showing allowable range of input values.
@@ -319,18 +319,18 @@ Logger.writeln("##NumberFormatException @ Node.languageNum" + t.getMessage());
 		String other = null;
 		String rangeStr = null;
 		String s = null;
-		
+
 		s = Datum.getExampleFormatStr(triceps,mask,datumType);
-		
+
 		if (s == null || s.equals(""))
 			rangeStr = "";
 		else
-			rangeStr = " (e.g. " + s + ")";		
+			rangeStr = " (e.g. " + s + ")";
 
 		if ((minStr == null && maxStr == null && allowableValues == null) || answerType == PASSWORD) {
 			return rangeStr;
 		}
-		
+
 		if (minDatum != null) {
 			setMinDatum(minDatum);
 			min = minDatum.stringVal(true,mask);
@@ -357,7 +357,7 @@ Logger.writeln("##NumberFormatException @ Node.languageNum" + t.getMessage());
 		if (other != null) {
 			rangeStr = " [" + rangeStr + other + "]";
 		}
-			
+
 		return " " + rangeStr;
 	}
 
@@ -376,7 +376,7 @@ Logger.writeln("##NumberFormatException @ Node.languageNum" + t.getMessage());
 			token = ans.nextToken();
 		}
 		catch (NoSuchElementException t) {
-Logger.writeln("##NoSuchElementException @ Node.parseAnswerOptions" + t.getMessage());
+if (DEBUG) Logger.writeln("##NoSuchElementException @ Node.parseAnswerOptions" + t.getMessage());
 			setParseError(triceps.get("missing_display_type") + t.getMessage());
 		}
 
@@ -500,11 +500,11 @@ Logger.writeln("##NoSuchElementException @ Node.parseAnswerOptions" + t.getMessa
 	public String prepareChoicesAsHTML(Datum datum, boolean autogen) {
 		return prepareChoicesAsHTML(datum,"",autogen);
 	}
-	
+
 	public boolean isSelected(Datum datum, AnswerChoice ac) {
 		return DatumMath.eq(datum,new Datum(triceps, ac.getValue(),DATA_TYPES[answerType])).booleanVal();
 	}
-	
+
 
 	public String prepareChoicesAsHTML(Datum datum, String errMsg, boolean autogen) {
 		/* errMsg is a hack - only applies to RADIO_HORIZONTAL */
@@ -542,7 +542,7 @@ Logger.writeln("##NoSuchElementException @ Node.parseAnswerOptions" + t.getMessa
 					sb.append("</td>");
 				}
 				sb.append("</tr>");
-				sb.append("</table>");				
+				sb.append("</table>");
 			}
 			break;
 		case CHECK:
@@ -566,7 +566,7 @@ Logger.writeln("##NoSuchElementException @ Node.parseAnswerOptions" + t.getMessa
 				ac = (AnswerChoice) ans.nextElement();
 				ac.parse(triceps);
 				++optionNum;
-				
+
 				String messageStr = ac.getMessage();
 				String prefix = "<option value='" + ac.getValue() + "'";
 				boolean selected = isSelected(datum,ac);
@@ -574,11 +574,11 @@ Logger.writeln("##NoSuchElementException @ Node.parseAnswerOptions" + t.getMessa
 				int start=0;
 				int line=0;
 				String option = null;
-				
+
 				/* must also detect <br> for intra-option line-breaks */
-				
+
 				int lineBreak = 0;
-				
+
 				while (start < messageStr.length()) {
 					lineBreak = messageStr.indexOf(INTRA_OPTION_LINE_BREAK,start);
 					if (lineBreak == -1) {
@@ -589,7 +589,7 @@ Logger.writeln("##NoSuchElementException @ Node.parseAnswerOptions" + t.getMessa
 						option = messageStr.substring(start,lineBreak);
 						start = lineBreak + INTRA_OPTION_LINE_BREAK.length();
 					}
-					
+
 					while (option.length() > 0) {
 						if (option.length() < MAX_TEXT_LEN_FOR_COMBO) {
 							stop = option.length();
@@ -600,7 +600,7 @@ Logger.writeln("##NoSuchElementException @ Node.parseAnswerOptions" + t.getMessa
 								stop = MAX_TEXT_LEN_FOR_COMBO;	// if no extra space, take entire string
 							}
 						}
-	
+
 						choices.append(prefix);
 						if (line++ == 0) {
 							if (selected) {
@@ -619,16 +619,16 @@ Logger.writeln("##NoSuchElementException @ Node.parseAnswerOptions" + t.getMessa
 							choices.append(">&nbsp;&nbsp;&nbsp;");
 						}
 						choices.append(option.substring(0,stop));
-	
+
 						if (stop<option.length())
 							option = option.substring(stop+1,option.length());
 						else
 							option = "";
-	
+
 						choices.append("</option>");
 					}
 				}
-				totalLines += line;		
+				totalLines += line;
 			}
 			sb.append("<select name='" + getLocalName() + "'" +
 				((answerType == LIST) ? (" size = '" + Math.min(MAX_ITEMS_IN_LIST,totalLines+1) + "'") : "") +
@@ -644,7 +644,7 @@ Logger.writeln("##NoSuchElementException @ Node.parseAnswerOptions" + t.getMessa
 		case TEXT:	// stores Text type
 			if (datum != null && datum.exists())
 				defaultValue = datum.stringVal();
-			sb.append("<input type='text'" + 
+			sb.append("<input type='text'" +
 				" onfocus='evHandler(event);select();'" +
 				" name='" + getLocalName() + "' value='" + defaultValue + "'>");
 			break;
@@ -658,14 +658,14 @@ Logger.writeln("##NoSuchElementException @ Node.parseAnswerOptions" + t.getMessa
 		case PASSWORD:	// stores Text type
 			if (datum != null && datum.exists())
 				defaultValue = datum.stringVal();
-			sb.append("<input type='password'" + 
+			sb.append("<input type='password'" +
 				" onfocus='evHandler(event);select();'" +
 				" name='" + getLocalName() + "' value='" + defaultValue + "'>");
 			break;
 		case DOUBLE:	// stores Double type
 			if (datum != null && datum.exists())
 				defaultValue = datum.stringVal();
-			sb.append("<input type='text'" + 
+			sb.append("<input type='text'" +
 				" onfocus='evHandler(event);select();'" +
 				" name='" + getLocalName() + "' value='" + defaultValue + "'>");
 			break;
@@ -685,7 +685,7 @@ Logger.writeln("##NoSuchElementException @ Node.parseAnswerOptions" + t.getMessa
 */
 			if (datum != null && datum.exists())
 				defaultValue = datum.stringVal();
-			sb.append("<input type='text'" + 
+			sb.append("<input type='text'" +
 				" onfocus='evHandler(event);select();'" +
 				" name='" + getLocalName() + "' value='" + defaultValue + "'>");
 			break;
@@ -731,7 +731,7 @@ Logger.writeln("##NoSuchElementException @ Node.parseAnswerOptions" + t.getMessa
 
 	public int getAnswerType() { return answerType; }
 	public int getDatumType() { return datumType; }
-	public void setDatumType(int type) { 
+	public void setDatumType(int type) {
 		if (Datum.isValidType(type)) {
 			datumType = type;
 		}
@@ -746,8 +746,8 @@ Logger.writeln("##NoSuchElementException @ Node.parseAnswerOptions" + t.getMessa
 	public int getQuestionOrEvalType() { return questionOrEvalType; }
 	public String getQuestionOrEvalTypeField() { return questionOrEvalTypeField; }
 	public String getMask() { return mask; }
-	
-	public void setMinDatum(Datum d) { 
+
+	public void setMinDatum(Datum d) {
 		if (d == null) {
 			minDatum = null;
 		}
@@ -755,8 +755,8 @@ Logger.writeln("##NoSuchElementException @ Node.parseAnswerOptions" + t.getMessa
 			minDatum = d.cast(datumType,mask);
 		}
 	}
-	
-	public void setMaxDatum(Datum d) { 
+
+	public void setMaxDatum(Datum d) {
 		if (d == null) {
 			maxDatum = null;
 		}
@@ -764,7 +764,7 @@ Logger.writeln("##NoSuchElementException @ Node.parseAnswerOptions" + t.getMessa
 			maxDatum = d.cast(datumType,mask);
 		}
 	}
-	
+
 	public String getMinStr() { return minStr; }
 	public String getMaxStr() { return maxStr; }
 	public Vector getAllowableValues() { return allowableValues; }
@@ -865,7 +865,7 @@ Logger.writeln("##NoSuchElementException @ Node.parseAnswerOptions" + t.getMessa
 		Vector ans = null;
 		if (v == null)
 			return EMPTY_VECTOR;
-			
+
 		if (v.size() == 0) {
 			return EMPTY_VECTOR;
 		}
@@ -880,15 +880,15 @@ Logger.writeln("##NoSuchElementException @ Node.parseAnswerOptions" + t.getMessa
 
 	public String getReadback(int lang) { return getValueAt(readback,lang); }
 	public String getQuestionOrEval() { return getQuestionOrEval(answerLanguageNum); }
-	
-	public String getQuestionOrEval(int langNum) { 
+
+	public String getQuestionOrEval(int langNum) {
 		if (langNum < 0 || langNum >= numLanguages) {
 			setParseError("languageNum must be in range (0 - " + (numLanguages - 1) + "): " + langNum);
 			return getValueAt(questionOrEval, answerLanguageNum);
 		}
 		return getValueAt(questionOrEval, langNum);
-	}	
-	
+	}
+
 	public Vector getAnswerChoices(int langNum) { return getValuesAt(answerChoicesVector,langNum); }
 	public Vector getAnswerChoices() { return getValuesAt(answerChoicesVector,answerLanguageNum); }
 	public int numAnswerChoices() { return getValuesAt(answerChoicesVector,answerLanguageNum).size(); }

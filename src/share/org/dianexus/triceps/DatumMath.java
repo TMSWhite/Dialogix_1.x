@@ -3,7 +3,7 @@ import java.util.*;
 import java.text.Format;
 
 /** This class provides the basic logic and mathematical functions for relating objects of type datum. */
-public final class DatumMath {
+public final class DatumMath implements VersionIF {
 	static Datum hasError(Datum a, Datum b) {
 		// This function needs to be reconsidered as to the proper way to handle error propagation
 		if (a.isType(Datum.INVALID) || (b != null && b.isType(Datum.INVALID))) {
@@ -35,16 +35,16 @@ public final class DatumMath {
 			default: return 0;	// should never get here
 		}
 	}
-	
+
 	static Date createDate(int val, int datumType) {
-		GregorianCalendar calendar = new GregorianCalendar();		
+		GregorianCalendar calendar = new GregorianCalendar();
 		calendar.setTime(new Date(System.currentTimeMillis()));
 		calendar.set(datumToCalendar(datumType),val);
 		return calendar.getTime();
-	}	
+	}
 
 	static int getCalendarField(Datum d, int datumType) {
-		GregorianCalendar calendar = new GregorianCalendar();		
+		GregorianCalendar calendar = new GregorianCalendar();
 		calendar.setTime(d.dateVal());
 		return calendar.get(DatumMath.datumToCalendar(datumType));
 	}
@@ -80,7 +80,7 @@ public final class DatumMath {
 				else {
 					int field = DatumMath.datumToCalendar(a.type());
 					GregorianCalendar gc = new GregorianCalendar();	// should happen infrequently (not a garbage collection problem?)
-	
+
 					gc.setTime(a.dateVal());
 					gc.add(field, (int) b.doubleVal());
 					return new Datum(a.triceps,gc.getTime(),a.type());	// set to type of first number in expression
@@ -112,7 +112,7 @@ public final class DatumMath {
 			return new Datum(a.triceps, a.stringVal().concat(b.stringVal()),Datum.STRING);
 		}
 		catch(NullPointerException e) {
-Logger.writeln("##NullPointerException @ concat");
+if (DEBUG) Logger.writeln("##NullPointerException @ concat");
 			return new Datum(a.triceps, a.stringVal(),Datum.STRING);
 		}
 	}
@@ -140,7 +140,7 @@ Logger.writeln("##NullPointerException @ concat");
 			return new Datum(a.triceps, a.doubleVal() / b.doubleVal());
 		}
 		catch(ArithmeticException e) {
-Logger.writeln("##ArithmeticException @ divide");
+if (DEBUG) Logger.writeln("##ArithmeticException @ divide");
 			return Datum.getInstance(a.triceps,Datum.INVALID);
 		}
 	}
@@ -175,7 +175,7 @@ Logger.writeln("##ArithmeticException @ divide");
 					else if (b.isNumeric()) {
 						ans = (a.doubleVal()== b.doubleVal());
 					}
-Logger.writeln("##eq(" + a.doubleVal() + "," + a.dateVal() + ";" + b.doubleVal() + "," + b.dateVal() + ")-> " + ans);					
+if (DEBUG) Logger.writeln("##eq(" + a.doubleVal() + "," + a.dateVal() + ";" + b.doubleVal() + "," + b.dateVal() + ")-> " + ans);
 					return new Datum(a.triceps, ans);
 				}
 				case Datum.STRING:
@@ -191,7 +191,7 @@ Logger.writeln("##eq(" + a.doubleVal() + "," + a.dateVal() + ";" + b.doubleVal()
 			}
 		}
 		catch(NullPointerException e) {
-Logger.writeln("##NullPointerException @ eq");
+if (DEBUG) Logger.writeln("##NullPointerException @ eq");
 		}
 		return new Datum(a.triceps, false);
 	}
@@ -208,7 +208,7 @@ Logger.writeln("##NullPointerException @ eq");
 			switch (a.type()) {
 				case Datum.DATE:
 				case Datum.TIME:
-					return new Datum(a.triceps, 
+					return new Datum(a.triceps,
 						(a.dateVal().after(b.dateVal())) ||
 						(a.dateVal().equals(b.dateVal()))
 						);
@@ -229,9 +229,9 @@ Logger.writeln("##NullPointerException @ eq");
 					else if (b.isNumeric()) {
 						ans = (a.doubleVal()>= b.doubleVal());
 					}
-Logger.writeln("##ge(" + a.doubleVal() + "," + a.dateVal() + ";" + b.doubleVal() + "," + b.dateVal() + ")-> " + ans);					
+if (DEBUG) Logger.writeln("##ge(" + a.doubleVal() + "," + a.dateVal() + ";" + b.doubleVal() + "," + b.dateVal() + ")-> " + ans);
 					return new Datum(a.triceps, ans);
-				}				
+				}
 				case Datum.STRING:
 					if (a.isNumeric())
 						return new Datum(a.triceps, a.doubleVal() >= b.doubleVal());
@@ -245,7 +245,7 @@ Logger.writeln("##ge(" + a.doubleVal() + "," + a.dateVal() + ";" + b.doubleVal()
 			}
 		}
 		catch(NullPointerException e) {
-Logger.writeln("##NullPointerException @ ge");
+if (DEBUG) Logger.writeln("##NullPointerException @ ge");
 		}
 		return new Datum(a.triceps, false);
 	}
@@ -261,7 +261,7 @@ Logger.writeln("##NullPointerException @ ge");
 			switch (a.type()) {
 				case Datum.DATE:
 				case Datum.TIME:
-					return new Datum(a.triceps, 
+					return new Datum(a.triceps,
 						(a.dateVal().after(b.dateVal()))
 						);
 				case Datum.WEEKDAY:
@@ -281,9 +281,9 @@ Logger.writeln("##NullPointerException @ ge");
 					else if (b.isNumeric()) {
 						ans = (a.doubleVal()> b.doubleVal());
 					}
-Logger.writeln("##gt(" + a.doubleVal() + "," + a.dateVal() + ";" + b.doubleVal() + "," + b.dateVal() + ")-> " + ans);					
+if (DEBUG) Logger.writeln("##gt(" + a.doubleVal() + "," + a.dateVal() + ";" + b.doubleVal() + "," + b.dateVal() + ")-> " + ans);
 					return new Datum(a.triceps, ans);
-				}				
+				}
 				case Datum.STRING:
 					if (a.isNumeric())
 						return new Datum(a.triceps, a.doubleVal() > b.doubleVal());
@@ -297,7 +297,7 @@ Logger.writeln("##gt(" + a.doubleVal() + "," + a.dateVal() + ";" + b.doubleVal()
 			}
 		}
 		catch(NullPointerException e) {
-Logger.writeln("##NullPointerException @ gt");
+if (DEBUG) Logger.writeln("##NullPointerException @ gt");
 		}
 		return new Datum(a.triceps, false);
 	}
@@ -314,7 +314,7 @@ Logger.writeln("##NullPointerException @ gt");
 			switch (a.type()) {
 				case Datum.DATE:
 				case Datum.TIME:
-					return new Datum(a.triceps, 
+					return new Datum(a.triceps,
 						(a.dateVal().before(b.dateVal())) ||
 						(a.dateVal().equals(b.dateVal()))
 						);
@@ -335,7 +335,7 @@ Logger.writeln("##NullPointerException @ gt");
 					else if (b.isNumeric()) {
 						ans = (a.doubleVal()<= b.doubleVal());
 					}
-Logger.writeln("##le(" + a.doubleVal() + "," + a.dateVal() + ";" + b.doubleVal() + "," + b.dateVal() + ")-> " + ans);					
+if (DEBUG) Logger.writeln("##le(" + a.doubleVal() + "," + a.dateVal() + ";" + b.doubleVal() + "," + b.dateVal() + ")-> " + ans);
 					return new Datum(a.triceps, ans);
 				}
 				case Datum.STRING:
@@ -351,7 +351,7 @@ Logger.writeln("##le(" + a.doubleVal() + "," + a.dateVal() + ";" + b.doubleVal()
 			}
 		}
 		catch(NullPointerException e) {
-Logger.writeln("##NullPointerException @ le");
+if (DEBUG) Logger.writeln("##NullPointerException @ le");
 		}
 		return new Datum(a.triceps, false);
 	}
@@ -365,7 +365,7 @@ Logger.writeln("##NullPointerException @ le");
 			switch (a.type()) {
 				case Datum.DATE:
 				case Datum.TIME:
-					return new Datum(a.triceps, 
+					return new Datum(a.triceps,
 						(a.dateVal().before(b.dateVal()))
 						);
 				case Datum.WEEKDAY:
@@ -385,9 +385,9 @@ Logger.writeln("##NullPointerException @ le");
 					else if (b.isNumeric()) {
 						ans = (a.doubleVal()< b.doubleVal());
 					}
-Logger.writeln("##lt(" + a.doubleVal() + "," + a.dateVal() + ";" + b.doubleVal() + "," + b.dateVal() + ")-> " + ans);					
+if (DEBUG) Logger.writeln("##lt(" + a.doubleVal() + "," + a.dateVal() + ";" + b.doubleVal() + "," + b.dateVal() + ")-> " + ans);
 					return new Datum(a.triceps, ans);
-				}					
+				}
 				case Datum.STRING:
 					if (a.isNumeric())
 						return new Datum(a.triceps, a.doubleVal() < b.doubleVal());
@@ -401,7 +401,7 @@ Logger.writeln("##lt(" + a.doubleVal() + "," + a.dateVal() + ";" + b.doubleVal()
 			}
 		}
 		catch(NullPointerException e) {
-Logger.writeln("##NullPointerException @ lt");
+if (DEBUG) Logger.writeln("##NullPointerException @ lt");
 		}
 		return new Datum(a.triceps, false);
 	}
@@ -415,7 +415,7 @@ Logger.writeln("##NullPointerException @ lt");
 			return new Datum(a.triceps, a.doubleVal() % b.doubleVal());
 		}
 		catch(ArithmeticException e) {
-Logger.writeln("##ArithmeticException @ modulus");
+if (DEBUG) Logger.writeln("##ArithmeticException @ modulus");
 			return Datum.getInstance(a.triceps,Datum.INVALID);
 		}
 	}
@@ -443,7 +443,7 @@ Logger.writeln("##ArithmeticException @ modulus");
 		Datum d = DatumMath.hasError(a,b);
 		if (d != null)
 			return d;
-			
+
 		if (a.type() == Datum.NA || b.type() == Datum.NA) {
 			return new Datum(a.triceps, true);	// neq to anything
 		}
@@ -472,9 +472,9 @@ Logger.writeln("##ArithmeticException @ modulus");
 					else if (b.isNumeric()) {
 						ans = (a.doubleVal()!= b.doubleVal());
 					}
-Logger.writeln("##neq(" + a.doubleVal() + "," + a.dateVal() + ";" + b.doubleVal() + "," + b.dateVal() + ")-> " + ans);					
+if (DEBUG) Logger.writeln("##neq(" + a.doubleVal() + "," + a.dateVal() + ";" + b.doubleVal() + "," + b.dateVal() + ")-> " + ans);
 					return new Datum(a.triceps, ans);
-				}			
+				}
 				case Datum.STRING:
 					if (a.isNumeric())
 						return new Datum(a.triceps, a.doubleVal() != b.doubleVal());
@@ -488,7 +488,7 @@ Logger.writeln("##neq(" + a.doubleVal() + "," + a.dateVal() + ";" + b.doubleVal(
 			}
 		}
 		catch(NullPointerException e) {
-Logger.writeln("##NullPointerException @ neq");
+if (DEBUG) Logger.writeln("##NullPointerException @ neq");
 		}
 		return new Datum(a.triceps, false);
 	}
@@ -544,11 +544,11 @@ Logger.writeln("##NullPointerException @ neq");
 				else {
 					int field = DatumMath.datumToCalendar(a.type());
 					GregorianCalendar gc = new GregorianCalendar();	// should happen infrequently (not a garbage collection problem?)
-	
+
 					gc.setTime(a.dateVal());
 					gc.add(field, -((int) b.doubleVal()));
 					return new Datum(a.triceps,gc.getTime(),a.type());	// set to type of first number in expression
-				}				
+				}
 		}
 	}
 	static /* synchronized */ Datum xor(Datum a, Datum b) {

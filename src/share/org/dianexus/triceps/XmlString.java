@@ -1,7 +1,7 @@
 import java.util.*;
 import java.io.*;
 
-public final class XmlString extends Object {
+public final class XmlString implements VersionIF {
 	public static final XmlString NULL = new XmlString(null,null);
 
 	private static final Hashtable ENTITIES = new Hashtable();
@@ -153,8 +153,8 @@ public final class XmlString extends Object {
     		encodeHTML(src);
     		dst.close();
     	}
-    	catch (IOException e){ 
-Logger.writeln("##IOException @ new XMLString()" + e.getMessage());
+    	catch (IOException e){
+if (DEBUG) Logger.writeln("##IOException @ new XMLString()" + e.getMessage());
 		}
     }
 
@@ -167,8 +167,8 @@ Logger.writeln("##IOException @ new XMLString()" + e.getMessage());
     		encodeHTML(src);
     		dst.flush();	// don't close, since externally presented
     	}
-    	catch (IOException e) { 
-Logger.writeln("##IOException @ new XMLString()" + e.getMessage());
+    	catch (IOException e) {
+if (DEBUG) Logger.writeln("##IOException @ new XMLString()" + e.getMessage());
     		}
     }
 
@@ -327,7 +327,7 @@ Logger.writeln("##IOException @ new XMLString()" + e.getMessage());
 			}
 		}
 		catch (Throwable t) {
-Logger.writeln("##Throwable @ XMLString.isValidElement()" + t.getMessage());
+if (DEBUG) Logger.writeln("##Throwable @ XMLString.isValidElement()" + t.getMessage());
 			error(triceps.get("prematurely_terminated_element") + parsingPosition[which] + " " + asElement(element));
 			return false;
 		}
@@ -348,8 +348,8 @@ Logger.writeln("##Throwable @ XMLString.isValidElement()" + t.getMessage());
 			dst.write(s);
 			column += s.length();
 		}
-		catch (IOException e) { 
-Logger.writeln("##IOException @ XMLString.prettyPrint()" + e.getMessage());
+		catch (IOException e) {
+if (DEBUG) Logger.writeln("##IOException @ XMLString.prettyPrint()" + e.getMessage());
 			}
 	}
 
@@ -367,8 +367,8 @@ Logger.writeln("##IOException @ XMLString.prettyPrint()" + e.getMessage());
 					try {
 						dst.write(tagToPrint);
 					}
-					catch (IOException e) { 
-Logger.writeln("##IOException @ XMLString.insertMissingEndTags()" + e.getMessage());
+					catch (IOException e) {
+if (DEBUG) Logger.writeln("##IOException @ XMLString.insertMissingEndTags()" + e.getMessage());
 						}
 					prettyPrint("",true);
 				}
@@ -460,8 +460,8 @@ Logger.writeln("##IOException @ XMLString.insertMissingEndTags()" + e.getMessage
 					}
 				}
 			}
-			catch (IOException e) { 
-Logger.writeln("##IOException @ XMLString.encodeHTML()" + e.getMessage());
+			catch (IOException e) {
+if (DEBUG) Logger.writeln("##IOException @ XMLString.encodeHTML()" + e.getMessage());
 				}
 		}
 		insertMissingEndTags(null);
