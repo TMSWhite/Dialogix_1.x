@@ -178,50 +178,8 @@
         <Valve className="org.apache.catalina.authenticator.SingleSignOn"
                    debug="0"/>
         -->
-
-        <!-- Access log processes all requests for this virtual host.  By
-             default, log files are created in the "logs" directory relative to
-             $CATALINA_HOME.  If you wish, you can specify a different
-             directory with the "directory" attribute.  Specify either a relative
-             (to $CATALINA_HOME) or absolute path to the desired directory.
-        -->
-        <Valve className="org.apache.catalina.valves.AccessLogValve"
-                 directory="logs"  prefix="localhost_access_log." suffix=".txt"
-                 pattern="common"/>
-
-        <!-- Logger shared by all Contexts related to this virtual host.  By
-             default (when using FileLogger), log files are created in the "logs"
-             directory relative to $CATALINA_HOME.  If you wish, you can specify
-             a different directory with the "directory" attribute.  Specify either a
-             relative (to $CATALINA_HOME) or absolute path to the desired
-             directory.-->
-        <Logger className="org.apache.catalina.logger.FileLogger"
-                 directory="logs"  prefix="localhost_log." suffix=".txt"
-	        timestamp="true"/>
-
-        <!-- Define properties for each web application.  This is only needed
-             if you want to set non-default properties, or have web application
-             document roots in places other than the virtual host's appBase
-             directory.  -->
-
-        <!-- Tomcat Root Context -->
-        <!--
-          <Context path="" docBase="ROOT" debug="0"/>
-        -->
-
-        <!-- Tomcat Manager Context -->
-        <Context path="/manager" docBase="manager" 
-         debug="0" privileged="true"/>
-         
-        <!-- Adding sample MySql database -->
         
-		<Context path="/DBTest" docBase="DBTest"
-		        debug="1" reloadable="true" crossContext="true">
-		
-		  <Logger className="org.apache.catalina.logger.FileLogger"
-		             prefix="localhost_DBTest_log." suffix=".txt"
-		             timestamp="true"/>
-		
+		<DefaultContext crossContext="true">
 		  <Resource name="jdbc/TestDB"
 		               auth="Container"
 		               type="javax.sql.DataSource"/>
@@ -284,9 +242,44 @@
 		      <value>jdbc:mysql://localhost:3306/javatest?autoReconnect=true</value>
 		    </parameter>
 		  </ResourceParams>
-		</Context>         
+		</DefaultContext>                 
 
+        <!-- Access log processes all requests for this virtual host.  By
+             default, log files are created in the "logs" directory relative to
+             $CATALINA_HOME.  If you wish, you can specify a different
+             directory with the "directory" attribute.  Specify either a relative
+             (to $CATALINA_HOME) or absolute path to the desired directory.
+        -->
+        <Valve className="org.apache.catalina.valves.AccessLogValve"
+                 directory="logs"  prefix="localhost_access_log." suffix=".txt"
+                 pattern="common"/>
 
+        <!-- Logger shared by all Contexts related to this virtual host.  By
+             default (when using FileLogger), log files are created in the "logs"
+             directory relative to $CATALINA_HOME.  If you wish, you can specify
+             a different directory with the "directory" attribute.  Specify either a
+             relative (to $CATALINA_HOME) or absolute path to the desired
+             directory.-->
+        <Logger className="org.apache.catalina.logger.FileLogger"
+                 directory="logs"  prefix="localhost_log." suffix=".txt"
+	        timestamp="true"/>
+
+        <!-- Define properties for each web application.  This is only needed
+             if you want to set non-default properties, or have web application
+             document roots in places other than the virtual host's appBase
+             directory.  -->
+
+        <!-- Tomcat Root Context -->
+        <!--
+          <Context path="" docBase="ROOT" debug="0"/>
+        -->
+
+        <!-- Tomcat Manager Context -->
+        <Context path="/manager" docBase="manager" 
+         debug="0" privileged="true"/>
+         
+        <!-- Adding sample MySql database -->
+        
       </Host>
 
     </Engine>
