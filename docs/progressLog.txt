@@ -458,6 +458,8 @@ Reorganization & Documentation
 << changes from 2.9.7 to 2.9.8
 	BUGFIX:
 		Datum for NUMBER - was passing wrong parameters
+		fixed bugs in session management
+		N.B. Tomcat 3.3 still has trouble with SSL and triple-click.  Tomcat 4 handles these gracefully
 	EDIT:
 		index.jsp - pointing to wrong BYS files
 	Additional options:
@@ -475,3 +477,4 @@ Reorganization & Documentation
 		SUPPORT.PERSON
 	Security
 		Added Thawte cert for www.dianexus.org
+	
