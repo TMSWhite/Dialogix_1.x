@@ -38,9 +38,17 @@ class Value implements VersionIF {
 			node.setTimeStamp(time);
 
 		if (reserved >= 0 && schedule != null) {
-			schedule.setReserved(reserved,d.stringVal());
+			if (schedule.setReserved(reserved,d.stringVal(),false)) {
+				// to restrict ability to change certain reserved words from within a schedule
+				datum = new Datum(d,datum.getName());
+			}
+			else {
+				// a reserved word which should not be changed
+			}
 		}
-		datum = new Datum(d,datum.getName());
+		else {
+			datum = new Datum(d,datum.getName());
+		}
 	}
 	public Datum getDatum() { return datum; }
 	public boolean isReserved() { return (reserved >= 0); }
