@@ -36,16 +36,16 @@ public class DatumMath {
 			default: return 0;	// should never get here
 		}
 	}
-	
+
 	static Date createDate(int val, int datumType) {
-		GregorianCalendar calendar = new GregorianCalendar();		
+		GregorianCalendar calendar = new GregorianCalendar();
 		calendar.setTime(new Date(System.currentTimeMillis()));
 		calendar.set(datumToCalendar(datumType),val);
 		return calendar.getTime();
-	}	
+	}
 
 	static int getCalendarField(Datum d, int datumType) {
-		GregorianCalendar calendar = new GregorianCalendar();		
+		GregorianCalendar calendar = new GregorianCalendar();
 		calendar.setTime(d.dateVal());
 		return calendar.get(DatumMath.datumToCalendar(datumType));
 	}
@@ -80,7 +80,7 @@ public class DatumMath {
 				else {
 					int field = DatumMath.datumToCalendar(a.type());
 					GregorianCalendar gc = new GregorianCalendar();	// should happen infrequently (not a garbage collection problem?)
-	
+
 					gc.setTime(a.dateVal());
 					gc.add(field, (int) b.doubleVal());
 					return new Datum(a.lingua,gc.getTime(),a.type());	// set to type of first number in expression
@@ -193,7 +193,7 @@ public class DatumMath {
 			switch (a.type()) {
 				case Datum.DATE:
 				case Datum.TIME:
-					return new Datum(a.lingua, 
+					return new Datum(a.lingua,
 						(a.dateVal().after(b.dateVal())) ||
 						(a.dateVal().equals(b.dateVal()))
 						);
@@ -233,7 +233,7 @@ public class DatumMath {
 			switch (a.type()) {
 				case Datum.DATE:
 				case Datum.TIME:
-					return new Datum(a.lingua, 
+					return new Datum(a.lingua,
 						(a.dateVal().after(b.dateVal()))
 						);
 				case Datum.WEEKDAY:
@@ -273,7 +273,7 @@ public class DatumMath {
 			switch (a.type()) {
 				case Datum.DATE:
 				case Datum.TIME:
-					return new Datum(a.lingua, 
+					return new Datum(a.lingua,
 						(a.dateVal().before(b.dateVal())) ||
 						(a.dateVal().equals(b.dateVal()))
 						);
@@ -311,7 +311,7 @@ public class DatumMath {
 			switch (a.type()) {
 				case Datum.DATE:
 				case Datum.TIME:
-					return new Datum(a.lingua, 
+					return new Datum(a.lingua,
 						(a.dateVal().before(b.dateVal()))
 						);
 				case Datum.WEEKDAY:
@@ -375,6 +375,10 @@ public class DatumMath {
 		Datum d = DatumMath.hasError(a,b);
 		if (d != null)
 			return d;
+
+		if (a.type() == Datum.NA || b.type() == Datum.NA) {
+			return new Datum(a.lingua, true);	// neq to anything
+		}
 
 		try {
 			switch (a.type()) {
@@ -458,11 +462,11 @@ public class DatumMath {
 				else {
 					int field = DatumMath.datumToCalendar(a.type());
 					GregorianCalendar gc = new GregorianCalendar();	// should happen infrequently (not a garbage collection problem?)
-	
+
 					gc.setTime(a.dateVal());
 					gc.add(field, -((int) b.doubleVal()));
 					return new Datum(a.lingua,gc.getTime(),a.type());	// set to type of first number in expression
-				}				
+				}
 		}
 	}
 	static /* synchronized */ Datum xor(Datum a, Datum b) {
