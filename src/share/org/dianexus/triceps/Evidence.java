@@ -75,7 +75,31 @@ import java.io.File;
 	private static final int TRIM = 46;
 	private static final int ISNUMBER = 47;
 	private static final int FILEEXISTS = 48;
-
+	private static final int ABS = 49;
+	private static final int ACOS = 50;
+	private static final int ASIN = 51;
+	private static final int ATAN = 52;
+	private static final int ATAN2 = 53;
+	private static final int CEIL = 54;
+	private static final int COS = 55;
+	private static final int EXP = 56;
+	private static final int FLOOR = 57;
+	private static final int LOG = 58;
+	private static final int POW = 59;
+	private static final int RANDOM = 60;
+	private static final int ROUND = 61;
+	private static final int SIN = 62;
+	private static final int SQRT = 63;
+	private static final int TAN = 64;
+	private static final int TODEGREES = 65;
+	private static final int TORADIANS = 66;
+	private static final int PI = 67;
+	private static final int E = 68;	
+	private static final int FORMAT_NUMBER = 69;
+	private static final int PARSE_NUMBER = 70;
+	private static final int FORMAT_DATE = 71;			
+	private static final int PARSE_DATE = 72;		
+	
 	private static final Object FUNCTION_ARRAY[][] = {
 		{ "desc",				ONE,		new Integer(DESC) },
 		{ "isAsked",			ONE,		new Integer(ISASKED) },
@@ -126,6 +150,30 @@ import java.io.File;
 		{ "trim",				ONE,		new Integer(TRIM) },
 		{ "isNumber",			ONE,		new Integer(ISNUMBER) },
 		{ "fileExists",			ONE,		new Integer(FILEEXISTS) },
+		{ "abs",				ONE,		new Integer(ABS) },
+		{ "acos",				ONE,		new Integer(ACOS) },
+		{ "asin",				ONE,		new Integer(ASIN) },
+		{ "atan",				ONE,		new Integer(ATAN) },
+		{ "atan2",				TWO,		new Integer(ATAN2) },
+		{ "ceil",				ONE,		new Integer(CEIL) },
+		{ "cos",				ONE,		new Integer(COS) },
+		{ "exp",				ONE,		new Integer(EXP) },
+		{ "floor",				ONE,		new Integer(FLOOR) },
+		{ "log",				ONE,		new Integer(LOG) },
+		{ "pow",				TWO,		new Integer(POW) },
+		{ "random",				ZERO,		new Integer(RANDOM) },
+		{ "round",				ONE,		new Integer(ROUND) },
+		{ "sin",				ONE,		new Integer(SIN) },
+		{ "sqrt",				ONE,		new Integer(SQRT) },
+		{ "tan",				ONE,		new Integer(TAN) },
+		{ "todegrees",			ONE,		new Integer(TODEGREES) },
+		{ "toradians",			ONE,		new Integer(TORADIANS) },
+		{ "pi",					ZERO,		new Integer(PI) },
+		{ "e",					ZERO,		new Integer(E) },
+		{ "formatNumber",		TWO,		new Integer(FORMAT_NUMBER) },
+		{ "parseNumber",		TWO,		new Integer(PARSE_NUMBER) },
+		{ "formatDate",			TWO,		new Integer(FORMAT_DATE) },
+		{ "parseDate",			TWO,		new Integer(PARSE_DATE) },
 	};
 
 	private static final Hashtable FUNCTIONS = new Hashtable();
@@ -1016,6 +1064,54 @@ if (DEBUG) Logger.writeln("##SecurityException @ Evidence.fileExists()" + e.getM
 					}
 					return new Datum(triceps,false);
 				}
+				case ABS:
+					return new Datum(triceps, Math.abs(datum.doubleVal()));
+				case ACOS:
+					return new Datum(triceps, Math.acos(datum.doubleVal()));
+				case ASIN:
+					return new Datum(triceps, Math.asin(datum.doubleVal()));
+				case ATAN:
+					return new Datum(triceps, Math.atan(datum.doubleVal()));
+				case ATAN2:
+					return new Datum(triceps, Math.atan2(datum.doubleVal(),getParam(params.elementAt(1)).doubleVal()));				
+				case CEIL:
+					return new Datum(triceps, Math.ceil(datum.doubleVal()));				
+				case COS:
+					return new Datum(triceps, Math.cos(datum.doubleVal()));				
+				case EXP:
+					return new Datum(triceps, Math.exp(datum.doubleVal()));				
+				case FLOOR:
+					return new Datum(triceps, Math.floor(datum.doubleVal()));				
+				case LOG:
+					return new Datum(triceps, Math.log(datum.doubleVal()));				
+				case POW:
+					return new Datum(triceps, Math.pow(datum.doubleVal(),getParam(params.elementAt(1)).doubleVal()));				
+				case RANDOM:
+					return new Datum(triceps, Math.random());
+				case ROUND:
+					return new Datum(triceps, Math.round(datum.doubleVal()));				
+				case SIN:
+					return new Datum(triceps, Math.sin(datum.doubleVal()));				
+				case SQRT:
+					return new Datum(triceps, Math.sqrt(datum.doubleVal()));				
+				case TAN:
+					return new Datum(triceps, Math.tan(datum.doubleVal()));				
+				case TODEGREES:
+					return new Datum(triceps, Math.toDegrees(datum.doubleVal()));				
+				case TORADIANS:
+					return new Datum(triceps, Math.toRadians(datum.doubleVal()));				
+				case PI:
+					return new Datum(triceps, Math.PI);			
+				case E:	
+					return new Datum(triceps, Math.E);		
+				case FORMAT_NUMBER:
+					return new Datum(triceps, triceps.formatNumber(new Double(datum.doubleVal()), getParam(params.elementAt(1)).stringVal()), Datum.STRING);
+				case PARSE_NUMBER:
+					return new Datum(triceps, triceps.parseNumber(datum.stringVal(), getParam(params.elementAt(1)).stringVal()).doubleValue()); 
+				case FORMAT_DATE:
+					return new Datum(triceps, triceps.formatDate(datum.dateVal(), getParam(params.elementAt(1)).stringVal()), Datum.STRING);
+				case PARSE_DATE:
+					return new Datum(triceps, triceps.parseDate(datum.stringVal(), getParam(params.elementAt(1)).stringVal()), Datum.DATE, getParam(params.elementAt(1)).stringVal());
 			}
 		}
 		catch (Throwable t) {
