@@ -1,6 +1,6 @@
 RESERVED	__TRICEPS_FILE_TYPE__	SCHEDULE					
 RESERVED	__TITLE__	Children in the Community: Wave 6 					
-RESERVED	__ICON__	ciclogo.gif					
+RESERVED	__ICON__	ciclogo-with-caption.gif					
 RESERVED	__HEADER_MSG__	Children in the Community: Wave 6 					
 RESERVED	__PASSWORD_FOR_ADMIN_MODE__	bypass					
 RESERVED	__SHOW_QUESTION_REF__	FALSE					

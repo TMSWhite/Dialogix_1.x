@@ -38,7 +38,7 @@
         </init-param>
         <init-param>
             <param-name>logoIcon</param-name>
-            <param-value>cpmc_dmi.jpg</param-value>
+            <param-value>ciclogo.gif</param-value>
         </init-param>
         <init-param>
             <param-name>floppyDir</param-name>
