@@ -30,7 +30,6 @@ public class TricepsServlet extends HttpServlet {
 	private PrintWriter out;
 	private String firstFocus = null;
 
-	private String scheduleList = "";
 	private String scheduleSrcDir = "";
 	private String workingFilesDir = "";
 	private String completedFilesDir = "";
@@ -51,8 +50,7 @@ public class TricepsServlet extends HttpServlet {
 	private boolean isSplashScreen = false;
 
 	private String directive = null;	// the default
-	private String urlPrefix = null;
-	private StringBuffer errors = null;
+	private StringBuffer errors = new StringBuffer();
 	private int currentLanguage = 0;
 
 	/**
@@ -65,9 +63,6 @@ public class TricepsServlet extends HttpServlet {
 		super.init(config);
 		String s;
 
-		s = config.getInitParameter("scheduleList");
-		if (s != null)
-			scheduleList = s.trim();
 		s = config.getInitParameter("scheduleSrcDir");
 		if (s != null)
 			scheduleSrcDir = s.trim();
@@ -130,7 +125,6 @@ public class TricepsServlet extends HttpServlet {
 			String debugInfo = null;
 			String hiddenStr = "";
 			firstFocus = null; // reset it each time
-			urlPrefix = "http://" + req.getServerName() + "/";
 
 
 			triceps = (Triceps) session.getValue("triceps");
@@ -153,9 +147,9 @@ public class TricepsServlet extends HttpServlet {
 
 			out.println(getCustomHeader());
 
-			if (errors != null) {
+			if (errors.length() > 0) {
 				out.println(errors.toString());
-				errors =  null;
+				errors =  new StringBuffer();
 			}
 
 			if (form != null) {
@@ -188,6 +182,7 @@ public class TricepsServlet extends HttpServlet {
 
 			out.println(footer());
 
+			out.flush();
 			out.close();
 
 			/* Store appropriate stuff in the session */
@@ -209,7 +204,7 @@ public class TricepsServlet extends HttpServlet {
 		if (triceps != null) {
 			String language = req.getParameter("LANGUAGE");
 			if (language != null && language.trim().length() > 0) {
-				System.err.println("Setting language to " + language);
+//				System.err.println("Setting language to " + language);
 				triceps.setLanguage(language.trim());
 				directive = "refresh current";
 			}
@@ -229,7 +224,6 @@ public class TricepsServlet extends HttpServlet {
 		/* Want to evaluate expression before doing rest so can see results of changing global variable values */
 		if ("evaluate expr:".equals(directive)) {
 			String expr = req.getParameter("evaluate expr:");
-			errors = new StringBuffer();
 			if (expr != null && triceps != null) {
 				Datum datum = triceps.evaluateExpr(expr);
 
@@ -393,146 +387,153 @@ public class TricepsServlet extends HttpServlet {
 		sb.append("</html>\n");
 		return sb.toString();
 	}
+	
+	private TreeMap getSortedNames(String dir, boolean isSuspended) {
+		TreeMap names = new TreeMap();
+		Schedule sched = null;
+		Object prevVal = null;
+		String defaultTitle = null;
+		String title = null;
+		
+		try {
+			ScheduleList interviews = new ScheduleList(dir);
+			
+			if (interviews.hasErrors()) {
+				errors.append("<B>Error getting list of available interviews:<BR>" + interviews.getErrors() + "</B>");
+			}
+			else {
+				Vector schedules = interviews.getSchedules();
+				for (int i=0;i<schedules.size();++i) {
+					sched = (Schedule) schedules.elementAt(i);
+					
+					try {
+						defaultTitle = getScheduleInfo(sched,isSuspended);
+						title = defaultTitle;
+						for (int count=2;true;++count) {
+							prevVal = names.put(title,sched.getSource());
+							if (prevVal != null) {
+								names.put(title,prevVal);
+								title = defaultTitle + " (copy " + count + ")";
+							}
+							else {
+								break;
+							}
+						}
+					}
+					catch (Throwable t) {
+						errors.append("Unexpected error: " + t.getMessage());
+					}
+				}
+			}
+		}
+		catch (Throwable t) {
+			errors.append("Unexpected error: " + t.getMessage());
+		}
+		return names;
+	}
+	
+	private String getScheduleInfo(Schedule sched, boolean isSuspended) {
+		if (sched == null)
+			return null;
+			
+		StringBuffer sb = new StringBuffer();
+		String s = null;
+		
+		if (isSuspended) {
+			sb.append(sched.getReserved(Schedule.TITLE_FOR_PICKLIST_WHEN_IN_PROGRESS));
+		}
+		else {
+			s = sched.getReserved(Schedule.TITLE);
+			if (s != null && s.trim().length() > 0) {
+				sb.append(s);
+			}
+			else {
+				sb.append("*NO TITLE*");
+			}
+			s = sched.getReserved(Schedule.LANGUAGES);
+			if (s != null && s.trim().length() > 0 && s.indexOf("|") != -1) {
+				sb.append(" [" + s + "]");
+			}
+		}
+		
+		return sb.toString();
+	}	
+	
+	private String selectFromInterviewsInDir(String selectTarget, String dir, boolean isSuspended) {	
+		StringBuffer sb = new StringBuffer();
+		
+		try {
+			TreeMap names = getSortedNames(dir,isSuspended);
+
+			if (names.size() > 0) {
+				sb.append("<select name='" + selectTarget + "'>\n");
+				Iterator iterator = names.keySet().iterator();
+				while(iterator.hasNext()) {
+					String title = (String) iterator.next();
+					String target = (String) names.get(title);
+					sb.append("	<option value='" + Node.encodeHTML(target) + "'>" + Node.encodeHTML(title) + "</option>\n");
+				}
+				sb.append("</select>\n");
+			}
+		}
+		catch (Throwable t) {
+			errors.append("Error building sorted list of interviews: " + t.getMessage());
+		}
+		
+		if (sb.length() == 0)
+			return "&nbsp;";
+		else
+			return sb.toString();
+	}
 
 	private String processDirective() {
 		boolean ok = true;
 		int gotoMsg = Triceps.OK;
 		StringBuffer sb = new StringBuffer();
-		StringBuffer schedules = new StringBuffer();
-		StringBuffer suspendedInterviews = new StringBuffer();
 		Enumeration nodes;
 
 		// get the POSTed directive (start, back, next, help, suspend, etc.)	- default is opening screen
 		if (directive == null || "select new interview".equals(directive)) {
-			/* read list of available schedules from file */
-
-			BufferedReader br = Triceps.getReader(scheduleList, urlPrefix, scheduleSrcDir);
-			if (br == null) {
-				sb.append("<B>" + Triceps.getReaderError() + "</B><HR>");
-			}
-			else {
-				try {
-					int count = 0;
-					int line=0;
-					String fileLine;
-					String src;
-					while ((fileLine = br.readLine()) != null) {
-						++line;
-
-						if (fileLine.startsWith("COMMENT"))
-							continue;
-
-						try {
-							StringTokenizer schedule = new StringTokenizer(fileLine,"\t");
-							String title = schedule.nextToken();
-							String fileLoc = schedule.nextToken();
-
-							if (title == null || fileLoc == null)
-								continue;
-
-							/* Test whether these files exist */
-							Reader target = Triceps.getReader(fileLoc,urlPrefix, scheduleSrcDir);
-							if (target == null) {
-								sb.append("<B>" + Triceps.getReaderError() + "</B><HR>");
-							}
-							else {
-								try { target.close(); } catch (Throwable t) { System.err.println("Error closing reader: " + t.getMessage()); }
-
-								++count;
-								schedules.append("	<option value='" + Node.encodeHTML(fileLoc) + "'>" + Node.encodeHTML(title) + "</option>\n");
-							}
-						}
-						catch (Throwable t) {
-							String msg = "Error tokenizing schedule list '" + scheduleList + "' on line " + line + ": " + t.getMessage();
-							sb.append(msg);
-							System.err.println(msg);
-						}
-					}
-				}
-				catch(Throwable t) {
-					String msg = "Error reading from " + scheduleList + ": " + t.getMessage();
-					sb.append(msg);
-					System.err.println(msg);
-				}
-				if (br != null) {
-					try { br.close(); } catch (Throwable t) {
-						System.err.println("Error closing reader: " + t.getMessage());
-					}
-				}
-
-				/* Now build the list of uncompleted interviews */
-
-				try {
-					File dir = new File(workingFilesDir);
-
-					if (dir.isDirectory() && dir.canRead()) {
-						String[] files = dir.list();
-
-						int count=0;
-						for (int i=0;i<files.length;++i) {
-							try {
-								File f = new File(files[i]);
-								if (!f.isDirectory()) {
-									if (count == 0) {
-										suspendedInterviews.append("<select name='RestoreSuspended'>\n	<option value=''></option>\n");
-									}
-									suspendedInterviews.append("	<option value='" + files[i] + "'>" + files[i] + "</option>\n");
-									++count;
-								}
-							}
-							catch (Throwable t) {
-								System.err.println("Error reading from file " + dir + ": " + t.getMessage());
-							}
-						}
-						if (count > 0) {
-							suspendedInterviews.append("</select><BR>");
-						}
-						else {
-							suspendedInterviews.append("&nbsp;");
-						}
-					}
-					else {
-						System.err.println("can't read from dir " + dir.toString());
-					}
-				}
-				catch(Throwable t) {
-					System.err.println("Error reading from file: "  + t.getMessage());
-				}
-			}
-
-			/* Now construct splash screen */
+			/* Construct splash screen */
 
 			sb.append("<TABLE CELLPADDING='2' CELLSPACING='2' BORDER='1'>\n");
 			sb.append("<TR><TD>Please select an interview/questionnaire from the pull-down list:  </TD>\n");
-			sb.append("	<TD><select name='schedule'>\n");
-			sb.append(schedules);
-			sb.append("	</select></TD>\n");
+			sb.append("	<TD>\n");
+			
+			/* Build the list of available interviews */
+			sb.append(selectFromInterviewsInDir("schedule",scheduleSrcDir,false));
+
+			sb.append("	</TD>\n");
 			sb.append("	<TD><input type='SUBMIT' name='directive' value='START'></TD>\n");
 			sb.append("</TR>\n");
-
+			
+			/* Build the list of suspended interviews */
 			sb.append("<TR><TD>OR, restore an interview/questionnaire in progress:  </TD>\n");
-			sb.append("	<TD>" + suspendedInterviews +
-				((developerMode) ? "<input type='text' name='RESTORE'>" : "") +
-				"</TD>\n");
+			sb.append("	<TD>\n");
+			
+			sb.append(selectFromInterviewsInDir("RestoreSuspended",workingFilesDir,true));
+			
+			if (developerMode) {
+				sb.append("<input type='text' name='RESTORE'>");
+			}
+			sb.append("	</TD>\n");
 			sb.append("	<TD><input type='SUBMIT' name='directive' value='RESTORE'></TD>\n");
-
-//			sb.append(showOptions());
-
 			sb.append("</TABLE>\n");
+			
 			return sb.toString();
 		}
 		else if (directive.equals("START")) {
 			// load schedule
-			triceps = new Triceps();
-			ok = triceps.setSchedule(req.getParameter("schedule"),urlPrefix,scheduleSrcDir);
+			triceps = new Triceps(req.getParameter("schedule"));
+			ok = triceps.isValid();
 
-			// re-check developerMode options - they aren't set via the hidden options, since a new copy of Triceps created
-			getGlobalVariables();
-			
 			if (!ok) {
 				directive = null;
 				return processDirective();
 			}
+			
+			// re-check developerMode options - they aren't set via the hidden options, since a new copy of Triceps created
+			getGlobalVariables();
 
 			ok = ok && ((gotoMsg = triceps.gotoStarting()) == Triceps.OK);	// don't proceed if prior error
 			// ask question
@@ -546,8 +547,8 @@ public class TricepsServlet extends HttpServlet {
 			}
 
 			// load schedule
-			triceps = new Triceps();
-			ok = triceps.setSchedule(restore,urlPrefix,workingFilesDir);
+			triceps = new Triceps(restore);
+			ok = triceps.isValid();
 
 			if (!ok) {
 				directive = null;	// so that processDirective() will select new interview
@@ -572,8 +573,8 @@ public class TricepsServlet extends HttpServlet {
 			// re-ask the current question
 		}
 		else if (directive.equals("restart (clean)")) { // restart from scratch
-			ok = triceps.resetEvidence();
-			ok = ok && ((gotoMsg = triceps.gotoFirst()) == Triceps.OK);	// don't proceed if prior error
+			triceps.resetEvidence();
+			ok = ((gotoMsg = triceps.gotoFirst()) == Triceps.OK);	// don't proceed if prior error
 			// ask first question
 		}
 		else if (directive.equals("reload questions")) { // debugging option
@@ -596,7 +597,6 @@ public class TricepsServlet extends HttpServlet {
 			sb.append("<HR>\n");
 		}
 		else if (directive.equals("show Syntax Errors")) {
-			errors = new StringBuffer();
 			Vector pes = triceps.collectParseErrors();
 
 			if (pes.size() == 0) {
@@ -888,6 +888,10 @@ public class TricepsServlet extends HttpServlet {
 		StringBuffer sb = new StringBuffer();
 
 		Datum datum = triceps.getDatum(node);
+		
+		if (datum == null) {
+			return "&nbsp;";
+		}
 
 		boolean isRefused = false;
 		boolean isUnknown = false;
@@ -906,8 +910,8 @@ public class TricepsServlet extends HttpServlet {
 				"' ALIGN='top' BORDER='0' ALT='Help' onMouseDown='javascript:help(\"" + helpURL + "\");'>\n");
 		}
 		else {
-			sb.append("<IMG SRC='" + HELP_F_ICON +
-				"' ALIGN='top' BORDER='0' ALT='Help not available for this question'>\n");
+			// don't show help icon if no help is available?
+//			sb.append("<IMG SRC='" + HELP_F_ICON + "' ALIGN='top' BORDER='0' ALT='Help not available for this question'>\n");
 		}
 
 		String comment = Node.encodeHTML(node.getComment());
@@ -928,8 +932,13 @@ public class TricepsServlet extends HttpServlet {
 			sb.append("<IMG NAME='" + inputName + "_NOT_UNDERSTOOD_ICON" + "' SRC='" + ((isNotUnderstood) ? NOT_UNDERSTOOD_T_ICON : NOT_UNDERSTOOD_F_ICON) +
 				"' ALIGN='top' BORDER='0' ALT='Set as Not Understood' onMouseDown='javascript:setNotUnderstoodPassword(\"" + inputName + "\");'>\n");
 		}
-
-		return sb.toString();
+		
+		if (sb.length() == 0) {
+			return "&nbsp;";
+		}
+		else {
+			return sb.toString();
+		}
 	}
 
 	private String generateDebugInfo() {
