@@ -1197,19 +1197,24 @@ if (DEBUG) Logger.writeln("##SecurityException @ Evidence.fileExists()" + e.getM
 						setError(triceps.get("unknown_node") + nodeName, line, column,null);
 						return Datum.getInstance(triceps,Datum.INVALID);
 					}
-					return new Datum(triceps, (double) triceps.gotoNode(node));
+					triceps.gotoNode(node);
+					return new Datum(triceps, "", Datum.STRING);
 				}		
 				case GOTO_FIRST:
-					return new Datum(triceps, (double) triceps.gotoFirst());
+					triceps.gotoFirst();
+					return new Datum(triceps, "", Datum.STRING);
 				case JUMP_TO_FIRST_UNASKED:
-					return new Datum(triceps, (double) triceps.jumpToFirstUnasked());
+					triceps.jumpToFirstUnasked();
+					return new Datum(triceps, "", Datum.STRING);
 				case GOTO_PREVIOUS:
-					return new Datum(triceps, (double) triceps.gotoPrevious());
+					triceps.gotoPrevious();
+					return new Datum(triceps, "", Datum.STRING);
 				case ERASE_DATA:
 					triceps.resetEvidence();
-					return new Datum(triceps, true);
+					return new Datum(triceps, "", Datum.STRING);
 				case GOTO_NEXT:
-					return new Datum(triceps, (double) triceps.gotoNext());
+					triceps.gotoNext();
+					return new Datum(triceps, "", Datum.STRING);
 				case MEAN:
 					if (params.size() == 0) {
 						return Datum.getInstance(triceps,Datum.INVALID);
