@@ -493,7 +493,9 @@ if (DEBUG) Logger.writeln("##Throwable @ Servlet.selectFromInterviewsInDir" + t.
 		StringBuffer sb = new StringBuffer();
 		String formStr = null;
 
-		sb.append("<FORM method='POST' name='myForm' action='" + HttpUtils.getRequestURL(req) + "'>");
+		sb.append("<FORM method='POST' name='myForm' action='");
+		sb.append(res.encodeURL(HttpUtils.getRequestURL(req).toString()));
+		sb.append("'>");
 
 		formStr = processDirective();	// since this sets isSplashScreen, which is needed to decide whether to display language buttons
 		
@@ -1065,7 +1067,7 @@ if (XML) {
 		sb.append("\" charset=\"");
 		sb.append(req.getHeader(ACCEPT_CHARSET));
 		sb.append("\" target=\"");
-		sb.append(HttpUtils.getRequestURL(req));
+		sb.append(res.encodeURL(HttpUtils.getRequestURL(req).toString()));
 		sb.append("\" firstFocus=\"");
 		sb.append(firstFocus);
 		sb.append("\" title=\"");
