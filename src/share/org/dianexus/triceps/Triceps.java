@@ -98,13 +98,13 @@ import java.util.jar.JarEntry;
 		if (scheduleLoc != null) {
 			createDataLogger(workingFilesDir,null);
 		}
-		isValid = init(scheduleLoc,workingFilesDir,completedFilesDir,floppyDir);
+		isValid = init(scheduleLoc,workingFilesDir,completedFilesDir,floppyDir,true);
 		initDisplayCount();
 	}
 	
-	private boolean init(String scheduleLoc, String workingFilesDir, String completedFilesDir, String floppyDir) {
+	private boolean init(String scheduleLoc, String workingFilesDir, String completedFilesDir, String floppyDir,boolean log) {
 		evidence = new Evidence(this);
-		return setSchedule(scheduleLoc,workingFilesDir,completedFilesDir,floppyDir);
+		return setSchedule(scheduleLoc,workingFilesDir,completedFilesDir,floppyDir,log);
 	}
 	
 	/*public*/ void deleteDataLoggers() {
@@ -164,7 +164,7 @@ if (DEPLOYABLE) {
 }			
 	}
 
-	/*public*/ boolean setSchedule(String scheduleLoc, String workingFilesDir, String completedFilesDir, String floppyDir) {
+	/*public*/ boolean setSchedule(String scheduleLoc, String workingFilesDir, String completedFilesDir, String floppyDir, boolean log) {
 		if (scheduleLoc == null) {
 			nodes = Schedule.NULL;
 			return false;
@@ -175,7 +175,7 @@ if (DEPLOYABLE) {
 
 		createTempPassword();
 
-		if (nodes.init() && setExpertValues()) {
+		if (nodes.init(log) && setExpertValues()) {
 			nodes.setReserved(Schedule.WORKING_DIR,workingFilesDir);
 			nodes.setReserved(Schedule.COMPLETED_DIR,completedFilesDir);
 			nodes.setReserved(Schedule.FLOPPY_DIR,floppyDir);
@@ -208,7 +208,8 @@ if (AUTHORABLE) {
 		ok = init(oldNodes.getReserved(Schedule.SCHEDULE_SOURCE), 
 			oldNodes.getReserved(Schedule.WORKING_DIR), 
 			oldNodes.getReserved(Schedule.COMPLETED_DIR), 
-			oldNodes.getReserved(Schedule.FLOPPY_DIR));
+			oldNodes.getReserved(Schedule.FLOPPY_DIR),
+			false);
 			
 		if (!ok) {
 			setError("Unable to reload schedule");			

@@ -251,15 +251,15 @@ import java.io.FileReader;
 		
 	}
 		
-	/*public*/ boolean init() {
-		boolean ok = init2();
+	/*public*/ boolean init(boolean log) {
+		boolean ok = init2(log);
 if (DEBUG) {	// && false
 		Logger.writeln("##@@Schedule.load(" + getReserved(SCHEDULE_SOURCE) + ")-> " + ((ok) ? "SUCCESS" : "FAILURE"));
 }		
 		return ok;
 	}
 		
-	private boolean init2() {
+	private boolean init2(boolean log) {
 		nodes = new Vector();
 		evidence.createReserved();
 		evidence.initReserved();
@@ -268,6 +268,12 @@ if (DEBUG) {	// && false
 			return false;
 		if (!bracesMatch())
 			return false;
+			
+		if (!log) {
+			isLoaded = true;
+			return true;	// reloading schedule, so don't need or want to reset values
+		}
+			
 		if (!prepareDataLogging())
 			return false;
 		if (!triceps.setExpertValues()) {
