@@ -39,15 +39,16 @@ import java.text.DecimalFormat;
 	/*public*/ static final int SECOND = 19;
 	/*public*/ static final int MONTH_NUM = 20;
 	/*public*/ static final int DAY_NUM = 21;
+	/*public*/ static final int RADIO_HORIZONTAL2 = 22;
 
 	private static final String QUESTION_TYPES[] = {
 		"*badtype*", "nothing", "radio", "check", "combo", "list",
 		"text", "double", "radio2", "password","memo",
-		"date", "time", "year", "month", "day", "weekday", "hour", "minute", "second", "month_num", "day_num"};
+		"date", "time", "year", "month", "day", "weekday", "hour", "minute", "second", "month_num", "day_num", "radio3"};
 	private static final int DATA_TYPES[] = {
 		Datum.STRING, Datum.STRING, Datum.STRING, Datum.STRING, Datum.STRING, Datum.STRING,
 		Datum.STRING, Datum.NUMBER, Datum.STRING, Datum.STRING, Datum.STRING,
-		Datum.DATE, Datum.TIME, Datum.YEAR, Datum.MONTH, Datum.DAY, Datum.WEEKDAY, Datum.HOUR, Datum.MINUTE, Datum.SECOND, Datum.MONTH_NUM, Datum.DAY_NUM };
+		Datum.DATE, Datum.TIME, Datum.YEAR, Datum.MONTH, Datum.DAY, Datum.WEEKDAY, Datum.HOUR, Datum.MINUTE, Datum.SECOND, Datum.MONTH_NUM, Datum.DAY_NUM, Datum.STRING };
 
 	/*public*/ static final int QUESTION = 1;
 	/*public*/ static final int EVAL = 2;
@@ -419,6 +420,7 @@ else setParseError("syntax error");
 			case LIST:
 			case RADIO:
 			case RADIO_HORIZONTAL:
+			case RADIO_HORIZONTAL2:
 				String val=null;
 				String msg=null;
 				int field=0;
@@ -535,7 +537,7 @@ else setParseError("syntax error");
 					(isSelected(datum,ac) ? " checked " : " ") + TricepsEngine.listEventHandlers("radio") + ">" + ac.getMessage() + "<br>");
 			}
 			break;
-		case RADIO_HORIZONTAL: // will store integers
+		case RADIO_HORIZONTAL: { // will store integers
 			/* table underneath questions */
 			v = getAnswerChoices();
 			ans = v.elements();
@@ -543,7 +545,7 @@ else setParseError("syntax error");
 
 			if (count > 0) {
 				Double pct = new Double(100. / (double) count);
-				sb.append("<table cellpadding='0' cellspacing='2' border='1' width='100%'>");
+				sb.append("<table cellpadding='0' cellspacing='1' border='1' width='100%'>");
 				sb.append("<tr>");
 				while (ans.hasMoreElements()) { // for however many radio buttons there are
 					ac = (AnswerChoice) ans.nextElement();
@@ -556,7 +558,32 @@ else setParseError("syntax error");
 				sb.append("</tr>");
 				sb.append("</table>");
 			}
-			break;
+		}
+			break;	
+		case RADIO_HORIZONTAL2: {
+			/* table underneath questions */
+			v = getAnswerChoices();
+			ans = v.elements();
+			int count = v.size();
+			int max_width = Integer.parseInt(triceps.getSchedule().getReserved(Schedule.ANSWER_OPTION_FIELD_WIDTH));
+
+			if (count > 0) {
+				Double pct = new Double((double) max_width / (double) count);
+				sb.append("<table cellpadding='0' cellspacing='1' border='1' width='100%'>");	// oddly, 100% means all of the enclosing <td>, but for embedded <td>s, need actual percent of top-level table!
+				sb.append("<tr>");
+				while (ans.hasMoreElements()) { // for however many radio buttons there are
+					ac = (AnswerChoice) ans.nextElement();
+					ac.parse(triceps);
+					sb.append("<td valign='top' width='" + pct.toString() + "%'>");
+					sb.append("<input type='radio' name='" + getLocalName() + "' " + "value='" + ac.getValue() + "'" +
+						(isSelected(datum,ac)? " checked " : " ") + TricepsEngine.listEventHandlers("radio") + ">" + ac.getMessage());
+					sb.append("</td>");
+				}
+				sb.append("</tr>");
+				sb.append("</table>");
+			}
+		}
+			break;						
 		case CHECK:
 			ans = getAnswerChoices().elements();
 			while (ans.hasMoreElements()) { // for however many radio buttons there are
@@ -753,7 +780,7 @@ else setParseError("syntax error");
 	/*public*/ void setAllowableDatumValues(Vector v) { allowableDatumValues = v; }
 
 	/*public*/ boolean focusable() { return (answerType != BADTYPE && answerType != NOTHING); }
-	/*public*/ boolean focusableArray() { return (answerType == RADIO || answerType == RADIO_HORIZONTAL || answerType == CHECK); }
+	/*public*/ boolean focusableArray() { return (answerType == RADIO || answerType == RADIO_HORIZONTAL || answerType == RADIO_HORIZONTAL2 || answerType == CHECK); }
 
 	/*public*/ void setNamingError(String error) {
 		namingErrors.println(error);
@@ -836,6 +863,7 @@ if (XML) {
 		switch(answerType) {
 		case RADIO:
 		case RADIO_HORIZONTAL:
+		case RADIO_HORIZONTAL2:
 		case CHECK:
 			ans = getAnswerChoices().elements();
 			sb.append("	<multi type=\"" + QUESTION_TYPES[answerType] + "\">\n");
