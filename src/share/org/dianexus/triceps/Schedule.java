@@ -75,6 +75,8 @@ import java.io.ByteArrayInputStream;
 	/*public*/ static final int IP_ADDRESS = 49;
 	/*public*/ static final int SUSPEND_TO_FLOPPY = 50;
 	/*public*/ static final int JUMP_TO_FIRST_UNASKED = 51;
+	/*public*/ static final int REDIRECT_ON_FINISH_URL= 52;
+	/*public*/ static final int REDIRECT_ON_FINISH_MSG = 53;
 
 	private static final String DEFAULT_LANGUAGE = "en_US";
 	/*public*/ static final String TRICEPS_DATA_FILE = "DATA";
@@ -134,6 +136,8 @@ import java.io.ByteArrayInputStream;
 		"__IP_ADDRESS__",
 		"__SUSPEND_TO_FLOPPY__",
 		"__JUMP_TO_FIRST_UNASKED__",
+		"__REDIRECT_ON_FINISH_URL__",
+		"__REDIRECT_ON_FINISH_MSG__",
 	};
 
 	private Date startTime = null;
@@ -234,6 +238,9 @@ import java.io.ByteArrayInputStream;
 		setReserved(IP_ADDRESS,null);
 		setReserved(SUSPEND_TO_FLOPPY,"false");
 		setReserved(JUMP_TO_FIRST_UNASKED,"false");
+		setReserved(REDIRECT_ON_FINISH_URL,"");
+		setReserved(REDIRECT_ON_FINISH_MSG,"");
+		
 	}
 		
 	/*public*/ boolean init() {
@@ -732,6 +739,8 @@ if (DEPLOYABLE) {
 			case IP_ADDRESS: if (expert) s = value; break;
 			case SUSPEND_TO_FLOPPY: if (expert) s = Boolean.valueOf(value.trim()).toString(); break;
 			case JUMP_TO_FIRST_UNASKED: if (expert) s = Boolean.valueOf(value.trim()).toString(); break;
+			case REDIRECT_ON_FINISH_URL: if (expert) s = value.trim(); break;
+			case REDIRECT_ON_FINISH_MSG: if (expert) s = value.trim(); break;
 			default: return false;
 		}
 		

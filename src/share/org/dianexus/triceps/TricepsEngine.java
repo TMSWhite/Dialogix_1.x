@@ -787,6 +787,25 @@ if (AUTHORABLE) {
 					if (!WEB_SERVER) info.println(triceps.get("error_saving_data_to_floppy_dir"));
 				}				
 			}
+			String url = schedule.getReserved(Schedule.REDIRECT_ON_FINISH_URL);
+			if (url.length() > 0) { 
+				String msg = schedule.getReserved(Schedule.REDIRECT_ON_FINISH_MSG);
+				sb.append("<p></p><p><font size='+1'><b>");
+				sb.append(triceps.get("your_browser_will_be_redirected_to"));
+				sb.append(" <i>");
+				if (msg.length() > 0) {
+					sb.append(msg);
+				}
+				else {
+					sb.append(url);
+				}
+				sb.append("</i> ");
+				sb.append(triceps.get("in_three_seconds"));
+				sb.append("<br/><br/>");
+				sb.append(triceps.get("or_you_can_click_here"));
+				sb.append("<a href='http://" + url + "'>http://" + url + "</a></b></font></p>\n");
+			}
+			
 			return sb.toString();
 		}
 		else if (directive.equals("previous")) {
@@ -1710,6 +1729,13 @@ if (DEPLOYABLE) {
 		sb.append("<html>\n");
 		sb.append("<head>\n");
 		sb.append("<META HTTP-EQUIV='Content-Type' CONTENT='text/html;CHARSET=iso-8859-1'>\n");
+		if ("finished".equals(directive) && schedule != null) {
+			String s = schedule.getReserved(Schedule.REDIRECT_ON_FINISH_URL);
+			if (s.length() > 0) {
+				sb.append("<META HTTP-EQUIV='refresh' CONTENT='3;url=http://" + s + "'>\n");
+			}
+		}
+		
 		sb.append("<title>" + title + "</title>\n");
 
 		if (!"finished".equals(directive)) {
