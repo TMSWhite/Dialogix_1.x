@@ -128,3 +128,31 @@ Datum.java
   
 Logger.java
   added getInputStream() method - closes existing file, returns FileInputStream for it
+
+
+<<changes from version 2.40a to 
+<<9/11/00
+
+Schedule.java
+  added saveAsJar()
+    - writes the scheduleSource's headers and body vectors to a (SCHEDULE_SOURCE).jar
+    
+TricepsServlet.java
+  added sign_schedule
+    - if (AUTHORABLE), calls saveAsJar()
+    
+TricepsBundle.properties
+  added strings for signing schedules
+  
+DEPLOYMENT - Major reorganization of CVS directory structure
+  Tomcat
+    - updated web.xml files
+    - removed extraneous files
+    - removed /webapps/triceps directory
+  Studies
+    - each has its own subdirectory within tomcat/webapps
+    - each has a WEB-INF subdirectory, which is protected from web-browsing (so can contain secure data)
+    - all study specific html files should be put in the study sub-directory
+  Images
+    - stored in shared directory:  webapps/images
+    
