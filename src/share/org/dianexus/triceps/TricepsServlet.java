@@ -60,6 +60,10 @@ if (DEBUG) Logger.printStackTrace(t);
 	private boolean isSupportedBrowser(HttpServletRequest req) {
 		String userAgent = req.getHeader(USER_AGENT);
 		
+		if (userAgent == null) {
+			return false;
+		}
+		
 		if ((userAgent.indexOf("Mozilla/4") != -1)) {
 			if (userAgent.indexOf("MSIE") != -1) {
 				return true;	// IE masquerading as Netscape - finally fixed so that works OK
