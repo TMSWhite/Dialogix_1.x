@@ -51,8 +51,8 @@ use Archive::Tar;
 
 my (%ips, %browsers, %sessions, %ip2host, @dates);
 
-my $src_dir = "/data/cet2/logs";
-my $dst_dir = "/data/cet2/webalizer";
+my $src_dir = "/data/cet-irb/logs";
+my $dst_dir = "/data/cet-irb/webalizer";
 my $JAR =  "/jdk1.3/bin/jar";	# path to jar program (will be different on Unix)
 
 &main;
@@ -81,8 +81,13 @@ sub delete_old_files {
 }
 
 sub readLogs {
+	# triceps files
 	my @files = glob("$src_dir/triceps.*");
 	my @sorted_files = sort { lc($a) cmp lc($b) } @files;
+	
+	# dialogix files (which are newer)
+	@files = glob("$src_dir/dialogix.*");
+	push(@sorted_files, sort { lc($a) cmp lc($b) } @files);
 	
 	foreach (@sorted_files) {
 		readLog($_);
@@ -165,7 +170,7 @@ sub skipThis {
 	return 1 if ($ip eq '156.111.80.79');	# new piwhite
 	return 1 if ($ip eq '156.111.80.78');	# new mine
 	return 1 if ($ip eq '198.190.230.66');	# OMH
-	return 1 if ($schedule ne 'MU-InfoSurvey/musecsurvey.jar');	# only look at MU for now
+	return 1 if ($schedule ne 'CET/AutoMEQ-SA.jar');	# only look at MU for now
 	return 0;
 }
 
