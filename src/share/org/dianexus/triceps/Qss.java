@@ -55,7 +55,10 @@ public class Qss implements QssConstants {
                 return (w != null);
         }
 
-
+		public void resetErrorCount() {
+				errorCount = 0;
+		}
+		
         private void error(String s) { error(s,0,0); }
 
         private void error(String s, int line, int column) {

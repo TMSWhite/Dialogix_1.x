@@ -62,6 +62,9 @@ public class Qss {
 		return (w != null);
 	}
 
+	public void resetErrorCount() {
+		errorCount = 0;
+	}
 
 	private void error(String s) { error(s,0,0); }
 
