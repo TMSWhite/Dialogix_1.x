@@ -361,3 +361,10 @@ Reorganization & Documentation
   Name change -- everything Triceps changed to Dialogix
   Enhancement - Preliminary support for saving data mid-stream to files; and template for executing calls to process that data
   Enhancement - Optionally disable ability to view Working directory
+
+<< changes from 2.9.2 to 2.9.3
+  What changes were done here?
+  BUGFIX - help icon was not being displayed.
+
+<< changes from 2.9.3 to 2.9.4
+  Enhancement - groups of nodes (surrounded by '[', ']') can now have variable # questions displayed if they have different relevance parameters
