@@ -782,21 +782,18 @@ if (AUTHORABLE) {
 		}
 		else if (directive.equals("finished")) {
 			// save the file, but still give the option to go back and change answers
-			boolean savedOK;
-			String filename = triceps.getFilename();
+			String savedName = null;
 
 			info.println(triceps.get("the_interview_is_completed"));
 			if (DEPLOYABLE) {
-				savedOK = triceps.saveCompletedInfo();
-				ok = savedOK && ok;
-				if (savedOK) {
-					info.println(triceps.get("interview_saved_successfully_as") + (completedFilesDir + filename));
+				savedName = triceps.saveCompletedInfo();
+				if (savedName != null) {
+					info.println(triceps.get("interview_saved_successfully_as") + savedName);
 				}
 	
-				savedOK = triceps.saveToFloppy();
-				ok = savedOK && ok;
-				if (savedOK) {
-					info.println(triceps.get("interview_saved_successfully_as") + (floppyDir + filename));
+				savedName = triceps.copyCompletedToFloppy();
+				if (savedName != null) {
+					info.println(triceps.get("interview_saved_successfully_as") + savedName);
 				}
 			}
 		}

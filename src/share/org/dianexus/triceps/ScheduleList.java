@@ -29,7 +29,7 @@ import java.io.File;
 
 		int count=0;
 		for (int i=0;i<files.length;++i) {
-			File f = new File(dir.toString() + File.separator + files[i]);
+			File f = new File(dir.toString() + "/" + files[i]);
 			if (!f.isDirectory()) {
 				Schedule schedule = new Schedule(triceps, f.toString());
 				if (schedule.isFound()) {

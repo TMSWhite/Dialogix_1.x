@@ -129,10 +129,9 @@ import java.io.ByteArrayInputStream;
 	private int currentLanguage = 0;
 	private boolean isFound = false;
 	private boolean isLoaded = false;
-	private String source = null;
 	private Logger errorLogger = new Logger();
 
-	private Vector nodes = null;
+	private Vector nodes = new Vector();	// formerly null
 	private Hashtable reserved = new Hashtable();
 	private Triceps triceps = null;
 	private Evidence evidence = null;
@@ -144,17 +143,16 @@ import java.io.ByteArrayInputStream;
 	/*public*/ Schedule(Triceps lang, String src) {
    		triceps = (lang == null) ? Triceps.NULL : lang;
    		evidence = 	(lang == null) ? Evidence.NULL : triceps.getEvidence();
-   		source = src;
   
 		setReserved(LANGUAGES,DEFAULT_LANGUAGE);	// needed for language changing
 		setDefaultReserveds();
-		setReserved(SCHEDULE_SOURCE,source);	// this defaults to LOADED_FROM, but want to keep track of the original source location
+		setReserved(SCHEDULE_SOURCE,src);	// this defaults to LOADED_FROM, but want to keep track of the original source location
 			
 		if (lang != null) {
-			scheduleSource = ScheduleSource.getInstance(source);
-			if (scheduleSource.isValid() && parseHeaders()) {
+			scheduleSource = ScheduleSource.getInstance(src);
+			if (scheduleSource.isValid() && parseHeaders(src)) {
 				// LOADED_FROM used to by ScheduleList to know from where to load the selected file
-				setReserved(LOADED_FROM,source);	
+				setReserved(LOADED_FROM,src);	
 				
 				isFound = true;
 			}
@@ -252,7 +250,7 @@ if (DEBUG && false) {
 		return isLoaded;
 	}
 	
-	private boolean parseHeaders() {
+	private boolean parseHeaders(String source) {
 		int reservedCount = 0;
 		Vector lines=null;
 		String line=null;
@@ -469,6 +467,7 @@ else {
 	
 	private boolean prepareDataLogging() {
 		String s = getReserved(TITLE_FOR_PICKLIST_WHEN_IN_PROGRESS);
+		String source = scheduleSource.getSourceInfo().getSource();
 		if (s == null || s.trim().length() == 0) {
 			// set a reasonable default value
 			setReserved(TITLE_FOR_PICKLIST_WHEN_IN_PROGRESS,getReserved(TITLE) + " [" + (new Date()) + "]");
@@ -632,7 +631,7 @@ if (DEPLOYABLE) {
 
 	/*public*/ boolean overloadReserved(Schedule oldNodes) {
 		/* FIXME - need to use String Objects for reserved words, not integers, otherwise subject to re-ordering! */
-		if (nodes == null)
+		if (nodes == null || nodes.size() == 0)
 			return false;
 		boolean ok = true;
 		

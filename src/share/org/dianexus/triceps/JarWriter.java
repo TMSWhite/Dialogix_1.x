@@ -28,6 +28,7 @@ import java.io.FileInputStream;
 			return jf;
 		}
 		else {
+if (DEBUG) Logger.writeln("##JarWriter.getInstance(" + name + ")->null");	
 			return null;
 		}
 	}
@@ -48,7 +49,7 @@ import java.io.FileInputStream;
 			if (jos != null) try { jos.close(); jos=null; } catch (Throwable t) { }
 			if (fos != null) try { fos.close(); fos=null; } catch (Throwable t) { }
 
-if (DEBUG) Logger.writeln("##JarWriter.getInstance(" + name + ")->" + err.getMessage());
+if (DEBUG) Logger.writeln("##JarWriter.init(" + name + ")->" + err.getMessage());
 			return false;			
 		}
 		return true;
@@ -142,8 +143,8 @@ if (DEBUG) Logger.writeln("##JarWriter.addEntry()->" + err.getMessage());
 		if (fis != null) try { fis.close(); } catch (Throwable t) { }
 		if (fos != null) try { fos.close(); } catch (Throwable t) { }		
 		
+if (DEBUG) Logger.writeln("##Triceps.copyFile(" + src + ")->(" + dst + "): " + ((err != null) ? err.getMessage() : "OK"));
 		if (err != null) {
-if (DEBUG) Logger.writeln("##Triceps.copyFile(" + src + ")->(" + dst + "): " + err.getMessage());
 			return false;
 		}
 		return true;

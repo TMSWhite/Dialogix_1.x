@@ -745,41 +745,47 @@ if (AUTHORABLE) {
 		return parseErrors;
 	}
 
-	/*public*/ boolean saveCompletedInfo() {
-if (DEPLOYABLE) {		
-		if (saveAsJar(nodes.getReserved(Schedule.FILENAME))) {
+	/*public*/ String saveCompletedInfo() {
+if (DEPLOYABLE) {
+		String name = saveAsJar(nodes.getReserved(Schedule.FILENAME));
+		if (name != null) {
 			deleteDataLoggers();
-			return true;
+			return name;
 		}
-		return false;
+		return null;
 }
-		return true;		
+		return null;		
 	}
 	
-	private boolean saveAsJar(String fn) {
+	private String saveAsJar(String fn) {
 if (DEPLOYABLE) {
 		/* create jar or zip file of data and events */
 		JarWriter jf = null;
+		String name = nodes.getReserved(Schedule.COMPLETED_DIR) + fn + ".jar";
 		
-		jf = JarWriter.getInstance(nodes.getReserved(Schedule.COMPLETED_DIR) + fn + ".jar");
+		jf = JarWriter.getInstance(name);
 		
 		if (jf == null)
-			return false;
+			return null;
 			
 		boolean ok = false;
 		ok = jf.addEntry(fn + DATAFILE_SUFFIX, dataLogger.getInputStream());
 		ok = jf.addEntry(fn + EVENTFILE_SUFFIX, eventLogger.getInputStream()) && ok;
 		jf.close();
 		
-		return ok;
+		return ((ok) ? name : null);
 }
-		return false;		
+		return null;		
 	}
 	
-	/*public*/ boolean saveToFloppy() {
+	/*public*/ String copyCompletedToFloppy() {
 		String name = nodes.getReserved(Schedule.FILENAME) + ".jar";
 		
-		return JarWriter.NULL.copyFile(nodes.getReserved(Schedule.COMPLETED_DIR) + name, nodes.getReserved(Schedule.FLOPPY_DIR) + name);
+		boolean ok = JarWriter.NULL.copyFile(nodes.getReserved(Schedule.COMPLETED_DIR) + name, nodes.getReserved(Schedule.FLOPPY_DIR) + name);
+		if (ok)
+			return name;
+		else
+			return null;
 	}
 	
 	/*public*/ String getTitle() {

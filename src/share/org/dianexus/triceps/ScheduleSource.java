@@ -196,7 +196,7 @@ if (DEPLOYABLE)	return new Vector();	// empty;
 				Certificate cert = certs[0];
 				
 				try {
-if (DEBUG) Logger.writeln("##verifying certificate " + cert.toString());
+//if (DEBUG) Logger.writeln("##verifying certificate " + cert.toString());
 					cert.verify(cert.getPublicKey());
 				}
 				catch (Throwable t) {
