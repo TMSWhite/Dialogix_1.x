@@ -1,0 +1,51 @@
+<?xml version="1.0"?>
+<toolbox>
+
+	<data type="string">
+	<key>author</key>
+	<value>Tom White</value>
+	</data>
+
+	<tool>
+	  <key>link</key>
+	  <scope>request</scope>
+	  <class>org.apache.velocity.tools.view.tools.LinkTool</class>
+	</tool>
+	
+	<tool>
+	  <key>cookie</key>
+	  <scope>request</scope>
+	  <class>org.apache.velocity.tools.view.tools.CookieTool</class>
+	</tool>
+	
+	<tool>
+	  <key>params</key>
+	  <scope>request</scope>
+	  <class>org.apache.velocity.tools.view.tools.ParameterParser</class>
+	</tool>
+	
+	<tool>
+	  <key>render</key>
+	  <scope>request</scope>
+	  <class>org.apache.velocity.tools.view.tools.ViewRenderTool</class>
+	</tool>	
+	
+	<tool>
+	  <key>dialogix</key>
+	  <scope>session</scope>
+	  <class>org.dialogix.parser.DialogixParserTool</class>
+	</tool>
+	
+	<tool>
+	  <key>server</key>
+	  <scope>session</scope>
+	  <class>org.dialogix.utils.ServerStatus</class>
+	</tool>
+	
+	<tool>
+	  <key>logger</key>
+	  <scope>session</scope>
+	  <class>org.dialogix.utils.LoggerStatus</class>
+	</tool>			
+	
+</toolbox>
