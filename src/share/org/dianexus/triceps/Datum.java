@@ -67,20 +67,22 @@ public class Datum implements Serializable {
 		timestamp = new Date(System.currentTimeMillis());
 	}
 	public Datum(String s, int t) {
-		sVal = s;
 		dVal = Double.NaN;
 		bVal = false;
 		date = null;
 		type = INVALID;	// default is to indicate failure to create new Datum object
+		sVal = TYPES[type];	// so that *INVALID* string shows as default
 
 		switch (t) {
 			case DOUBLE:
 				try {
 					dVal = Double.valueOf(s).doubleValue();
+					sVal = s;
 					type = DOUBLE;	// only if successful
 				}
 				catch(NumberFormatException e) {
 					error = "Please enter a <B>number</B>";
+					sVal = "";
 					dVal = Double.NaN;
 				}
 				finally {
@@ -89,6 +91,7 @@ public class Datum implements Serializable {
 				break;
 			case STRING:
 				type = STRING;
+				sVal = s;
 				/* also check whether can be considered a number */
 				try {
 					dVal = Double.valueOf(s).doubleValue();
