@@ -6,7 +6,7 @@
     <Context path="/admin" 
              docBase="webapps/admin" 
              reloadable="true" 
-             trusted="false" > 
+             trusted="true" > 
             <SimpleRealm filename="conf/users/admin-users.xml" />
     </Context>
 </webapps>
