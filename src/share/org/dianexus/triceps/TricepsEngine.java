@@ -1280,7 +1280,7 @@ if (XML) {
 		for(int count=0;questionNames.hasMoreElements();++count) {
 			Node node = (Node) questionNames.nextElement();
 			Datum datum = triceps.getDatum(node);	
-			if (datum.isRefused() || datum.isUnknown() || datum.isNotUnderstood()) {
+			if (datum.isRefused() || datum.isUnknown() || datum.isNotUnderstood() || (node.getHelpURL() != null && node.getHelpURL().trim().length() > 0)) {
 				needSpecialOptions = true;
 			}
 			if (node.getExternalName().trim().length() > 0) {
