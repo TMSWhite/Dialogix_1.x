@@ -48,70 +48,91 @@ public class TricepsServlet extends HttpServlet {
 		this.req = req;
 		this.res = res;
 		HttpSession session = req.getSession(true);
+		String form = null;
 
 		triceps = (Triceps) session.getValue("triceps");
 
 		res.setContentType("text/html");
-		out = res.getWriter();
-		out.println("<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 3.2//EN\">");
-		out.println("<html>");
-		out.println("<body bgcolor='white'>");
-		out.println("<head>");
-		out.println("<META HTTP-EQUIV='Content-Type' CONTENT='text/html;CHARSET=iso-8859-1'>");
-		out.println("<title>TRICEPS SYSTEM</title>");
-		out.println("</head>");
-		out.println("<body>");
-		out.println("<FORM method='POST' action='" + HttpUtils.getRequestURL(req) + "'>");
 
 		/* This is the meat. */
 		try {
-			processDirective(req.getParameter("directive"));
+			form = processDirective(req.getParameter("directive"));
 		}
 		catch (Exception e) {
 			System.out.println(e.getMessage());
 			e.printStackTrace();
 		}
 
-		out.println("</FORM>");
-		out.println("</body>");
-		out.println("</html>");
+		out = res.getWriter();
+		out.println(header());
+		if (form != null) {
+			out.println("<FORM method='POST' action='" + HttpUtils.getRequestURL(req) + "'>\n");
+			out.println(form);
+			out.println("</FORM>\n");
+		}
+		out.println(footer());
 
 		/* Store appropriate stuff in the session */
 		if (triceps != null)
 			session.putValue("triceps", triceps);
 	}
+
+	private String header() {
+		StringBuffer sb = new StringBuffer();
+
+		sb.append("<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 3.2//EN\">\n");
+		sb.append("<html>\n");
+		sb.append("<body bgcolor='white'>\n");
+		sb.append("<head>\n");
+		sb.append("<META HTTP-EQUIV='Content-Type' CONTENT='text/html;CHARSET=iso-8859-1'>\n");
+		sb.append("<title>TRICEPS SYSTEM</title>\n");
+		sb.append("</head>\n");
+		sb.append("<body>\n");
+		return sb.toString();
+	}
+
+
+	private String footer() {
+		StringBuffer sb = new StringBuffer();
+
+		sb.append("</body>\n");
+		sb.append("</html>\n");
+		return sb.toString();
+	}
+
 	/**
 	 * This method basically gets the next node in the schedule, checks the activation
 	 * dependencies to see if it should be executed, then, if it's a question it
 	 * invokes queryUser(), otherwise, it evaluates the evidence and moves to
 	 * the next node.
 	 */
-	private void processDirective(String directive) {
+	private String processDirective(String directive) {
 		boolean ok = true;
+		StringBuffer sb = new StringBuffer();
 
 		// get the POSTed directive (start, back, forward, help, suspend, etc.)	- default is opening screen
 		if (directive == null || "select new interview".equals(directive)) {
-			out.println("<H2>Triceps Interview/Questionnaire System</H2><HR>");
-			out.println("<TABLE CELLPADDING='2' CELLSPACING='2' BORDER='1'>");
-			out.println("<TR><TD>Please select an interview/questionnaire from the pull-down list:  </TD>");
-			out.println("	<TD><select name='schedule'>");
-			out.println("		<option value='ADHD.txt' selected>ADHD");
-			out.println("		<option value='EatDis.txt'>Eating Disorders");
-			out.println("		<option value='MiHeart.txt'>MiHeart-combo");
-			out.println("		<option value='MiHeart2.txt'>MiHeart-radio");
-//			out.println("		<option value='GAFTree.txt'>GAFTree");
-			out.println("		<option value='MoodDis.txt'>Major Depression/Dysthymic Disorder");
-			out.println("		<option value='AUDIT.txt'>AUDIT Alcohol Abuse Test");
-			out.println("		<option value='HAM-D.txt'>Hamilton Rating Scale for Depression");
-			out.println("	</select></TD>");
-			out.println("	<TD><input type='SUBMIT' name='directive' value='START'></TD>");
-			out.println("</TR>");
-			out.println("<TR><TD>OR, restore an interview/questionnaire in progress:  </TD>");
-			out.println("	<TD><input type='text' name='RESTORE'></TD>");
-			out.println("	<TD><input type='SUBMIT' name='directive' value='RESTORE'></TD>");
-			out.println("</TR><TR><TD>&nbsp;</TD><TD COLSPAN='2' ALIGN='center'><input type='checkbox' name='DEBUG' value='1'>Show debugging information</input></TD></TR>");
-			out.println("</TABLE>");
-			return;
+			sb.append("<H2>Triceps Interview/Questionnaire System</H2><HR>\n");
+			sb.append("<TABLE CELLPADDING='2' CELLSPACING='2' BORDER='1'>\n");
+			sb.append("<TR><TD>Please select an interview/questionnaire from the pull-down list:  </TD>\n");
+			sb.append("	<TD><select name='schedule'>\n");
+			sb.append("		<option value='ADHD.txt' selected>ADHD\n");
+			sb.append("		<option value='EatDis.txt'>Eating Disorders\n");
+			sb.append("		<option value='MiHeart.txt'>MiHeart-combo\n");
+			sb.append("		<option value='MiHeart2.txt'>MiHeart-radio\n");
+//			sb.append("		<option value='GAFTree.txt'>GAFTree\n");
+			sb.append("		<option value='MoodDis.txt'>Major Depression/Dysthymic Disorder\n");
+			sb.append("		<option value='AUDIT.txt'>AUDIT Alcohol Abuse Test\n");
+			sb.append("		<option value='HAM-D.txt'>Hamilton Rating Scale for Depression\n");
+			sb.append("	</select></TD>\n");
+			sb.append("	<TD><input type='SUBMIT' name='directive' value='START'></TD>\n");
+			sb.append("</TR>\n");
+			sb.append("<TR><TD>OR, restore an interview/questionnaire in progress:  </TD>\n");
+			sb.append("	<TD><input type='text' name='RESTORE'></TD>\n");
+			sb.append("	<TD><input type='SUBMIT' name='directive' value='RESTORE'></TD>\n");
+			sb.append("</TR><TR><TD>&nbsp;</TD><TD COLSPAN='2' ALIGN='center'><input type='checkbox' name='DEBUG' value='1'>Show debugging information</input></TD></TR>\n");
+			sb.append("</TABLE>\n");
+			return sb.toString();
 		}
 		else if (directive.equals("START")) {
 			// load schedule
@@ -129,7 +150,7 @@ public class TricepsServlet extends HttpServlet {
 				}
 				catch (IOException e) {
 				}
-				return;
+				return sb.toString();
 			}
 
 			ok = ok && triceps.gotoFirst();
@@ -150,11 +171,11 @@ public class TricepsServlet extends HttpServlet {
 				}
 				catch (IOException e) {
 				}
-				return;
+				return sb.toString();
 			}
 			else {
 				triceps = temp;
-				out.println("<B>Successfully restored interview from " + restore + "</B><HR>");
+				sb.append("<B>Successfully restored interview from " + restore + "</B><HR>\n");
 				// check for errors (should probably throw them)
 				// ask question
 			}
@@ -173,7 +194,7 @@ public class TricepsServlet extends HttpServlet {
 
 			if (!ok) {
 				processDirective(null);	// select new interview
-				return;
+				return sb.toString();
 			}
 
 			ok = ok && triceps.gotoFirst();
@@ -193,7 +214,7 @@ public class TricepsServlet extends HttpServlet {
 		else if (directive.equals("reload questions")) { // debugging option
 			ok = triceps.reloadSchedule();
 			if (ok) {
-				out.println("<B>Schedule restored successfully</B><HR>");
+				sb.append("<B>Schedule restored successfully</B><HR>\n");
 			}
 			// re-ask current question
 		}
@@ -203,7 +224,7 @@ public class TricepsServlet extends HttpServlet {
 			String file = name + "." + req.getRemoteUser() + "." + req.getRemoteHost() + ".suspend";
 			ok = triceps.save(file);
 			if (ok) {
-				out.println("<B>Interview saved successfully as " + name + " (" + file + ")</B><HR>");
+				sb.append("<B>Interview saved successfully as " + name + " (" + file + ")</B><HR>\n");
 			}
 			// re-ask same question
 		}
@@ -214,7 +235,7 @@ public class TricepsServlet extends HttpServlet {
 
 			ok = triceps.toTSV(file);
 			if (ok) {
-				out.println("<B>Interview saved successfully as " + Node.encodeHTML(name) + " (" + Node.encodeHTML(file) + ")</B><HR>");
+				sb.append("<B>Interview saved successfully as " + Node.encodeHTML(name) + " (" + Node.encodeHTML(file) + ")</B><HR>\n");
 			}
 		}
 		else if (directive.equals("evaluate expr:")) {
@@ -222,32 +243,32 @@ public class TricepsServlet extends HttpServlet {
 			if (expr != null) {
 				Datum datum = triceps.parser.parse(triceps.evidence, expr);
 
-				out.println("<TABLE WIDTH='100%' CELLPADDING='2' CELLSPACING='1' BORDER=1>");
-				out.println("<TR><TD>Equation</TD><TD><B>" + Node.encodeHTML(expr) + "</B></TD><TD>Type</TD><TD><B>" + Datum.TYPES[datum.type()] + "</B></TD></TR>");
-				out.println("<TR><TD>String</TD><TD><B>" + Node.encodeHTML(datum.stringVal()) + "</B></TD><TD>boolean</TD><TD><B>" + datum.booleanVal() + "</B></TD></TR>");
-				out.println("<TR><TD>double</TD><TD><B>" + datum.doubleVal() + "</B></TD><TD>long</TD><TD><B>" + datum.longVal() + "</B></TD></TR>");
-				out.println("<TR><TD>date</TD><TD><B>" + datum.dateVal() + "</B></TD><TD>month</TD><TD><B>" + datum.monthVal() + "</B></TD></TR>");
-				out.println("</TABLE>");
+				sb.append("<TABLE WIDTH='100%' CELLPADDING='2' CELLSPACING='1' BORDER=1>\n");
+				sb.append("<TR><TD>Equation</TD><TD><B>" + Node.encodeHTML(expr) + "</B></TD><TD>Type</TD><TD><B>" + Datum.TYPES[datum.type()] + "</B></TD></TR>\n");
+				sb.append("<TR><TD>String</TD><TD><B>" + Node.encodeHTML(datum.stringVal()) + "</B></TD><TD>boolean</TD><TD><B>" + datum.booleanVal() + "</B></TD></TR>\n");
+				sb.append("<TR><TD>double</TD><TD><B>" + datum.doubleVal() + "</B></TD><TD>long</TD><TD><B>" + datum.longVal() + "</B></TD></TR>\n");
+				sb.append("<TR><TD>date</TD><TD><B>" + datum.dateVal() + "</B></TD><TD>month</TD><TD><B>" + datum.monthVal() + "</B></TD></TR>\n");
+				sb.append("</TABLE>\n");
 			}
 		}
 /*
 		else if (directive.equals("help")) {	// FIXME
-			out.println("<B>No help currently available</B><HR>");
+			sb.append("<B>No help currently available</B><HR>\n");
 			// re-ask same question
 		}
 */
 /*
 		else if (directive.equals("show evidence as XML (unordered, duplicated)")) {
-			out.println("<B>Use 'Show Source' to see data in Evidence as XML</B><BR>");
-			out.println("<!--\n" + triceps.evidenceToXML() + "\n-->");
-			out.println("<HR>");
+			sb.append("<B>Use 'Show Source' to see data in Evidence as XML</B><BR>\n");
+			sb.append("<!--\n" + triceps.evidenceToXML() + "\n-->\n");
+			sb.append("<HR>\n");
 			// re-ask same question
 		}
 */
 		else if (directive.equals("show XML")) {
-			out.println("<B>Use 'Show Source' to see data in Schedule as XML</B><BR>");
-			out.println("<!--\n" + triceps.toXML() + "\n-->");
-			out.println("<HR>");
+			sb.append("<B>Use 'Show Source' to see data in Schedule as XML</B><BR>\n");
+			sb.append("<!--\n" + triceps.toXML() + "\n-->\n");
+			sb.append("<HR>\n");
 		}
 		else if (directive.equals("forward")) {
 			// store current answer(s)
@@ -272,88 +293,91 @@ public class TricepsServlet extends HttpServlet {
 			Enumeration errs = triceps.getErrors();
 			if (errs.hasMoreElements()) {
 				while (errs.hasMoreElements()) {
-					out.println("<B>" + (String) errs.nextElement() + "</B><BR>");
+					sb.append("<B>" + (String) errs.nextElement() + "</B><BR>\n");
 				}
 			}
-			out.println("<HR>");
+			sb.append("<HR>\n");
 		}
-		queryUser();
+		sb.append(queryUser());
+		return sb.toString();
 	}
 
 	/**
 	 * This method assembles the displayed question and answer options
 	 * and formats them in HTML for return to the client browser.
 	 */
-	private void queryUser() {
+	private String queryUser() {
 		// if parser internal to Schedule, should have method access it, not directly
+		StringBuffer sb = new StringBuffer();
+
 		boolean debug = false;
 		if ("1".equals(req.getParameter("DEBUG"))) {
 			debug = true;
-			out.println("<input type='HIDDEN' name='DEBUG' value='1'>");
+			sb.append("<input type='HIDDEN' name='DEBUG' value='1'>\n");
 		}
 
-		out.println("<H4>QUESTION AREA</H4>");
+		sb.append("<H4>QUESTION AREA</H4>\n");
 
 		Enumeration questionNames = triceps.getQuestions();
 
-		out.println("<TABLE CELLPADDING='2' CELLSPACING='1' WIDTH='100%' border='1'>");
+		sb.append("<TABLE CELLPADDING='2' CELLSPACING='1' WIDTH='100%' border='1'>\n");
 		for(int count=0;questionNames.hasMoreElements();++count) {
 			Node node = (Node) questionNames.nextElement();
 			Datum datum = triceps.getDatum(node);
 
-			out.println("	<TR>");
-			out.println("		<TD><B>" + Node.encodeHTML(node.getQuestionRef()) + "</B></TD>");
-			out.println("		<TD>" + Node.encodeHTML(triceps.getQuestionStr(node)) + "</TD>");
-			out.println("		<TD>" + node.prepareChoicesAsHTML(datum) + "</TD>");
-			out.println("	</TR>");
+			sb.append("	<TR>\n");
+			sb.append("		<TD><B>" + Node.encodeHTML(node.getQuestionRef()) + "</B></TD>\n");
+			sb.append("		<TD>" + Node.encodeHTML(triceps.getQuestionStr(node)) + "</TD>\n");
+			sb.append("		<TD>" + node.prepareChoicesAsHTML(datum) + "</TD>\n");
+			sb.append("	</TR>\n");
 		}
-		out.println("	<TR><TD COLSPAN='3' ALIGN='center'>");
-		out.println("<input type='SUBMIT' name='directive' value='forward'>");
-		out.println("<input type='SUBMIT' name='directive' value='backward'>");
-		out.println("<input type='SUBMIT' name='directive' value='clear all and re-start'>");
-		out.println("<input type='SUBMIT' name='directive' value='select new interview'>");
-		out.println("	</TD></TR>");
+		sb.append("	<TR><TD COLSPAN='3' ALIGN='center'>\n");
+		sb.append("<input type='SUBMIT' name='directive' value='forward'>\n");
+		sb.append("<input type='SUBMIT' name='directive' value='backward'>");
+		sb.append("<input type='SUBMIT' name='directive' value='clear all and re-start'>\n");
+		sb.append("<input type='SUBMIT' name='directive' value='select new interview'>\n");
+		sb.append("	</TD></TR>\n");
 
 		if (debug) {
-			out.println("	<TR><TD COLSPAN='3' ALIGN='center'>");
-			out.println("<input type='SUBMIT' name='directive' value='jump to:'>");
-			out.println("<input type='text' name='jump to:'>");
-			out.println("<input type='SUBMIT' name='directive' value='save to:'>");
-			out.println("<input type='text' name='save to:'>");
-			out.println("	</TD></TR>");
-			out.println("	<TR><TD COLSPAN='3' ALIGN='center'>");
-			out.println("<input type='SUBMIT' name='directive' value='reload questions'>");
-			out.println("<input type='SUBMIT' name='directive' value='show XML'>");
-			out.println("<input type='SUBMIT' name='directive' value='evaluate expr:'>");
-			out.println("<input type='text' name='evaluate expr:'>");
-			out.println("	</TD></TR>");
+			sb.append("	<TR><TD COLSPAN='3' ALIGN='center'>\n");
+			sb.append("<input type='SUBMIT' name='directive' value='jump to:'>\n");
+			sb.append("<input type='text' name='jump to:'>\n");
+			sb.append("<input type='SUBMIT' name='directive' value='save to:'>\n");
+			sb.append("<input type='text' name='save to:'>\n");
+			sb.append("	</TD></TR>\n");
+			sb.append("	<TR><TD COLSPAN='3' ALIGN='center'>\n");
+			sb.append("<input type='SUBMIT' name='directive' value='reload questions'>\n");
+			sb.append("<input type='SUBMIT' name='directive' value='show XML'>\n");
+			sb.append("<input type='SUBMIT' name='directive' value='evaluate expr:'>\n");
+			sb.append("<input type='text' name='evaluate expr:'>\n");
+			sb.append("	</TD></TR>\n");
 		}
 
-		out.println("</TABLE>");
+		sb.append("</TABLE>\n");
 
 /*
 		// Node info area
-		out.println("<hr>");
+		sb.append("<hr>\n");
 
 		questionNames = triceps.getQuestions();
 
 		for(int count=0;questionNames.hasMoreElements();++count) {
 			Node node = (Node) questionNames.nextElement();
 
-			out.println("<H4>NODE INFORMATION AREA</H4>" + node.toString());
+			sb.append("<H4>NODE INFORMATION AREA</H4>" + node.toString() + "\n");
 		}
 */
 		// Complete printout of what's been collected per node
 
 		if (debug) {
-			out.println("<hr>");
-			out.println("<H4>CURRENT QUESTION(s)</H4>");
-			out.println("<TABLE CELLPADDING='2' CELLSPACING='1'  WIDTH='100%' BORDER='1'>");
+			sb.append("<hr>\n");
+			sb.append("<H4>CURRENT QUESTION(s)</H4>\n");
+			sb.append("<TABLE CELLPADDING='2' CELLSPACING='1'  WIDTH='100%' BORDER='1'>\n");
 			questionNames = triceps.getQuestions();
 
 			while(questionNames.hasMoreElements()) {
 				Node n = (Node) questionNames.nextElement();
-				out.println("<TR>" +
+				sb.append("<TR>" +
 					"<TD>" + Node.encodeHTML(n.getQuestionRef()) + "</TD>" +
 					"<TD><B>" + Node.encodeHTML(triceps.toString(n)) + "</B></TD>" +
 					"<TD>" + Node.encodeHTML(n.getName()) + "</TD>" +
@@ -362,17 +386,17 @@ public class TricepsServlet extends HttpServlet {
 					"<TD>" + Node.encodeHTML(n.getAction()) + "</TD>" +
 					"</TR>\n");
 			}
-			out.println("</TABLE>");
+			sb.append("</TABLE>\n");
 
 
-			out.println("<hr>");
-			out.println("<H4>EVIDENCE AREA</H4>");
-			out.println("<TABLE CELLPADDING='2' CELLSPACING='1'  WIDTH='100%' BORDER='1'>");
+			sb.append("<hr>\n");
+			sb.append("<H4>EVIDENCE AREA</H4>\n");
+			sb.append("<TABLE CELLPADDING='2' CELLSPACING='1'  WIDTH='100%' BORDER='1'>\n");
 			for (int i = triceps.size()-1; i >= 0; i--) {
 				Node n = triceps.getNode(i);
 				if (!triceps.isSet(n))
 					continue;
-				out.println("<TR>" +
+				sb.append("<TR>" +
 					"<TD>" + (i + 1) + "</TD>" +
 					"<TD>" + Node.encodeHTML(n.getQuestionRef()) + "</TD>" +
 					"<TD><B>" + Node.encodeHTML(triceps.toString(n)) + "</B></TD>" +
@@ -383,7 +407,8 @@ public class TricepsServlet extends HttpServlet {
 					"<TD>" + Node.encodeHTML(n.getAction()) + "</TD>" +
 					"</TR>\n");
 			}
-			out.println("</TABLE>");
+			sb.append("</TABLE>\n");
 		}
+		return sb.toString();
 	}
 }
