@@ -792,8 +792,6 @@ public class TricepsServlet extends HttpServlet {
 			Node node = (Node) questionNames.nextElement();
 			Datum datum = triceps.getDatum(node);
 
-			node.setAnswerLanguageNum(triceps.getLanguage());	// must do this first
-
 			if (node.hasRuntimeErrors()) {
 				color = " color='red'";
 				StringBuffer errStr = new StringBuffer("<FONT color='red'>");

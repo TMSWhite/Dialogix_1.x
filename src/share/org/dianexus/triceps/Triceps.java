@@ -25,6 +25,7 @@ public class Triceps {
 	private boolean isValid = false;
 	private Random random = new Random();
 	private String tempPassword = null;
+	private int currentLanguage = 0;
 
 	public Triceps(String scheduleLoc) {
 		nodes = new Schedule(scheduleLoc);
@@ -128,6 +129,9 @@ public class Triceps {
 				break;
 			}
 			node = nodes.getNode(step++);
+			
+			node.setAnswerLanguageNum(currentLanguage);
+			
 			actionType = node.getQuestionOrEvalType();
 			e.addElement(node);	// add regardless of type
 
@@ -225,6 +229,7 @@ public class Triceps {
 			}
 
 			actionType = node.getQuestionOrEvalType();
+			node.setAnswerLanguageNum(currentLanguage);
 
 			if (actionType == Node.GROUP_OPEN) {
 				if (braceLevel == 0) {
@@ -327,6 +332,7 @@ public class Triceps {
 				return ERROR;
 
 			actionType = node.getQuestionOrEvalType();
+//			node.setAnswerLanguageNum(currentLanguage);	// do this going backwards?
 
 			if (actionType == Node.EVAL) {
 				;	// skip these going backwards, but don't reset values when going backwards
@@ -784,11 +790,12 @@ public class Triceps {
 	public boolean setFilename(String name) { return nodes.setReserved(Schedule.FILENAME, name); }
 
 	public boolean setLanguage(String language) {
-		return nodes.setReserved(Schedule.CURRENT_LANGUAGE,language);
+		boolean ok = nodes.setReserved(Schedule.CURRENT_LANGUAGE,language);
+		currentLanguage = nodes.getLanguage();
+		return ok;
 	}
-
 	public int getLanguage() { return nodes.getLanguage(); }
-	
+
 	public String createTempPassword() {
 		tempPassword = Long.toString(random.nextLong());
 		return tempPassword;
