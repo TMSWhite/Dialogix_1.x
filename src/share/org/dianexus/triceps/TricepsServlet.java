@@ -147,7 +147,7 @@ public class TricepsServlet extends HttpServlet {
 		if (triceps != null) {
 			/* XXX: Refusals only apply once Triceps has been initialized */
 			attemptingToRefuse = req.getParameter("passwordForRefused");
-			if (attemptingToRefuse != null && !attemptingToRefuse.trim().equals("")) {
+			if (attemptingToRefuse != null && !attemptingToRefuse.equals("")) {
 				/* if try to enter a password, make sure that doesn't reset the form if password fails */
 				directive = "next";	// XXX - since JavaScript can't set a SUBMIT value in the subjectRefusesToAnswer() function
 				
@@ -190,7 +190,7 @@ public class TricepsServlet extends HttpServlet {
 		sb.append("<!--\n");
 		sb.append("function subjectRefusesToAnswer() {\n");
 		sb.append("	var ans = prompt('Enter the password to refuse to answer this question','');\n");
-		sb.append("	if (ans == null) { return; /* to avoid submit */ }\n");
+		sb.append("	if (ans == null || ans.length == 0) { return; /* to avoid submit */ }\n");
 		sb.append("	document.myForm.passwordForRefused.value = ans;\n");
 		sb.append("	document.myForm.submit();\n");
 		sb.append("} //-->\n");
@@ -214,11 +214,16 @@ public class TricepsServlet extends HttpServlet {
 		sb.append("<TABLE BORDER='0' CELLPADDING='0' CELLSPACING='3' WIDTH='100%'>\n");
 		sb.append("<TR>\n");
 		sb.append("	<TD WIDTH='18%'>\n");
-		sb.append("		<A HREF='javascript:subjectRefusesToAnswer();'>\n");
-		sb.append("			<IMG SRC='file:///C|/cic/images/ciclogo.gif' ALIGN='BOTTOM' BORDER='0' ALT='Children In the Community'>\n");
-		sb.append("		</A>\n");
+		
+		String icon = Node.encodeHTML((triceps != null) ? triceps.getIcon() : null);
+		if (icon.length() == 0) {
+			sb.append("&nbsp;");
+		}
+		else {
+			sb.append("			<IMG SRC='" + icon + "' ALIGN='BOTTOM' BORDER='0' onmousedown='javascript:subjectRefusesToAnswer();'>\n");
+		}
 		sb.append("	</TD>\n");
-		sb.append("	<TD WIDTH='82%'><FONT SIZE='5'><B>Transitions Study</B></FONT>\n");
+		sb.append("	<TD WIDTH='82%'><FONT SIZE='5'><B>" + Node.encodeHTML((triceps != null) ? triceps.getHeaderMsg() : "Triceps System") + "</B></FONT>\n");
 		sb.append("</TR>\n");
 		sb.append("</TABLE>\n");
 		sb.append("<HR>\n");
@@ -544,14 +549,13 @@ public class TricepsServlet extends HttpServlet {
 			if (gotoMsg == Triceps.AT_END) {
 				// save the file, but still give the option to go back and change answers
 				boolean savedOK;
-				String name = Datum.format(triceps.getStartTime(),Datum.DATE,Datum.TIME_MASK);
-				String file = completedFilesDir + name;
+				String file = completedFilesDir + triceps.getFilename();
 
 				sb.append("<B>Thank you, the interview is completed</B><BR>\n");
 				savedOK = triceps.toTSV(file);
 				ok = savedOK && ok;
 				if (savedOK) {
-					sb.append("<B>Interview saved successfully as " + Node.encodeHTML(name) + " (" + Node.encodeHTML(file) + ")</B><HR>\n");
+					sb.append("<B>Interview saved successfully as " + Node.encodeHTML(file) + "</B><HR>\n");
 				}
 			}
 
@@ -671,10 +675,10 @@ public class TricepsServlet extends HttpServlet {
 			
 			switch(node.getAnswerType()) {
 				case Node.NOTHING:
-					sb.append("		<TD COLSPAN='2'><FONT" + color + ">" + Node.encodeHTML(triceps.getQuestionStr(node)) + "</FONT></TD>\n");
+					sb.append("		<TD COLSPAN='3'><FONT" + color + ">" + Node.encodeHTML(triceps.getQuestionStr(node)) + "</FONT></TD>\n");
 					break;
 				case Node.RADIO_HORIZONTAL:
-					sb.append("		<TD COLSPAN='2'><FONT" + color + ">" + Node.encodeHTML(triceps.getQuestionStr(node)) + "</FONT></TD>\n");
+					sb.append("		<TD COLSPAN='3'><FONT" + color + ">" + Node.encodeHTML(triceps.getQuestionStr(node)) + "</FONT></TD>\n");
 					sb.append("</TR>\n<TR>\n");
 					if (showQuestionNum) {
 						sb.append("<TD>&nbsp;</TD>");
@@ -683,19 +687,26 @@ public class TricepsServlet extends HttpServlet {
 					break;
 				default:
 					sb.append("		<TD><FONT" + color + ">" + Node.encodeHTML(triceps.getQuestionStr(node)) + "</FONT></TD>\n");
-					sb.append("		<TD>" + node.prepareChoicesAsHTML(datum) + errMsg + "</TD>\n");				
+					sb.append("		<TD>" + node.prepareChoicesAsHTML(datum) + errMsg + "</TD>\n");	
 					break;				
 			}
+			if (node.getAnswerType() != Node.NOTHING) {
+				// help button
+				sb.append("	<TD WIDTH='1%'>\n");
+				sb.append("			<IMG SRC='file:///C|/cic/images/help.gif' ALIGN='BOTTOM' BORDER='0' ALT='Help' onmousedown='javascript:subjectRefusesToAnswer();'>\n");
+				sb.append("	</TD>\n");
+			}
+			
 			sb.append("	</TR>\n");
 		}
-		sb.append("	<TR><TD COLSPAN='" + ((showQuestionNum) ? 3 : 2 ) + "' ALIGN='center'>\n");
+		sb.append("	<TR><TD COLSPAN='" + ((showQuestionNum) ? 4 : 3) + "' ALIGN='center'>\n");
 		sb.append("<input type='SUBMIT' name='directive' value='next'>\n");
 		sb.append("<input type='SUBMIT' name='directive' value='previous'>");
 		
 		sb.append("	</TD></TR>\n");
 
 		if (developerMode || debug) {
-			sb.append("	<TR><TD COLSPAN='" + ((showQuestionNum) ? 3 : 2 ) + "' ALIGN='center'>\n");
+			sb.append("	<TR><TD COLSPAN='" + ((showQuestionNum) ? 4 : 3 ) + "' ALIGN='center'>\n");
 			sb.append("<input type='SUBMIT' name='directive' value='select new interview'>\n");
 			sb.append("<input type='SUBMIT' name='directive' value='restart (clean)'>\n");
 			sb.append("<input type='SUBMIT' name='directive' value='jump to:' size='10'>\n");
@@ -703,7 +714,7 @@ public class TricepsServlet extends HttpServlet {
 			sb.append("<input type='SUBMIT' name='directive' value='save to:'>\n");
 			sb.append("<input type='text' name='save to:'>\n");
 			sb.append("	</TD></TR>\n");
-			sb.append("	<TR><TD COLSPAN='" + ((showQuestionNum) ? 3 : 2 ) + "' ALIGN='center'>\n");
+			sb.append("	<TR><TD COLSPAN='" + ((showQuestionNum) ? 4 : 3 ) + "' ALIGN='center'>\n");
 			sb.append("<input type='SUBMIT' name='directive' value='reload questions'>\n");
 			sb.append("<input type='SUBMIT' name='directive' value='show Errors'>\n");
 			sb.append("<input type='SUBMIT' name='directive' value='show XML'>\n");
@@ -768,7 +779,7 @@ public class TricepsServlet extends HttpServlet {
 		if (developerMode || debug) {
 			StringBuffer sb = new StringBuffer();
 		
-			sb.append("	<TR><TD COLSPAN='" + ((showQuestionNum) ? 3 : 2 ) + "' ALIGN='center'>\n");
+			sb.append("	<TR><TD COLSPAN='" + ((showQuestionNum) ? 4 : 3 ) + "' ALIGN='center'>\n");
 			sb.append("  developerMode<input type='checkbox' name='developerMode' value='on'" + ((developerMode) ? " CHECKED" : "") + ">\n");
 			sb.append("  showQuestionNum<input type='checkbox' name='showQuestionNum' value='on'" + ((showQuestionNum) ? " CHECKED" : "") + ">\n");
 			sb.append("  debug<input type='checkbox' name='DEBUG' value='on'" + ((debug) ? " CHECKED" : "") + ">\n");
