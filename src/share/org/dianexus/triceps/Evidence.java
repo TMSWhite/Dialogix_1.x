@@ -9,34 +9,38 @@ import java.net.*;
  * questions, or by the system evaluating previously stored evidence
  */
 public class Evidence  {
-	Hashtable aliases;
-	Vector values;
+	private Hashtable aliases;
+	private Vector values;
+	private int	numReserved = 0;
 
 	public Evidence(Schedule schedule) {
 		int size=schedule.size();
-		
+
+		numReserved = Schedule.RESERVED_WORDS.length;	// these are always added at the beginning
+
 		aliases = new Hashtable();
-		values = new Vector(size);
-		
+		values = new Vector(size + numReserved);
+
 		Node node;
 		Value value;
-		int val=0;
-		
+		int idx=0;
+
 		/* first assign the reserved words */
-		for (val=0;val<Schedule.RESERVED_WORDS.length;++val) {
-			value = new Value(Schedule.RESERVED_WORDS[val],new Datum(schedule.getReserved(val),Datum.STRING),val,schedule);
+		for (idx=0;idx<Schedule.RESERVED_WORDS.length;++idx) {
+			value = new Value(Schedule.RESERVED_WORDS[idx],new Datum(schedule.getReserved(idx),Datum.STRING),idx,schedule);
 			values.addElement(value);
-			aliases.put(Schedule.RESERVED_WORDS[val],new Integer(val));
+			addAlias(null,Schedule.RESERVED_WORDS[idx],new Integer(idx));
 		}
-		
+
+
 		/* then assign the user-defined words */
-		for (int i = 0; i < size; ++i, ++val) {
+		for (int i = 0; i < size; ++i, ++idx) {
 			node = schedule.getNode(i);
 			value = new Value(node, Datum.getInstance(Datum.UNASKED),node.getAnswerTimeStampStr());
-			
+
 			values.addElement(value);
 
-			Integer j = new Integer(val);
+			Integer j = new Integer(idx);
 
 			addAlias(node,node.getConcept(),j);
 			addAlias(node,node.getLocalName(),j);
@@ -51,14 +55,18 @@ public class Evidence  {
 
 		Object o = aliases.put(alias,index);
 		if (o != null) {
-			int pastIndex = ((Integer) o).intValue();
+			try {
+				int pastIndex = ((Integer) o).intValue();
 
-			if (pastIndex != index.intValue()) {
-				/* Allow a single node to try to set the same alias for itself multiple times.
-				However, each node must have non-overlapping aliases with other nodes */
-				aliases.put(alias,o);	// restore overwritten alias?
-				Node prevNode = ((Value) values.elementAt(pastIndex)).getNode();
-				n.setParseError("Duplicate alias <B>" + Node.encodeHTML(alias) + "</B> previously used for node <B>" + Node.encodeHTML(prevNode.getLocalName()) + "</B> on line " + prevNode.getSourceLine());
+				if (pastIndex != index.intValue()) {
+					/* Allow a single node to try to set the same alias for itself multiple times.
+					However, each node must have non-overlapping aliases with other nodes */
+					aliases.put(alias,o);	// restore overwritten alias?
+					Node prevNode = ((Value) values.elementAt(pastIndex)).getNode();
+					n.setParseError("Duplicate alias <B>" + Node.encodeHTML(alias) + "</B> previously used for node <B>" + Node.encodeHTML(prevNode.getLocalName()) + "</B> on line " + prevNode.getSourceLine());
+				}
+			} catch (Throwable t) {
+				System.err.println("Trying to overwrite a reserved word");
 			}
 		}
 	}
@@ -86,6 +94,14 @@ public class Evidence  {
 	}
 
 	public int getStep(Object n) {
+		int step = getNodeIndex(n);
+		if (step == -1)
+			return -1;
+		else
+			return (step - numReserved);
+	}
+
+	private int getNodeIndex(Object n) {
 		if (n == null)
 			return -1;
 		Object o = aliases.get(n);
@@ -105,19 +121,19 @@ public class Evidence  {
 			return;
 		}
 		int i;
-		
-		i = getStep(node);
+
+		i = getNodeIndex(node);
 		if (i == -1) {
 			System.err.println("Node does not exist");
 			return;
 		}
-		
+
 		((Value) values.elementAt(i)).setDatum(val,time);
 	}
-	
+
 	public void set(Node node, Datum val) {
 		set(node,val,null);
-	}	
+	}
 
 	public void set(String name, Datum val) {
 		if (name == null) {
@@ -128,8 +144,8 @@ public class Evidence  {
 			System.err.println("null Datum");
 			return;
 		}
-		
-		int i = getStep(name);
+
+		int i = getNodeIndex(name);
 		if (i == -1) {
 			i = size();	// append to end
 			Value value = new Value(name,val);
@@ -169,12 +185,12 @@ public class Evidence  {
 		if (node == null)
 			return;
 		Integer i = (Integer)aliases.remove(node);
-		
+
 		if (i != null) {
 			aliases.remove(node.getConcept());
 			aliases.remove(node.getLocalName());
 			aliases.remove(node.getExternalName());
-			
+
 			values.setElementAt(new Value(), i.intValue());
 		}
 	}
