@@ -160,6 +160,7 @@ import java.util.Date;
 	}
 
 	public String toString() { return toString(true); }
+	public StringBuffer getStringBuffer() { return sb; }
 
 	/*public*/ String toString(boolean erase) {
 		String temp = "";
