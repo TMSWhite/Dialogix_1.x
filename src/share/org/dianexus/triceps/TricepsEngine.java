@@ -75,6 +75,7 @@ public class TricepsEngine implements VersionIF {
 	private Schedule schedule = Schedule.NULL;	// triceps.getSchedule()
 	private boolean isloaded = false;
 	private int colpad=2;
+	private static final String SUSPEND_DIR = "suspended/";
 
 	public TricepsEngine(ServletConfig config) {
 		init(config);
@@ -596,7 +597,13 @@ if (DEPLOYABLE) {
 
 			sb.append("</td><td>");
 			sb.append(buildSubmit("RESTORE"));
-			sb.append("</td></tr></table>");
+			sb.append("</td></tr>");
+			
+			// should this only be present if there is data in the suspended directory?
+			sb.append("<tr><td colspan='3' align='center'>");
+			sb.append(buildSubmit("RESTORE_FROM_FLOPPY"));
+			sb.append("</td></tr>");
+			sb.append("</table>");
 
 			return sb.toString();
 		}
@@ -786,11 +793,11 @@ if (AUTHORABLE) {
 
 			info.println(triceps.get("the_interview_is_completed"));
 			if (DEPLOYABLE) {
-				savedName = triceps.saveCompletedInfo();
+				savedName = triceps.saveCompletedInfo("");
 				if (savedName != null) {
 					if (!WEB_SERVER) info.println(triceps.get("interview_saved_successfully_as") + savedName);
 	
-					savedName = triceps.copyCompletedToFloppy();
+					savedName = triceps.copyCompletedToFloppy("");
 					if (savedName != null) {
 						if (!WEB_SERVER) info.println(triceps.get("interview_saved_successfully_as") + savedName);
 						triceps.deleteDataLoggers();	// only if saved both to completed and floppy
@@ -839,15 +846,67 @@ if (AUTHORABLE) {
 		else if (directive.equals("jumpToFirstUnasked")) {
 			ok = ok && (triceps.jumpToFirstUnasked() == Triceps.OK);
 		}
+		else if (directive.equals("RESTORE_FROM_FLOPPY")) {
+			// find all jar files in A:\suspended directory, copy them into working diretory; then re-fresh screen to make it available
+			try {
+				String sourceDir;
+				File hd_suspend;
+				File[] list;
+				ok = false;
+				for (int d=0;d<2;++d) {
+					if (d == 0) {
+						sourceDir = completedFilesDir + SUSPEND_DIR;
+					}
+					else {
+						sourceDir = floppyDir + SUSPEND_DIR;
+					}
+					hd_suspend = new File(sourceDir);
+					list = hd_suspend.listFiles();
+					if (list == null) {
+						continue;	// indicates empty directory
+					}
+					
+					for (int i=0;i<list.length;++i) {
+						File file = list[i];
+						if (file.getName().endsWith(".jar")) {
+							String name = file.getName();
+							ok = JarWriter.NULL.copyFile(sourceDir + name, workingFilesDir + name);
+							if (JarWriter.NULL.hasErrors()) {
+								triceps.setError(JarWriter.NULL.getErrors());
+							}
+							if (!ok) {
+								triceps.setError(triceps.get("error_saving_data_to") + workingFilesDir + name);
+							}	
+						}
+					}
+				}
+			}
+			catch (Exception e) {
+				errors.print(e.getMessage());
+				Logger.writeln(e.getMessage());
+			}
+			// set directive so that reloads screen
+			directive = null;
+			return processDirective();
+		}
 		else if (directive.equals("suspendToFloppy")) {
-			String savedName = triceps.saveCompletedInfo();
-			savedName = triceps.copyCompletedToFloppy();
+			String savedName = triceps.saveCompletedInfo(SUSPEND_DIR);
+			savedName = triceps.copyCompletedToFloppy(SUSPEND_DIR);
 			if (savedName != null) {
 				info.println(triceps.get("interview_saved_successfully_as") + savedName);
+				// now delete copy from completed dir so that they don't accumulate?
+				String name = completedFilesDir + SUSPEND_DIR + schedule.getReserved(Schedule.FILENAME) + ".jar";
+				File file = new File(name);
+				try {
+					file.delete(); 
+				}
+				catch (Exception e) {
+					triceps.setError("unable to delete " + name + ": " + e.getMessage());
+				}				
 			}
 			else {
 				info.println(triceps.get("error_saving_data_to_floppy_dir"));
-			}							
+			}
 		}
 
 		/* Show any accumulated errors */
