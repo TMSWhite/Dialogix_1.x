@@ -33,8 +33,8 @@ my ($huid);
 &load_instrument_nodes($instrument);
 
 
-# this section is dependent upon dat2sas.pl's section for pathstep-timing.log -- reads directly from it!
-open(PATHSTEP,"<pathstep-timing.log") or die("unable to open 'pathstep-timing.log'");
+# this section is dependent upon dat2sas.pl's section for pathstep-timing.tsv -- reads directly from it!
+open(PATHSTEP,"<pathstep-timing.tsv") or die("unable to open 'pathstep-timing.tsv'");
 my @lines = (<PATHSTEP>);
 close(PATHSTEP);
 foreach (@lines) {
@@ -45,11 +45,11 @@ foreach (@lines) {
 	$huidStep2path{"$vars[0].$vars[1]"} = "$vars[2]\t$vars[3]\t$vars[5]\t$vars[6]\t$vars[7]\t$vars[8]\t$vars[9]\t$vars[10]\t$vars[11]\t$vars[12]\t$vars[13]";
 }
 
-open(PERVAR,">__PerVar__.log")	or die("unable to write to '__PerVar__.log'");
+open(PERVAR,">__PerVar__.tsv")	or die("unable to write to '__PerVar__.tsv'");
 print PERVAR "UniqueID\tdispCnt\tnumQs\twhichQ\tc8name\tname\tinpType\ttotTime\tinpTime\tanswered\tskipped\tfocus\tblur\tchange\tclick\tkeypress\tmouseup";
 print PERVAR "\tAtype\tAlen\tQlen\tTlen\tqTimevsT\tiTimevsA\n";
 
-open(PERSCREEN,">__PerScreen__.log")	or die("unable to write to '__PerScreen__.log'");
+open(PERSCREEN,">__PerScreen__.tsv")	or die("unable to write to '__PerScreen__.tsv'");
 #print PERSCREEN "UniqueID\tdispCnt\tservSec\tloadSec\tdispSec\tturnSec\tntwkSec\tntwkSend\tntwkRecv\tloadDate\tloadTime\tloadDiff\n";
 print PERSCREEN "UniqueID\tdispCnt\tGroup\tWhen\tQlen\tAlen\tTlen\tNumQs\ttDurSec\ttTimevsQ\ttTimevsT\tTitle\tVersion\tservSec\tloadSec\tdispSec\tturnSec\tntwkSec\tdTimevsQ\tdTimevsT\n";
 
@@ -390,7 +390,8 @@ sub timeDiff {
 sub calc_huid {
 	use File::Basename;
 	my $base = basename(shift,"\.dat.*");
-	return (split(/\./,$base))[0];
+	$base =~ s/\.dat(\.evt)?$//;
+	return $base;
 }
 
 sub load_instrument_nodes {

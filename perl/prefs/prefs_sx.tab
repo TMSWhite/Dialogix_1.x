@@ -1,131 +1,134 @@
-pain11	Pain_pain_present	Pain
-proc12	Pain_proc_present	Procedure or treatment related pain / discomfort
-numb13	Pain_numb_present	Numbness/tingling in hands/feet
-sweats14	Pain_sweats_present	Sweats
-chills15	Pain_chills_present	Chills
+pn01	Pain_pain_present	Pain
+pn02	Pain_proc_present	Procedure or treatment related pain / discomfort
+pn03	Pain_numb_present	Numbness/tingling in hands/feet
+pn04	Pain_sweats_present	Sweats
+pn05	Pain_chills_present	Chills
 
-brest21	Breathing_rest_present	Trouble breathing at rest
-bact22	Breathing_act_present	Trouble breathing with activity
-bcoug23	Breathing_cough_present	Trouble Coughing
-bwhez24	Breathing_wheeze_present	Trouble Wheezing
+br01	Breathing_rest_present	Trouble breathing at rest
+br02	Breathing_act_present	Trouble breathing with activity
+br03	Breathing_cough_present	Trouble coughing
+br04	Breathing_wheeze_present	Trouble wheezing
 
-hchst31	Heart_pain_present	Chest pain
-hble32	Heart_bleeding_present	Bleeding tendency
-hbrus33	Heart_bruising_present	Easy bruising
-hswel34	Heart_swollen_present	Swollen feet/hands
-hinf35	Heart_inf_present	Increased risk of infection
-hchem36	Heart_chemo_present	Heart problems due to chemotherapy
-hfever37	Heart_fever_present	Fever
+hr01	Heart_pain_present	Chest pain
+hr02	Heart_bleeding_present	Bleeding tendency
+hr03	Heart_bruising_present	Easy bruising
+hr04	Heart_swollen_present	Swollen feet/hands
+hr05	Heart_inf_present	Increased risk of infection
+hr06	Heart_fever_present	Fever
+hr07	Heart_chemo_present	Heart problems due to chemotherapy
 
-fsoar41	Intake_sores_present	Mouth sores
-fswal42	Intake_swallowing_present	Swallowing problems
-fapp43	Intake_appetite_present	Lack of appetite
-ftast44	Intake_taste_present	Taste changes
-fdry45	Intake_dry_present	Dry mouth
-fnaus46	Intake_nausea_present	Nausea
-fvomt47	Intake_vomit_present	Vomiting
-fweig48	Intake_weight_present	Weight loss
-fflu49	Intake_fluids_present	Problems getting enough fluids
+fo01	Intake_sores_present	Mouth sores
+fo02	Intake_swallowing_present	Swallowing problems
+fo03	Intake_appetite_present	Lack of appetite
+fo04	Intake_taste_present	Taste changes
+fo05	Intake_dry_present	Dry mouth
+fo06	Intake_nausea_present	Nausea
+fo07	Intake_vomit_present	Vomiting
+fo08	Intake_weight_present	Weight loss
+fo09	Intake_fluids_present	Problems getting enough fluids
 
-bcons51	Bowel_constipation_present	Constipation
-bdiar52	Bowel_diarrhea_present	Diarrhea/Loose stools
-bgas53	Bowel_gas_present	Gas/Bloating
-babdo54	Bowel_pain_present	Abdominal pain
-burin55	Bowel_urinary_present	Problems with bladder control
-bowel56	Bowel_bowel_present	Problems with bowel control
+bw01	Bowel_constipation_present	Constipation
+bw02	Bowel_diarrhea_present	Diarrhea/Loose stools
+bw03	Bowel_gas_present	Gas/Bloating
+bw04	Bowel_pain_present	Abdominal pain
+bw05	Bowel_urinary_present	Problems with bladder control
+bw06	Bowel_bowel_present	Problems with bowel control
 
-eweak61	Energy_weakness_present	Weakness
-elack62	Energy_lack_present	Lack of energy
-efati63	Energy_fatigue_present	Fatigued
-eslo64	Energy_slow_present	Much slower than usual in things I do
+en01	Energy_weakness_present	Weakness
+en02	Energy_lack_present	Lack of energy
+en03	Energy_fatigue_present	Fatigued
+en04	Energy_slow_present	Much slower than usual in things I do
 
-sdrow71	Sleep_drowsy_present	Felt drowsy
-sleep72	Sleep_problems_present	Had problems falling asleep
-sdiff73	Sleep_diff_present	Had difficulty sleeping
+sl01	Sleep_drowsy_present	Felt drowsy
+sl02	Sleep_problems_present	Had problems falling asleep
+sl03	Sleep_diff_present	Had difficulty sleeping
 
-veye81	Vision_eyesight_present	Eyesight/vision problems
-vdizz82	Vision_dizziness_present	Ear pain, infection or dizziness
-vhear83	Vision_hearing_present	Difficulty hearing
+vi01	Vision_eyesight_present	Eyesight/vision problems
+vi02	Vision_hearing_present	Difficulty hearing
+vi03	Vision_dizziness_present	Ear pain, infection or dizziness
 
-sores91	Skin_sores_present	Skin sores / Itchy skin / Rash / Hives
-shair92	Skin_hair_present	Difficulty dealing with hair loss
+sk01	Skin_sores_present	Skin sores / Itchy skin / Rash / Hives
+sk02	Skin_hair_present	Difficulty dealing with hair loss
 
-mcon101	Memory_concentrating_present	Had difficulty concentrating
-mfor102	Memory_forgetful_present	Felt forgetful
-mcfs103	Memory_confusion_present	Felt confused
-mdif104	Memory_plan_present	Had difficulty planning my day
+mm01	Memory_concentrating_present	Difficulty concentrating
+mm02	Memory_plan_present	Difficulty planning my day
+mm03	Memory_forgetful_present	Felt forgetful
+mm04	Memory_confusion_present	Felt confused
 
-renj111	Relation_important_present	Maintaining and enjoying important relationships
-rmnt112	Relation_normal_present	Maintaining normal roles with family and others
-rsup113	Relation_support_present	Getting support from family/friends
-rnew114	Relation_new_present	Developing new relationships / meeting new people (friends,professionals, others)
-rcomm115	Relation_comm_present	Communicating to people important to me
-rdepen116	Relation_depend_present	Having to depend on others to help
+rl01	Relation_important_present	Maintaining and enjoy important relationships
+rl02	Relation_normal_present	Maintaining normal roles with family and others
+rl03	Relation_support_present	Getting support from family/friends
+rl04	Relation_new_present	Developing new relationships / meeting new people (friends,professionals, others)
+rl05	Relation_comm_present	Communicating to people important to me
+rl06	Relation_depend_present	Having to depend on others for help
 
-adl121	Activities_eating_present	Eating 
-adl122	Activities_toileting_present	Toileting
-adl123	Activities_washing_present	Washing / bathing / getting dressed / grooming
-adl124	Activities_hair_present	Doing my hair
-adl125	Activities_walking_present	Walking
-adl126	Activities_bed_present	Getting in and out of bed/chair
-adl127	Activities_stairs_present	Climbing stairs 
-adl128	Activities_telephone_present	Using the telephone
-adl129	Activities_places_present	Getting to places beyond walking distance
-adl1210	Activities_grocery_present	Doing Grocery shopping
-adl1211	Activities_meals_present	Preparing meals 
-adl1212	Activities_housework_present	Doing housework or yard work
-adl1213	Activities_laundry_present	Doing laundry
-adl1214	Activities_medications_present	My medications (scaling:degrees of dependency on help; bother)
-adl1215	Activities_money_present	Managing money 
+ad01	Activities_medications_present	My medications
+ad02	Activities_eating_present	Eating 
+ad03	Activities_toileting_present	Toileting
+ad04	Activities_washing_present	Washing / bathing / getting dressed / grooming
+ad05	Activities_hair_present	Doing my hair
+ad06	Activities_walking_present	Walking
+ad07	Activities_bed_present	Getting in and out of bed/chair
+ad08	Activities_stairs_present	Climbing stairs 
+ad09	Activities_telephone_present	Using the telephone
+ad10	Activities_places_present	Getting to places beyond walking distance
+ad11	Activities_grocery_present	Doing grocery shopping
+ad12	Activities_meals_present	Preparing meals 
+ad13	Activities_housework_present	Doing housework or yard work
+ad14	Activities_laundry_present	Doing laundry
+ad15	Activities_money_present	Managing money 
 
-manx131	Mood_anxiety_present	Anxious
-mdep132	Mood_depression_present	Depressed
-mfer133	Mood_fear_present	Fearful
-man134	Mood_anger_present	Angry
-mirr135	Mood_irritability_present	Irritable
-msad136	Mood_sad_present	Sad
-mhop137	Mood_hopeless_present	Hopeless
-mgrf138	Mood_grief_present	Grief
-macce139	Mood_accep_present	Difficulty accepting my illness
-mswing1310	Mood_swings_present	Mood swings
-men1311	Mood_enjoying_present	Unable to enjoy things I usually enjoy
-mre1312	Mood_relaxing_present	Difficulty relaxing
-mca1313	Mood_calm_present	Difficulty feeling calm
-mpe1314	Mood_peace_present	Difficulty feeling at peace
-mlon1315	Mood_lone_present	Lonely
-mhum1316	Mood_humor_present	Maintaining a sense of humor
-mmot1317	Mood_motiv_present	Not always motivated to follow my doctors/nurse practitioners sugesstions / prescriptions
+mo01	Mood_anxiety_present	Anxious
+mo02	Mood_depression_present	Depressed
+mo03	Mood_fear_present	Fearful
+mo04	Mood_anger_present	Angry
+mo05	Mood_irritability_present	Irritable
+mo06	Mood_sad_present	Sad
+mo07	Mood_lonely_present	Lonely
+mo08	Mood_hopeless_present	Hopeless
+mo09	Mood_grief_present	Grief
+mo10	Mood_accep_present	Difficulty accepting my illness
+mo11	Mood_swings_present	Mood swings
+mo12	Mood_humor_present	Maintaining a sense of humor
+mo13	Mood_enjoying_present	Unable to enjoy things I usually enjoy
+mo14	Mood_relaxing_present	Difficulty relaxing
+mo15	Mood_calm_present	Difficulty feeling calm
+mo16	Mood_peace_present	Difficulty feeling at peace
+mo17	Mood_motiv_present	Not always motivated to follow my doctors/nurse practitioners sugesstions / prescriptions
 
-clif141	Control_life_present	Adjusting my daily life / lifestyle to my illness
-ccon142	Control_concerns_present	Discussing my concerns as much as I would like
-cdec143	Control_decisions_present	Making decisions
-cfut144	Control_future_present	Planning for my future care
-cinf145	Control_info_present	Obtaining as much information as I wish
+co01	Control_life_present	Adjusting my daily life / lifestyle to my illness
+co02	Control_concerns_present	Discussing my concerns as much as I would like
+co03	Control_decisions_present	Making decisions
+co04	Control_future_present	Planning for my future care
+co05	Control_info_present	Obtaining as much information as I wish
 
-wphs151	Worries_physical_present	Physical suffering 
-wwor152	Worries_worse_present	That my condition will get worse
-wlos153	Worries_losing_present	Losing my family and friends
-wbur154	Worries_burden_present	Being a burden
-wsde155	Worries_sideeffects_present	About side effects of treatment
-wadd156	Worries_addiction_present	Addiction
-wprf157	Worries_preferences_present	That my treatment preferences will not be respected
-wcon158	Worries_confidence_present	Lack of confidence in receiving best possible care
-waln159	Worries_alone_present	Being alone 
-wdg1510	Worries_dignity_present	Loss of dignity 
-wre1511	Worries_respected_present	Not being respected by significant others/health care providers when my condition gets worse
-whr1512	Worries_whereConvalesce_present	Where will I be cared if my condition gets worse
-wfm1513	Worries_family_present	What will happen to my family
-wdt1514	Worries_death_present	About dying
-wdi1515	Worries_whereDie_present	Where I will die
-wwh1516	Worries_whole_present	Feeling like a whole person
-wfin1517	Worries_fin_present	Financial/legal issues
-wiss1518	Worries_issues_present	Unresolved issues/unfinished business (family,work)
+wo01	Worries_indepencence_present	Losing my independence
+wo02	Worries_physical_present	Physical suffering 
+wo03	Worries_worse_present	That my condition will get worse
+wo04	Worries_losing_present	Losing my family and friends
+wo05	Worries_burden_present	Being a burden
+wo06	Worries_whole_present	Feeling like a whole person
+wo07	Worries_alone_present	Being alone 
+wo08	Worries_sideeffects_present	About side effects of treatment
+wo09	Worries_addiction_present	Addiction
+wo10	Worries_preferences_present	That my treatment preferences will not be respected
+wo11	Worries_confidence_present	Lack of confidence in receiving best possible care
+wo12	Worries_dignity_present	Loss of dignity 
+wo13	Worries_respected_present	Not being respected by significant others/health care providers when my condition gets worse
+wo14	Worries_whereConvalesce_present	Where will I be cared if my condition gets worse
+wo15	Worries_family_present	What will happen to my family
+wo16	Worries_death_present	About dying
+wo17	Worries_whereDie_present	Where I will die
+wo18	Worries_fin_present	Financial/legal issues
+wo19	Worries_issues_present	Unresolved issues/unfinished business (family,work)
 
-swr161	Spiritual_worshipping_present	Worshipping as desired
-schp162	Spiritual_chaplain_present	Seeing chaplain / clergy person as desired
-smen163	Spiritual_meaning_present	Finding meaning in my life
+sp01	Spiritual_worshipping_present	Worshipping as desired
+sp02	Spiritual_chaplain_present	Seeing chaplain / clergy person as desired
+sp03	Spiritual_meaning_present	Finding meaning in my life
 
-soth171	Other_comment1	Comment
-soth171	Other_comment2	Comment
-soth171	Other_comment3	Comment
-soth171	Other_comment4	Comment
+ot01	Other_other1_present	Other1
+ot02	Other_other2_present	Other2
+ot03	Other_other3_present	Other3
+ot04	Other_other4_present	Other4
+ot05	Other_other5_present	Other5
+ot06	Other_other6_present	Other6

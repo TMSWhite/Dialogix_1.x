@@ -63,20 +63,35 @@
   dist.home            The name of the base directory in which
                        distribution files are created.
                        Defaults to "dist".
+                       
+  tomcat.version		The version of tomcat to use:  tomcat_3_2_x, tomcat_3_3_x, tomcat_4_0_x
+  					   they all have different directory structures for bin, lib, and conf                   
 
 -->
 
+  <property file="build.properties"  />  
+  <property file="${build.license_file}" />
+
+
   <property name="app.name"      value="dialogix"/>
-  <property name="app.version"   value="2.9.5"/>
   <property name="build.home"    value="build"/>
-  <property name="tomcat.home.orig"   value="/apache/tomcat33"/> 
-  <property name="tomcat.home"   value="/usr/local/dialogix2"/> 
-  <property name="dialogix.home" value="/usr/local/dialogix2" />
   <property name="deploy.home"   value="${tomcat.home}/webapps/"/>
   <property name="dist.home"     value="dist"/>
-  <property name="jakarta.oro"	 value="jakarta-oro"/>
+  <property name="app.version"	 value="${dialogix.version_major}.${dialogix.version_minor}"/>
 
-
+  
+  <!-- Note that .basedir must not include initial /, else zip file doesn't match it -->
+  
+  <!--
+  <property name="tomcat.version"	value="3.2"/>
+  <property name="tomcat.home"   value="/usr/local/dialogix"/> 
+  <property name="zip.basedir"		value="usr/local/dialogix" />	
+  <property name="cvs.basedir"	value="cvs2/Dialogix" />
+  <property name="dialogix.dir"	value="${tomcat.home}/webapps/"/>
+  <property name="floppy.dir" value="../archive/" />  
+  <property name="compile.target"    value="1.2"/>
+	-->
+	
 
 <!--  ==================== Compilation Control Options ==================== -->
 
@@ -96,14 +111,7 @@
   <property name="compile.debug"       value="true"/>
   <property name="compile.deprecation" value="false"/>
   <property name="compile.optimize"    value="true"/>
-  <property name="compile.target"    value="1.2"/>
-  
-  
-	<!-- Let property values be overridden -->
-  <property name="dialogix.dir"	value="${tomcat.home}/webapps/"/>
-  <property name="floppy.dir" value="../archive/" />	
-	
-  <property file="build.properties"  />  
+ 
 
 
 <!-- ==================== External Dependencies =========================== -->
@@ -142,18 +150,20 @@
   <path id="compile.classpath">
 
     <!-- Include all JAR files that will be included in /WEB-INF/lib -->
-    <!-- *** CUSTOMIZE HERE AS REQUIRED BY YOUR APPLICATION *** -->
-
-    <!-- Include all elements that Tomcat exposes to applications -->
-    <fileset dir="${tomcat.home}/lib/common">
+    <!-- these are for Tomcat 3.3 -->
+    <fileset dir="src/tomcat_3_3_x/lib/common">
       <include name="*.jar"/>
     </fileset>
-    
-    <fileset dir="src/ext_lib">
-    	<include name="${jakarta.oro}.jar" if="jdk12.present" />
-    </fileset>
+    <fileset dir="src/tomcat_3_3_x/lib/apps">
+      <include name="*.jar"/>
+    </fileset>    
 
-  </path>
+    <!-- these are for Tomcat 3.2 -->
+    <fileset dir="src/tomcat_3_2_x/lib">
+    	<include name="*.jar"/>
+    </fileset>
+    
+  </path>  
 
 
 
@@ -183,7 +193,8 @@
   <target name="clean"
    description="Delete old build and dist directories">
     <delete dir="${build.home}"/>
-    <delete dir="${dist.home}"/>
+    <delete dir="${deploy.home}"/>
+    <delete dir="${tomcat.home}"/>
   </target>
 
 
@@ -201,10 +212,26 @@
 
   <target name="compile" depends="prepare"
    description="Compile Java sources">
-
-    <!-- Compile Java classes as necessary -->
-    <copy  todir="${build.home}/src/">
-    <fileset dir="src/share" includes="**/*.java"/>
+   
+   <!-- remove source files, since always re-parsed -->
+    <copy  todir="${build.home}/src/" filtering="true">
+	    <fileset dir="src/share">
+	    	<include name="**/*.java" />
+	    </fileset>
+       <filterset begintoken="@@" endtoken="@@">
+         <filter token="DIALOGIX.AUTHORABLE" value="${dialogix.authorable}"/>
+         <filter token="DIALOGIX.DEPLOYABLE" value="${dialogix.deployable}"/>
+         <filter token="DIALOGIX.WEB_SERVER" value="${dialogix.web_server}"/>
+         <filter token="DIALOGIX.XML" value="${dialogix.xml}"/>
+         <filter token="DIALOGIX.VERSION_MAJOR" value="${dialogix.version_major}"/>
+         <filter token="DIALOGIX.VERSION_MINOR" value="${dialogix.version_minor}"/>
+         <filter token="LICENSE.STUDY_ALIAS" value="${LICENSE.STUDY_ALIAS}"/>
+         <filter token="LICENSE.STUDY_NAME" value="${LICENSE.STUDY_NAME}"/>
+         <filter token="LICENSE.STUDY_ICON" value="${LICENSE.STUDY_ICON}"/>
+         <filter token="LICENSE.PRINCIPAL_INVESTIGATOR" value="${LICENSE.PRINCIPAL_INVESTIGATOR}"/>
+         <filter token="LICENSE.GRANT_NAME" value="${LICENSE.GRANT_NAME}"/>
+         <filter token="LICENSE.GRANT_TITLE" value="${LICENSE.GRANT_TITLE}"/>
+       </filterset>
     </copy>
     
     <!-- By default, copy the JDK1.1 compatible files -->
@@ -262,47 +289,135 @@
   <target name="deploy" depends="compile"
    description="Deploy application to servlet container">
    
-    <delete file="${tomcat.home}/lib/apps/${app.name}.jar"/> 
-    <delete file="${tomcat.home}/lib/apps/${jakarta.oro}.jar"/> 
-    
     <delete dir="${deploy.home}"/>
-    <delete dir="${tomcat.home}/archive"/>
-    <delete dir="${tomcat.home}/work"/>
-    <delete dir="${tomcat.home}/logs"/>
-
-    <mkdir     dir="${deploy.home}"/>
-    <mkdir dir="${tomcat.home}/archive"/>
-    <mkdir dir="${tomcat.home}/logs"/>
+    <delete dir="${tomcat.home}"/>
+    
+    <mkdir dir="${deploy.home}"/>
+    <mkdir dir="${tomcat.home}"/>
+    
+    	<!-- copy tomcat specific files to the appropriate target locations -->    
+     <copy    todir="${tomcat.home}/archive">
+     	<fileset dir="src/archive" includes="**"/>
+    </copy>
+    <copy    todir="${tomcat.home}/logs">
+     	<fileset dir="src/logs" includes="**"/>
+    </copy>   
 
     <!-- Copy the contents of the build directory -->
     
      <copy toDir="${deploy.home}/" >
       <fileset dir="${build.home}/web" >
+      	<include name="ROOT/**"/>
+      	<include name="images/**"/>
+      	<include name="${LICENSE.PACKAGE_DIR}/**"/>
       	<exclude name="**/web.xml"/>
       </fileset>
      </copy>      
     
      <copy toDir="${deploy.home}/" filtering="true">
-      <fileset dir="${build.home}/web" includes="**/web.xml"/>
+      <fileset dir="${build.home}/web">
+      	<include name="ROOT/**/web.xml"/>
+      	<include name="images/**/web.xml"/>
+      	<include name="${LICENSE.PACKAGE_DIR}/**/web.xml"/>
+      </fileset>
        <filterset begintoken="@@" endtoken="@@">
          <filter token="DIALOGIX.DIR" value="${dialogix.dir}"/>
          <filter token="FLOPPY.DIR" value="${floppy.dir}"/>
        </filterset>
-     </copy>    
-    
-     <copy    todir="${tomcat.home}/conf">
-      <fileset dir="src/tomcat_conf"/>
+     </copy>  
+
+	<!-- copy tomcat specific files to the appropriate target locations -->    
+     <copy    todir="${tomcat.home}/">
+     	<fileset dir="src/tomcat_3_2_x">
+     		<include name="**" if="using.tomcat_3_2"/>
+     	</fileset>
     </copy>
+     <copy    todir="${tomcat.home}/">
+     	<fileset dir="src/tomcat_3_3_x">
+     		<include name="**" if="using.tomcat_3_3"/>
+     	</fileset>
+    </copy>    
 
     <!-- Copy external dependencies as required -->
-    <jar jarfile="${tomcat.home}/lib/apps/${app.name}.jar"
-         basedir="${build.home}/classes"/>
+    <mkdir dir="${tomcat.home}/lib/apps"/>	<!-- just in case neede -->
+    <jar jarfile="${tomcat.home}/lib/apps/${app.name}.jar" whenempty="skip">
+         <fileset dir="${build.home}/classes">
+         	<include name="**" if="using.tomcat_3_3"/>
+         </fileset>
+    </jar>
+    <delete>
+    	<fileset dir="${tomcat.home}/lib/apps">
+    		<include name="**" unless="using.tomcat_3_3"/>
+    	</fileset>
+    </delete>
          
-    <copy  todir="${tomcat.home}/lib/apps">
-      <fileset dir="src/ext_lib">
-        <include name="${jakarta.oro}.jar" if="jdk12.present" />
-      </fileset>    
-    </copy>   
+	<jar jarfile="${tomcat.home}/lib/${app.name}.jar" whenempty="skip">
+         <fileset dir="${build.home}/classes">
+         	<include name="**" if="using.tomcat_3_2"/>
+         </fileset>
+    </jar>	
+    <delete>
+    	<fileset dir="${tomcat.home}/lib">
+    		<include name="${app.name}.jar" unless="using.tomcat_3_2"/>
+    	</fileset>
+    </delete>
+    
+    <!-- make Windows desktop links -->
+    <mkdir dir="/${win98.desktop}"/>
+	<copy    todir="/${win98.desktop}/">
+		<fileset dir="src/Win98/Desktop">
+			<include name="**" if="using.win98"/>
+		</fileset>
+	</copy>
+	
+    <mkdir dir="/${win2000.desktop}"/>
+	<copy    todir="/${win2000.desktop}/">
+		<fileset dir="src/Win2000/Desktop">
+			<include name="**" if="using.win2000"/>
+		</fileset>
+	</copy>
+	
+    <copy  todir="${tomcat.home}" filtering="true">
+	    <fileset dir="src">
+	    	<include name="License.txt" />
+	    </fileset>
+       <filterset begintoken="@@" endtoken="@@">
+         <filter token="DIALOGIX.VERSION_MAJOR" value="${dialogix.version_major}"/>
+         <filter token="DIALOGIX.VERSION_MINOR" value="${dialogix.version_minor}"/>
+         <filter token="LICENSE.STUDY_ALIAS" value="${LICENSE.STUDY_ALIAS}"/>
+         <filter token="LICENSE.STUDY_NAME" value="${LICENSE.STUDY_NAME}"/>
+         <filter token="LICENSE.STUDY_ICON" value="${LICENSE.STUDY_ICON}"/>
+         <filter token="LICENSE.PRINCIPAL_INVESTIGATOR" value="${LICENSE.PRINCIPAL_INVESTIGATOR}"/>
+         <filter token="LICENSE.GRANT_NAME" value="${LICENSE.GRANT_NAME}"/>
+         <filter token="LICENSE.GRANT_TITLE" value="${LICENSE.GRANT_TITLE}"/>
+       </filterset>
+    </copy>	
+    
+    <copy todir="${tomcat.home}">
+    	<fileset dir="src" includes="*.ico"/>
+    </copy>
+    
+    <copy  todir="${tomcat.home}" filtering="true">
+	    <fileset dir="src">
+	    	<include name="dialogix.bat" />
+	    	<include name="README.txt" />
+	    </fileset>
+       <filterset begintoken="@@" endtoken="@@">
+         <filter token="DIALOGIX.START_DIR" value="${dialogix.start_dir}"/>
+         <filter token="DIALOGIX.VERSION_MAJOR" value="${dialogix.version_major}"/>
+         <filter token="DIALOGIX.VERSION_MINOR" value="${dialogix.version_minor}"/>
+         <filter token="LICENSE.STUDY_ALIAS" value="${LICENSE.STUDY_ALIAS}"/>
+         <filter token="LICENSE.STUDY_NAME" value="${LICENSE.STUDY_NAME}"/>
+         <filter token="LICENSE.STUDY_ICON" value="${LICENSE.STUDY_ICON}"/>
+         <filter token="LICENSE.PRINCIPAL_INVESTIGATOR" value="${LICENSE.PRINCIPAL_INVESTIGATOR}"/>
+         <filter token="LICENSE.GRANT_NAME" value="${LICENSE.GRANT_NAME}"/>
+         <filter token="LICENSE.GRANT_TITLE" value="${LICENSE.GRANT_TITLE}"/>
+		 <filter token="DIALOGIX.HOME" value="${DIALOGIX.HOME}"/>
+         <filter token="LICENSE.PACKAGE_DIR" value="${LICENSE.PACKAGE_DIR}"/>
+		 <filter token="ARCHIVE.DIR" value="${ARCHIVE.DIR}"/>
+		 <filter token="ZIP.NAME" value="${zip.name}"/>
+       </filterset>
+    </copy>	
     
   </target>
 
@@ -325,16 +440,95 @@
   <target name="dist" depends="deploy,javadoc"
    description="Create binary distribution">
    
-    <!-- backup project source -->
-         
-    <jar jarfile="${dist.home}/${app.name}_${app.version}-src.jar" basedir=".">
-        <exclude name="${build.home}/**"/>
-        <exclude name="${dist.home}/**"/>
-    </jar>
+    <mkdir dir="${dist.home}"/>
+    
+    <!-- Create application Zip file -->
+    <!--
+    <zip zipfile="${dist.home}/${zip.name}.zip"
+         basedir="/">
+		<include name="${zip.basedir}/archive/**"/>
+		<include name="${zip.basedir}/bin/**"/>
+		<include name="${zip.basedir}/conf/**"/>
+		<include name="${zip.basedir}/lib/**"/>
+		<include name="${zip.basedir}/webapps/${LICENSE.PACKAGE_DIR}/**"/>
+		<include name="${zip.basedir}/webapps/ROOT/**"/>
+		<include name="${zip.basedir}/webapps/images/**"/>                         																																																																																																																								
+		<include name="${win98.desktop}/Dialogix/**" if="using.win98"/>    																																																																																																																								
+		<include name="${win2000.desktop}/Dialogix/**" if="using.win2000"/>																																																																																																																																										
+    </zip>
+    -->
+    
+    <!-- Create INNO installer script -->
+    
+    <mkdir dir="${dist.home}/${zip.name}"/>
+    
+    <copy  todir="${dist.home}/${zip.name}" filtering="true">
+	    <fileset dir="src">
+	    	<include name="Dialogix-install-script.iss" />
+	    </fileset>
+       <filterset begintoken="@@" endtoken="@@">
+		 <filter token="DIALOGIX.HOME" value="${DIALOGIX.HOME}"/>
+         <filter token="DIALOGIX.VERSION_MAJOR" value="${dialogix.version_major}"/>
+         <filter token="DIALOGIX.VERSION_MINOR" value="${dialogix.version_minor}"/>
+         <filter token="LICENSE.STUDY_ALIAS" value="${LICENSE.STUDY_ALIAS}"/>
+         <filter token="LICENSE.STUDY_NAME" value="${LICENSE.STUDY_NAME}"/>
+         <filter token="LICENSE.STUDY_ICON" value="${LICENSE.STUDY_ICON}"/>
+         <filter token="LICENSE.PRINCIPAL_INVESTIGATOR" value="${LICENSE.PRINCIPAL_INVESTIGATOR}"/>
+         <filter token="LICENSE.GRANT_NAME" value="${LICENSE.GRANT_NAME}"/>
+         <filter token="LICENSE.GRANT_TITLE" value="${LICENSE.GRANT_TITLE}"/>         
+       </filterset>
+    </copy>
+    <move file="${dist.home}/${zip.name}/Dialogix-install-script.iss" tofile="${dist.home}/${zip.name}/${zip.name}-install-script.iss"/>
+    
+	<exec dir="${dist.home}/${zip.name}" executable="C:\Program Files\Inno Setup 2\Compil32.exe" os="Windows 2000">
+		<arg line="/cc ${zip.name}-install-script.iss"/>
+	</exec>
+	
+	<move file="${dist.home}/${zip.name}/Output/setup.exe" tofile="${dist.home}/${zip.name}/${zip.name}.exe"/>
+	<delete dir="${dist.home}/${zip.name}/Output"/>
 
-    <!-- Create application JAR file -->
-    <jar jarfile="${dist.home}/${app.name}_${app.version}.jar"
-         basedir="${tomcat.home}" includes="**"/>
+  </target>
+  
+  <target name="zip_dist" depends="deploy,javadoc"
+   description="Create binary distribution for Unix platforms">
+   
+    <mkdir dir="${dist.home}"/>
+    
+    <!-- Create application Zip file -->
+    <zip zipfile="${dist.home}/${zip.name}.zip"
+         basedir="/">
+		<include name="${zip.basedir}/archive/**"/>
+		<include name="${zip.basedir}/bin/**"/>
+		<include name="${zip.basedir}/conf/**"/>
+		<include name="${zip.basedir}/lib/**"/>
+		<include name="${zip.basedir}/webapps/${LICENSE.PACKAGE_DIR}/**"/>
+		<include name="${zip.basedir}/webapps/ROOT/**"/>
+		<include name="${zip.basedir}/webapps/images/**"/>                         																																																																																																																								
+		<include name="${win98.desktop}/Dialogix/**" if="using.win98"/>    																																																																																																																								
+		<include name="${win2000.desktop}/Dialogix/**" if="using.win2000"/>																																																																																																																																										
+    </zip>
+ </target>
+  
+<!-- ==================== Src Target ===================================== -->
+
+
+<!--
+
+  The "src" target creates a jar of all of the source files for the package
+
+-->
+
+  <target name="src" depends=""
+   description="Create src distribution">
+   
+    <!-- backup project source -->
+    <mkdir dir="${dist.home}"/>
+    
+    <jar jarfile="${dist.home}/${app.name}_${app.version}-src.jar" basedir="/">
+		<include name="${cvs.basedir}/**"/>
+       <exclude name="${cvs.basedir}/${build.home}/**"/>
+        <exclude name="${cvs.basedir}/${dist.home}/**"/>
+    </jar>
   </target>
 
 
@@ -352,12 +546,13 @@
 
   <target name="javadoc" depends="compile"
    description="Create Javadoc API documentation">
+   <!--
 
     <mkdir          dir="${dist.home}/docs/api"/>
     <javadoc sourcepath="src"
                 destdir="${dist.home}/docs/api"
            packagenames="mypackage.*"/>
-
+   -->
   </target>
 
 
@@ -380,11 +575,38 @@
     <!-- Create build directory and copy static content -->
     <mkdir  dir="${build.home}"/>
 
-    <copy todir="${build.home}/web">
-      <fileset dir="web"/>
-    </copy>
-
+    <echo message="compile.target=${compile.target}"/>
+    <echo message="tomcat.home=${tomcat.home}"/>
+    <echo message="dialogix.dir=${dialogix.dir}"/>
+    <echo message="floppy.dir=${floppy.dir}"/>
+    <echo message="tomcat.version=${tomcat.version}"/>
+    <echo message="zip.basedir=${zip.basedir}"/>
+    <echo message="cvs.basedir=${cvs.basedir}"/>
+    <echo message="deploy.os=${deploy.os}"/>
+    <echo message="dialogix.authorable=${dialogix.authorable}"/>
+    <echo message="dialogix.deployable=${dialogix.deployable}"/>
+    <echo message="dialogix.web_server=${dialogix.web_server}"/>
+    <echo message="dialogix.version_major=${dialogix.version_major}"/>
+    <echo message="dialogix.version_minor=${dialogix.version_minor}"/>
+    <echo message="dialogix.xml=${dialogix.xml}"/>
+    
+    <echo message="LICENSE.PACKAGE_DIR=${LICENSE.PACKAGE_DIR}"/>
+    <echo message="LICENSE.STUDY_ALIAS=${LICENSE.STUDY_ALIAS}"/>
+    <echo message="LICENSE.STUDY_NAME=${LICENSE.STUDY_NAME}"/>
+    <echo message="LICENSE.STUDY_ICON=${LICENSE.STUDY_ICON}"/>
+    <echo message="LICENSE.PRINCIPAL_INVESTIGATOR=${LICENSE.PRINCIPAL_INVESTIGATOR}"/>
+    <echo message="LICENSE.GRANT_NAME=${LICENSE.GRANT_NAME}"/>
+    <echo message="LICENSE.GRANT_TITLE=${LICENSE.GRANT_TITLE}"/>
+    <echo message="DIALOGIX.HOME=${DIALOGIX.HOME}"/>
     <!-- Copy static files from external dependencies as needed -->
+    
+    <copy toDir="${build.home}/web" >
+      <fileset dir="web" >
+      	<include name="ROOT/**"/>
+      	<include name="images/**"/>
+      	<include name="${LICENSE.PACKAGE_DIR}/**"/>
+      </fileset>
+     </copy>
 
   </target>
   
@@ -397,8 +619,75 @@
     		</not>
     	</and>
     </condition>
+    
+    <condition property="using.tomcat_3_2">
+    	<equals arg1="${tomcat.version}" arg2="3.2" />
+    </condition>
+    
+    <condition property="using.tomcat_3_3">
+    	<equals arg1="${tomcat.version}" arg2="3.3" />
+    </condition>    
+    
+    <condition property="using.win98">
+    	<equals arg1="${deploy.os}" arg2="win98" />
+    </condition>    
+    <condition property="using.win2000">
+    	<equals arg1="${deploy.os}" arg2="win2000" />
+    </condition>
+    
+    <condition property="dialogix.user_role" value="Developer">
+    	<and>
+    		<equals arg1="${dialogix.authorable}" arg2="true"/>
+    		<equals arg1="${dialogix.deployable}" arg2="true"/>
+    	</and>
+    </condition>
+    <condition property="dialogix.user_role" value="Interviewer">
+    	<and>
+    		<equals arg1="${dialogix.authorable}" arg2="false"/>
+    		<equals arg1="${dialogix.deployable}" arg2="true"/>
+       	</and>
+    </condition>
+    
+    <condition property="dialogix.webbable" value="_WebServer">
+    	<equals arg1="${dialogix.web_server}" arg2="true"/>
+    </condition>
+     <condition property="dialogix.webbable" value="">
+    	<equals arg1="${dialogix.web_server}" arg2="false"/>
+    </condition>   
+    
+    <condition property="dialogix.package_name" value="ALL">
+    	<equals arg1="${LICENSE.PACKAGE_DIR}" arg2="**" />
+    </condition>    
+    <condition property="dialogix.package_name" value="${LICENSE.PACKAGE_DIR}">
+    	<not>
+    		<equals arg1="${LICENSE.PACKAGE_DIR}" arg2="**" />
+    	</not>
+    </condition>  
+    
+    <condition property="dialogix.start_dir" value="">
+    	<equals arg1="${LICENSE.PACKAGE_DIR}" arg2="**" />
+    </condition>    
+    <condition property="dialogix.start_dir" value="${LICENSE.PACKAGE_DIR}">
+    	<not>
+    		<equals arg1="${LICENSE.PACKAGE_DIR}" arg2="**" />
+    	</not>
+    </condition>  
+    
+    <property name="zip.name" 
+    	value="${app.name}_${app.version}_${deploy.os}_${dialogix.package_name}${dialogix.webbable}_${dialogix.user_role}" />
+    	
+    <pathconvert targetos="windows" property="DIALOGIX.HOME">
+    	<path>
+    		<pathelement location="${tomcat.home}"/>
+    	</path>
+    </pathconvert>
+    
+    <pathconvert targetos="windows" property="ARCHIVE.DIR">
+    	<path>
+    		<pathelement location="${floppy.dir}"/>
+    	</path>
+    </pathconvert>    
   </target>
-
-
+  
 
 </project>

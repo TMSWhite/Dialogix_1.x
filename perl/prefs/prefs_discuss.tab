@@ -1,16 +1,17 @@
-ppaindisc	Pain_discuss	<I>I need to discuss my pain/discomfort with my health care provider </I>
-pbreathdisc	Breathing_discuss	<I>I need to discuss my breathing problems with my health care provider </I>
-pheartdisc	Heart_discuss	<I>I need to discuss my heart, blood or infection related problems with my health care provider </I>
-pintakedisc	Intake_discuss	<I>I need to discuss my eating/drinking problems with my health care provider </I>
-pbowdisc	Bowel_discuss	<I>I need to discuss my bowel / bladder problems with my health care provider </I>
-penerdisc	Energy_discuss	<I>I need to discuss my energy problems with my health care provider </I>
-psleepdisc	Sleep_discuss	<I>I need to discuss my sleep and rest problems with my health care provider </I>
-pvisidisc	Vision_discuss	<I>I need to discuss my vision/hearing problems with my health care provider </I>
-pskindisc	Skin_discuss	<I>I need to discuss my hair loss / skin problems with my health care provider </I>
-pmemdisc	Memory_discuss	<I>I need to discuss my thinking and memory problems with my health care provider </I>
-preldisc	Relation_discuss	<I>I need to discuss my problems with relationships with my health care provider </I>
-padldisc	Activities_discuss	<I>I need to discuss my ability to maintain my activities of daily living with my health care provider </I>
-pmooddisc	Mood_discuss	<I>I need to discuss my mood and feelings with my health care provider </I>
-pctrldisc	Control_discuss	<I>I need to discuss my ability to maintain a sense of control with my health care provider </I>
-pworrdisc	Worries_discuss	<I>I need to discuss my concerns/worries with my health care provider </I>
-pspidisc	Spiritual_discuss	<I>I need to discuss my spiritual needs with my health care provider </I>
+pn	Pain_discuss	I need to discuss my pain/discomfort with my health care provider 
+br	Breathing_discuss	I need to discuss my breathing problems with my health care provider 
+hr	Heart_discuss	I need to discuss my heart, blood or infection related problems with my health care provider 
+fo	Intake_discuss	I need to discuss my eating/drinking problems with my health care provider 
+bw	Bowel_discuss	I need to discuss my bowel / bladder problems with my health care provider 
+en	Energy_discuss	I need to discuss my energy problems with my health care provider 
+sl	Sleep_discuss	I need to discuss my sleep and rest problems with my health care provider 
+vi	Vision_discuss	I need to discuss my vision/hearing problems with my health care provider 
+sk	Skin_discuss	I need to discuss my hair loss / skin problems with my health care provider 
+mm	Memory_discuss	I need to discuss my thinking and memory problems with my health care provider 
+rl	Relation_discuss	I need to discuss my problems with relationships with my health care provider 
+ad	Activities_discuss	I need to discuss my ability to maintain my activities of daily living with my health care provider 
+mo	Mood_discuss	I need to discuss my mood and feelings with my health care provider 
+co	Control_discuss	I need to discuss my ability to maintain a sense of control with my health care provider 
+wo	Worries_discuss	I need to discuss my concerns/worries with my health care provider 
+sp	Spiritual_discuss	I need to discuss my spiritual needs with my health care provider 
+ot	Other_discuss	I need to discuss my other concerns with my health care provider 

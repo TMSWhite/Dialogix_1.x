@@ -19,12 +19,14 @@ use File::Basename;
 my $levelTypes = {
 	check => 'NOMINAL',
 	combo => 'NOMINAL',
+	combo2 => 'NOMINAL',
 	date => 'SCALE',
 	day => 'SCALE',
 	day_num => 'SCALE',		# since start of year.
 	double => 'SCALE',
 	hour => 'SCALE',
 	list => 'NOMINAL',
+	list2 => 'NOMINAL',
 	memo => 'NOMINAL',
 	minute => 'SCALE',
 	month => 'NOMINAL',		# since name of the month
@@ -33,6 +35,7 @@ my $levelTypes = {
 	password => 'NOMINAL',
 	radio => 'NOMINAL',
 	radio2 => 'NOMINAL',
+	radio3 => 'NOMINAL',
 	second => 'SCALE',
 	text => 'NOMINAL',
 	time => 'SCALE',
@@ -46,12 +49,14 @@ my @reservedVars = ('STARTDAT', 'STOPDATE', 'UNIQUEID', 'FINISHED', 'TITLE', 'VE
 my $formats = {
 	check => 'F8.0',
 	combo => 'F8.0',
+	combo2 => 'F8.0',
 	date => 'ADATE10',
 	day => 'date|dd',		# what is syntax for this?
 	day_num => 'date|dd',		# since start of year.
 	double => 'F8.3',
 	hour => 'date|hh',
 	list => 'F8.0',
+	list2 => 'F8.0',
 	memo => 'A254',
 	minute => 'date|mm',
 	month => 'MONTH',		# since name of the month
@@ -60,6 +65,7 @@ my $formats = {
 	password => 'A50',
 	radio => 'F8.0',
 	radio2 => 'F8.0',
+	radio3 => 'F8.0',
 	second => 'date|ss',
 	text => 'A50',
 	time => 'TIME5.3',
@@ -67,9 +73,11 @@ my $formats = {
 	year => 'date|yyyy',	
 };
 
-my (@gargs, $modulePrefix, $discardPrefix, $resultsDir);
+my (@gargs, $modulePrefix, $discardPrefix, $resultsDir, $sortby, $varnameFromColumn);
 my (%modules);
 @gargs = @ARGV;
+$sortby = shift(@gargs);
+$varnameFromColumn = shift(@gargs);	# if 0, then use concept field; if 1, use internalName; if 2, then use externalName
 $modulePrefix = shift(@gargs);
 $discardPrefix = shift(@gargs);
 $resultsDir = shift(@gargs);
@@ -206,8 +214,8 @@ sub getLongestValidSubName {
 		--$len;
 #		print "truncating $arg\n";
 	}
-#	print "bad name $name -- using _VAR_\n";
-	return "_VAR_000";
+#	print "bad name $name -- using XXX_\n";
+	return "XXX_0000";
 }
 
 sub transform_schedule {
@@ -226,6 +234,11 @@ sub transform_schedule {
 	%uniqueNames = ();
 	%c8name2vars = ();
 	
+	my $varnameColumn = 1;
+	if ($varnameFromColumn =~ /^[012]$/) {
+		$varnameColumn = $varnameFromColumn;
+	}
+	
 	#initialize reserved variable names
 	foreach (@reservedVars) {
 		&getUniqueName(uc($_));		# these are already valid names
@@ -240,7 +253,7 @@ sub transform_schedule {
 		my @vals = split(/\t/,$line);
 		++$step;
 		
-		my $ucname = uc($vals[1]);
+		my $ucname = uc($vals[$varnameColumn]);
 		my $c8name = &getUniqueName($ucname);
 		
 		push @c8names, $c8name;
@@ -347,7 +360,7 @@ sub transform_schedule {
 	
 	#create SPSS data dictionary import file 
 	&createSPSSdictionaries($sched_root,\@nodes);
-	&createSPSSforValidModules;
+#	&createSPSSforValidModules;
 #	&createSPSSforPathStepTiming(\@stepLabels);
 	&createSPSSforPerScreen(\@stepLabels);
 	&createSPSSforPathStepSummary(\@stepLabels);
@@ -365,7 +378,7 @@ sub createSPSSforPerVar {
 	print SPSS "/**********************************************/\n\n";
 	
 	print SPSS "GET DATA  /TYPE = TXT\n";
- 	print SPSS "/FILE = '$file.log'\n";
+ 	print SPSS "/FILE = '$file.tsv'\n";
  	print SPSS "/DELCASE = LINE\n";
  	print SPSS "/DELIMITERS = \"\\t\"\n";
  	print SPSS "/ARRANGEMENT = DELIMITED\n";
@@ -451,7 +464,7 @@ sub createSPSSforPathStepSummary {
 	print SPSS "/**********************************************/\n\n";
 	
 	print SPSS "GET DATA  /TYPE = TXT\n";
- 	print SPSS "/FILE = '$file.log'\n";
+ 	print SPSS "/FILE = '$file.tsv'\n";
  	print SPSS "/DELCASE = LINE\n";
  	print SPSS "/DELIMITERS = \"\\t\"\n";
  	print SPSS "/ARRANGEMENT = DELIMITED\n";
@@ -467,9 +480,9 @@ sub createSPSSforPathStepSummary {
 	print SPSS "NumSteps F8.2\n";
 	print SPSS "Path A255\n";
 	print SPSS "lastAns F8.2\n";
-	print SPSS "lastAnsN A255\n";
+#	print SPSS "lastAnsN A255\n";
 	print SPSS "lstView F8.2\n";
-	print SPSS "lstViewN A255\n";
+#	print SPSS "lstViewN A255\n";
  	print SPSS ".\n";
  	
  	print SPSS "FORMATS FINISHED NUMSTEPS LASTANS LSTVIEW (F8.0).\n";
@@ -485,9 +498,9 @@ sub createSPSSforPathStepSummary {
 	print SPSS "VARIABLE LABELS NUMSTEPS \"Total number of pages seen by subject\".\n";
 	print SPSS "VARIABLE LABELS PATH \"Path taken through instrument by subject\".\n";
 	print SPSS "VARIABLE LABELS LASTANS \"Last set of questions answered by subject\".\n";
-	print SPSS "VARIABLE LABELS LASTANSN \"Last set of questions answered by subject\".\n";
+#	print SPSS "VARIABLE LABELS LASTANSN \"Last set of questions answered by subject\".\n";
 	print SPSS "VARIABLE LABELS LSTVIEW \"Last set of questions viewed by subject\".\n";
-	print SPSS "VARIABLE LABELS LSTVIEWN \"Last set of questions viewed by subject\".\n";
+#	print SPSS "VARIABLE LABELS LSTVIEWN \"Last set of questions viewed by subject\".\n";
 	
 	print SPSS "VALUE LABELS LASTANS LSTVIEW\n";
 	my $count = 0;
@@ -522,7 +535,7 @@ sub createSPSSforPerScreen {
 	print SPSS "/**********************************************/\n\n";
 	
 	print SPSS "GET DATA  /TYPE = TXT\n";
- 	print SPSS "/FILE = '$file.log'\n";
+ 	print SPSS "/FILE = '$file.tsv'\n";
  	print SPSS "/DELCASE = LINE\n";
  	print SPSS "/DELIMITERS = \"\\t\"\n";
  	print SPSS "/ARRANGEMENT = DELIMITED\n";
@@ -613,7 +626,7 @@ sub createSPSSforPathStepTiming {
 	print SPSS "/**********************************************/\n\n";
 	
 	print SPSS "GET DATA  /TYPE = TXT\n";
- 	print SPSS "/FILE = '$file.log'\n";
+ 	print SPSS "/FILE = '$file.tsv'\n";
  	print SPSS "/DELCASE = LINE\n";
  	print SPSS "/DELIMITERS = \"\\t\"\n";
  	print SPSS "/ARRANGEMENT = DELIMITED\n";
@@ -722,6 +735,17 @@ sub createSPSSdictionary {
 	my $nodelist = shift;
 	my @nodes = @{ $nodelist };
 	my @freqVars;
+	my $sortfn;
+	
+	if ($sortby eq 'sortby_order_asked') {
+		print "Using sortby='sortby_order_asked'\n";
+		$sortfn = \&sortbyOrderAsked;
+	}
+	else {
+		# default sort alphabetically by name
+		print "Using sortby='sortby_variable_name'\n";
+		$sortfn = \&sortbyVariableName;
+	}
 	
 	open (SPSS, ">$file-summary.sps") or die "uanble to open $file-summary.sps";
 	
@@ -730,11 +754,11 @@ sub createSPSSdictionary {
 	print SPSS "/**********************************************/\n\n";
 
 	print SPSS "GET DATA /TYPE = TXT\n";
-	print SPSS "/FILE = '$file-summary.log'\n";
+	print SPSS "/FILE = '$file-summary.tsv'\n";
 	print SPSS "/DELCASE = LINE\n";
 	print SPSS "/DELIMITERS = \"\\t\"\n";
 	print SPSS "/ARRANGEMENT = DELIMITED\n";
-	print SPSS "/FIRSTCASE = 4\n";
+	print SPSS "/FIRSTCASE = 2\n";		# 4\n";
 	print SPSS "/IMPORTCASE = ALL\n";
 	print SPSS "/VARIABLES =\n";
 	print SPSS "\tUniqueID A15\n";
@@ -745,13 +769,14 @@ sub createSPSSdictionary {
 	print SPSS "\tVersion A8\n";
 	
 	
-	foreach (sort { $a->{'name'} cmp $b->{'name'} } @nodes) {
+	foreach (sort $sortfn @nodes) {
 		my %n = %{ $_ };
 		next if ($n{'module'} ne $module);
 		
 		print SPSS "\t$n{'c8name'} $n{'format'}\n";
 		push @freqVars, $n{'c8name'};
-	}
+	}		
+
 	print SPSS ".\n\n";
 	
  	print SPSS "VARIABLE LABELS UNIQUEID \"Unique Identifier\".\n";
@@ -760,7 +785,7 @@ sub createSPSSdictionary {
 	print SPSS "VARIABLE LABELS VERSION \"Instrument Version\".\n";	
 
 	
-	foreach (sort { $a->{'name'} cmp $b->{'name'} } @nodes) {
+	foreach (sort $sortfn @nodes) {
 		my %n = %{ $_ };
 		
 		next if ($n{'module'} ne $module);
@@ -828,11 +853,11 @@ sub createSPSSdictionary {
 	print SPSS "/**********************************************/\n\n";
 
 	print SPSS "GET DATA /TYPE = TXT\n";
-	print SPSS "/FILE = '$file-complete.log'\n";
+	print SPSS "/FILE = '$file-complete.tsv'\n";
 	print SPSS "/DELCASE = LINE\n";
 	print SPSS "/DELIMITERS = \"\\t\"\n";
 	print SPSS "/ARRANGEMENT = DELIMITED\n";
-	print SPSS "/FIRSTCASE = 4\n";
+	print SPSS "/FIRSTCASE = 2\n";		#4\n";
 	print SPSS "/IMPORTCASE = ALL\n";
 	print SPSS "/VARIABLES =\n";
 	print SPSS "\tUniqueID A15\n";
@@ -879,7 +904,7 @@ sub createSPSSdictionary {
 	# value labels for STEP
 	
 	print SPSS "VALUE LABELS C8NAME\n";
-	foreach (sort { $a->{'name'} cmp $b->{'name'} } @nodes) {
+	foreach (sort $sortfn @nodes) {
 		my %n = %{ $_ };
 		next if ($n{'module'} ne $module);
 		
@@ -899,6 +924,14 @@ sub createSPSSdictionary {
 	close (SPSS);
 	
 }
+
+sub sortbyVariableName {
+	return $a->{'name'} cmp $b->{'name'};
+}
+sub sortbyOrderAsked {
+	return $a->{'step'} <=> $b->{'step'};
+}
+
 
 sub deExcelize {
 	my $arg = shift;
@@ -1009,31 +1042,3 @@ sub strip_html {
 	return $text;
 }
 	
-	
-# dataTypes reference SPSS data types -- the date formats have not been validated yet
-sub oldDataType {
-my $dataTypes = {
-	check => 'numeric|8',
-	combo => 'numeric|8',
-	date => 'date|mm/dd/yyyy',
-	day => 'date|dd',		# what is syntax for this?
-	day_num => 'date|dd',		# since start of year.
-	double => 'numeric|8.3',
-	hour => 'date|hh',
-	list => 'numeric|8',
-	memo => 'string|255',
-	minute => 'date|mm',
-	month => 'date|mm',		# since name of the month
-	month_num => 'date|mm',
-	nothing => 'string|1',
-	password => 'string|50',
-	radio => 'numeric|8',
-	radio2 => 'numeric|8',
-	second => 'date|ss',
-	text => 'string|255',
-	time => 'date|hh:mm:ss',
-	weekday => 'date|ww',	# since name of weekday
-	year => 'date|yyyy',	
-};
-}	
-

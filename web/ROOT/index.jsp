@@ -33,8 +33,8 @@
 SIZE="5">Deploying</FONT></I><FONT SIZE="5">, and </FONT><I><FONT SIZE="5">Analyzing</FONT></I><FONT SIZE="5">
 Research Studies</FONT> <BR>
 <BR>
-Thomas M. White, MD, MS <BR>
-Michael J. Hauan, MD, MPH <BR>
+Thomas M. White, MD, MS, MA <BR>
+Michael J. Hauan, MD, MPH, MTS, MA <BR>
 New York State Psychiatric Institute &amp; <BR>
 Columbia University, Department of Medical Informatics<FONT SIZE="6"><BR>
 <BR>
@@ -75,6 +75,21 @@ Columbia University, Department of Medical Informatics<FONT SIZE="6"><BR>
                         New York State Psychiatric Institute<BR>
                         NIMH Grant MH42931</TD>
         </TR>
+	<TR>
+		<TD>&nbsp;</TD>
+		<TD><A NAME="CHOICES"></A><B><A HREF="/Prefs/index.htm">CHOICEs for Palliative Patient Care</A></B></TD>
+		<TD>Cornelia M. Ruland, RN, Ph.D.<BR>
+			Columbia University, Department of Medical Informatics<BR>
+			Hitchcock Foundation Grant 250-422</TD>
+	</TR>
+	<TR>
+		<TD><IMG SRC="/MU-InfoSurvey/hmi_logo_small.gif" WIDTH="145" HEIGHT="57" ALIGN="BOTTOM" BORDER="0"></TD>
+		<TD><B><A HREF="/MU-InfoSurvey/index.htm">Information Survey</A></B></TD>
+		<TD>Michael J. Hauan, MD, MPH, MTS, MA<BR>
+			Timothy B. Patrick, PhD<BR>
+			University of Missouri-Columbia<BR>
+			Department of Health Management &amp; Informatics</TD>
+	</TR>          
 </TABLE>
 </FONT></P>
 
@@ -161,6 +176,12 @@ Columbia University, Department of Medical Informatics<FONT SIZE="6"><BR>
                         >Children in the Community - Wave 6 QOL</A></TD>
                 <TD><A HREF="#CIC">Children in the Community Transition Study</A></TD>
         </TR>
+	<TR>
+		<TD>Structured Interview</TD>
+		<TD>~5 min</TD>	
+		<TD><A HREF="javascript:void;" onclick="JavaScript:window.top.open('/Prefs/servlet/Dialogix?schedule=Prefs/WEB-INF/schedules/Preferences-2_9a.jar&DIRECTIVE=START','_blank','resizable=yes,scrollbars=yes');">CHOICEs -- a Decision Support Tool for Patient Preferences</A></TD>
+		<TD><A HREF="#CHOICES">CHOICES</A></TD>
+	</TR>        
         <TR>
                 <TD>Structured Interview</TD>
                 <TD>~30 min</TD>
