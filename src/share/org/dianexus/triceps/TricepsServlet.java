@@ -56,7 +56,7 @@ public class TricepsServlet extends HttpServlet {
 		out.println("<body>");
 		out.println("<H2>TRICEPS SYSTEM</H2>");
 		out.println("<hr>Please provide the following information to proceed. <br>");
-		out.println("<form method='POST' action='http://localhost/triceps/servlet/TricepsServlet'>");
+		out.println("<form method='POST' action='" + HttpUtils.getRequestURL(req) + "'>");
 		out.println("<pre>");
 		out.println("The system currently supports one schedule.");
 		out.println("Select a schedule:	<select name='schedule'>");
@@ -302,7 +302,7 @@ public class TricepsServlet extends HttpServlet {
 	 * spreadsheet file called "navigation.txt".
 	 */
 	public void loadSchedule(String sched) {
-		nodes = new Schedule("http://localhost/" + sched);
+		nodes = new Schedule("http://" + req.getServerName() + "/" + sched);
 	}
 
 	/**
@@ -310,7 +310,7 @@ public class TricepsServlet extends HttpServlet {
 	 * and formats them in HTML for return to the client browser.
 	 */
 	private void queryUser() {
-		out.println("<form method='POST' action='http://localhost/triceps/servlet/TricepsServlet'>");
+		out.println("<form method='POST' action='" + HttpUtils.getRequestURL(req) + "'>");
 		out.println("<H4>QUESTION AREA</H4>");
 		out.println("<B>Question " + node.getQuestionRef() + "</B>: " + parser.parseJSP(evidence, node.getAction()) + "<br>");
 		// display the answer options
@@ -395,7 +395,7 @@ public class TricepsServlet extends HttpServlet {
 		// Node info area
 		out.println("<hr>");
 		out.println("<H4>NODE INFORMATION AREA</H4>" + node.toString());
-
+		
 		// Complete printout of what's been collected per node
 		out.println("<hr>");
 		out.println("<H4>EVIDENCE AREA</H4>");
