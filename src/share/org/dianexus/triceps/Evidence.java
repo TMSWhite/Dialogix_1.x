@@ -65,6 +65,7 @@ public class Evidence  {
 	private static final int TOLOWERCASE = 44;
 	private static final int TOUPPERCASE = 45;
 	private static final int TRIM = 46;
+	private static final int ISNUMBER = 47;
 
 	private static final Object FUNCTION_ARRAY[][] = {
 		{ "desc",				ONE,		new Integer(DESC) },
@@ -102,17 +103,19 @@ public class Evidence  {
 		{ "isSpecial",			ONE,		new Integer(ISSPECIAL) },
 		{ "numAnsOptions",		ONE,		new Integer(NUMANSOPTIONS) },
 		{ "getAnsOption",		UNLIMITED,	new Integer(GETANSOPTION) },
-		{ "charAt",				ONE,		new Integer(CHARAT) },
+		{ "charAt",				TWO,		new Integer(CHARAT) },
 		{ "compareTo",			TWO,		new Integer(COMPARETO) },
-		{ "compareToIngnoreCase",	TWO,	new Integer(COMPARETOIGNORECASE) },
+		{ "compareToIgnoreCase",	TWO,	new Integer(COMPARETOIGNORECASE) },
 		{ "endsWith",			TWO,		new Integer(ENDSWITH) },
 		{ "indexOf",			UNLIMITED,	new Integer(INDEXOF) },
 		{ "lastIndexOf",		UNLIMITED,	new Integer(LASTINDEXOF) },
+		{ "length",				ONE,		new Integer(LENGTH) },
 		{ "startsWith",			UNLIMITED,	new Integer(STARTSWITH) },
 		{ "substring",			UNLIMITED,	new Integer(SUBSTRING) },
 		{ "toLowerCase",		ONE,		new Integer(TOLOWERCASE) },
 		{ "toUpperCase",		ONE,		new Integer(TOUPPERCASE) },
 		{ "trim",				ONE,		new Integer(TRIM) },	
+		{ "isNumber",			ONE,		new Integer(ISNUMBER) },
 	};
 
 	private static final Hashtable FUNCTIONS = new Hashtable();
@@ -202,7 +205,7 @@ public class Evidence  {
 	public Node getNode(Object val) {
 		int i = getNodeIndex(val);
 		if (i == -1) {
-			setError(triceps.get("node_not_found") + val);
+			setError(triceps.get("node_not_found"),val);
 			return null;
 		}
 		return ((Value) values.elementAt(i)).getNode();
@@ -242,18 +245,18 @@ public class Evidence  {
 
 	public void set(Node node, Datum val, String time) {
 		if (node == null) {
-			setError(triceps.get("null_node"));
+			setError(triceps.get("null_node"),null);
 			return;
 		}
 		if (val == null) {
-			setError(triceps.get("null_datum"));
+			setError(triceps.get("null_datum"),null);
 			return;
 		}
 		int i;
 
 		i = getNodeIndex(node);
 		if (i == -1) {
-			setError(triceps.get("node_does_not_exist"));
+			setError(triceps.get("node_does_not_exist"),node.getLocalName());
 			return;
 		}
 		
@@ -267,11 +270,11 @@ public class Evidence  {
 
 	public void set(String name, Datum val) {
 		if (name == null) {
-			setError(triceps.get("null_node"));
+			setError(triceps.get("null_node"),null);
 			return;
 		}
 		if (val == null) {
-			setError(triceps.get("null_datum"));
+			setError(triceps.get("null_datum"),null);
 			return;
 		}
 
@@ -283,7 +286,7 @@ public class Evidence  {
 			aliases.put(name, new Integer(i));
 
 			String errmsg = triceps.get("new_variable_will_be_transient") + name;
-			setError(errmsg);
+			setError(errmsg,null);
 		}
 		else {
 			/* variables don't change their names after being created */
@@ -336,14 +339,14 @@ public class Evidence  {
 
 			if (func == null || ((funcNum = func.intValue()) < 0)) {
 				/* then not found - could consider calling JavaBean! */
-				setError(triceps.get("unsupported_function") + name, line, column);
+				setError(triceps.get("unsupported_function") + name, line, column,null);
 				return Datum.getInstance(triceps,Datum.INVALID);
 			}
 			
 			Integer	numParams = (Integer) FUNCTION_ARRAY[funcNum][FUNCTION_NUM_PARAMS];
 
 			if (!(UNLIMITED.equals(numParams) || params.size() == numParams.intValue())){
-				setError(triceps.get("function") + name + triceps.get("expects") + numParams + triceps.get("parameters"), line, column);
+				setError(triceps.get("function") + name + triceps.get("expects") + " " + numParams + " " + triceps.get("parameters"), line, column,params.size());
 				return Datum.getInstance(triceps,Datum.INVALID);
 			}
 
@@ -360,7 +363,7 @@ public class Evidence  {
 					String nodeName = datum.getName();
 					Node node = null;
 					if (nodeName == null || ((node = getNode(nodeName)) == null)) {
-						setError(triceps.get("unknown_node") + nodeName, line, column);
+						setError(triceps.get("unknown_node") + nodeName, line, column,nodeName);
 						return Datum.getInstance(triceps,Datum.INVALID);
 					}
 					return new Datum(triceps, node.getReadback(triceps.getCurrentLanguage()),Datum.STRING);
@@ -533,8 +536,8 @@ public class Evidence  {
 					String nodeName = datum.getName();
 					Node node = null;
 					if (nodeName == null || ((node = getNode(nodeName)) == null)) {
-						setError(triceps.get("unknown_node") + nodeName, line, column);
-						return Datum.getInstance(triceps,Datum.INVALID);
+						setError(triceps.get("unknown_node") + nodeName, line, column,null);
+						return new Datum(triceps,false);
 					}
 					String comment = node.getComment();
 					return new Datum(triceps, (comment != null && comment.trim().length() > 0) ? true : false);
@@ -544,7 +547,7 @@ public class Evidence  {
 					String nodeName = datum.getName();
 					Node node = null;
 					if (nodeName == null || ((node = getNode(nodeName)) == null)) {
-						setError(triceps.get("unknown_node") + nodeName, line, column);
+						setError(triceps.get("unknown_node") + nodeName, line, column,null);
 						return Datum.getInstance(triceps,Datum.INVALID);
 					}
 					return new Datum(triceps, node.getComment(), Datum.STRING);
@@ -558,7 +561,7 @@ public class Evidence  {
 					String nodeName = datum.getName();
 					Node node = null;
 					if (nodeName == null || ((node = getNode(nodeName)) == null)) {
-						setError(triceps.get("unknown_node") + nodeName, line, column);
+						setError(triceps.get("unknown_node") + nodeName, line, column,null);
 						return Datum.getInstance(triceps,Datum.INVALID);
 					}
 					Vector choices = node.getAnswerChoices();
@@ -572,7 +575,7 @@ public class Evidence  {
 					String nodeName = datum.getName();
 					Node node = null;
 					if (nodeName == null || ((node = getNode(nodeName)) == null)) {
-						setError(triceps.get("unknown_node") + nodeName, line, column);
+						setError(triceps.get("unknown_node") + nodeName, line, column,null);
 						return Datum.getInstance(triceps,Datum.INVALID);
 					}
 					Vector choices = node.getAnswerChoices();
@@ -591,19 +594,19 @@ public class Evidence  {
 							return Datum.getInstance(triceps,Datum.INVALID);	
 						}
 					}
-					else if (params.size() == 2) {
+					else { // if (params.size() == 2) {
 						datum = getParam(params.elementAt(1));
 						if (!datum.isNumeric()) {
-							setError(functionError(funcNum,Datum.NUMBER,2));
+							setError(functionError(funcNum,Datum.NUMBER,2),datum);
 							return Datum.getInstance(triceps,Datum.INVALID);	
 						}
 						int index = (int) datum.doubleVal();
 						if (index < 0) {
-							setError(triceps.get("index_too_low"));
+							setError(triceps.get("index_too_low"),index);
 							return Datum.getInstance(triceps,Datum.INVALID);	
 						}
-						else if (index > choices.size()) {
-							setError(triceps.get("index_too_high"));
+						else if (index >= choices.size()) {
+							setError(triceps.get("index_too_high"),index);
 							return Datum.getInstance(triceps,Datum.INVALID);	
 						}
 						else {
@@ -616,16 +619,16 @@ public class Evidence  {
 					String src = datum.stringVal();
 					datum = getParam(params.elementAt(1));
 					if (!datum.isNumeric()) {
-						setError(functionError(funcNum,Datum.NUMBER,2));
+						setError(functionError(funcNum,Datum.NUMBER,2),datum);
 						return Datum.getInstance(triceps,Datum.INVALID);	
 					}
 					int index = (int) datum.doubleVal();
 					if (index < 0) {
-						setError(triceps.get("index_too_low"));
+						setError(triceps.get("index_too_low"),index);
 						return Datum.getInstance(triceps,Datum.INVALID);	
 					}
-					else if (index > src.length()) {
-						setError(triceps.get("index_too_high"));
+					else if (index >= src.length()) {
+						setError(triceps.get("index_too_high"),index);
 						return Datum.getInstance(triceps,Datum.INVALID);	
 					}
 					else {
@@ -652,16 +655,16 @@ public class Evidence  {
 					else if (params.size() == 3) {
 						Datum datum2 = getParam(params.elementAt(2));
 						if (!datum2.isNumeric()) {
-							setError(functionError(funcNum,Datum.NUMBER,3));
+							setError(functionError(funcNum,Datum.NUMBER,3),datum2);
 							return Datum.getInstance(triceps,Datum.INVALID);	
 						}
 						int index = (int) datum2.doubleVal();
 						if (index < 0) {
-							setError(triceps.get("index_too_low"));
+							setError(triceps.get("index_too_low"),index);
 							return Datum.getInstance(triceps,Datum.INVALID);	
 						}
-						else if (index > str1.length()) {
-							setError(triceps.get("index_too_high"));
+						else if (index >= str1.length()) {
+							setError(triceps.get("index_too_high"),index);
 							return Datum.getInstance(triceps,Datum.INVALID);	
 						}
 						else {
@@ -686,16 +689,16 @@ public class Evidence  {
 					else if (params.size() == 3) {
 						Datum datum2 = getParam(params.elementAt(2));
 						if (!datum2.isNumeric()) {
-							setError(functionError(funcNum,Datum.NUMBER,3));
+							setError(functionError(funcNum,Datum.NUMBER,3),datum2);
 							return Datum.getInstance(triceps,Datum.INVALID);	
 						}
 						int index = (int) datum2.doubleVal();
 						if (index < 0) {
-							setError(triceps.get("index_too_low"));
+							setError(triceps.get("index_too_low"),index);
 							return Datum.getInstance(triceps,Datum.INVALID);	
 						}
-						else if (index > str1.length()) {
-							setError(triceps.get("index_too_high"));
+						else if (index >= str1.length()) {
+							setError(triceps.get("index_too_high"),index);
 							return Datum.getInstance(triceps,Datum.INVALID);	
 						}
 						else {
@@ -722,16 +725,16 @@ public class Evidence  {
 					else if (params.size() == 3) {
 						Datum datum2 = getParam(params.elementAt(2));
 						if (!datum2.isNumeric()) {
-							setError(functionError(funcNum,Datum.NUMBER,3));
+							setError(functionError(funcNum,Datum.NUMBER,3),datum2);
 							return Datum.getInstance(triceps,Datum.INVALID);	
 						}
 						int index = (int) datum2.doubleVal();
 						if (index < 0) {
-							setError(triceps.get("index_too_low"));
+							setError(triceps.get("index_too_low"),index);
 							return Datum.getInstance(triceps,Datum.INVALID);	
 						}
-						else if (index > str1.length()) {
-							setError(triceps.get("index_too_high"));
+						else if (index >= str1.length()) {
+							setError(triceps.get("index_too_high"),index);
 							return Datum.getInstance(triceps,Datum.INVALID);	
 						}
 						else {
@@ -750,25 +753,51 @@ public class Evidence  {
 					String str1 = getParam(params.elementAt(0)).stringVal();
 					Datum start = getParam(params.elementAt(1));
 					Datum end = null;
+					int from, to;
 					
 					if (params.size() == 3) {
 						end = getParam(params.elementAt(2));
 					}
 					
 					if (!start.isNumeric()) {
-						setError(functionError(funcNum,Datum.NUMBER,2));
+						setError(functionError(funcNum,Datum.NUMBER,2),start);
 						return Datum.getInstance(triceps,Datum.INVALID);	
 					}
-					if (end != null && !end.isNumeric()) {
-						setError(functionError(funcNum,Datum.NUMBER,3));
-						return Datum.getInstance(triceps,Datum.INVALID);	
+					else {
+						from = (int) start.doubleVal();
+						if (from < 0) {
+							setError(triceps.get("index_too_low"),from);
+							return Datum.getInstance(triceps,Datum.INVALID);	
+						}
+						else if (from >= str1.length()) {
+							setError(triceps.get("index_too_high"),from);
+							return Datum.getInstance(triceps,Datum.INVALID);								
+						}
+						
 					}
 					
 					if (end != null) {
-						return new Datum(triceps, str1.substring((int) start.doubleVal(), (int) end.doubleVal()), Datum.STRING);
+						if (!end.isNumeric()) {
+							setError(functionError(funcNum,Datum.NUMBER,3),end);
+							return Datum.getInstance(triceps,Datum.INVALID);
+						}
+						else {
+							to = (int) end.doubleVal();
+							if (to < from) {
+								setError(triceps.get("index_too_low"),to);
+								return Datum.getInstance(triceps,Datum.INVALID);	
+							}
+							else if (to >= str1.length()) {
+								setError(triceps.get("index_too_high"),to);
+								return Datum.getInstance(triceps,Datum.INVALID);								
+							}
+							else {
+								return new Datum(triceps, str1.substring(from,to), Datum.STRING);
+							}
+						}
 					}
 					else {
-						return new Datum(triceps, str1.substring((int) start.doubleVal()), Datum.STRING);
+						return new Datum(triceps, str1.substring(from), Datum.STRING);
 					}
 				}					
 				case TOLOWERCASE:
@@ -777,17 +806,42 @@ public class Evidence  {
 					return new Datum(triceps,datum.stringVal().toUpperCase(), Datum.STRING);
 				case TRIM:
 					return new Datum(triceps,datum.stringVal().trim(), Datum.STRING);
+				case ISNUMBER:
+					return new Datum(triceps,datum.isNumeric());
 			}
 		}
 		catch (Throwable t) { 
 			Logger.printStackTrace(t);
 		}
-		setError("unexpected error running function " + name, line, column);
+		setError("unexpected error running function " + name, line, column, null);
 		return Datum.getInstance(triceps,Datum.INVALID);
 	}
+	
+	private void setError(String s, int line, int column, int val) { setError(s,line,column,new Integer(val)); }
+	private void setError(String s, int val) { setError(s,new Integer(val)); }
 
-	private void setError(String s, int line, int column) { errorLogger.println(s,line,column); }
-	private void setError(String s) { errorLogger.println(s); }
+	private void setError(String s, int line, int column, Object val) { 
+		String msg = null;
+		if (val != null) {
+			msg = s + ": " + triceps.get("got") + ((val instanceof Datum) ? ((Datum) val).stringVal() : val.toString());
+		}
+		else {
+			msg = s;
+		}
+		errorLogger.print(msg,line,column); 
+		Logger.writeln(msg);
+	}
+	private void setError(String s, Object val) { 
+		String msg = null;
+		if (val != null) {
+			msg = s + ": " + triceps.get("got") + ((val instanceof Datum) ? ((Datum) val).stringVal() : val.toString());
+		}
+		else {
+			msg = s;
+		}
+		errorLogger.println(msg); 
+		Logger.writeln(msg);
+	}
 	public boolean hasErrors() { return (errorLogger.size() > 0); }
 	public String getErrors() { return errorLogger.toString(); }
 	
