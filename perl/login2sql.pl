@@ -52,6 +52,7 @@ CREATE TABLE pagehits (
 	pageHitID int(11) NOT NULL auto_increment,
 	PRIMARY KEY  ( pageHitID ),
 	timeStamp timestamp(14) NOT NULL,
+	accessCount int(11) NOT NULL default '-1',
 	currentIP varchar(16) NOT NULL default '',
 	username varchar(15) NOT NULL default '',
 	sessionID varchar(35) NOT NULL default '',
@@ -62,6 +63,17 @@ CREATE TABLE pagehits (
 	currentStep varchar(10) NOT NULL default '',
 	lastAction varchar(15) NOT NULL default '',
 	statusMsg varchar(35) NOT NULL default ''
+);
+
+CREATE TABLE pageHitDetails (
+	pageHitDetailsID int(11) NOT NULL auto_increment,
+	PRIMARY KEY  ( pageHitDetailsID ),
+	timeStamp timestamp(14) NOT NULL,
+	accessCount int(11) NOT NULL default '-1',
+	currentIP varchar(16) NOT NULL default '',
+	currentStep varchar(10) NOT NULL default '',
+	param varchar(40) NOT NULL default '',
+	value varchar(254) NOT NULL default ''
 );
 
 # This tests whether there is mis-filing of files:
