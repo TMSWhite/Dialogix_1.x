@@ -200,7 +200,7 @@ Logger.writeln("##NumberFormatException @ Node.languageNum" + t.getMessage());
 			}
 		}
 		else {
-			setNamingError(triceps.get("localName_must_be_specified"));
+//			setNamingError(triceps.get("localName_must_be_specified"));
 		}
 
 		parseQuestionOrEvalTypeField();
@@ -531,7 +531,6 @@ Logger.writeln("##NoSuchElementException @ Node.parseAnswerOptions" + t.getMessa
 
 			if (count > 0) {
 				Double pct = new Double(100. / (double) count);
-				sb.append("<td colspan='2' bgcolor='lightgrey'>");
 				sb.append("<table cellpadding='0' cellspacing='2' border='1' width='100%'>");
 				sb.append("<tr>");
 				while (ans.hasMoreElements()) { // for however many radio buttons there are
@@ -542,13 +541,9 @@ Logger.writeln("##NoSuchElementException @ Node.parseAnswerOptions" + t.getMessa
 						(isSelected(datum,ac)? " checked" : "") + ">" + ac.getMessage());
 					sb.append("</td>");
 				}
+				sb.append("</tr>");
+				sb.append("</table>");				
 			}
-			sb.append("</tr>");
-			sb.append("</table>");
-			/* XXX: add Node errors here - a kludge */
-			sb.append(errMsg);
-			sb.append("</td>");
-//				sb.append("</tr>");	// closing the outside is reserverd for TricepsServlet
 			break;
 		case CHECK:
 			ans = getAnswerChoices().elements();
