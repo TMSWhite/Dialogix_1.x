@@ -61,6 +61,9 @@ public final class Datum  {
 	public Datum(Triceps lang, long l) { init(lang, new Long(l), NUMBER, null); }
 	
 	public static Datum getInstance(Triceps lang, int i) {
+if (i == INVALID) {
+Logger.printStackTrace(new Throwable("##INVALID Datum"));
+}
 		String key = (lang.toString() + i);
 		Datum datum = (Datum) SPECIAL_DATA.get(key);
 		if (datum != null)
@@ -148,18 +151,21 @@ public final class Datum  {
 					datum.type = newType;
 					datum.mask = useMask;
 				}
+				else if (newType == NUMBER) {
+					datum = new Datum(triceps,this.doubleVal());
+				}
 				else if (newType == STRING) {
 					return datum;	// don't cast to STRING
 //					datum = new Datum(triceps,this.stringVal(),STRING);
 				}
 				else {
-					datum = new Datum(triceps,INVALID);
+					datum = Datum.getInstance(triceps,Datum.INVALID);
 				}	
 				break;
 			case NUMBER:
 				if (isDate(newType)) {
 					if (newType == TIME || newType == DATE) {
-						datum = new Datum(triceps,INVALID);
+						datum = Datum.getInstance(triceps,Datum.INVALID);
 					}
 					else {
 						datum = new Datum(this);
@@ -175,7 +181,7 @@ public final class Datum  {
 //					datum = new Datum(triceps,this.stringVal(),STRING);
 				}
 				else {
-					datum = new Datum(triceps,INVALID);
+					datum = Datum.getInstance(triceps,Datum.INVALID);
 				}
 				break;
 			case STRING:
@@ -200,6 +206,7 @@ public final class Datum  {
     	triceps = (lang == null) ? Triceps.NULL : lang;
 		
 		if (obj == null && !isSpecial(t)) {
+Logger.writeln("##null obj passed to Datum.init()");
 			t = INVALID;
 		}
 		
@@ -251,7 +258,7 @@ public final class Datum  {
 					type = INVALID;
 				}
 				else {
-					num = triceps.parseNumber(obj,null);
+					num = triceps.parseNumber(triceps.formatDate(date,Datum.getDefaultMask(t)),null);
 					if (num != null) {
 						dVal = num.doubleValue();
 					}
@@ -267,17 +274,15 @@ public final class Datum  {
 				break;
 		}
 		if (type == INVALID) {
-			if (type == INVALID) {
-				if (t == INVALID) {
-					error = triceps.get("Please_answer_this_question");
-				}
-				else {
-					String ex = getExampleFormatStr(mask,t);
-					if (ex.length() > 0)
-						ex = " (e.g. " + ex + ")";
-					error = triceps.get("please_enter_a") + getTypeName(triceps,t) + ex;
-				}
-			}		
+			if (t == INVALID) {
+				error = triceps.get("Please_answer_this_question");
+			}
+			else {
+				String ex = getExampleFormatStr(mask,t);
+				if (ex.length() > 0)
+					ex = " (e.g. " + ex + ")";
+				error = triceps.get("please_enter_a") + getTypeName(triceps,t) + ex;
+			}
 			sVal = null;
 			dVal = Double.NaN;
 			date = null;
@@ -319,7 +324,7 @@ public final class Datum  {
 			case STRING:
 				return sVal;
 			default:
-Logger.writeln("stringVal(" + showReserved + "," + mask + ") -> invalid type " + type);			
+Logger.writeln("##stringVal(" + showReserved + "," + mask + ") -> invalid type " + type);			
 				return getTypeName(triceps,INVALID);
 			case INVALID:
 			case NA:
