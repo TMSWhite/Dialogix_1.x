@@ -38,10 +38,11 @@ public class Evidence  {
 	private static final int NOW = 18;
 	private static final int STARTTIME = 19;
 	private static final int COUNT = 20;
-	private static final int LIST = 21;
-	private static final int NEWDATE = 22;
-	private static final int NEWTIME = 23;
-	private static final int ISINVALID = 24;
+	private static final int ANDLIST = 21;
+	private static final int ORLIST = 22;
+	private static final int NEWDATE = 23;
+	private static final int NEWTIME = 24;
+	private static final int ISINVALID = 26;
 
 	private static final Object FUNCTION_ARRAY[][] = {
 		{ "desc",				ONE,		new Integer(DESC) },
@@ -65,7 +66,8 @@ public class Evidence  {
 		{ "getNow",				ZERO,		new Integer(NOW) },
 		{ "getStartTime",		ZERO,		new Integer(STARTTIME) },
 		{ "count",				UNLIMITED,	new Integer(COUNT) },
-		{ "list",				UNLIMITED,	new Integer(LIST) },
+		{ "list",				UNLIMITED,	new Integer(ANDLIST) },
+		{ "orlist",				UNLIMITED,	new Integer(ORLIST) },
 		{ "newDate",			UNLIMITED,	new Integer(NEWDATE) },
 		{ "newTime",			UNLIMITED,	new Integer(NEWTIME) },
 		{ "isInvalid",			ONE,		new Integer(ISINVALID) },
@@ -319,7 +321,7 @@ public class Evidence  {
 
 
 			switch(funcNum) {
-				case DESC	: {
+				case DESC: {
 					String nodeName = datum.getName();
 					Node node = null;
 					if (nodeName == null || ((node = getNode(nodeName)) == null)) {
@@ -330,45 +332,45 @@ public class Evidence  {
 				}
 				case ISINVALID:
 					return new Datum(datum.isType(Datum.INVALID));
-				case ISASKED		 :
+				case ISASKED:
 					return new Datum(!(datum.isType(Datum.NA)));
-				case ISNA			:
+				case ISNA:
 					return new Datum(datum.isType(Datum.NA));
-				case ISREFUSED	   :
+				case ISREFUSED:
 					return new Datum(datum.isType(Datum.REFUSED));
-				case ISUNKNOWN	   :
+				case ISUNKNOWN:
 					return new Datum(datum.isType(Datum.UNKNOWN));
-				case ISNOTUNDERSTOOD :
+				case ISNOTUNDERSTOOD:
 					return new Datum(datum.isType(Datum.NOT_UNDERSTOOD));
-				case ISDATE		  :
+				case ISDATE:
 					return new Datum(datum.isType(Datum.DATE));
-				case ISANSWERED	  :
+				case ISANSWERED:
 					return new Datum(datum.exists());
-				case GETDATE		 :
+				case GETDATE:
 					return new Datum(datum.dateVal(),Datum.DATE);
-				case GETYEAR		 :
+				case GETYEAR:
 					return new Datum(datum.dateVal(),Datum.YEAR);
-				case GETMONTH		:
+				case GETMONTH:
 					return new Datum(datum.dateVal(),Datum.MONTH);
-				case GETMONTHNUM	 :
+				case GETMONTHNUM:
 					return new Datum(datum.dateVal(),Datum.MONTH_NUM);
-				case GETDAY		  :
+				case GETDAY:
 					return new Datum(datum.dateVal(),Datum.DAY);
-				case GETWEEKDAY	  :
+				case GETWEEKDAY:
 					return new Datum(datum.dateVal(),Datum.WEEKDAY);
-				case GETTIME		 :
+				case GETTIME:
 					return new Datum(datum.dateVal(),Datum.TIME);
-				case GETHOUR		 :
+				case GETHOUR:
 					return new Datum(datum.dateVal(),Datum.HOUR);
-				case GETMINUTE	   :
+				case GETMINUTE:
 					return new Datum(datum.dateVal(),Datum.MINUTE);
-				case GETSECOND	   :
+				case GETSECOND:
 					return new Datum(datum.dateVal(),Datum.SECOND);
-				case NOW			 :
+				case NOW:
 					return new Datum(new Date(System.currentTimeMillis()),Datum.DATE);
-				case STARTTIME	   :
+				case STARTTIME:
 					return new Datum(startTime,Datum.TIME);
-				case COUNT		   :	// unlimited number of parameters
+				case COUNT:	// unlimited number of parameters
 				{
 					long count=0;
 					for (int i=0;i<params.size();++i) {
@@ -379,7 +381,8 @@ public class Evidence  {
 					}
 					return new Datum(count);
 				}
-				case LIST			:	// unlimited number of parameters
+				case ANDLIST:
+				case ORLIST:	// unlimited number of parameters
 				{
 					StringBuffer sb = new StringBuffer();
 					Vector v = new Vector();
@@ -400,7 +403,12 @@ public class Evidence  {
 							}
 						}
 						if ((i == (v.size() - 1)) && (v.size() > 1)) {
-							sb.append("and ");
+							if (funcNum == ANDLIST) {
+								sb.append("and ");
+							}
+							else if (funcNum == ORLIST) {
+								sb.append("or ");
+							}
 						}
 						sb.append(datum.stringVal());
 					}
