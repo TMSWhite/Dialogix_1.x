@@ -112,6 +112,7 @@ public final class DatumMath {
 			return new Datum(a.triceps, a.stringVal().concat(b.stringVal()),Datum.STRING);
 		}
 		catch(NullPointerException e) {
+Logger.writeln("##NullPointerException @ concat");
 			return new Datum(a.triceps, a.stringVal(),Datum.STRING);
 		}
 	}
@@ -139,6 +140,7 @@ public final class DatumMath {
 			return new Datum(a.triceps, a.doubleVal() / b.doubleVal());
 		}
 		catch(ArithmeticException e) {
+Logger.writeln("##ArithmeticException @ divide");
 			return Datum.getInstance(a.triceps,Datum.INVALID);
 		}
 	}
@@ -165,7 +167,17 @@ public final class DatumMath {
 				case Datum.SECOND:
 				case Datum.MONTH_NUM:
 				case Datum.DAY_NUM:
-					return new Datum(a.triceps, DatumMath.getCalendarField(a,a.type()) == DatumMath.getCalendarField(b,a.type()));
+				{
+					boolean ans = false;
+					if (b.isDate()) {
+						ans = (DatumMath.getCalendarField(a,a.type()) == DatumMath.getCalendarField(b,a.type()));
+					}
+					else if (b.isNumeric()) {
+						ans = (a.doubleVal()== b.doubleVal());
+					}
+Logger.writeln("##eq(" + a.doubleVal() + "," + a.dateVal() + ";" + b.doubleVal() + "," + b.dateVal() + ")-> " + ans);					
+					return new Datum(a.triceps, ans);
+				}
 				case Datum.STRING:
 					if (a.isNumeric())
 						return new Datum(a.triceps, a.doubleVal() == b.doubleVal());
@@ -178,7 +190,9 @@ public final class DatumMath {
 					return new Datum(a.triceps, false);
 			}
 		}
-		catch(NullPointerException e) {}
+		catch(NullPointerException e) {
+Logger.writeln("##NullPointerException @ eq");
+		}
 		return new Datum(a.triceps, false);
 	}
 	/**
@@ -207,7 +221,17 @@ public final class DatumMath {
 				case Datum.SECOND:
 				case Datum.MONTH_NUM:
 				case Datum.DAY_NUM:
-					return new Datum(a.triceps, DatumMath.getCalendarField(a,a.type()) >= DatumMath.getCalendarField(b,a.type()));
+				{
+					boolean ans = false;
+					if (b.isDate()) {
+						ans = (DatumMath.getCalendarField(a,a.type()) >= DatumMath.getCalendarField(b,a.type()));
+					}
+					else if (b.isNumeric()) {
+						ans = (a.doubleVal()>= b.doubleVal());
+					}
+Logger.writeln("##ge(" + a.doubleVal() + "," + a.dateVal() + ";" + b.doubleVal() + "," + b.dateVal() + ")-> " + ans);					
+					return new Datum(a.triceps, ans);
+				}				
 				case Datum.STRING:
 					if (a.isNumeric())
 						return new Datum(a.triceps, a.doubleVal() >= b.doubleVal());
@@ -220,7 +244,9 @@ public final class DatumMath {
 					return new Datum(a.triceps, false);
 			}
 		}
-		catch(NullPointerException e) {}
+		catch(NullPointerException e) {
+Logger.writeln("##NullPointerException @ ge");
+		}
 		return new Datum(a.triceps, false);
 	}
 	/**
@@ -247,7 +273,17 @@ public final class DatumMath {
 				case Datum.SECOND:
 				case Datum.MONTH_NUM:
 				case Datum.DAY_NUM:
-					return new Datum(a.triceps, DatumMath.getCalendarField(a,a.type()) > DatumMath.getCalendarField(b,a.type()));
+				{
+					boolean ans = false;
+					if (b.isDate()) {
+						ans = (DatumMath.getCalendarField(a,a.type()) > DatumMath.getCalendarField(b,a.type()));
+					}
+					else if (b.isNumeric()) {
+						ans = (a.doubleVal()> b.doubleVal());
+					}
+Logger.writeln("##gt(" + a.doubleVal() + "," + a.dateVal() + ";" + b.doubleVal() + "," + b.dateVal() + ")-> " + ans);					
+					return new Datum(a.triceps, ans);
+				}				
 				case Datum.STRING:
 					if (a.isNumeric())
 						return new Datum(a.triceps, a.doubleVal() > b.doubleVal());
@@ -260,7 +296,9 @@ public final class DatumMath {
 					return new Datum(a.triceps, false);
 			}
 		}
-		catch(NullPointerException e) {}
+		catch(NullPointerException e) {
+Logger.writeln("##NullPointerException @ gt");
+		}
 		return new Datum(a.triceps, false);
 	}
 	/**
@@ -289,7 +327,17 @@ public final class DatumMath {
 				case Datum.SECOND:
 				case Datum.MONTH_NUM:
 				case Datum.DAY_NUM:
-					return new Datum(a.triceps, DatumMath.getCalendarField(a,a.type()) <= DatumMath.getCalendarField(b,a.type()));
+				{
+					boolean ans = false;
+					if (b.isDate()) {
+						ans = (DatumMath.getCalendarField(a,a.type()) <= DatumMath.getCalendarField(b,a.type()));
+					}
+					else if (b.isNumeric()) {
+						ans = (a.doubleVal()<= b.doubleVal());
+					}
+Logger.writeln("##le(" + a.doubleVal() + "," + a.dateVal() + ";" + b.doubleVal() + "," + b.dateVal() + ")-> " + ans);					
+					return new Datum(a.triceps, ans);
+				}
 				case Datum.STRING:
 					if (a.isNumeric())
 						return new Datum(a.triceps, a.doubleVal() <= b.doubleVal());
@@ -302,7 +350,9 @@ public final class DatumMath {
 					return new Datum(a.triceps, false);
 			}
 		}
-		catch(NullPointerException e) {}
+		catch(NullPointerException e) {
+Logger.writeln("##NullPointerException @ le");
+		}
 		return new Datum(a.triceps, false);
 	}
 	/** This method returns a Datum of type boolean upon comparing two Datum objects of type String or double for less than. */
@@ -327,7 +377,17 @@ public final class DatumMath {
 				case Datum.SECOND:
 				case Datum.MONTH_NUM:
 				case Datum.DAY_NUM:
-					return new Datum(a.triceps, DatumMath.getCalendarField(a,a.type()) < DatumMath.getCalendarField(b,a.type()));
+				{
+					boolean ans = false;
+					if (b.isDate()) {
+						ans = (DatumMath.getCalendarField(a,a.type()) < DatumMath.getCalendarField(b,a.type()));
+					}
+					else if (b.isNumeric()) {
+						ans = (a.doubleVal()< b.doubleVal());
+					}
+Logger.writeln("##lt(" + a.doubleVal() + "," + a.dateVal() + ";" + b.doubleVal() + "," + b.dateVal() + ")-> " + ans);					
+					return new Datum(a.triceps, ans);
+				}					
 				case Datum.STRING:
 					if (a.isNumeric())
 						return new Datum(a.triceps, a.doubleVal() < b.doubleVal());
@@ -340,7 +400,9 @@ public final class DatumMath {
 					return new Datum(a.triceps, false);
 			}
 		}
-		catch(NullPointerException e) {}
+		catch(NullPointerException e) {
+Logger.writeln("##NullPointerException @ lt");
+		}
 		return new Datum(a.triceps, false);
 	}
 	/** This method returns a Datum object of type double that is the modulus of two Datum objects of type double. */
@@ -353,6 +415,7 @@ public final class DatumMath {
 			return new Datum(a.triceps, a.doubleVal() % b.doubleVal());
 		}
 		catch(ArithmeticException e) {
+Logger.writeln("##ArithmeticException @ modulus");
 			return Datum.getInstance(a.triceps,Datum.INVALID);
 		}
 	}
@@ -401,7 +464,17 @@ public final class DatumMath {
 				case Datum.SECOND:
 				case Datum.MONTH_NUM:
 				case Datum.DAY_NUM:
-					return new Datum(a.triceps, DatumMath.getCalendarField(a,a.type()) != DatumMath.getCalendarField(b,a.type()));
+				{
+					boolean ans = false;
+					if (b.isDate()) {
+						ans = (DatumMath.getCalendarField(a,a.type()) != DatumMath.getCalendarField(b,a.type()));
+					}
+					else if (b.isNumeric()) {
+						ans = (a.doubleVal()!= b.doubleVal());
+					}
+Logger.writeln("##neq(" + a.doubleVal() + "," + a.dateVal() + ";" + b.doubleVal() + "," + b.dateVal() + ")-> " + ans);					
+					return new Datum(a.triceps, ans);
+				}			
 				case Datum.STRING:
 					if (a.isNumeric())
 						return new Datum(a.triceps, a.doubleVal() != b.doubleVal());
@@ -414,7 +487,9 @@ public final class DatumMath {
 					return new Datum(a.triceps, false);	// value is indeterminate - neither eq nor neq
 			}
 		}
-		catch(NullPointerException e) {}
+		catch(NullPointerException e) {
+Logger.writeln("##NullPointerException @ neq");
+		}
 		return new Datum(a.triceps, false);
 	}
 	/** This method returns a Datum object of the opposite value of the Datum object passed. */
