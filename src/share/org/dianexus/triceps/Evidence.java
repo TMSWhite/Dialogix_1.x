@@ -27,7 +27,7 @@ public class Evidence  {
 		Node node;
 		int i;
 		for (i = 0; i < size; ++i) {
-			data.addElement(new Datum(Datum.UNKNOWN));
+			data.addElement(Datum.getInstance(Datum.UNKNOWN));
 			node = schedule.getNode(i);
 			if (node == null) {
 				System.out.println("Inaccessible node # " + i);
@@ -142,6 +142,7 @@ public class Evidence  {
 		}
 
 		data.setElementAt(val, i.intValue());
+		node.setTimeStamp();
 		/*
 		nodes.setElementAt(node, i.intValue());
 		aliases.put(node.getConcept(), i);
@@ -165,6 +166,7 @@ public class Evidence  {
 		}
 		else {
 			data.setElementAt(val, i.intValue());
+			((Node) nodes.elementAt(i.intValue())).setTimeStamp();
 //			nodes.setElementAt(name, i.intValue());
 		}
 	}
