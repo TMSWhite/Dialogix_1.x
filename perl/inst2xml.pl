@@ -99,6 +99,7 @@ sub processDir {
 		my $xmlfile;
 		if ((-f $file) && (-r $file)) {
 			$xmlfile = &inst2xml($file);
+			return if ($xmlfile eq '');	# not a valid file
 			if ((-f $xmlfile) && (-r $xmlfile)) {
 				&validate_xml($xmlfile);
 				&calc_diffs($xmlfile);
@@ -120,17 +121,90 @@ sub calc_diffs {
 	my $starttime = time;
 	my $cmd = "$DIFF_EXE $src $dst";
 	my @results = qx|$cmd|;
-	if (!open (DIFF, ">$src.diff")) {
-		print "unable to save diff to $src.diff\n";
+	if ($#results <= 0) {
+		print "No diffs between  \"$src\" and tidied version\n";
+	}
+	else {
+		if (!open (DIFF, ">$src.diff")) {
+			print "unable to save diff to $src.diff\n";
+			return;
+		}
+		print DIFF $cmd, "\n";
+		my $count = 0;
+		foreach (@results) {
+			++$count if (/^---/);
+			print DIFF $_;
+		}
+		close (DIFF);
+		my $stoptime = time;
+		print "$count diffs saved in \"$src.diff\" in " . ($stoptime - $starttime) . " seconds\n";
+	}
+	&show_problems($src,$dst);
+}
+
+sub show_problems {
+	my ($src,$dst) = @_;
+	
+	my $starttime = time;
+	
+	if (!open (IN,"<$dst")) {
+		print "unable to read from $dst\n";
 		return;
 	}
-	print DIFF $cmd, "\n";
-	foreach (@results) {
-		print DIFF $_;
+	
+	my @lines = (<IN>);
+	close (IN);
+	
+	if (!open(PROBS,">$dst.problems")) {
+		print "unable to write to $dst.problems\n";
+		return;
 	}
-	close (DIFF);
-	my $stoptime = time;
-	print "Saved diff as \"$src.diff\" in " . ($stoptime - $starttime) . " seconds\n";
+	
+	my $linenum = -1;
+	my @errs;
+	my $probcount = 0;
+	foreach my $line (@lines) {
+		if ($line =~ /linenum="(\d+?)">/) {
+			# print problems
+			if ($linenum >= 0 && $#errs >= 0) {
+				++$probcount;
+				print PROBS "<!-- === " . ($#errs + 1) . " POTENTIAL SYNTAX PROBLEMS ON LINE $linenum === -->\n";
+				foreach (@errs) {
+					print PROBS "$_";
+				}
+			}
+			# reset counters
+			$linenum = $1;
+			undef @errs;
+		}
+		if ($line =~ /_binary_((?:and)|(?:or))_/) {
+			push @errs, "	<!-- __binary_$1_ instead of $1 -->\n$line";
+		}
+		if ($line =~ /_assign_/) {
+			push @errs, "	<!-- _assign_ instead of eq -->\n$line";
+		}
+		if ($line =~ /&((?:amp)|(?:lt)|(?:gt));/) {
+			push @errs, "	<!-- &$1; -- could be bad variable name or equation -->\n$line";
+		}
+	}
+	# print remaining problems
+	if ($linenum >= 0 && $#errs >= 0) {
+		++$probcount;
+		print PROBS "<!-- === " . ($#errs + 1) . " POTENTIAL SYNTAX PROBLEMS ON LINE $linenum === -->\n";
+		foreach (@errs) {
+			print PROBS "$_";
+		}
+	}
+	
+	close (PROBS);
+	my $timediff = (time - $starttime);
+
+	if ($probcount == 0) {
+		unlink("$dst.problems");
+		return;
+	}
+	
+	print "Wrote $probcount ?syntax problems to \"$dst.problems\" in $timediff seconds\n";
 }
 
 sub inst2xml {
@@ -159,7 +233,7 @@ sub inst2xml {
 			# read the data, without processing it (other than to remove Excel's extraneous quotes
 			foreach (@src) {
 				next if (/^\s*$/);
-				if (/^RESERVED/) {
+				if (/^\s*RESERVED/) {
 					my $reserved = &parse_reserved($_);	# this pre-supposes that all reserveds must be parsed first -- isnt' this true in headers vs. body?
 					if ($reserved->{'resname'} eq '__LANGUAGES__') {
 						@languages = &parse_languages($reserved->{'resval'});
@@ -170,6 +244,10 @@ sub inst2xml {
 					push @lines, &parse_comment($_);
 				}
 				else {
+					if ($#lines < 1) {
+						# then no reserveds found, so not a valid file
+						return '';
+					}
 					push @lines, &parse_node($_);
 				}
 			}
@@ -192,7 +270,7 @@ sub validate_xml {
 	my $filename = shift;
 
 	if (!$VALIDATEXML) {
-		print "skipping validation of \"$filename\"\n";
+#		print "skipping validation of \"$filename\"\n";
 		return;
 	}
 	
