@@ -87,6 +87,9 @@ public class TricepsServlet extends HttpServlet {
 		/* Store appropriate stuff in the session */
 		if (triceps != null)
 			session.putValue("triceps", triceps);
+
+		out.flush();
+//		out.close();	// BUG:  causes "Network Connection reset by peer" with Ham-D.txt - WHY?  Without close, dangling resources?
 	}
 
 	private String header() {

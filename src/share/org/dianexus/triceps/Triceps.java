@@ -305,18 +305,22 @@ public class Triceps implements Serializable {
 	}
 
 	public boolean save(String filename) {
+		ObjectOutputStream out = null;
 		try {
 			FileOutputStream fos = new FileOutputStream(filename);
-			ObjectOutputStream out = new ObjectOutputStream(fos);
+			out = new ObjectOutputStream(fos);
 			out.writeObject(this);
-			out.flush();
-			out.close();
 			System.out.println("Saved interview to " + filename);
 			return true;
 		}
 		catch (IOException e) {
 			System.out.println(e);
 			return false;
+		}
+		finally {
+			if (out != null) {
+				try { out.flush(); out.close(); } catch (Exception e) {}
+			}
 		}
 	}
 
@@ -352,11 +356,11 @@ public class Triceps implements Serializable {
 
 	public static Triceps restore(String filename) {
 		Triceps triceps = null;
+		ObjectInputStream ois = null;
 		try {
 			FileInputStream fis = new FileInputStream(filename);
-			ObjectInputStream ois = new ObjectInputStream(fis);
+			ois = new ObjectInputStream(fis);
 			triceps = (Triceps) ois.readObject();
-			ois.close();
 			triceps.parser = new Parser();	// restore unsaved parser
 			return triceps;
 		}
@@ -368,6 +372,12 @@ public class Triceps implements Serializable {
 			System.out.println(e);
 			return null;
 		}
+		finally {
+			if (ois != null) {
+				try { ois.close(); } catch (Exception e) {}
+			}
+		}
+
 	}
 
 	public int size() { return nodes.size(); }
@@ -417,17 +427,21 @@ public class Triceps implements Serializable {
 	}
 
 	public boolean toTSV(String filename) {
-		FileWriter fw;
+		FileWriter fw = null;
 
 		try {
 			fw = new FileWriter(filename);
 			boolean ok = writeTSV(fw);
-			fw.close();
 			return ok;
 		}
 		catch (IOException e) {
 			errors.push("error writing to " + Node.encodeHTML(filename) + ": " + e);
 			return false;
+		}
+		finally {
+			if (fw != null) {
+				try { fw.close(); } catch (Exception e) {}
+			}
 		}
 	}
 
