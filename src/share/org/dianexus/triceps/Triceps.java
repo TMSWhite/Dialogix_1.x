@@ -682,7 +682,7 @@ public class Triceps {
 		}
 		catch (Throwable t) {
 			/* not a valid URL, or unable to access it - so try reading from a file */
-			System.err.println(t.getMessage());
+			System.err.println("probalbly not a url: " + t.getMessage());
 		}
 		finally {
 			if (ok) {
@@ -707,7 +707,7 @@ public class Triceps {
 			}
 		}
 		catch (Throwable t) {
-			System.err.println(t.getMessage());
+			System.err.println("error accessing " + file.toString() + ": " + t.getMessage());
 		}
 		finally {
 			if (ok) {
@@ -759,7 +759,7 @@ public class Triceps {
 			}
 		}
 		catch (Throwable t) {
-			System.err.println(t.getMessage());
+			System.err.println("error setting working directory: " + t.getMessage());
 		}
 	}
 	public String getWorkingFilesDir() { return workingFilesDir; }
