@@ -1,0 +1,364 @@
+#######################
+# Old Table Structure #
+#######################
+
+#
+# Table structure for table `pageHitDetails`
+#
+
+DROP TABLE IF EXISTS pageHitDetails;
+CREATE TABLE pageHitDetails (
+  pageHitDetailsID int(11) NOT NULL auto_increment,
+  timeStamp timestamp(14) NOT NULL,
+  accessCount int(11) NOT NULL default '0',
+  currentIP varchar(16) NOT NULL default '',
+  currentStep varchar(10) NOT NULL default '',
+  param varchar(40) NOT NULL default '',
+  value varchar(254) NOT NULL default '',
+  PRIMARY KEY  (pageHitDetailsID)
+) TYPE=MyISAM;
+# --------------------------------------------------------
+
+#
+# Table structure for table `pagehits`
+#
+
+DROP TABLE IF EXISTS pagehits;
+CREATE TABLE pagehits (
+  pageHitID int(11) NOT NULL auto_increment,
+  timeStamp timestamp(14) NOT NULL,
+  accessCount int(11) NOT NULL default '-1',
+  currentIP varchar(16) NOT NULL default '',
+  username varchar(15) NOT NULL default '',
+  sessionID varchar(35) NOT NULL default '',
+  workingFile varchar(100) NOT NULL default '',
+  javaObject varchar(40) NOT NULL default '',
+  browser varchar(200) NOT NULL default '',
+  instrumentName varchar(100) NOT NULL default '',
+  currentStep varchar(10) NOT NULL default '',
+  lastAction varchar(15) NOT NULL default '',
+  statusMsg varchar(35) NOT NULL default '',
+  PRIMARY KEY  (pageHitID)
+) TYPE=MyISAM;
+# --------------------------------------------------------
+
+
+#######################
+# New Table Structure #
+#######################
+
+DROP TABLE IF EXISTS pageHitDetails;
+CREATE TABLE pageHitDetails (
+  pageHitDetailsID int(11) NOT NULL auto_increment,
+  pageHitID_FK int(11) NOT NULL,
+  param varchar(40) NOT NULL default '',
+  value varchar(254) NOT NULL default '',
+  PRIMARY KEY  (pageHitDetailsID)
+) TYPE=MyISAM;
+# --------------------------------------------------------
+
+#
+# Table structure for table `pagehits`
+#
+
+DROP TABLE IF EXISTS pagehits;
+CREATE TABLE pagehits (
+  pageHitID int(11) NOT NULL auto_increment,
+  timeStamp timestamp(14) NOT NULL,
+  accessCount int(11) NOT NULL default '-1',
+  currentIP varchar(16) NOT NULL default '',
+  username varchar(15) NOT NULL default '',
+  sessionID varchar(35) NOT NULL default '',
+  workingFile varchar(100) NOT NULL default '',
+  javaObject varchar(40) NOT NULL default '',
+  browser varchar(200) NOT NULL default '',
+  instrumentName varchar(100) NOT NULL default '',
+  currentStep int(11) NOT NULL default '-1',
+  displayCount int(11) NOT NULL default '-1',
+  lastAction varchar(15) NOT NULL default '',
+  statusMsg varchar(35) NOT NULL default '',
+  PRIMARY KEY  (pageHitID)
+) TYPE=MyISAM;
+# --------------------------------------------------------
+
+#####################################
+# Extract data from original tables #
+#####################################
+create table dialogix2992.temp_pagehits as
+select l.* from pageHits l where l.pageHitID in (28765, 28840, 28841) order by pageHitID;
+
+create table dialogix2992.temp_pagehitDetails as 
+select l.* from pageHitDetails l, pagehits r where r.pageHitID in (28765, 28840, 28841) and r.accessCount = l.accessCount and floor(l.timestamp / 100) = floor(r.timestamp / 100) order by l.pageHitDetailsID;
+
+##########################################
+# Create inserts for new table structure #
+##########################################
+INSERT INTO pagehits VALUES 
+(NULL, NULL, 500, '68.52.0.8', 'null', 'B0A89921E597A050AEB59AB3D26D2F44', '/usr/local/dialogix/webapps/CET/WEB-INF/working/tri30832.dat', '2c97cc.63f09e', 'Mozilla/4.0 (compatible; MSIE 5.0; Mac_PowerPC; AtHome021)', ' CET/AutoMEQ-SA-irb.jar', '73', 'next', ' OK');
+
+INSERT INTO pagehitdetails VALUES 
+(NULL, LAST_INSERT_ID(),'next', '    nextÂ»Â»'),
+(NULL, LAST_INSERT_ID(),'q19_HELP', ''),
+(NULL, LAST_INSERT_ID(),'q19', '2'),
+(NULL, LAST_INSERT_ID(),'q19_COMMENT', ''),
+(NULL, LAST_INSERT_ID(),'DIRECTIVE', 'next'),
+(NULL, LAST_INSERT_ID(),'LANGUAGE', ''),
+(NULL, LAST_INSERT_ID(),'DIRECTIVE_next', 'next'),
+(NULL, LAST_INSERT_ID(),'DIRECTIVE_previous', 'previous'),
+(NULL, LAST_INSERT_ID(),'PASSWORD_FOR_ADMIN_MODE', ''),
+(NULL, LAST_INSERT_ID(),'q19_SPECIAL', ''),
+(NULL, LAST_INSERT_ID(),'EVENT_TIMINGS', 'null,undefined,load,1043643988422,203,,undefined	q19,select-one,focus,1043643988425,206,,--Select one of the following--	q19,select-one,change,1043643995914,7695,2,3)Â Rather more an evening type than a morning type	q19,select-one,click,1043643995923,770')
+;
+
+
+INSERT INTO pagehits VALUES 
+(NULL, NULL, 575, '67.216.86.203', 'null', 'B015AEF6CCD5E31C88EFFDD106AB93AF', '/usr/local/dialogix/webapps/CET/WEB-INF/working/tri30834.dat', 'eeb26.ad483', 'Mozilla/4.0 (compatible; MSIE 5.0; Windows 98; DigExt)', ' CET/AutoMEQ-SA-irb.jar', '83', 'next', ' OK');
+
+INSERT INTO pagehitdetails VALUES 
+(NULL, LAST_INSERT_ID(),'next', '    nextÂ»Â»'),
+(NULL, LAST_INSERT_ID(),'q19_HELP', ''),
+(NULL, LAST_INSERT_ID(),'q19', '2'),
+(NULL, LAST_INSERT_ID(),'q19_COMMENT', ''),
+(NULL, LAST_INSERT_ID(),'DIRECTIVE', 'next'),
+(NULL, LAST_INSERT_ID(),'LANGUAGE', ''),
+(NULL, LAST_INSERT_ID(),'DIRECTIVE_next', 'next'),
+(NULL, LAST_INSERT_ID(),'DIRECTIVE_previous', 'previous'),
+(NULL, LAST_INSERT_ID(),'PASSWORD_FOR_ADMIN_MODE', ''),
+(NULL, LAST_INSERT_ID(),'q19_SPECIAL', ''),
+(NULL, LAST_INSERT_ID(),'EVENT_TIMINGS', 'null,null,load,1042054877390,220,null	q19,select-one,focus,1042054877440,270,,--Select one of the following--	q19,select-one,change,1042054882610,5440,2,3)Â Rather more an evening type than a morning type	q19,select-one,click,1042054882610,5440,2,3)Â Rat')
+;
+
+
+INSERT INTO pagehits VALUES 
+(NULL, NULL, 576, '65.24.8.66', 'null', 'B015AEF6CCD5E31C88EFFDD106AB93AF', '/usr/local/dialogix/webapps/CET/WEB-INF/working/tri30834.dat', 'eeb26.ad483', 'Mozilla/4.0 (compatible; MSIE 6.0; Windows 98)', ' CET/AutoMEQ-SA-irb.jar', '84', 'next', ' OK');
+
+INSERT INTO pagehitdetails VALUES 
+(NULL, LAST_INSERT_ID(),'next', '    nextÂ»Â»'),
+(NULL, LAST_INSERT_ID(),'Summary_HELP', ''),
+(NULL, LAST_INSERT_ID(),'DIRECTIVE', 'next'),
+(NULL, LAST_INSERT_ID(),'Summary_COMMENT', ''),
+(NULL, LAST_INSERT_ID(),'LANGUAGE', ''),
+(NULL, LAST_INSERT_ID(),'DIRECTIVE_next', 'next'),
+(NULL, LAST_INSERT_ID(),'DIRECTIVE_previous', 'previous'),
+(NULL, LAST_INSERT_ID(),'PASSWORD_FOR_ADMIN_MODE', ''),
+(NULL, LAST_INSERT_ID(),'Summary_SPECIAL', ''),
+(NULL, LAST_INSERT_ID(),'EVENT_TIMINGS', 'null,null,load,1043647370580,170,null	next,submit,focus,1043647404300,33890,,	next,submit,click,1043647404410,34000,,	')
+;
+
+    
+
+#########################
+# Event Table Structure #
+#########################
+
+DROP TABLE IF EXISTS pageHitEvents;
+CREATE TABLE pageHitEvents (
+  pageHitEventsID int(11) NOT NULL auto_increment,
+  pageHitID_FK int(11) NOT NULL,
+  varName varchar(40) NOT NULL default '',
+  actionType varchar(18) NOT NULL default '',
+  eventType varchar(18) NOT NULL default '',
+  timestamp bigint(15) NOT NULL default '',
+  duration int(11) NOT NULL default '',
+  value1 varchar(10) NOT NULL default '',
+  value2 varchar(50) NOT NULL default '',
+  PRIMARY KEY  (pageHitEventsID)
+) TYPE=MyISAM;
+
+DROP TABLE IF EXISTS insertIDs;
+CREATE TABLE insertIDs (
+  insertID int(11) NOT NULL,
+  timeStamp timestamp(14) NOT NULL
+) TYPE=MyISAM;
+
+################################################
+# Now try to insert into three tables at once ##
+################################################
+
+# FIRST BLOCK
+INSERT INTO pagehits VALUES 
+(NULL, NULL, 500, '68.52.0.8', 'null', 'B0A89921E597A050AEB59AB3D26D2F44', '/usr/local/dialogix/webapps/CET/WEB-INF/working/tri30832.dat', '2c97cc.63f09e', 'Mozilla/4.0 (compatible; MSIE 5.0; Mac_PowerPC; AtHome021)', ' CET/AutoMEQ-SA-irb.jar', '7', '73', 'next', ' OK');
+
+insert into insertIDs values (LAST_INSERT_ID(), NULL);
+
+INSERT INTO pagehitdetails VALUES 
+(NULL, LAST_INSERT_ID(),'q19_HELP', ''),
+(NULL, LAST_INSERT_ID(),'q19', '2'),
+(NULL, LAST_INSERT_ID(),'q19_COMMENT', ''),
+(NULL, LAST_INSERT_ID(),'DIRECTIVE', 'next'),
+(NULL, LAST_INSERT_ID(),'LANGUAGE', ''),
+(NULL, LAST_INSERT_ID(),'PASSWORD_FOR_ADMIN_MODE', ''),
+(NULL, LAST_INSERT_ID(),'q19_SPECIAL', '')
+;
+
+insert into insertIDs values (LAST_INSERT_ID(), NULL);
+
+INSERT INTO pageHitEvents VALUES
+	( NULL, LAST_INSERT_ID(), '', '', 'sent_request', '1003521758454', '13', '', ''),
+	( NULL, LAST_INSERT_ID(), 'null', 'undefined', 'load', '1003522037350', '60', '', 'undefined'),
+	( NULL, LAST_INSERT_ID(), 'q5', 'select-multiple', 'focus', '1003522037350', '60', '', '--Select one of the following--'),
+	( NULL, LAST_INSERT_ID(), 'q5', 'select-multiple', 'change', '1003522037900', '610', '2', '2) Slightly alert'),
+	( NULL, LAST_INSERT_ID(), 'q5', 'select-multiple', 'blur', '1003522037900', '610', '2', '2) Slightly alert'),
+	( NULL, LAST_INSERT_ID(), 'next', 'submit', 'focus', '1003522037900', '610', '', ''),
+	( NULL, LAST_INSERT_ID(), 'next', 'submit', 'click', '1003522037950', '660', '', ''),
+	( NULL, LAST_INSERT_ID(), '', '', 'received_response', '1003521760709', '2255', '', '')	;
+	
+insert into insertIDs values (LAST_INSERT_ID(), NULL);
+	
+# SECOND BLOCK
+INSERT INTO pagehits VALUES 
+(NULL, NULL, 575, '67.216.86.203', 'null', 'B015AEF6CCD5E31C88EFFDD106AB93AF', '/usr/local/dialogix/webapps/CET/WEB-INF/working/tri30834.dat', 'eeb26.ad483', 'Mozilla/4.0 (compatible; MSIE 5.0; Windows 98; DigExt)', ' CET/AutoMEQ-SA-irb.jar', '9', '83', 'next', ' OK');
+
+INSERT INTO pagehitdetails VALUES 
+(NULL, LAST_INSERT_ID(),'q19_HELP', ''),
+(NULL, LAST_INSERT_ID(),'q19', '2'),
+(NULL, LAST_INSERT_ID(),'q19_COMMENT', ''),
+(NULL, LAST_INSERT_ID(),'DIRECTIVE', 'next'),
+(NULL, LAST_INSERT_ID(),'LANGUAGE', ''),
+(NULL, LAST_INSERT_ID(),'PASSWORD_FOR_ADMIN_MODE', ''),
+(NULL, LAST_INSERT_ID(),'q19_SPECIAL', '')
+;
+
+INSERT INTO pageHitEvents VALUES
+	( NULL, LAST_INSERT_ID(), '', '', 'sent_request', '1010268207140', '0', '', ''),
+	( NULL, LAST_INSERT_ID(), 'null', 'undefined', 'load', '1010268207250', '60', '', 'undefined'),
+	( NULL, LAST_INSERT_ID(), 'YBY09', 'text', 'focus', '1010268207250', '60', '', ''),
+	( NULL, LAST_INSERT_ID(), 'YBY09', 'text', 'change', '1010268224330', '17140', '', '11/10/1991'),
+	( NULL, LAST_INSERT_ID(), 'YBY09', 'text', 'blur', '1010268224330', '17140', '', '11/10/1991'),
+	( NULL, LAST_INSERT_ID(), 'next', 'submit', 'focus', '1010268224330', '17140', '', ''),
+	( NULL, LAST_INSERT_ID(), 'next', 'submit', 'click', '1010268224660', '17470', '', ''),
+	( NULL, LAST_INSERT_ID(), '', '', 'received_response', '1010268225040', '17900', '', '')	;
+
+# THIRD BLOCK
+INSERT INTO pagehits VALUES 
+(NULL, NULL, 576, '65.24.8.66', 'null', 'B015AEF6CCD5E31C88EFFDD106AB93AF', '/usr/local/dialogix/webapps/CET/WEB-INF/working/tri30834.dat', 'eeb26.ad483', 'Mozilla/4.0 (compatible; MSIE 6.0; Windows 98)', ' CET/AutoMEQ-SA-irb.jar', '307', '84', 'next', ' OK');
+
+INSERT INTO pagehitdetails VALUES 
+(NULL, LAST_INSERT_ID(),'Summary_HELP', ''),
+(NULL, LAST_INSERT_ID(),'DIRECTIVE', 'next'),
+(NULL, LAST_INSERT_ID(),'Summary_COMMENT', ''),
+(NULL, LAST_INSERT_ID(),'LANGUAGE', ''),
+(NULL, LAST_INSERT_ID(),'PASSWORD_FOR_ADMIN_MODE', ''),
+(NULL, LAST_INSERT_ID(),'Summary_SPECIAL', '')
+;
+
+
+
+INSERT INTO pageHitEvents VALUES
+	( NULL, LAST_INSERT_ID(), '', '', 'sent_request', '1010271775260', '0', '', ''),
+	( NULL, LAST_INSERT_ID(), 'null', 'undefined', 'load', '1010271775370', '50', '', 'undefined'),
+	( NULL, LAST_INSERT_ID(), 'YSC01', 'select-multiple', 'focus', '1010271775370', '50', '', '--Select one of the following--'),
+	( NULL, LAST_INSERT_ID(), 'YSC01', 'select-multiple', 'change', '1010271791130', '15810', '0', '0) Never'),
+	( NULL, LAST_INSERT_ID(), 'YSC01', 'select-multiple', 'change', '1010271791300', '15980', '1', '1) Once'),
+	( NULL, LAST_INSERT_ID(), 'YSC01', 'select-multiple', 'change', '1010271791460', '16140', '2', '2) 2-5 times'),
+	( NULL, LAST_INSERT_ID(), 'YSC01', 'select-multiple', 'change', '1010271791630', '16310', '3', '3) More than 5 times'),
+	( NULL, LAST_INSERT_ID(), 'YSC01', 'select-multiple', 'blur', '1010271791900', '16580', '3', '3) More than 5 times'),
+	( NULL, LAST_INSERT_ID(), 'next', 'submit', 'focus', '1010271791900', '16580', '', ''),
+	( NULL, LAST_INSERT_ID(), 'next', 'submit', 'click', '1010271792010', '16690', '', ''),
+	( NULL, LAST_INSERT_ID(), '', '', 'received_response', '1010271792070', '16810', '', '')	;
+	
+[done] N.B. This does not work -- so must retrieve the value manually -- OK - see prototype above (where selecting LAST_INSERT_ID());
+[done] How do I get the displayCount?
+[done] How do I consolidate the inserts to include the events info?
+[done] For inserts to page details, do not include the following:  DIRECTIVE_next, DIRECTIVE_previous, next, EVENT_TIMINGS, previous
+
+
+=====================================
+== Table structure as of 2/18/2003 ==
+=====================================
+
+Database dialogix2992 running on localhost 
+# phpMyAdmin MySQL-Dump
+# version 2.3.2
+# http://www.phpmyadmin.net/ (download page)
+#
+# Host: localhost
+# Generation Time: Feb 18, 2003 at 08:17 PM
+# Server version: 3.23.51
+# PHP Version: 4.2.3
+# Database : `dialogix2993`
+# --------------------------------------------------------
+
+#
+# Table structure for table `pageHitDetails`
+#
+
+DROP TABLE IF EXISTS pageHitDetails;
+CREATE TABLE pageHitDetails (
+  pageHitDetailsID int(11) NOT NULL auto_increment,
+  pageHitID_FK int(11) NOT NULL default '0',
+  param varchar(40) NOT NULL default '',
+  value varchar(254) NOT NULL default '',
+  PRIMARY KEY  (pageHitDetailsID)
+) TYPE=MyISAM;
+# --------------------------------------------------------
+
+#
+# Table structure for table `pageHitEvents`
+#
+
+DROP TABLE IF EXISTS pageHitEvents;
+CREATE TABLE pageHitEvents (
+  pageHitEventsID int(11) NOT NULL auto_increment,
+  pageHitID_FK int(11) NOT NULL default '0',
+  varName varchar(40) NOT NULL default '',
+  actionType varchar(18) NOT NULL default '',
+  eventType varchar(18) NOT NULL default '',
+  timestamp bigint(15) NOT NULL default '0',
+  duration int(11) NOT NULL default '0',
+  value1 varchar(10) NOT NULL default '',
+  value2 varchar(50) NOT NULL default '',
+  PRIMARY KEY  (pageHitEventsID)
+) TYPE=MyISAM;
+# --------------------------------------------------------
+
+#
+# Table structure for table `pageHits`
+#
+
+DROP TABLE IF EXISTS pageHits;
+CREATE TABLE pageHits (
+  pageHitID int(11) NOT NULL auto_increment,
+  timeStamp timestamp(14) NOT NULL,
+  accessCount int(11) NOT NULL default '-1',
+  currentIP varchar(16) NOT NULL default '',
+  username varchar(15) NOT NULL default '',
+  sessionID varchar(35) NOT NULL default '',
+  workingFile varchar(100) NOT NULL default '',
+  javaObject varchar(40) NOT NULL default '',
+  browser varchar(200) NOT NULL default '',
+  instrumentName varchar(100) NOT NULL default '',
+  currentStep int(11) NOT NULL default '-1',
+  displayCount int(11) NOT NULL default '-1',
+  lastAction varchar(15) NOT NULL default '',
+  statusMsg varchar(35) NOT NULL default '',
+  totalMemory bigint(15) NOT NULL default '0',
+  freeMemory bigint(15) NOT NULL default '0',
+  PRIMARY KEY  (pageHitID)
+) TYPE=MyISAM;
+
+
+#
+# Table structure for table `wave6users`
+#
+
+DROP TABLE IF EXISTS wave6users;
+CREATE TABLE wave6users (
+  username varchar(25) NOT NULL default '',
+  password varchar(25) NOT NULL default '',
+  filename varchar(100) NOT NULL default '.',
+  instrument varchar(100) NOT NULL default '',
+  status varchar(20) NOT NULL default 'unstarted',
+  startingStep varchar(5) NOT NULL default '0',
+  _clinpass varchar(20) NOT NULL default '',
+  Dem1 varchar(20) NOT NULL default '',
+  lastAccess varchar(30) NOT NULL default '',
+  currentStep varchar(40) NOT NULL default '',
+  currentIP varchar(40) NOT NULL default '',
+  lastAction varchar(15) NOT NULL default '',
+  sessionID varchar(40) NOT NULL default '',
+  browser varchar(200) NOT NULL default '',
+  statusMsg varchar(35) NOT NULL default ''
+) TYPE=MyISAM;
+
+    
