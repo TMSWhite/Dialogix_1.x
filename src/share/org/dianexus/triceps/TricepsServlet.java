@@ -126,6 +126,7 @@ public class TricepsServlet extends HttpServlet {
 			String debugInfo = null;
 			String hiddenStr = "";
 			firstFocus = null; // reset it each time
+			StringBuffer sb = new StringBuffer();
 
 
 			triceps = (Triceps) session.getValue("triceps");
@@ -142,47 +143,45 @@ public class TricepsServlet extends HttpServlet {
 
 			form = processDirective();
 
-			out = res.getWriter();
-
-			out.println(header());
-
-			out.println(getCustomHeader());
+			sb.append(getCustomHeader());
 
 			if (errors.length() > 0) {
-				out.println(errors.toString());
+				sb.append(errors.toString());
 				errors =  new StringBuffer();
 			}
 
 			if (form != null) {
-				out.println("<FORM method='POST' name='myForm' action='" + HttpUtils.getRequestURL(req) + "'>\n");
+				sb.append("<FORM method='POST' name='myForm' action='" + HttpUtils.getRequestURL(req) + "'>\n");
 				/* language switching section */
 				if (triceps != null && !isSplashScreen) {
 					Vector languages = triceps.nodes.getLanguages();
 					if (languages.size() > 1) {
-						out.println("<TABLE WIDTH='100%' BORDER='0'>\n	<TR><TD ALIGN='center'>");
+						sb.append("<TABLE WIDTH='100%' BORDER='0'>\n	<TR><TD ALIGN='center'>");
 						for (int i=0;i<languages.size();++i) {
 							String language = (String) languages.elementAt(i);
 							boolean selected = (i == triceps.getLanguage());
-							out.println(((selected) ? "<U>" : "") +
+							sb.append(((selected) ? "<U>" : "") +
 								"<INPUT TYPE='button' onClick='javascript:setLanguage(\"" + language + "\");' VALUE='" + language + "'>" +
 								((selected) ? "</U>" : ""));
 						}
-						out.println("	<TD></TR>\n</TABLE>");
+						sb.append("	<TD></TR>\n</TABLE>");
 					}
 				}
 
-				out.println(hiddenStr);
-				out.println(form);
-				out.println("</FORM>\n");
+				sb.append(hiddenStr);
+				sb.append(form);
+				sb.append("</FORM>\n");
 			}
 
 			if (!isSplashScreen) {
 				debugInfo = generateDebugInfo();
-				out.println(debugInfo);
+				sb.append(debugInfo);
 			}
-
+			
+			out = res.getWriter();
+			out.println(header());
+			out.println((new XmlString(sb.toString())).toString());
 			out.println(footer());
-
 			out.flush();
 			out.close();
 
@@ -338,15 +337,9 @@ public class TricepsServlet extends HttpServlet {
 
 		return sb.toString();
 	}
-
-	private String getCustomFooter() {
-		return "";
-	}
-
+	
 	private String footer() {
 		StringBuffer sb = new StringBuffer();
-
-		sb.append(getCustomFooter());
 
 		sb.append("</body>\n");
 		sb.append("</html>\n");
