@@ -120,6 +120,7 @@ public class TricepsServlet extends HttpServlet {
 	 * This method is invoked when the servlet is requested with POST variables.  This is
 	 * the case after the first request, handled by doGet(), and all further requests.
 	 */
+	 
 	public void doPost(HttpServletRequest req, HttpServletResponse res)  {
 		try {
 			this.req = req;
@@ -138,36 +139,7 @@ public class TricepsServlet extends HttpServlet {
 
 			directive = req.getParameter("directive");	// XXX: directive must be set before calling processHidden
 			
-			if (directive == null || "select new interview".equals(directive)) {
-				isSplashScreen = true;
-			}
-			else {
-				isSplashScreen = false;
-			}
-			
-			/* Want to evaluate expression before doing rest so can see results of changing global variable values */
-			if (directive.equals("evaluate expr:")) {
-				String expr = req.getParameter("evaluate expr:");
-				errors = new StringBuffer();
-				if (expr != null && triceps != null) {
-					Datum datum = triceps.evaluateExpr(expr);
-
-					errors.append("<TABLE WIDTH='100%' CELLPADDING='2' CELLSPACING='1' BORDER=1>\n");
-					errors.append("<TR><TD>Equation</TD><TD><B>" + Node.encodeHTML(expr) + "</B></TD><TD>Type</TD><TD><B>" + Datum.TYPES[datum.type()] + "</B></TD></TR>\n");
-					errors.append("<TR><TD>String</TD><TD><B>" + Node.encodeHTML(datum.stringVal(true)) + "</B></TD><TD>boolean</TD><TD><B>" + datum.booleanVal() + "</B></TD></TR>\n");
-					errors.append("<TR><TD>double</TD><TD><B>" + datum.doubleVal() + "</B></TD><TD>long</TD><TD><B>" + datum.longVal() + "</B></TD></TR>\n");
-					errors.append("<TR><TD>date</TD><TD><B>" + datum.dateVal() + "</B></TD><TD>month</TD><TD><B>" + datum.monthVal() + "</B></TD></TR>\n");
-					errors.append("</TABLE>\n");
-
-					Enumeration errs = triceps.getErrors();
-					if (errs.hasMoreElements()) {
-						errors.append("<B>There were errors parsing that equation:</B><BR>");
-						while (errs.hasMoreElements()) {
-							errors.append("<B>" + Node.encodeHTML((String) errs.nextElement()) + "</B><BR>\n");
-						}
-					}
-				}
-			}
+			processPreFormDirectives();
 
 			getGlobalVariables();
 			
@@ -232,6 +204,53 @@ public class TricepsServlet extends HttpServlet {
 		}
 	}
 	
+	private void processPreFormDirectives() {
+		/* setting language doesn't use directive parameter */
+		if (triceps != null) {
+			String language = req.getParameter("LANGUAGE");
+			if (language != null && language.trim().length() > 0) {
+				System.err.println("Setting language to " + language);
+				triceps.setLanguage(language.trim());
+				directive = "refresh current";
+			}
+		}
+		
+		if (directive == null || "select new interview".equals(directive)) {
+				isSplashScreen = true;
+		}
+		else {
+			isSplashScreen = false;
+		}
+		
+		if (triceps == null)
+			return;
+
+			
+		/* Want to evaluate expression before doing rest so can see results of changing global variable values */
+		if ("evaluate expr:".equals(directive)) {
+			String expr = req.getParameter("evaluate expr:");
+			errors = new StringBuffer();
+			if (expr != null && triceps != null) {
+				Datum datum = triceps.evaluateExpr(expr);
+
+				errors.append("<TABLE WIDTH='100%' CELLPADDING='2' CELLSPACING='1' BORDER=1>\n");
+				errors.append("<TR><TD>Equation</TD><TD><B>" + Node.encodeHTML(expr) + "</B></TD><TD>Type</TD><TD><B>" + Datum.TYPES[datum.type()] + "</B></TD></TR>\n");
+				errors.append("<TR><TD>String</TD><TD><B>" + Node.encodeHTML(datum.stringVal(true)) + "</B></TD><TD>boolean</TD><TD><B>" + datum.booleanVal() + "</B></TD></TR>\n");
+				errors.append("<TR><TD>double</TD><TD><B>" + datum.doubleVal() + "</B></TD><TD>long</TD><TD><B>" + datum.longVal() + "</B></TD></TR>\n");
+				errors.append("<TR><TD>date</TD><TD><B>" + datum.dateVal() + "</B></TD><TD>month</TD><TD><B>" + datum.monthVal() + "</B></TD></TR>\n");
+				errors.append("</TABLE>\n");
+
+				Enumeration errs = triceps.getErrors();
+				if (errs.hasMoreElements()) {
+					errors.append("<B>There were errors parsing that equation:</B><BR>");
+					while (errs.hasMoreElements()) {
+						errors.append("<B>" + Node.encodeHTML((String) errs.nextElement()) + "</B><BR>\n");
+					}
+				}
+			}
+		}
+	}	
+	
 	private void getGlobalVariables() {
 		if (triceps != null) {
 			debugMode = triceps.isDebugMode();
@@ -255,7 +274,6 @@ public class TricepsServlet extends HttpServlet {
 		String settingAsRefused = null;
 		String settingAsUnknown = null;
 		String settingAsNotUnderstood = null;
-		String language = null;
 		okPasswordForRefused = false;	// the default value
 		okPasswordForUnknown = false;	// the default value
 		okPasswordForNotUnderstood = false;
@@ -265,8 +283,6 @@ public class TricepsServlet extends HttpServlet {
 			settingAsRefused = req.getParameter("PASSWORD_FOR_REFUSED");
 			if (settingAsRefused != null && !settingAsRefused.equals("")) {
 				/* if try to enter a password, make sure that doesn't reset the form if password fails */
-//				directive = "next";	// XXX - since JavaScript can't set a SUBMIT value in the answerRefused() function
-
 				if (triceps.getPasswordForRefused() == null) {
 					sb.append("You are not allowed to *REFUSE* to answer any questions<BR>");
 				}
@@ -282,8 +298,6 @@ public class TricepsServlet extends HttpServlet {
 			settingAsUnknown = req.getParameter("PASSWORD_FOR_UNKNOWN");
 			if (settingAsUnknown != null && !settingAsUnknown.equals("")) {
 				/* if try to enter a password, make sure that doesn't reset the form if password fails */
-//				directive = "next";	// XXX - since JavaScript can't set a SUBMIT value in the answerRefused() function
-
 				if (triceps.getPasswordForUnknown() == null) {
 					sb.append("You are not allowed to set any answers as *UNKNOWN*<BR>");
 				}
@@ -299,8 +313,6 @@ public class TricepsServlet extends HttpServlet {
 			settingAsNotUnderstood = req.getParameter("PASSWORD_FOR_NOT_UNDERSTOOD");
 			if (settingAsNotUnderstood != null && !settingAsNotUnderstood.equals("")) {
 				/* if try to enter a password, make sure that doesn't reset the form if password fails */
-//				directive = "next";	// XXX - since JavaScript can't set a SUBMIT value in the answerRefused() function
-
 				if (triceps.getPasswordForNotUnderstood() == null) {
 					sb.append("You are not allowed to set any answers as *NOT UNDERSTOOD*<BR>");
 				}
@@ -312,12 +324,6 @@ public class TricepsServlet extends HttpServlet {
 						sb.append("Incorrect password to set these answers as *NOT UNDERSTOOD*<BR>");
 					}
 				}
-			}
-			language = req.getParameter("LANGUAGE");
-			if (language != null && language.trim().length() > 0) {
-				System.err.println("Setting language to " + language);
-				triceps.setLanguage(language.trim());
-				directive = "refresh current";
 			}
 		}
 
