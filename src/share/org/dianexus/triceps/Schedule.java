@@ -18,12 +18,13 @@ public class Schedule implements Serializable {
 	}
 
 	public boolean load(File file) {
+		BufferedReader br = null;
 		if (file == null)
 			return false;
 		try {
 			int count = 0;
 			String fileLine;
-			BufferedReader br = new BufferedReader(new FileReader(file));
+			br = new BufferedReader(new FileReader(file));
 			while ((fileLine = br.readLine()) != null) {
 				if (fileLine.startsWith("COMMENT"))
 					continue;
@@ -32,7 +33,6 @@ public class Schedule implements Serializable {
 				++count;
 				nodes.addElement(node);
 			}
-			br.close();
 			System.out.println("Read " + count + " nodes from " + file);
 			return true;
 		}
@@ -40,18 +40,26 @@ public class Schedule implements Serializable {
 			System.out.println("Error reading " + file);
 			return false;
 		}
+		finally {
+			if (br != null) {
+				try { br.close(); } catch (Exception e) {}
+			}
+		}
 	}
 
 	public boolean load(URL url) {
+		BufferedReader br = null;
+		InputStream is = null;
+
 		if (url == null)
 			return false;
 
 		boolean err = false;
 		try {
-			InputStream is = url.openStream();
+			is = url.openStream();
 			int count = 0;
 			String fileLine;
-			BufferedReader br = new BufferedReader(new InputStreamReader(is));
+			br = new BufferedReader(new InputStreamReader(is));
 			while ((fileLine = br.readLine()) != null) {
 				if (count == 0 &&
 					(fileLine.indexOf("<h1>") != -1) ||
@@ -66,7 +74,6 @@ public class Schedule implements Serializable {
 				++count;
 				nodes.addElement(node);
 			}
-			br.close();
 			if (err) {
 				System.out.println("Unable to access " + url.toExternalForm());
 				return false;
@@ -77,6 +84,14 @@ public class Schedule implements Serializable {
 		catch(IOException e) {
 			System.out.println("Error reading " + url.toExternalForm());
 			return false;
+		}
+		finally {
+			if (br != null) {
+				try { br.close(); } catch (Exception e) {}
+			}
+			if (is != null) {
+				try { is.close(); } catch (Exception e) {}
+			}
 		}
 	}
 

@@ -148,7 +148,7 @@ public class Node implements Serializable {
 				break;
 			case RADIO2: // will store integers
 				/* table underneath questions */
-				sb.append("&nbsp;</TD></TR><TR><TD>&nbsp;</TD><TD COLSPAN='2'>");
+				sb.append("&nbsp;</TD></TR><TR><TD>&nbsp;</TD><TD COLSPAN='2' BGCOLOR='lightgrey'>");
 				sb.append("<TABLE CELLPADDING='0' CELLSPACING='2' BORDER='1'>");
 				sb.append("<TR>");
 				while (ans.hasMoreElements()) { // for however many radio buttons there are

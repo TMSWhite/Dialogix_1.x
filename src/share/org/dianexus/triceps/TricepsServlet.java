@@ -11,12 +11,14 @@ import java.net.*;
  *	an http response as defined in the JSDK.
  */
 public class TricepsServlet extends HttpServlet {
-	private static final String SUSPENDED = "suspendedInterviews";
 	private Triceps triceps;
 	private HttpServletRequest req;
 	private HttpServletResponse res;
 	private PrintWriter out;
 	private String firstFocus = null;
+	private String scheduleList = "";
+	private String scheduleFileRoot = "";
+
 
 	/**
 	 * This method runs only when the servlet is first loaded by the
@@ -26,6 +28,14 @@ public class TricepsServlet extends HttpServlet {
 	 */
 	public void init(ServletConfig config) throws ServletException {
 		super.init(config);
+		String s;
+
+		s = config.getInitParameter("scheduleList");
+		if (s != null)
+			scheduleList = s;
+		s = config.getInitParameter("scheduleFileRoot");
+		if (s != null)
+			scheduleFileRoot = s;
 	}
 
 	public void destroy() {
@@ -116,29 +126,115 @@ public class TricepsServlet extends HttpServlet {
 	private String processDirective(String directive) {
 		boolean ok = true;
 		StringBuffer sb = new StringBuffer();
+		StringBuffer options = new StringBuffer();
 
 		// get the POSTed directive (start, back, forward, help, suspend, etc.)	- default is opening screen
 		if (directive == null || "select new interview".equals(directive)) {
-			sb.append("<H2>Triceps Interview/Questionnaire System</H2><HR>\n");
-			sb.append("<TABLE CELLPADDING='2' CELLSPACING='2' BORDER='1'>\n");
-			sb.append("<TR><TD>Please select an interview/questionnaire from the pull-down list:  </TD>\n");
-			sb.append("	<TD><select name='schedule'>\n");
-			sb.append("		<option value='ADHD.txt' selected>ADHD\n");
-			sb.append("		<option value='EatDis.txt'>Eating Disorders\n");
-			sb.append("		<option value='MiHeart.txt'>MiHeart-combo\n");
-			sb.append("		<option value='MiHeart2.txt'>MiHeart-radio\n");
-//			sb.append("		<option value='GAFTree.txt'>GAFTree\n");
-			sb.append("		<option value='MoodDis.txt'>Major Depression/Dysthymic Disorder\n");
-			sb.append("		<option value='AUDIT.txt'>AUDIT Alcohol Abuse Test\n");
-			sb.append("		<option value='HAM-D.txt'>Hamilton Rating Scale for Depression\n");
-			sb.append("	</select></TD>\n");
-			sb.append("	<TD><input type='SUBMIT' name='directive' value='START'></TD>\n");
-			sb.append("</TR>\n");
-			sb.append("<TR><TD>OR, restore an interview/questionnaire in progress:  </TD>\n");
-			sb.append("	<TD><input type='text' name='RESTORE'></TD>\n");
-			sb.append("	<TD><input type='SUBMIT' name='directive' value='RESTORE'></TD>\n");
-			sb.append("</TR><TR><TD>&nbsp;</TD><TD COLSPAN='2' ALIGN='center'><input type='checkbox' name='DEBUG' value='1'>Show debugging information</input></TD></TR>\n");
-			sb.append("</TABLE>\n");
+			/* read list of available schedules from file */
+			File file = new File(scheduleFileRoot + scheduleList);
+
+			if (file == null || !file.exists()) {
+				sb.append("<B>Unable to find '" + file + "'</B>");
+			}
+			else {
+				BufferedReader br = null;
+				try {
+					int count = 0;
+					int line=0;
+					String fileLine;
+					String src;
+					br = new BufferedReader(new FileReader(file));
+					while ((fileLine = br.readLine()) != null) {
+						++line;
+
+						if (fileLine.startsWith("COMMENT"))
+							continue;
+
+						try {
+							StringTokenizer schedule = new StringTokenizer(fileLine,"\t");
+							String title = schedule.nextToken();
+							String fileLoc = schedule.nextToken();
+
+							if (title == null || fileLoc == null)
+								continue;
+
+							/* Test whether these files exist */
+							boolean found = false;
+							src = "http://" + req.getServerName() + "/" + fileLoc;
+							InputStream is = null;
+
+							try {
+								URL u = new URL(fileLoc);
+								is = u.openStream();
+								found = true;
+							}
+							catch (MalformedURLException e) {
+								System.out.println("Malformed url '" + src + "':" + e.getMessage());
+							}
+							catch (IOException e) {
+								System.out.println("Unable to access url '" + src + "':" + e.getMessage());
+							}
+							finally {
+								if (is != null) {
+									try { is.close(); } catch (Exception e) {}
+								}
+							}
+
+							if (!found) {
+								src = scheduleFileRoot + fileLoc;
+								try {
+									File f = new File(src);
+									if (f == null || !f.exists() || !f.isFile() || !f.canRead()) {
+										System.out.println("Unable to access file " + src);
+									}
+									else {
+										found=true;
+									}
+								}
+								catch (NullPointerException e) { }
+								catch (SecurityException e) {
+									System.out.println("Unable to access file " + src + ": " + e);
+								}
+							}
+
+							if (found) {
+								++count;
+								options.append("	<option value='" + Node.encodeHTML(fileLoc) + "'>" + Node.encodeHTML(title) + "\n");
+							}
+						}
+						catch (NullPointerException e) {
+							System.out.println("Error tokenizing schedule list '" + file + "' on line " + line + ": " + e);
+						}
+						catch (NoSuchElementException e) {
+							System.out.println("Error tokenizing schedule list '" + file + "' on line " + line + ": " + e);
+						}
+					}
+					System.out.println("Read " + count + " files from " + file);
+				}
+				catch(IOException e) {
+					System.out.println("Unable to open " + file);
+				}
+				finally {
+					if (br != null) {
+						try { br.close(); } catch (Throwable t) { }
+					}
+
+					sb.append("<H2>Triceps Interview/Questionnaire System</H2><HR>\n");
+					sb.append("<TABLE CELLPADDING='2' CELLSPACING='2' BORDER='1'>\n");
+					sb.append("<TR><TD>Please select an interview/questionnaire from the pull-down list:  </TD>\n");
+					sb.append("	<TD><select name='schedule'>\n");
+					sb.append(options);
+					sb.append("	</select></TD>\n");
+					sb.append("	<TD><input type='SUBMIT' name='directive' value='START'></TD>\n");
+					sb.append("</TR>\n");
+					sb.append("<TR><TD>OR, restore an interview/questionnaire in progress:  </TD>\n");
+					sb.append("	<TD><input type='text' name='RESTORE'></TD>\n");
+					sb.append("	<TD><input type='SUBMIT' name='directive' value='RESTORE'></TD>\n");
+					sb.append("</TR><TR><TD>&nbsp;</TD><TD COLSPAN='2' ALIGN='center'><input type='checkbox' name='DEBUG' value='1'>Show debugging information</input></TD></TR>\n");
+					sb.append("</TABLE>\n");
+				}
+			}
+
 			return sb.toString();
 		}
 		else if (directive.equals("START")) {
@@ -146,7 +242,7 @@ public class TricepsServlet extends HttpServlet {
 			triceps = new Triceps();
 			ok = triceps.setSchedule("http://" + req.getServerName() + "/" + req.getParameter("schedule"));
 			if (!ok) {
-				ok = triceps.setSchedule(new File("c:/cvs/triceps/docs/" + req.getParameter("schedule")));
+				ok = triceps.setSchedule(new File(scheduleFileRoot + req.getParameter("schedule")));
 			}
 
 			if (!ok) {
