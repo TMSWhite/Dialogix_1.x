@@ -244,7 +244,7 @@ public class Node  {
 	}
 
 	private void processFormattingMask() {
-		if (maskStr == null) {
+		if (maskStr == null || maskStr.trim().equals("")) {
 			mask = Datum.getDefaultMask(datumType);
 			/* this is allowed to be null - means nothing is done with it */
 		}
@@ -326,6 +326,7 @@ public class Node  {
 		}
 
 		if (mask == null) {
+			/* This only applies to non-DATE and non-NUMBER values */
 			min = minStr;
 			max = maxStr;
 		}
@@ -618,11 +619,11 @@ public class Node  {
 	public boolean isWithinRange(Datum d) {
 		boolean err = false;
 		
-		/*
-		System.out.println("(" + minStr + "|" + ((minDatum != null) ? minDatum.stringVal() : "") +
+/*
+		System.out.println("(" + minStr + "|" + ((minDatum != null) ? Datum.format(minDatum,mask) : "") +
 			"," + d.stringVal() +
-			"," + maxStr + "|" + ((maxDatum != null) ? maxDatum.stringVal() : "") + ")");
-		*/
+			"," + maxStr + "|" + ((maxDatum != null) ? Datum.format(maxDatum,mask) : "") + ")");
+*/			
 
 		if (minDatum != null) {
 			if (!DatumMath.ge(d,minDatum).booleanVal())
