@@ -6,7 +6,7 @@ import java.text.Format;
 
 /* Triceps
  */
-public class Triceps implements Serializable {
+public class Triceps {
 	public static final int ERROR = 1;
 	public static final int OK = 2;
 	public static final int AT_END = 3;
@@ -359,26 +359,6 @@ public class Triceps implements Serializable {
 		return true;
 	}
 
-	public boolean save(String filename) {
-		ObjectOutputStream out = null;
-		try {
-			FileOutputStream fos = new FileOutputStream(filename);
-			out = new ObjectOutputStream(fos);
-			out.writeObject(this);
-			System.out.println("Saved interview to " + filename);
-			return true;
-		}
-		catch (IOException e) {
-			System.out.println(e);
-			return false;
-		}
-		finally {
-			if (out != null) {
-				try { out.flush(); out.close(); } catch (Exception e) {}
-			}
-		}
-	}
-
 	public boolean storeValue(Node q, String answer) {
 		if (q == null) {
 			errors.addElement("null node");
@@ -413,32 +393,6 @@ public class Triceps implements Serializable {
 			evidence.set(q, d);
 			return true;
 		}
-	}
-
-	public static Triceps restore(String filename) {
-		Triceps triceps = null;
-		ObjectInputStream ois = null;
-		try {
-			FileInputStream fis = new FileInputStream(filename);
-			ois = new ObjectInputStream(fis);
-			triceps = (Triceps) ois.readObject();
-			triceps.parser = new Parser();	// restore unsaved parser
-			return triceps;
-		}
-		catch (IOException e) {
-			System.out.println(e);
-			return null;
-		}
-		catch (java.lang.ClassNotFoundException e) {
-			System.out.println(e);
-			return null;
-		}
-		finally {
-			if (ois != null) {
-				try { ois.close(); } catch (Exception e) {}
-			}
-		}
-
 	}
 
 	public int size() { return nodes.size(); }
@@ -558,11 +512,13 @@ public class Triceps implements Serializable {
 		stopTimer();
 
 		try {
+			File f = new File(filename);
+
 			fw = new FileWriter(filename);
 			boolean ok = writeTSV(fw);
 			return ok;
 		}
-		catch (IOException e) {
+		catch (Exception e) {
 			errors.addElement("error writing to " + Node.encodeHTML(filename) + ": " + e);
 			return false;
 		}

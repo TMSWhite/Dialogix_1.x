@@ -4,7 +4,7 @@ import java.io.*;
 import java.text.Format;
 
 
-public class Node implements Serializable {
+public class Node  {
 	public static final int UNKNOWN = 0;
 	public static final int RADIO = 1;
 	public static final int CHECK = 2;
@@ -480,11 +480,9 @@ public class Node implements Serializable {
 				/* table underneath questions */
 				int count = answerChoices.size();
 
-				sb.append("&nbsp;</TD></TR>");
-
 				if (count > 0) {
 					Double pct = new Double(100. / (double) count);
-					sb.append("<TR><TD>&nbsp;</TD>");
+					sb.append("</TR><TR><TD>&nbsp;</TD>");
 					sb.append("<TD COLSPAN='2' BGCOLOR='lightgrey'>");
 					sb.append("\n<TABLE CELLPADDING='0' CELLSPACING='2' BORDER='1' WIDTH='100%'>");
 					sb.append("\n<TR>");
@@ -497,8 +495,8 @@ public class Node implements Serializable {
 					}
 				}
 				sb.append("\n</TR>");
-				sb.append("\n</TABLE>");
-//				sb.append("</TD></TR>");	// closing the outside is reserverd for TricepsServlet
+				sb.append("\n</TABLE>\n</TD>");
+//				sb.append("</TR>");	// closing the outside is reserverd for TricepsServlet
 				break;
 			case CHECK:
 				while (ans.hasMoreElements()) { // for however many radio buttons there are

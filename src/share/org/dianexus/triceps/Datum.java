@@ -3,7 +3,7 @@ import java.lang.*;
 import java.io.*;
 import java.text.*;
 
-public class Datum implements Serializable {
+public class Datum  {
 	public static final int UNKNOWN = 0;		// haven't asked
 	public static final int NA = 1;				// don't need to ask - not applicable
 	public static final int REFUSED = 2;		// question asked, but subject refuses to answer

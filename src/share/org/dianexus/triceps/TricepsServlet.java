@@ -409,7 +409,6 @@ public class TricepsServlet extends HttpServlet {
 				}
 			}
 
-
 			// don't goto next if errors
 			// ask question
 		}
@@ -503,8 +502,20 @@ public class TricepsServlet extends HttpServlet {
 
 			sb.append("	<TR>\n");
 			sb.append("		<TD><FONT" + color + "><B>" + Node.encodeHTML(node.getQuestionRef()) + "</FONT></B></TD>\n");
-			sb.append("		<TD><FONT" + color + ">" + Node.encodeHTML(triceps.getQuestionStr(node)) + "</FONT></TD>\n");
-			sb.append("		<TD>" + node.prepareChoicesAsHTML(datum) + errMsg + "</TD>\n");
+			
+			switch(node.getAnswerType()) {
+				case Node.NOTHING:
+					sb.append("		<TD COLSPAN='2'><FONT" + color + ">" + Node.encodeHTML(triceps.getQuestionStr(node)) + "</FONT></TD>\n");
+					break;
+				case Node.RADIO2:
+					sb.append("		<TD COLSPAN='2'><FONT" + color + ">" + Node.encodeHTML(triceps.getQuestionStr(node)) + "</FONT></TD>\n");
+					sb.append(node.prepareChoicesAsHTML(datum) + errMsg);
+					break;
+				default:
+					sb.append("		<TD><FONT" + color + ">" + Node.encodeHTML(triceps.getQuestionStr(node)) + "</FONT></TD>\n");
+					sb.append("		<TD>" + node.prepareChoicesAsHTML(datum) + errMsg + "</TD>\n");				
+					break;				
+			}
 			sb.append("	</TR>\n");
 		}
 		sb.append("	<TR><TD COLSPAN='3' ALIGN='center'>\n");
@@ -549,6 +560,7 @@ public class TricepsServlet extends HttpServlet {
 					"<TD>" + Node.encodeHTML(n.getName(),true) + "</TD>" +
 					"<TD>" + Node.encodeHTML(n.getConcept(),true) + "</TD>" +
 					"<TD>" + Node.encodeHTML(n.getDependencies(),true) + "</TD>" +
+					"<TD>" + Node.encodeHTML(n.getActionTypeField(),true) + "</TD>" +
 					"<TD>" + Node.encodeHTML(n.getAction(),true) + "</TD>" +
 					"</TR>\n");
 			}

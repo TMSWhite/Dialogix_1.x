@@ -6,7 +6,7 @@ import java.net.*;
 /**
  * Schedule holds a collection of nodes.
 */
-public class Schedule implements Serializable {
+public class Schedule  {
 	private Vector nodes;
 
 	public Schedule() {

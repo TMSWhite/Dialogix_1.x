@@ -10,7 +10,7 @@ import java.net.*;
  * TODO:
  *	who should maintain aliases? - is evidence self knowing, or is that Triceps' role?
  */
-public class Evidence implements Serializable {
+public class Evidence  {
 	Hashtable aliases;
 	Vector data;
 	Vector nodes;
