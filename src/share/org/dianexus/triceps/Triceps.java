@@ -19,7 +19,6 @@ public class Triceps {
 	private Parser parser = null;
 
 	private Logger errorLogger = null;
-	private Logger eventLogger = null;
 	private int currentStep=0;
 	private int numQuestions=0;	// so know how many to skip for compount question
 	private int firstStep = 0;	
@@ -50,11 +49,6 @@ public class Triceps {
 		isValid = false;
 	}
 	
-	public void finalize() {
-		if (eventLogger != null && isAtEnd())
-			eventLogger.delete();	// otherwise keep it in the working directory - should it be appended to if it exists?
-	}
-	
 	
 	public Triceps(String scheduleLoc, String workingFilesDir, String completedFilesDir, String floppyDir) {
 		/* initialize required variables */
@@ -75,12 +69,8 @@ public class Triceps {
 		if (!nodes.init()) {
 			setError(nodes.getErrors());
 		}
-		else {
-			saveEventLog(nodes.getReserved(Schedule.WORKING_DIR),nodes.getReserved(Schedule.FILENAME),true);
-		}
 		
-		resetEvidence();
-		setDefaultValues();
+		resetEvidence(false);
 		createTempPassword();
 		isValid = true;
 	}
@@ -109,8 +99,7 @@ public class Triceps {
 			return false;
 		}
 
-		resetEvidence();
-		setDefaultValues();
+		resetEvidence(false);
 
 		for (int i=0;i<oldNodes.size();++i) {
 			Node oldNode = oldNodes.getNode(i);
@@ -432,33 +421,13 @@ public class Triceps {
 //		}
 	}
 
-	public void resetEvidence() {
-		evidence = new Evidence(this);
+	public void resetEvidence(boolean toUnasked) {
+		startTimer(new Date(System.currentTimeMillis()));	// use current time
+		evidence = new Evidence(this,toUnasked);
 	}
 
-	private void setDefaultValues() {
-		Node n;
-		Datum d;
-		String init;
-		for (int i=0;i<size();++i) {
-			n = nodes.getNode(i);
-			if (n == null) {
-Logger.writeln("null node at index " + i);
-				continue;
-			}
-
-			init = n.getAnswerGiven();
-			
-			d = Datum.parseSpecialType(this,init);
-			
-			if (d == null) {
-				d = new Datum(this, init,n.getDatumType(),n.getMask());
-			}
-
-			evidence.set(n,d,n.getAnswerTimeStampStr());
-		}
-
-		startTimer(new Date(System.currentTimeMillis()));	// use current time
+	public void resetEvidence() {
+		resetEvidence(true);
 	}
 
 	public boolean storeValue(Node q, String answer, String comment, String special, boolean adminMode) {
@@ -691,7 +660,6 @@ Logger.writeln("null node at index " + i);
 		if (ok) {
 			ok = deleteFile(nodes.getReserved(Schedule.WORKING_DIR),name) && ok;
 		}
-		ok = saveEventLog(nodes.getReserved(Schedule.COMPLETED_DIR),name, false) && ok;
 		return ok;
 	}
 	
@@ -895,7 +863,7 @@ Logger.writeln("null node at index " + i);
 	public int getCurrentStep() { return currentStep; }
 	
 	public void processEventTimings(String src) {
-		if (src == null || eventLogger == null) {
+		if (src == null) {
 			return;
 		}
 			
@@ -903,70 +871,9 @@ Logger.writeln("null node at index " + i);
 
 		while(lines.hasMoreTokens()) {
 			String s = lines.nextToken();
-			eventLogger.println(s);
+			Logger.writeln(s);
 		}
 	}	
-	
-	public boolean changeFilenames(String dir, String oldname, String newname) {
-		boolean ok = false;
-		
-		/* change the name of the working file */
-		ok = saveWorkingInfo(newname);
-		
-		if (!ok) {
-			setError(get("error_changing_filenames"));
-		}
-		else {
-			deleteFile(dir,oldname);
-		}
-		saveEventLog(dir,newname,true);
-
-		return ok;
-	}
-	
-	public boolean saveEventLog(String dir, String name, boolean rename) {
-		boolean ok = true;
-		String logName = dir + name + ".events";
-		
-		try {
-			if (eventLogger == null) {
-				File file = new File(logName);
-				eventLogger = new Logger(file,Logger.DOS_EOL);	
-				return true;
-			}
-			
-			String copy = eventLogger.toString(false);
-				
-			if (rename) {
-				File file = new File(logName);
-				eventLogger.delete();	// remove old one
-				eventLogger = new Logger(file,Logger.DOS_EOL);
-				eventLogger.print(copy);	// copy in current information
-			}
-			else {
-				/* save a copy to the new location, but don't delete current file */
-				FileWriter fw = nodes.getWriter(logName);
-				try {
-					fw.write(copy);
-				}
-				catch (IOException e) {
-					ok = false;
-				}
-				if (fw != null) { 
-					try { fw.close(); } catch (IOException t) { }
-				}
-				if (!ok) {
-					setError(get("unable_to_move_event_logs_to") + logName);
-				}
-			}
-		}
-		catch (Throwable t) {
-			setError(get("unable_to_move_event_logs_to") + logName);
-			Logger.printStackTrace(t);
-		}
-		return ok;
-	}
-	
 	
 	/* Formerly from Lingua */
 
