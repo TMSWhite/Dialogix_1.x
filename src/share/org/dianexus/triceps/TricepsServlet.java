@@ -205,7 +205,6 @@ public class TricepsServlet extends HttpServlet {
 		if (triceps != null) {
 			String language = req.getParameter("LANGUAGE");
 			if (language != null && language.trim().length() > 0) {
-//				System.err.println("Setting language to " + language);
 				triceps.setLanguage(language.trim());
 				directive = "refresh current";
 			}
@@ -322,7 +321,7 @@ public class TricepsServlet extends HttpServlet {
 		sb.append("<TR>\n");
 		sb.append("	<TD WIDTH='1%'>\n");
 
-		String logo = (triceps != null) ? triceps.getIcon() : logoIcon;
+		String logo = (triceps != null && !isSplashScreen) ? triceps.getIcon() : logoIcon;
 		if (logo.trim().equals("")) {
 			sb.append("&nbsp;");
 		}
@@ -331,7 +330,7 @@ public class TricepsServlet extends HttpServlet {
 				((!isSplashScreen) ? " onMouseDown='javascript:setAdminModePassword();'":"") + " ALT='Logo'>\n");
 		}
 		sb.append("	</TD>\n");
-		sb.append("	<TD ALIGN='left'><FONT SIZE='5'><B>" + Node.encodeHTML((triceps != null) ? triceps.getHeaderMsg() : "Triceps System") + "</B></FONT></TD>\n");
+		sb.append("	<TD ALIGN='left'><FONT SIZE='5'><B>" + Node.encodeHTML((triceps != null && !isSplashScreen) ? triceps.getHeaderMsg() : "Triceps System") + "</B></FONT></TD>\n");
 		sb.append("	<TD WIDTH='1%'><IMG SRC='" + HELP_T_ICON + "' ALIGN='top' BORDER='0' ALT='Help' onMouseDown='javascript:help(\"" + Node.encodeHTML(helpURL) + "\");'></TD>\n");
 		sb.append("</TR>\n");
 		sb.append("</TABLE>\n");
@@ -741,7 +740,7 @@ public class TricepsServlet extends HttpServlet {
 		// if parser internal to Schedule, should have method access it, not directly
 		StringBuffer sb = new StringBuffer();
 
-		if (debugMode) {
+		if (debugMode && developerMode) {
 			sb.append("<H4>QUESTION AREA</H4>\n");
 		}
 
@@ -834,7 +833,7 @@ public class TricepsServlet extends HttpServlet {
 
 		sb.append("	</TD></TR>\n");
 
-		if (developerMode || debugMode) {
+		if (developerMode) {
 			sb.append("	<TR><TD COLSPAN='" + ((showQuestionNum) ? 4 : 3 ) + "' ALIGN='center'>\n");
 			sb.append("<input type='SUBMIT' name='directive' value='select new interview'>\n");
 			sb.append("<input type='SUBMIT' name='directive' value='restart (clean)'>\n");
@@ -977,7 +976,7 @@ public class TricepsServlet extends HttpServlet {
 	}
 
 	private String showOptions() {
-		if (developerMode || debugMode) {
+		if (developerMode) {
 			StringBuffer sb = new StringBuffer();
 
 			sb.append("	<TR><TD COLSPAN='" + ((showQuestionNum) ? 4 : 3 ) + "' ALIGN='center'>\n");
@@ -998,7 +997,7 @@ public class TricepsServlet extends HttpServlet {
 		sb.append("<html>\n");
 		sb.append("<head>\n");
 		sb.append("<META HTTP-EQUIV='Content-Type' CONTENT='text/html;CHARSET=iso-8859-1'>\n");
-		sb.append("<title>" + ((triceps == null) ? "TRICEPS SYSTEM" : triceps.getTitle()) + "</title>\n");
+		sb.append("<title>" + ((triceps == null || isSplashScreen) ? "TRICEPS SYSTEM" : triceps.getTitle()) + "</title>\n");
 
 		sb.append("<SCRIPT  type=\"text/javascript\"> <!--\n");
 		sb.append("var actionName = null;\n");
