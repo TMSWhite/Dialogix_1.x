@@ -51,6 +51,8 @@ public class Datum implements Serializable {
 		sVal = (bVal) ? Double.toString(d) : "";
 		timestamp = new Date(System.currentTimeMillis());
 	}
+	
+	
 	public Datum(int i) {
 		type = i;
 		sVal = null;

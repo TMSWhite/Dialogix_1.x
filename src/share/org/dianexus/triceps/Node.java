@@ -19,7 +19,7 @@ public class Node implements Serializable {
 	public static final int MEMO=11;
 	public static final int TIME = 12;
 	private static final String QUESTION_TYPES[] = {"*unknown*","radio", "check", "combo", "date", "month", "text", "double", "nothing", "radio2", "password","memo","time" };
-	private static final int DATA_TYPES[] = { Datum.STRING, Datum.STRING, Datum.STRING, Datum.STRING, Datum.DATE, Datum.MONTH, Datum.STRING, Datum.NUMBER, Datum.STRING, Datum.STRING, Datum.STRING, Datum.STRING, Datum.TIME};
+	private static final int DATA_TYPES[] = { Datum.STRING, Datum.STRING, Datum.STRING, Datum.STRING, Datum.DATE, Datum.MONTH, Datum.STRING, Datum.NUMBER, Datum.NA, Datum.STRING, Datum.STRING, Datum.STRING, Datum.TIME};
 
 	public static final int QUESTION = 1;
 	public static final int EVAL = 2;
@@ -115,9 +115,10 @@ public class Node implements Serializable {
 				case 7: answerOptions = fixExcelisms(s); ++count; break;
 				case 8: questionAsAsked = fixExcelisms(s); ++count; break;
 				case 9: debugAnswer = fixExcelisms(s); ++count; break;
+				default:	break;	// discard any extras
 			}
 		}
-		if (count < 7 || count > 9) {
+		if (count < 7 || count > 10) {
 			setParseError("Expected 8-10 tokens; found " + count);
 		}
 
@@ -380,12 +381,13 @@ public class Node implements Serializable {
 		}
 
 		if (actionType == EVAL) {
-			answerType = NOTHING;
+			answerType = NOTHING;	// so no further processing
+			datumType = Datum.STRING;
+			return true;
 		}
 		else if (answerType == UNKNOWN) {
 			setParseError("Unknown data type for answer <B>" + Node.encodeHTML(token) + "</B>");
 			answerType = NOTHING;
-
 		}
 
 		if (datumType == Datum.INVALID) {

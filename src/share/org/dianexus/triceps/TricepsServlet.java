@@ -17,12 +17,10 @@ public class TricepsServlet extends HttpServlet {
 	private PrintWriter out;
 	private String firstFocus = null;
 
-//	private String scheduleList = "TricepsSchedules.txt";	// default value
-//	private String scheduleFileRoot = "c:/cvs/triceps/docs/";	// default value
-//	private String scheduleSaveDir = "c:/tmp/";		// default value
 	private String scheduleList = "";
 	private String scheduleFileRoot = "";
 	private String scheduleSaveDir = "";
+	private String urlPrefix = "";
 
 	/**
 	 * This method runs only when the servlet is first loaded by the
@@ -43,6 +41,7 @@ public class TricepsServlet extends HttpServlet {
 		s = config.getInitParameter("scheduleSaveDir");
 		if (s != null && !s.trim().equals(""))
 			scheduleSaveDir = s.trim();
+			
 	}
 
 	public void destroy() {
@@ -68,6 +67,8 @@ public class TricepsServlet extends HttpServlet {
 		HttpSession session = req.getSession(true);
 		String form = null;
 		firstFocus = null; // reset it each time
+		urlPrefix = "http://" + req.getServerName() + "/";
+		
 
 		triceps = (Triceps) session.getValue("triceps");
 
@@ -142,21 +143,17 @@ public class TricepsServlet extends HttpServlet {
 		// get the POSTed directive (start, back, forward, help, suspend, etc.)	- default is opening screen
 		if (directive == null || "select new interview".equals(directive)) {
 			/* read list of available schedules from file */
-			File file = new File(scheduleFileRoot + scheduleList);
-
-			String filename = scheduleFileRoot + scheduleList;
-
-			if (file == null || !file.exists() || !file.isFile() || !file.canRead()) {
-				sb.append("<B>Unable to find '" + filename + "'</B><HR>");
-			}
+			
+			BufferedReader br = Triceps.getReader(scheduleList, urlPrefix, scheduleFileRoot);
+			if (br == null) {
+				sb.append("<B>Unable to find '" + scheduleList + "'</B><HR>");
+			}			
 			else {
-				BufferedReader br = null;
 				try {
 					int count = 0;
 					int line=0;
 					String fileLine;
 					String src;
-					br = new BufferedReader(new FileReader(file));
 					while ((fileLine = br.readLine()) != null) {
 						++line;
 
@@ -172,64 +169,28 @@ public class TricepsServlet extends HttpServlet {
 								continue;
 
 							/* Test whether these files exist */
-							boolean found = false;
-							src = "http://" + req.getServerName() + "/" + fileLoc;
-							InputStream is = null;
+							Reader target = Triceps.getReader(fileLoc,urlPrefix,scheduleFileRoot);
+							if (target == null) {
+								sb.append("Unable to access file '" + fileLoc + "'");
+							}
+							else {
+								try { target.close(); } catch (Exception e) {}
 
-							try {
-								URL u = new URL(fileLoc);
-								is = u.openStream();
-								found = true;
-							}
-							catch (MalformedURLException e) {
-//								System.out.println("Malformed url '" + src + "':" + e.getMessage());
-							}
-							catch (IOException e) {
-								System.out.println("Unable to access url '" + src + "':" + e.getMessage());
-							}
-							catch (Throwable t) {}
-							finally {
-								if (is != null) {
-									try { is.close(); } catch (Exception e) {}
-								}
-							}
-
-							if (!found) {
-								src = scheduleFileRoot + fileLoc;
-								try {
-									File f = new File(src);
-									if (f == null || !f.exists() || !f.isFile() || !f.canRead()) {
-										sb.append("Unable to access file " + src);
-									}
-									else {
-										found=true;
-									}
-								}
-								catch (NullPointerException e) { }
-								catch (SecurityException e) {
-									sb.append("Unable to access file " + src + ": " + e.getMessage());
-								}
-								catch (Throwable t) {}
-
-							}
-
-							if (found) {
 								++count;
-								options.append("	<option value='" + Node.encodeHTML(fileLoc) + "'>" + Node.encodeHTML(title) + "\n");
+								options.append("	<option value='" + Node.encodeHTML(fileLoc) + "'>" + Node.encodeHTML(title) + "\n");								
 							}
 						}
 						catch (NullPointerException e) {
-							sb.append("Error tokenizing schedule list '" + file + "' on line " + line + ": " + e);
+							sb.append("Error tokenizing schedule list '" + scheduleList + "' on line " + line + ": " + e);
 						}
 						catch (NoSuchElementException e) {
-							sb.append("Error tokenizing schedule list '" + file + "' on line " + line + ": " + e);
+							sb.append("Error tokenizing schedule list '" + scheduleList + "' on line " + line + ": " + e);
 						}
 						catch (Throwable t) {}
 					}
-//					System.out.println("Read " + count + " files from " + file);
 				}
 				catch(IOException e) {
-					sb.append("Unable to open " + file);
+					sb.append("Error reading from " + scheduleList);
 				}
 				catch (Throwable t) {}
 				finally {
@@ -258,11 +219,8 @@ public class TricepsServlet extends HttpServlet {
 		}
 		else if (directive.equals("START")) {
 			// load schedule
-			triceps = new Triceps();
-			ok = triceps.setSchedule("http://" + req.getServerName() + "/" + req.getParameter("schedule"));
-			if (!ok) {
-				ok = triceps.setSchedule(new File(scheduleFileRoot + req.getParameter("schedule")));
-			}
+			triceps = new Triceps(urlPrefix);
+			ok = triceps.setSchedule(req.getParameter("schedule"), scheduleFileRoot);
 
 			if (!ok) {
 				try {
@@ -278,40 +236,13 @@ public class TricepsServlet extends HttpServlet {
 			ok = ok && ((gotoMsg = triceps.gotoFirst()) == Triceps.OK);	// don't proceed if prior error
 			// ask question
 		}
-/*
-		else if (directive.equals("restore-from-object")) {
-			String restore = req.getParameter("restore-from-object");
-			restore = restore + "." + req.getRemoteUser() + "." + req.getRemoteHost() + ".suspend";
-
-			Triceps temp;
-			if (restore == null || restore.trim().equals("") || ((temp = Triceps.restore(restore)) == null)) {
-				try {
-					this.doGet(req,res);
-				}
-				catch (ServletException e) {
-				}
-				catch (IOException e) {
-				}
-				return sb.toString();
-			}
-			else {
-				triceps = temp;
-				sb.append("<B>Successfully restored interview from " + restore + "</B><HR>\n");
-				// check for errors (should probably throw them)
-				// ask question
-			}
-		}
-*/
 		else if (directive.equals("RESTORE")) {
 			String restore = req.getParameter("RESTORE");
 			restore = restore + "." + req.getRemoteUser() + "." + req.getRemoteHost() + ".tsv";
 
 			// load schedule
-			triceps = new Triceps();
-			ok = triceps.setSchedule("http://" + req.getServerName() + "/" + restore);
-			if (!ok) {
-				ok = triceps.setSchedule(new File(scheduleSaveDir + restore));
-			}
+			triceps = new Triceps(urlPrefix);
+			ok = triceps.setSchedule(restore, scheduleSaveDir);
 
 			if (!ok) {
 				return "<B>Unable to find or access schedule '" + restore + "'</B><HR>" +
@@ -340,17 +271,6 @@ public class TricepsServlet extends HttpServlet {
 			}
 			// re-ask current question
 		}
-		/*
-		else if (directive.equals("suspend-as-object-to")) {
-			String name = req.getParameter("suspend-as-object-to");
-			String file = name + "." + req.getRemoteUser() + "." + req.getRemoteHost() + ".suspend";
-			ok = triceps.save(file);
-			if (ok) {
-				sb.append("<B>Interview saved successfully as " + name + " (" + file + ")</B><HR>\n");
-			}
-			// re-ask same question
-		}
-		*/
 		else if (directive.equals("save to:")) {
 			String name = req.getParameter("save to:");
 			String file = scheduleSaveDir + name + "." + req.getRemoteUser() + "." + req.getRemoteHost() + ".tsv";
@@ -386,14 +306,6 @@ public class TricepsServlet extends HttpServlet {
 /*
 		else if (directive.equals("help")) {	// FIXME
 			sb.append("<B>No help currently available</B><HR>\n");
-			// re-ask same question
-		}
-*/
-/*
-		else if (directive.equals("show evidence as XML (unordered, duplicated)")) {
-			sb.append("<B>Use 'Show Source' to see data in Evidence as XML</B><BR>\n");
-			sb.append("<!--\n" + triceps.evidenceToXML() + "\n-->\n");
-			sb.append("<HR>\n");
 			// re-ask same question
 		}
 */
@@ -620,18 +532,6 @@ public class TricepsServlet extends HttpServlet {
 
 		sb.append("</TABLE>\n");
 
-/*
-		// Node info area
-		sb.append("<hr>\n");
-
-		questionNames = triceps.getQuestions();
-
-		for(int count=0;questionNames.hasMoreElements();++count) {
-			Node node = (Node) questionNames.nextElement();
-
-			sb.append("<H4>NODE INFORMATION AREA</H4>" + node.toString() + "\n");
-		}
-*/
 		// Complete printout of what's been collected per node
 
 		if (debug) {

@@ -16,7 +16,8 @@ public class Triceps implements Serializable {
 
 	public static final String NULL = "not set";	// a default value to represent null in config files
 
-	private Object scheduleURL = null;
+	private String scheduleURL = null;
+	private String scheduleFilePrefix = null;
 	private Schedule nodes = null;
 	public Evidence evidence = null;	// XXX - should be private - made public for debugging from TricepsServlet
 	static public transient Parser parser = new Parser();	// XXX - should not be public - only making it so for debugging
@@ -28,48 +29,31 @@ public class Triceps implements Serializable {
 	private Date stopTime = null;
 	private String startTimeStr = null;
 	private String stopTimeStr = null;
+	private String urlPrefix = null;
 
-	public Triceps() {
+	public Triceps(String urlBase) {
+		urlPrefix = urlBase;
 	}
 
-	public boolean setSchedule(File file) {
-		if (file == null || !file.exists() || !file.isFile() || !file.canRead()) {
+	public boolean setSchedule(String filename, String optionalFilePrefix) {
+		BufferedReader br = Triceps.getReader(filename, urlPrefix, optionalFilePrefix);
+		if (br == null) {
+			scheduleURL = null;
+			errors.addElement("Unable to find or access '" + filename + "'");
 			return false;
 		}
-		scheduleURL = file;
-		return (reloadSchedule() && resetEvidence() && setDebugEvidence());
-	}
-
-	public boolean setSchedule(String src) {
-		if (src == null)
-			return false;
-		try {
-			URL url = new URL(src);
-			return setSchedule(url);
+		else {
+			scheduleURL = filename;
+			scheduleFilePrefix = optionalFilePrefix;
+			
+			nodes = new Schedule();
+			return (nodes.load(br,scheduleURL) && resetEvidence() && setDebugEvidence());
 		}
-		catch(MalformedURLException e) {
-			System.out.println("Malformed url '" + src + "':" + e.getMessage());
-			return false;
-		}
-	}
-
-	public boolean setSchedule(URL url) {
-		if (url == null)
-			return false;
-
-		scheduleURL = url;
-		return (reloadSchedule() && resetEvidence() && setDebugEvidence());
 	}
 
 	public boolean reloadSchedule() {
 		nodes = new Schedule();
-
-		if (scheduleURL instanceof URL)
-			return nodes.load((URL) scheduleURL);
-		else if (scheduleURL instanceof File)
-			return nodes.load((File) scheduleURL);
-		else
-			return false;
+		return nodes.load(Triceps.getReader(scheduleURL,urlPrefix,scheduleFilePrefix),scheduleURL);
 	}
 
 	public Datum getDatum(Node n) {
@@ -150,7 +134,7 @@ public class Triceps implements Serializable {
 			q.setMaxDatum(parser.parse(evidence,q.getMaxStr()));
 		}
 		q.createParseRangeStr();
-				
+
 		q.setQuestionAsAsked(parser.parseJSP(evidence, q.getAction()) + q.getQuestionMask());
 		if (parser.hasErrors()) { Vector v=parser.getErrors(); for (int c=0;c<v.size();++c) { errors.addElement(v.elementAt(c)); }  }
 		return q.getQuestionAsAsked();
@@ -402,20 +386,25 @@ public class Triceps implements Serializable {
 		}
 
 		if (answer == null) {
-			if (q.getAnswerType() == Node.CHECK || q.getAnswerType() == Node.NOTHING) {
-				answer = "0";
+			if (q.getAnswerType() == Node.CHECK) {
+				answer = "0";	// unchecked defaults to false
 			}
 		}
-		/* get entered value */
-
-		Datum d = new Datum(answer,q.getDatumType(),q.getMask()); // use expected value type
+		Datum d;
+		
+		if (q.getAnswerType() == Node.NOTHING && q.getActionType() != Node.EVAL) {
+			d = new Datum(Datum.NA);
+		}
+		else {
+			d = new Datum(answer,q.getDatumType(),q.getMask()); // use expected value type
+		}
 
 		/* check for type error */
 		if (!d.exists()) {
 			q.setError("<- " + d.getError());
 			return false;
 		}
-		
+
 		/* check if out of range */
 		if (!q.isWithinRange(d)) {
 			return false;	// shouldn't wording of error be done here, not in Node?
@@ -614,7 +603,7 @@ public class Triceps implements Serializable {
 					ans = d.stringVal(true);
 				}
 
-				out.write(n.toTSV() + "\t" + n.getQuestionAsAsked() + "\t" + ans + "\n");
+				out.write(n.toTSV() + "\t" + n.getQuestionAsAsked() + "\t" + ans + "\t" + Datum.format(d.getTimeStamp(),Datum.DATE,TIME_MASK) + "\n");
 			}
 			out.flush();
 			return true;
@@ -623,5 +612,85 @@ public class Triceps implements Serializable {
 			errors.addElement("Unable to write schedule file: " + Node.encodeHTML(e.getMessage()));
 			return false;
 		}
+	}
+
+	static BufferedReader getReader(String filename, String urlPrefix, String optionalFilePrefix) {
+		boolean ok = false;
+		BufferedReader br = null;
+
+		String fullSourcePath = null;
+
+		if (filename == null)
+			return null;
+			
+
+		/* first try reading from file */
+		File file = null;
+
+		try {
+			fullSourcePath = ((optionalFilePrefix != null) ? optionalFilePrefix : "") + filename;
+			file = new File(fullSourcePath);
+			if (!file.exists() || !file.isFile() || !file.canRead()) {
+				ok = false;
+			}
+			else {
+				br = new BufferedReader(new FileReader(file));
+				ok = true;
+			}
+		}
+		catch (Throwable t) {
+		}
+		finally {
+			if (ok) {
+				return br;
+			}
+			else {
+				if (br != null) {
+					try { br.close(); } catch (Exception e) {}
+				}
+			}
+		}			
+
+		/* then try reading from URL */
+		try {
+			fullSourcePath = ((urlPrefix != null) ? urlPrefix : "") + filename;
+			URL url = new URL(fullSourcePath);
+			br = new BufferedReader(new InputStreamReader(url.openStream()));
+			br.mark(1000);
+			int count;
+
+			String fileLine;
+			while ((fileLine = br.readLine()) != null) {
+				fileLine = fileLine.trim();
+				if (fileLine.equals(""))
+					continue;
+
+				/* If this is an HTML page instead of a text file, then an error has occurred */
+				if (fileLine.startsWith("<")) {
+					ok = false;
+					break;
+				}
+				else {
+					br.reset();	// so that resume reading from the beginning of the file
+					ok = true;
+					break;
+				}
+			}
+
+		}
+		catch (Throwable t) {
+		}
+		finally {
+			if (ok) {
+				return br;
+			}
+			else {
+				if (br != null) {
+					try { br.close(); } catch (Exception e) {}
+				}
+			}
+		}
+		
+		return null;
 	}
 }
