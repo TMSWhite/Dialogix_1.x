@@ -186,13 +186,6 @@ if (AUTHORABLE) {
    		if (dependencies == null || dependencies.trim().length() == 0) {
 			setParseError(triceps.get("dependencies_column_is_missing"));
 		}
-		if (conceptName != null && conceptName.trim().length() > 0) {
-			conceptName = conceptName.trim();
-			if (Character.isDigit(conceptName.charAt(0))) {
-				setNamingError(triceps.get("conceptName_may_not_begin_with_a_digit") + conceptName);
-				conceptName = "_" + conceptName;
-			}
-		}
 		if (localName != null && localName.trim().length() > 0) {
 			localName = localName.trim();
 			if (Character.isDigit(localName.charAt(0))) {
