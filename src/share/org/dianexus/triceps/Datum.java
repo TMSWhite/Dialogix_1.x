@@ -50,7 +50,7 @@ public class Datum  {
 	private String mask = null;
 	private String error = null;
 	private String variableName = null;
-	Lingua lingua = null;
+	Lingua lingua = null;	// need package level access in DatumMath
 	private static final HashMap SPECIAL_DATA = new HashMap();
 
 	public Datum(Lingua lang, double d) { init(lang, new Double(d), NUMBER, null); }
@@ -132,7 +132,8 @@ public class Datum  {
 					datum.mask = useMask;
 				}
 				else if (newType == STRING) {
-					datum = new Datum(lingua,this.stringVal(),STRING);
+					return datum;	// don't cast to STRING
+//					datum = new Datum(lingua,this.stringVal(),STRING);
 				}
 				else {
 					datum = new Datum(lingua,INVALID);
@@ -153,7 +154,8 @@ public class Datum  {
 					}
 				}
 				else if (newType == STRING) {
-					datum = new Datum(lingua,this.stringVal(),STRING);
+					return datum;
+//					datum = new Datum(lingua,this.stringVal(),STRING);
 				}
 				else {
 					datum = new Datum(lingua,INVALID);
@@ -384,6 +386,33 @@ public class Datum  {
 				return false;
 		}
 	}
+	
+	static public boolean isValidType(int t) {
+		switch(t) {
+			case UNASKED:
+			case NA:
+			case REFUSED:
+			case INVALID:
+			case UNKNOWN:
+			case NOT_UNDERSTOOD:
+			case NUMBER:
+			case STRING:
+			case DATE:
+			case TIME:
+			case YEAR:
+			case MONTH:
+			case DAY:
+			case WEEKDAY:
+			case HOUR:
+			case MINUTE:
+			case SECOND:
+			case MONTH_NUM:
+				return true;
+			default:
+				return false;
+		}
+	}
+	
 
 	public String getError() {
 		if (error == null)
