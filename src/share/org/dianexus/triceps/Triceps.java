@@ -426,10 +426,10 @@ public class Triceps {
 	}
 
 	private void stopTimer() {
-		if (stopTime == null) {
+//		if (stopTime == null) {
 			stopTime = new Date(System.currentTimeMillis());
 			stopTimeStr = formatDate(stopTime,Datum.TIME_MASK);
-		}
+//		}
 	}
 
 	public void resetEvidence() {
