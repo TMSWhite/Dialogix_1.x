@@ -143,6 +143,12 @@ public class Triceps {
 		numQuestions = 0;
 		return gotoNext();
 	}
+	
+	public int gotoStarting() {
+		currentStep = nodes.getStartingStep();
+		numQuestions = 0;
+		return gotoNext();
+	}
 
 	public int gotoNext() {
 		Node node;
@@ -552,15 +558,14 @@ public class Triceps {
 
 		try {
 			/* Write header information */
-
+			/* set save file so can resume at same position */
+			nodes.setStartingStep(Integer.toString(currentStep));
+			nodes.toTSV(out);
+			
+			/* Write comments saying when started and stopped.  If multiply resumed, will list these several times */
 			out.write("COMMENT " + "Schedule: " + scheduleURL + "\n");
 			out.write("COMMENT " + "Started: " + getStartTimeStr() + "\n");
 			out.write("COMMENT " + "Stopped: " + getStopTimeStr() + "\n");
-			
-			Vector comments = nodes.getComments();
-			for (int i=0;i<comments.size();++i) {
-				out.write((String) comments.elementAt(i) + "\n");
-			}
 
 			for (int i=0;i<size();++i) {
 				n = nodes.getNode(i);
@@ -664,5 +669,12 @@ public class Triceps {
 		}
 		
 		return null;
+	}
+	
+	public String getTitle() {
+		if (nodes == null)
+			return "TRICEPS SYSTEM";
+		else
+			return nodes.getTitle();
 	}
 }

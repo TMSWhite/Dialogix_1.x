@@ -112,7 +112,7 @@ public class TricepsServlet extends HttpServlet {
 		sb.append(">\n");
 		sb.append("<head>\n");
 		sb.append("<META HTTP-EQUIV='Content-Type' CONTENT='text/html;CHARSET=iso-8859-1'>\n");
-		sb.append("<title>TRICEPS SYSTEM</title>\n");
+		sb.append("<title>" + ((triceps == null) ? "TRICEPS SYSTEM" : triceps.getTitle()) + "</title>\n");
 		sb.append("</head>\n");
 		sb.append("<body>\n");
 
@@ -233,7 +233,7 @@ public class TricepsServlet extends HttpServlet {
 				return sb.toString();
 			}
 
-			ok = ok && ((gotoMsg = triceps.gotoFirst()) == Triceps.OK);	// don't proceed if prior error
+			ok = ok && ((gotoMsg = triceps.gotoStarting()) == Triceps.OK);	// don't proceed if prior error
 			// ask question
 		}
 		else if (directive.equals("RESTORE")) {
@@ -249,7 +249,7 @@ public class TricepsServlet extends HttpServlet {
 					processDirective(null);	// select new interview
 			}
 
-			ok = ok && ((gotoMsg = triceps.gotoFirst()) == Triceps.OK);	// don't proceed if prior error
+			ok = ok && ((gotoMsg = triceps.gotoStarting()) == Triceps.OK);	// don't proceed if prior error
 
 			// ask question
 		}

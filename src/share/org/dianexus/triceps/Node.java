@@ -84,7 +84,6 @@ public class Node  {
 
 		String token;
 		int field = 0;
-		int count = 0;
 
 		this.sourceLine = sourceLine;
 		this.sourceFile = sourceFile;
@@ -106,22 +105,22 @@ public class Node  {
 			}
 
 			switch(field) {
-				case 0: concept = fixExcelisms(s); ++count; break;
-				case 1: description = fixExcelisms(s); ++count; break;
-				case 2: stepName = fixExcelisms(s); ++count; break;
-				case 3: dependencies= fixExcelisms(s); ++count; break;
-				case 4: questionRef = fixExcelisms(s); ++count; break;
-				case 5: actionTypeField = fixExcelisms(s); ++count; break;
-				case 6: action = fixExcelisms(s); ++count; break;
-				case 7: answerOptions = fixExcelisms(s); ++count; break;
-				case 8: questionAsAsked = fixExcelisms(s); ++count; break;
-				case 9: defaultAnswer = fixExcelisms(s); ++count; break;
-				case 10: defaultAnswerTimeStampStr = fixExcelisms(s); ++count; break;
+				case 0: concept = Node.fixExcelisms(s); break;
+				case 1: description = Node.fixExcelisms(s); break;
+				case 2: stepName = Node.fixExcelisms(s); break;
+				case 3: dependencies= Node.fixExcelisms(s); break;
+				case 4: questionRef = Node.fixExcelisms(s); break;
+				case 5: actionTypeField = Node.fixExcelisms(s); break;
+				case 6: action = Node.fixExcelisms(s); break;
+				case 7: answerOptions = Node.fixExcelisms(s); break;
+				case 8: questionAsAsked = Node.fixExcelisms(s); break;
+				case 9: defaultAnswer = Node.fixExcelisms(s); break;
+				case 10: defaultAnswerTimeStampStr = Node.fixExcelisms(s); break;
 				default:	break;	// discard any extras
 			}
 		}
-		if (count < 7 || count > 11) {
-			setParseError("Expected 8-11 tokens; found " + count);
+		if (field < 6 || field > 10) {
+			setParseError("Expected 8-11 tokens; found " + (field + 1));
 		}
 
 		/* Fix step names */
@@ -141,7 +140,7 @@ public class Node  {
 		createParseRangeStr();
 	}
 
-	private String fixExcelisms(String s) {
+	public static String fixExcelisms(String s) {
 		/* Fix Excel-isms, in which strings with internal quotes have all quotes replaced with double quotes (\"\"), and
 			whole string surrounded by quotes.
 			XXX - this requires assumption that if a field starts AND stops with a quote, then probably an excel-ism
