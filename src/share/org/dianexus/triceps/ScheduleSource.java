@@ -17,6 +17,7 @@ import java.io.IOException;
 import java.util.jar.JarEntry;
 import java.io.InputStreamReader;
 import java.security.cert.Certificate;
+import java.io.ByteArrayInputStream;
 
 /*public*/ final class ScheduleSource implements VersionIF {
 	private boolean isValid = false;
@@ -217,4 +218,49 @@ if (DEBUG) Logger.writeln("##Throwable @ jarEntryToVector"  + e.getMessage());
 		}
 		return v;	
 	}
+
+	/*public*/ String saveAsJar(String name) {
+if (AUTHORABLE) {		
+		JarWriter jf = null;
+		
+		int lastPeriod = name.lastIndexOf(".");
+		if (lastPeriod != -1) {
+			name = name.substring(0,lastPeriod) + ".jar";
+		}
+		else {
+			name = name + ".jar";
+		}
+		
+		jf = JarWriter.getInstance(name);
+		
+		if (jf == null)
+			return null;
+			
+		boolean ok = false;
+				
+		ok = jf.addEntry("headers",vectorToIS(getHeaders()));
+		ok = jf.addEntry("body",vectorToIS(getBody())) && ok;
+		jf.close();
+		
+		File f = new File(name);
+		if (f.length() == 0L) {
+			ok = false;
+		}
+		
+		return (ok) ? name : null;
+}
+		return null;
+	}
+	
+	private ByteArrayInputStream vectorToIS(Vector v) {
+		if (v == null)
+			return null;
+			
+		StringBuffer sb = new StringBuffer();
+		for (int i=0;i<v.size();++i) {
+			sb.append((String) v.elementAt(i));
+			sb.append("\n");
+		}
+		return new ByteArrayInputStream(sb.toString().getBytes());
+	}	
 }
