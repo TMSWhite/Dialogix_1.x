@@ -26,16 +26,16 @@ public class Datum  {
 
 	private static final SimpleDateFormat defaultDateFormat = new SimpleDateFormat("MM/dd/yyyy");
 	private static final SimpleDateFormat defaultMonthFormat = new SimpleDateFormat("MMMM");
-	private static final SimpleDateFormat defaultTimeFormat = new SimpleDateFormat("hh:mm:ss");
+	private static final SimpleDateFormat defaultTimeFormat = new SimpleDateFormat("HH:mm:ss");
 	private static final SimpleDateFormat defaultYearFormat = new SimpleDateFormat("yyyy");
 	private static final SimpleDateFormat defaultDayFormat = new SimpleDateFormat("d");
-	private static final SimpleDateFormat defaultWeekdayFormat = new SimpleDateFormat("EE");
+	private static final SimpleDateFormat defaultWeekdayFormat = new SimpleDateFormat("E");
 	private static final SimpleDateFormat defaultHourFormat = new SimpleDateFormat("H");
 	private static final SimpleDateFormat defaultMinuteFormat = new SimpleDateFormat("m");
 	private static final SimpleDateFormat defaultSecondFormat = new SimpleDateFormat("s");
 	private static final DecimalFormat defaultNumberFormat = new DecimalFormat();
 	
-	public static final SimpleDateFormat TIME_MASK = new SimpleDateFormat("yyyy.MM.dd..hh.mm.ss.z");
+	public static final SimpleDateFormat TIME_MASK = new SimpleDateFormat("yyyy.MM.dd..HH.mm.ss");
 	
 
 	private int type = UNKNOWN;
@@ -139,7 +139,7 @@ public class Datum  {
 					String ex = Datum.getExampleFormatStr(mask,t);
 					if (ex.length() > 0)
 						ex = " (e.g. " + ex + ")";
-					error = "Please enter a <B>" + TYPES[t] + "</B>" + ex;
+					error = "Please enter a " + TYPES[t] + ex;
 					sVal = "";
 					dVal = Double.NaN;
 				}
@@ -182,7 +182,7 @@ public class Datum  {
 					String ex = Datum.getExampleFormatStr(mask,t);
 					if (ex.length() > 0)
 						ex = " (e.g. " + ex + ")";
-					error = "Please enter a <B>" + TYPES[t] + "</B>" + ex;
+					error = "Please enter a " + TYPES[t] + ex;
 					date = null;
 				}
 				break;
