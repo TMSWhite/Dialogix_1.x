@@ -1,0 +1,204 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2//EN">
+<HTML>
+
+<HEAD>
+	<META HTTP-EQUIV="Content-Type" CONTENT="text/html;CHARSET=iso-8859-1">
+	<META NAME="GENERATOR" Content="Visual Page 2.0 for Windows">
+	<TITLE>untitled</TITLE>
+</HEAD>
+
+<BODY>
+
+<P>11/22/04 Development Ideas for Dialogix</P>
+
+<UL>
+	<LI>Security 
+	<UL>
+		<LI>Roles
+		<UL>
+			<LI>Admin
+			<LI>View Instrument (by study?)
+			<LI>View Data (by study)
+			<LI>View Documentation
+		</UL>
+		<LI>Implementation
+		<UL>
+			<LI>Role-based permissions on PHP files used to query DB?
+		</UL>
+		<LI>Issues
+		<UL>
+			<LI>How encourage copyright owners to participate?
+		</UL>
+	</UL>
+	<LI>LOINC
+	<UL>
+		<LI>View
+		<UL>
+			<LI>LOINC-view of instruments so can show LOINC codes for Nursing instruments
+			<LI>Review proposed codes?
+			<LI>View proposed LOINC / SNOMED codes for answer lists
+		</UL>
+		<LI>Edit
+		<UL>
+			<LI>Propose LOINC codes for individual items (view static contents, give box for submitting LOINC code
+			<LI>Code submission table: {user, item primary key, time, codeset (LOINC, SNOMED, UMLS), codeval, [reason]} so
+			can have multiple submissions for a given element
+			<LI>Similar table structure for answer sets?
+			<LI>What about translations?
+		</UL>
+		<LI>Find
+		<UL>
+			<LI>Link to UMLS search function to give suggestions for items
+			<LI>keyword search within both -- how implement efficiently?
+			<LI>Likely will need batch procesing of content, generate a form that shows all related content with checkboxes
+			to flag desired ones
+		</UL>
+		<LI>Review 
+		<UL>
+			<LI>Show all proposed LOINC codes (by topic or other filter)
+			<LI>Create instrument and study to let experts vote for their choices
+		</UL>
+		<LI>Delphi
+		<UL>
+			<LI>Analyze modal scores, make new instrument that shows users that score and lets them re-confirm ther vote
+			<LI>[ ] Are there computer systems for automating the modified-Delphi approach in this way?
+		</UL>
+	</UL>
+	<LI>Literature Review
+	<UL>
+		<LI>Instruments
+		<UL>
+			<LI>[ ] Make table of all commonly used instruments -- from Mosby's?
+			<LI>[ ] How many non-copyrighted ones are there?
+			<LI>[ ] Which are computerized, by whom, and where?
+			<UL>
+				<LI>e.g. MDS
+			</UL>
+			<LI>[ ] Which instruments were developed by PI-based researchers such that may retain shared copyright?
+		</UL>
+		<LI>Survey Systems
+		<UL>
+			<LI>CATI / CASI / CAPI
+			<LI>Web-based
+			<LI>XForms
+			<LI>Voice
+		</UL>
+		<LI>Item Banking
+		<UL>
+			<LI>What is best of breed?
+		</UL>
+		<LI>Study Design &amp; Management
+		<UL>
+			<LI>What is best of breed?
+		</UL>
+	</UL>
+	<LI>AHRQ
+	<UL>
+		<LI>Estimate cost per item / instrument to operationality and encode them
+		<LI>Estimate cost to train / supervise staff to perform this function
+		<LI>Estimate cost to do this for copyright owners? (legal fees?)
+		<LI>What would it cost to computerize and encode all psychiatric instruments by end of 2005?
+	</UL>
+	<LI>Legal
+	<UL>
+		<LI>Trademark Dialogix?
+		<LI>Trademark Psyckes
+		<LI>Patent new Dialogix structure / goals?
+	</UL>
+	<LI>Business
+	<UL>
+		<LI>What is appropriate service fee to take copyrighten instruments, bank the items, and generate standard codes?
+		<LI>Option to just do items without doing relevance and page layout
+	</UL>
+	<LI>Data Modeling
+	<UL>
+		<LI>Instruments
+		<UL>
+			<LI>Change so comprised of one or more modules, each of which has its own relevance
+			<LI>Modules can contain sub-modules (e.g. entire other instruments), based upon relevance
+		</UL>
+		<LI>Cardinality
+		<UL>
+			<LI>Allow multiple values per item
+			<LI>How store?
+			<LI>How model for statistics?
+		</UL>
+		<LI>Event Data
+		<UL>
+			<LI>Load existing formats to Mysql for exploration
+			<LI>Use Instrument _ TYPE format naming for tables
+			<LI>Finish PHP files for reviewing those data
+		</UL>
+	</UL>
+	<LI>Voice
+	<UL>
+		<LI>Lloyd assigned to take instrument data and generate voice-xml output
+	</UL>
+	<LI>ClickFox
+	<UL>
+		<LI>[ ] Generate sample path listings for them -- e.g. from either original AutoMEQ, or from TUtorial
+	</UL>
+	<LI>Administrative
+	<UL>
+		<LI>Backups
+		<UL>
+			<LI>Ensure that backing up to tape and/or SAN
+		</UL>
+		<LI>SSL Certificate
+		<UL>
+			<LI>for www.dialogix.org
+			<LI>for psychinformatics.nyspi.org
+		</UL>
+	</UL>
+	<LI>New Functionality
+	<UL>
+		<LI>Item Banking
+		<UL>
+			<LI>Edit concept
+			<LI>Edit HTML fields (using FCKeditor)
+		</UL>
+		<LI>Search
+		<UL>
+			<LI>on concept, questions, response options
+		</UL>
+		<LI>Instrument Design
+		<UL>
+			<LI>Select all items (with filters) related to concepts of interest
+			<LI>Make easy to select / re-order desired items
+		</UL>
+		<LI>Transformations
+		<UL>
+			<LI>Export instrument from tables =&gt; tab delimited version Dialogix currently uses
+			<LI>Import from Excel into new instrument in scrath area?
+		</UL>
+		<LI>Export
+		<UL>
+			<LI>Any query to Excel, XML, etc.
+		</UL>
+		<LI>Study Management
+		<UL>
+			<LI>Study Table
+			<UL>
+				<LI>create / view / manage name, purpose, PI, start date, end date, IRB authorization, etc.
+			</UL>
+			<LI>Roles Table
+			<LI>Users Table
+			<LI>UserRoles Table
+			<LI>StudyInstruments Table
+			<UL>
+				<LI>link finalized instruments to study
+			</UL>
+			<LI>InstrumentDevelopment
+			<UL>
+				<LI>Add study# and status flag to existing instrument and item tables
+				<LI>Status flag = {current, retired, pending, etc.}
+			</UL>
+		</UL>
+		<LI>Modified Delphi
+	</UL>
+</UL>
+
+
+</BODY>
+
+</HTML>
