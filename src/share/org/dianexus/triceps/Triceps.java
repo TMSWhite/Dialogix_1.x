@@ -6,15 +6,13 @@ import java.net.*;
 /* Triceps
  */
 public class Triceps {
-	public static final Triceps NULL = new Triceps(null);
-	
 	public static final int ERROR = 1;
 	public static final int OK = 2;
 	public static final int AT_END = 3;
 
-	Schedule nodes = null;
-	Evidence evidence = null;	// XXX should be private - made public for Node.prepareChoicesAsHTML(parser,...)
-	Parser parser = null;	// XXX should be private - made public for Node.prepareChoicesAsHTML(parser,...)
+	private Schedule nodes = null;
+	private Evidence evidence = null;
+	private Parser parser = null;
 
 	private Logger errorLogger = new Logger();
 	private static String fileAccessError = null;
@@ -27,19 +25,27 @@ public class Triceps {
 	private boolean isValid = false;
 	private Random random = new Random();
 	private String tempPassword = null;
-	private int currentLanguage = 0;
-	Lingua lingua =  null;
+	private int currentLanguage = -1;
+	private Lingua lingua =  null;
 	
 	public Triceps(String scheduleLoc) {
+		/* initialize required variables */
 		lingua = new Lingua("TricepsBundle");
-		parser = new Parser();
 		nodes = new Schedule(lingua, scheduleLoc);
+		setLanguage(null);	// the default until overidden
+		
+		/* if this is a null instance, don't initialize the unnecessary, expensive variables */
+		if (scheduleLoc == null)
+			return;
+			
+		parser = new Parser();
 		if (!nodes.init()) {
 			setError(nodes.getErrors());
 		}
 		resetEvidence();
 		setDefaultValues();
 		createTempPassword();
+		
 		isValid = true;
 	}
 
@@ -250,7 +256,9 @@ public class Triceps {
 				}
 				else {
 					if (parser.booleanVal(evidence, node.getDependencies())) {
-						evidence.set(node, new Datum(lingua, parser.stringVal(evidence, node.getQuestionOrEval()),node.getDatumType(),node.getMask()));
+						Datum datum = parser.parse(evidence, node.getQuestionOrEval());
+						node.setDatumType(datum.type());
+						evidence.set(node, datum);						
 					}
 					else {
 						evidence.set(node, Datum.getInstance(lingua,Datum.NA));	// if doesn't satisfy dependencies, store NA
@@ -374,7 +382,7 @@ public class Triceps {
 	}
 
 	public void resetEvidence() {
-		evidence = new Evidence(lingua, nodes);
+		evidence = new Evidence(lingua, this);
 	}
 
 	private void setDefaultValues() {
@@ -604,8 +612,8 @@ Logger.writeln("null node at index " + i);
 				nodeNamingErrors = n.getNamingErrors();
 			}
 
-			if (n.getReadback() != null) {
-				parser.parseJSP(evidence,n.getReadback());
+			if (n.getReadback(currentLanguage) != null) {
+				parser.parseJSP(evidence,n.getReadback(currentLanguage));
 			}
 			if (parser.hasErrors()) {
 				hasErrors = true;
@@ -756,7 +764,9 @@ Logger.writeln("null node at index " + i);
 	public boolean setFilename(String name) { return nodes.setReserved(Schedule.FILENAME, name); }
 
 	public boolean setLanguage(String language) {
-		boolean ok = nodes.setReserved(Schedule.CURRENT_LANGUAGE,language);
+		boolean ok = false;
+
+		ok = nodes.setReserved(Schedule.CURRENT_LANGUAGE,language);
 		int lang = getLanguage();
 		
 		if (lang == currentLanguage) {
@@ -764,8 +774,11 @@ Logger.writeln("null node at index " + i);
 		}
 		currentLanguage = lang;
 		
+		if (!nodes.isLoaded())
+			return ok;
+		
 		/* re-calculate all eval nodes that meet dependencies, using the new language */
-		for (int i=0;i<currentStep;++i) {
+		for (int i=0;i<=currentStep;++i) {	// XXX: <, or <=?
 			Node node = nodes.getNode(i);
 			if (node == null)
 				continue;
@@ -773,7 +786,8 @@ Logger.writeln("null node at index " + i);
 			if (node.getQuestionOrEvalType() == Node.EVAL) {
 				node.setAnswerLanguageNum(currentLanguage);	// don't change the language for non-EVAL nodes - want to know what was asked
 				if (parser.booleanVal(evidence, node.getDependencies())) {
-					Datum datum = new Datum(lingua, parser.stringVal(evidence, node.getQuestionOrEval()),node.getDatumType(),node.getMask());
+					Datum datum = parser.parse(evidence, node.getQuestionOrEval());
+					node.setDatumType(datum.type());
 					evidence.set(node, datum);
 				}
 				else {
@@ -803,4 +817,10 @@ Logger.writeln("null node at index " + i);
 	private void setError(String s) { errorLogger.println(s); }
 	public boolean hasErrors() { return (errorLogger.size() > 0); }
 	public String getErrors() { return errorLogger.toString(); }
+	
+	public int getCurrentLanguage() { return currentLanguage; }
+	public Schedule getSchedule() { return nodes; }
+	public Evidence getEvidence() { return evidence; }
+	public Parser getParser() { return parser; }
+	public Lingua getLingua() { return lingua; }
 }
