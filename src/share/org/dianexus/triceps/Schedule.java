@@ -227,7 +227,9 @@ public class Schedule  {
 				setError(triceps.get("missing") + braceLevel + triceps.get("closing_braces"));
 			}
 		}
-		catch(IOException e) { }
+		catch(IOException e) {
+Logger.writeln("##IOException @ Schedule.load()" + e.getMessage());
+			 }
 		if (br != null) {
 			try { br.close(); } catch (IOException t) { }
 		}
@@ -381,6 +383,7 @@ public class Schedule  {
 			startingStep = new Integer(s);
 		}
 		catch(NumberFormatException e) {
+Logger.writeln("##NumberFormatException @ Schedule.setStartingStep()" + e.getMessage());
 			setError(triceps.get("invalid_number_for_starting_step") + e.getMessage());
 			startingStep = new Integer(0);
 		}
@@ -422,6 +425,7 @@ public class Schedule  {
 				
 			}
 			catch (NoSuchElementException e) {
+Logger.writeln("##NoSuchElementException @ Schedule.setLanguages()" + e.getMessage());
 			}
 			/* regenerate the string, stipping excess pipe characters */
 			++languageCount;
@@ -442,7 +446,7 @@ public class Schedule  {
 				country = part.nextToken();
 				extra = part.nextToken();
 			}
-			catch (NoSuchElementException e) { }
+			catch (NoSuchElementException e) { /* if no subparts, keep as null */ }
 			
 			Locale loc = Triceps.getLocale(lang,country,extra);
 				
@@ -512,7 +516,11 @@ public class Schedule  {
 				node.setAnswerLanguageNum(currentLanguage);	// don't change the language for non-EVAL nodes - want to know what was asked
 				if (parser.booleanVal(triceps, node.getDependencies())) {
 					Datum datum = parser.parse(triceps, node.getQuestionOrEval());
-					node.setDatumType(datum.type());
+//					node.setDatumType(datum.type());
+					int type = node.getDatumType();
+					if (type != Datum.STRING && type != datum.type()) {
+						datum = datum.cast(type,null);
+					}
 					evidence.set(node, datum);
 				}
 				else {
@@ -535,6 +543,7 @@ public class Schedule  {
 				out.write("RESERVED\t" + s + "\t" + reserved.get(s).toString() + "\n");
 			}
 			catch (IOException e) {
+Logger.writeln("##IOException @ Schedule.toTSV()" + e.getMessage());
 				setError(triceps.get("error_writing_to") + out + ": " + e.getMessage());
 			}
 		}
@@ -544,6 +553,7 @@ public class Schedule  {
 				out.write((String) comments.elementAt(i) + "\n");
 			}
 			catch (IOException e) {
+Logger.writeln("##IOException @ Schedule.toTSV()" + e.getMessage());
 				setError(triceps.get("error_writing_to") + out + ": " + e.getMessage());
 			}
 		}
@@ -576,6 +586,7 @@ public class Schedule  {
 			}
 		}
 		catch (IOException e) {
+Logger.writeln("##IOException @ Schedule.getReader()" + e.getMessage());
 			setError(triceps.get("error_accessing_file") + e.getMessage());
 			Logger.printStackTrace(e);
 		}
@@ -647,6 +658,7 @@ public class Schedule  {
 			}
 		}
 		catch (Throwable t) {
+Logger.writeln("##Throwable @ Schedule.getWriter()" + t.getMessage());
 			setError(triceps.get("error_file") + " '" + source + "' " + triceps.get("is_not_accessible"));
 		}
 		
