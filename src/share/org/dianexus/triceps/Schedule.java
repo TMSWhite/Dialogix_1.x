@@ -140,11 +140,11 @@ import java.io.FileReader;
   
 		setReserved(LANGUAGES,DEFAULT_LANGUAGE);	// needed for language changing
   		
-   		if (lang != null) {
+//   		if (lang != null) {
 			setDefaultReserveds();
 			setReserved(SCHEDULE_SOURCE,source);	// this defaults to LOADED_FROM, but want to keep track of the original source location
 			
-	
+		if (lang != null) {
 			if (source != null && preparse(source)) {
 				isFound = true;
 			}
@@ -161,7 +161,7 @@ import java.io.FileReader;
 		setReserved(TITLE,VERSION_NAME);
 		setReserved(STARTING_STEP,"0");
 		// START_TIME and *_DIR must preceed FILENAME, which uses the values from each of those //
-		setReserved(START_TIME,triceps.formatDate(new Date(System.currentTimeMillis()),Datum.TIME_MASK));
+		setReserved(START_TIME,null);
 		setReserved(WORKING_DIR,null);
 		setReserved(COMPLETED_DIR,null);
 		setReserved(FLOPPY_DIR,null);
@@ -735,13 +735,24 @@ if (DEBUG) Logger.writeln("##NumberFormatException @ Schedule.setStartingStep('"
 
 	private String setStartTime(Date t) {
 		startTime = t;
-		String str = triceps.formatDate(t,Datum.TIME_MASK);
+		String str = null;
+		if (triceps != null) {
+			str = triceps.formatDate(t,Datum.TIME_MASK);
+		}
+		else {
+			if (t == null) {
+				str = new Date(System.currentTimeMillis()).toString();
+			}
+			else {
+				str = t.toString();
+			}
+		}
 		return str;
 	}
 
 	private String setStartTime(String t) {
 		Date time = null;
-		if (t == null || ((time = triceps.parseDate(t,Datum.TIME_MASK)) == null)) {
+		if (t == null || triceps == null || ((time = triceps.parseDate(t,Datum.TIME_MASK)) == null)) {
 			time = new Date(System.currentTimeMillis());
 		}
 		return setStartTime(time);
@@ -842,15 +853,9 @@ if (DEBUG) Logger.writeln("##NoSuchElementException @ Schedule.setLanguages()" +
 		}
 
 		loc = (Locale) locales.elementAt(currentLanguage);
-		if (isFound) {
-			triceps.setLocale(loc);	// so can parse subsequent data correctly
-		}
-		
-//		if (triceps != null) triceps.setLocale(loc);	// FIXME - hack
+		if (triceps != null) triceps.setLocale(loc);	// so can parse subsequent data correctly
 
-		if (isLoaded) {
-			recalculateInNewLanguage();
-		}
+		recalculateInNewLanguage();
 
 		return loc.toString();
 	}
@@ -858,7 +863,8 @@ if (DEBUG) Logger.writeln("##NoSuchElementException @ Schedule.setLanguages()" +
 	/*public*/ boolean recalculateInNewLanguage() {
 		boolean ok = false;
 
-		if (!isLoaded())
+		if (!isLoaded())	// or isFound?  Want to be able to set the default language to something else?
+//		if (!isFound || triceps == null)
 			return ok;
 
 		Parser parser = triceps.getParser();
