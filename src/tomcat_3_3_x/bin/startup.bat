@@ -5,8 +5,6 @@ rem Startup batch file for tomcat server.
 rem This batch file written and tested under Windows NT
 rem Improvements to this file are welcome
 
-set JAVA_HOME=\jdk1.3
-
 set _TC_BIN_DIR=%TOMCAT_INSTALL%\bin
 if "%_TC_BIN_DIR%" == "\bin" goto search
 if exist "%_TC_BIN_DIR%\tomcat.bat" goto start
