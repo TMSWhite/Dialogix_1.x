@@ -48,6 +48,27 @@
             <param-value>true</param-value>
         </init-param>        
         
+        <init-param>
+            <param-name>LICENSE.STUDY_NAME</param-name>
+            <param-value></param-value>
+        </init-param>
+        <init-param>
+            <param-name>LICENSE.STUDY_ICON</param-name>
+            <param-value></param-value>
+        </init-param>	
+        <init-param>
+            <param-name>SUPPORT.PHONE</param-name>
+            <param-value></param-value>
+        </init-param>	
+        <init-param>
+            <param-name>SUPPORT.EMAIL</param-name>
+            <param-value></param-value>
+        </init-param>	
+        <init-param>
+            <param-name>SUPPORT.PERSON</param-name>
+            <param-value></param-value>
+        </init-param>        
+        
     </servlet>
     
     <!-- Login (username / password / filename) -->   

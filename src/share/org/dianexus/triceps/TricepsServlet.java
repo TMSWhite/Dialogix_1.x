@@ -87,14 +87,14 @@ public class TricepsServlet extends HttpServlet implements VersionIF {
 	};	
 	
 	int accessCount = 0;
-	
+
 	public void init(ServletConfig config) throws ServletException {
 		super.init(config);
 		Logger.init(config.getInitParameter("dialogix.dir"));
 		
 		if (!initDBLogging()) {
 			Logger.writeln("Unable to initialize DBLogging");
-		}		
+		}
 	}
 
 	public void destroy() {

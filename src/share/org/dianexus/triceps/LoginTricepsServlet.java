@@ -32,9 +32,22 @@ import java.text.DateFormat;
 
 public class LoginTricepsServlet extends TricepsServlet {
 	static Random random = new Random();
+	String STUDY_NAME = "";
+	String STUDY_ICON = "";
+	String SUPPORT_PHONE = "";
+	String SUPPORT_EMAIL = "";
+	String SUPPORT_PERSON = "";
 	
 	public void init(ServletConfig config) throws ServletException {
 		super.init(config);
+		
+		/* 8/20/2003 -- extract static options from LicenseIF to here */
+		STUDY_NAME = config.getInitParameter("LICENSE.STUDY_NAME");
+		STUDY_ICON = config.getInitParameter("LICENSE.STUDY_ICON");
+		
+		SUPPORT_PHONE = config.getInitParameter("SUPPORT.PHONE");
+		SUPPORT_EMAIL = config.getInitParameter("SUPPORT.EMAIL");
+		SUPPORT_PERSON = config.getInitParameter("SUPPORT.PERSON");			
 	}
 
 	public void destroy() {

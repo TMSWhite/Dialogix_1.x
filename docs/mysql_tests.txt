@@ -405,6 +405,10 @@ select distinct username, currentIP, sessionID, workingFile, javaObject, instrum
 # Wave6 - show currently active files
 select username, filename, status, lastAccess, currentStep, lastAction, currentIP, browser, statusMsg from wave6users where filename != ".";
 
+create table test.wave6status as
+select username, filename, currentStep, lastAccess from dialogix2993.wave6users where status != "unstarted" and lastAccess != "" and instrument like "%wave6-web.jar" order by lastAccess DESC;
+
+
 # Wave6 - find all files that have been nearly completed
 select username, filename, status, lastAccess, currentStep, lastAction, currentIP, browser, statusMsg from wave6users where filename != "." and currentStep >= 990;
 
