@@ -58,9 +58,11 @@ public class TricepsServlet extends HttpServlet {
 		out.println("							</select>");
 		out.println("<BR><input type='SUBMIT' name='directive' value='START'>\n");
 		out.println("<BR>OR<BR>");
-		out.println("Restore an old interview:	");
-		
-		out.println("<input type='text' name='restoreFrom'>");
+		out.println("<input type='SUBMIT' name='directive' value='restore-from-object'>" + 
+			"<input type='text' name='restore-from-object'>");
+		out.println("<BR>");
+		out.println("<input type='SUBMIT' name='directive' value='restore-from-TSV'>" +
+			"<input type='text' name='restore-from-TSV'>");		
 		// FIXME - query/iterate for list of stored schedules
 /*
 		out.println("<select name='restoreFrom'>");
@@ -159,8 +161,8 @@ public class TricepsServlet extends HttpServlet {
 
 			// ask question
 		} 
-		else if (directive.equals("RESTORE")) {
-			String restore = req.getParameter("restoreFrom");
+		else if (directive.equals("restore-from-object")) {
+			String restore = req.getParameter("restore-from-object");
 			restore = restore + "." + req.getRemoteUser() + "." + req.getRemoteHost() + ".suspend";
 			
 			Triceps temp;
@@ -181,6 +183,33 @@ public class TricepsServlet extends HttpServlet {
 				// ask question
 			}
 		} 
+		else if (directive.equals("restore-from-TSV")) {
+			String restore = req.getParameter("restore-from-TSV");
+			restore = restore + "." + req.getRemoteUser() + "." + req.getRemoteHost() + ".tsv";
+			
+			// load schedule
+			triceps = new Triceps();
+			ok = triceps.setSchedule("http://" + req.getServerName() + "/" + restore);
+			if (!ok) {
+				ok = triceps.setSchedule(new File(restore));
+			}
+			
+			if (!ok) {
+				try {
+					this.doGet(req,res);
+				}
+				catch (ServletException e) {
+				}
+				catch (IOException e) {
+				}
+				return;
+			}
+				
+			ok = ok && triceps.gotoFirst();
+
+			// ask question			
+		}
+			
 		else if (directive.equals("jump-to")) {	
 			ok = triceps.gotoNode(req.getParameter("jump-to"));
 			// ask this question
@@ -197,8 +226,8 @@ public class TricepsServlet extends HttpServlet {
 			}
 			// re-ask current question
 		}
-		else if (directive.equals("suspend-as")) {		// XXX gotta go -- be back later :-)
-			String name = req.getParameter("suspend-as");
+		else if (directive.equals("suspend-as-object-to")) {		// XXX gotta go -- be back later :-)
+			String name = req.getParameter("suspend-as-object-to");
 			String file = name + "." + req.getRemoteUser() + "." + req.getRemoteHost() + ".suspend";
 			ok = triceps.save(file);
 			if (ok) {
@@ -236,6 +265,15 @@ public class TricepsServlet extends HttpServlet {
 				*/
 			}
 			// re-ask same question
+		}
+		else if (directive.equals("suspend-as-TSV-to")) {		// XXX gotta go -- be back later :-)
+			String name = req.getParameter("suspend-as-TSV-to");
+			String file = name + "." + req.getRemoteUser() + "." + req.getRemoteHost() + ".tsv";
+			
+			ok = triceps.toTSV(file);
+			if (ok) {
+				out.println("<B>Interview saved successfully as " + name + " (" + file + ")</B><HR>");
+			}
 		}
 		else if (directive.equals("help")) {	// FIXME
 			out.println("<B>No help currently available</B><HR>");
@@ -375,8 +413,12 @@ public class TricepsServlet extends HttpServlet {
 		out.println("<input type='SUBMIT' name='directive' value='backward'>");
 		out.println("<input type='SUBMIT' name='directive' value='forward'>");
 		out.println("<input type='SUBMIT' name='directive' value='help'>");
-		out.println("<input type='SUBMIT' name='directive' value='suspend-as'>");
-		out.println("<input type='text' name='suspend-as'>");
+		out.println("<BR>");
+		out.println("<input type='SUBMIT' name='directive' value='suspend-as-object-to'>");
+		out.println("<input type='text' name='suspend-as-object-to'>");
+		out.println("<BR>");
+		out.println("<input type='SUBMIT' name='directive' value='suspend-as-TSV-to'>");
+		out.println("<input type='text' name='suspend-as-TSV-to'>");		
 		out.println("<BR>");
 		// the following buttons are for debugging
 		out.println("<input type='SUBMIT' name='directive' value='jump-to'>");

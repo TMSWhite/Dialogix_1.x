@@ -14,6 +14,12 @@ public class Node implements Serializable {
 	private String action = "";
 	private String answerType = "";
 	private String answerOptions = "";
+	
+	// loading from extended Schedule with default answers
+	// XXX hack - Node shouldn't know values of evidence - Schedule should know how to load itself.
+//	private transient String debugQuestion = null;
+	private transient String debugAnswer = null;
+	
 	private static final String TAB = "     ";
 	private static final int ITAB = (int)TAB.charAt(0);
 
@@ -57,7 +63,12 @@ public class Node implements Serializable {
 						description = token;
 						break;
 					case 3:
-						stepName = "_" + token;
+						if (token.charAt(0) == '_') {
+							stepName = token;
+						}
+						else {
+							stepName = "_" + token;
+						}
 						break; // assumes, for now, that input is number without underscore
 					case 4:
 						dependencies = token;
@@ -71,17 +82,20 @@ public class Node implements Serializable {
 					case 7:
 						action = token;
 						break;
-					case 8: {
-							answerOptions = token;
-							int index = answerOptions.indexOf(";");
-							if (index != -1) {
-								answerType = answerOptions.substring(0, index);
-							}
-							else answerType = answerOptions;
-					}
+					case 8: 
+						answerOptions = token;
+						int index = answerOptions.indexOf(";");
+						if (index != -1) {
+							answerType = answerOptions.substring(0, index);
+						}
+						else answerType = answerOptions;
+						break;
+					case 9: 
+						debugAnswer = token;
+						break;
 				}
 			}
-			if (j != 8) {
+			if (j < 8) {
 				System.out.println("Error tokenizing line " + step + " (" + j + "/8 tokens found)");
 			}
 		}
@@ -98,6 +112,7 @@ public class Node implements Serializable {
 	public String getDescription() { return description; }
 	public String getName() { return stepName; }
 	public String getQuestionRef() { return questionRef; }
+	public String getDebugAnswer() { return debugAnswer; }
 	public int getStep() { return step; }
 	
 	/**
@@ -109,5 +124,10 @@ public class Node implements Serializable {
 			"Question Reference: <B>" + questionRef + "</B><BR>\n" + "Action Type: <B>" + actionType + "</B><BR>\n" +
 			"Action: <B>" + action + "</B><BR>\n" + "AnswerType: <B>" + answerType + "</B><BR>\n" + "AnswerOptions: <B>" +
 			answerOptions + "</B><BR>\n";
+	}
+	
+	public String toTSV() {
+		return concept + "\t" + description + "\t" + stepName + "\t" + dependencies + "\t" + questionRef +
+			"\t" + actionType + "\t" + action + "\t" + answerOptions;
 	}
 }

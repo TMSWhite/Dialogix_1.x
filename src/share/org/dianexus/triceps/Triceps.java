@@ -9,6 +9,8 @@ import java.net.*;
  */
  
 public class Triceps implements Serializable {
+	private static final String NULL = "not set";	// a default value to represent null in config files
+	
 	private Object scheduleURL = null;
 	private Schedule nodes = null;
 	private Evidence evidence = null;
@@ -25,7 +27,7 @@ public class Triceps implements Serializable {
 		if (file == null || !file.exists())
 			return false;
 		scheduleURL = file;
-		return (reloadSchedule() && resetEvidence());
+		return (reloadSchedule() && resetEvidence() && setDebugEvidence());
 	}
 
 	public boolean setSchedule(String src) {
@@ -41,7 +43,7 @@ public class Triceps implements Serializable {
 	
 	public boolean setSchedule(URL url) {
 		scheduleURL = url;
-		return (reloadSchedule() && resetEvidence());
+		return (reloadSchedule() && resetEvidence() && setDebugEvidence());
 	}
 	
 	public boolean reloadSchedule() {
@@ -164,6 +166,24 @@ public class Triceps implements Serializable {
 		return true;
 	}
 	
+	private boolean setDebugEvidence() {
+		Node n;
+		String init;
+		for (int i=0;i<nodes.size();++i) {
+			n = nodes.getNode(i);
+			if (n == null)
+				continue;
+			
+			init = n.getDebugAnswer();
+			
+			if (init == null || init.equals(NULL))
+				continue;
+			
+			evidence.set(n,new Datum(init));	// set an initial value for the node
+		}
+		return true;
+	}
+	
 	public boolean save(String filename) {
 		try {
 			FileOutputStream fos = new FileOutputStream(filename);
@@ -261,5 +281,53 @@ public class Triceps implements Serializable {
 		}
 		sb.append("</Evidence>\n");
 		return sb.toString();
+	}
+	
+	public boolean toTSV(String filename) {
+		FileWriter fw;
+		
+		try {
+			fw = new FileWriter(filename);
+			boolean ok = writeTSV(fw);
+			fw.close();
+			return ok;
+		}
+		catch (IOException e) {
+			errors.push("error writing to " + filename + ": " + e);
+			return false;
+		}
+	}
+	
+	public boolean writeTSV(Writer out) {
+		Node n;
+		Datum d;
+		String ans;
+		
+		if (out == null)
+			return false;
+			
+		try {
+			for (int i=0;i<nodes.size();++i) {
+				n = nodes.getNode(i);
+				if (n == null)
+					continue;
+					
+				d = evidence.getDatum(n);
+				if (d == null) {
+					ans = NULL;
+				}
+				else {
+					ans = d.StringVal();
+				}
+					
+				out.write(n.toTSV() + "\t" + ans + "\n");
+			}
+			out.flush();
+			return true;
+		}
+		catch (IOException e) {
+			errors.push("Unable to write schedule file: " + e);
+			return false;
+		}
 	}
 }
