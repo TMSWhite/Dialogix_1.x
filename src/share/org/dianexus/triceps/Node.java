@@ -643,7 +643,7 @@ else setParseError("syntax error");
 				totalLines += v.size();
 			}
 			sb.append("<select name='" + getLocalName() + "'" +
-				((answerType == LIST) ? (" size = '" + Math.min(MAX_ITEMS_IN_LIST,totalLines+1) + "' ") : " ") +
+				((answerType == LIST || answerType == LIST2) ? (" size = '" + Math.min(MAX_ITEMS_IN_LIST,totalLines+1) + "' ") : " ") +
 				TricepsEngine.listEventHandlers("select") +
 				">");
 			sb.append("<option value=''" +
