@@ -456,7 +456,6 @@
 <P>
 <HR ALIGN="CENTER">
 </P>
-
 <P>Tomcat 5.5 Notes 12/28/2004</P>
 
 <UL>
@@ -538,18 +537,14 @@
 		keystorePass=&quot;aka##triceps&quot;<BR>
 		clientAuth=&quot;false&quot; sslProtocol=&quot;TLS&quot; /&gt;
 	</UL>
-	<LI>[ ] Link Tomcat behind Apache?
+	<LI>[NO:  No added benefit unless load balance ] Link Tomcat behind Apache?
 	<UL>
 		<LI>(1) Use Proxies (e.g. so that all requests to www.dialogix.org:80 and :43 go to Tomcat, and protect its port
 		so that no external calls allowed
 		<LI>(2) Use the JK connector (AJP), which is more efficient than proxying if only using on server (instead of clustering).
-		<LI>[ ] Temporarily add 127.0.0.1 as www.dialogix.org to hosts (c:\windows\system32\drivers\etc\hosts) -- [ ] Make
-		sure to remove it!
 	</UL>
 	<LI>N.B. RequestDumperValve shows all header messages -- good for debugging, but don't keep on constantly
 	<LI>[DONE] Modify the war deployment to be the name of the directory, not dialogix.war.
-	<LI>[XXX ] Ant to deploy all instruments -- the &lt;antcall&gt; and &lt;ant&gt; tasks don't unset other parameters
-	as desired, so hard to call sub properties files
 	<LI>[DONE ] Re-write index.htm file so automatically generated?
 	<LI>[ ] Move the Dialogix connector into a global context? Alternatively keep them separate for each application?
 	<LI>[ ] All license info should really be in a database
@@ -561,7 +556,7 @@
 	to manage?
 	<LI>[ ] Unit test to find memory leak
 	<LI>[ ] Write all to DB, perhaps one set of tables (or DB) per project?
-	<LI>[ ] Play with JSP, esp. taglibs?
+	<LI>[NO:  JSP and taglibs too cumbersome ] Play with JSP, esp. taglibs?
 	<LI>N.B. ${xxx.yy} expansion works within Ant properties files
 	<LI>N.B. &lt;input&gt; can let specify which license file to deploy on the fly?
 	<LI>N.B. Can put Oro and Mysql (and even Dialogix) into endorsed dir for deployment, but not &quot;droppable&quot;
@@ -569,12 +564,11 @@
 	<LI>[ ] Struts
 	<UL>
 		<LI>Not clear that this would be of any benefit. The taglibs approach to adding content is too laborious
-		<LI>Pipeline is nice -- XXX -- where is the documentation that discusses the various access/authentication/translation/etc.
-		steps needed in a good application/
+		<LI>Pipeline is nice -- XXX -- where is the documentation that discusses the various steps needed for good access/authentication/translation/etc?
 		<LI>Might help with internationalization, but pulling off of database may be more extensible and easier to manage
 		<LI>Tiles -- seems too slow and inconvenient -- the Web.xml definition of them make it hard to grok.
 	</UL>
-	<LI>[ ] Velocity
+	<LI>[done - 1/16/05 ] Velocity
 	<UL>
 		<LI>Templating is easy. Uses #if/#then, #set, #foreach, #macros
 		<LI>Nice that can see the code within an HTML page, so easy to develop using a standard browser, rather than struts;
@@ -587,8 +581,9 @@
 		<LI>However, math functionality is limited to integers, so not clear that has many direct benefits other than the
 		introspection
 		<LI>Can I use anything from their JavaCC or JJTree stuff?
+		<LI>Good for view component, but not a replacement for Dialogix parser
 	</UL>
-	<LI>[ ] JavaCC / JJTree -- update Dialogix.jj to support Unicode?
+	<LI>[done -1/16/05 ] JavaCC / JJTree -- update Dialogix.jj to support Unicode?
 	<UL>
 		<LI>N.B. Does recompile successfully!
 		<LI>COMMON_TOKEN_ACTION -- lets a user-defined routine be called after every call to the token manager -- could
@@ -609,12 +604,12 @@
 		<LI>Functions
 		<LI>Data
 	</UL>
-	<LI>Datum should be interface to make new datatypes pluggable? Problem is how to do DatumMath.
-	<LI>Rename package to org.dialogix.*
-	<LI>Remove XMLString or tailor so can change what is filtered?
-	<LI>Support Durations (date1 - date2) which don't have Java date=0 problem
-	<LI>Remove VersionIF dependency
-	<LI>[ ] Logging via Log4J instead of my rudimentary logger
+	<LI>[NO:  Keep as is] Datum should be interface to make new datatypes pluggable? Problem is how to do DatumMath.
+	<LI>[done] Rename package to org.dialogix.*
+	<LI>[ ] Remove XMLString or tailor so can change what is filtered?
+	<LI>[ ] Support Durations (date1 - date2) which don't have Java date=0 problem
+	<LI>[done] Remove VersionIF dependency
+	<LI>[done - 1/16/05 ] Logging via Log4J instead of my rudimentary logger
 	<UL>
 		<LI>There is a JDBC extensions to allow logging directly to MySQL -- use for general data writes?
 	</UL>
@@ -623,14 +618,12 @@
 	be helpful as macros that are loaded from a library and evaluated
 	<LI>Parser has several functions
 	<UL>
-		<LI>Generate list of dependent nodes so that can dynamically tailor pages baswed upon relevance even when jumping
-		around
-		<LI>Compute results of equations
-		<LI>So, should I use a parse Tree (is this what AST is for?) so can visit it with interpretter vs. tool to get
-		dependency tree?
+		<LI>[done] Generate list of dependent nodes so that can dynamically tailor pages baswed upon relevance even when
+		jumping around
+		<LI>[done] Compute results of equations
 	</UL>
-	<LI>[ ] Build revised version of Parser that uses Logger?
-	<LI>[ ] Analyze how ?? (Velocity) uses AST and Visitor classes to parse the tree?
+	<LI>[done - 1/6/05 ] Build revised version of Parser that uses Logger?
+	<LI>[ ] Test cases to validate accuracy of parser
 </UL>
 
 
