@@ -211,6 +211,15 @@ public class Triceps {
 		}
 		else
 			q.setMaxDatum(null);
+			
+		Vector v = q.getAllowableValues();
+		if (v != null) {
+			Vector vd = new Vector();
+			for (int i=0;i<v.size();++i) {
+				vd.addElement(parser.parse(this,(String) v.elementAt(i)));
+			}
+			q.setAllowableDatumValues(vd);
+		}
 
 		q.setQuestionAsAsked(parser.parseJSP(this, q.getQuestionOrEval()) + q.getSampleInputString());
 		return q.getQuestionAsAsked();
@@ -909,18 +918,19 @@ Logger.writeln("null node at index " + i);
 		}
 		else {
 			deleteFile(dir,oldname);
-			saveEventLog(dir,newname,true);
 		}
+		saveEventLog(dir,newname,true);
 
 		return ok;
 	}
 	
 	public boolean saveEventLog(String dir, String name, boolean rename) {
 		boolean ok = true;
+		String logName = dir + name + ".events";
 		
 		try {
 			if (eventLogger == null) {
-				File file = new File(dir + name + ".events");
+				File file = new File(logName);
 				eventLogger = new Logger(file,Logger.DOS_EOL);	
 				return true;
 			}
@@ -928,14 +938,14 @@ Logger.writeln("null node at index " + i);
 			String copy = eventLogger.toString(false);
 				
 			if (rename) {
-				File file = new File(dir + name + ".events");
+				File file = new File(logName);
 				eventLogger.delete();	// remove old one
 				eventLogger = new Logger(file,Logger.DOS_EOL);
 				eventLogger.print(copy);	// copy in current information
 			}
 			else {
 				/* save a copy to the new location, but don't delete current file */
-				FileWriter fw = nodes.getWriter(dir + name);
+				FileWriter fw = nodes.getWriter(logName);
 				try {
 					fw.write(copy);
 				}
@@ -946,12 +956,12 @@ Logger.writeln("null node at index " + i);
 					try { fw.close(); } catch (IOException t) { }
 				}
 				if (!ok) {
-					setError(get("unable_to_move_event_logs_to") + dir + name);
+					setError(get("unable_to_move_event_logs_to") + logName);
 				}
 			}
 		}
 		catch (Throwable t) {
-			setError(get("unable_to_move_event_logs_to") + dir + name);
+			setError(get("unable_to_move_event_logs_to") + logName);
 			Logger.printStackTrace(t);
 		}
 		return ok;
