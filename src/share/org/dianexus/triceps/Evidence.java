@@ -90,14 +90,17 @@ public class Evidence  {
 	private int	numReserved = 0;
 	private Date startTime = new Date(System.currentTimeMillis());
 	private Logger errorLogger = new Logger();
-	Lingua lingua = Lingua.NULL;	// should be available to Datum for Qss purposes
+	Lingua lingua = null;	// need package-level access in Qss
+	private Triceps triceps = null;
 
-	public Evidence(Lingua lang, Schedule schedule) {
+	public Evidence(Lingua lang, Triceps tri) {
     	lingua = (lang == null) ? Lingua.NULL : lang;
 
-		if (schedule == null) {
+		if (tri == null) {
 			return;
 		}
+		triceps = tri;
+		Schedule schedule = triceps.getSchedule();
 
 		numReserved = Schedule.RESERVED_WORDS.length;	// these are always added at the beginning
 
@@ -331,7 +334,7 @@ public class Evidence  {
 						setError(lingua.get("unknown_node") + nodeName, line, column);
 						return Datum.getInstance(lingua,Datum.INVALID);
 					}
-					return new Datum(lingua, node.getReadback(),Datum.STRING);
+					return new Datum(lingua, node.getReadback(triceps.getCurrentLanguage()),Datum.STRING);
 				}
 				case ISINVALID:
 					return new Datum(lingua, datum.isType(Datum.INVALID));
