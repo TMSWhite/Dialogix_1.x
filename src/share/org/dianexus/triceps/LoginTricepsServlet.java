@@ -46,16 +46,23 @@ public class LoginTricepsServlet extends TricepsServlet {
 	}
 
 	public void doPost(HttpServletRequest req, HttpServletResponse res)  {
-		initSession(req,res);
-
-		int result = LOGIN_ERR_OK;
 		try {
+		initSession(req,res);
+		int result = LOGIN_ERR_OK;
 			result = processPost(req,res);
 			if (result >= 0) { logPageHit(req,LOGIN_ERRS_BRIEF[result]); }	// way to avoid re-logging post shutdown 
 			// [XXX] so does this mean it is logging the wrong thing?
 		}
-		catch (Throwable t) {
-if (DEBUG) Logger.printStackTrace(t);
+		catch (OutOfMemoryError oome) {
+			Runtime.getRuntime().gc();
+if (DEBUG) Logger.writeln("##Exception @ Servlet.doPost()" + oome.getMessage());
+if (DEBUG) Logger.printStackTrace(oome);			
+		}		
+		catch (Exception t) {
+if (DEBUG) {
+	Logger.writeln(t.getMessage());
+	Logger.printStackTrace(t);
+}
 		}
 	}
 	
@@ -78,8 +85,16 @@ if (DEBUG) Logger.printStackTrace(t);
 		String loginCommand = req.getParameter(LOGIN_COMMAND);
 		String loginToken = req.getParameter(LOGIN_TOKEN);	// need to way to tell whether this is a authenticated session
 		String loginIP = req.getRemoteAddr();
+		String loginBrowser = req.getHeader(USER_AGENT);
+		if (loginBrowser == null) {
+			loginBrowser = "null";
+		}
+		String loginUserName = req.getParameter(LOGIN_USERNAME);
 		String storedLoginToken = (String) session.getAttribute(LOGIN_TOKEN);
 		String storedIP = (String) session.getAttribute(LOGIN_IP);
+		String storedBrowser = (String) session.getAttribute(LOGIN_BROWSER);
+		String storedUserName = (String) session.getAttribute(LOGIN_USERNAME);
+		
 		LoginRecord loginRecord = (LoginRecord) session.getAttribute(LOGIN_RECORD);
 		
 		if (LOGIN_COMMAND_LOGON.equals(loginCommand)) {
@@ -108,8 +123,12 @@ if (DEBUG) Logger.printStackTrace(t);
 			
 			/* create tokens needed for remainder of processing */
 			storedIP = loginIP;
-			session.setAttribute(LOGIN_IP,storedIP);
+			storedBrowser = loginBrowser;
+			storedUserName = loginUserName;
+			session.setAttribute(LOGIN_IP,loginIP);
 			session.setAttribute(LOGIN_RECORD,loginRecord);	// stores the username/password info for later access
+			session.setAttribute(LOGIN_BROWSER,loginBrowser);
+			session.setAttribute(LOGIN_USERNAME,loginUserName);
 			storedLoginToken = createLoginToken();
 			loginToken = storedLoginToken;
 			
@@ -128,16 +147,24 @@ if (DEBUG) Logger.printStackTrace(t);
 		}
 		
 		/* compare login token to the one stored in the session */
-		if (storedLoginToken.equals(loginToken) && storedIP.equals(loginIP)) {
+		if (storedLoginToken.equals(loginToken)) {
+			if (!(storedIP.equals(loginIP) && storedBrowser.equals(loginBrowser) && storedUserName.equals(loginUserName))) {
+				loginPage(req,res,LOGIN_ERR_ODD_CHANGE);
+				return -1;
+			}
+			
 			/* create and store new login token -- so can't re-submit */
 			loginToken = createLoginToken();
 			session.setAttribute(LOGIN_TOKEN,loginToken);
 			
 			/* ensure that this hidden parameter is sent with each new form -- this is a hack */
-			String hiddenLoginToken = "<input type='hidden' name='" + LOGIN_TOKEN + "' value='" + loginToken + "'>";
+			StringBuffer sb = new StringBuffer();
+			sb.append("\n<input type='hidden' name='").append(LOGIN_TOKEN).append("' value='").append(loginToken).append("'>");
+			sb.append("\n<input type='hidden' name='").append(LOGIN_BROWSER).append("' value='").append(loginBrowser).append("'>");
+			sb.append("\n<input type='hidden' name='").append(LOGIN_USERNAME).append("' value='").append(loginUserName).append("'>");
 
 			/* pass control through to main Dialogix servlet */
-			return processAuthenticatedRequest(req,res,hiddenLoginToken);
+			return processAuthenticatedRequest(req,res,sb.toString());
 		}
 		else {
 			/* What if try to re-submit -- what will happen? */
@@ -205,7 +232,7 @@ if (DEBUG) Logger.printStackTrace(t);
 			out.flush();
 			out.close();
 		}
-		catch (Throwable t) {
+		catch (Exception t) {
 if (DEBUG) Logger.printStackTrace(t);
 		}		
 	}
@@ -291,6 +318,7 @@ if (DEBUG) Logger.printStackTrace(t);
 			}
 			
 			tricepsEngine = new TricepsEngine(this.getServletConfig());
+			session.setAttribute(TRICEPS_ENGINE, tricepsEngine);
 			
 			/* create new instance, or validate that old instance exists; then "resume" it via normal TricepsEngine mechanisms */
 			String src = null;
@@ -339,7 +367,7 @@ if (DEBUG) Logger.printStackTrace(t);
 			tricepsEngine.doPost(req,res,out,hiddenLoginToken,restoreFile);
 			
 			/* process session before finalizing print writer */
-			session.setAttribute(TRICEPS_ENGINE, tricepsEngine);
+//			session.setAttribute(TRICEPS_ENGINE, tricepsEngine);
 			
 			out.flush();
 			out.close();
@@ -357,7 +385,7 @@ if (DEBUG) Logger.printStackTrace(t);
 				}
 				return -1;
 			}					}
-		catch (Throwable t) {
+		catch (Exception t) {
 if (DEBUG) Logger.printStackTrace(t);
 		}
 		return LOGIN_ERR_OK;
@@ -418,7 +446,7 @@ if (DEBUG) Logger.printStackTrace(t);
 //if (DEBUG) Logger.writeln("LOGIN: " + lr.showValue());
 	        }
 	        conn.close();
-	    } catch (Throwable t) {
+	    } catch (Exception t) {
 			Logger.writeln("Error updating database \"" + t.getMessage());
 if (DEBUG) Logger.printStackTrace(t);
 	    }
