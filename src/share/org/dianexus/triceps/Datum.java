@@ -43,7 +43,9 @@ public class Datum  {
 	private GregorianCalendar calendar = new GregorianCalendar();
 	
 	/* XXX:  SimpleDateFormat.parse() buggy for WEEKDAY.  Default date is Thu 1/1/1970.  Add weekday to WEEKDAY_STR */
-	private static final String WEEKDAY_STRS[] = { "thu", "fri", "sat", "sun", "mon", "tue", "wed" };	
+	private static final String WEEKDAY_STRS[] = { "sun", "mon", "tue", "wed", "thu", "fri", "sat" };
+	private static final int CALENDAR_WEEKDAYS[] = { Calendar.SUNDAY, Calendar.MONDAY, Calendar.TUESDAY, Calendar.WEDNESDAY,
+		Calendar.THURSDAY, Calendar.FRIDAY, Calendar.SATURDAY };
 
 	private int type = UNKNOWN;
 	private String sVal = TYPES[type];
@@ -243,10 +245,8 @@ public class Datum  {
 					if (day.startsWith(WEEKDAY_STRS[i])) {
 						calendar.setTime(epoch);
 						
-						for (int j=0;j<i;++j) {
-							calendar.roll(Calendar.DAY_OF_WEEK,true);
-						}
-						
+						calendar.set(Calendar.DAY_OF_WEEK, CALENDAR_WEEKDAYS[i]);
+								
 						date = calendar.getTime();
 						type = WEEKDAY;
 						break;
