@@ -255,6 +255,9 @@
          <filter token="LICENSE.PRINCIPAL_INVESTIGATOR" value="${LICENSE.PRINCIPAL_INVESTIGATOR}"/>
          <filter token="LICENSE.GRANT_NAME" value="${LICENSE.GRANT_NAME}"/>
          <filter token="LICENSE.GRANT_TITLE" value="${LICENSE.GRANT_TITLE}"/>
+         <filter token="SUPPORT.PHONE" value="${SUPPORT.PHONE}"/>
+         <filter token="SUPPORT.EMAIL" value="${SUPPORT.EMAIL}"/>
+         <filter token="SUPPORT.PERSON" value="${SUPPORT.PERSON}"/>
        </filterset>
     </copy>
     
@@ -726,6 +729,9 @@
     <echo message="ajp12.port=${ajp12.port}"/>
     <echo message="ajp13.port=${ajp13.port}"/>
     <echo message="SSL.KEYSTORE=${SSL.KEYSTORE}"/>
+    <echo message="SUPPORT.PHONE=${SUPPORT.PHONE}"/>
+    <echo message="SUPPORT.EMAIL=${SUPPORT.EMAIL}"/>
+    <echo message="SUPPORT.PERSON=${SUPPORT.PERSON}"/>    
 
     
     <echo message="LICENSE.PACKAGE_DIR=${LICENSE.PACKAGE_DIR}"/>

@@ -14,4 +14,9 @@ interface LicenseIF  {
 	final static String PRINCIPAL_INVESTIGATOR = "@@LICENSE.PRINCIPAL_INVESTIGATOR@@";
 	final static String GRANT_NAME = "@@LICENSE.GRANT_NAME@@";
 	final static String GRANT_TITLE = "@@LICENSE.GRANT_TITLE@@";
+	
+	
+	final static String SUPPORT_PHONE = "@@SUPPORT.PHONE@@";
+	final static String SUPPORT_EMAIL = "@@SUPPORT.EMAIL@@";
+	final static String SUPPORT_PERSON = "@@SUPPORT.PERSON@@";
 }
