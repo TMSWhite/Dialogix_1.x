@@ -67,7 +67,7 @@ sub main {
 		print OUT $line, "\n";
 		close (OUT);
 		
-		$subjects->{"$id.$type"} = \@vals;	
+		$subjects->{$fullid} = \@vals;	
 	}
 	
 	# derived variables:
@@ -86,17 +86,16 @@ sub main {
 		my $fullid = $vals[$var2idx{'UniqueID'}];
 		my ($id,$rep,$type) = split(/\./,$fullid);
 		print "$fullid=>$id.$type\t";
+
+		$avals = \@vals if ($type == 1);
+		$cvals = \@vals if ($type == 3);
+		&print_diffs($avals, $cvals);	# will print diffs, if there have been any
+		undef($cvals);
 		if ($id != $oldid) {
-			# this is a new block of comparisons
-			&print_diffs($avals, $cvals);
-			
 			undef($avals,$cvals);
 			$oldid = $id;
 		}
-		$avals = \@vals if ($type == 1);
-		$cvals = \@vals if ($type == 3);
 	}
-	&print_diffs($avals, $cvals);
 	
 	close (OUT);
 }
@@ -147,7 +146,7 @@ sub print_diffs {
 				push @dvals, $dval;
 			}
 			else {
-				push @dvals, $avals[$i];
+				push @dvals, $cvals[$i];
 			}
 		}
 	}
