@@ -46,6 +46,9 @@ public class TricepsServlet extends HttpServlet {
 	private boolean okPasswordForUnknown = false;
 	private boolean okPasswordForNotUnderstood = false;
 	private boolean showQuestionNum = false;
+	private boolean showInvisibleOptions = false;
+	private boolean autogenOptionNums = true;	// default is to make reading options easy
+	private boolean isSplashScreen = false;
 
 	private String directive = null;	// the default
 	private String urlPrefix = null;
@@ -134,33 +137,59 @@ public class TricepsServlet extends HttpServlet {
 			res.setContentType("text/html");
 
 			directive = req.getParameter("directive");	// XXX: directive must be set before calling processHidden
+			
+			if (directive == null || "select new interview".equals(directive)) {
+				isSplashScreen = true;
+			}
+			else {
+				isSplashScreen = false;
+			}
+			
+			/* Want to evaluate expression before doing rest so can see results of changing global variable values */
+			if (directive.equals("evaluate expr:")) {
+				String expr = req.getParameter("evaluate expr:");
+				errors = new StringBuffer();
+				if (expr != null && triceps != null) {
+					Datum datum = triceps.evaluateExpr(expr);
 
+					errors.append("<TABLE WIDTH='100%' CELLPADDING='2' CELLSPACING='1' BORDER=1>\n");
+					errors.append("<TR><TD>Equation</TD><TD><B>" + Node.encodeHTML(expr) + "</B></TD><TD>Type</TD><TD><B>" + Datum.TYPES[datum.type()] + "</B></TD></TR>\n");
+					errors.append("<TR><TD>String</TD><TD><B>" + Node.encodeHTML(datum.stringVal(true)) + "</B></TD><TD>boolean</TD><TD><B>" + datum.booleanVal() + "</B></TD></TR>\n");
+					errors.append("<TR><TD>double</TD><TD><B>" + datum.doubleVal() + "</B></TD><TD>long</TD><TD><B>" + datum.longVal() + "</B></TD></TR>\n");
+					errors.append("<TR><TD>date</TD><TD><B>" + datum.dateVal() + "</B></TD><TD>month</TD><TD><B>" + datum.monthVal() + "</B></TD></TR>\n");
+					errors.append("</TABLE>\n");
+
+					Enumeration errs = triceps.getErrors();
+					if (errs.hasMoreElements()) {
+						errors.append("<B>There were errors parsing that equation:</B><BR>");
+						while (errs.hasMoreElements()) {
+							errors.append("<B>" + Node.encodeHTML((String) errs.nextElement()) + "</B><BR>\n");
+						}
+					}
+				}
+			}
+
+			getGlobalVariables();
+			
 			hiddenStr = processHidden();
 
 			form = processDirective();
-			debugInfo = generateDebugInfo();
 
 			out = res.getWriter();
 
 			out.println(header());
 
 			out.println(getCustomHeader());
-//System.err.println("Sending header");
-//out.flush();
 
 			if (errors != null) {
 				out.println(errors.toString());
 				errors =  null;
-//System.err.println("Sending errors");
-//out.flush();
 			}
-
-//System.err.println("Sending form");
 
 			if (form != null) {
 				out.println("<FORM method='POST' name='myForm' action='" + HttpUtils.getRequestURL(req) + "'>\n");
 				/* language switching section */
-				if (triceps != null) {
+				if (triceps != null && !isSplashScreen) {
 					Vector languages = triceps.nodes.getLanguages();
 					if (languages.size() > 1) {
 						out.println("<TABLE WIDTH='100%' BORDER='0'>\n	<TR><TD ALIGN='center'>");
@@ -175,21 +204,19 @@ public class TricepsServlet extends HttpServlet {
 					}
 				}
 
-
 				out.println(hiddenStr);
 				out.println(form);
 				out.println("</FORM>\n");
 			}
-//out.flush();
-//System.err.println("Sending debugInfo");
-			out.println(debugInfo);
-//out.flush();
-//System.err.println("Sending footer");
+
+			if (!isSplashScreen) {
+				debugInfo = generateDebugInfo();
+				out.println(debugInfo);
+			}
 
 			out.println(footer());
 
-//System.err.println("Closing writer\n----Cycle# " + ++TricepsServlet.cycle + "-----\n");
-			out.close();	// XXX:  causes "Network Connection reset by peer" with Ham-D.txt - WHY?  Without close, dangling resources?
+			out.close();
 
 			/* Store appropriate stuff in the session */
 			if (triceps != null)
@@ -202,6 +229,23 @@ public class TricepsServlet extends HttpServlet {
 		catch (Throwable t) {
 			System.err.println("Unexpected error: " + t.getMessage());
 			t.printStackTrace(System.err);
+		}
+	}
+	
+	private void getGlobalVariables() {
+		if (triceps != null) {
+			debugMode = triceps.isDebugMode();
+			developerMode = triceps.isDeveloperMode();
+			showQuestionNum = triceps.isShowQuestionRef();
+			showInvisibleOptions = triceps.isShowInvisibleOptions();
+			autogenOptionNums = triceps.isAutoGenOptionNum();
+		}
+		else {
+			debugMode = false;
+			developerMode = false;
+			showQuestionNum = false;
+			showInvisibleOptions = false;
+			autogenOptionNums = true;
 		}
 	}
 
@@ -285,11 +329,6 @@ public class TricepsServlet extends HttpServlet {
 
 		/** Process requests to change developerMode-type status **/
 		if (triceps != null && directive != null) {
-			/* Get current values */
-			debugMode = triceps.nodes.isDebugMode();
-			developerMode = triceps.nodes.isDeveloperMode();
-			showQuestionNum = triceps.nodes.isShowQuestionRef();
-
 			/* Toggle these values, as requested */
 			if (directive.startsWith("turn developerMode")) {
 				developerMode = !developerMode;
@@ -306,11 +345,6 @@ public class TricepsServlet extends HttpServlet {
 				triceps.nodes.setReserved(Schedule.SHOW_QUESTION_REF, String.valueOf(showQuestionNum));
 				directive = "refresh current";
 			}
-		}
-		else {
-			debugMode = false;
-			developerMode = false;
-			showQuestionNum = false;
 		}
 
 		return sb.toString();
@@ -486,14 +520,13 @@ public class TricepsServlet extends HttpServlet {
 			triceps = new Triceps(scheduleSrcDir, workingFilesDir, completedFilesDir);
 			ok = triceps.setSchedule(req.getParameter("schedule"),urlPrefix,scheduleSrcDir);
 
+			// re-check developerMode options - they aren't set via the hidden options, since a new copy of Triceps created
+			getGlobalVariables();
+			
 			if (!ok) {
 				directive = null;
 				return processDirective();
 			}
-			// re-check developerMode options - they aren't set via the hidden options, since a new copy of Triceps created
-			debugMode = triceps.nodes.isDebugMode();
-			developerMode = triceps.nodes.isDeveloperMode();
-			showQuestionNum = triceps.nodes.isShowQuestionRef();
 
 			ok = ok && ((gotoMsg = triceps.gotoStarting()) == Triceps.OK);	// don't proceed if prior error
 			// ask question
@@ -517,9 +550,7 @@ public class TricepsServlet extends HttpServlet {
 					processDirective();
 			}
 			// re-check developerMode options - they aren't set via the hidden options, since a new copy of Triceps created
-			debugMode = triceps.nodes.isDebugMode();
-			developerMode = triceps.nodes.isDeveloperMode();
-			showQuestionNum = triceps.nodes.isShowQuestionRef();
+			getGlobalVariables();
 
 			ok = ok && ((gotoMsg = triceps.gotoStarting()) == Triceps.OK);	// don't proceed if prior error
 
@@ -554,28 +585,6 @@ public class TricepsServlet extends HttpServlet {
 				sb.append("<B>Interview saved successfully as " + Node.encodeHTML(name) + " (" + Node.encodeHTML(file) + ")</B><HR>\n");
 			}
 		}
-		else if (directive.equals("evaluate expr:")) {
-			String expr = req.getParameter("evaluate expr:");
-			errors = new StringBuffer();
-			if (expr != null) {
-				Datum datum = triceps.evaluateExpr(expr);
-
-				errors.append("<TABLE WIDTH='100%' CELLPADDING='2' CELLSPACING='1' BORDER=1>\n");
-				errors.append("<TR><TD>Equation</TD><TD><B>" + Node.encodeHTML(expr) + "</B></TD><TD>Type</TD><TD><B>" + Datum.TYPES[datum.type()] + "</B></TD></TR>\n");
-				errors.append("<TR><TD>String</TD><TD><B>" + Node.encodeHTML(datum.stringVal(true)) + "</B></TD><TD>boolean</TD><TD><B>" + datum.booleanVal() + "</B></TD></TR>\n");
-				errors.append("<TR><TD>double</TD><TD><B>" + datum.doubleVal() + "</B></TD><TD>long</TD><TD><B>" + datum.longVal() + "</B></TD></TR>\n");
-				errors.append("<TR><TD>date</TD><TD><B>" + datum.dateVal() + "</B></TD><TD>month</TD><TD><B>" + datum.monthVal() + "</B></TD></TR>\n");
-				errors.append("</TABLE>\n");
-
-				Enumeration errs = triceps.getErrors();
-				if (errs.hasMoreElements()) {
-					errors.append("<B>There were errors parsing that equation:</B><BR>");
-					while (errs.hasMoreElements()) {
-						errors.append("<B>" + Node.encodeHTML((String) errs.nextElement()) + "</B><BR>\n");
-					}
-				}
-			}
-		}
 		else if (directive.equals("show XML")) {
 			sb.append("<B>Use 'Show Source' to see data in Schedule as XML</B><BR>\n");
 			sb.append("<!--\n" + triceps.toXML() + "\n-->\n");
@@ -586,7 +595,7 @@ public class TricepsServlet extends HttpServlet {
 			Vector pes = triceps.collectParseErrors();
 
 			if (pes.size() == 0) {
-				errors.append("<B>No fatal syntax errors were found</B><HR>");
+				errors.append("<B>No syntax errors were found</B><HR>");
 			}
 			else {
 				Vector errs;
@@ -601,7 +610,7 @@ public class TricepsServlet extends HttpServlet {
 						errors.append("<TR><TD>line#</TD><TD>name</TD><TD>Dependencies</TD><TD><B>Dependency Errors</B></TD><TD>Action Type</TD><TD>Action</TD><TD><B>Action Errors</B></TD><TD><B>Other Errors</B></TD></TR>\n");
 					}
 
-					errors.append("\n<TR><TD>" + n.getSourceLine() + "</TD><TD>" + Node.encodeHTML(n.getExternalName(),true) + "</TD>");
+					errors.append("\n<TR><TD>" + n.getSourceLine() + "</TD><TD>" + Node.encodeHTML(n.getLocalName(),true) + "</TD>");
 					errors.append("\n<TD>" + Node.encodeHTML(pe.getDependencies(),true) + "</TD>\n<TD>");
 
 					errs = pe.getDependenciesErrors();
@@ -825,7 +834,7 @@ public class TricepsServlet extends HttpServlet {
 						sb.append("<TD>&nbsp;</TD>");
 					}
 					sb.append("	<TD WIDTH='1%' NOWRAP>\n" + clickableOptions + "\n</TD>\n");
-					sb.append(node.prepareChoicesAsHTML(triceps.parser,triceps.evidence,datum,errMsg,triceps.nodes.isAutoGenOptionNum()));
+					sb.append(node.prepareChoicesAsHTML(triceps.parser,triceps.evidence,datum,errMsg,autogenOptionNums));
 					break;
 				default:
 					sb.append("		<TD>\n");
@@ -836,7 +845,7 @@ public class TricepsServlet extends HttpServlet {
 					sb.append("			<input type='HIDDEN' name='" + Node.encodeHTML(inputName + "_HELP") + "' value='" + Node.encodeHTML(node.getHelpURL()) + "'>\n");
 					sb.append("		<FONT" + color + ">" + Node.encodeHTML(triceps.getQuestionStr(node)) + "</FONT></TD>\n");
 					sb.append("	<TD WIDTH='1%' NOWRAP>\n" + clickableOptions + "\n</TD>\n");
-					sb.append("		<TD>" + node.prepareChoicesAsHTML(triceps.parser,triceps.evidence,datum,triceps.nodes.isAutoGenOptionNum()) + errMsg + "</TD>\n");
+					sb.append("		<TD>" + node.prepareChoicesAsHTML(triceps.parser,triceps.evidence,datum,autogenOptionNums) + errMsg + "</TD>\n");
 					break;
 			}
 
@@ -881,7 +890,6 @@ public class TricepsServlet extends HttpServlet {
 		boolean isRefused = false;
 		boolean isUnknown = false;
 		boolean isNotUnderstood = false;
-		boolean showInvisibles = triceps.isShowInvisibleOptions();
 
 		if (datum.isType(Datum.REFUSED))
 			isRefused = true;
@@ -905,12 +913,12 @@ public class TricepsServlet extends HttpServlet {
 			sb.append("<IMG NAME='" + inputName + "_COMMENT_ICON" + "' SRC='" + COMMENT_T_ICON +
 				"' ALIGN='top' BORDER='0' ALT='Add a Comment' onMouseDown='javascript:comment(\"" + inputName + "\");'>\n");
 		}
-		else if (showInvisibles) {
+		else if (showInvisibleOptions) {
 			sb.append("<IMG NAME='" + inputName + "_COMMENT_ICON" + "' SRC='" + COMMENT_F_ICON +
 				"' ALIGN='top' BORDER='0' ALT='Add a Comment' onMouseDown='javascript:comment(\"" + inputName + "\");'>\n");
 		}
 
-		if (showInvisibles) {
+		if (showInvisibleOptions) {
 			sb.append("<IMG NAME='" + inputName + "_REFUSED_ICON" + "' SRC='" + ((isRefused) ? REFUSED_T_ICON : REFUSED_F_ICON) +
 				"' ALIGN='top' BORDER='0' ALT='Set as Refused' onMouseDown='javascript:setRefusedPassword(\"" + inputName + "\");'>\n");
 			sb.append("<IMG NAME='" + inputName + "_UNKNOWN_ICON" + "' SRC='" + ((isUnknown) ? UNKNOWN_T_ICON : UNKNOWN_F_ICON) +
