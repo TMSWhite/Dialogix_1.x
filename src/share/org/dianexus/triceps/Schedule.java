@@ -16,10 +16,13 @@ public class Schedule  {
 	public static final int PASSWORD_FOR_UNKNOWN = 6;
 	public static final int ICON = 7;
 	public static final int HEADER_MSG = 8;
+	public static final int SHOW_QUESTION_REF = 9;
+	public static final int DEVELOPER_MODE = 10;
+	public static final int DEBUG_MODE = 11;
 	
 	public static final String[] RESERVED_WORDS = {
 		"__TITLE__", "__STARTING_STEP__", "__START_TIME__", "__PASSWORD_FOR_REFUSED__", "__AUTOGEN_OPTION_NUM__", "__FILENAME__",
-		"__PASSWORD_FOR_UNKNOWN__", "__ICON__", "__HEADER_MSG__"
+		"__PASSWORD_FOR_UNKNOWN__", "__ICON__", "__HEADER_MSG__", "__SHOW_QUESTION_REF__", "__DEVELOPER_MODE__", "__DEBUG_MODE__"
 	};
 	
 	private String title = null;
@@ -30,6 +33,10 @@ public class Schedule  {
 	private String passwordForUnknown = null;
 	private String icon = null;
 	private String headerMsg = null;
+	private boolean developerMode = false;
+	private boolean showQuestionRef = false;
+	private boolean debugMode = false;
+	private boolean autoGenOptionNum = true;
 	
 	
 	private Vector nodes = new Vector();
@@ -50,6 +57,9 @@ public class Schedule  {
 		setReserved(PASSWORD_FOR_UNKNOWN,"");
 		setReserved(ICON,"");
 		setReserved(HEADER_MSG,"Triceps System");
+		setReserved(SHOW_QUESTION_REF,"false");
+		setReserved(DEVELOPER_MODE,"false");
+		setReserved(DEBUG_MODE,"false");
 	}
 
 	public boolean load(BufferedReader br, String filename) {
@@ -169,6 +179,9 @@ public class Schedule  {
 			case PASSWORD_FOR_UNKNOWN: s = setPasswordForUnknown(value); break;
 			case ICON: s = setIcon(value); break;
 			case HEADER_MSG: s = setHeaderMsg(value); break;
+			case SHOW_QUESTION_REF: s = setShowQuestionRef(value); break;
+			case DEVELOPER_MODE: s = setDeveloperMode(value); break;
+			case DEBUG_MODE: s = setDebugMode(value); break;
 			default: return false;
 		}
 		reserved.put(RESERVED_WORDS[resIdx], s);
@@ -185,9 +198,10 @@ public class Schedule  {
 		
 	private String setAutoGenOptionNum(String s) {
 		Boolean b = Boolean.valueOf(s);
-		Node.setAutoGenOptionAccelerator(b.booleanValue());	// very much of a hack - call Node directly
+		autoGenOptionNum = b.booleanValue();
 		return b.toString();
 	}
+	public boolean isAutoGenOptionNum() { return autoGenOptionNum; }
 	
 	private String setPasswordForRefused(String s) { 
 		passwordForRefused = s; 
@@ -216,6 +230,27 @@ public class Schedule  {
 			
 		return title;
 	}
+	
+	private String setShowQuestionRef(String s) {
+		Boolean b = Boolean.valueOf(s);
+		showQuestionRef = b.booleanValue();
+		return b.toString();
+	}
+	public boolean isShowQuestionRef() { return showQuestionRef; }
+	
+	private String setDeveloperMode(String s) {
+		Boolean b = Boolean.valueOf(s);
+		developerMode = b.booleanValue();
+		return b.toString();
+	}
+	public boolean isDeveloperMode() { return developerMode; }
+	
+	private String setDebugMode(String s) {
+		Boolean b = Boolean.valueOf(s);
+		debugMode = b.booleanValue();
+		return b.toString();
+	}
+	public boolean isDebugMode() { return debugMode; }
 	
 	private String setStartingStep(String s) { 
 		try {
