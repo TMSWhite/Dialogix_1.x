@@ -8,8 +8,11 @@
 use strict;
 
 my $prefix = "/usr/local/dialogix";
+my $java_home = `which java`;
+chomp($java_home);
+$java_home =~ s|^(.*)/bin/java|$1|;
 #my $java_home = "/usr/local/bin/jdk1.3";
-my $java_home = "/usr/java/jdk1.3.1_01";
+#my $java_home = "/usr/java/jdk1.3.1_01";
 my $logs = "$prefix/logs";
 my $logname = "Dialogix.log.err";
 my $bin = "$prefix/bin";
@@ -24,14 +27,15 @@ my $val = system("$bin/shutdown.sh 1>/tmp/dialogix_shutdown.stdout 2>/tmp/dialog
 if ($val != 0) {
 	print "failed to shutdown tomcat -- err code " . ($val/256) . "\n";
 	&show_err_logs;
-	return;
+#	return;	# could be that already stopped, so try to start it.
 }
 else {
 	print "tomcat stopped\n";
 }
 
 open(LOG,"<$logs/$logname");
-my $startDate = <LOG>;
+my @loglines = (<LOG>);
+my $startDate = $loglines[0];
 close (LOG);
 
 #default date is yesterday if can't read file
@@ -44,7 +48,20 @@ if ($startDate =~ /started on \w{3} (\w{3}) (\d+) \d+:\d+:\d+ \w+ (\d{4})/) {
 	$date = sprintf($datefmt,$3,&month($1),$2);
 }
 
-rename("$logs/$logname","$logs/$logname.$date") if (-e "$logs/$logname");
+# safely copy contents to new file, appending as needed.
+if (-e "$logs/$logname") {
+	if (-e "$logs/$logname.$date") {
+		open (OUT,">>$logs/$logname.$date");
+		foreach (@loglines) {
+			print OUT $_;
+		}
+		close (OUT);
+		unlink("$logs/$logname");
+	}
+	else {
+		rename("$logs/$logname","$logs/$logname.$date");
+	}
+}
 
 #wait a few seconds to ensure that Tomcat completely stopped
 sleep(60);
