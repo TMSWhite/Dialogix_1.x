@@ -273,6 +273,9 @@ public class Datum  {
 					dVal = Double.NaN;
 				}
 				bVal = (Double.isNaN(dVal) || (dVal == 0)) ? false : true;
+				if (Boolean.valueOf(s).booleanValue()) {
+					bVal = true;	// accept the String word 'true' as booelan true
+				}
 				break;
 			case WEEKDAY:	{ // XXX: need a hack for this, since SimpleDateFormat has bug in way parses Weekdays
 				String day = s.trim().toLowerCase();
