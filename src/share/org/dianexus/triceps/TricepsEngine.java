@@ -505,7 +505,8 @@ if (DEPLOYABLE) {
 		StringBuffer sb = new StringBuffer();
 
 		/* language switching section */
-		if (!isSplashScreen && triceps.isValid()) {
+//		if (!isSplashScreen && triceps.isValid()) {
+		if (triceps.isValid()) {
 			Vector languages = schedule.getLanguages();
 			if (languages.size() > 1) {
 				sb.append("<table width='100%' border='0'><tr><td align='center'>");
@@ -859,8 +860,89 @@ if (AUTHORABLE) {
 		StringBuffer sb = new StringBuffer();
 		
 		sb.append("<metadata>");
+		
+		/* languages */
+		Vector languages = schedule.getLanguages();
+		for (int i=0;i<languages.size();++i) {
+			String language = (String) languages.elementAt(i);
+			boolean selected = (i == triceps.getLanguage());
+			sb.append(actionXML("select_" + language, "language", language, (selected) ? "1" : "0"));
+		}
+		
+		/* icons */
+		sb.append("<icon name=\"help\" src=\"" + getIcon(Schedule.HELP_ICON) + "\"/>");
+		sb.append("<icon name=\"comment_on\" src=\"" + getIcon(Schedule.COMMENT_ICON_ON) + "\"/>");
+		sb.append("<icon name=\"comment_off\" src=\"" + getIcon(Schedule.COMMENT_ICON_OFF) + "\"/>");
+		sb.append("<icon name=\"refused_on\" src=\"" + getIcon(Schedule.REFUSED_ICON_ON) + "\"/>");
+		sb.append("<icon name=\"refused_off\" src=\"" + getIcon(Schedule.REFUSED_ICON_OFF) + "\"/>");
+		sb.append("<icon name=\"unknown_on\" src=\"" + getIcon(Schedule.UNKNOWN_ICON_ON) + "\"/>");
+		sb.append("<icon name=\"unknown_off\" src=\"" + getIcon(Schedule.UNKNOWN_ICON_OFF) + "\"/>");
+		sb.append("<icon name=\"not_understood_on\" src=\"" + getIcon(Schedule.DONT_UNDERSTAND_ICON_ON) + "\"/>");
+		sb.append("<icon name=\"not_understood_off\" src=\"" + getIcon(Schedule.DONT_UNDERSTAND_ICON_OFF) + "\"/>");
+		sb.append("<icon name=\"logo\" src=\"" + ((!isSplashScreen && triceps.isValid()) ? triceps.getIcon() : logoIcon) + "\"/>");
+		
+		if (isSplashScreen) {
+			sb.append(actionXML("START","button",triceps.get("START"),null));
+			sb.append(actionXML("RESTORE","button",triceps.get("RESTORE"),null));
+		}
+		else {
+			/* hidden variables */
+			sb.append(actionXML("PASSWORD_FOR_ADMIN_MODE","hidden","",null));
+			sb.append(actionXML("LANGUAGE","hidden","",null));
+			sb.append(actionXML("DIRECTIVE","hidden","next",null));
+			
+			if (allowEasyBypass || okToShowAdminModeIcons) {
+				sb.append(actionXML("TEMP_ADMIN_MODE_PASSWORD","hidden",triceps.createTempPassword(),null));
+			}
+			
+			if (DEPLOYABLE) {
+				sb.append(actionXML("EVENT_TIMINGS","hidden","",null));
+			}
+			
+			if (!triceps.isAtEnd()) {
+				sb.append(actionXML("next","button",triceps.get("next"),null));
+			}
+			if (!triceps.isAtBeginning()) {
+				sb.append(actionXML("previous","button",triceps.get("previous"),null));
+			}
+			
+			if (allowJumpTo || (developerMode && AUTHORABLE)) {
+				sb.append(actionXML("jump_to","textGo",triceps.get("jump_to"),null));	// should build a jump_to button and jump_to_data text field
+			}
+			if (AUTHORABLE && developerMode) {
+				sb.append(actionXML("select_new_interview","button",triceps.get("select_new_interview"),null));
+				sb.append(actionXML("restart_clean","button",triceps.get("restart_clean"),null));
+				sb.append(actionXML("reload_questions","button",triceps.get("reload_questions"),null));
+				sb.append(actionXML("show_Syntax_Errors","button",triceps.get("show_Syntax_Errors"),null));
+				
+				sb.append(actionXML("turn_developerMode","button",triceps.get("turn_developerMode"),null));
+				sb.append(actionXML("turn_debugMode","button",triceps.get("turn_debugMode"),null));
+				sb.append(actionXML("turn_showQuestionNum","button",triceps.get("turn_showQuestionNum"),null));
+				sb.append(actionXML("sign_schedule","button",triceps.get("sign_schedule"),null));
+				
+				sb.append(actionXML("save_to","textGo",triceps.get("save_to"),null));	
+				sb.append(actionXML("evaluate_expr","textGo",triceps.get("evaluate_expr"),null));	
+			}
+		}
+		
 		sb.append("</metadata>");
 		
+		return sb.toString();
+	}
+	
+	private String actionXML(String name, String type, String value, String on) {
+		StringBuffer sb = new StringBuffer();
+		sb.append("<act type=\"");
+		sb.append(type);
+		sb.append("\" name=\"");
+		sb.append(name);
+		sb.append("\" value=\"");
+		sb.append(XMLAttrEncoder.encode(value));
+		if (on != null) {
+			sb.append("\" on=\"");
+			sb.append(on);
+		}
+		sb.append("\"/>");
 		return sb.toString();
 	}
 
