@@ -553,6 +553,7 @@ if (DB_LOG_RESULTS) {
 		catch (Exception t) {
 			Logger.writeln("SQL-ERROR: ");
 			Logger.writeln(t.getMessage());
+			Logger.printStackTrace(t);
 			return false;
 		}
 } else { return true; }		

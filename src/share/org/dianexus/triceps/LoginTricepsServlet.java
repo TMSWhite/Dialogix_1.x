@@ -537,6 +537,7 @@ if (DB_FOR_LOGIN || DB_TRACK_LOGINS) {
 		catch (Exception t) {
 			Logger.writeln("SQL-ERROR on: " + command);
 			Logger.writeln(t.getMessage());
+			Logger.printStackTrace(t);
 			return false;
 		}
 } else { return true; }		
