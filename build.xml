@@ -172,6 +172,11 @@
     	<include name="*.jar" if="using.tomcat_3_2"/>
     </fileset>
     
+    <!-- these are used for all -->
+    <fileset dir="src/share-lib">
+    	<include name="*.jar"/>
+    </fileset>
+    
   </path>  
 
 
@@ -378,6 +383,21 @@
          	<include name="**" if="using.tomcat_3_3"/>
          </fileset>
     </jar>
+    
+    <!-- Copy shared libraries -->
+    <copy todir="${tomcat.home}/lib/apps">
+    	<fileset dir="src/share-lib">
+    		<include name="*.jar" if="using.tomcat_3_3"/>
+    	</fileset>
+    </copy>
+    
+    <copy todir="${tomcat.home}/lib">
+    	<fileset dir="src/share-lib">
+    		<include name="*.jar" if="using.tomcat_3_2"/>
+    		<include name="*.jar" if="using.tomcat_4_0"/>
+    	</fileset>
+    </copy>
+    
     <delete includeEmptyDirs="true">
     	<fileset dir="${tomcat.home}/lib/apps">
     		<include name="**" if="using.tomcat_3_2"/>
