@@ -778,7 +778,7 @@ if (DEPLOYABLE) {
 			
 		boolean ok = false;
 		ok = jf.addEntry(fn + DATAFILE_SUFFIX, dataLogger.getInputStream());
-		ok = jf.addEntry(fn + EVENTFILE_SUFFIX, eventLogger.getInputStream()) && ok;
+		ok = jf.addEntry(fn + DATAFILE_SUFFIX + EVENTFILE_SUFFIX, eventLogger.getInputStream()) && ok;
 		jf.close();
 		
 		return ((ok) ? name : null);
