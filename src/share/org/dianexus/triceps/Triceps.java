@@ -33,8 +33,8 @@ import java.io.FileNotFoundException;
 import java.lang.SecurityException;
 import java.io.InputStream;
 import java.io.FileInputStream;
-import java.util.jar.JarFile;
-import java.util.jar.JarEntry;
+import java.util.zip.ZipFile;
+import java.util.zip.ZipEntry;
 
 /*public*/ class Triceps implements VersionIF {
 	private static final String DATAFILE_PREFIX = "tri";
@@ -137,7 +137,7 @@ if (DEPLOYABLE) {
 			File tempEventFile = null;
 			
 			if (name == null) {
-				tempDataFile = File.createTempFile(DATAFILE_PREFIX, DATAFILE_SUFFIX, new File(dir));
+				tempDataFile = EvidenceIO.createTempFile(DATAFILE_PREFIX, DATAFILE_SUFFIX, new File(dir));
 				tempEventFile = new File(tempDataFile.toString() + EVENTFILE_SUFFIX);
 			}
 			else {
@@ -645,7 +645,9 @@ if (DEPLOYABLE) {
 		boolean ok = true;
 		ok = jw.addEntry(fn + DATAFILE_SUFFIX, dataLogger.getInputStream());
 		ok = jw.addEntry(fn + DATAFILE_SUFFIX + EVENTFILE_SUFFIX, eventLogger.getInputStream()) && ok;
+if (SAVE_ERROR_LOG_WITH_DATA) {
 		ok = jw.addEntry(fn + ERRORLOG_SUFFIX, Logger.getDefaultInputStream()) && ok;		
+}
 		jw.close();
 		
 		File f = new File(name);
@@ -655,12 +657,12 @@ if (DEPLOYABLE) {
 		}
 		
 		/* integrity check - ensure that JarFile has two entries of proper size */
-		JarFile jf = null;
+		ZipFile jf = null;
 		File srcFile = null;
 		
 		try {
-			jf = new JarFile(name);
-			JarEntry je = null;
+			jf = new ZipFile(name);
+			ZipEntry je = null;
 			String srcName = null;
 			String srcLogger = null;
 			
@@ -674,7 +676,7 @@ if (DEPLOYABLE) {
 					srcLogger = eventLogger.getFilename();
 				}
 				// ignore whether saved Triceps.err.log correctly
-				je = jf.getJarEntry(srcName);
+				je = jf.getEntry(srcName);
 				srcFile = new File(srcLogger);
 				
 				if (je.getSize() != srcFile.length()) {
