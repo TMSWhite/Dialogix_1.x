@@ -51,14 +51,14 @@ use Archive::Tar;
 
 my (%ips, %browsers, %sessions, %ip2host, @dates);
 
-my $src_dir = "/data/cet-irb/logs";
-my $dst_dir = "/data/cet-irb/webalizer";
+my $src_dir = "/data/cet-irb3/logs";
+my $dst_dir = "/data/cet-irb3/webalizer";
 my $JAR =  "/jdk1.3/bin/jar";	# path to jar program (will be different on Unix)
 
 &main;
 
 sub main {
-	&rename_log_file;
+#	&rename_log_file;
 	&delete_old_files;
 	
 	open (LOG,">$dst_dir/webalize.log") or die "unable to open $dst_dir/webalize.log";
@@ -170,7 +170,7 @@ sub skipThis {
 	return 1 if ($ip eq '156.111.80.79');	# new piwhite
 	return 1 if ($ip eq '156.111.80.78');	# new mine
 	return 1 if ($ip eq '198.190.230.66');	# OMH
-	return 1 if ($schedule ne 'CET/AutoMEQ-SA.jar');	# only look at MU for now
+	return 1 unless ($schedule =~ /AutoMEQ/);
 	return 0;
 }
 
