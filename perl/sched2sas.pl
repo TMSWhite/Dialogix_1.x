@@ -69,7 +69,7 @@ my $formats = {
 	radio3 => 'F8.0',
 	second => 'date|ss',
 	text => 'A100',
-	time => 'TIME5.3',
+	time => 'TIME5',	# was TIME5.3, but seemed to cause problems on import
 	weekday => 'WKDAY',	# since name of weekday
 	year => 'date|yyyy',	
 };
@@ -185,6 +185,9 @@ sub compileMissingValueList {
 sub getUniqueName {
 	my $name = shift;
 	my $ucname = uc($name);
+	# replace starting underscore with 'X', since SPSS doesn't like them
+	$ucname =~ s/^_/X/;
+	
 	my $longest = &getLongestValidSubName($ucname);
 	my $c5name = substr($longest,0,5);
 	
