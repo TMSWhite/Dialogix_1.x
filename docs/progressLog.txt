@@ -309,3 +309,11 @@ Reorganization & Documentation
     only delete workingdir files if saves to completed and floppy correctly
   TricepsServlet:  change logging to show schedule & line # at each step ; and to log even when not in WEB_SERVER mode
     show sessionID on log line
+
+<< changes from 2.8.5 to 2.8.6
+  Multi-line <options>:  better AnswerChoice.subdivideMessage(); Node uses it; TricepsEngine uses it
+  Data save integrity checks:  ensures that .jar file has data files, and that same size as source
+  Suspend_to_floppy:  now sends to /suspended directory, so that don't confuse partially with fully completed interviews.
+  RESTORE_FROM_FLOPPY: copies from /suspended directory, unless larger file exists there
+  Jarred working files: ScheduleList unzips them (unless a larger, presumably more recent file exists in same place), then deletes jar
+  
