@@ -16,9 +16,9 @@ public class Triceps {
 
 	private String scheduleURL = null;
 	private String scheduleUrlPrefix = null;
-	private Schedule nodes = null;
+	private Schedule nodes = new Schedule();
 	public Evidence evidence = null;	// XXX - should be private - made public for debugging from TricepsServlet
-	static public transient Parser parser = new Parser();	// XXX - should not be public - only making it so for debugging
+	static public Parser parser = new Parser();	// XXX - should not be public - only making it so for debugging
 
 	private Vector errors = new Vector();
 	private int currentStep=0;
@@ -75,7 +75,13 @@ public class Triceps {
 	}
 
 	public Enumeration getErrors() {
-		/* when there is an error in getting a node */
+		/* when there is an error in getting or parsing a node */
+		if (parser.hasErrors()) { 
+			Vector v=parser.getErrors(); 
+			for (int c=0;c<v.size();++c) { 
+				errors.addElement(v.elementAt(c)); 
+			}  
+		}
 		Vector tmp = errors;
 		errors = new Vector();
 		return tmp.elements();
@@ -139,7 +145,7 @@ public class Triceps {
 		q.createParseRangeStr();
 
 		q.setQuestionAsAsked(parser.parseJSP(evidence, q.getAction()) + q.getQuestionMask());
-		if (parser.hasErrors()) { Vector v=parser.getErrors(); for (int c=0;c<v.size();++c) { errors.addElement(v.elementAt(c)); }  }
+//		if (parser.hasErrors()) { Vector v=parser.getErrors(); for (int c=0;c<v.size();++c) { errors.addElement(v.elementAt(c)); }  }
 		return q.getQuestionAsAsked();
 	}
 
@@ -172,7 +178,6 @@ public class Triceps {
 				if (braceLevel > 0) {
 					errors.addElement("Missing " + braceLevel + " closing brace(s)");
 				}
-//				errors.addElement("The interview is completed.");
 				currentStep = size();	// put at last node
 				numQuestions = 0;
 				
@@ -191,19 +196,22 @@ public class Triceps {
 			if (actionType == Node.GROUP_OPEN) {
 				if (braceLevel == 0) {
 					if (parser.booleanVal(evidence, node.getDependencies())) {
-						break;	// this is the first node of a block
+						break;	// this is the first node of a block - break out of loop to ask it
 					}
 					else {
-						++braceLevel;	// skip this entire section
+						++braceLevel;	// XXX:  skip this entire section 
+						evidence.set(node, new Datum(Datum.NA));	// and set all of this brace's values to NA
 					}
-					if (parser.hasErrors()) { Vector v=parser.getErrors(); for (int c=0;c<v.size();++c) { errors.addElement(v.elementAt(c)); }  }
+//					if (parser.hasErrors()) { Vector v=parser.getErrors(); for (int c=0;c<v.size();++c) { errors.addElement(v.elementAt(c)); }  }
 				}
 				else {
 					++braceLevel;	// skip this inner block
+					evidence.set(node, new Datum(Datum.NA));	// set all of this brace's values to NA
 				}
 			}
 			else if (actionType == Node.GROUP_CLOSE) {
 				--braceLevel;	// close an open block
+				evidence.set(node, new Datum(Datum.NA));	// closing an open block, so set value to NA
 				if (braceLevel < 0) {
 					node.setError("Extra closing brace");
 					return ERROR;
@@ -211,23 +219,21 @@ public class Triceps {
 			}
 			else if (actionType == Node.EVAL) {
 				if (braceLevel > 0) {
-					evidence.set(node, new Datum(Datum.NA));	// NA if internal to a brace?
+					evidence.set(node, new Datum(Datum.NA));	// NA if internal to a brace when going forwards
 				}
 				else {
 					if (parser.booleanVal(evidence, node.getDependencies())) {
-						if (parser.hasErrors()) { Vector v=parser.getErrors(); for (int c=0;c<v.size();++c) { errors.addElement(v.elementAt(c)); }  }
 						evidence.set(node, new Datum(parser.stringVal(evidence, node.getAction()),node.getDatumType(),node.getMask()));
-						if (parser.hasErrors()) { Vector v=parser.getErrors(); for (int c=0;c<v.size();++c) { errors.addElement(v.elementAt(c)); }  }
 					}
 					else {
-						if (parser.hasErrors()) { Vector v=parser.getErrors(); for (int c=0;c<v.size();++c) { errors.addElement(v.elementAt(c)); }  }
 						evidence.set(node, new Datum(Datum.NA));	// if doesn't satisfy dependencies, store NA
 					}
+//					if (parser.hasErrors()) { Vector v=parser.getErrors(); for (int c=0;c<v.size();++c) { errors.addElement(v.elementAt(c)); }  }
 				}
 			}
 			else if (actionType == Node.QUESTION) {
 				if (braceLevel > 0) {
-					;	// skip over it, keeping current value - looking for end of block
+					evidence.set(node, new Datum(Datum.NA));	// NA if internal to a brace when going forwards
 				}
 				else {
 					if (parser.booleanVal(evidence, node.getDependencies())) {
@@ -236,11 +242,12 @@ public class Triceps {
 					else {
 						evidence.set(node, new Datum(Datum.NA));	// if doesn't satisfy dependencies, store NA
 					}
-					if (parser.hasErrors()) { Vector v=parser.getErrors(); for (int c=0;c<v.size();++c) { errors.addElement(v.elementAt(c)); }  }
+//					if (parser.hasErrors()) { Vector v=parser.getErrors(); for (int c=0;c<v.size();++c) { errors.addElement(v.elementAt(c)); }  }
 				}
 			}
 			else {
 				node.setError("Invalid action type");
+				evidence.set(node, new Datum(Datum.NA));
 				return ERROR;
 			}
 			++step;
@@ -292,8 +299,7 @@ public class Triceps {
 			actionType = node.getActionType();
 
 			if (actionType == Node.EVAL) {
-				;	// skip these going backwards?
-//				evidence.set(node,new Datum(Datum.NA));	// reset evaluations when going backwards
+				;	// skip these going backwards, but don't reset values when going backwards
 			}
 			else if (actionType == Node.GROUP_CLOSE) {
 				--braceLevel;
@@ -305,22 +311,21 @@ public class Triceps {
 					return ERROR;
 				}
 				if (braceLevel == 0 && parser.booleanVal(evidence, node.getDependencies())) {
-					if (parser.hasErrors()) { Vector v=parser.getErrors(); for (int c=0;c<v.size();++c) { errors.addElement(v.elementAt(c)); }  }
 					break;	// ask this block of questions
 				}
 				else {
-					if (parser.hasErrors()) { Vector v=parser.getErrors(); for (int c=0;c<v.size();++c) { errors.addElement(v.elementAt(c)); }  }
+					// try the next question
 				}
+//				if (parser.hasErrors()) { Vector v=parser.getErrors(); for (int c=0;c<v.size();++c) { errors.addElement(v.elementAt(c)); }  }
 			}
 			else if (actionType == Node.QUESTION) {
 				if (braceLevel == 0 && parser.booleanVal(evidence, node.getDependencies())) {
-					if (parser.hasErrors()) { Vector v=parser.getErrors(); for (int c=0;c<v.size();++c) { errors.addElement(v.elementAt(c)); }  }
 					break;	// ask this block of questions
 				}
 				else {
 					// else within a brace, or not applicable, so skip it.
-					if (parser.hasErrors()) { Vector v=parser.getErrors(); for (int c=0;c<v.size();++c) { errors.addElement(v.elementAt(c)); }  }
 				}
+//				if (parser.hasErrors()) { Vector v=parser.getErrors(); for (int c=0;c<v.size();++c) { errors.addElement(v.elementAt(c)); }  }
 			}
 			else {
 				node.setError("Invalid action type");
@@ -333,12 +338,7 @@ public class Triceps {
 
 	public boolean resetEvidence() {
 		evidence = new Evidence(nodes);
-		startTimer();		// XXX: reset start time here?
 		return true;
-	}
-	
-	private void startTimer() {
-		startTimer(new Date(System.currentTimeMillis()));
 	}
 
 	private void startTimer(Date time) {
@@ -393,11 +393,13 @@ public class Triceps {
 			}
 		}
 		
-		/* this must happen after the evidence is reset, otherwise end up using current time */
+		/* Set (or re-set) the start time for the schedule */
 		Date time = nodes.getStartTime();
-//		System.out.println(Datum.TIME_MASK.format(time));
 		if (time != null) {
-			startTimer(time);
+			startTimer(time);	// if resuming a suspended interview, use its start time
+		}
+		else {
+			startTimer(new Date(System.currentTimeMillis()));	// use current time
 		}
 		
 		return true;
@@ -696,10 +698,7 @@ public class Triceps {
 	}
 	
 	public String getTitle() {
-		if (nodes == null)
-			return "TRICEPS SYSTEM";
-		else
-			return nodes.getTitle();
+		return nodes.getTitle();
 	}
 	
 	public void setWorkingFilesDir(String s) { 
@@ -718,5 +717,8 @@ public class Triceps {
 	public void setCompletedFilesDir(String s) { completedFilesDir = ((s == null) ? "" : s); }
 	public String getCompletedFilesDir() { return completedFilesDir; }
 	public void setScheduleSrcDir(String s) { scheduleSrcDir = ((s == null) ? "" : s); }
-	public String getScheduleSrcDir() { return scheduleSrcDir; }	
+	public String getScheduleSrcDir() { return scheduleSrcDir; }
+	
+	public String getPasswordForRefused() { return nodes.getPasswordForRefused(); }
+	public void setPasswordForRefused(String s) { nodes.setPasswordForRefused(s); }
 }
