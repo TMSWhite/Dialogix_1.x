@@ -264,7 +264,7 @@
     <!-- By default, copy the JDK1.1 compatible files -->
     <copy  todir="${build.home}/src/">
       <fileset dir="src/jdk11">
-        <include name="**/*.java" />
+        <include name="**/*.java" if="jdk11.present" />
       </fileset>        
     </copy>
     
@@ -785,6 +785,10 @@
     		</not>
     	</and>
     </condition>
+    
+    <condition property="jdk11.present">
+		<equals arg1="${compile.target}" arg2="1.1" />
+    </condition>    
     
     <condition property="using.tomcat_3_2">
     	<equals arg1="${tomcat.version}" arg2="3.2" />
