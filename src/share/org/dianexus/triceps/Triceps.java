@@ -1531,6 +1531,13 @@ if (DEBUG) {
 	}
 	
 	/*public*/ Enumeration getQuestions() {
+		Enumeration enum = currentNodeSet.elements();
+		// set default language for them (how many times should this be done?)
+		int lang = getLanguage();
+		while (enum.hasMoreElements()) {
+			Node node = (Node) enum.nextElement();
+			node.setAnswerLanguageNum(lang);
+		}
 		return currentNodeSet.elements();
 	}
 	
