@@ -77,12 +77,14 @@ public class Datum implements Serializable {
 			case DOUBLE:
 				try {
 					dVal = Double.valueOf(s).doubleValue();
-					bVal = (Double.isNaN(dVal) || (dVal == 0)) ? false : true;
-					type = DOUBLE;
+					type = DOUBLE;	// only if successful
 				}
 				catch(NumberFormatException e) {
 					error = "Please enter a <B>number</B>";
 					dVal = Double.NaN;
+				}
+				finally {
+					bVal = (Double.isNaN(dVal) || (dVal == 0)) ? false : true;
 				}
 				break;
 			case STRING:
@@ -90,18 +92,19 @@ public class Datum implements Serializable {
 				/* also check whether can be considered a number */
 				try {
 					dVal = Double.valueOf(s).doubleValue();
-					bVal = (Double.isNaN(dVal) || (dVal == 0)) ? false : true;
-					type = DOUBLE;
 				}
 				catch(NumberFormatException e) {
 					dVal = Double.NaN;
+				}
+				finally {
+					bVal = (Double.isNaN(dVal) || (dVal == 0)) ? false : true;
 				}
 				break;
 			case DATE:
 				try {
 					date = mdy.parse(s);
 					sVal = mdy.format(date);
-					type = DATE;
+					type = DATE;	// only if successfully parsed
 				}
 				catch (java.text.ParseException e) {
 					error = "Please enter a <B>date</B>";
@@ -112,7 +115,7 @@ public class Datum implements Serializable {
 				try {
 					date = month.parse(s);
 					sVal = month.format(date);
-					type = MONTH;
+					type = MONTH;	// only if successfully parsed
 				}
 				catch (java.text.ParseException e) {
 					error = "Please enter a <B>month</B>";

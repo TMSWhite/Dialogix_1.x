@@ -362,7 +362,7 @@ public class Triceps implements Serializable {
 	}
 
 	public boolean storeValue(Node q, String answer) {
-		if (currentStep >= size() || q == null) {
+		if (currentStep >= size()) {
 			return false;
 		}
 
