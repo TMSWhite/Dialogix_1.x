@@ -21,6 +21,7 @@ CREATE TABLE RawData (
 ) TYPE=MyISAM;
 */
 
+/*
 create table Dialogix.UniqueInstruments (
 	ID int(11) NOT NULL auto_increment,
   	InstrumentName varchar(200) NOT NULL default '',
@@ -32,6 +33,7 @@ create table Dialogix.UniqueInstances (
   	InstanceName varchar(200) NOT NULL default '',
   	PRIMARY KEY  (ID)
 ) TYPE=MyISAM;
+*/
 
 /*
 create table Dialogix.UniqueVarNames (
@@ -41,28 +43,20 @@ create table Dialogix.UniqueVarNames (
 ) TYPE=MyISAM;
 */
 
+/*
 insert into Dialogix.UniqueInstruments (InstrumentName)
 	select distinct InstrumentName from Dialogix.RawData;
 	
 insert into Dialogix.UniqueInstances (InstanceName)
 	select distinct InstanceName from Dialogix.RawData;
+*/
 
 /*	
 insert into Dialogix.UniqueVarNames (VarName)
 	select distinct VarName from Dialogix.RawData;	
 */	
-/* Version that extracts from raw data */
-drop table if exists Instances;
-create table Instances as
-select InstrumentName, InstanceName, min(TimeStamp) as StartDate, max(TimeStamp) as EndDate, max(DisplayNum) as NumPagesViewed,
-	(max(TimeStamp) - min(TimeStamp)) as Duration
-from Dialogix.RawData
-group by InstanceName
-order by InstrumentName, StartDate;
 
-/* Version that extracts from that version, after first computing whether or not instrument was completed
-	(InstanceName not like "%(tri%") as Finished
-*/
+/* This is the only portion of the file needed to add a set of Instances */
 drop table if exists Dialogix.Instances;
 CREATE TABLE Dialogix.Instances (
 	ID int(11) NOT NULL auto_increment,
@@ -77,7 +71,16 @@ CREATE TABLE Dialogix.Instances (
 	KEY InstrumentName (InstrumentName),
 	KEY InstanceName (InstanceName)
 ) TYPE=MyISAM;
-    
+
+insert into Dialogix.Instances
+select NULL, InstrumentName, InstanceName, min(TimeStamp) as StartDate, max(TimeStamp) as EndDate, max(DisplayNum) as NumPagesViewed,
+	(max(TimeStamp) - min(TimeStamp)) as Duration, (InstanceName not like "%(tri%") as Finished
+from Dialogix.RawData
+group by InstanceName
+order by InstrumentName, StartDate;
+
+/*   
 insert into Dialogix.Instances
 select NULL, InstrumentName, InstanceName, StartDate, EndDate, NumPagesViewed, Duration, Finished
 from test.Instances;
+*/
