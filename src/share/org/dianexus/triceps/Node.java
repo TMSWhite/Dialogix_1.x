@@ -1,12 +1,11 @@
 import java.lang.*;
 import java.util.*;
 import java.io.*;
-import java.text.Format;
 
 
 public class Node  {
-	public static final Node EMPTY_NODE = new Node(0,null,"",0);
-	
+	public static final Node EMPTY_NODE = new Node();
+
 	public static final int BADTYPE = 0;
 	public static final int NOTHING=1;	// do nothing
 	public static final int RADIO = 2;
@@ -82,33 +81,34 @@ public class Node  {
 	private String questionOrEvalTypeField = "";	// questionOrEvalType;datumType;min;max;mask
 	private int answerType = BADTYPE;
 	private int datumType = Datum.INVALID;
-	private Vector runtimeErrors = new Vector();
-	private Vector parseErrors = new Vector();
-	private Vector namingErrors = new Vector();
+	private Logger runtimeErrors = new Logger();
+	private Logger parseErrors = new Logger();
+	private Logger namingErrors = new Logger();
 
 	private String questionOrEvalTypeStr = "";
 	private String datumTypeStr = "";
 	private String minStr = null;
 	private String maxStr = null;
-	private String maskStr = null;
 
 	private Datum minDatum = null;
 	private Datum maxDatum = null;
-	private String rangeStr = null;
 
-	private Format mask = null;
-	private String exampleFormatStr = null;
+	private String mask = null;
 
 	private Date timeStamp = null;
 	private String timeStampStr = null;
+	private Lingua lingua = Lingua.NULL;
+	
+	private Node() {
+	}
 
-	public Node(int sourceLine, String sourceFile, String tsv, int numLanguages) {
-	try {
+	public Node(Lingua lang, int sourceLine, String sourceFile, String tsv, int numLanguages) {
+    	lingua = (lang == null) ? Lingua.NULL : lang;
 		String token;
 		int field = 0;
 
 		if (numLanguages < 1) {
-			setParseError("numLanguages must be greater than zero: " + numLanguages);
+			setParseError(lingua.get("numLanguages_must_be_greater_than_zero") + numLanguages);
 			numLanguages = 1;	// the default
 		}
 
@@ -154,12 +154,12 @@ public class Node  {
 					try {
 						i = Integer.parseInt(fixExcelisms(s));
 					}
-					catch (Throwable t) {
-						setParseError("languageNum must be an integer: " + t.getMessage());
+					catch (NumberFormatException t) {
+						setParseError(lingua.get("languageNum_must_be_an_integer") + t.getMessage());
 						i = 0; // default language
 					}
 					if (i < 0 || i >= numLanguages) {
-						setParseError("languageNum must be in range (0 - " + (numLanguages - 1) + "): " + i);
+						setParseError(lingua.get("languageNum_must_be_in_range_zero_to") + (numLanguages - 1) + "): " + i);
 						i = 0;	// default language
 					}
 					answerLanguageNum = i;
@@ -173,47 +173,43 @@ public class Node  {
 			}
 		}
 		if (dependencies == null || dependencies.trim().length() == 0) {
-			setParseError("dependencies column is missing");
+			setParseError(lingua.get("dependencies_column_is_missing"));
 		}
 
 		if (conceptName != null && conceptName.trim().length() > 0) {
 			conceptName = conceptName.trim();
 			if (Character.isDigit(conceptName.charAt(0))) {
-				setNamingError("conceptName may not begin with a digit - prepending '_': " + conceptName);
+				setNamingError(lingua.get("conceptName_may_not_begin_with_a_digit") + conceptName);
 				conceptName = "_" + conceptName;
 			}
 		}
 		if (localName != null && localName.trim().length() > 0) {
 			localName = localName.trim();
 			if (Character.isDigit(localName.charAt(0))) {
-				setNamingError("localName may not begin with a digit - prepending '_': " + conceptName);
+				setNamingError(lingua.get("localName_may_not_begin_with_a_digit") + localName);
 				localName = "_" + localName;
+			}
+			if (!XmlString.NULL.isNMTOKEN(localName)) {
+				setNamingError(lingua.get("localName_should_only_contain_letters_digits_and_underscores") + localName);
 			}
 		}
 		else {
-			setNamingError("localName must be specified");
+			setNamingError(lingua.get("localName_must_be_specified"));
 		}
 
 		parseQuestionOrEvalTypeField();
-		
+
 		if (questionOrEvalType == BADTYPE) {
-			setParseError("Invalid questionOrEvalType: " + questionOrEvalTypeField);
+			setParseError(lingua.get("invalid_questionOrEvalType") + questionOrEvalTypeField);
 		}
 
 		for (int i=0;i<answerChoicesStr.size();++i) {
 			parseAnswerOptions(i,(String) answerChoicesStr.elementAt(i));
 		}
 
-		processFormattingMask();
-		createParseRangeStr();
-
 		if (datumType == Datum.INVALID) {
-			setParseError("Invalid dataType");
+			setParseError(lingua.get("invalid_dataType"));
 		}
-	}
-	catch (Throwable t) {
-		setParseError("Syntax error creating node: " + t.getMessage());
-	}
 	}
 
 	public String fixExcelisms(String s) {
@@ -245,7 +241,7 @@ public class Node  {
 		int z;
 
 		if (questionOrEvalTypeField == null) {
-			setParseError("questionOrEvalTypeField must be exist");
+			setParseError(lingua.get("questionOrEvalTypeField_must_exist"));
 			return;
 		}
 
@@ -271,14 +267,10 @@ public class Node  {
 					break;
 				case 1:
 					datumTypeStr = s;
-					for (z=0;z<Datum.TYPES.length;++z) {
-						if (datumTypeStr.equalsIgnoreCase(Datum.TYPES[z])) {
-							datumType = z;
-							break;
-						}
-					}
-					if (z == Datum.TYPES.length) {
-						setParseError("Invalid datum type: " + datumTypeStr);
+					datumType = Datum.parseDatumType(s);
+					if (datumType == -1) {
+						setParseError(lingua.get("invalid_dataType") + datumTypeStr);
+						datumType = Datum.INVALID;
 					}
 					break;
 				case 2:
@@ -288,72 +280,44 @@ public class Node  {
 					maxStr = s;
 					break;
 				case 4:
-					maskStr = s;
+					mask = s;
 					break;
 			}
 		}
 	}
 
-	private void processFormattingMask() {
-		if (maskStr == null || maskStr.trim().equals("")) {
-			mask = Datum.getDefaultMask(datumType);
-			/* this is allowed to be null - means nothing is done with it */
-		}
-		else {
-			mask = Datum.buildMask(maskStr, datumType);
-			/* if mask is null here, it means that the maskStr is invalid */
-			if (mask == null) {
-				setParseError("Invalid formatting mask: " + maskStr);
-				mask = Datum.getDefaultMask(datumType);	// set  to default to avoid NullPointerException
-			}
-		}
-		String s = Datum.getExampleFormatStr(mask, datumType);
-		if (s.equals(""))
-			exampleFormatStr = "";
-		else
-			exampleFormatStr = " (e.g. " + s + ")";
-	}
-
-	public void createParseRangeStr() {
+	public String getSampleInputString() {
 		/* Create the help-string showing allowable range of input values.
 			Can be re-created (e.g. if range dynamically changes */
 
 		String min = null;
 		String max = null;
+		String rangeStr = null;
+		String s = null;
+		
+		s = Datum.getExampleFormatStr(lingua,mask,datumType);
+		
+		if (s == null || s.equals(""))
+			rangeStr = "";
+		else
+			rangeStr = " (e.g. " + s + ")";		
 
 		if ((minStr == null && maxStr == null) || answerType == PASSWORD) {
-			rangeStr = null;
-			return;
+			return rangeStr;
+		}
+		
+		if (minDatum != null) {
+			setMinDatum(minDatum);
+			min = minDatum.stringVal(true,mask);
+		}
+		if (maxDatum != null) {
+			setMaxDatum(maxDatum);
+			max = maxDatum.stringVal(true,mask);
 		}
 
-		if (mask == null) {
-			/* This only applies to non-DATE and non-NUMBER values */
-			min = minStr;
-			max = maxStr;
-		}
-		else {
-			/* Show the range of valid values, in the appropriate format */
-
-			if (minStr != null) {
-				if (minDatum == null || !minDatum.isValid()) {
-					min = null;
-				}
-				else {
-					min = Datum.format(minDatum,mask);
-				}
-			}
-			if (maxStr != null) {
-				if (maxDatum == null || !maxDatum.isValid()) {
-					max = null;
-				}
-				else {
-					max = Datum.format(maxDatum,mask);
-				}
-			}
-		}
 		if (minDatum != null && maxDatum != null) {
 			if (DatumMath.lt(maxDatum,minDatum).booleanVal()) {
-				setError("max value less than min value: " + "(" + minStr + " - " + maxStr + ")");
+				setError(lingua.get("max_less_than_min") + "(" + minStr + " - " + maxStr + ")");
 			}
 		}
 
@@ -362,12 +326,14 @@ public class Node  {
 			" - " +
 			((max != null) ? max : "") +
 			")";
+			
+		return rangeStr;
 	}
 
 	private boolean parseAnswerOptions(int langNum, String src) {
 		/* Need to make sure that the answer type, order of answers, and internal values of answers are the same across all languages */
 		if (src == null) {
-			setParseError("answerOptions column is missing");
+			setParseError(lingua.get("answerOptions_column_missing"));
 			return false;
 		}
 
@@ -378,8 +344,8 @@ public class Node  {
 		try {
 			token = ans.nextToken();
 		}
-		catch (Throwable t) {
-			setParseError("tokenization error: " + t.getMessage());
+		catch (NoSuchElementException t) {
+			setParseError(lingua.get("missing_display_type") + t.getMessage());
 		}
 
 		if (langNum == 0) {
@@ -392,7 +358,7 @@ public class Node  {
 		}
 		else {
 			if (!QUESTION_TYPES[answerType].equalsIgnoreCase(token)) {
-				setParseError("mismatch across languages in answerType");
+				setParseError(lingua.get("mismatch_across_languages_in_answerType"));
 			}
 			// don't change the known value for answerType
 		}
@@ -403,7 +369,7 @@ public class Node  {
 			return true;	// XXX? - should this really return?
 		}
 		else if (answerType == BADTYPE) {
-			setParseError("invalid answerType");
+			setParseError(lingua.get("invalid_answerType"));
 			answerType = NOTHING;
 		}
 
@@ -452,9 +418,10 @@ public class Node  {
 										err = true;
 									}
 								}
-								catch (Throwable t) { err = true; }	// catches NullPointerException and ArrayIndexOutOfBoundsException
+								catch (NullPointerException t) { err = true; }
+								catch (ArrayIndexOutOfBoundsException t) { err = true; }
 								if (err) {
-									setParseError("mismatch across languages in return value for answerChoice # " + (ansPos-1));
+									setParseError(lingua.get("mismatch_across_languages_in_return_value_for_answerChoice_num") + (ansPos-1));
 									val = s2;	// reset it to the previously known return value for consistency (?)
 								}
 							}
@@ -462,7 +429,7 @@ public class Node  {
 						case 2: msg = s;
 							field = 0;	// so that cycle between val & msg;
 							if (val == null || msg == null) {
-								setParseError("Missing value or message for answerChoice # " + (ansPos-1));
+								setParseError(lingua.get("missing_value_or_message_for_answerChoice_num") + (ansPos-1));
 							}
 							else {
 								AnswerChoice ac = new AnswerChoice(val,msg);
@@ -471,7 +438,7 @@ public class Node  {
 								/* check for duplicate answer choice values */
 								if (langNum == 0) {	// only for first pass
 									if (answerChoicesHash.put(val, ac) != null) {
-										setParseError("answerChoice value already used: " + val);
+										setParseError(lingua.get("answerChoice_value_already_used") + val);
 									}
 								}
 							}
@@ -481,14 +448,14 @@ public class Node  {
 					}
 				}
 				if (ansOptions.size() == 0) {
-					setParseError("answerChoices must be specified");
+					setParseError(lingua.get("answerChoices_must_be_specified"));
 				}
 				if (field == 1) {
-					setParseError("missing message for answerChoice # " + (ansPos-1));
+					setParseError(lingua.get("missing_message_for_answerChoice_num") + (ansPos-1));
 				}
 				if (langNum > 0) {
 					if (prevAnsOptions.size() != ansOptions.size()) {
-						setParseError("mismatch across languages in number of answerChoices: " + prevAnsOptions.size() + " != " + ansOptions.size());
+						setParseError(lingua.get("mismatch_across_languages_in_number_of_answerChoices") + prevAnsOptions.size() + " != " + ansOptions.size());
 					}
 				}
 				answerChoicesVector.addElement(ansOptions);
@@ -511,167 +478,161 @@ public class Node  {
 		AnswerChoice ac;
 		Enumeration ans = null;
 
-		try {
-			switch (answerType) {
-			case RADIO:	// will store integers
-				ans = getAnswerChoices().elements();
+		switch (answerType) {
+		case RADIO:	// will store integers
+			ans = getAnswerChoices().elements();
+			while (ans.hasMoreElements()) { // for however many radio buttons there are
+				ac = (AnswerChoice) ans.nextElement();
+				ac.parse(parser,ev);
+				sb.append("<input type='radio' name='" + getLocalName() + "' " + "value='" + ac.getValue() + "'" +
+					(DatumMath.eq(datum,new Datum(lingua, ac.getValue(),DATA_TYPES[answerType])).booleanVal() ? " CHECKED" : "") + ">" + ac.getMessage() + "<br>");
+			}
+			break;
+		case RADIO_HORIZONTAL: // will store integers
+			/* table underneath questions */
+			Vector v = getAnswerChoices();
+			ans = v.elements();
+			int count = v.size();
+
+			if (count > 0) {
+				Double pct = new Double(100. / (double) count);
+				sb.append("<TD COLSPAN='2' BGCOLOR='lightgrey'>");
+				sb.append("<TABLE CELLPADDING='0' CELLSPACING='2' BORDER='1' WIDTH='100%'>");
+				sb.append("<TR>");
 				while (ans.hasMoreElements()) { // for however many radio buttons there are
 					ac = (AnswerChoice) ans.nextElement();
 					ac.parse(parser,ev);
+					sb.append("<TD VALIGN='top' WIDTH='" + pct.toString() + "%'>");
 					sb.append("<input type='radio' name='" + getLocalName() + "' " + "value='" + ac.getValue() + "'" +
-						(DatumMath.eq(datum,new Datum(ac.getValue(),DATA_TYPES[answerType])).booleanVal() ? " CHECKED" : "") + ">" + ac.getMessage() + "<br>");
+						(DatumMath.eq(datum,new Datum(lingua, ac.getValue(),DATA_TYPES[answerType])).booleanVal() ? " CHECKED" : "") + ">" + ac.getMessage());
+					sb.append("</TD>");
 				}
-				break;
-			case RADIO_HORIZONTAL: // will store integers
-				/* table underneath questions */
-				Vector v = getAnswerChoices();
-				ans = v.elements();
-				int count = v.size();
-
-				if (count > 0) {
-					Double pct = new Double(100. / (double) count);
-					sb.append("<TD COLSPAN='2' BGCOLOR='lightgrey'>");
-					sb.append("<TABLE CELLPADDING='0' CELLSPACING='2' BORDER='1' WIDTH='100%'>");
-					sb.append("<TR>");
-					while (ans.hasMoreElements()) { // for however many radio buttons there are
-						ac = (AnswerChoice) ans.nextElement();
-						ac.parse(parser,ev);
-						sb.append("<TD VALIGN='top' WIDTH='" + pct.toString() + "%'>");
-						sb.append("<input type='radio' name='" + getLocalName() + "' " + "value='" + ac.getValue() + "'" +
-							(DatumMath.eq(datum,new Datum(ac.getValue(),DATA_TYPES[answerType])).booleanVal() ? " CHECKED" : "") + ">" + ac.getMessage());
-						sb.append("</TD>");
-					}
-				}
-				sb.append("</TR>");
-				sb.append("</TABLE>");
-				/* XXX: add Node errors here - a kludge */
-				sb.append(errMsg);
-				sb.append("</TD>");
+			}
+			sb.append("</TR>");
+			sb.append("</TABLE>");
+			/* XXX: add Node errors here - a kludge */
+			sb.append(errMsg);
+			sb.append("</TD>");
 //				sb.append("</TR>");	// closing the outside is reserverd for TricepsServlet
-				break;
-			case CHECK:
-				ans = getAnswerChoices().elements();
-				while (ans.hasMoreElements()) { // for however many radio buttons there are
-					ac = (AnswerChoice) ans.nextElement();
-					ac.parse(parser,ev);
-					sb.append("<input type='checkbox' name='" + getLocalName() + "' " + "value='" + ac.getValue() + "'" +
-						(DatumMath.eq(datum, new Datum(ac.getValue(),DATA_TYPES[answerType])).booleanVal() ? " CHECKED" : "") + ">" + ac.getMessage() + "<br>");
-				}
-				break;
-			case COMBO:	// stores integers as value
-			case LIST: {
-				StringBuffer choices = new StringBuffer();
-				ans = getAnswerChoices().elements();
+			break;
+		case CHECK:
+			ans = getAnswerChoices().elements();
+			while (ans.hasMoreElements()) { // for however many radio buttons there are
+				ac = (AnswerChoice) ans.nextElement();
+				ac.parse(parser,ev);
+				sb.append("<input type='checkbox' name='" + getLocalName() + "' " + "value='" + ac.getValue() + "'" +
+					(DatumMath.eq(datum, new Datum(lingua, ac.getValue(),DATA_TYPES[answerType])).booleanVal() ? " CHECKED" : "") + ">" + ac.getMessage() + "<br>");
+			}
+			break;
+		case COMBO:	// stores integers as value
+		case LIST: {
+			StringBuffer choices = new StringBuffer();
+			ans = getAnswerChoices().elements();
 
-				int optionNum=0;
-				int totalLines = 0;
-				boolean nothingSelected = true;
-				while (ans.hasMoreElements()) { // for however many radio buttons there are
-					ac = (AnswerChoice) ans.nextElement();
-					ac.parse(parser,ev);
-					++optionNum;
+			int optionNum=0;
+			int totalLines = 0;
+			boolean nothingSelected = true;
+			while (ans.hasMoreElements()) { // for however many radio buttons there are
+				ac = (AnswerChoice) ans.nextElement();
+				ac.parse(parser,ev);
+				++optionNum;
 
-					String option = ac.getMessage();
-					String prefix = "<option value='" + ac.getValue() + "'";
-					boolean selected = DatumMath.eq(datum, new Datum(ac.getValue(),DATA_TYPES[answerType])).booleanVal();
-					int stop;
-					int line=0;
+				String option = ac.getMessage();
+				String prefix = "<option value='" + ac.getValue() + "'";
+				boolean selected = DatumMath.eq(datum, new Datum(lingua, ac.getValue(),DATA_TYPES[answerType])).booleanVal();
+				int stop;
+				int line=0;
 
-					while (option.length() > 0) {
-						if (option.length() < MAX_TEXT_LEN_FOR_COMBO) {
-							stop = option.length();
-						}
-						else {
-							stop = option.lastIndexOf(' ',MAX_TEXT_LEN_FOR_COMBO);
-							if (stop <= 0) {
-								stop = MAX_TEXT_LEN_FOR_COMBO;	// if no extra space, take entire string
-							}
-						}
-
-						choices.append(prefix);
-						if (line++ == 0) {
-							if (selected) {
-								choices.append(" SELECTED>" +
-									((autogen) ? String.valueOf(optionNum) : ac.getValue()) +
-									")&nbsp;");
-								nothingSelected = false;
-							}
-							else {
-								choices.append(">" +
-									((autogen) ? String.valueOf(optionNum) : ac.getValue()) +
-									")&nbsp;");
-							}
-						}
-						else {
-							choices.append(">&nbsp;&nbsp;&nbsp;");
-						}
-						choices.append(option.substring(0,stop));
-
-						if (stop<option.length())
-							option = option.substring(stop+1,option.length());
-						else
-							option = "";
-							
-						choices.append("</option>");
+				while (option.length() > 0) {
+					if (option.length() < MAX_TEXT_LEN_FOR_COMBO) {
+						stop = option.length();
 					}
-					totalLines += line;
+					else {
+						stop = option.lastIndexOf(' ',MAX_TEXT_LEN_FOR_COMBO);
+						if (stop <= 0) {
+							stop = MAX_TEXT_LEN_FOR_COMBO;	// if no extra space, take entire string
+						}
+					}
+
+					choices.append(prefix);
+					if (line++ == 0) {
+						if (selected) {
+							choices.append(" SELECTED>" +
+								((autogen) ? String.valueOf(optionNum) : ac.getValue()) +
+								")&nbsp;");
+							nothingSelected = false;
+						}
+						else {
+							choices.append(">" +
+								((autogen) ? String.valueOf(optionNum) : ac.getValue()) +
+								")&nbsp;");
+						}
+					}
+					else {
+						choices.append(">&nbsp;&nbsp;&nbsp;");
+					}
+					choices.append(option.substring(0,stop));
+
+					if (stop<option.length())
+						option = option.substring(stop+1,option.length());
+					else
+						option = "";
+
+					choices.append("</option>");
 				}
-				sb.append("<select name='" + getLocalName() + "'" +
-					((answerType == LIST) ? (" size = '" + Math.min(MAX_ITEMS_IN_LIST,totalLines+1) + "'") : "") +
-					">");
-				sb.append("<option value=''" +
-					((nothingSelected) ? " SELECTED" : "") + ">" +	// so that focus is properly shifted on List box
-					"--select one of the following--" +
-					"</option>");	// first choice is empty
-				sb.append(choices);
-				sb.append("</select>");
+				totalLines += line;
 			}
-				break;
-			case TEXT:	// stores Text type
-				if (datum != null && datum.exists())
-					defaultValue = datum.stringVal();
-				sb.append("<input type='text' onfocus='javascript:select()' name='" + getLocalName() + "' value='" + defaultValue + "'>");
-				break;
-			case MEMO:
-				if (datum != null && datum.exists())
-					defaultValue = datum.stringVal();
-				sb.append("<TEXTAREA rows='5' onfocus='javascript:select()' name='" + getLocalName() + "'>" + defaultValue + "</TEXTAREA>");
-				break;
-			case PASSWORD:	// stores Text type
-				if (datum != null && datum.exists())
-					defaultValue = datum.stringVal();
-				sb.append("<input type='password' onfocus='javascript:select()' name='" + getLocalName() + "'>");
-				break;
-			case DOUBLE:	// stores Double type
-				if (datum != null && datum.exists())
-					defaultValue = datum.stringVal();
-				sb.append("<input type='text' onfocus='javascript:select()' name='" + getLocalName() + "' value='" + defaultValue + "'>");
-				break;
-			default:
-/*
-			case DATE:
-			case TIME:
-			case YEAR:
-			case MONTH:
-			case DAY:
-			case WEEKDAY:
-			case HOUR:
-			case MINUTE:
-			case SECOND:
-			case MONTH_NUM:
-*/
-				if (datum != null && datum.exists())
-					defaultValue = datum.stringVal();
-				sb.append("<input type='text' onfocus='javascript:select()' name='" + getLocalName() + "' value='" + defaultValue + "'>");
-				break;
-			case NOTHING:
-				sb.append("&nbsp;");
-				break;
-			}
+			sb.append("<select name='" + getLocalName() + "'" +
+				((answerType == LIST) ? (" size = '" + Math.min(MAX_ITEMS_IN_LIST,totalLines+1) + "'") : "") +
+				">");
+			sb.append("<option value=''" +
+				((nothingSelected) ? " SELECTED" : "") + ">" +	// so that focus is properly shifted on List box
+				lingua.get("select_one_of_the_following") +
+				"</option>");	// first choice is empty
+			sb.append(choices);
+			sb.append("</select>");
 		}
-		catch (Throwable t) {
-			setError("Internal error: " + t.getMessage());
-			return "";
+			break;
+		case TEXT:	// stores Text type
+			if (datum != null && datum.exists())
+				defaultValue = datum.stringVal();
+			sb.append("<input type='text' onfocus='javascript:select()' name='" + getLocalName() + "' value='" + defaultValue + "'>");
+			break;
+		case MEMO:
+			if (datum != null && datum.exists())
+				defaultValue = datum.stringVal();
+			sb.append("<TEXTAREA rows='5' onfocus='javascript:select()' name='" + getLocalName() + "'>" + defaultValue + "</TEXTAREA>");
+			break;
+		case PASSWORD:	// stores Text type
+			if (datum != null && datum.exists())
+				defaultValue = datum.stringVal();
+			sb.append("<input type='password' onfocus='javascript:select()' name='" + getLocalName() + "'>");
+			break;
+		case DOUBLE:	// stores Double type
+			if (datum != null && datum.exists())
+				defaultValue = datum.stringVal();
+			sb.append("<input type='text' onfocus='javascript:select()' name='" + getLocalName() + "' value='" + defaultValue + "'>");
+			break;
+		default:
+/*
+		case DATE:
+		case TIME:
+		case YEAR:
+		case MONTH:
+		case DAY:
+		case WEEKDAY:
+		case HOUR:
+		case MINUTE:
+		case SECOND:
+		case MONTH_NUM:
+*/
+			if (datum != null && datum.exists())
+				defaultValue = datum.stringVal();
+			sb.append("<input type='text' onfocus='javascript:select()' name='" + getLocalName() + "' value='" + defaultValue + "'>");
+			break;
+		case NOTHING:
+			sb.append("&nbsp;");
+			break;
 		}
 
 		return sb.toString();
@@ -691,10 +652,10 @@ public class Node  {
 
 		if (err) {
 			if (answerType == PASSWORD) {
-				setError("Incorrect password.  Please try again.");
+				setError(lingua.get("incorrect_password"));
 			}
 			else {
-				setError("Please enter a " + Datum.TYPES[datumType] + " in the range:" + rangeStr);
+				setError(lingua.get("please_enter_a") + Datum.getTypeName(lingua,datumType) + lingua.get("in_the_range") + getSampleInputString());
 			}
 		}
 		return !(err);
@@ -704,20 +665,30 @@ public class Node  {
 	public int getDatumType() { return datumType; }
 
 
-	public String getQuestionMask() {
-		if (rangeStr != null)
-			return rangeStr;
-		else
-			return exampleFormatStr;
-	 }
 	public int getSourceLine() { return sourceLine; }
 	public String getSourceFile() { return sourceFile; }
 	public int getQuestionOrEvalType() { return questionOrEvalType; }
 	public String getQuestionOrEvalTypeField() { return questionOrEvalTypeField; }
-	public String getMaskStr() { return maskStr; }
-	public Format getMask() { return mask; }
-	public void setMinDatum(Datum d) { minDatum = d; }
-	public void setMaxDatum(Datum d) { maxDatum = d; }
+	public String getMask() { return mask; }
+	
+	public void setMinDatum(Datum d) { 
+		if (d == null) {
+			minDatum = null;
+		}
+		else {
+			minDatum = d.cast(datumType,mask);
+		}
+	}
+	
+	public void setMaxDatum(Datum d) { 
+		if (d == null) {
+			maxDatum = null;
+		}
+		else {
+			maxDatum = d.cast(datumType,mask);
+		}
+	}
+	
 	public String getMinStr() { return minStr; }
 	public String getMaxStr() { return maxStr; }
 
@@ -725,42 +696,28 @@ public class Node  {
 	public boolean focusableArray() { return (answerType == RADIO || answerType == RADIO_HORIZONTAL || answerType == CHECK); }
 
 	public void setNamingError(String error) {
-		if (error != null)
-			namingErrors.addElement(error + "<br>");
+		namingErrors.println(error);
 	}
-	
-	public void setParseError(String error) {
-		if (error != null)
-			parseErrors.addElement(error + "<br>");
 
+	public void setParseError(String error) {
+		parseErrors.println(error);
 	}
 	public void setError(String error) {
-		if (error != null)
-			runtimeErrors.addElement(error + "<br>");
+		runtimeErrors.print(error);
 	}
 
-	public Vector getErrors() {
-		Vector errs = new Vector();
-		for (int j=0;j<parseErrors.size();++j) { errs.addElement(parseErrors.elementAt(j)); }
-		for (int j=0;j<runtimeErrors.size();++j) { errs.addElement(runtimeErrors.elementAt(j)); }
-		runtimeErrors = new Vector();	// clear the runtime errors;
-		return errs;
+	public String getErrors() {
+		return getParseErrors() + getRuntimeErrors();
 	}
-	
+
 	public boolean hasParseErrors() { return parseErrors.size() > 0; }
 	public boolean hasNamingErrors() { return namingErrors.size() > 0; }
-	
-	public Vector getParseErrors() { return parseErrors; }	
-	public Vector getNamingErrors() { return namingErrors; }
-
-	public Vector getRuntimeErrors() {
-		Vector errs = runtimeErrors;
-		runtimeErrors = new Vector();	// clear them.
-		return errs;
-	}
-
-
 	public boolean hasRuntimeErrors() { return (runtimeErrors.size() > 0); }
+
+	public String getParseErrors() { return parseErrors.toString(false); }
+	public String getNamingErrors() { return namingErrors.toString(false); }
+	public String getRuntimeErrors() { return runtimeErrors.toString(); }
+
 
 	public String toTSV() {
 		StringBuffer sb = new StringBuffer(conceptName + "\t" + localName + "\t" + externalName + "\t" + dependencies + "\t" + questionOrEvalTypeField);
@@ -773,14 +730,14 @@ public class Node  {
 		}
 		return sb.toString();
 	}
-	
+
 	public String getTimeStampStr() { return timeStampStr; }
 	public Date getTimeStamp() { return timeStamp; }
 
 
 	public void setTimeStamp() {
 		timeStamp = new Date(System.currentTimeMillis());
-		timeStampStr = Datum.format(timeStamp,Datum.DATE,Datum.TIME_MASK);
+		timeStampStr = lingua.formatDate(timeStamp,Datum.TIME_MASK);
 	}
 
 	public void setTimeStamp(String timeStr) {
@@ -790,12 +747,8 @@ public class Node  {
 		}
 
 		Date time = null;
-		try {
-			time = Datum.TIME_MASK.parse(timeStr);
-		}
-		catch (Throwable t) {
-			setParseError(t.getMessage());
-		}
+		time = lingua.parseDate(time,Datum.TIME_MASK);
+
 		if (time == null) {
 			setTimeStamp();
 		}
@@ -816,44 +769,48 @@ public class Node  {
 	private String getValueAt(Vector v, int langNum) {
 		/* If can't get the requested language, get the primary one */
 		String s = null;
-		try {
-			if (v.size() == 0) {
-				return "";
-			}
-			if (langNum >= v.size()) 
-				langNum = 0;
-			s = (String) v.elementAt(langNum);
-			if (s == null)
-				return "";
-			else
-				return s;
-		}
-		catch (Throwable t) {
+		if (v ==null)
+			return "";
+		if (v.size() == 0) {
 			return "";
 		}
+		if (langNum >= v.size())
+			langNum = 0;
+		s = (String) v.elementAt(langNum);
+		if (s == null)
+			return "";
+		else
+			return s;
 	}
-	
+
 	private Vector getValuesAt(Vector v, int langNum) {
 		Vector ans = null;
-		try {
-			if (v.size() == 0) {
-				return EMPTY_VECTOR;
-			}
-			if (langNum >= v.size())
-				langNum = 0;
-			ans = (Vector) v.elementAt(langNum);
-			if (ans == null)
-				return EMPTY_VECTOR;
-			else
-				return ans;
-		}
-		catch (Throwable t) {
+		if (v == null)
+			return EMPTY_VECTOR;
+			
+		if (v.size() == 0) {
 			return EMPTY_VECTOR;
 		}
+		if (langNum >= v.size())
+			langNum = 0;
+		ans = (Vector) v.elementAt(langNum);
+		if (ans == null)
+			return EMPTY_VECTOR;
+		else
+			return ans;
 	}
 
 	public String getReadback() { return getValueAt(readback,answerLanguageNum); }
-	public String getQuestionOrEval() { return getValueAt(questionOrEval, answerLanguageNum); }
+	public String getQuestionOrEval() { return getQuestionOrEval(answerLanguageNum); }
+	
+	public String getQuestionOrEval(int langNum) { 
+		if (langNum < 0 || langNum >= numLanguages) {
+			setParseError("languageNum must be in range (0 - " + (numLanguages - 1) + "): " + langNum);
+			return getValueAt(questionOrEval, answerLanguageNum);
+		}
+		return getValueAt(questionOrEval, langNum);
+	}	
+	
 	public Vector getAnswerChoices(int langNum) { return getValuesAt(answerChoicesVector,langNum); }
 	public Vector getAnswerChoices() { return getValuesAt(answerChoicesVector,answerLanguageNum); }
 	public String getHelpURL() { return getValueAt(helpURL,answerLanguageNum); }

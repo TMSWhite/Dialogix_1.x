@@ -2,15 +2,15 @@ import java.util.*;
 import java.io.*;
 
 public class XmlString extends Object {
-	public static final XmlString EMPTY_XML_STRING = new XmlString(null);
-	
+	public static final XmlString NULL = new XmlString(null,null);
+
 	private static final Hashtable ENTITIES = new Hashtable();
 	private static final Hashtable BINARY_TAGS = new Hashtable();
 	private static final Hashtable UNARY_TAGS = new Hashtable();
 	private static final Hashtable DISALLOWED_TAGS = new Hashtable();
 	private static final Hashtable SOLO_ATTRIBUTES = new Hashtable();
 	private static final Hashtable TAGS_AFFECTED_BY_WHITESPACE = new Hashtable();
-	
+
 	private static final String binaryHTMLtags[] = {
 		"a","abbr","acronym","address","applet",
 		"b","bdo","big", "blink", "bgsound", "blockquote","body",
@@ -33,7 +33,7 @@ public class XmlString extends Object {
 		"var",
 		"xmp",
 	};
-	
+
 	private static final String tagsAffectedByWhitespace[] = {
 		"a","abbr","acronym","address",
 		"b","bdo","big","blink","blockquote",
@@ -52,12 +52,12 @@ public class XmlString extends Object {
 		"u",
 		"var"
 	};
-		
+
 	private static final String unaryHTMLtags[] = {
-		"area", 
+		"area",
 		"base","basefont","br","button",
 		"col","colgroup",
-		"hr", 
+		"hr",
 		"img","input","isindex",
 		"link",
 		"meta",
@@ -78,11 +78,11 @@ public class XmlString extends Object {
 		"layer",
 		"marquee", "meta","multicol",
 		"noembed","noframes","noscript",
-		"object",		        
+		"object",
 		"param","plaintext",
 		"script", "server","spacer", "style",
 		"title",
-		"xmp",		 
+		"xmp",
 	};
 	private static final String standardHTMLentities[] = {
 		"&quot;","&amp;","&lt;","&gt;","&nbsp;","&iexcl;","&cent;","&pound;","&curren;",
@@ -106,7 +106,7 @@ public class XmlString extends Object {
 		"readonly",
 		"selected",
 	};
-	
+
 	private static final String QUOT = "&quot;";
 	private static final String LT = "&lt;";
 	private static final String GT = "&gt;";
@@ -114,7 +114,7 @@ public class XmlString extends Object {
 	private static final String NBSP = "&nbsp;";
 	private static final String NEWLINE = "\n";
 
-	
+
 	static {
 		/* initialize static Hashtables */
 		for (int i=0;i<standardHTMLentities.length;++i) {
@@ -134,16 +134,18 @@ public class XmlString extends Object {
 		}
 		for (int i=0;i<tagsAffectedByWhitespace.length;++i) {
 			TAGS_AFFECTED_BY_WHITESPACE.put(tagsAffectedByWhitespace[i],"tagAffectedByWhitespace");
-		}		
+		}
 	}
-	
+
 	private Writer dst = null;
 	private Vector tagStack = new Vector();
-	private Vector errors = new Vector();
+	private Logger logger = new Logger();	// will always use an HTML eol
+	private Lingua lingua = Lingua.NULL;
 	private int lineNum = 1;
 	private int column = 1;
-		
-    public XmlString(String src) {
+
+    public XmlString(Lingua lang, String src) {
+    	lingua = (lang == null) ? Lingua.NULL : lang;
     	if (src == null)
     		return;
     	try {
@@ -153,8 +155,9 @@ public class XmlString extends Object {
     	}
     	catch (IOException e){ }
     }
-    
-    public XmlString(String src, Writer out) {
+
+    public XmlString(Lingua lang, String src, Writer out) {
+    	lingua = (lang == null) ? Lingua.NULL : lang;
     	if (src == null || out == null)
     		return;
     	try {
@@ -164,9 +167,13 @@ public class XmlString extends Object {
     	}
     	catch (IOException e) { }
     }
-    
+
     public	String toString() { return dst.toString(); }
-    
+
+    public void setLingua(Lingua lang) {
+    	lingua = (lang == null) ? Lingua.NULL : lang;
+    }
+
     private static final int TAG = 0;
     private static final int NMTOKEN = 1;
     private static final int EQUALS_SIGN = 2;
@@ -175,7 +182,7 @@ public class XmlString extends Object {
     private static final String[] parsingPosition = { "TAG", "NMTOKEN","EQUALS_SIGN","START_OF_STRING","END_OF_STRING" };
 	private static final int UNARY_TAG = 0;
 	private static final int BINARY_TAG = 1;
-    
+
 	private boolean isValidElement(String src) {
 		String tag = null;
 		String token = null;
@@ -183,51 +190,53 @@ public class XmlString extends Object {
 		boolean withinEscape = false;
 		int tagType;
 		int which = TAG;
-		
+
 		String element = src.substring(1,src.length()-1);	// remove open and close angle brackets
-		
+
 		++column;	// to account for the opening left angle bracket
-		
+
 		if (element == null)
 			element = "";
-		
+
 		try {
 			/* build a string stripped of the opening and closing angle brackets */
 			StringTokenizer st = new StringTokenizer(element," \t\n\r\f=\'\"\\",true);
-				
+
+
+
 			/* get and check tag name */
 			tag = st.nextToken().toLowerCase();
-			
+
 			if (tag.startsWith("/")) {
 				/* then an end tag */
 				String endTag = tag.substring(1,tag.length());
-				
+
 				if (st.hasMoreTokens()) {
-					error("ending tags may not have attribute values pairs " + asElement(element));
+					error(lingua.get("ending_tags_may_not_have_attribute_value_pairs") + asElement(element));
 					return false;
 				}
 				if (UNARY_TAGS.containsKey(endTag)) {
-					error("unary tags may not have closing tags " + asElement(element));
+					error(lingua.get("unary_tags_may_not_have_closing_tags") + asElement(element));
 					return false;
                 }
                 if (!BINARY_TAGS.containsKey(endTag)) {
-					error("invalid end tag " + asElement(element));
+					error(lingua.get("invalid_end_tag") + asElement(element));
 					return false;
 				}
                 if (DISALLOWED_TAGS.containsKey(endTag)) {
-                	error("disallowed for security reasons " + asElement(element));
+                	error(lingua.get("disallowed_for_security_reasons") + asElement(element));
                 	return false;
                 }
-				
+
 				if (!tagStack.contains(endTag)) {
-					error("rejecting mismatched endTag " + asElement(element));
+					error(lingua.get("rejecting_mismatched_endTag") + asElement(element));
 					return false;
 				}
-				
+
 				insertMissingEndTags(endTag);
 				return true;
 			}
-			
+
 			if (BINARY_TAGS.containsKey(tag)) {
 				tagType = BINARY_TAG;
 			}
@@ -237,18 +246,18 @@ public class XmlString extends Object {
 			else {
 				return false;
 			}
-			
+
 			if (DISALLOWED_TAGS.containsKey(tag)) {
-				error("disallowed for security reasons " + asElement(element));
+				error(lingua.get("disallowed_for_security_reasons") + asElement(element));
 				return false;
 			}
-	
+
 			which = NMTOKEN;
 			for (column+=tag.length();st.hasMoreTokens();column+=token.length()) {
-				/* Loop over name = "attribute" pairs */				
+				/* Loop over name = "attribute" pairs */
 				token = st.nextToken();
 				char c = token.charAt(0);
-				
+
 				if (c == '\n' || c == '\r') {
 					prettyPrint("",true);
 					continue;
@@ -256,7 +265,7 @@ public class XmlString extends Object {
 				if (Character.isWhitespace(c)) {
 					continue;
 				}
-				
+
 				switch(which) {
 					case NMTOKEN: {
 						if (!isNMTOKEN(token))
@@ -272,15 +281,15 @@ public class XmlString extends Object {
 						break;
 					case EQUALS_SIGN:
 						if (!"=".equals(token)) {
-							error("expected equals sign in " + asElement(element));							
+							error(lingua.get("expected_equals_sign") + asElement(element));
 							return false;
 						}
 						which = START_OF_STRING;
 						break;
-					case START_OF_STRING: 
+					case START_OF_STRING:
 						quoteChar = token;
 						if (!("\"".equals(quoteChar) || "\'".equals(quoteChar))) {
-							error("expected the start of a string in " + asElement(element));							
+							error(lingua.get("expected_start_of_a_string") + asElement(element));
 							return false;
 						}
 						withinEscape = false;
@@ -303,7 +312,7 @@ public class XmlString extends Object {
 				if (tagType == BINARY_TAG) {
 					tagStack.addElement(tag);
 				}
-				
+
 				if (TAGS_AFFECTED_BY_WHITESPACE.containsKey(tag)) {
 					prettyPrint(src,false);
 				}
@@ -313,16 +322,16 @@ public class XmlString extends Object {
 				return true;
 			}
 			else {
-				error("prematurely terminated element - expecting " + parsingPosition[which] + " " + asElement(element));		
+				error(lingua.get("prematurely_terminated_element") + parsingPosition[which] + " " + asElement(element));
 				return false;	// unterminated attribute-value pairs
 			}
 		}
 		catch (Throwable t) {
-			error("prematurely terminated element - expecting " + parsingPosition[which] + " " + asElement(element));		
-			return false;	
+			error(lingua.get("prematurely_terminated_element") + parsingPosition[which] + " " + asElement(element));
+			return false;
 		}
 	}
-	
+
 	private void prettyPrint(String s, boolean addReturn) {
 		try {
 			/* pretty-print the output */
@@ -333,23 +342,23 @@ public class XmlString extends Object {
 				for (int i=0;i<tagStack.size();++i) {
 					dst.write("   ");	// three spaces - like a tab, but more reliable
 					column += 3;
-				}				
+				}
 			}
 			dst.write(s);
 			column += s.length();
 		}
 		catch (IOException e) { }
 	}
-	
+
 	private void insertMissingEndTags(String endTag) {
 		for (int i=tagStack.size()-1;i>=0;--i) {
 			String t = (String) tagStack.elementAt(i);
 			String tagToPrint = "</" + t + ">";
-				
+
 			if ("td".equals(t)) {
 				tagToPrint = NBSP + tagToPrint;	// just in case, since Netscape doesn't deal well with empty Table cells
 			}
-				
+
 			if (TAGS_AFFECTED_BY_WHITESPACE.containsKey(t)) {
 				if ("option".equals(t)) {
 					try {
@@ -366,12 +375,12 @@ public class XmlString extends Object {
 				prettyPrint(tagToPrint,true);
 			}
 			tagStack.removeElementAt(i);	// decrements its counter
-				
+
 			if (t.equals(endTag)) {
 				break;
 			}
 			else {
-				error("inserting missing endTag for " + asElement(t));
+				error(lingua.get("inserting_missing_endTag_for") + asElement(t));
 			}
 		}
 	}
@@ -383,22 +392,22 @@ public class XmlString extends Object {
 
 				for (int i=0;i<src.length;++i) {
 					switch (src[i]) {
-						case '\"': 
-							dst.write(QUOT); 
+						case '\"':
+							dst.write(QUOT);
 							column += QUOT.length();
 							break;
 						case '<': {
 							/* grab next complete element */
 							int elementEnd;
 							String element = null;
-							
+
 							elementEnd = s.indexOf('>',i);
 							if (elementEnd != -1) {
 								element = s.substring(i,elementEnd+1);
 								/* Now, get the element name (assuming that might have attribute value pairs */
 								int prevCol = column;	// since isValidElement() changes the column value internally
 								if (isValidElement(element)) {
-									i+= (element.length()-1);	// -1, since will be re-incremented in for loop	
+									i+= (element.length()-1);	// -1, since will be re-incremented in for loop
 								}
 								else {
 									dst.write(LT);
@@ -406,14 +415,14 @@ public class XmlString extends Object {
 								}
 							}
 							else {
-								error("no closing right angle bracket");
+								error(lingua.get("no_closing_right_angle_bracket"));
 								dst.write(LT);
 								column += LT.length();
 							}
 						}
 							break;
-						case '>': 
-							dst.write(GT); 
+						case '>':
+							dst.write(GT);
 							column += GT.length();
 							break;
 						case '&': {
@@ -426,13 +435,11 @@ public class XmlString extends Object {
 									i += (entity.length()-1);
 								}
 								else {
-//									error("not a recognized Unicode entity:" + asEntity(entity.substring(1,entity.length()-1)));
 									dst.write(AMP);
 									column += AMP.length();
 								}
 							}
 							else {
-//								error("not an entity - ampersand without matching semicolon");
 								dst.write(AMP);
 								column += AMP.length();
 							}
@@ -441,38 +448,36 @@ public class XmlString extends Object {
 						case '\n': case '\r':
 							prettyPrint("",true);
 							break;
-						default: 
-							dst.write(src[i]); 
+						default:
+							dst.write(src[i]);
 							++column;
 							break;
 					}
 				}
 			}
-			catch (Throwable t) {
-				error("Unexpected error while HTMLizing string" + t.getMessage());
-			}
+			catch (IOException e) { }
 		}
 		insertMissingEndTags(null);
 	}
-	
+
 	private void error(String s) {
-		errors.addElement("line " + lineNum + " column " + column + " - " + s);
+		logger.println(s,lineNum,column);
 	}
-	
-	public boolean hasErrors() { return (errors.size() > 0); }
-	public Vector getErrors() { return errors; }
-	
+
+	public boolean hasErrors() { return (logger.size() > 0); }
+	public String getErrors() { return logger.toString(); }
+
 	public boolean isNMTOKEN(String token) {
 		char[] chars = token.toCharArray();
 		for (int i=0;i<chars.length;++i) {
 			if (!(Character.isLetterOrDigit(chars[i]) || chars[i] == '_')) {
-				error("name contains invalid character: " + chars[i]);
+				error(lingua.get("name_contains_invalid_character") + chars[i]);
 				return false;
 			}
 		}
 		return true;
 	}
-	
+
 	public boolean isEntity(String entity) {
 		if (ENTITIES.containsKey(entity)) {
 			return true;
@@ -492,9 +497,9 @@ public class XmlString extends Object {
 			else {
 				return false;
 			}
-		}	
+		}
 	}
-	
+
 	private String asElement(String s) {
 		return (LT + s + GT);
 	}

@@ -26,21 +26,23 @@ public class Schedule  {
 	public static final int LOADED_FROM = 16;
 	public static final int CURRENT_LANGUAGE = 17;
 	public static final int ALLOW_LANGUAGE_SWITCHING = 18;
+	
+	private static final String DEFAULT_LANGUAGE = "en_US";
 
 	public static final String[] RESERVED_WORDS = {
 		"__LANGUAGES__",
-		"__TITLE__", 
-		"__ICON__", 
-		"__HEADER_MSG__", 
+		"__TITLE__",
+		"__ICON__",
+		"__HEADER_MSG__",
 		"__STARTING_STEP__",
-		"__PASSWORD_FOR_ADMIN_MODE__", 
-		"__SHOW_QUESTION_REF__", 
+		"__PASSWORD_FOR_ADMIN_MODE__",
+		"__SHOW_QUESTION_REF__",
 		"__AUTOGEN_OPTION_NUM__",
-		"__DEVELOPER_MODE__", 
+		"__DEVELOPER_MODE__",
 		"__DEBUG_MODE__",
-		"__START_TIME__", 
-		"__FILENAME__", 
-		"__SHOW_ADMIN_ICONS__", 
+		"__START_TIME__",
+		"__FILENAME__",
+		"__SHOW_ADMIN_ICONS__",
 		"__TITLE_FOR_PICKLIST_WHEN_IN_PROGRESS__",
 		"__ALLOW_COMMENTS__",
 		"__SCHEDULE_SOURCE__",
@@ -51,27 +53,31 @@ public class Schedule  {
 
 	private Date startTime = null;
 	private int languageCount = 0;
-	private Vector languages = null;
+	private Vector locales = null;
+	private Vector languageNames = null;
 	private int currentLanguage = 0;
 	private boolean isFound = false;
 	private boolean isLoaded = false;
 	private String source = null;
-	private Vector errors = new Vector();
-	
+	private Logger errorLogger = new Logger();
+
 	private Vector nodes = null;
 	private Vector comments = null;
 	private Hashtable reserved = new Hashtable();
+	private Lingua lingua = Lingua.NULL;
 
-	public Schedule(String source) {
+	public Schedule(Lingua lang, String source) {
+    	lingua = (lang == null) ? Lingua.NULL : lang;
+    	
 		setDefaultReserveds();
-		
+
 		setReserved(SCHEDULE_SOURCE,source);	// this defaults to LOADED_FROM, but want to keep track of the original source location
-			
+
 		if (load(source,false)) {
 			isFound = true;
 		}
 	}
-	
+
 	public boolean isFound() { return isFound; }
 	public boolean isLoaded() { return isLoaded; }
 	public String getScheduleSource() { return ((isFound) ? getReserved(SCHEDULE_SOURCE) : ""); }
@@ -80,7 +86,7 @@ public class Schedule  {
 	private void setDefaultReserveds() {
 		setReserved(TITLE,"Triceps");
 		setReserved(STARTING_STEP,"0");
-		setReserved(START_TIME,Datum.TIME_MASK.format(new Date(System.currentTimeMillis())));
+		setReserved(START_TIME,lingua.formatDate(new Date(System.currentTimeMillis()),Datum.TIME_MASK));
 		setReserved(PASSWORD_FOR_ADMIN_MODE,"");
 		setReserved(AUTOGEN_OPTION_NUM,"true");
 		setReserved(FILENAME,getReserved(START_TIME));
@@ -89,8 +95,8 @@ public class Schedule  {
 		setReserved(SHOW_QUESTION_REF,"false");
 		setReserved(DEVELOPER_MODE,"false");
 		setReserved(DEBUG_MODE,"false");
-		setReserved(LANGUAGES,"English");
-		setReserved(CURRENT_LANGUAGE,"English");
+		setReserved(LANGUAGES,DEFAULT_LANGUAGE);
+		setReserved(CURRENT_LANGUAGE,null);
 		setReserved(SHOW_ADMIN_ICONS,"false");
 		setReserved(TITLE_FOR_PICKLIST_WHEN_IN_PROGRESS,"");	// default is unnamed until initialized
 		setReserved(ALLOW_COMMENTS,"false");
@@ -98,14 +104,14 @@ public class Schedule  {
 		setReserved(LOADED_FROM,"");
 		setReserved(ALLOW_LANGUAGE_SWITCHING,"true");
 	}
-	
+
 	public boolean init() {
 		nodes = new Vector();
 		comments = new Vector();
-		isLoaded = load(getLoadedFrom(),true); 
+		isLoaded = load(getLoadedFrom(),true);
 		return isLoaded;
 	}
-	
+
 	public boolean reload() {
 		return init();
 	}
@@ -117,7 +123,7 @@ public class Schedule  {
 
 		boolean err = false;
 
-		try {
+	try {
 			int line = 0;
 			int count=0;
 			int reservedCount=0;
@@ -140,91 +146,86 @@ public class Schedule  {
 					}
 					continue;
 				}
-				
+
 				if (!parseNodes)
 					break;	// so that only set RESERVED values
-					
+
 				if (reservedCount == 0) {
 					return false;	// must have some reserved lines before nodes, else can't be a schedule file
 				}
 
-				Node node = new Node(line, source, fileLine, languageCount);
+				Node node = new Node(lingua, line, source, fileLine, languageCount);
 				++count;
 				nodes.addElement(node);
 			}
 			if (reservedCount == 0) {
 				return false;
 			}
-			if (parseNodes) {
+//			if (parseNodes) {
 //				setError("Read " + count + " nodes from " + source);
-			}
-			
+//			}
+
 			/* check for mismatching braces */
 			int braceLevel = 0;
 			Node node = null;
 			for (int i=0;i<count;++i) {
 				node = getNode(i);
 				if (node == null) {
-					setError("null node at index #" + i);
+					setError(lingua.get("null_node_at_index") + i);
 					continue;
 				}
 				switch(node.getQuestionOrEvalType()) {
 					case Node.QUESTION:
 						break;
 					case Node.EVAL:
-						if (braceLevel > 0) 
-							setError("'e' actionTypes not allowed within a group of nodes - line " + node.getSourceLine());
+						if (braceLevel > 0)
+							setError(lingua.get("evaluations_disallowed_within_block") + node.getSourceLine());
 						break;
 					case Node.GROUP_OPEN:
 						++braceLevel;
 						break;
 					case Node.GROUP_CLOSE:
 						if (--braceLevel < 0) {
-							setError("extra closing brace - line " + node.getSourceLine());
+							setError(lingua.get("extra_closing_brace_at_line") + node.getSourceLine());
 						}
 						break;
 					case Node.BRACE_OPEN:
 					case Node.BRACE_CLOSE:
 					case Node.CALL_SCHEDULE:
-						setError(node.getQuestionOrEvalTypeField() + " not yet suppported - line " + node.getSourceLine());
+						setError(node.getQuestionOrEvalTypeField() + lingua.get("not_yet_suppported___line") + node.getSourceLine());
 						break;
 					default:
-						setError("unknown actionType for node - line " + node.getSourceLine());
+						setError(lingua.get("unknown_actionType_at_line") + node.getSourceLine());
 						break;
 				}
 			}
 			if (braceLevel > 0) {
-				setError("missing " + braceLevel + " closing brace(s)");
+				setError(lingua.get("missing") + braceLevel + lingua.get("closing_braces"));
 			}
 		}
-		catch(Throwable t) {
-			System.err.println("Unable to access " + source + ": " + t.getMessage());
-			err = true;
-		}
+		catch(IOException e) { }
 		if (br != null) {
-			try { br.close(); } catch (Throwable t) {
-				System.err.println("Error closing file:" + t.getMessage());
-			}
+			try { br.close(); } catch (IOException t) { }
 		}
-		setReserved(START_TIME,Datum.TIME_MASK.format(startTime));	// XXX is this really needed?
-		
+		setReserved(START_TIME,lingua.formatDate(startTime,Datum.TIME_MASK));	// XXX is this really needed?
+
 		String s = getReserved(TITLE_FOR_PICKLIST_WHEN_IN_PROGRESS);
 		if (s == null || s.trim().length() == 0) {
 			// set a reasonable default value
 			setReserved(TITLE_FOR_PICKLIST_WHEN_IN_PROGRESS,getReserved(TITLE) + " [" + getReserved(START_TIME) + "]");
 		}
 		setReserved(LOADED_FROM,source);	// keep LOADED_FROM up to date
-		
+
 		return (!err);
 	}
 
 	public Node getNode(int index) {
 		if (index < 0) {
-			System.err.println("Node[" + index + "] does not exist");
+			setError("Node[" + index + "] does not exist");
 			return null;
 		}
 		if (index > size()) {
-			System.err.println("Node[" + index + "/" + size() + "] does not exist");
+			setError("Node[" + index + "/" + size() + "] does not exist");
 			return null;
 		}
 		return (Node)nodes.elementAt(index);
@@ -258,7 +259,7 @@ public class Schedule  {
 			}
 		}
 		if (field < 2) {
-			setError("Incorrect syntax for " + ((name != null) ? name : "") + " [" + filename + "(" + line + ")]");
+			setError(lingua.get("incorrect_syntax_for") + ((name != null) ? name : "") + " [" + filename + "(" + line + ")]");
 		}
 		if (name == null || value == null)
 			return false;
@@ -272,18 +273,18 @@ public class Schedule  {
 		}
 
 		if (!setReserved(resIdx, value)) {
-			setError(name + " not recognized [" + filename + "(" + line + ")]");
+			setError(name + lingua.get("not_recognized") + filename + "(" + line + ")]");
 			return false;
 		}
 		return true;
 	}
-	
+
 	public boolean overloadReserved(Schedule oldNodes) {
 		/* FIXME - need to use String Objects for reserved words, not integers, otherwise subject to re-ordering! */
 		if (nodes == null)
 			return false;
 		boolean ok = true;
-			
+
 		for (int i=0;i<RESERVED_WORDS.length;++i) {
 			ok = setReserved(i,oldNodes.getReserved(i)) && ok;
 		}
@@ -339,7 +340,7 @@ public class Schedule  {
 			startingStep = new Integer(s);
 		}
 		catch(NumberFormatException e) {
-			System.err.println("Invalid number for starting step: " + e.getMessage());
+			setError(lingua.get("invalid_number_for_starting_step") + e.getMessage());
 			startingStep = new Integer(0);
 		}
 		return startingStep.toString();
@@ -347,18 +348,13 @@ public class Schedule  {
 
 	private String setStartTime(Date t) {
 		startTime = t;
-		String str = Datum.TIME_MASK.format(t);
+		String str = lingua.formatDate(t,Datum.TIME_MASK);
 		return str;
 	}
 
 	private String setStartTime(String t) {
 		Date time = null;
-		try {
-			time = Datum.TIME_MASK.parse(t);
-		}
-		catch (java.text.ParseException e) {
-			System.err.println("Error parsing time " + e.getMessage());
-		}
+		time = lingua.parseDate(t,Datum.TIME_MASK);
 		if (time == null) {
 			time = new Date(System.currentTimeMillis());
 		}
@@ -368,11 +364,12 @@ public class Schedule  {
 	private String setLanguages(String value) {
 		StringBuffer sb = new StringBuffer();
 		if (value == null) {
-			return setLanguages("English");
+			return setLanguages(DEFAULT_LANGUAGE);
 		}
 
 		languageCount = 0;
-		languages = new Vector();
+		locales = new Vector();
+		languageNames = new Vector();
 		StringTokenizer ans = new StringTokenizer(value,"|");
 		while(ans.hasMoreTokens()) {
 			String s = null;
@@ -381,6 +378,7 @@ public class Schedule  {
 				if (s == null || s.trim().length() == 0)
 					continue;
 				s = s.trim();
+				
 			}
 			catch (NoSuchElementException e) {
 			}
@@ -392,26 +390,64 @@ public class Schedule  {
 			else {
 				sb.append(s);
 			}
-			languages.addElement(s);
+			
+			String lang = null;
+			String country = null;
+			String extra = null;
+			
+			try {
+				StringTokenizer part = new StringTokenizer(s,"_");
+				lang = part.nextToken();
+				country = part.nextToken();
+				extra = part.nextToken();
+			}
+			catch (NoSuchElementException e) { }
+			
+			Locale loc = Lingua.getLocale(lang,country,extra);
+				
+			locales.addElement(loc);
 		}
+		buildLanguageNames();
+		
 		return sb.toString();
 	}
-
-	public Vector getLanguages() {
-		return languages;
+	
+	private void buildLanguageNames() {
+		languageNames = new Vector();
+		
+		for (int i=0;i<locales.size();++i) {
+			Locale loc = (Locale) locales.elementAt(i);
+			languageNames.addElement(loc.getDisplayLanguage(loc));
+		}
 	}
+
+	public Vector getLanguages() { return languageNames; }
 
 	public String setLanguage(String s) {
 		if (s != null) {
-			for (int i=0;i<languages.size();++i) {
-				if (s.equals((String) languages.elementAt(i))) {
+			for (int i=0;i<languageNames.size();++i) {
+				if (s.equals((String) languageNames.elementAt(i))) {
 					currentLanguage = i;
-					return s;
+					Locale loc = (Locale) locales.elementAt(i);
+					lingua.setLocale(loc);
+					return loc.toString();
 				}
 			}
-			setError("Tried to switch to unsupported language " + s);
+			for (int i=0;i<locales.size();++i) {
+				Locale loc = (Locale) locales.elementAt(i);
+				if (s.equals(loc.toString())) {
+					currentLanguage = i;
+					lingua.setLocale(loc);
+					return loc.toString();
+				}
+			}			
+			setError(lingua.get("tried_to_switch_to_unsupported_language") + s);
 		}
-		return (String) languages.elementAt(currentLanguage);
+		else {
+			currentLanguage = 0;
+			lingua.setLocale((Locale) locales.elementAt(currentLanguage));
+		}
+		return ((Locale) locales.elementAt(currentLanguage)).toString();
 	}
 
 	public int getLanguage() { return currentLanguage; }
@@ -424,8 +460,8 @@ public class Schedule  {
 			try {
 				out.write("RESERVED\t" + s + "\t" + reserved.get(s).toString() + "\n");
 			}
-			catch (Throwable t) {
-				System.err.println("Error writing to " + out + ": " + t.getMessage());
+			catch (IOException e) {
+				setError(lingua.get("error_writing_to") + out + ": " + e.getMessage());
 			}
 		}
 
@@ -433,12 +469,12 @@ public class Schedule  {
 			try {
 				out.write((String) comments.elementAt(i) + "\n");
 			}
-			catch (Throwable t) {
-				System.err.println("Error writing to " + out + ": " + t.getMessage());
+			catch (IOException e) {
+				setError(lingua.get("error_writing_to") + out + ": " + e.getMessage());
 			}
 		}
 	}
-	
+
 	private BufferedReader getReader(String source) {
 		boolean ok = false;
 		BufferedReader br = null;
@@ -448,13 +484,13 @@ public class Schedule  {
 			if (source != null) {
 				File file = new File(source);
 				if (!file.exists()) {
-					setError("Error: file '" + source + "' does not exist");
+					setError(lingua.get("error_file") + " '" + source + "' " + lingua.get("does_not_exist"));
 				}
 				else if (!file.isFile()) {
-					setError("Error: file '" + source + "' is not a file");
+					setError(lingua.get("error_file") + " '" + source + "' " + lingua.get("is_not_a_file"));
 				}
 				else if (!file.canRead()) {
-					setError("Error: file '" + source + "' is not accessible");
+					setError(lingua.get("error_file") + " '" + source + "' " + lingua.get("is_not_accessible"));
 				}
 				else {
 					br = new BufferedReader(new FileReader(file));
@@ -462,20 +498,19 @@ public class Schedule  {
 				}
 			}
 			else {
-				setError("Error: null filename");
+				setError(lingua.get("error_null_filename"));
 			}
 		}
-		catch (Throwable t) {
-			setError("error accessing file: " + t.getMessage());
+		catch (IOException e) {
+			setError(lingua.get("error_accessing_file") + e.getMessage());
+			Logger.printStackTrace(e);
 		}
 		if (ok) {
 			return br;
 		}
 		else {
 			if (br != null) {
-				try { br.close(); } catch (Throwable t) {
-					setError("error closing reader: " + t.getMessage());
-				}
+				try { br.close(); } catch (IOException t) { }
 			}
 		}
 
@@ -499,9 +534,7 @@ public class Schedule  {
 				else {
 					// Close, then re-open the stream (resetting a BufferedReader isn't supported on all platforms)
 					if (br != null) {
-						try { br.close(); } catch (Throwable t) {
-							setError("error closing reader: " + t.getMessage());
-						}
+						try { br.close(); } catch (IOException t) { }
 					}
 					br = new BufferedReader(new InputStreamReader(url.openStream()));
 					ok = true;
@@ -519,18 +552,14 @@ public class Schedule  {
 		}
 		else {
 			if (br != null) {
-				try { br.close(); } catch (Throwable t) {
-					setError("error closing reader: " + t.getMessage());
-				}
+				try { br.close(); } catch (IOException t) { }
 			}
 		}
 */
 		return null;
 	}
-	
-	private void setError(String s) {
-		errors.addElement(s);
-	}
-	public boolean hasErrors() { return (errors.size() > 0); }
-	public Vector getErrors() { return errors; }
+
+	private void setError(String s) { errorLogger.println(s); }
+	public boolean hasErrors() { return (errorLogger.size() > 0); }
+	public String getErrors() { return errorLogger.toString(); }
 }

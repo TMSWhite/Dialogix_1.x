@@ -10,16 +10,10 @@ import java.io.*;
 import java.util.*;
 
 public class Qss {
-    private static final String DEFAULT_EOL = "\n\r";
-
     private Stack stack;
     private Evidence evidence;
-    private Writer debugWriter = null;
-    private Writer errorWriter = null;
-    private String debugEol = DEFAULT_EOL;
-    private String errorEol = DEFAULT_EOL;
-    private int errorCount = 0;
-    private boolean isDebug = false;
+    Logger debugLogger = Logger.NULL;
+    Logger errorLogger = Logger.NULL;
 
 	public Datum parse(Evidence ev) {
 		evidence = ev;
@@ -31,7 +25,7 @@ public class Qss {
 			d = (Datum) stack.pop();
 		}
 		catch (EmptyStackException e) {
-			error("stack underflow",token.beginLine,token.beginColumn);
+			error(evidence.lingua.get("stack_underflow"),token.beginLine,token.beginColumn);
 		}
 		catch (ParseException e) {
 			error(e.getMessage());
@@ -40,59 +34,30 @@ public class Qss {
 			error(e.getMessage());
 		}
 
-		if (isDebug) {
+		if (debugLogger != Logger.NULL) {
 			debug(null,d);
 		}
 
 		return d;
 	}
 
-	public boolean setDebugWriter(Writer w) { return setDebugWriter(w,null); }
-	public boolean setDebugWriter(Writer w, String eol) {
-		debugWriter = w;
-		debugEol = ((eol == null) ? DEFAULT_EOL : eol);
-		isDebug = (w != null);
-		return isDebug;
-	}
-
-	public boolean setErrorWriter(Writer w) { return setErrorWriter(w,null); }
-	public boolean setErrorWriter(Writer w, String eol) {
-		errorWriter = w;
-		errorEol = ((eol == null) ? DEFAULT_EOL : eol);
-		return (w != null);
-	}
-
 	public void resetErrorCount() {
-		errorCount = 0;
+		errorLogger.reset();
 	}
+
+	public String getErrors() { return errorLogger.toString(); }
+	public String getDebug() { return debugLogger.toString(); }
 
 	private void error(String s) { error(s,0,0); }
 
 	private void error(String s, int line, int column) {
-		if (errorWriter != null) {
-			try {
-				errorWriter.write("ERR " + (++errorCount) + ") " + s +
-					((line != 0) ? (" at line " + line + ", column " + column) : "") + errorEol);
-				errorWriter.flush();
-			}
-			catch (IOException e) {
-				System.err.println(e.getMessage());
-			}
-		}
+		errorLogger.println(s,line,column);
 	}
 
 	/* Prints stack trace in tab delimited format - operator, arguments, ->, answer */
 	private void debug(String s,Datum d) {
-		if (debugWriter != null) {
-			try {
-				debugWriter.write(((s != null) ? (s + "\t") : "") + "->\t" +
-					d.stringVal(true) + "\t" + d.doubleVal() + "\t" + d.dateVal() + "\t" + d.monthVal() + debugEol);
-				debugWriter.flush();
-			}
-			catch (IOException e) {
-				System.err.println(e.getMessage());
-			}
-		}
+		debugLogger.println(((s != null) ? (s + "\t") : "") + "->\t" +
+					d.stringVal(true) + "\t" + d.doubleVal() + "\t" + d.dateVal() + "\t" + d.monthVal());
 	}
 
 	private String datumValue(Datum d) {
@@ -112,7 +77,7 @@ public class Qss {
 			case NOT: ans = DatumMath.not(a); break;
 		}
 		stack.push(ans);
-		if (isDebug) {
+		if (debugLogger != Logger.NULL) {
 			debug(opName(op) + "\t" + datumValue(a),ans);
 		}
 	}
@@ -148,7 +113,7 @@ public class Qss {
 			case ASSIGN: evidence.set(a.stringVal(),b); ans = evidence.getDatum(a.stringVal()); break;
 		}
 		stack.push(ans);
-		if (isDebug) {
+		if (debugLogger != Logger.NULL) {
 			debug(opName(op) + "\t" + datumValue(a) + "\t" + datumValue(b),ans);
 		}
 	}
@@ -162,7 +127,7 @@ public class Qss {
 			case QUEST: ans = DatumMath.conditional(a,b,c); break;
 		}
 		stack.push(ans);
-		if (isDebug) {
+		if (debugLogger != Logger.NULL) {
 			debug(opName(op) + "\t" + datumValue(a) + "\t" + datumValue(b) + "\t" + datumValue(c),ans);
 		}
 	}
@@ -171,7 +136,7 @@ public class Qss {
 		Datum ans = Datum.INVALID_DATUM;
 		ans = evidence.function(func.image, params, func.beginLine, func.beginColumn);
 		stack.push(ans);
-		if (isDebug) {
+		if (debugLogger != Logger.NULL) {
 			StringBuffer sb = new StringBuffer("function\t" + func.image);
 			for (int i=0;i<params.size();++i) {
 				Object o = params.elementAt(i);
@@ -320,7 +285,7 @@ void AssignmentExpression(): { Token t; }
 {
 	<NMTOKEN> { t = token; } <ASSIGN> ConditionalExpression()
     	{
-    		binaryOp(ASSIGN,stack.pop(), new Datum(t.image,Datum.STRING));
+    		binaryOp(ASSIGN,stack.pop(), new Datum(evidence.lingua, t.image,Datum.STRING));
     	}
 }
 
@@ -429,7 +394,7 @@ void PrimaryExpression() : { }
 		{
 			Datum d = evidence.getDatum(token.image);
 			if (d == null) {
-				error("undefined variable '" + token.image + "'", token.beginLine, token.beginColumn);
+				error(evidence.lingua.get("undefined_variable") + " '" + token.image + "'", token.beginLine, token.beginColumn);
 				stack.push(Datum.INVALID_DATUM);
 			}
 			else {
@@ -444,7 +409,7 @@ void PrimaryExpression() : { }
 void Constant() : { }
 {
 	( <INTEGER_LITERAL> |<FLOATING_POINT_LITERAL> )
-		{ stack.push(new Datum(token.image,Datum.NUMBER)); }
+		{ stack.push(new Datum(evidence.lingua, token.image,Datum.NUMBER)); }
 |	( <STRING_LITERAL> | <CHARACTER_LITERAL> )
 		{
 			/* replace special characters before storing value */
@@ -475,10 +440,10 @@ void Constant() : { }
 				}
 			}
 			catch (IndexOutOfBoundsException e) {
-				error("unterminated escaped character", token.beginLine, token.beginColumn + i);
+				error(evidence.lingua.get("unterminated_escaped_character"), token.beginLine, token.beginColumn + i);
 			}
 
-			stack.push(new Datum(sb.toString(),Datum.STRING));
+			stack.push(new Datum(evidence.lingua, sb.toString(),Datum.STRING));
 		}
 }
 

@@ -1,16 +1,17 @@
-import java.io.*;
+import java.io.StringReader;
+import java.io.StringWriter;
 import java.lang.*;
 import java.util.*;
 
 /* Wrapper to make it easier to call Qss */
 public class Parser {
-	private Qss qss = new Qss(new StringReader(""));
-	private Writer debugWriter = null;
-	private String debugEol = null;
-	private StringWriter errorWriter = null;
+	private Logger debugLogger = Logger.NULL;
+	private Logger errorLogger = Logger.NULL;
+	private Qss qss = null;
 
 	public Parser() {
-		setErrorWriter(new StringWriter(), "<BR>");
+		qss = new Qss(new StringReader(""));
+		setErrorLogger(new Logger());
 	}
 
 	public boolean booleanVal(Evidence ev, String exp) {
@@ -30,30 +31,20 @@ public class Parser {
 	}
 
 	public Datum parse(Evidence ev, String exp) {
-		debug(exp);
+		debugLogger.println(exp);
 
 		qss.ReInit(new StringReader(exp));
 		Datum ans = qss.parse(ev);
-
-		debug(null);
 
 		return ans;
 	}
 
 	public boolean hasErrors() {
-		if (errorWriter != null) {
-			return (errorWriter.getBuffer().length() > 0);
-		}
-		return false;
+		return (errorLogger.size() > 0);
 	}
 
 	public String getErrors() {
-		if (errorWriter != null) {
-			String s = errorWriter.toString();
-			setErrorWriter(new StringWriter(),"<BR>");
-			return s;
-		}
-		return "";
+		return errorLogger.toString();
 	}
 
 	public String parseJSP(Evidence ev, String msg) {
@@ -62,7 +53,7 @@ public class Parser {
 		String s;
 		boolean inside = false;
 
-		debug(msg);
+		debugLogger.println(msg);
 
 		while(st.hasMoreTokens()) {
 			s = st.nextToken();
@@ -79,41 +70,27 @@ public class Parser {
 				}
 			}
 		}
-		debug(null);
 
 		return sb.toString();
 	}
 
-	private void debug(String s) {
-		if (debugWriter != null) {
-			try {
-				debugWriter.write(((s != null) ? s : "") + debugEol);
-			}
-			catch (IOException e) { }
-		}
-	}
-
-	public boolean setErrorWriter(Writer err) { return setErrorWriter(err,null); }
-	public boolean setErrorWriter(Writer err, String eol) { 
-		if (err instanceof StringWriter) {
-			errorWriter = (StringWriter) err;
-			boolean ans =  qss.setErrorWriter(err,eol);
-			return ans;
-		}
-		else {
-			return qss.setErrorWriter(err,eol);
-		}
-	}
-	
-	public boolean setDebugWriter(Writer debug) { return setDebugWriter(debug,"\n\r"); }
-	public boolean setDebugWriter(Writer debug, String eol) {
-		debugWriter = debug;
-		debugEol = eol;
-		return qss.setDebugWriter(debug,eol);
-	}
-	
 	public void resetErrorCount() {
 		qss.resetErrorCount();
-		setErrorWriter(new StringWriter(),"<BR>");
 	}
+	
+	public void setDebugLogger(Logger l) {
+		if (l != null) {
+			debugLogger = l;
+			qss.debugLogger = l;
+			l.reset();
+		}
+	}
+	
+	public void setErrorLogger(Logger l) {
+		if (l != null) {
+			errorLogger = l;
+			qss.errorLogger = l;
+			l.reset();
+		}
+	}	
 }

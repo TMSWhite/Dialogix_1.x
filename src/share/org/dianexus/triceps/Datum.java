@@ -22,241 +22,201 @@ public class Datum  {
 	public static final int MINUTE = 15;
 	public static final int SECOND = 16;
 	public static final int MONTH_NUM = 17;
+	
 	private static final Date SAMPLE_DATE = new Date(System.currentTimeMillis());
-	private static final Double SAMPLE_NUMBER = new Double(123.456);
-	public static final String TYPES[] = { "*UNASKED*", "*NOT APPLICABLE*", "*REFUSED*", "*INVALID*", "*UNKNOWN*", "*NOT UNDERSTOOD*",
-		"Number", "String", "Date", "Time", "Year", "Month", "Day", "Weekday", "Hour", "Minute", "Second", "Month_Num" };
-		
-	public static final Datum NA_DATUM = new Datum(NA);
-	public static final Datum UNKNOWN_DATUM = new Datum(UNKNOWN);
-	public static final Datum REFUSED_DATUM = new Datum(REFUSED);
-	public static final Datum INVALID_DATUM = new Datum(INVALID);
-	public static final Datum UNASKED_DATUM = new Datum(UNASKED);
-	public static final Datum NOT_UNDERSTOOD_DATUM = new Datum(NOT_UNDERSTOOD);
+	private static final Double SAMPLE_NUMBER = new Double(12345.678);	
+	
+	private static final String SPECIAL_TYPES[] = { "*UNASKED*", "*N/A*", "*REFUSED*", "*INVALID*", "*UNKNOWN*", "*HUH?*" };
+	private static final String DATUM_TYPES[] = { "number", "string", "date", "time", "year", "month", "day", "weekday", "hour", "minute", "second", "month_num" };
 
-	private static final SimpleDateFormat defaultDateFormat = new SimpleDateFormat("MM/dd/yyyy");
-	private static final SimpleDateFormat defaultMonthFormat = new SimpleDateFormat("MMMM");
-	private static final SimpleDateFormat defaultTimeFormat = new SimpleDateFormat("HH:mm:ss");
-	private static final SimpleDateFormat defaultYearFormat = new SimpleDateFormat("yyyy");
-	private static final SimpleDateFormat defaultDayFormat = new SimpleDateFormat("d");
-	private static final SimpleDateFormat defaultWeekdayFormat = new SimpleDateFormat("E");
-	private static final SimpleDateFormat defaultHourFormat = new SimpleDateFormat("H");
-	private static final SimpleDateFormat defaultMinuteFormat = new SimpleDateFormat("m");
-	private static final SimpleDateFormat defaultSecondFormat = new SimpleDateFormat("s");
-	private static final DecimalFormat defaultNumberFormat = new DecimalFormat("#");
+	private static final String defaultDateFormat = "MM/dd/yyyy";
+	private static final String defaultMonthFormat = "MMMM";
+	private static final String defaultTimeFormat = "HH:mm:ss";
+	private static final String defaultYearFormat = "yyyy";
+	private static final String defaultDayFormat = "d";
+	private static final String defaultWeekdayFormat = "E";
+	private static final String defaultHourFormat = "H";
+	private static final String defaultMinuteFormat = "m";
+	private static final String defaultSecondFormat = "s";
+	private static final String defaultNumberFormat = null;	// so that Lingua pretty-prints it.
 
-	public static final SimpleDateFormat defaultMonthNumFormat = new SimpleDateFormat("M");
-	public static final SimpleDateFormat TIME_MASK = new SimpleDateFormat("yyyy.MM.dd..HH.mm.ss");
+	public static final String defaultMonthNumFormat = "M";
+	public static final String TIME_MASK = "yyyy.MM.dd..HH.mm.ss";	
 
-	private static final Date epoch = new Date(0);
-	private GregorianCalendar calendar = new GregorianCalendar();
-
-	/* XXX:  SimpleDateFormat.parse() buggy for WEEKDAY.  Default date is Thu 1/1/1970.  Add weekday to WEEKDAY_STR */
-	private static final String WEEKDAY_STRS[] = { "sun", "mon", "tue", "wed", "thu", "fri", "sat" };
-	private static final int CALENDAR_WEEKDAYS[] = { Calendar.SUNDAY, Calendar.MONDAY, Calendar.TUESDAY, Calendar.WEDNESDAY,
-		Calendar.THURSDAY, Calendar.FRIDAY, Calendar.SATURDAY };
-
-	private int type = UNASKED;
-	private String sVal = TYPES[type];
+	private int type = INVALID;
+	private String sVal = null;
 	private double dVal = Double.NaN;
-	private boolean bVal = false;
 	private Date date = null;
-	private Format mask = null;
+	private String mask = null;
 	private String error = null;
 	private String variableName = null;
+	Lingua lingua = null;
+	private static final HashMap SPECIAL_DATA = new HashMap();
 
-	public Datum(double d) {
-		type = NUMBER;
-		dVal = d;
-		bVal = (Double.isNaN(d) || (d == 0)) ? false : true;
-		sVal = (!Double.isNaN(d)) ? Double.toString(d) : null;
+	public Datum(Lingua lang, double d) { init(lang, new Double(d), NUMBER, null); }
+	public Datum(Lingua lang, long l) { init(lang, new Long(l), NUMBER, null); }
+	
+	public static Datum getInstance(Lingua lang, int i) {
+		String key = (lang.toString() + i);
+		Datum datum = (Datum) SPECIAL_DATA.get(key);
+		if (datum != null)
+			return datum;
+		
+		datum = new Datum(lang,i);
+		SPECIAL_DATA.put(key,datum);
+		return datum;
 	}
-
-	private Datum(int i) {
+	
+	private Datum(Lingua lang, int i) {
+		// only for creating reserved instances
+		lingua = lang;
 		type = i;
-		sVal = null;
-		bVal = false;
-		dVal = Double.NaN;
-		date = null;
-
-		switch (i) {
-			case NA:
-			case UNKNOWN:
-			case UNASKED:
-			case NOT_UNDERSTOOD:
-			case REFUSED:
-				break;
-			default:
-			case INVALID:
-				type = INVALID;
-				break;
-		}
 	}
 
 	public Datum(Datum val) {
-		dVal = val.doubleVal();
-		bVal = val.booleanVal();
-		sVal = val.stringVal();
+		dVal = val.dVal;
+		sVal = val.sVal;
 		date = val.date;
-		type = val.type();
-		mask = val.getMask();
+		type = val.type;
+		mask = val.mask;
+		lingua = val.lingua;
 	}
 
-	public Datum(Date d, int t) {
-		this(d,t,Datum.getDefaultMask(t));
+	public Datum(Lingua lang, Date d, int t) {
+		this(lang,d,t,Datum.getDefaultMask(t));
 	}
 
-	public Datum(Date d, int t, Format mask) {
-		String s = Datum.format(d,t,mask);
-		init(s,t,mask);
+	public Datum(Lingua lang, Date d, int t, String mask) {
+		init(lang,d,t,mask);
 	}
 
-	public Datum(String s, int t) {
-		init(s,t,Datum.getDefaultMask(t));
+	public Datum(Lingua lang, String s, int t) {
+		init(lang,s,t,Datum.getDefaultMask(t));
 	}
 
-	public Datum(String s, int t, Format mask) {
-		init(s,t,mask);
+	public Datum(Lingua lang, String s, int t, String mask) {
+		init(lang,s,t,mask);
 	}
-/*
-	public static Datum cast(Datum d, int t, Format mask) {
-		int type = d.type();
-
-		if (d.isType(DATE)) {
-			switch (t) {
-				case DATE:
-				case TIME:
-					return new Datum(d);
-				case YEAR:
-				case MONTH:
-				case WEEKDAY:
-				case DAY:
-				case HOUR:
-				case MINUTE:
-				case SECOND:
-				case MONTH_NUM:
-				{
-					int val = DatumMath.getCalendarField(d,t);
-					calendar.setTime(epoch);
-					calendar.set(val,val);
-					return new calendar.getTime();
-				}
-			}
+	
+	public Datum cast(int newType, String newMask) {
+		/* Cast a value from one type to another */
+		
+		if (this.type == newType && this.mask == newMask) {
+			return this;
 		}
-		else if (isType(NUMBER)) {
+		
+		Datum datum = null;
+		String useMask = ((newMask == null || newMask.trim().length() == 0) ? getDefaultMask(newType) : newMask);
+		
+		
+		if (this.type == newType) {
+			datum = new Datum(this);
+			datum.mask = useMask;
+			return datum;
 		}
-		else if (d.isType(STRING)) {
-		}
-		else {
-			// new data type is same as old?  INVALID, UNKNOWN, REFUSED, NA
-		}
-
-		switch (t) {
-			case DATE:
+		
+		switch(this.type) {
 			case TIME:
-			case YEAR:
 			case MONTH:
-			case WEEKDAY:
+			case DATE:
+			case YEAR:
 			case DAY:
+			case WEEKDAY:
 			case HOUR:
 			case MINUTE:
 			case SECOND:
 			case MONTH_NUM:
-				if (d.isType(Datum.DATE)) {
+				if (isDate(newType)) {
+					datum = new Datum(this);
+					datum.type = newType;
+					datum.mask = useMask;
 				}
-				else if (d.isType(Datum.NUMBER)) {
+				else if (newType == STRING) {
+					datum = new Datum(lingua,this.stringVal(),STRING);
 				}
-				else if (d.isType(Datum.STRING)) {
-				}
+				else {
+					datum = new Datum(lingua,INVALID);
+				}	
 				break;
 			case NUMBER:
+				if (isDate(newType)) {
+					if (newType == TIME || newType == DATE) {
+						datum = new Datum(lingua,INVALID);
+					}
+					else {
+						datum = new Datum(this);
+						datum.date = DatumMath.createDate((int) this.doubleVal(), newType);
+						datum.sVal = null;
+						datum.dVal = Double.NaN;
+						datum.type = newType;
+						datum.mask = useMask;
+					}
+				}
+				else if (newType == STRING) {
+					datum = new Datum(lingua,this.stringVal(),STRING);
+				}
+				else {
+					datum = new Datum(lingua,INVALID);
+				}
+				break;
 			case STRING:
+				/* try to parse the string using a new format */
+				datum = new Datum(lingua,this.stringVal(),newType,useMask);
+				break;
+			default:
 			case INVALID:
-			case UNKNOWN:
-			case UNASKED:
-			case NOT_UNDERSTOOD
-			case REFUSED:
 			case NA:
-		}
+			case UNKNOWN:
+			case REFUSED:
+			case UNASKED:
+			case NOT_UNDERSTOOD:
+				/* can't cast any of these to a new type */
+				datum = new Datum(lingua,this.type);
+		}	
+		return datum;		
 	}
-*/
-
-	private void init(String s, int t, Format mask) {
-		dVal = Double.NaN;
-		bVal = false;
-		date = null;
-		sVal = null;
-		type = INVALID;	// default is to indicate failure to create new Datum object
-		this.mask = mask;	// what happens when convert data types?
-
-		if (s == null) {
+	
+	
+	private void init(Lingua lang, Object obj, int t, String maskStr) {
+    	lingua = (lang == null) ? Lingua.NULL : lang;
+		
+		if (obj == null) {
 			t = INVALID;
 		}
+		
+		dVal = Double.NaN;
+		date = null;
+		sVal = null;
+		type = t;	// assume success - enumerate failure conditions
+		
+		if (maskStr == null || maskStr.trim().length() == 0) {
+			mask = getDefaultMask(t);
+		}
+		else {
+			mask = maskStr;
+		}
+		Number num = null;
 
 		switch (t) {
-			case NUMBER:
-				try {
-					if (mask != null && mask instanceof NumberFormat) {
-						dVal = ((NumberFormat) mask).parse(s).doubleValue();
-						sVal = Datum.format(new Double(dVal),t,mask);
-						if (TYPES[INVALID].equals(sVal)) {
-							type = INVALID;
-						}
-						else {
-							type = NUMBER;	// only if successfully parsed
-						}
-					}
-					else {
-						type = INVALID;
-					}
-				}
-				catch (java.text.ParseException e) {
+			case NUMBER: 
+				num = lingua.parseNumber(obj,mask);
+					
+				if (num == null) {
 					type = INVALID;
 				}
-				if (type == INVALID) {
-					String ex = Datum.getExampleFormatStr(mask,t);
-					if (ex.length() > 0)
-						ex = " (e.g. " + ex + ")";
-					error = "Please enter a " + TYPES[t] + ex;
-					sVal = null;
-					dVal = Double.NaN;
+				else {
+					dVal = num.doubleValue();
 				}
-				bVal = (Double.isNaN(dVal) || (dVal == 0)) ? false : true;
 				break;
 			case STRING:
-				type = STRING;
-				sVal = s;
+				sVal = obj.toString();
 				/* also check whether can be considered a number */
-				try {
-					dVal = Double.valueOf(s).doubleValue();
-				}
-				catch(NumberFormatException e) {
-					dVal = Double.NaN;
-				}
-				bVal = (Double.isNaN(dVal) || (dVal == 0)) ? false : true;
-				if (Boolean.valueOf(s).booleanValue()) {
-					bVal = true;	// accept the String word 'true' as booelan true
+				num = lingua.parseNumber(obj,null);
+				if (num != null) {
+					dVal = num.doubleValue();
 				}
 				break;
-			case WEEKDAY:	{ // XXX: need a hack for this, since SimpleDateFormat has bug in way parses Weekdays
-				String day = s.trim().toLowerCase();
-				int i=0;
-				for (i=0;i<WEEKDAY_STRS.length;++i) {
-					if (day.startsWith(WEEKDAY_STRS[i])) {
-						calendar.setTime(epoch);
-
-						calendar.set(Calendar.DAY_OF_WEEK, CALENDAR_WEEKDAYS[i]);
-
-						date = calendar.getTime();
-						type = WEEKDAY;
-						break;
-					}
-				}
-				if (i == WEEKDAY_STRS.length) {
-					type = INVALID;
-				}
-			}
-			/** Fall through **/
+			case WEEKDAY:
 			case MONTH:
 			case DATE:
 			case TIME:
@@ -266,96 +226,113 @@ public class Datum  {
 			case MINUTE:
 			case SECOND:
 			case MONTH_NUM:
-				try {
-					if (t != WEEKDAY) {
-						if (mask != null && mask instanceof DateFormat) {
-							date = ((DateFormat) mask).parse(s);
-						}
-						else {
-							type = INVALID;
-						}
-					}
-
-					sVal = Datum.format(date, t, mask);
-					if (TYPES[INVALID].equals(sVal)) {
-						type = INVALID;
-					}
-					else {
-						type = t;	// only if successfully parsed
-						
-						/* also check whether can be considered a number */
-						try {
-							dVal = Double.valueOf(sVal).doubleValue();
-						}
-						catch(Throwable e) {
-							dVal = Double.NaN;
-						}
-						bVal = (Double.isNaN(dVal) || (dVal == 0)) ? false : true;				
-						
-					}
-				}
-				catch (java.text.ParseException e) {
+				date = lingua.parseDate(obj,mask);
+				if (date == null) {
 					type = INVALID;
 				}
-				if (type == INVALID) {
-					String ex = Datum.getExampleFormatStr(mask,t);
-					if (ex.length() > 0)
-						ex = " (e.g. " + ex + ")";
-					error = "Please enter a " + TYPES[t] + ex;
-					date = null;
+				else {
+					num = lingua.parseNumber(obj,null);
+					if (num != null) {
+						dVal = num.doubleValue();
+					}
 				}
 				break;
 			case REFUSED:
-				type = REFUSED;
-				/* allow subject to skip over this question */
-				break;
 			case INVALID:
-				type = INVALID;
-				error = "Please answer this question";
-				break;
 			case NA:
-				type = NA;
-				/* this means can skip over the question */
 				break;
 			default:
 				type = INVALID;
-				error = "Internal error: Unexpected data format: " + type;
 				break;
 		}
+		if (type == INVALID) {
+			if (type == INVALID) {
+				if (t == INVALID) {
+					error = lingua.get("Please_answer_this_question");
+				}
+				else {
+					String ex = getExampleFormatStr(mask,t);
+					if (ex.length() > 0)
+						ex = " (e.g. " + ex + ")";
+					error = lingua.get("please_enter_a") + getTypeName(lingua,t) + ex;
+				}
+			}		
+			sVal = null;
+			dVal = Double.NaN;
+			date = null;
+		}
 	}
 
-	public Datum(boolean b) {
+	public Datum(Lingua lang, boolean b) {
+    	lingua = (lang == null) ? Lingua.NULL : lang;
+
 		type = NUMBER;
 		dVal = (b ? 1 : 0);
-		bVal = b;
-		sVal = (b ? "1" : "0");
 	}
 
-	public String stringVal() {
-		return stringVal(false);
+	public String stringVal() { return stringVal(false,mask); }
+	public String stringVal(boolean showReserved) { return stringVal(showReserved,mask); }
+
+	public String stringVal(boolean showReserved, String mask) {
+		switch(type) {
+			case TIME:
+			case MONTH:
+			case DATE:
+			case YEAR:
+			case DAY:
+			case WEEKDAY:
+			case HOUR:
+			case MINUTE:
+			case SECOND:
+			case MONTH_NUM:
+				if (mask == null)
+					return format(lingua, this,type,Datum.getDefaultMask(type));
+				else
+					return format(lingua, this, type, mask);
+			case NUMBER:
+				if (mask == null)
+					return format(lingua, this, type, Datum.getDefaultMask(type));
+				else
+					return format(lingua, this, type, mask);
+			case STRING:
+				return sVal;
+			default:
+				if (showReserved)
+					return getTypeName(lingua,INVALID);
+				else
+					return "";
+			case INVALID:
+			case NA:
+			case UNKNOWN:
+			case REFUSED:
+			case UNASKED:
+			case NOT_UNDERSTOOD:
+				if (showReserved) 
+					return getTypeName(lingua,type);
+				else
+					return "";
+		}	
 	}
 
-	public String stringVal(boolean showReserved) {
-		if (isType(Datum.STRING)) {
-			return sVal;
+	public boolean booleanVal() { 
+		if (isNumeric()) { 
+			return (Double.isNaN(dVal) || (dVal == 0)) ? false : true;
+		}
+		else if (sVal != null) {
+			return Boolean.valueOf(sVal).booleanValue();
 		}
 		else {
-			if (showReserved)
-				return TYPES[type];
-			else
-				return "";
+			return false;
 		}
 	}
 
-	public boolean booleanVal() { return bVal; }
 	public double doubleVal() { return dVal; }
 	public Date dateVal() { return date; }
-	public String monthVal() { if (date == null) return ""; return Datum.format(date,Datum.MONTH); }
-	public String timeVal() { if (date == null) return ""; return Datum.format(date,Datum.TIME); }
+	public String monthVal() { if (date == null) return ""; return format(date,Datum.MONTH); }
+	public String timeVal() { if (date == null) return ""; return format(date,Datum.TIME); }
 	public int type() { return type; }
-	public Format getMask() { return mask; }
-	public void setMask(Format mask) { this.mask = mask; }
-	
+	public String getMask() { return mask; }
+
 	public void setName(String name) { variableName = name; }
 	public String getName() { return variableName; }
 
@@ -367,6 +344,12 @@ public class Datum  {
 		/* not only must it be valid, but STRING vals must be non-null */
 		return (type != UNASKED && isValid() && ((type == STRING) ? !sVal.equals("") : true));
 	}
+	
+	public boolean isSpecial() { return (type >= UNASKED && type <= NOT_UNDERSTOOD); }
+	static public boolean isSpecical(int t) { return (t >= UNASKED && t <= NOT_UNDERSTOOD); }
+	public boolean isNumeric() { return (!Double.isNaN(dVal)); }
+	public boolean isDate() { return (date != null); }
+	static public boolean isDate(int t) { return (t >= DATE && t <= MONTH_NUM); }
 
 	public boolean isType(int t) {
 		switch(t) {
@@ -382,9 +365,9 @@ public class Datum  {
 			case MONTH_NUM:
 				return (date != null);
 			case NUMBER:
-				return (!Double.isNaN(dVal));
+				return (type == NUMBER);
 			case STRING:
-				return (sVal != null);
+				return (type == STRING);
 			case INVALID:
 				return (type == INVALID);
 			case NA:
@@ -411,14 +394,15 @@ public class Datum  {
 		return temp;
 	}
 
-	static public Format buildMask(String maskStr, int t) {
-		if (maskStr == null || maskStr.trim().equals(""))
-			return getDefaultMask(t);
-
+	public String getExampleFormatStr(String mask, int t) {
+		return getExampleFormatStr(lingua, mask, t);
+	}
+	
+	static public String getExampleFormatStr(Lingua lang, String mask, int t) {
 		switch (t) {
-			case TIME:
 			case MONTH:
 			case DATE:
+			case TIME:
 			case YEAR:
 			case DAY:
 			case WEEKDAY:
@@ -426,33 +410,28 @@ public class Datum  {
 			case MINUTE:
 			case SECOND:
 			case MONTH_NUM:
-				try {
-					return new SimpleDateFormat(maskStr);
-				}
-				catch (IllegalArgumentException e) {
-					return null;
-				}
-			default:
+				if (mask == null)
+					return format(lang, SAMPLE_DATE,t,Datum.getDefaultMask(t));
+				else
+					return format(lang, SAMPLE_DATE, t, mask);
 			case NUMBER:
-				try {
-					return new DecimalFormat(maskStr);
-				}
-				catch (IllegalArgumentException e) {
-					return null;
-				}
+				if (mask == defaultNumberFormat || mask == null)
+					return "";
+				else
+					return format(lang, SAMPLE_NUMBER, t, mask);
+			default:
 			case INVALID:
-			case STRING:
 			case NA:
 			case UNKNOWN:
-			case UNASKED:
 			case NOT_UNDERSTOOD:
+			case UNASKED:
+			case STRING:
 			case REFUSED:
-				break;
+				return "";	// no formatting string to contrain input
 		}
-		return null;
 	}
-
-	static public Format getDefaultMask(int t) {
+	
+	static public String getDefaultMask(int t) {
 		switch (t) {
 			case MONTH:
 				return defaultMonthFormat;
@@ -489,13 +468,14 @@ public class Datum  {
 		return null;
 	}
 
-	static public String format(Datum d, Format mask) {
-		if (mask == null)
-			return d.stringVal();
-
+	public String format(Datum d, String mask) {
+		return format(lingua, d, d.type(), mask);
+	}
+		
+	static public String format(Lingua lang, Object o, int type, String mask) {
 		String s;
 
-		switch (d.type()) {
+		switch (type) {
 			case MONTH:
 			case DATE:
 			case TIME:
@@ -506,120 +486,115 @@ public class Datum  {
 			case MINUTE:
 			case SECOND:
 			case MONTH_NUM:
-				try {
-					s = mask.format(d.dateVal());
-					if (s == null)
-						return TYPES[INVALID];
-					else
-						return s;
+				if (o instanceof Datum) {
+					s = lang.formatDate(((Datum) o).dateVal(),mask);
 				}
-				catch (IllegalArgumentException e) {
-					return TYPES[INVALID];
+				else {
+					s = lang.formatDate(o,mask);
 				}
+				if (s != null)
+					return s;
+				break;
 			case NUMBER:
-				try {
-					s = mask.format(new Double(d.doubleVal()));
-					if (s == null)
-						return TYPES[INVALID];
-					else
-						return s;
+				if (o instanceof Datum) {
+					s = lang.formatNumber(new Double(((Datum) o).doubleVal()),mask);
 				}
-				catch (IllegalArgumentException e) {
-					return TYPES[INVALID];
-				}
+				else {
+					s = lang.formatNumber(o,mask);
+				}	
+				if (s != null)
+					return s;
+				break;
 			default:
+				return Datum.getTypeName(lang,INVALID);
 			case INVALID:
 			case NA:
 			case REFUSED:
 			case UNKNOWN:
 			case NOT_UNDERSTOOD:
-				return TYPES[d.type()];
+				return Datum.getTypeName(lang,type);
 			case UNASKED:
 				return "";	// empty string to indicate that has not been assessed yet.
 			case STRING:
-				return d.stringVal();
-		}
-	}
-
-	static public String format(Object o, int t) {
-		return Datum.format(o,t,Datum.getDefaultMask(t));
-	}
-
-	static public String format (Object o, int t, String maskStr) {
-		return Datum.format(o,t,Datum.buildMask(maskStr,t));
-	}
-
-	static public String format(Object o, int t, Format mask) {
-		switch (t) {
-			case MONTH:
-			case DATE:
-			case TIME:
-			case NUMBER:
-			case YEAR:
-			case DAY:
-			case WEEKDAY:
-			case HOUR:
-			case MINUTE:
-			case SECOND:
-			case MONTH_NUM:
-				if (mask == null)
+				if (o instanceof Datum) {
+					return ((Datum) o).stringVal();
+				}
+				else {
 					return o.toString();
+				}
+		}
+		return Datum.getTypeName(lang,INVALID);
+	}
 
-				String s;
-				try {
-					s = mask.format(o);
-					if (s == null)
-						return TYPES[INVALID];
-					else
-						return s;
-				}
-				catch (IllegalArgumentException e) {
-					return TYPES[INVALID];
-				}
-			default:
-			case INVALID:
+	public String format(Object o, int t) {
+		return format(lingua, o,t,Datum.getDefaultMask(t));
+	}
+	
+	public String getTypeName() { return getTypeName(lingua,type); }
+	
+	static public String getSpecialName(int t) {
+		switch (t) {
+			// must have static strings for reserved words so that correctly parsed from data files
+			case UNASKED:
 			case NA:
 			case REFUSED:
+			case INVALID:
 			case UNKNOWN:
 			case NOT_UNDERSTOOD:
-				return TYPES[t];
-			case UNASKED:
-				return "";	// empty string to indicate that has not been assessed yet.
-			case STRING:
-				return o.toString();
+				return SPECIAL_TYPES[t];
+			default:
+				return SPECIAL_TYPES[INVALID];
 		}
 	}
 
-	static public String getExampleFormatStr(Format mask, int t) {
-		if (mask == null)
-			return "";
-
+	static public String getTypeName(Lingua lang, int t) {
 		switch (t) {
-			case MONTH:
-			case DATE:
-			case TIME:
-			case YEAR:
-			case DAY:
-			case WEEKDAY:
-			case HOUR:
-			case MINUTE:
-			case SECOND:
-			case MONTH_NUM:
-				return format(SAMPLE_DATE, t, mask);
-			case NUMBER:
-				if (mask == defaultNumberFormat)
-					return "";
-				else
-					return format(SAMPLE_NUMBER, t, mask);
-			default:
-			case INVALID:
+			// must have static strings for reserved words so that correctly parsed from data files
+			case UNASKED:
 			case NA:
+			case REFUSED:
+			case INVALID:
 			case UNKNOWN:
 			case NOT_UNDERSTOOD:
-			case UNASKED:
-			case STRING:
-			case REFUSED:
-				return "";	// no formatting string to contrain input
+				return SPECIAL_TYPES[t];
+			default:
+				return SPECIAL_TYPES[INVALID];
+			
+			// these can and should be localized
+			case NUMBER: return lang.get("NUMBER");
+			case STRING: return lang.get("STRING");
+			case DATE: return lang.get("DATE");
+			case TIME: return lang.get("TIME");
+			case YEAR: return lang.get("YEAR");
+			case MONTH: return lang.get("MONTH");
+			case DAY: return lang.get("DAY");
+			case WEEKDAY: return lang.get("WEEKDAY");
+			case HOUR: return lang.get("HOUR");
+			case MINUTE: return lang.get("MINUTE");
+			case SECOND: return lang.get("SECOND");
+			case MONTH_NUM: return lang.get("MONTH_NUM");
+		}		
+	}
+	
+	static public Datum parseSpecialType(Lingua lang, String s) {
+		if (s == null || s.trim().length() == 0)
+			return getInstance(lang,UNASKED);
+			
+		for (int i=0;i<SPECIAL_TYPES.length;++i) {
+			if (SPECIAL_TYPES[i].equals(s))
+				return getInstance(lang,i);
 		}
+		return null;	// not a special datumType
+	}
+	
+	static public int parseDatumType(String s) {
+		if (s == null)
+			return -1;
+			
+		for (int i=0;i<DATUM_TYPES.length;++i) {
+			if (DATUM_TYPES[i].equals(s))
+				return (i + SPECIAL_TYPES.length);
+		}
+		return -1;		
 	}
 }

@@ -42,7 +42,7 @@ public class Evidence  {
 	private static final int ORLIST = 22;
 	private static final int NEWDATE = 23;
 	private static final int NEWTIME = 24;
-	private static final int ISINVALID = 26;
+	private static final int ISINVALID = 25;
 
 	private static final Object FUNCTION_ARRAY[][] = {
 		{ "desc",				ONE,		new Integer(DESC) },
@@ -85,9 +85,12 @@ public class Evidence  {
 	private Vector values = new Vector();
 	private int	numReserved = 0;
 	private Date startTime = new Date(System.currentTimeMillis());
-	private Vector errors = new Vector();
+	private Logger errorLogger = new Logger();
+	Lingua lingua = Lingua.NULL;	// should be available to Datum for Qss purposes
 
-	public Evidence(Schedule schedule) {
+	public Evidence(Lingua lang, Schedule schedule) {
+    	lingua = (lang == null) ? Lingua.NULL : lang;
+
 		if (schedule == null) {
 			return;
 		}
@@ -100,7 +103,7 @@ public class Evidence  {
 
 		/* first assign the reserved words */
 		for (idx=0;idx<Schedule.RESERVED_WORDS.length;++idx) {
-			value = new Value(Schedule.RESERVED_WORDS[idx],new Datum(schedule.getReserved(idx),Datum.STRING),idx,schedule);
+			value = new Value(Schedule.RESERVED_WORDS[idx],new Datum(lingua, schedule.getReserved(idx),Datum.STRING),idx,schedule);
 			values.addElement(value);
 			addAlias(null,Schedule.RESERVED_WORDS[idx],new Integer(idx));
 		}
@@ -110,7 +113,7 @@ public class Evidence  {
 		/* then assign the user-defined words */
 		for (int i = 0; i < size; ++i, ++idx) {
 			node = schedule.getNode(i);
-			value = new Value(node, Datum.UNASKED_DATUM,node.getAnswerTimeStampStr());
+			value = new Value(node, Datum.getInstance(lingua,Datum.UNASKED),node.getAnswerTimeStampStr());
 
 			values.addElement(value);
 
@@ -129,18 +132,14 @@ public class Evidence  {
 
 		Object o = aliases.put(alias,index);
 		if (o != null) {
-			try {
-				int pastIndex = ((Integer) o).intValue();
+			int pastIndex = ((Integer) o).intValue();
 
-				if (pastIndex != index.intValue()) {
-					/* Allow a single node to try to set the same alias for itself multiple times.
-					However, each node must have non-overlapping aliases with other nodes */
-					aliases.put(alias,o);	// restore overwritten alias?
-					Node prevNode = ((Value) values.elementAt(pastIndex)).getNode();
-					n.setParseError("alias previously used on line " + prevNode.getSourceLine() + ": " + alias);
-				}
-			} catch (Throwable t) {
-				setError("Unexpected error: " + t.getMessage());
+			if (pastIndex != index.intValue()) {
+				/* Allow a single node to try to set the same alias for itself multiple times.
+				However, each node must have non-overlapping aliases with other nodes */
+				aliases.put(alias,o);	// restore overwritten alias?
+				Node prevNode = ((Value) values.elementAt(pastIndex)).getNode();
+				n.setParseError(lingua.get("alias_previously_used_on_line") + prevNode.getSourceLine() + ": " + alias);
 			}
 		}
 	}
@@ -162,7 +161,7 @@ public class Evidence  {
 	public Node getNode(Object val) {
 		int i = getNodeIndex(val);
 		if (i == -1) {
-			setError("Node not found: " + val);
+			setError(lingua.get("node_not_found") + val);
 			return null;
 		}
 		return ((Value) values.elementAt(i)).getNode();
@@ -202,21 +201,21 @@ public class Evidence  {
 
 	public void set(Node node, Datum val, String time) {
 		if (node == null) {
-			setError("null Node");
+			setError(lingua.get("null_node"));
 			return;
 		}
 		if (val == null) {
-			setError("null Datum");
+			setError(lingua.get("null_datum"));
 			return;
 		}
 		int i;
 
 		i = getNodeIndex(node);
 		if (i == -1) {
-			setError("Node does not exist");
+			setError(lingua.get("node_does_not_exist"));
 			return;
 		}
-		
+
 		val.setName(node.getLocalName());
 		((Value) values.elementAt(i)).setDatum(val,time);
 	}
@@ -227,11 +226,11 @@ public class Evidence  {
 
 	public void set(String name, Datum val) {
 		if (name == null) {
-			setError("null Node name");
+			setError(lingua.get("null_node"));
 			return;
 		}
 		if (val == null) {
-			setError("null Datum");
+			setError(lingua.get("null_datum"));
 			return;
 		}
 
@@ -243,7 +242,7 @@ public class Evidence  {
 			values.addElement(value);
 			aliases.put(name, new Integer(i));
 
-			String errmsg = "new variable will be transient: " + name;
+			String errmsg = lingua.get("new_variable_will_be_transient") + name;
 			setError(errmsg);
 		}
 		else {
@@ -284,7 +283,7 @@ public class Evidence  {
 
 	private Datum getParam(Object o) {
 		if (o == null)
-			return Datum.INVALID_DATUM;
+			return Datum.getInstance(lingua,Datum.INVALID);
 		else if (o instanceof String)
 			return getDatum(o);
 		else
@@ -296,19 +295,19 @@ public class Evidence  {
 		/* passed a vector of Datum values */
 		try {
 			Integer func = (Integer) FUNCTIONS.get(name);
+			int funcNum = 0;
 
-			if (func == null) {
+			if (func == null || ((funcNum = func.intValue()) < 0)) {
 				/* then not found - could consider calling JavaBean! */
-				setError("unsupported function " + name, line, column);
-				return Datum.INVALID_DATUM;
+				setError(lingua.get("unsupported_function") + name, line, column);
+				return Datum.getInstance(lingua,Datum.INVALID);
 			}
-
-			int funcNum = func.intValue();
+			
 			Integer	numParams = (Integer) FUNCTION_ARRAY[funcNum][FUNCTION_NUM_PARAMS];
 
 			if (!(UNLIMITED.equals(numParams) || params.size() == numParams.intValue())){
-				setError("function " + name + "() expects " + numParams + " parameter(s)", line, column);
-				return Datum.INVALID_DATUM;
+				setError(lingua.get("function") + name + lingua.get("expects") + numParams + lingua.get("parameters"), line, column);
+				return Datum.getInstance(lingua,Datum.INVALID);
 			}
 
 			Object o = null;
@@ -325,51 +324,51 @@ public class Evidence  {
 					String nodeName = datum.getName();
 					Node node = null;
 					if (nodeName == null || ((node = getNode(nodeName)) == null)) {
-						setError("unknown node " + nodeName, line, column);
-						return Datum.INVALID_DATUM;
+						setError(lingua.get("unknown_node") + nodeName, line, column);
+						return Datum.getInstance(lingua,Datum.INVALID);
 					}
-					return new Datum(node.getReadback(),Datum.STRING);
+					return new Datum(lingua, node.getReadback(),Datum.STRING);
 				}
 				case ISINVALID:
-					return new Datum(datum.isType(Datum.INVALID));
+					return new Datum(lingua, datum.isType(Datum.INVALID));
 				case ISASKED:
-					return new Datum(!(datum.isType(Datum.NA)));
+					return new Datum(lingua, !(datum.isType(Datum.NA)));
 				case ISNA:
-					return new Datum(datum.isType(Datum.NA));
+					return new Datum(lingua, datum.isType(Datum.NA));
 				case ISREFUSED:
-					return new Datum(datum.isType(Datum.REFUSED));
+					return new Datum(lingua, datum.isType(Datum.REFUSED));
 				case ISUNKNOWN:
-					return new Datum(datum.isType(Datum.UNKNOWN));
+					return new Datum(lingua, datum.isType(Datum.UNKNOWN));
 				case ISNOTUNDERSTOOD:
-					return new Datum(datum.isType(Datum.NOT_UNDERSTOOD));
+					return new Datum(lingua, datum.isType(Datum.NOT_UNDERSTOOD));
 				case ISDATE:
-					return new Datum(datum.isType(Datum.DATE));
+					return new Datum(lingua, datum.isType(Datum.DATE));
 				case ISANSWERED:
-					return new Datum(datum.exists());
+					return new Datum(lingua, datum.exists());
 				case GETDATE:
-					return new Datum(datum.dateVal(),Datum.DATE);
+					return new Datum(lingua, datum.dateVal(),Datum.DATE);
 				case GETYEAR:
-					return new Datum(datum.dateVal(),Datum.YEAR);
+					return new Datum(lingua, datum.dateVal(),Datum.YEAR);
 				case GETMONTH:
-					return new Datum(datum.dateVal(),Datum.MONTH);
+					return new Datum(lingua, datum.dateVal(),Datum.MONTH);
 				case GETMONTHNUM:
-					return new Datum(datum.dateVal(),Datum.MONTH_NUM);
+					return new Datum(lingua, datum.dateVal(),Datum.MONTH_NUM);
 				case GETDAY:
-					return new Datum(datum.dateVal(),Datum.DAY);
+					return new Datum(lingua, datum.dateVal(),Datum.DAY);
 				case GETWEEKDAY:
-					return new Datum(datum.dateVal(),Datum.WEEKDAY);
+					return new Datum(lingua, datum.dateVal(),Datum.WEEKDAY);
 				case GETTIME:
-					return new Datum(datum.dateVal(),Datum.TIME);
+					return new Datum(lingua, datum.dateVal(),Datum.TIME);
 				case GETHOUR:
-					return new Datum(datum.dateVal(),Datum.HOUR);
+					return new Datum(lingua, datum.dateVal(),Datum.HOUR);
 				case GETMINUTE:
-					return new Datum(datum.dateVal(),Datum.MINUTE);
+					return new Datum(lingua, datum.dateVal(),Datum.MINUTE);
 				case GETSECOND:
-					return new Datum(datum.dateVal(),Datum.SECOND);
+					return new Datum(lingua, datum.dateVal(),Datum.SECOND);
 				case NOW:
-					return new Datum(new Date(System.currentTimeMillis()),Datum.DATE);
+					return new Datum(lingua, new Date(System.currentTimeMillis()),Datum.DATE);
 				case STARTTIME:
-					return new Datum(startTime,Datum.TIME);
+					return new Datum(lingua, startTime,Datum.TIME);
 				case COUNT:	// unlimited number of parameters
 				{
 					long count=0;
@@ -379,7 +378,7 @@ public class Evidence  {
 							++count;
 						}
 					}
-					return new Datum(count);
+					return new Datum(lingua, count);
 				}
 				case ANDLIST:
 				case ORLIST:	// unlimited number of parameters
@@ -404,43 +403,62 @@ public class Evidence  {
 						}
 						if ((i == (v.size() - 1)) && (v.size() > 1)) {
 							if (funcNum == ANDLIST) {
-								sb.append("and ");
+								sb.append(lingua.get("and") + " ");
 							}
 							else if (funcNum == ORLIST) {
-								sb.append("or ");
+								sb.append(lingua.get("or") + " ");
 							}
 						}
 						sb.append(datum.stringVal());
 					}
-					return new Datum(sb.toString(),Datum.STRING);
+					return new Datum(lingua, sb.toString(),Datum.STRING);
 				}
 				case NEWDATE:
+					if (params.size() == 1) {
+						/* newDate(int weekdaynum) */
+						GregorianCalendar gc = new GregorianCalendar();	// should happen infrequently (not a garbage collection problem?)
+						gc.set(Calendar.DAY_OF_WEEK,Calendar.SUNDAY);
+						gc.add(Calendar.DAY_OF_WEEK,((int) (getParam(params.elementAt(0)).doubleVal()) - 1));
+						return new Datum(lingua, gc.getTime(),Datum.WEEKDAY);
+					}
+					if (params.size() == 2) {
+						/* newDate(String image, String mask) */
+						return new Datum(lingua, getParam(params.elementAt(0)).stringVal(), Datum.DATE, getParam(params.elementAt(1)).stringVal());
+					}
+					else if (params.size() == 3) {
+						/* newDate(int y, int m, int d) */
+						StringBuffer sb = new StringBuffer();
+						sb.append(getParam(params.elementAt(0)).stringVal() + "/");
+						sb.append(getParam(params.elementAt(1)).stringVal() + "/");
+						sb.append(getParam(params.elementAt(2)).stringVal());
+						return new Datum(lingua, sb.toString(), Datum.DATE, "yy/mm/dd");
+					}
 					break;
 				case NEWTIME:
+					if (params.size() == 2) {
+						/* newTime(String image, String mask) */
+						return new Datum(lingua, getParam(params.elementAt(0)).stringVal(), Datum.TIME, getParam(params.elementAt(1)).stringVal());
+					}
+					else if (params.size() == 3) {
+						/* newTime(int hh, int mm, int ss) */
+						StringBuffer sb = new StringBuffer();
+						sb.append(getParam(params.elementAt(0)).stringVal() + ":");
+						sb.append(getParam(params.elementAt(1)).stringVal() + ":");
+						sb.append(getParam(params.elementAt(2)).stringVal());
+						return new Datum(lingua, sb.toString(), Datum.TIME, "hh:mm:ss");
+					}			
 					break;
 			}
 		}
-		catch (Throwable t) {
-			setError("unexpected error running function " + name + " - " + t.getMessage(), line, column);
+		catch (Throwable t) { 
+			Logger.printStackTrace(t);
 		}
-		return Datum.INVALID_DATUM;
+		setError("unexpected error running function " + name, line, column);
+		return Datum.getInstance(lingua,Datum.INVALID);
 	}
 
-	private void setError(String s) {
-		errors.addElement(s + "<br>");
-	}
-
-	private void setError(String s, int line, int column) {
-		errors.addElement("Syntax Error: line " + line + " column " + line + " - " + s + "<br>");
-	}
-
-	public boolean hasErrors() {
-		return (errors.size() > 0);
-	}
-
-	public Vector getErrors() {
-		Vector temp = errors;
-		errors = new Vector();
-		return temp;
-	}
+	private void setError(String s, int line, int column) { errorLogger.println(s,line,column); }
+	private void setError(String s) { errorLogger.println(s); }
+	public boolean hasErrors() { return (errorLogger.size() > 0); }
+	public String getErrors() { return errorLogger.toString(); }
 }

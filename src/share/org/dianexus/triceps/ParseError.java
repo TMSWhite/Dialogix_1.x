@@ -9,10 +9,10 @@ public class ParseError  {
 	String actionErrors = null;
 	String answerChoicesErrors = null;
 	String readbackErrors = null;
-	Vector nodeParseErrors = null;
-	Vector nodeNamingErrors = null;
+	String nodeParseErrors = null;
+	String nodeNamingErrors = null;
 
-	public ParseError(Node node, String dependenciesErrors, String actionErrors, String answerChoicesErrors, String readbackErrors, Vector nodeParseErrors, Vector nodeNamingErrors) {
+	public ParseError(Node node, String dependenciesErrors, String actionErrors, String answerChoicesErrors, String readbackErrors, String nodeParseErrors, String nodeNamingErrors) {
 		this.node = node;
 		this.dependenciesErrors = dependenciesErrors;
 		this.actionErrors = actionErrors;
@@ -27,8 +27,8 @@ public class ParseError  {
 	public String getQuestionOrEvalErrors() { return actionErrors; }
 	public String getAnswerChoicesErrors() { return answerChoicesErrors; }
 	public String getReadbackErrors() { return readbackErrors; }
-	public Vector getNodeParseErrors() { return nodeParseErrors; }
-	public Vector getNodeNamingErrors() { return nodeNamingErrors; }
+	public String getNodeParseErrors() { return nodeParseErrors; }
+	public String getNodeNamingErrors() { return nodeNamingErrors; }
 	
 	public Node getNode() { return node; }
 	
@@ -36,7 +36,7 @@ public class ParseError  {
 	public boolean hasQuestionOrEvalErrors() { return (actionErrors != null && actionErrors.length() > 0); }
 	public boolean hasAnswerChoicesErrors() { return (answerChoicesErrors != null && answerChoicesErrors.length() > 0); }
 	public boolean hasReadbackErrors() { return (readbackErrors != null && readbackErrors.length() > 0); }
-	public boolean hasNodeParseErrors() { return (nodeParseErrors != null && nodeParseErrors.size() > 0); }
-	public boolean hasNodeNamingErrors() { return (nodeNamingErrors != null && nodeNamingErrors.size() > 0); }
+	public boolean hasNodeParseErrors() { return (nodeParseErrors != null && nodeParseErrors.length() > 0); }
+	public boolean hasNodeNamingErrors() { return (nodeNamingErrors != null && nodeNamingErrors.length() > 0); }
 	
 }

@@ -3,20 +3,14 @@ import java.io.*;
 import java.util.*;
 
 public class Qss implements QssConstants {
-    private static final String DEFAULT_EOL = "\n\r";
-
     private Stack stack;
     private Evidence evidence;
-    private Writer debugWriter = null;
-    private Writer errorWriter = null;
-    private String debugEol = DEFAULT_EOL;
-    private String errorEol = DEFAULT_EOL;
-    private int errorCount = 0;
-    private boolean isDebug = false;
+    Logger debugLogger = Logger.NULL;
+    Logger errorLogger = Logger.NULL;
 
         public Datum parse(Evidence ev) {
                 evidence = ev;
-        Datum d = Datum.INVALID_DATUM;
+        Datum d = Datum.getInstance(evidence.lingua,Datum.INVALID);
 
                 try {
                         stack = new Stack();
@@ -24,7 +18,7 @@ public class Qss implements QssConstants {
                         d = (Datum) stack.pop();
                 }
                 catch (EmptyStackException e) {
-                        error("stack underflow",token.beginLine,token.beginColumn);
+                        error(evidence.lingua.get("stack_underflow"),token.beginLine,token.beginColumn);
                 }
                 catch (ParseException e) {
                         error(e.getMessage());
@@ -33,59 +27,30 @@ public class Qss implements QssConstants {
                         error(e.getMessage());
                 }
 
-                if (isDebug) {
+                if (debugLogger != Logger.NULL) {
                         debug(null,d);
                 }
 
                 return d;
         }
 
-        public boolean setDebugWriter(Writer w) { return setDebugWriter(w,null); }
-        public boolean setDebugWriter(Writer w, String eol) {
-                debugWriter = w;
-                debugEol = ((eol == null) ? DEFAULT_EOL : eol);
-                isDebug = (w != null);
-                return isDebug;
+        public void resetErrorCount() {
+                errorLogger.reset();
         }
 
-        public boolean setErrorWriter(Writer w) { return setErrorWriter(w,null); }
-        public boolean setErrorWriter(Writer w, String eol) {
-                errorWriter = w;
-                errorEol = ((eol == null) ? DEFAULT_EOL : eol);
-                return (w != null);
-        }
+        public String getErrors() { return errorLogger.toString(); }
+        public String getDebug() { return debugLogger.toString(); }
 
-		public void resetErrorCount() {
-				errorCount = 0;
-		}
-		
         private void error(String s) { error(s,0,0); }
 
         private void error(String s, int line, int column) {
-                if (errorWriter != null) {
-                        try {
-                                errorWriter.write("ERR " + (++errorCount) + ") " + s +
-                                        ((line != 0) ? (" at line " + line + ", column " + column) : "") + errorEol);
-                                errorWriter.flush();
-                        }
-                        catch (IOException e) {
-                                System.err.println(e.getMessage());
-                        }
-                }
+                errorLogger.println(s,line,column);
         }
 
         /* Prints stack trace in tab delimited format - operator, arguments, ->, answer */
         private void debug(String s,Datum d) {
-                if (debugWriter != null) {
-                        try {
-                                debugWriter.write(((s != null) ? (s + "\t") : "") + "->\t" +
-                                        d.stringVal(true) + "\t" + d.doubleVal() + "\t" + d.dateVal() + "\t" + d.monthVal() + debugEol);
-                                debugWriter.flush();
-                        }
-                        catch (IOException e) {
-                                System.err.println(e.getMessage());
-                        }
-                }
+                debugLogger.println(((s != null) ? (s + "\t") : "") + "->\t" +
+                                        d.stringVal(true) + "\t" + d.doubleVal() + "\t" + d.dateVal() + "\t" + d.monthVal());
         }
 
         private String datumValue(Datum d) {
@@ -98,28 +63,28 @@ public class Qss implements QssConstants {
 
         private void unaryOp(int op, Object arg1) {
                 Datum a = getParam(arg1);
-                Datum ans = Datum.INVALID_DATUM;
+                Datum ans = Datum.getInstance(evidence.lingua,Datum.INVALID);
                 switch(op) {
                         case PLUS: ans = a; break;
                         case MINUS: ans = DatumMath.neg(a); break;
                         case NOT: ans = DatumMath.not(a); break;
                 }
                 stack.push(ans);
-                if (isDebug) {
+                if (debugLogger != Logger.NULL) {
                         debug(opName(op) + "\t" + datumValue(a),ans);
                 }
         }
 
         private Datum getParam(Object o) {
                 if (o == null)
-                        return Datum.INVALID_DATUM;
+                        return Datum.getInstance(evidence.lingua,Datum.INVALID);
                 return (Datum) o;
         }
 
         private void binaryOp(int op, Object arg2, Object arg1) {
                 Datum a = getParam(arg1);
                 Datum b = getParam(arg2);
-                Datum ans = Datum.INVALID_DATUM;
+                Datum ans = Datum.getInstance(evidence.lingua,Datum.INVALID);
                 switch(op) {
                         case PLUS: ans = DatumMath.add(a,b); break;
                         case MINUS: ans = DatumMath.subtract(a,b); break;
@@ -141,7 +106,7 @@ public class Qss implements QssConstants {
                         case ASSIGN: evidence.set(a.stringVal(),b); ans = evidence.getDatum(a.stringVal()); break;
                 }
                 stack.push(ans);
-                if (isDebug) {
+                if (debugLogger != Logger.NULL) {
                         debug(opName(op) + "\t" + datumValue(a) + "\t" + datumValue(b),ans);
                 }
         }
@@ -150,21 +115,21 @@ public class Qss implements QssConstants {
                 Datum a = getParam(arg1);
                 Datum b = getParam(arg2);
                 Datum c = getParam(arg3);
-                Datum ans = Datum.INVALID_DATUM;
+                Datum ans = Datum.getInstance(evidence.lingua,Datum.INVALID);
                 switch(op) {
                         case QUEST: ans = DatumMath.conditional(a,b,c); break;
                 }
                 stack.push(ans);
-                if (isDebug) {
+                if (debugLogger != Logger.NULL) {
                         debug(opName(op) + "\t" + datumValue(a) + "\t" + datumValue(b) + "\t" + datumValue(c),ans);
                 }
         }
 
         private void functionOp(Token func, Stack params) {
-                Datum ans = Datum.INVALID_DATUM;
+                Datum ans = Datum.getInstance(evidence.lingua,Datum.INVALID);
                 ans = evidence.function(func.image, params, func.beginLine, func.beginColumn);
                 stack.push(ans);
-                if (isDebug) {
+                if (debugLogger != Logger.NULL) {
                         StringBuffer sb = new StringBuffer("function\t" + func.image);
                         for (int i=0;i<params.size();++i) {
                                 Object o = params.elementAt(i);
@@ -264,7 +229,7 @@ public class Qss implements QssConstants {
                     t = token;
     jj_consume_token(ASSIGN);
     ConditionalExpression();
-                binaryOp(ASSIGN,stack.pop(), new Datum(t.image,Datum.STRING));
+                binaryOp(ASSIGN,stack.pop(), new Datum(evidence.lingua, t.image,Datum.STRING));
   }
 
   final public void ConditionalExpression() throws ParseException {
@@ -562,8 +527,8 @@ public class Qss implements QssConstants {
         jj_consume_token(NMTOKEN);
                         Datum d = evidence.getDatum(token.image);
                         if (d == null) {
-                                error("undefined variable '" + token.image + "'", token.beginLine, token.beginColumn);
-                                stack.push(Datum.INVALID_DATUM);
+                                error(evidence.lingua.get("undefined_variable") + " '" + token.image + "'", token.beginLine, token.beginColumn);
+                                stack.push(Datum.getInstance(evidence.lingua,Datum.INVALID));
                         }
                         else {
                                 stack.push(d);
@@ -608,7 +573,7 @@ public class Qss implements QssConstants {
         jj_consume_token(-1);
         throw new ParseException();
       }
-                  stack.push(new Datum(token.image,Datum.NUMBER));
+                  stack.push(new Datum(evidence.lingua, token.image,Datum.NUMBER));
       break;
     case CHARACTER_LITERAL:
     case STRING_LITERAL:
@@ -652,10 +617,10 @@ public class Qss implements QssConstants {
                                 }
                         }
                         catch (IndexOutOfBoundsException e) {
-                                error("unterminated escaped character", token.beginLine, token.beginColumn + i);
+                                error(evidence.lingua.get("unterminated_escaped_character"), token.beginLine, token.beginColumn + i);
                         }
 
-                        stack.push(new Datum(sb.toString(),Datum.STRING));
+                        stack.push(new Datum(evidence.lingua, sb.toString(),Datum.STRING));
       break;
     default:
       jj_la1[19] = jj_gen;
@@ -746,139 +711,6 @@ public class Qss implements QssConstants {
     boolean retval = !jj_3_5();
     jj_save(4, xla);
     return retval;
-  }
-
-  final private boolean jj_3R_23() {
-    if (jj_3R_26()) return true;
-    if (jj_la == 0 && jj_scanpos == jj_lastpos) return false;
-    return false;
-  }
-
-  final private boolean jj_3R_22() {
-    if (jj_scan_token(NMTOKEN)) return true;
-    if (jj_la == 0 && jj_scanpos == jj_lastpos) return false;
-    if (jj_scan_token(LP)) return true;
-    if (jj_la == 0 && jj_scanpos == jj_lastpos) return false;
-    return false;
-  }
-
-  final private boolean jj_3_2() {
-    if (jj_scan_token(AND)) return true;
-    if (jj_la == 0 && jj_scanpos == jj_lastpos) return false;
-    if (jj_3R_14()) return true;
-    if (jj_la == 0 && jj_scanpos == jj_lastpos) return false;
-    return false;
-  }
-
-  final private boolean jj_3R_14() {
-    if (jj_3R_23()) return true;
-    if (jj_la == 0 && jj_scanpos == jj_lastpos) return false;
-    return false;
-  }
-
-  final private boolean jj_3R_42() {
-    if (jj_scan_token(CHARACTER_LITERAL)) return true;
-    if (jj_la == 0 && jj_scanpos == jj_lastpos) return false;
-    return false;
-  }
-
-  final private boolean jj_3R_40() {
-    if (jj_scan_token(FLOATING_POINT_LITERAL)) return true;
-    if (jj_la == 0 && jj_scanpos == jj_lastpos) return false;
-    return false;
-  }
-
-  final private boolean jj_3R_41() {
-    if (jj_scan_token(STRING_LITERAL)) return true;
-    if (jj_la == 0 && jj_scanpos == jj_lastpos) return false;
-    return false;
-  }
-
-  final private boolean jj_3R_39() {
-    if (jj_scan_token(INTEGER_LITERAL)) return true;
-    if (jj_la == 0 && jj_scanpos == jj_lastpos) return false;
-    return false;
-  }
-
-  final private boolean jj_3R_38() {
-    Token xsp;
-    xsp = jj_scanpos;
-    if (jj_3R_41()) {
-    jj_scanpos = xsp;
-    if (jj_3R_42()) return true;
-    if (jj_la == 0 && jj_scanpos == jj_lastpos) return false;
-    } else if (jj_la == 0 && jj_scanpos == jj_lastpos) return false;
-    return false;
-  }
-
-  final private boolean jj_3R_37() {
-    Token xsp;
-    xsp = jj_scanpos;
-    if (jj_3R_39()) {
-    jj_scanpos = xsp;
-    if (jj_3R_40()) return true;
-    if (jj_la == 0 && jj_scanpos == jj_lastpos) return false;
-    } else if (jj_la == 0 && jj_scanpos == jj_lastpos) return false;
-    return false;
-  }
-
-  final private boolean jj_3R_36() {
-    Token xsp;
-    xsp = jj_scanpos;
-    if (jj_3R_37()) {
-    jj_scanpos = xsp;
-    if (jj_3R_38()) return true;
-    if (jj_la == 0 && jj_scanpos == jj_lastpos) return false;
-    } else if (jj_la == 0 && jj_scanpos == jj_lastpos) return false;
-    return false;
-  }
-
-  final private boolean jj_3R_20() {
-    if (jj_scan_token(DIVIDE)) return true;
-    if (jj_la == 0 && jj_scanpos == jj_lastpos) return false;
-    return false;
-  }
-
-  final private boolean jj_3R_35() {
-    if (jj_scan_token(LSB)) return true;
-    if (jj_la == 0 && jj_scanpos == jj_lastpos) return false;
-    return false;
-  }
-
-  final private boolean jj_3R_34() {
-    if (jj_scan_token(LCB)) return true;
-    if (jj_la == 0 && jj_scanpos == jj_lastpos) return false;
-    return false;
-  }
-
-  final private boolean jj_3R_17() {
-    if (jj_scan_token(CONCATENATE)) return true;
-    if (jj_la == 0 && jj_scanpos == jj_lastpos) return false;
-    return false;
-  }
-
-  final private boolean jj_3R_33() {
-    if (jj_scan_token(LP)) return true;
-    if (jj_la == 0 && jj_scanpos == jj_lastpos) return false;
-    return false;
-  }
-
-  final private boolean jj_3R_29() {
-    if (jj_scan_token(NOT)) return true;
-    if (jj_la == 0 && jj_scanpos == jj_lastpos) return false;
-    return false;
-  }
-
-  final private boolean jj_3R_19() {
-    if (jj_scan_token(MULTIPLY)) return true;
-    if (jj_la == 0 && jj_scanpos == jj_lastpos) return false;
-    return false;
-  }
-
-  final private boolean jj_3R_16() {
-    if (jj_scan_token(MINUS)) return true;
-    if (jj_la == 0 && jj_scanpos == jj_lastpos) return false;
-    return false;
   }
 
   final private boolean jj_3R_28() {
@@ -1022,6 +854,139 @@ public class Qss implements QssConstants {
 
   final private boolean jj_3R_26() {
     if (jj_3R_18()) return true;
+    if (jj_la == 0 && jj_scanpos == jj_lastpos) return false;
+    return false;
+  }
+
+  final private boolean jj_3R_23() {
+    if (jj_3R_26()) return true;
+    if (jj_la == 0 && jj_scanpos == jj_lastpos) return false;
+    return false;
+  }
+
+  final private boolean jj_3R_22() {
+    if (jj_scan_token(NMTOKEN)) return true;
+    if (jj_la == 0 && jj_scanpos == jj_lastpos) return false;
+    if (jj_scan_token(LP)) return true;
+    if (jj_la == 0 && jj_scanpos == jj_lastpos) return false;
+    return false;
+  }
+
+  final private boolean jj_3_2() {
+    if (jj_scan_token(AND)) return true;
+    if (jj_la == 0 && jj_scanpos == jj_lastpos) return false;
+    if (jj_3R_14()) return true;
+    if (jj_la == 0 && jj_scanpos == jj_lastpos) return false;
+    return false;
+  }
+
+  final private boolean jj_3R_14() {
+    if (jj_3R_23()) return true;
+    if (jj_la == 0 && jj_scanpos == jj_lastpos) return false;
+    return false;
+  }
+
+  final private boolean jj_3R_42() {
+    if (jj_scan_token(CHARACTER_LITERAL)) return true;
+    if (jj_la == 0 && jj_scanpos == jj_lastpos) return false;
+    return false;
+  }
+
+  final private boolean jj_3R_40() {
+    if (jj_scan_token(FLOATING_POINT_LITERAL)) return true;
+    if (jj_la == 0 && jj_scanpos == jj_lastpos) return false;
+    return false;
+  }
+
+  final private boolean jj_3R_41() {
+    if (jj_scan_token(STRING_LITERAL)) return true;
+    if (jj_la == 0 && jj_scanpos == jj_lastpos) return false;
+    return false;
+  }
+
+  final private boolean jj_3R_39() {
+    if (jj_scan_token(INTEGER_LITERAL)) return true;
+    if (jj_la == 0 && jj_scanpos == jj_lastpos) return false;
+    return false;
+  }
+
+  final private boolean jj_3R_38() {
+    Token xsp;
+    xsp = jj_scanpos;
+    if (jj_3R_41()) {
+    jj_scanpos = xsp;
+    if (jj_3R_42()) return true;
+    if (jj_la == 0 && jj_scanpos == jj_lastpos) return false;
+    } else if (jj_la == 0 && jj_scanpos == jj_lastpos) return false;
+    return false;
+  }
+
+  final private boolean jj_3R_37() {
+    Token xsp;
+    xsp = jj_scanpos;
+    if (jj_3R_39()) {
+    jj_scanpos = xsp;
+    if (jj_3R_40()) return true;
+    if (jj_la == 0 && jj_scanpos == jj_lastpos) return false;
+    } else if (jj_la == 0 && jj_scanpos == jj_lastpos) return false;
+    return false;
+  }
+
+  final private boolean jj_3R_36() {
+    Token xsp;
+    xsp = jj_scanpos;
+    if (jj_3R_37()) {
+    jj_scanpos = xsp;
+    if (jj_3R_38()) return true;
+    if (jj_la == 0 && jj_scanpos == jj_lastpos) return false;
+    } else if (jj_la == 0 && jj_scanpos == jj_lastpos) return false;
+    return false;
+  }
+
+  final private boolean jj_3R_20() {
+    if (jj_scan_token(DIVIDE)) return true;
+    if (jj_la == 0 && jj_scanpos == jj_lastpos) return false;
+    return false;
+  }
+
+  final private boolean jj_3R_35() {
+    if (jj_scan_token(LSB)) return true;
+    if (jj_la == 0 && jj_scanpos == jj_lastpos) return false;
+    return false;
+  }
+
+  final private boolean jj_3R_34() {
+    if (jj_scan_token(LCB)) return true;
+    if (jj_la == 0 && jj_scanpos == jj_lastpos) return false;
+    return false;
+  }
+
+  final private boolean jj_3R_17() {
+    if (jj_scan_token(CONCATENATE)) return true;
+    if (jj_la == 0 && jj_scanpos == jj_lastpos) return false;
+    return false;
+  }
+
+  final private boolean jj_3R_33() {
+    if (jj_scan_token(LP)) return true;
+    if (jj_la == 0 && jj_scanpos == jj_lastpos) return false;
+    return false;
+  }
+
+  final private boolean jj_3R_29() {
+    if (jj_scan_token(NOT)) return true;
+    if (jj_la == 0 && jj_scanpos == jj_lastpos) return false;
+    return false;
+  }
+
+  final private boolean jj_3R_19() {
+    if (jj_scan_token(MULTIPLY)) return true;
+    if (jj_la == 0 && jj_scanpos == jj_lastpos) return false;
+    return false;
+  }
+
+  final private boolean jj_3R_16() {
+    if (jj_scan_token(MINUS)) return true;
     if (jj_la == 0 && jj_scanpos == jj_lastpos) return false;
     return false;
   }

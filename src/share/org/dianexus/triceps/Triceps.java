@@ -6,15 +6,17 @@ import java.net.*;
 /* Triceps
  */
 public class Triceps {
+	public static final Triceps NULL = new Triceps(null);
+	
 	public static final int ERROR = 1;
 	public static final int OK = 2;
 	public static final int AT_END = 3;
 
-	public	Schedule nodes = null;
-	public	Evidence evidence = null;	// XXX should be private - made public for Node.prepareChoicesAsHTML(parser,...)
-	public	Parser parser = new Parser();	// XXX should be private - made public for Node.prepareChoicesAsHTML(parser,...)
+	Schedule nodes = null;
+	Evidence evidence = null;	// XXX should be private - made public for Node.prepareChoicesAsHTML(parser,...)
+	Parser parser = null;	// XXX should be private - made public for Node.prepareChoicesAsHTML(parser,...)
 
-	private Vector errors = new Vector();
+	private Logger errorLogger = new Logger();
 	private static String fileAccessError = null;
 	private int currentStep=0;
 	private int numQuestions=0;	// so know how many to skip for compount question
@@ -26,9 +28,12 @@ public class Triceps {
 	private Random random = new Random();
 	private String tempPassword = null;
 	private int currentLanguage = 0;
-
+	Lingua lingua =  null;
+	
 	public Triceps(String scheduleLoc) {
-		nodes = new Schedule(scheduleLoc);
+		lingua = new Lingua("TricepsBundle");
+		parser = new Parser();
+		nodes = new Schedule(lingua, scheduleLoc);
 		if (!nodes.init()) {
 			setError(nodes.getErrors());
 		}
@@ -37,50 +42,42 @@ public class Triceps {
 		createTempPassword();
 		isValid = true;
 	}
-	
+
 	public boolean isValid() { return isValid; }
-	
-	public boolean reloadSchedule() { 
+
+	public boolean reloadSchedule() {
 		return loadDatafile(null);
 	}
-	
+
 	public boolean loadDatafile(String name) {
 		Schedule oldNodes = nodes;
 		Evidence oldEvidence = evidence;
-		
+
 		boolean ok = false;
-		
+
 		if (name != null) {
-			nodes = new Schedule(name);
+			nodes = new Schedule(lingua, name);
 		}
 		else {
-			nodes = new Schedule(nodes.getScheduleSource());
+			nodes = new Schedule(lingua, nodes.getScheduleSource());
 		}
-		
+
 		if (!nodes.init()) {
 			nodes = oldNodes;
 			return false;
 		}
-		
+
 		resetEvidence();
 		setDefaultValues();
-		
-		try {
-			for (int i=0;i<oldNodes.size();++i) {
-				Node oldNode = oldNodes.getNode(i);
-				Node newNode = evidence.getNode(oldNode);	// get newNode with same name or concept as old ones
-				if (newNode != null) {
-					evidence.set(newNode, oldEvidence.getDatum(oldNode),oldNode.getTimeStampStr());
-				}
+
+		for (int i=0;i<oldNodes.size();++i) {
+			Node oldNode = oldNodes.getNode(i);
+			Node newNode = evidence.getNode(oldNode);	// get newNode with same name or concept as old ones
+			if (newNode != null) {
+				evidence.set(newNode, oldEvidence.getDatum(oldNode),oldNode.getTimeStampStr());
 			}
 		}
-		catch (Throwable t) {
-			String msg = "Error loading datafile: " + t.getMessage() + " - restoring original schedule";
-			setError(msg);
-			nodes = oldNodes;
-			evidence = oldEvidence;
-			return false;
-		}
+
 		/* data/evidence is loaded from working file; but the nodes are from the schedule soruce directory */
 		nodes.overloadReserved(oldNodes);
 		return true;
@@ -100,18 +97,8 @@ public class Triceps {
 	public String getStopTimeStr() {
 		return stopTimeStr;
 	}
-	
-	public Vector getScheduleErrors() { return nodes.getErrors(); }
 
-	public Vector getErrors() {
-		/* when there is an error in getting or parsing a node */
-		if (parser.hasErrors()) {
-			setError(parser.getErrors());
-		}
-		Vector tmp = errors;
-		errors = new Vector();
-		return tmp;
-	}
+	public String getScheduleErrors() { return nodes.getErrors(); }
 
 	public Enumeration getQuestions() {
 		Vector e = new Vector();
@@ -124,14 +111,14 @@ public class Triceps {
 		do {
 			if (step >= size()) {
 				if (braceLevel > 0) {
-					setError("missing " + braceLevel + " closing brace(s)");
+					setError(lingua.get("missing") + braceLevel + lingua.get("closing_braces"));
 				}
 				break;
 			}
 			node = nodes.getNode(step++);
-			
+
 			node.setAnswerLanguageNum(currentLanguage);
-			
+
 			actionType = node.getQuestionOrEvalType();
 			e.addElement(node);	// add regardless of type
 
@@ -139,20 +126,20 @@ public class Triceps {
 				++braceLevel;
 			}
 			else if (actionType == Node.EVAL) {
-				node.setError("Should not have expression evaluations within a query block (brace level " + braceLevel);
+				node.setError(lingua.get("evals_disallowed_within_question_block") + braceLevel);
 				break;
 			}
 			else if (actionType == Node.GROUP_CLOSE) {
 				--braceLevel;
 				if (braceLevel < 0) {
-					node.setError("Extra closing brace");
+					node.setError(lingua.get("extra_closing_brace"));
 					break;
 				}
 			}
 			else if (actionType == Node.QUESTION) {
 			}
 			else {
-				node.setError("Invalid action type");
+				node.setError(lingua.get("invalid_action_type"));
 				break;
 			}
 		} while (braceLevel > 0);
@@ -167,20 +154,22 @@ public class Triceps {
 		String s;
 
 		s = q.getMinStr();
-		if (s != null)
-			q.setMinDatum(parser.parse(evidence,s));
+		if (s != null) {
+			Datum d = parser.parse(evidence,s);
+			q.setMinDatum(d);
+		}
 		else
 			q.setMinDatum(null);
 
 		s = q.getMaxStr();
-		if (s != null)
-			q.setMaxDatum(parser.parse(evidence,s));
+		if (s != null) {
+			Datum d = parser.parse(evidence,s);
+			q.setMaxDatum(d);
+		}
 		else
 			q.setMaxDatum(null);
 
-		q.createParseRangeStr();
-
-		q.setQuestionAsAsked(parser.parseJSP(evidence, q.getQuestionOrEval()) + q.getQuestionMask());
+		q.setQuestionAsAsked(parser.parseJSP(evidence, q.getQuestionOrEval()) + q.getSampleInputString());
 		return q.getQuestionAsAsked();
 	}
 
@@ -206,25 +195,25 @@ public class Triceps {
 
 		if (currentStep == size()) {
 			/* then already at end */
-			setError("You are already at the end of interview.  Thanks again.");
+			setError(lingua.get("already_at_end_of_interview"));
 			return ERROR;
 		}
 
 		do {		// loop forward through nodes -- break to query user or to end
 			if (step >= size()) {	// then the schedule is complete
 				if (braceLevel > 0) {
-					setError("Missing " + braceLevel + " closing brace(s)");
+					setError(lingua.get("missing") + braceLevel + lingua.get("closing_braces"));
 				}
 				currentStep = size();	// put at last node
 				numQuestions = 0;
-				
+
 				/* The current state should be saved in the background after the next set of questions is retrieved.
 					It is up to the calling program to call toTSV() to save the state */
 
 				return AT_END;
 			}
 			if ((node = nodes.getNode(step)) == null) {
-				setError("Invalid node at step " + step);
+				setError(lingua.get("invalid_node_at_step") + step);
 				return ERROR;
 			}
 
@@ -238,52 +227,52 @@ public class Triceps {
 					}
 					else {
 						++braceLevel;	// XXX:  skip this entire section
-						evidence.set(node, Datum.NA_DATUM);	// and set all of this brace's values to NA
+						evidence.set(node, Datum.getInstance(lingua,Datum.NA));	// and set all of this brace's values to NA
 					}
 				}
 				else {
 					++braceLevel;	// skip this inner block
-					evidence.set(node, Datum.NA_DATUM);	// set all of this brace's values to NA
+					evidence.set(node, Datum.getInstance(lingua,Datum.NA));	// set all of this brace's values to NA
 				}
 			}
 			else if (actionType == Node.GROUP_CLOSE) {
 				--braceLevel;	// close an open block
-				evidence.set(node, Datum.NA_DATUM);	// closing an open block, so set value to NA
+				evidence.set(node, Datum.getInstance(lingua,Datum.NA));	// closing an open block, so set value to NA
 				if (braceLevel < 0) {
-					node.setError("Extra closing brace");
+					node.setError(lingua.get("extra_closing_brace"));
 					return OK;	// otherwise won't be able to progress past the dangling closing brace!
 //					return ERROR;
 				}
 			}
 			else if (actionType == Node.EVAL) {
 				if (braceLevel > 0) {
-					evidence.set(node, Datum.NA_DATUM);	// NA if internal to a brace when going forwards
+					evidence.set(node, Datum.getInstance(lingua,Datum.NA));	// NA if internal to a brace when going forwards
 				}
 				else {
 					if (parser.booleanVal(evidence, node.getDependencies())) {
-						evidence.set(node, new Datum(parser.stringVal(evidence, node.getQuestionOrEval()),node.getDatumType(),node.getMask()));
+						evidence.set(node, new Datum(lingua, parser.stringVal(evidence, node.getQuestionOrEval()),node.getDatumType(),node.getMask()));
 					}
 					else {
-						evidence.set(node, Datum.NA_DATUM);	// if doesn't satisfy dependencies, store NA
+						evidence.set(node, Datum.getInstance(lingua,Datum.NA));	// if doesn't satisfy dependencies, store NA
 					}
 				}
 			}
 			else if (actionType == Node.QUESTION) {
 				if (braceLevel > 0) {
-					evidence.set(node, Datum.NA_DATUM);	// NA if internal to a brace when going forwards
+					evidence.set(node, Datum.getInstance(lingua,Datum.NA));	// NA if internal to a brace when going forwards
 				}
 				else {
 					if (parser.booleanVal(evidence, node.getDependencies())) {
 						break;	// ask this question
 					}
 					else {
-						evidence.set(node, Datum.NA_DATUM);	// if doesn't satisfy dependencies, store NA
+						evidence.set(node, Datum.getInstance(lingua,Datum.NA));	// if doesn't satisfy dependencies, store NA
 					}
 				}
 			}
 			else {
-				node.setError("Invalid action type");
-				evidence.set(node, Datum.NA_DATUM);
+				node.setError(lingua.get("invalid_action_type"));
+				evidence.set(node, Datum.getInstance(lingua,Datum.NA));
 				return ERROR;
 			}
 			++step;
@@ -301,12 +290,12 @@ public class Triceps {
 
 		Node n = evidence.getNode(val);
 		if (n == null) {
-			setError("Unknown node: " + val.toString());
+			setError(lingua.get("unknown_node") + val.toString());
 			return ERROR;
 		}
 		int result = evidence.getStep(n);
 		if (result == -1) {
-			setError("Unable to find index for node: " + n);
+			setError(lingua.get("node_does_not_exist_within_schedule") + n);
 			return ERROR;
 		} else {
 			currentStep = result;
@@ -323,9 +312,9 @@ public class Triceps {
 		while (true) {
 			if (--step < 0) {
 				if (braceLevel < 0)
-					setError("Missing " + braceLevel + " opening braces");
+					setError(lingua.get("missing") + braceLevel + lingua.get("opening_braces"));
 
-				setError("You are already at the beginning.");
+				setError(lingua.get("already_at_beginning"));
 				return ERROR;
 			}
 			if ((node = nodes.getNode(step)) == null)
@@ -343,7 +332,7 @@ public class Triceps {
 			else if (actionType == Node.GROUP_OPEN) {
 				++braceLevel;
 				if (braceLevel > 0) {
-					setError("extra opening brace");
+					setError(lingua.get("extra_opening_brace"));
 					return ERROR;
 				}
 				if (braceLevel == 0 && parser.booleanVal(evidence, node.getDependencies())) {
@@ -362,7 +351,7 @@ public class Triceps {
 				}
 			}
 			else {
-				node.setError("Invalid action type");
+				node.setError(lingua.get("invalid_action_type"));
 				return ERROR;
 			}
 		}
@@ -372,7 +361,7 @@ public class Triceps {
 
 	private void startTimer(Date time) {
 		startTime = time;
-		startTimeStr = Datum.format(startTime,Datum.DATE,Datum.TIME_MASK);
+		startTimeStr = lingua.formatDate(startTime,Datum.TIME_MASK);
 		stopTime = null;	// reset stopTime, since re-starting
 		nodes.setReserved(Schedule.START_TIME,startTimeStr);	// so that saved schedule knows when it was started
 	}
@@ -380,45 +369,31 @@ public class Triceps {
 	private void stopTimer() {
 		if (stopTime == null) {
 			stopTime = new Date(System.currentTimeMillis());
-			stopTimeStr = Datum.format(stopTime,Datum.DATE,Datum.TIME_MASK);
+			stopTimeStr = lingua.formatDate(stopTime,Datum.TIME_MASK);
 		}
 	}
 
 	public void resetEvidence() {
-		evidence = new Evidence(nodes);
+		evidence = new Evidence(lingua, nodes);
 	}
-	
+
 	private void setDefaultValues() {
 		Node n;
 		Datum d;
 		String init;
 		for (int i=0;i<size();++i) {
 			n = nodes.getNode(i);
-			if (n == null)
+			if (n == null) {
+Logger.writeln("null node at index " + i);
 				continue;
+			}
 
 			init = n.getAnswerGiven();
-
-			if (init == null || init.length() == 0 || init.equals(Datum.TYPES[Datum.UNASKED])) {
-				d = Datum.UNASKED_DATUM;
-			}
-			else if (init.equals(Datum.TYPES[Datum.UNKNOWN])) {
-				d = Datum.UNKNOWN_DATUM;
-			}
-			else if (init.equals(Datum.TYPES[Datum.NA])) {
-				d = Datum.NA_DATUM;
-			}
-			else if (init.equals(Datum.TYPES[Datum.INVALID])) {
-				d = Datum.INVALID_DATUM;
-			}
-			else if (init.equals(Datum.TYPES[Datum.REFUSED])) {
-				d = Datum.REFUSED_DATUM;
-			}
-			else if (init.equals(Datum.TYPES[Datum.NOT_UNDERSTOOD])) {
-				d = Datum.NOT_UNDERSTOOD_DATUM;
-			}			
-			else {
-				d = new Datum(init,n.getDatumType(),n.getMask());
+			
+			d = Datum.parseSpecialType(lingua,init);
+			
+			if (d == null) {
+				d = new Datum(lingua, init,n.getDatumType(),n.getMask());
 			}
 
 			evidence.set(n,d,n.getAnswerTimeStampStr());
@@ -429,7 +404,7 @@ public class Triceps {
 
 	public boolean storeValue(Node q, String answer, String comment, String special, boolean adminMode) {
 		if (q == null) {
-			setError("null node");
+			setError(lingua.get("node_does_not_exist"));
 			return false;
 		}
 
@@ -446,51 +421,44 @@ public class Triceps {
 
 		if (special != null && special.trim().length() > 0) {
 			if (adminMode) {
-				if (special.equals(Datum.TYPES[Datum.REFUSED])) {
-					evidence.set(q,Datum.REFUSED_DATUM);
+				d = Datum.parseSpecialType(lingua, special);
+				if (d != null) {
+					evidence.set(q,d);
 					return true;
 				}
-				if (special.equals(Datum.TYPES[Datum.UNKNOWN])) {
-					evidence.set(q,Datum.UNKNOWN_DATUM);
-					return true;
-				}
-				if (special.equals(Datum.TYPES[Datum.NOT_UNDERSTOOD])) {
-					evidence.set(q,Datum.NOT_UNDERSTOOD_DATUM);
-					return true;
-				}
-				setError("Unknown special datatype");
+				setError(lingua.get("unknown_special_datatype"));
 				return false;
 			}
 			else {
-				setError("You do not currently have permission to be in Admin Mode");
+				setError(lingua.get("entry_into_admin_mode_disallowed"));
 				return false;
 			}
 		}
 
 		if (q.getAnswerType() == Node.NOTHING && q.getQuestionOrEvalType() != Node.EVAL) {
-			evidence.set(q,new Datum("",Datum.STRING));
+			evidence.set(q,new Datum(lingua, "",Datum.STRING));
 			return true;
 		}
 		else {
-			d = new Datum(answer,q.getDatumType(),q.getMask()); // use expected value type
+			d = new Datum(lingua, answer,q.getDatumType(),q.getMask()); // use expected value type
 		}
 
 		/* check for type error */
 		if (!d.exists()) {
 			String s = d.getError();
 			if (s.length() == 0) {
-				q.setError("<- Please answer this question");
+				q.setError("<- " + lingua.get("answer_this_question"));
 			}
 			else {
 				q.setError("<- " + s);
 			}
-			evidence.set(q,Datum.UNASKED_DATUM);
+			evidence.set(q,Datum.getInstance(lingua,Datum.UNASKED));
 			return false;
 		}
 
 		/* check if out of range */
 		if (!q.isWithinRange(d)) {
-			evidence.set(q,Datum.UNASKED_DATUM);
+			evidence.set(q,Datum.getInstance(lingua,Datum.UNASKED));
 			return false;	// shouldn't wording of error be done here, not in Node?
 		}
 		else {
@@ -559,10 +527,10 @@ public class Triceps {
 		String actionErrors = null;
 		String answerChoicesErrors = null;
 		String readbackErrors = null;
-		Vector nodeParseErrors = null;
-		Vector nodeNamingErrors = null;
+		String nodeParseErrors = null;
+		String nodeNamingErrors = null;
 		boolean hasErrors = false;
-		
+
 		parser.resetErrorCount();
 
 		for (int i=0;i<size();++i) {
@@ -597,7 +565,7 @@ public class Triceps {
 					parser.stringVal(evidence, s);
 				}
 			}
-			
+
 			/* Check min & max range delimiters for syntax errors */
 			s = n.getMinStr();
 			if (s != null) {
@@ -607,12 +575,12 @@ public class Triceps {
 			if (s != null) {
 				parser.stringVal(evidence, s);
 			}
-			
+
 			if (parser.hasErrors()) {
 				hasErrors = true;
 				actionErrors = parser.getErrors();
 			}
-			
+
 			Vector v = n.getAnswerChoices();
 			if (v != null) {
 				for (int j=0;j<v.size();++j) {
@@ -635,7 +603,7 @@ public class Triceps {
 				hasErrors = true;
 				nodeNamingErrors = n.getNamingErrors();
 			}
-			
+
 			if (n.getReadback() != null) {
 				parser.parseJSP(evidence,n.getReadback());
 			}
@@ -668,14 +636,12 @@ public class Triceps {
 			fw = new FileWriter(filename);
 			ok = writeTSV(fw);
 		}
-		catch (Throwable t) {
-			String msg = "error writing to " + filename + ": " + t.getMessage();
+		catch (IOException e) {
+			String msg = lingua.get("error_writing_to") + filename + ": " + e.getMessage();
 			setError(msg);
 		}
 		if (fw != null) {
-			try { fw.close(); } catch (Throwable t) {
-				setError("Error closing writer: " + t.getMessage());
-			}
+			try { fw.close(); } catch (IOException t) { }
 		}
 		return ok;
 	}
@@ -736,8 +702,8 @@ public class Triceps {
 			out.flush();
 			return true;
 		}
-		catch (Throwable t) {
-			String msg = "Unable to write schedule file: " + t.getMessage();
+		catch (IOException e) {
+			String msg = lingua.get("Unable_to_write_schedule_file") + e.getMessage();
 			setError(msg);
 			return false;
 		}
@@ -760,23 +726,23 @@ public class Triceps {
 	}
 	public boolean isShowQuestionRef() {
 		return Boolean.valueOf(nodes.getReserved(Schedule.SHOW_QUESTION_REF)).booleanValue();
-	}	
+	}
 	public boolean isAutoGenOptionNum() {
 		return Boolean.valueOf(nodes.getReserved(Schedule.AUTOGEN_OPTION_NUM)).booleanValue();
 	}
 	public boolean isDebugMode() {
-		return Boolean.valueOf(nodes.getReserved(Schedule.DEBUG_MODE)).booleanValue();		
+		return Boolean.valueOf(nodes.getReserved(Schedule.DEBUG_MODE)).booleanValue();
 	}
 	public boolean isDeveloperMode() {
-		return Boolean.valueOf(nodes.getReserved(Schedule.DEVELOPER_MODE)).booleanValue();		
+		return Boolean.valueOf(nodes.getReserved(Schedule.DEVELOPER_MODE)).booleanValue();
 	}
 	public boolean isAllowComments() {
 		return Boolean.valueOf(nodes.getReserved(Schedule.ALLOW_COMMENTS)).booleanValue();
 	}
 	public boolean isAllowLanguageSwitching() {
 		return Boolean.valueOf(nodes.getReserved(Schedule.ALLOW_LANGUAGE_SWITCHING)).booleanValue();
-	}	
-	
+	}
+
 	public String getIcon() { return nodes.getReserved(Schedule.ICON); }
 	public String getHeaderMsg() { return nodes.getReserved(Schedule.HEADER_MSG); }
 
@@ -791,7 +757,31 @@ public class Triceps {
 
 	public boolean setLanguage(String language) {
 		boolean ok = nodes.setReserved(Schedule.CURRENT_LANGUAGE,language);
-		currentLanguage = nodes.getLanguage();
+		int lang = getLanguage();
+		
+		if (lang == currentLanguage) {
+			return ok;
+		}
+		currentLanguage = lang;
+		
+		/* re-calculate all eval nodes that meet dependencies, using the new language */
+		for (int i=0;i<currentStep;++i) {
+			Node node = nodes.getNode(i);
+			if (node == null)
+				continue;
+				
+			if (node.getQuestionOrEvalType() == Node.EVAL) {
+				node.setAnswerLanguageNum(currentLanguage);	// don't change the language for non-EVAL nodes - want to know what was asked
+				if (parser.booleanVal(evidence, node.getDependencies())) {
+					Datum datum = new Datum(lingua, parser.stringVal(evidence, node.getQuestionOrEval()),node.getDatumType(),node.getMask());
+					evidence.set(node, datum);
+				}
+				else {
+					evidence.set(node, Datum.getInstance(lingua,Datum.NA));	// if doesn't satisfy dependencies, store NA
+				}
+			}
+		}
+		
 		return ok;
 	}
 	public int getLanguage() { return nodes.getLanguage(); }
@@ -800,23 +790,17 @@ public class Triceps {
 		tempPassword = Long.toString(random.nextLong());
 		return tempPassword;
 	}
-	
+
 	public boolean isTempPassword(String s) {
 		String temp = tempPassword;
 		createTempPassword();	// reset it
-		
+
 		if (s == null)
 			return false;
 		return s.equals(temp);
 	}
-	
-	private void setError(String s) {
-		errors.addElement(s);
-	}
-	
-	private void setError(Vector v) {
-		for (int i=0;i<v.size();++i) {
-			errors.addElement(v.elementAt(i));
-		}
-	}
+
+	private void setError(String s) { errorLogger.println(s); }
+	public boolean hasErrors() { return (errorLogger.size() > 0); }
+	public String getErrors() { return errorLogger.toString(); }
 }
