@@ -92,6 +92,8 @@ public class Node  {
 	private String datumTypeStr = "";
 	private String minStr = null;
 	private String maxStr = null;
+	private Vector allowableValues = null;	// additional validation - list of String values that are considered valid
+	private Vector allowableDatumValues = null;	// parsed list of allowable values
 
 	private Datum minDatum = null;
 	private Datum maxDatum = null;
@@ -285,9 +287,27 @@ public class Node  {
 				case 4:
 					mask = s;
 					break;
+				default:
+					/* extra parameters are additional allowable values, as Strings that will be parsed */
+					if (allowableValues == null) {
+						allowableValues = new Vector();
+					}
+					allowableValues.addElement(s);
+					break;
 			}
 		}
 	}
+	
+	private String buildOrList(Vector v) {
+		StringBuffer sb = new StringBuffer();
+		
+		for (int i=0;i<v.size();++i) {
+			Datum d = (Datum) v.elementAt(i);
+			sb.append("," + ((i == v.size()-1) ? (" " + triceps.get("or")) : "") + " " + d.stringVal());
+		}
+		return sb.toString();
+	}
+	
 
 	public String getSampleInputString() {
 		/* Create the help-string showing allowable range of input values.
@@ -295,6 +315,7 @@ public class Node  {
 
 		String min = null;
 		String max = null;
+		String other = null;
 		String rangeStr = null;
 		String s = null;
 		
@@ -305,7 +326,7 @@ public class Node  {
 		else
 			rangeStr = " (e.g. " + s + ")";		
 
-		if ((minStr == null && maxStr == null) || answerType == PASSWORD) {
+		if ((minStr == null && maxStr == null && allowableValues == null) || answerType == PASSWORD) {
 			return rangeStr;
 		}
 		
@@ -317,6 +338,9 @@ public class Node  {
 			setMaxDatum(maxDatum);
 			max = maxDatum.stringVal(true,mask);
 		}
+		if (allowableDatumValues != null) {
+			other = buildOrList(allowableDatumValues);
+		}
 
 		if (minDatum != null && maxDatum != null) {
 			if (DatumMath.lt(maxDatum,minDatum).booleanVal()) {
@@ -324,13 +348,16 @@ public class Node  {
 			}
 		}
 
-		rangeStr = " (" +
+		rangeStr = "(" +
 			((min != null) ? min : "") +
 			" - " +
 			((max != null) ? max : "") +
 			")";
+		if (other != null) {
+			rangeStr = " [" + rangeStr + other + "]";
+		}
 			
-		return rangeStr;
+		return " " + rangeStr;
 	}
 
 	private boolean parseAnswerOptions(int langNum, String src) {
@@ -686,6 +713,15 @@ public class Node  {
 			if (!DatumMath.le(d,maxDatum).booleanVal())
 				err = true;
 		}
+		if (err && allowableDatumValues != null) {
+			/* then not within valid range - so check if it is an outlying, but allowable value */
+			for (int i=0;i<allowableDatumValues.size();++i) {
+				if (DatumMath.eq(d,(Datum) allowableDatumValues.elementAt(i)).booleanVal()) {
+					err = false;
+					break;
+				}
+			}
+		}
 
 		if (err) {
 			if (answerType == PASSWORD) {
@@ -736,6 +772,8 @@ public class Node  {
 	
 	public String getMinStr() { return minStr; }
 	public String getMaxStr() { return maxStr; }
+	public Vector getAllowableValues() { return allowableValues; }
+	public void setAllowableDatumValues(Vector v) { allowableDatumValues = v; }
 
 	public boolean focusable() { return (answerType != BADTYPE && answerType != NOTHING); }
 	public boolean focusableArray() { return (answerType == RADIO || answerType == RADIO_HORIZONTAL || answerType == CHECK); }
