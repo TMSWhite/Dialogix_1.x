@@ -112,7 +112,7 @@ public class TricepsServlet extends HttpServlet {
 			triceps = new Triceps();
 			ok = triceps.setSchedule("http://" + req.getServerName() + "/" + req.getParameter("schedule"));
 			if (!ok) {
-				ok = triceps.setSchedule(new File("c:/cvs2/triceps/docs/" + req.getParameter("schedule")));
+				ok = triceps.setSchedule(new File("c:/cvs/triceps/docs/" + req.getParameter("schedule")));
 			}
 			
 			if (!ok) {
