@@ -17,11 +17,11 @@ import java.io.File;
 	    File dir = new File(sourceDir);
 
 	    if (!dir.isDirectory()) {
-	    	logger.println(sourceDir + triceps.get("is_not_a_directory"));
+	    	setError(sourceDir + triceps.get("is_not_a_directory"));
 	    	return;
 	    }
 	    else if (!dir.canRead()) {
-	    	logger.println(sourceDir + triceps.get("is_not_accessible"));
+	    	setError(sourceDir + triceps.get("is_not_accessible"));
 	    	return;
 	    }
 
@@ -43,6 +43,11 @@ import java.io.File;
 		}
 		triceps.setLocale(null);	// set it to the default
     }
+    
+    private void setError(String s) {
+if (DEBUG) Logger.writeln(s);
+		logger.println(s);
+	}
 
 	/*public*/ boolean hasErrors() { return (logger.size() > 0); }
 	/*public*/ String getErrors() { return logger.toString(); }
