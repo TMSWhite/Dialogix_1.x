@@ -912,6 +912,6 @@ public class Node  {
 	}
 	public int getAnswerLanguageNum() { return answerLanguageNum; }
 	
-	static public synchronized String encodeHTML(String s, boolean disallowEmpty) { return (new XmlString(s,disallowEmpty)).toString(); }
-	static public String encodeHTML(String s) {	return encodeHTML(s,false); }	
+	static public synchronized String encodeHTML(String s, boolean disallowEmpty) { return s; }
+	static public String encodeHTML(String s) {	return s; }	
 }
