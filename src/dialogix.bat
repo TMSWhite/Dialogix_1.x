@@ -9,6 +9,9 @@ rem File for starting Dialogix server and browser
 
 rem ----- Verify and Set Required Environment Variables ---------------------
 
+set _PATH=%PATH%
+PATH=%PATH%;/usr/local/dialogix/bin
+
 if not "%JAVA_HOME%" == "" goto gotJavaHome
 
 rem -- try to find JAVA_HOME using standard install directories --
@@ -54,5 +57,7 @@ goto cleanup
 set _NETSCAPE_=
 set _IE_=
 set JAVA_HOME=
+set PATH=%_PATH%
+set _PATH=
 
 exit
