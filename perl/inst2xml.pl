@@ -3,6 +3,8 @@
 use strict;
 use IO::File;
 
+my $PERLDIR = "c:/cvs2/dialogix/perl";
+
 my $dataTypes = {
 	check => 'string',
 	combo => 'string',
@@ -162,6 +164,7 @@ sub write_xml {
 						print OUT "				<option index=\"$option->{'option_counter'}\">\n";
 						print OUT "					<msg>$option->{'option_msg'}</msg>\n";
 						print OUT "					<val>$option->{'option_val'}</val>\n";
+						print OUT "				</option>\n";
 					}
 					print OUT "			</options>\n";
 				}
@@ -403,9 +406,22 @@ sub parse_html {
 	
 	my $exp = $arg;
 	
-	$exp =~ s/(.*?)`(.*?)`/$1<eval>$2<\/eval>/g;
+	# don't call tidy if no markup present
 	
+	my $call_tidy = m/<.+>/;
 	
+	if ($call_tidy) {
+		open (TEMP,">tmp.tmp") or die "unable to write to tmp.tmp";
+		print TEMP $exp;
+		close (TEMP);
+		my @results = qx|$PERLDIR/tidy.exe -config $PERLDIR/tidy.conf < tmp.tmp|;
+		chomp(@results);
+		$exp = join(' ',@results);
+		
+		$exp =~ s/%20/ /g;
+	}
+	
+#	$exp =~ s/(.*?)`(.*?)`/$1<eval>$2<\/eval>/g;	// looks like I need to avoid removing back-ticks?
 	
 	return $exp;
 }
