@@ -1,0 +1,11 @@
+<!-- Context information to add MySQL database connection for Dialogix -->
+@@DB.COMMENT_START@@
+<Context debug="5" reloadable="true" crossContext="true">
+
+  <Resource name="jdbc/dialogix" auth="Container" type="javax.sql.DataSource"
+               maxActive="100" maxIdle="30" maxWait="10000"
+               username="@@DB.USERNAME@@" password="@@DB.PASSWORD@@" driverClassName="com.mysql.jdbc.Driver"
+               url="jdbc:mysql://@@DB.HOST@@:@@DB.PORT@@/@@DB.NAME@@?autoReconnect=true"/>
+
+</Context>
+@@DB.COMMENT_END@@  
