@@ -23,6 +23,8 @@ public class TricepsServlet extends HttpServlet implements VersionIF {
 	static final String ACCEPT_CHARSET = "Accept-Charset";
 	
 	private ServletConfig config = null;
+	private TricepsEngine tricepsEngine = null;
+
 	
 	public void init(ServletConfig config) throws ServletException {
 		super.init(config);
@@ -38,8 +40,8 @@ public class TricepsServlet extends HttpServlet implements VersionIF {
 	}
 
 	public void doPost(HttpServletRequest req, HttpServletResponse res)  {
+		tricepsEngine = null;	// reset it in case of error page
 		try {
-			logAccess(req);
 			if (isSupportedBrowser(req)) {
 				okPage(req,res);
 			}
@@ -81,7 +83,6 @@ if (DEBUG) Logger.printStackTrace(t);
 
 	private void okPage(HttpServletRequest req, HttpServletResponse res) {
 		HttpSession session = req.getSession(true);
-		TricepsEngine tricepsEngine = null;
 		
 		String sessionID = TRICEPS_ENGINE + "." + session.getId();
 		
@@ -90,17 +91,22 @@ if (DEBUG) Logger.printStackTrace(t);
 			tricepsEngine = new TricepsEngine(config);
 		}
 		
+		logAccess(req);
+		
 		tricepsEngine.doPost(req,res);
 		
 		session.setAttribute(sessionID, tricepsEngine);
 	}
 	
 	private void logAccess(HttpServletRequest req) {
-if (DEBUG && WEB_SERVER) {	
+if (DEBUG) {	
+		
 	/* standard Apache log format (after the #@# prefix for easier extraction) */
-	Logger.writeln("#@#(" + req.getParameter("DIRECTIVE") + ") " + req.getRemoteAddr() + " - [" + new Date(System.currentTimeMillis()) + "] \"" +
+	Logger.writeln("#@#(" + req.getParameter("DIRECTIVE") + ") " + 
+		((WEB_SERVER) ? (req.getRemoteAddr() + " - [" + new Date(System.currentTimeMillis()) + "] \"" +
 		req.getMethod() + " " + req.getRequestURI() + "\" \"" +
-		req.getHeader(USER_AGENT) + "\" \"" + req.getHeader(ACCEPT_LANGUAGE) + "\" \"" + req.getHeader(ACCEPT_CHARSET) + "\"");
+		req.getHeader(USER_AGENT) + "\" \"" + req.getHeader(ACCEPT_LANGUAGE) + "\" \"" + req.getHeader(ACCEPT_CHARSET) + "\"") : "") +
+		((tricepsEngine != null) ? tricepsEngine.getScheduleStatus() : ""));
 		
 // User-Agent = Mozilla/4.73 [en] (Win98; U)
 // Accept-Language = en
@@ -128,6 +134,7 @@ if (DEBUG && false) {
 	
 
 	private void errorPage(HttpServletRequest req, HttpServletResponse res) {
+		logAccess(req);
 		try {
 			res.setContentType("text/html");
 			PrintWriter out = res.getWriter();
