@@ -6,16 +6,16 @@ import java.text.*;
 public class Datum implements Serializable {
 	public static final int UNKNOWN = 0;		// haven't asked
 	public static final int NA = 1;				// don't need to ask - not applicable
-	public static final int INVALID = 2;		// if an exception occurs - so propagated	
+	public static final int INVALID = 2;		// if an exception occurs - so propagated
 	public static final int DOUBLE = 3;
 	public static final int STRING = 4;
 	public static final int DATE = 5;
 	public static final int MONTH = 6;
 	public static final String TYPES[] = { "*UNKNOWN*", "*NOT APPLICABLE*", "*INVALID*", "Double", "String", "Date", "Month" };
-	
+
 	public static final SimpleDateFormat mdy = new SimpleDateFormat("MM/dd/yyyy");
 	public static final SimpleDateFormat month = new SimpleDateFormat("MMMM");
-	
+
 	private int type = UNKNOWN;
 	private String sVal = TYPES[type];
 	private double dVal = Double.NaN;
@@ -38,14 +38,14 @@ public class Datum implements Serializable {
 		dVal = Double.NaN;
 		date = null;
 		timestamp = new Date(System.currentTimeMillis());
-		
+
 		switch (i) {
 			case NA:
 			case UNKNOWN:
 				break;
 			default:
-				error = "Invalid Datum - expected one of INVALID, UNKNOWN or NA";
-				/* fall through */			
+				error = "Internal error:  expected one of INVALID, UNKNOWN or NA";
+				/* fall through */
 			case INVALID:
 				type = INVALID;
 				break;
@@ -71,7 +71,7 @@ public class Datum implements Serializable {
 		dVal = Double.NaN;
 		date = null;
 		type = INVALID;	// default is to indicate failure to create new Datum object
-		
+
 		switch (t) {
 			case DOUBLE:
 				try {
@@ -79,7 +79,7 @@ public class Datum implements Serializable {
 					type = DOUBLE;
 				}
 				catch(NumberFormatException e) {
-					error = "Invalid number " + s + ": " + e;
+					error = "Please enter a <B>number</B>";
 					dVal = Double.NaN;
 				}
 				break;
@@ -93,7 +93,7 @@ public class Datum implements Serializable {
 					type = DATE;
 				}
 				catch (java.text.ParseException e) {
-					error = "Invalid date " + s + ": " + e;
+					error = "Please enter a <B>date</B>";
 					date = null;
 				}
 				break;
@@ -104,18 +104,18 @@ public class Datum implements Serializable {
 					type = MONTH;
 				}
 				catch (java.text.ParseException e) {
-					error = "Invalid month " + s + ": " + e;
+					error = "Please enter a <B>month</B>";
 					date = null;
-				}			
+				}
 				break;
 			default:
-				error = "Unexpected data format: " + type;
+				error = "Internal error: Unexpected data format: " + type;
 				break;
 		}
 		bVal = ((s == null) || (dVal == 0)) ? false : true;
 		timestamp = new Date(System.currentTimeMillis());
 	}
-	
+
 	public Datum(boolean b) {
 		type = DOUBLE;
 		dVal = (b ? 1 : 0);
@@ -135,15 +135,15 @@ public class Datum implements Serializable {
 	public boolean isUnknown() { return (type == UNKNOWN); }
 	public boolean isNA() { return (type == NA); }
 	public boolean exists() { return !(isInvalid() || isUnknown() || isNA()); }
-	
-	
+
+
 	public String getError() {
 		if (error == null)
 			return "";
-		
+
 		String temp = error;
 		error = null;
 		return temp;
 	}
-		
+
 }

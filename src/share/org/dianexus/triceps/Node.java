@@ -15,7 +15,7 @@ public class Node implements Serializable {
 	public static final int NOTHING=7;	// do nothing
 	public static final int RADIO2=8;	// different layout
 	private static final String QUESTION_TYPES[] = {"radio", "check", "combo", "date", "month", "text", "double", "nothing", "radio2" };
-	private static final int DATA_TYPES[] = { Datum.DOUBLE, Datum.DOUBLE, Datum.DOUBLE, Datum.DATE, Datum.MONTH, Datum.STRING, Datum.STRING, Datum.STRING, Datum.DOUBLE};
+	private static final int DATA_TYPES[] = { Datum.DOUBLE, Datum.DOUBLE, Datum.DOUBLE, Datum.DATE, Datum.MONTH, Datum.STRING, Datum.DOUBLE, Datum.STRING, Datum.DOUBLE};
 	private static final String QUESTION_MASKS[] = { "", "", "", " (e.g. 7/23/1982)", " (e.g. February)", "", "", "", ""};
 
 	private String concept = "";
@@ -30,6 +30,7 @@ public class Node implements Serializable {
 	private int datumType = Datum.INVALID;
 	private String answerOptions = "";
 	private Vector answerChoices = new Vector();
+	private String error = null;
 
 	// loading from extended Schedule with default answers
 	// XXX hack - Node shouldn't know values of evidence - Schedule should know how to load itself.
@@ -207,7 +208,7 @@ public class Node implements Serializable {
 			}
 		}
 		catch (Throwable t) {
-			System.out.println("error: " + t);
+			setError("Internal error: " + t);
 			return "";
 		}
 
@@ -228,6 +229,22 @@ public class Node implements Serializable {
 	public String getDebugAnswer() { return debugAnswer; }
 	public String getQuestionMask() { return QUESTION_MASKS[answerType]; }
 	public int getStep() { return step; }
+
+	public void setError(String error) {
+		if (this.error == null)
+			this.error = error;
+		else
+			this.error = this.error + "<BR>" + error;
+
+	}
+
+	public String getError() {
+		String temp = error;
+		error = null;
+		return temp;
+	}
+
+	public boolean hasError() { return (error != null); }
 
 	/**
 	 * Prints out the components of a node in the schedule.

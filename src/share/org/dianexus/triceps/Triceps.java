@@ -333,6 +333,7 @@ public class Triceps implements Serializable {
 		}
 
 		if ((answer == null || answer.trim().equals("")) && currentStep >= 0) {
+			q.setError("<- Please answer this question");
 //			errors.push("<bold>Please enter a <i>" + Datum.TYPES[q.getDatumType()] + "</i> for question <i>" + Node.encodeHTML(q.getQuestionRef()) + "</i>.");
 			return false;
 		}
@@ -340,7 +341,7 @@ public class Triceps implements Serializable {
 			if (currentStep >= 0 && q != null) {
 				Datum d = new Datum(answer,q.getDatumType()); // use expected value type
 				if (d.isInvalid()) {
-					errors.push(d.getError());
+					q.setError("<- " + d.getError());
 					return false;
 				}
 				evidence.set(q, d);

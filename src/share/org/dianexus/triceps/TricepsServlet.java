@@ -16,8 +16,7 @@ public class TricepsServlet extends HttpServlet {
 	private HttpServletRequest req;
 	private HttpServletResponse res;
 	private PrintWriter out;
-	private Vector missingAnswers = null;	// lists which nodes are missing answers.  Set by "forward", reset otherwise
-	private boolean isMissingAnswers=false;
+	private String firstFocus = null;
 
 	/**
 	 * This method runs only when the servlet is first loaded by the
@@ -112,8 +111,6 @@ public class TricepsServlet extends HttpServlet {
 	private String processDirective(String directive) {
 		boolean ok = true;
 		StringBuffer sb = new StringBuffer();
-		missingAnswers = new Vector();
-		isMissingAnswers=false;
 
 		// get the POSTed directive (start, back, forward, help, suspend, etc.)	- default is opening screen
 		if (directive == null || "select new interview".equals(directive)) {
@@ -285,8 +282,6 @@ public class TricepsServlet extends HttpServlet {
 
 				status = triceps.storeValue(q, req.getParameter(q.getName()));
 				ok = status && ok;
-				isMissingAnswers = (!status) || isMissingAnswers;
-				missingAnswers.addElement((status) ? "" : " color='red'");
 
 			}
 			// goto next
@@ -306,8 +301,28 @@ public class TricepsServlet extends HttpServlet {
 					sb.append("<B>" + (String) errs.nextElement() + "</B><BR>\n");
 				}
 			}
+
+			Enumeration nodes = triceps.getQuestions();
+			while (nodes.hasMoreElements()) {
+				Node n = (Node) nodes.nextElement();
+				if (n.hasError()) {
+					sb.append("<B>Please answer the question(s) listed in <FONT color='red'>RED</FONT> before proceeding</B><BR>\n");
+					firstFocus = Node.encodeHTML(n.getName());
+					break;
+				}
+			}
+
 			sb.append("<HR>\n");
 		}
+
+		if (firstFocus == null) {
+			Enumeration nodes = triceps.getQuestions();
+			if (nodes.hasMoreElements()) {
+				Node n = (Node) nodes.nextElement();
+				firstFocus = Node.encodeHTML(n.getName());
+			}
+		}
+
 		sb.append(queryUser());
 		return sb.toString();
 	}
@@ -329,26 +344,27 @@ public class TricepsServlet extends HttpServlet {
 		sb.append("<H4>QUESTION AREA</H4>\n");
 
 		Enumeration questionNames = triceps.getQuestions();
-		Enumeration questionErrors = missingAnswers.elements();
-
-		if (isMissingAnswers) {
-			sb.append("<B>Please provide answers for the questions listed in <FONT color='red'>RED</FONT> before proceeding</B><BR>\n");
-		}
+		String color;
+		String errMsg;
 
 		sb.append("<TABLE CELLPADDING='2' CELLSPACING='1' WIDTH='100%' border='1'>\n");
 		for(int count=0;questionNames.hasMoreElements();++count) {
 			Node node = (Node) questionNames.nextElement();
 			Datum datum = triceps.getDatum(node);
-			String color="";
 
-			if (questionErrors.hasMoreElements()) {
-				color = (String) questionErrors.nextElement();
+			if (node.hasError()) {
+				color = " color='red'";
+				errMsg = "<FONT color='red'>" + node.getError() + "</FONT>";
+			}
+			else {
+				color = "";
+				errMsg = "";
 			}
 
 			sb.append("	<TR>\n");
 			sb.append("		<TD><FONT" + color + "><B>" + Node.encodeHTML(node.getQuestionRef()) + "</FONT></B></TD>\n");
 			sb.append("		<TD><FONT" + color + ">" + Node.encodeHTML(triceps.getQuestionStr(node)) + "</FONT></TD>\n");
-			sb.append("		<TD>" + node.prepareChoicesAsHTML(datum) + "</TD>\n");
+			sb.append("		<TD>" + node.prepareChoicesAsHTML(datum) + errMsg + "</TD>\n");
 			sb.append("	</TR>\n");
 		}
 		sb.append("	<TR><TD COLSPAN='3' ALIGN='center'>\n");
@@ -400,6 +416,7 @@ public class TricepsServlet extends HttpServlet {
 				sb.append("<TR>" +
 					"<TD>" + Node.encodeHTML(n.getQuestionRef()) + "</TD>" +
 					"<TD><B>" + Node.encodeHTML(triceps.toString(n)) + "</B></TD>" +
+					"<TD>" + Datum.TYPES[n.getDatumType()] + "</TD>" +
 					"<TD>" + Node.encodeHTML(n.getName()) + "</TD>" +
 					"<TD>" + Node.encodeHTML(n.getConcept()) + "</TD>" +
 					"<TD>" + Node.encodeHTML(n.getDependencies()) + "</TD>" +
