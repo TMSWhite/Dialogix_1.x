@@ -192,7 +192,7 @@ TEST
 -semi-completed Adult and Youth BYS study files saved, restored, and re-saved, and compared (TkDiff)
 -no errorrs detected
 
-<<changes from version 2.7.1 to 3.0.0
+<<changes from version 2.7.1 to 2.7.5
 
 Reorganization & Documentation
   XMLAttrEncoder 
@@ -207,3 +207,13 @@ Reorganization & Documentation
   ExcelDecoder 
     - to convert from Excel encoded strings to consistent Java String format
     - replaces Node.EMPTY_NODE.fixExcelisms()
+
+ToDo
+	Reverse tree creation of Nodes
+	Undo capability of eval nodes
+	Headermsg choices
+	Loading sub-schedules
+	Cocoon integration
+	XML data passing between GLU and Cocoon for presentation
+	XML data model (?) of internal structures (or argument for reasons why not)
+	
