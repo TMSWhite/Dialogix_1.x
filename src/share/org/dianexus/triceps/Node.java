@@ -5,29 +5,6 @@ import java.text.Format;
 
 
 public class Node  {
-	private static Hashtable allowableHTML = new Hashtable();
-	private static String allowableHTMLentities[] = {
-		"<b>","</b>","<i>","</i>","<u>","</u>","<br>","<br/>","<hr>",
-		"<hr/>","&quot;","&amp;","&lt;","&gt;","&nbsp;","&iexcl;","&cent;","&pound;","&curren;",
-		"&yen;","&brvbar;","&sect;","&uml;","&copy;","&ordf;","&laquo;","&not;","&shy;","&reg;",
-		"&macr;","&deg;","&plusmn;","&sup2;","&sup3;","&acute;","&micro;","&para;","&middot;","&cedil;",
-		"&sup1;","&ordm;","&raquo;","&frac14;","&frac12;","&frac34;","&iquest;","&Agrave;","&Aacute;","&Acirc;",
-		"&Atilde;","&Auml;","&Aring;","&AElig;","&Ccedil;","&Egrave;","&Eacute;","&Ecirc;","&Euml;","&Igrave;",
-		"&Iacute;","&Icirc;","&Iuml;","&ETH;","&Ntilde;","&Ograve;","&Oacute;","&Ocirc;","&Otilde;","&Ouml;",
-		"&times;","&Oslash;","&Ugrave;","&Uacute;","&Ucirc;","&Uuml;","&Yacute;","&THORN;","&szlig;","&agrave;",
-		"&aacute;","&acirc;","&atilde;","&auml;","&aring;","&aelig;","&ccedil;","&egrave;","&eacute;","&ecirc;",
-		"&euml;","&igrave;","&iacute;","&icirc;","&iuml;","&eth;","&ntilde;","&ograve;","&oacute;","&ocirc;",
-		"&otilde;","&ouml;","&divide;","&oslash;","&ugrave;","&uacute;","&ucirc;","&uuml;","&yacute;","&thorn;",
-		"&yuml;",
-	};
-	
-	static {
-		/* initialize allowableHTML Hashtable */
-		for (int i=0;i<allowableHTMLentities.length;++i) {
-			allowableHTML.put(allowableHTMLentities[i], "HTML");
-		}
-	}
-	
 	public static final int BADTYPE = 0;
 	public static final int NOTHING=1;	// do nothing
 	public static final int RADIO = 2;
@@ -836,104 +813,7 @@ public class Node  {
 		}
 		return sb.toString();
 	}
-
-
-	static public synchronized String encodeHTML(String s, boolean disallowEmpty) {
-		StringBuffer dst = new StringBuffer();
-		int idx;
-		String token = null;
-
-		if (s != null) {
-			try {
-				char[] src = s.toCharArray();
-
-				for (int i=0;i<src.length;++i) {
-					switch (src[i]) {
-						case '\'': dst.append("&#39;"); break;
-						case '\"': dst.append("&#34;"); break;
-						case '<':
-							idx = s.indexOf('>',i);
-							if (idx != -1) {
-								token = s.substring(i,idx+1).toLowerCase();
-								if (allowableHTML.containsKey(token)) {
-									dst.append(token);
-									i+= (token.length()-1);
-								}
-								else {
-									/* Not a recognized HTML entity, so HTMLize this character, and move one */
-									dst.append("&#60;");
-								}
-							}
-							else {
-								/* No matching '>', so HTMLize this character, and move one */
-								dst.append("&#60;");
-							}
-							break;
-						case '>': dst.append("&#62;"); break;
-						case '&':
-							idx = s.indexOf(';',i);
-							if (idx != -1) {
-								token = s.substring(i,idx+1);
-								if (allowableHTML.containsKey(token)) {
-									dst.append(token);
-									i += (token.length()-1);
-								}
-								else {
-									/* check whether it is a valid UNICODE character */
-									boolean isUnicode = true;
-									String subtoken = null;
-									
-									idx = token.indexOf('#',i);
-									if (idx == 1 && token.length() <= 3) {
-										subtoken = token.substring(idx,token.length());
-										for (int j=0;j<subtoken.length();++j) {
-											if (!Character.isDigit(subtoken.charAt(j))) {
-												isUnicode = false;
-												break;
-											}
-										}
-										if (isUnicode) {
-											dst.append(token);
-											i += (token.length()-1);
-										}
-										else {
-											/* Not a recognized HTML entity, so HTMLize this character, and move one */
-											dst.append("&#38;");			
-										}
-									}
-									else {
-										/* Not a recognized HTML entity, so HTMLize this character, and move one */
-										dst.append("&#38;");
-									}
-								}
-							}
-							else {
-								/* No matching ';', so HTMLize this character, and move one */
-								dst.append("&#38;");
-							}
-							break;
-						default: dst.append(src[i]); break;
-					}
-				}
-			}
-			catch (Throwable t) {
-				System.err.println("Exception while HTMLizing string" + t.getMessage());
-			}
-		}
-		String ans = dst.toString();
-		if (disallowEmpty && ans.length() == 0) {
-			return "&nbsp;";
-		}
-		else {
-			return ans;
-		}
-	}
-
-	static public String encodeHTML(String s) {
-		return encodeHTML(s,false);
-	}
-
-
+	
 	public String getTimeStampStr() { return timeStampStr; }
 	public Date getTimeStamp() { return timeStamp; }
 
@@ -1031,4 +911,7 @@ public class Node  {
 		answerLanguageNum = langNum;
 	}
 	public int getAnswerLanguageNum() { return answerLanguageNum; }
+	
+	static public synchronized String encodeHTML(String s, boolean disallowEmpty) { return (new XmlString(s,disallowEmpty)).toString(); }
+	static public String encodeHTML(String s) {	return encodeHTML(s,false); }	
 }
