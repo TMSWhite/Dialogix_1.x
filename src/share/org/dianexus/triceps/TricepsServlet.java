@@ -8,6 +8,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpUtils;
 
+import java.io.PrintWriter;
 import java.util.Date;
 
 public class TricepsServlet extends HttpServlet implements VersionIF {
@@ -33,17 +34,53 @@ public class TricepsServlet extends HttpServlet implements VersionIF {
 
 	public void doPost(HttpServletRequest req, HttpServletResponse res)  {
 		try {
-			HttpSession session = req.getSession(true);
-			TricepsEngine tricepsEngine = null;
-			
-			String sessionID = TRICEPS_ENGINE + "." + session.getId();
-			
+			logAccess(req);
+			if (isSupportedBrowser(req)) {
+				okPage(req,res);
+			}
+			else {
+				errorPage(req,res);
+			}
+		}
+		catch (Throwable t) {
+if (DEBUG) Logger.writeln("##Throwable @ Servlet.doPost()" + t.getMessage());
+if (DEBUG) Logger.printStackTrace(t);
+			errorPage(req,res);
+		}
+	}
+	
+	private boolean isSupportedBrowser(HttpServletRequest req) {
+		String userAgent = req.getHeader(USER_AGENT);
+		if ((userAgent.indexOf("Mozilla/4") != -1) && (userAgent.indexOf("MSIE") == -1) && (userAgent.indexOf("Opera") == -1)) {
+			return true;
+		}
+		else {
+			return false;
+		}
+	}
+
+	private void okPage(HttpServletRequest req, HttpServletResponse res) {
+		HttpSession session = req.getSession(true);
+		TricepsEngine tricepsEngine = null;
+		
+		String sessionID = TRICEPS_ENGINE + "." + session.getId();
+		
+		tricepsEngine = (TricepsEngine) session.getAttribute(sessionID);
+		if (tricepsEngine == null) {
+			tricepsEngine = new TricepsEngine(config);
+		}
+		
+		tricepsEngine.doPost(req,res);
+		
+		session.setAttribute(sessionID, tricepsEngine);
+	}
+	
+	private void logAccess(HttpServletRequest req) {
 if (DEBUG && WEB_SERVER) {	
 	/* standard Apache log format (after the #@# prefix for easier extraction) */
-	Logger.writeln("#@#" + req.getRemoteAddr() + " - [" + new Date(System.currentTimeMillis()) + "] \"" +
-		req.getMethod() + " " + req.getRequestURI() + " " + req.getProtocol() + "\" \"" +
-		req.getHeader(USER_AGENT) + "\" \"" + req.getHeader(ACCEPT_LANGUAGE) + "\" \"" + req.getHeader(ACCEPT_CHARSET) + "\" " + 
-		req.getParameter("DIRECTIVE"));
+	Logger.writeln("#@#(" + req.getParameter("DIRECTIVE") + ") " + req.getRemoteAddr() + " - [" + new Date(System.currentTimeMillis()) + "] \"" +
+		req.getMethod() + " " + req.getRequestURI() + "\" \"" +
+		req.getHeader(USER_AGENT) + "\" \"" + req.getHeader(ACCEPT_LANGUAGE) + "\" \"" + req.getHeader(ACCEPT_CHARSET) + "\"");
 		
 // User-Agent = Mozilla/4.73 [en] (Win98; U)
 // Accept-Language = en
@@ -52,7 +89,7 @@ if (DEBUG && WEB_SERVER) {
 // User-Agent = Mozilla/4.0 (compatible; MSIE 5.5; Windows 98)
 // Accept-Language = en-us
 }
-if (DEBUG) {
+if (DEBUG && false) {
 	/* catch all sent parameters */
 	Logger.writeln("##########");
 	java.util.Enumeration params = req.getParameterNames();
@@ -66,19 +103,35 @@ if (DEBUG) {
 	}
 	Logger.writeln("##########");
 }
+	}
+	
 
-			tricepsEngine = (TricepsEngine) session.getAttribute(sessionID);
-			if (tricepsEngine == null) {
-				tricepsEngine = new TricepsEngine(config);
-			}
+	private void errorPage(HttpServletRequest req, HttpServletResponse res) {
+		try {
+			res.setContentType("text/html");
+			PrintWriter out = res.getWriter();
 			
-			tricepsEngine.doPost(req,res);
-			
-			session.setAttribute(sessionID, tricepsEngine);
+			out.println("<!DOCTYPE html PUBLIC '-//W3C//DTD HTML 4.01 Transitional//EN'>");
+			out.println("<html>");
+			out.println("<head>");
+			out.println("<META HTTP-EQUIV='Content-Type' CONTENT='text/html;CHARSET=iso-8859-1'>");
+			out.println("<title>Triceps Error-Unsupported Browser</title>");
+			out.println("</head>");
+			out.println("<body bgcolor='white'>");
+			out.println("   <table border='0' cellpadding='0' cellspacing='3' width='100%'>");
+			out.println("      <tr>");
+			out.println("         <td width='1%'><img name='icon' src='/images/trilogo.jpg' align='top' border='0' alt='Logo' /> </td>");
+			out.println("         <td align='left'><font SIZE='4'>Sorry for the inconvenience, but Triceps currently only works with Netscape 4.xx.<br />Please email <a href='mailto:tw176@columbia.edu'>me</a> to be notified when other browsers are supported.<br />In the meantime, Netscape 4.75 can be downloaded <a href='http://home.netscape.com/download/archive/client_archive47x.html'>here</a></font></td>");
+			out.println("      </tr>");
+			out.println("   </table>");
+			out.println("</body>");
+			out.println("</html>");
+	
+			out.flush();
+			out.close();
 		}
 		catch (Throwable t) {
-if (DEBUG) Logger.writeln("##Throwable @ Servlet.doPost()" + t.getMessage());
 if (DEBUG) Logger.printStackTrace(t);
-		}
+		}		
 	}
 }
