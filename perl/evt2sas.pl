@@ -390,7 +390,8 @@ sub timeDiff {
 sub calc_huid {
 	use File::Basename;
 	my $base = basename(shift,"\.dat.*");
-	return (split(/\./,$base))[0];
+	$base =~ s/\.dat(\.evt)?$//;
+	return $base;
 }
 
 sub load_instrument_nodes {
