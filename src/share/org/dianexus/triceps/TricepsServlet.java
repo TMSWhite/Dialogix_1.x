@@ -12,7 +12,6 @@ import java.net.*;
  */
 public class TricepsServlet extends HttpServlet {
 	public static String HELP_T_ICON = null;
-	public static String HELP_F_ICON = null;
 	public static String COMMENT_T_ICON = null;
 	public static String COMMENT_F_ICON = null;
 	public static String REFUSED_T_ICON = null;
@@ -24,7 +23,7 @@ public class TricepsServlet extends HttpServlet {
 
 	private static int cycle = 0;
 
-	private Triceps triceps;
+	private Triceps triceps = null;
 	private HttpServletRequest req;
 	private HttpServletResponse res;
 	private PrintWriter out;
@@ -86,16 +85,15 @@ public class TricepsServlet extends HttpServlet {
 		if (s != null)
 			helpURL = s.trim();
 
-		HELP_T_ICON = Node.encodeHTML(imageFilesDir + "help_true.gif");
-		HELP_F_ICON = Node.encodeHTML(imageFilesDir + "help_false.gif");
-		COMMENT_T_ICON = Node.encodeHTML(imageFilesDir + "comment_true.gif");
-		COMMENT_F_ICON = Node.encodeHTML(imageFilesDir + "comment_false.gif");
-		REFUSED_T_ICON = Node.encodeHTML(imageFilesDir + "refused_true.gif");
-		REFUSED_F_ICON = Node.encodeHTML(imageFilesDir + "refused_false.gif");
-		UNKNOWN_T_ICON = Node.encodeHTML(imageFilesDir + "unknown_true.gif");
-		UNKNOWN_F_ICON = Node.encodeHTML(imageFilesDir + "unknown_false.gif");
-		NOT_UNDERSTOOD_T_ICON = Node.encodeHTML(imageFilesDir + "not_understood_true.gif");
-		NOT_UNDERSTOOD_F_ICON = Node.encodeHTML(imageFilesDir + "not_understood_false.gif");
+		HELP_T_ICON = imageFilesDir + "help_true.gif";
+		COMMENT_T_ICON = imageFilesDir + "comment_true.gif";
+		COMMENT_F_ICON = imageFilesDir + "comment_false.gif";
+		REFUSED_T_ICON = imageFilesDir + "refused_true.gif";
+		REFUSED_F_ICON = imageFilesDir + "refused_false.gif";
+		UNKNOWN_T_ICON = imageFilesDir + "unknown_true.gif";
+		UNKNOWN_F_ICON = imageFilesDir + "unknown_false.gif";
+		NOT_UNDERSTOOD_T_ICON = imageFilesDir + "not_understood_true.gif";
+		NOT_UNDERSTOOD_F_ICON = imageFilesDir + "not_understood_false.gif";
 
 	}
 
@@ -122,66 +120,49 @@ public class TricepsServlet extends HttpServlet {
 			this.req = req;
 			this.res = res;
 			HttpSession session = req.getSession(true);
-			String form = null;
-			String debugInfo = null;
-			String hiddenStr = "";
+			XmlString form = null;
 			firstFocus = null; // reset it each time
-			StringBuffer sb = new StringBuffer();
-
 
 			triceps = (Triceps) session.getValue("triceps");
 
 			res.setContentType("text/html");
+			out = res.getWriter();
 
 			directive = req.getParameter("directive");	// XXX: directive must be set before calling processHidden
-
+			
+			setGlobalVariables();
+			
 			processPreFormDirectives();
-
-			getGlobalVariables();
-
-			hiddenStr = processHidden();
-
-			form = processDirective();
-
-			sb.append(getCustomHeader());
-
+			processHidden();
+			
+			form = new XmlString(createForm());
+			
+			out.println(header());	// must be processed AFTER createForm, otherwise setFocus() doesn't work
+			new XmlString(getCustomHeader(),out);
+			
 			if (errors.length() > 0) {
-				sb.append(errors.toString());
+				out.println("<B>");
+				new XmlString(errors.toString(),out);
+				out.println("</B><HR>");
 				errors =  new StringBuffer();
 			}
-
-			if (form != null) {
-				sb.append("<FORM method='POST' name='myForm' action='" + HttpUtils.getRequestURL(req) + "'>\n");
-				/* language switching section */
-				if (triceps != null && !isSplashScreen) {
-					Vector languages = triceps.nodes.getLanguages();
-					if (languages.size() > 1) {
-						sb.append("<TABLE WIDTH='100%' BORDER='0'>\n	<TR><TD ALIGN='center'>");
-						for (int i=0;i<languages.size();++i) {
-							String language = (String) languages.elementAt(i);
-							boolean selected = (i == triceps.getLanguage());
-							sb.append(((selected) ? "<U>" : "") +
-								"<INPUT TYPE='button' onClick='javascript:setLanguage(\"" + language + "\");' VALUE='" + language + "'>" +
-								((selected) ? "</U>" : ""));
-						}
-						sb.append("	<TD></TR>\n</TABLE>");
-					}
+			if (form.hasErrors() && (developerMode || debugMode)) {
+				StringBuffer errs = new StringBuffer("<B>");
+				Vector parsingErrs = form.getErrors();
+				for (int i=0;i<parsingErrs.size();++i) {
+					errs.append((String) parsingErrs.elementAt(i) + "<br>");
 				}
-
-				sb.append(hiddenStr);
-				sb.append(form);
-				sb.append("</FORM>\n");
+				errs.append("</B>");
+				new XmlString(errs.toString(),out);
 			}
+			
+			out.println(form.toString());		
 
 			if (!isSplashScreen) {
-				debugInfo = generateDebugInfo();
-				sb.append(debugInfo);
+				new XmlString(generateDebugInfo(),out);
 			}
-
-			out = res.getWriter();
-			out.println(header());
-			out.println((new XmlString(sb.toString())).toString());
-			out.println(footer());
+			
+			out.println(footer());	// should not be parsed
 			out.flush();
 			out.close();
 
@@ -198,7 +179,7 @@ public class TricepsServlet extends HttpServlet {
 			t.printStackTrace(System.err);
 		}
 	}
-
+	
 	private void processPreFormDirectives() {
 		/* setting language doesn't use directive parameter */
 		if (triceps != null) {
@@ -208,36 +189,33 @@ public class TricepsServlet extends HttpServlet {
 				directive = "refresh current";
 			}
 		}
-
+		
 		if (triceps == null)
 			return;
 
-
+			
 		/* Want to evaluate expression before doing rest so can see results of changing global variable values */
 		if ("evaluate expr:".equals(directive)) {
 			String expr = req.getParameter("evaluate expr:");
-			if (expr != null && triceps != null) {
+			if (expr != null) {
 				Datum datum = triceps.evaluateExpr(expr);
 
-				errors.append("<TABLE WIDTH='100%' CELLPADDING='2' CELLSPACING='1' BORDER=1>\n");
-				errors.append("<TR><TD>Equation</TD><TD><B>" + Node.encodeHTML(expr) + "</B></TD><TD>Type</TD><TD><B>" + Datum.TYPES[datum.type()] + "</B></TD></TR>\n");
-				errors.append("<TR><TD>String</TD><TD><B>" + Node.encodeHTML(datum.stringVal(true)) + "</B></TD><TD>boolean</TD><TD><B>" + datum.booleanVal() + "</B></TD></TR>\n");
-				errors.append("<TR><TD>double</TD><TD><B>" + datum.doubleVal() + "</B></TD><TD>&nbsp;</TD>&nbsp;</TD></TR>\n");
-				errors.append("<TR><TD>date</TD><TD><B>" + datum.dateVal() + "</B></TD><TD>month</TD><TD><B>" + datum.monthVal() + "</B></TD></TR>\n");
-				errors.append("</TABLE>\n");
+				errors.append("<TABLE WIDTH='100%' CELLPADDING='2' CELLSPACING='1' BORDER=1>");
+				errors.append("<TR><TD>Equation</TD><TD><B>" + expr + "</B></TD><TD>Type</TD><TD><B>" + Datum.TYPES[datum.type()] + "</B></TD></TR>");
+				errors.append("<TR><TD>String</TD><TD><B>" + datum.stringVal(true) + "</B></TD><TD>boolean</TD><TD><B>" + datum.booleanVal() + "</B></TD></TR>");
+				errors.append("<TR><TD>double</TD><TD><B>" + datum.doubleVal() + "</B></TD><TD>&nbsp;</TD>&nbsp;</TD></TR>");
+				errors.append("<TR><TD>date</TD><TD><B>" + datum.dateVal() + "</B></TD><TD>month</TD><TD><B>" + datum.monthVal() + "</B></TD></TR>");
+				errors.append("</TABLE>");
 
-				Enumeration errs = triceps.getErrors();
-				if (errs.hasMoreElements()) {
-					errors.append("<B>There were errors parsing that equation:</B><BR>");
-					while (errs.hasMoreElements()) {
-						errors.append("<B>" + Node.encodeHTML((String) errs.nextElement()) + "</B><BR>\n");
-					}
+				Vector errs = triceps.getErrors();
+				for (int i=0;i<errs.size();++i) {
+					setError((String) errs.elementAt(i));
 				}
 			}
 		}
-	}
-
-	private void getGlobalVariables() {
+	}	
+	
+	private void setGlobalVariables() {
 		if (triceps != null) {
 			debugMode = triceps.isDebugMode();
 			developerMode = triceps.isDeveloperMode();
@@ -255,43 +233,38 @@ public class TricepsServlet extends HttpServlet {
 			allowComments = false;
 		}
 		allowEasyBypass = false;
-		okPasswordForTempAdminMode = false;
+		okPasswordForTempAdminMode = false;	
 		okToShowAdminModeIcons = false;
 		isSplashScreen = false;
 	}
 
-	private String processHidden() {
-		StringBuffer sb = new StringBuffer();
-
-		if (triceps != null) {
-			/* Refusals only aply once Triceps has been initialized */
-			String settingAdminMode = req.getParameter("PASSWORD_FOR_ADMIN_MODE");
-			if (settingAdminMode != null && !settingAdminMode.trim().equals("")) {
-				/* if try to enter a password, make sure that doesn't reset the form if password fails */
-				String passwd = triceps.getPasswordForAdminMode();
-				if (passwd != null) {
-					if (passwd.trim().equals(settingAdminMode.trim())) {
-						okToShowAdminModeIcons = true;	// so allow AdminModeIcons to be displayed
-					}
-					else {
-						sb.append("Incorrect password to enter Administrative Mode<BR>");
-					}
+	private void processHidden() {
+		/* Has side-effects - so must occur before createForm() */
+		if (triceps == null)
+			return;
+			
+		String settingAdminMode = req.getParameter("PASSWORD_FOR_ADMIN_MODE");
+		if (settingAdminMode != null && !settingAdminMode.trim().equals("")) {
+			/* if try to enter a password, make sure that doesn't reset the form if password fails */
+			String passwd = triceps.getPasswordForAdminMode();
+			if (passwd != null) {
+				if (passwd.trim().equals(settingAdminMode.trim())) {
+					okToShowAdminModeIcons = true;	// so allow AdminModeIcons to be displayed
 				}
-				directive = "refresh current";	// so that will set the admin mode password
+				else {
+					setError("Incorrect password to enter Administrative Mode");
+				}
 			}
-
-			if (triceps.isTempPassword(req.getParameter("TEMP_ADMIN_MODE_PASSWORD"))) {
-				// enables the password for this session only
-				okPasswordForTempAdminMode = true;	// allow AdminModeIcon values to be accepted
-			}
+			directive = "refresh current";	// so that will set the admin mode password
+		}
+			
+		if (triceps.isTempPassword(req.getParameter("TEMP_ADMIN_MODE_PASSWORD"))) {
+			// enables the password for this session only
+			okPasswordForTempAdminMode = true;	// allow AdminModeIcon values to be accepted
 		}
 
-		sb.append("<input type='HIDDEN' name='PASSWORD_FOR_ADMIN_MODE' value=''>\n");	// must manually bypass each time
-		sb.append("<input type='HIDDEN' name='LANGUAGE' value=''>\n");	// must manually bypass each time
-
-
 		/** Process requests to change developerMode-type status **/
-		if (triceps != null && directive != null) {
+		if (directive != null) {
 			/* Toggle these values, as requested */
 			if (directive.startsWith("turn developerMode")) {
 				developerMode = !developerMode;
@@ -309,31 +282,29 @@ public class TricepsServlet extends HttpServlet {
 				directive = "refresh current";
 			}
 		}
-
-		return sb.toString();
 	}
 
 	private String getCustomHeader() {
 		StringBuffer sb = new StringBuffer();
 
-		sb.append("<TABLE BORDER='0' CELLPADDING='0' CELLSPACING='3' WIDTH='100%'>\n");
-		sb.append("<TR>\n");
-		sb.append("	<TD WIDTH='1%'>\n");
+		sb.append("<TABLE BORDER='0' CELLPADDING='0' CELLSPACING='3' WIDTH='100%'>");
+		sb.append("<TR>");
+		sb.append("<TD WIDTH='1%'>");
 
-		String logo = (triceps != null && !isSplashScreen) ? triceps.getIcon() : logoIcon;
+		String logo = (!isSplashScreen && triceps != null) ? triceps.getIcon() : logoIcon;
 		if (logo.trim().equals("")) {
 			sb.append("&nbsp;");
 		}
 		else {
-			sb.append("			<IMG NAME='icon' SRC='" + Node.encodeHTML(imageFilesDir + logo) + "' ALIGN='top' BORDER='0'" +
-				((!isSplashScreen) ? " onMouseDown='javascript:setAdminModePassword();'":"") + " ALT='Logo'>\n");
+			sb.append("<IMG NAME='icon' SRC='" + (imageFilesDir + logo) + "' ALIGN='top' BORDER='0'" +
+				((!isSplashScreen) ? " onMouseDown='javascript:setAdminModePassword();'":"") + " ALT='Logo'>");
 		}
-		sb.append("	</TD>\n");
-		sb.append("	<TD ALIGN='left'><FONT SIZE='5'><B>" + Node.encodeHTML((triceps != null && !isSplashScreen) ? triceps.getHeaderMsg() : "Triceps System") + "</B></FONT></TD>\n");
-		sb.append("	<TD WIDTH='1%'><IMG SRC='" + HELP_T_ICON + "' ALIGN='top' BORDER='0' ALT='Help' onMouseDown='javascript:help(\"" + Node.encodeHTML(helpURL) + "\");'></TD>\n");
-		sb.append("</TR>\n");
-		sb.append("</TABLE>\n");
-		sb.append("<HR>\n");
+		sb.append("	</TD>");
+		sb.append("	<TD ALIGN='left'><FONT SIZE='5'><B>" + ((triceps != null && !isSplashScreen) ? triceps.getHeaderMsg() : "Triceps System") + "</B></FONT></TD>");
+		sb.append("	<TD WIDTH='1%'><IMG SRC='" + HELP_T_ICON + "' ALIGN='top' BORDER='0' ALT='Help' onMouseDown='javascript:help(\"" + helpURL + "\");'></TD>");
+		sb.append("</TR>");
+		sb.append("</TABLE>");
+		sb.append("<HR>");
 
 		return sb.toString();
 	}
@@ -357,7 +328,8 @@ public class TricepsServlet extends HttpServlet {
 			ScheduleList interviews = new ScheduleList(dir);
 
 			if (interviews.hasErrors()) {
-				errors.append("<B>Error getting list of available interviews:<BR>" + interviews.getErrors() + "</B>");
+				setError("Error getting list of available interviews:");
+				setError(interviews.getErrors());
 			}
 			else {
 				Vector schedules = interviews.getSchedules();
@@ -379,24 +351,24 @@ public class TricepsServlet extends HttpServlet {
 						}
 					}
 					catch (Throwable t) {
-						errors.append("Unexpected error: " + t.getMessage());
+						setError("Unexpected error: " + t.getMessage());
 					}
 				}
 			}
 		}
 		catch (Throwable t) {
-			errors.append("Unexpected error: " + t.getMessage());
+			setError("Unexpected error: " + t.getMessage());
 		}
 		return names;
 	}
-
+	
 	private String getScheduleInfo(Schedule sched, boolean isSuspended) {
 		if (sched == null)
 			return null;
-
+			
 		StringBuffer sb = new StringBuffer();
 		String s = null;
-
+		
 		if (isSuspended) {
 			sb.append(sched.getReserved(Schedule.TITLE_FOR_PICKLIST_WHEN_IN_PROGRESS));
 		}
@@ -406,42 +378,90 @@ public class TricepsServlet extends HttpServlet {
 				sb.append(s);
 			}
 			else {
-				sb.append("*NO TITLE*");
+				sb.append("NO_TITLE");
 			}
 			s = sched.getReserved(Schedule.LANGUAGES);
 			if (s != null && s.trim().length() > 0 && s.indexOf("|") != -1) {
 				sb.append(" [" + s + "]");
 			}
 		}
-
+		
 		return sb.toString();
-	}
-
-	private String selectFromInterviewsInDir(String selectTarget, String dir, boolean isSuspended) {
+	}	
+	
+	private String selectFromInterviewsInDir(String selectTarget, String dir, boolean isSuspended) {	
 		StringBuffer sb = new StringBuffer();
-
+		
 		try {
 			TreeMap names = getSortedNames(dir,isSuspended);
 
 			if (names.size() > 0) {
-				sb.append("<select name='" + selectTarget + "'>\n");
+				sb.append("<select name='" + selectTarget + "'>");
+				if (isSuspended) {
+					/* add a blank line so don't accidentally resume a file instead of starting one */
+					sb.append("<option value=''>&nbsp;</option>");
+				}
 				Iterator iterator = names.keySet().iterator();
 				while(iterator.hasNext()) {
 					String title = (String) iterator.next();
 					String target = (String) names.get(title);
-					sb.append("	<option value='" + Node.encodeHTML(target) + "'>" + Node.encodeHTML(title) + "</option>\n");
+					sb.append("	<option value='" + target + "'>" + title + "</option>");
 				}
-				sb.append("</select>\n");
+				sb.append("</select>");
 			}
 		}
 		catch (Throwable t) {
-			errors.append("Error building sorted list of interviews: " + t.getMessage());
+			setError("Error building sorted list of interviews: " + t.getMessage());
 		}
-
+		
 		if (sb.length() == 0)
 			return "&nbsp;";
 		else
 			return sb.toString();
+	}
+	
+	private String createForm() {
+		StringBuffer sb = new StringBuffer();
+		String formStr = null;
+		
+		sb.append("<FORM method='POST' name='myForm' action='" + HttpUtils.getRequestURL(req) + "'>");
+		
+		formStr = processDirective();	// since this sets isSplashScreen, which is needed to decide whether to display language buttons
+
+		sb.append(languageButtons());
+
+		sb.append(formStr);
+		
+		sb.append("<input type='HIDDEN' name='PASSWORD_FOR_ADMIN_MODE' value=''>");	// must manually bypass each time
+		sb.append("<input type='HIDDEN' name='LANGUAGE' value=''>");	// must manually bypass each time
+
+		sb.append("</FORM>");
+		
+		return sb.toString();
+	}
+	
+	private String languageButtons() {
+		if (isSplashScreen || triceps == null || !triceps.isAllowLanguageSwitching())
+			return "";
+			
+		StringBuffer sb = new StringBuffer();
+		
+		/* language switching section */
+		if (!isSplashScreen && triceps != null) {
+			Vector languages = triceps.nodes.getLanguages();
+			if (languages.size() > 1) {
+				sb.append("<TABLE WIDTH='100%' BORDER='0'><TR><TD ALIGN='center'>");
+				for (int i=0;i<languages.size();++i) {
+					String language = (String) languages.elementAt(i);
+					boolean selected = (i == triceps.getLanguage());
+					sb.append(((selected) ? "<U>" : "") +
+						"<INPUT TYPE='button' onClick='javascript:setLanguage(\"" + language + "\");' VALUE='" + language + "'>" +
+						((selected) ? "</U>" : ""));
+				}
+				sb.append("</TD></TR></TABLE>");
+			}
+		}		
+		return sb.toString();
 	}
 
 	private String processDirective() {
@@ -449,36 +469,36 @@ public class TricepsServlet extends HttpServlet {
 		int gotoMsg = Triceps.OK;
 		StringBuffer sb = new StringBuffer();
 		Enumeration nodes;
-
+		
 		// get the POSTed directive (start, back, next, help, suspend, etc.)	- default is opening screen
 		if (directive == null || "select new interview".equals(directive)) {
 			/* Construct splash screen */
 			isSplashScreen = true;
-
-			sb.append("<TABLE CELLPADDING='2' CELLSPACING='2' BORDER='1'>\n");
-			sb.append("<TR><TD>Please select an interview/questionnaire from the pull-down list:  </TD>\n");
-			sb.append("	<TD>\n");
-
+			
+			sb.append("<TABLE CELLPADDING='2' CELLSPACING='2' BORDER='1'>");
+			sb.append("<TR><TD>Please select an interview/questionnaire from the pull-down list:  </TD>");
+			sb.append("<TD>");
+			
 			/* Build the list of available interviews */
 			sb.append(selectFromInterviewsInDir("schedule",scheduleSrcDir,false));
 
-			sb.append("	</TD>\n");
-			sb.append("	<TD><input type='SUBMIT' name='directive' value='START'></TD>\n");
-			sb.append("</TR>\n");
-
+			sb.append("</TD>");
+			sb.append("<TD><input type='SUBMIT' name='directive' value='START'></TD>");
+			sb.append("</TR>");
+			
 			/* Build the list of suspended interviews */
-			sb.append("<TR><TD>OR, restore an interview/questionnaire in progress:  </TD>\n");
-			sb.append("	<TD>\n");
-
+			sb.append("<TR><TD>OR, restore an interview/questionnaire in progress:  </TD>");
+			sb.append("<TD>");
+			
 			sb.append(selectFromInterviewsInDir("RestoreSuspended",workingFilesDir,true));
-
+			
 			if (developerMode) {
 				sb.append("<input type='text' name='RESTORE'>");
 			}
-			sb.append("	</TD>\n");
-			sb.append("	<TD><input type='SUBMIT' name='directive' value='RESTORE'></TD>\n");
-			sb.append("</TABLE>\n");
-
+			sb.append("</TD>");
+			sb.append("<TD><input type='SUBMIT' name='directive' value='RESTORE'></TD>");
+			sb.append("</TR></TABLE>");
+			
 			return sb.toString();
 		}
 		else if (directive.equals("START")) {
@@ -490,9 +510,9 @@ public class TricepsServlet extends HttpServlet {
 				directive = null;
 				return processDirective();
 			}
-
+			
 			// re-check developerMode options - they aren't set via the hidden options, since a new copy of Triceps created
-			getGlobalVariables();
+			setGlobalVariables();
 
 			ok = ok && ((gotoMsg = triceps.gotoStarting()) == Triceps.OK);	// don't proceed if prior error
 			// ask question
@@ -503,20 +523,25 @@ public class TricepsServlet extends HttpServlet {
 			restore = req.getParameter("RESTORE");
 			if (restore == null || restore.trim().equals("")) {
 				restore = req.getParameter("RestoreSuspended");
+				if (restore == null || restore.trim().equals("")) {
+					directive = null;
+					return processDirective();
+				}
 			}
+
 
 			// load schedule
 			triceps = new Triceps(restore);
 			ok = triceps.isValid();
 
 			if (!ok) {
-				directive = null;	// so that processDirective() will select new interview
-
-				return "<B>Unable to find or access schedule '" + restore + "'</B><HR>" +
-					processDirective();
+				directive = null;
+				
+				setError("Unable to find or access schedule '" + restore + "'");
+				return processDirective();
 			}
 			// re-check developerMode options - they aren't set via the hidden options, since a new copy of Triceps created
-			getGlobalVariables();
+			setGlobalVariables();
 
 			ok = ok && ((gotoMsg = triceps.gotoStarting()) == Triceps.OK);	// don't proceed if prior error
 
@@ -539,7 +564,7 @@ public class TricepsServlet extends HttpServlet {
 		else if (directive.equals("reload questions")) { // debugging option
 			ok = triceps.reloadSchedule();
 			if (ok) {
-				sb.append("<B>Schedule restored successfully</B><HR>\n");
+				setError("Schedule restored successfully");
 			}
 			// re-ask current question
 		}
@@ -547,19 +572,19 @@ public class TricepsServlet extends HttpServlet {
 			String name = req.getParameter("save to:");
 			ok = triceps.toTSV(workingFilesDir,name);
 			if (ok) {
-				sb.append("<B>Interview saved successfully as " + Node.encodeHTML(workingFilesDir + name) + "</B><HR>\n");
+				setError("Interview saved successfully as " + (workingFilesDir + name));
 			}
 		}
 		else if (directive.equals("show XML")) {
-			sb.append("<B>Use 'Show Source' to see data in Schedule as XML</B><BR>\n");
-			sb.append("<!--\n" + triceps.toXML() + "\n-->\n");
-			sb.append("<HR>\n");
+			setError("Use 'Show Source' to see data in Schedule as XML");
+			sb.append("<!--\n" + triceps.toXML() + "\n-->");
+			sb.append("<HR>");
 		}
 		else if (directive.equals("show Syntax Errors")) {
 			Vector pes = triceps.collectParseErrors();
 
 			if (pes.size() == 0) {
-				errors.append("<B>No syntax errors were found</B><HR>");
+				setError("No syntax errors were found");
 			}
 			else {
 				Vector errs;
@@ -569,56 +594,50 @@ public class TricepsServlet extends HttpServlet {
 					Node n = pe.getNode();
 
 					if (i == 0) {
-						errors.append("<FONT color='red'>The following errors were found in file <B>" + Node.encodeHTML(n.getSourceFile()) + "</B></FONT><BR>\n");
-						errors.append("<TABLE CELLPADDING='2' CELLSPACING='1' WIDTH='100%' border='1'>\n");
-						errors.append("<TR><TD>line#</TD><TD>name</TD><TD>Dependencies</TD><TD><B>Dependency Errors</B></TD><TD>Action Type</TD><TD>Action</TD><TD><B>Action Errors</B></TD><TD><B>Other Errors</B></TD></TR>\n");
+						setError("<FONT color='red'>The following errors were found in file <I>" + (n.getSourceFile()) + "</I></FONT>");
+						setError("<TABLE CELLPADDING='2' CELLSPACING='1' WIDTH='100%' border='1'>");
+						setError("<TR><TD>line#</TD><TD>name</TD><TD>Dependencies</TD><TD><B>Dependency Errors</B></TD><TD>Action Type</TD><TD>Action</TD><TD><B>Action Errors</B></TD><TD><B>Other Errors</B></TD></TR>");
 					}
 
-					errors.append("\n<TR><TD>" + n.getSourceLine() + "</TD><TD>" + Node.encodeHTML(n.getLocalName(),true) + "</TD>");
-					errors.append("\n<TD>" + Node.encodeHTML(pe.getDependencies(),true) + "</TD>\n<TD>");
+					setError("<TR><TD>" + n.getSourceLine() + "</TD><TD>" + (n.getLocalName()) + "</TD>");
+					setError("<TD>" + (pe.getDependencies()) + "</TD><TD>");
 
 					errs = pe.getDependenciesErrors();
 					if (errs.size() == 0) {
-						errors.append("&nbsp;");
+						setError("&nbsp;");
 					}
 					else {
 						for (int j=0;j<errs.size();++j) {
-							if (j > 0)
-								errors.append("<BR>");
-							errors.append("" + (j+1) + ")&nbsp;" + Node.encodeHTML((String) errs.elementAt(j),true));
+							setError("" + (j+1) + ")&nbsp;" + ((String) errs.elementAt(j)));
 						}
 					}
 
-					errors.append("</TD>\n<TD>" + Node.ACTION_TYPES[n.getQuestionOrEvalType()] + "</TD><TD>" + Node.encodeHTML(pe.getQuestionOrEval(),true) + "</TD><TD>");
+					setError("</TD><TD>" + Node.ACTION_TYPES[n.getQuestionOrEvalType()] + "</TD><TD>" + (pe.getQuestionOrEval()) + "</TD><TD>");
 
 					errs = pe.getQuestionOrEvalErrors();
 					if (errs.size() == 0) {
-						errors.append("&nbsp;");
+						setError("&nbsp;");
 					}
 					else {
 						for (int j=0;j<errs.size();++j) {
-							if (j > 0)
-								errors.append("<BR>");
-							errors.append("" + (j+1) + ")&nbsp;" + Node.encodeHTML((String) errs.elementAt(j),true));
+							setError("" + (j+1) + ")&nbsp;" + ((String) errs.elementAt(j)));
 						}
 					}
 
-					errors.append("</TD>\n<TD>");
+					setError("</TD><TD>");
 
 					errs = pe.getNodeErrors();
 					if (errs.size() == 0) {
-						errors.append("&nbsp;");
+						setError("&nbsp;");
 					}
 					else {
 						for (int j=0;j<errs.size();++j) {
-							if (j > 0)
-								errors.append("<BR>");
-							errors.append("" + (j+1) + ")&nbsp;" + (String) errs.elementAt(j));	// XXX: don't Node.encodeHTML() these, since pre-processed within Node
+							setError("" + (j+1) + ")&nbsp;" + (String) errs.elementAt(j));	// XXX: don't () these, since pre-processed within Node
 						}
 					}
-					errors.append("</TD></TR>");
+					setError("</TD></TR>");
 				}
-				errors.append("</TABLE><HR>\n");
+				setError("</TABLE><HR>");
 			}
 		}
 		else if (directive.equals("next")) {
@@ -645,17 +664,18 @@ public class TricepsServlet extends HttpServlet {
 				boolean savedOK;
 				String filename = triceps.getFilename();
 
-				sb.append("<B>Thank you, the interview is completed</B><BR>\n");
+				setError("Thank you, the interview is completed");
+				triceps.toTSV(workingFilesDir,filename);
 				savedOK = triceps.toTSV(completedFilesDir,filename);
 				ok = savedOK && ok;
 				if (savedOK) {
-					sb.append("<B>Interview saved successfully as " + Node.encodeHTML(completedFilesDir + filename) + "</B><HR>\n");
+					setError("Interview saved successfully as " + (completedFilesDir + filename));
 				}
 
 				savedOK = triceps.toTSV(floppyDir,filename);
 				ok = savedOK && ok;
 				if (savedOK) {
-					sb.append("<B>Interview saved successfully as " + Node.encodeHTML(floppyDir + filename) + "</B><HR>\n");
+					setError("Interview saved successfully as " + (floppyDir + filename));
 				}
 			}
 
@@ -672,13 +692,10 @@ public class TricepsServlet extends HttpServlet {
 
 
 		/* Show any accumulated errors */
-		int errCount = 0;
-		Enumeration errs = triceps.getErrors();
-		if (errs.hasMoreElements()) {
-			while (errs.hasMoreElements()) {
-				++errCount;
-				sb.append("<B>" + Node.encodeHTML((String) errs.nextElement()) + "</B><BR>\n");
-			}
+		Vector errs = triceps.getErrors();
+		int errCount=0;
+		for (;errCount<errs.size();++errCount) {
+			setError((String) errs.elementAt(errCount));
 		}
 
 		nodes = triceps.getQuestions();
@@ -686,21 +703,17 @@ public class TricepsServlet extends HttpServlet {
 			Node n = (Node) nodes.nextElement();
 			if (n.hasRuntimeErrors()) {
 				if (++errCount == 1) {
-					sb.append("<B>Please answer the question(s) listed in <FONT color='red'>RED</FONT> before proceeding</B><BR>\n");
+					setError("Please answer the question(s) listed in <FONT color='red'>RED</FONT> before proceeding");
 				}
 				if (n.focusableArray()) {
-					firstFocus = Node.encodeHTML(n.getLocalName()) + "[0]";
+					firstFocus = n.getLocalName() + "[0]";
 					break;
 				}
 				else if (n.focusable()) {
-					firstFocus = Node.encodeHTML(n.getLocalName());
+					firstFocus = n.getLocalName();
 					break;
 				}
 			}
-		}
-
-		if (errCount > 0) {
-			sb.append("<HR>\n");
 		}
 
 		if (firstFocus == null) {
@@ -708,11 +721,11 @@ public class TricepsServlet extends HttpServlet {
 			while (nodes.hasMoreElements()) {
 				Node n = (Node) nodes.nextElement();
 				if (n.focusableArray()) {
-					firstFocus = Node.encodeHTML(n.getLocalName()) + "[0]";
+					firstFocus = n.getLocalName() + "[0]";
 					break;
 				}
 				else if (n.focusable()) {
-					firstFocus = Node.encodeHTML(n.getLocalName());
+					firstFocus = n.getLocalName();
 					break;
 				}
 			}
@@ -721,7 +734,10 @@ public class TricepsServlet extends HttpServlet {
 			firstFocus = "directive[0]";	// try to focus on Next button if nothing else available
 		}
 
+		firstFocus = (new XmlString(firstFocus)).toString();	// make sure properly formatted
+		
 		sb.append(queryUser());
+		
 		return sb.toString();
 	}
 
@@ -732,16 +748,19 @@ public class TricepsServlet extends HttpServlet {
 	private String queryUser() {
 		// if parser internal to Schedule, should have method access it, not directly
 		StringBuffer sb = new StringBuffer();
+		
+		if (triceps == null)
+			return "";
 
 		if (debugMode && developerMode) {
-			sb.append("<H4>QUESTION AREA</H4>\n");
+			sb.append("<H4>QUESTION AREA</H4>");
 		}
 
 		Enumeration questionNames = triceps.getQuestions();
 		String color;
 		String errMsg;
 
-		sb.append("<TABLE CELLPADDING='2' CELLSPACING='1' WIDTH='100%' border='1'>\n");
+		sb.append("<TABLE CELLPADDING='2' CELLSPACING='1' WIDTH='100%' border='1'>");
 		for(int count=0;questionNames.hasMoreElements();++count) {
 			Node node = (Node) questionNames.nextElement();
 			Datum datum = triceps.getDatum(node);
@@ -756,25 +775,30 @@ public class TricepsServlet extends HttpServlet {
 
 				for (int j=0;j<errs.size();++j) {
 					if (j > 0) {
-						errStr.append("<BR>\n");
+						errStr.append("<BR>");
 					}
-					errStr.append(Node.encodeHTML((String) errs.elementAt(j)));
+					errStr.append((String) errs.elementAt(j));
 				}
 				errStr.append("</FONT>");
 				errMsg = errStr.toString();
 			}
 			else {
-				color = "";
+				color = null;
 				errMsg = "";
 			}
 
-			sb.append("	<TR>\n");
+			sb.append("<TR>");
 
 			if (showQuestionNum) {
-				sb.append("<TD><FONT" + color + "><B>" + Node.encodeHTML(node.getExternalName()) + "</B></FONT></TD>\n");
+				if (color != null) {
+					sb.append("<TD><FONT" + color + "><B>" + node.getExternalName() + "</B></FONT></TD>");
+				}
+				else {
+					sb.append("<TD>" + node.getExternalName() + "</TD>");
+				}
 			}
 
-			String inputName = Node.encodeHTML(node.getLocalName());
+			String inputName = node.getLocalName();
 
 			boolean isSpecial = (datum.exists() && !datum.isType(Datum.STRING) && !datum.isType(Datum.NA));
 			allowEasyBypass = allowEasyBypass || isSpecial;	// if a value has already been refused, make it easy to re-refuse it
@@ -783,79 +807,97 @@ public class TricepsServlet extends HttpServlet {
 
 			switch(node.getAnswerType()) {
 				case Node.NOTHING:
-					sb.append("		<TD COLSPAN='3'><FONT" + color + ">" + Node.encodeHTML(triceps.getQuestionStr(node)) + "</FONT></TD>\n");
+					if (color != null) {
+						sb.append("<TD COLSPAN='3'><FONT" + color + ">" + (triceps.getQuestionStr(node)) + "</FONT></TD>");
+					}
+					else {
+						sb.append("<TD COLSPAN='3'>" + (triceps.getQuestionStr(node)) + "</TD>");
+					}
 					break;
 				case Node.RADIO_HORIZONTAL:
-					sb.append("		<TD COLSPAN='3'>\n");
-					sb.append("			<input type='HIDDEN' name='" + Node.encodeHTML(inputName + "_COMMENT") + "' value='" + Node.encodeHTML(node.getComment()) + "'>\n");
-					sb.append("			<input type='HIDDEN' name='" + Node.encodeHTML(inputName + "_SPECIAL") + "' value='" +
-						((isSpecial) ? Node.encodeHTML(triceps.toString(node,true),true) : "") +
-						"'>\n");
-					sb.append("			<input type='HIDDEN' name='" + Node.encodeHTML(inputName + "_HELP") + "' value='" + Node.encodeHTML(node.getHelpURL()) + "'>\n");
-					sb.append("		<FONT" + color + ">" + Node.encodeHTML(triceps.getQuestionStr(node)) + "</FONT></TD>\n");
-					sb.append("</TR>\n<TR>\n");
+					sb.append("<TD COLSPAN='3'>");
+					sb.append("<input type='HIDDEN' name='" + (inputName + "_COMMENT") + "' value='" + (node.getComment()) + "'>");
+					sb.append("<input type='HIDDEN' name='" + (inputName + "_SPECIAL") + "' value='" +
+						((isSpecial) ? (triceps.toString(node,true)) : "") +
+						"'>");
+					sb.append("<input type='HIDDEN' name='" + (inputName + "_HELP") + "' value='" + (node.getHelpURL()) + "'>");
+					if (color != null) {
+						sb.append("<FONT" + color + ">" + (triceps.getQuestionStr(node)) + "</FONT>");
+					}
+					else {
+						sb.append(triceps.getQuestionStr(node));
+					}
+					sb.append("</TD></TR><TR>");
 					if (showQuestionNum) {
 						sb.append("<TD>&nbsp;</TD>");
 					}
-					sb.append("	<TD WIDTH='1%' NOWRAP>" + clickableOptions + "</TD>\n");
+					sb.append("<TD WIDTH='1%' NOWRAP>" + clickableOptions + "</TD>");
 					sb.append(node.prepareChoicesAsHTML(triceps.parser,triceps.evidence,datum,errMsg,autogenOptionNums));
 					break;
 				default:
-					sb.append("		<TD>\n");
-					sb.append("			<input type='HIDDEN' name='" + Node.encodeHTML(inputName + "_COMMENT") + "' value='" + Node.encodeHTML(node.getComment()) + "'>\n");
-					sb.append("			<input type='HIDDEN' name='" + Node.encodeHTML(inputName + "_SPECIAL") + "' value='" +
-						((isSpecial) ? Node.encodeHTML(triceps.toString(node,true),true) : "") +
-						"'>\n");
-					sb.append("			<input type='HIDDEN' name='" + Node.encodeHTML(inputName + "_HELP") + "' value='" + Node.encodeHTML(node.getHelpURL()) + "'>\n");
-					sb.append("		<FONT" + color + ">" + Node.encodeHTML(triceps.getQuestionStr(node)) + "</FONT></TD>\n");
-					sb.append("	<TD WIDTH='1%' NOWRAP>\n" + clickableOptions + "\n</TD>\n");
-					sb.append("		<TD>" + node.prepareChoicesAsHTML(triceps.parser,triceps.evidence,datum,autogenOptionNums) + errMsg + "</TD>\n");
+					sb.append("<TD>");
+					sb.append("<input type='HIDDEN' name='" + (inputName + "_COMMENT") + "' value='" + (node.getComment()) + "'>");
+					sb.append("<input type='HIDDEN' name='" + (inputName + "_SPECIAL") + "' value='" +
+						((isSpecial) ? (triceps.toString(node,true)) : "") +
+						"'>");
+					sb.append("<input type='HIDDEN' name='" + (inputName + "_HELP") + "' value='" + (node.getHelpURL()) + "'>");
+					if (color != null) {
+						sb.append("<FONT" + color + ">" + (triceps.getQuestionStr(node)) + "</FONT>");
+					}
+					else {
+						sb.append(triceps.getQuestionStr(node));
+					}
+					sb.append("</TD><TD WIDTH='1%' NOWRAP>" + clickableOptions + "</TD>");
+					sb.append("<TD>" + node.prepareChoicesAsHTML(triceps.parser,triceps.evidence,datum,autogenOptionNums) + errMsg + "</TD>");
 					break;
 			}
 
-			sb.append("	</TR>\n");
+			sb.append("</TR>");
 		}
-		sb.append("	<TR><TD COLSPAN='" + ((showQuestionNum) ? 4 : 3) + "' ALIGN='center'>\n");
-		sb.append("<input type='SUBMIT' name='directive' value='next'>\n");
+		sb.append("<TR><TD COLSPAN='" + ((showQuestionNum) ? 4 : 3) + "' ALIGN='center'>");
+		sb.append("<input type='SUBMIT' name='directive' value='next'>");
 		sb.append("<input type='SUBMIT' name='directive' value='previous'>");
-
+		
 		if (allowEasyBypass || okToShowAdminModeIcons) {
 			/* enables TEMP_ADMIN_MODE going forward for one screen */
-			sb.append("<input type='HIDDEN' name='TEMP_ADMIN_MODE_PASSWORD' value='" + triceps.createTempPassword() + "'>\n");
+			sb.append("<input type='HIDDEN' name='TEMP_ADMIN_MODE_PASSWORD' value='" + triceps.createTempPassword() + "'>");
 		}
 
-		sb.append("	</TD></TR>\n");
+		sb.append("</TD></TR>");
 
 		if (developerMode) {
-			sb.append("	<TR><TD COLSPAN='" + ((showQuestionNum) ? 4 : 3 ) + "' ALIGN='center'>\n");
-			sb.append("<input type='SUBMIT' name='directive' value='select new interview'>\n");
-			sb.append("<input type='SUBMIT' name='directive' value='restart (clean)'>\n");
-			sb.append("<input type='SUBMIT' name='directive' value='jump to:' size='10'>\n");
-			sb.append("<input type='text' name='jump to:'>\n");
-			sb.append("<input type='SUBMIT' name='directive' value='save to:'>\n");
-			sb.append("<input type='text' name='save to:'>\n");
-			sb.append("	</TD></TR>\n");
-			sb.append("	<TR><TD COLSPAN='" + ((showQuestionNum) ? 4 : 3 ) + "' ALIGN='center'>\n");
-			sb.append("<input type='SUBMIT' name='directive' value='reload questions'>\n");
-			sb.append("<input type='SUBMIT' name='directive' value='show Syntax Errors'>\n");
-			sb.append("<input type='SUBMIT' name='directive' value='show XML'>\n");
-			sb.append("<input type='SUBMIT' name='directive' value='evaluate expr:'>\n");
-			sb.append("<input type='text' name='evaluate expr:'>\n");
-			sb.append("	</TD></TR>\n");
+			sb.append("<TR><TD COLSPAN='" + ((showQuestionNum) ? 4 : 3 ) + "' ALIGN='center'>");
+			sb.append("<input type='SUBMIT' name='directive' value='select new interview'>");
+			sb.append("<input type='SUBMIT' name='directive' value='restart (clean)'>");
+			sb.append("<input type='SUBMIT' name='directive' value='jump to:' size='10'>");
+			sb.append("<input type='text' name='jump to:'>");
+			sb.append("<input type='SUBMIT' name='directive' value='save to:'>");
+			sb.append("<input type='text' name='save to:'>");
+			sb.append("</TD></TR>");
+			sb.append("<TR><TD COLSPAN='" + ((showQuestionNum) ? 4 : 3 ) + "' ALIGN='center'>");
+			sb.append("<input type='SUBMIT' name='directive' value='reload questions'>");
+			sb.append("<input type='SUBMIT' name='directive' value='show Syntax Errors'>");
+			sb.append("<input type='SUBMIT' name='directive' value='show XML'>");
+			sb.append("<input type='SUBMIT' name='directive' value='evaluate expr:'>");
+			sb.append("<input type='text' name='evaluate expr:'>");
+			sb.append("</TD></TR>");
 		}
 
 		sb.append(showOptions());
 
-		sb.append("</TABLE>\n");
+		sb.append("</TABLE>");
 
 		return sb.toString();
 	}
 
 	private String buildClickableOptions(Node node, String inputName, boolean isSpecial) {
 		StringBuffer sb = new StringBuffer();
+		
+		if (triceps == null)
+			return "";
 
 		Datum datum = triceps.getDatum(node);
-
+		
 		if (datum == null) {
 			return "&nbsp;";
 		}
@@ -871,39 +913,38 @@ public class TricepsServlet extends HttpServlet {
 		else if (datum.isType(Datum.NOT_UNDERSTOOD))
 			isNotUnderstood = true;
 
-		String helpURL = Node.encodeHTML(node.getHelpURL());
+		String helpURL = node.getHelpURL();
 		if (helpURL != null && helpURL.trim().length() != 0) {
 			sb.append("<IMG SRC='" + HELP_T_ICON +
-				"' ALIGN='top' BORDER='0' ALT='Help' onMouseDown='javascript:help(\"" + helpURL + "\");'>\n");
+				"' ALIGN='top' BORDER='0' ALT='Help' onMouseDown='javascript:help(\"" + helpURL + "\");'>");
 		}
 		else {
 			// don't show help icon if no help is available?
-//			sb.append("<IMG SRC='" + HELP_F_ICON + "' ALIGN='top' BORDER='0' ALT='Help not available for this question'>\n");
 		}
 
-		String comment = Node.encodeHTML(node.getComment());
+		String comment = node.getComment();
 		if (showAdminModeIcons || okToShowAdminModeIcons || allowComments) {
 			if (comment != null && comment.trim().length() != 0) {
 				sb.append("<IMG NAME='" + inputName + "_COMMENT_ICON" + "' SRC='" + COMMENT_T_ICON +
-					"' ALIGN='top' BORDER='0' ALT='Add a Comment' onMouseDown='javascript:comment(\"" + inputName + "\");'>\n");
+					"' ALIGN='top' BORDER='0' ALT='Add a Comment' onMouseDown='javascript:comment(\"" + inputName + "\");'>");
 			}
 			else  {
 				sb.append("<IMG NAME='" + inputName + "_COMMENT_ICON" + "' SRC='" + COMMENT_F_ICON +
-					"' ALIGN='top' BORDER='0' ALT='Add a Comment' onMouseDown='javascript:comment(\"" + inputName + "\");'>\n");
+					"' ALIGN='top' BORDER='0' ALT='Add a Comment' onMouseDown='javascript:comment(\"" + inputName + "\");'>");
 			}
 		}
-
+		
 		/* If something has been set as Refused, Unknown, etc, allow going forward without additional headache */
 
 		if (showAdminModeIcons || okToShowAdminModeIcons || isSpecial) {
 			sb.append("<IMG NAME='" + inputName + "_REFUSED_ICON" + "' SRC='" + ((isRefused) ? REFUSED_T_ICON : REFUSED_F_ICON) +
-				"' ALIGN='top' BORDER='0' ALT='Set as Refused' onMouseDown='javascript:markAsRefused(\"" + inputName + "\");'>\n");
+				"' ALIGN='top' BORDER='0' ALT='Set as Refused' onMouseDown='javascript:markAsRefused(\"" + inputName + "\");'>");
 			sb.append("<IMG NAME='" + inputName + "_UNKNOWN_ICON" + "' SRC='" + ((isUnknown) ? UNKNOWN_T_ICON : UNKNOWN_F_ICON) +
-				"' ALIGN='top' BORDER='0' ALT='Set as Unknown' onMouseDown='javascript:markAsUnknown(\"" + inputName + "\");'>\n");
+				"' ALIGN='top' BORDER='0' ALT='Set as Unknown' onMouseDown='javascript:markAsUnknown(\"" + inputName + "\");'>");
 			sb.append("<IMG NAME='" + inputName + "_NOT_UNDERSTOOD_ICON" + "' SRC='" + ((isNotUnderstood) ? NOT_UNDERSTOOD_T_ICON : NOT_UNDERSTOOD_F_ICON) +
-				"' ALIGN='top' BORDER='0' ALT='Set as Not Understood' onMouseDown='javascript:markAsNotUnderstood(\"" + inputName + "\");'>\n");
+				"' ALIGN='top' BORDER='0' ALT='Set as Not Understood' onMouseDown='javascript:markAsNotUnderstood(\"" + inputName + "\");'>");
 		}
-
+		
 		if (sb.length() == 0) {
 			return "&nbsp;";
 		}
@@ -915,32 +956,34 @@ public class TricepsServlet extends HttpServlet {
 	private String generateDebugInfo() {
 		StringBuffer sb = new StringBuffer();
 		// Complete printout of what's been collected per node
+		if (triceps == null)
+			return "";
 
 		if (developerMode && debugMode) {
-			sb.append("<hr>\n");
-			sb.append("<H4>CURRENT QUESTION(s)</H4>\n");
-			sb.append("<TABLE CELLPADDING='2' CELLSPACING='1'  WIDTH='100%' BORDER='1'>\n");
+			sb.append("<hr>");
+			sb.append("<H4>CURRENT QUESTION(s)</H4>");
+			sb.append("<TABLE CELLPADDING='2' CELLSPACING='1'  WIDTH='100%' BORDER='1'>");
 			Enumeration questionNames = triceps.getQuestions();
 
 			while(questionNames.hasMoreElements()) {
 				Node n = (Node) questionNames.nextElement();
 				sb.append("<TR>");
-				sb.append("<TD>" + Node.encodeHTML(n.getExternalName(),true) + "</TD>");
-				sb.append("<TD><B>" + Node.encodeHTML(triceps.toString(n,true),true) + "</B></TD>");
-				sb.append("<TD>" + Node.encodeHTML(Datum.TYPES[n.getDatumType()]) + "</TD>");
-				sb.append("<TD>" + Node.encodeHTML(n.getLocalName(),true) + "</TD>");
-				sb.append("<TD>" + Node.encodeHTML(n.getConcept(),true) + "</TD>");
-				sb.append("<TD>" + Node.encodeHTML(n.getDependencies(),true) + "</TD>");
-				sb.append("<TD>" + Node.encodeHTML(n.getQuestionOrEvalTypeField(),true) + "</TD>");
-				sb.append("<TD>" + Node.encodeHTML(n.getQuestionOrEval(),true) + "</TD>");
-				sb.append("</TR>\n");
+				sb.append("<TD>" + n.getExternalName() + "</TD>");
+				sb.append("<TD><B>" + triceps.toString(n,true) + "</B></TD>");
+				sb.append("<TD>" + Datum.TYPES[n.getDatumType()] + "</TD>");
+				sb.append("<TD>" + n.getLocalName() + "</TD>");
+				sb.append("<TD>" + n.getConcept() + "</TD>");
+				sb.append("<TD>" + n.getDependencies() + "</TD>");
+				sb.append("<TD>" + n.getQuestionOrEvalTypeField() + "</TD>");
+				sb.append("<TD>" + n.getQuestionOrEval() + "</TD>");
+				sb.append("</TR>");
 			}
-			sb.append("</TABLE>\n");
+			sb.append("</TABLE>");
 
 
-			sb.append("<hr>\n");
-			sb.append("<H4>EVIDENCE AREA</H4>\n");
-			sb.append("<TABLE CELLPADDING='2' CELLSPACING='1'  WIDTH='100%' BORDER='1'>\n");
+			sb.append("<hr>");
+			sb.append("<H4>EVIDENCE AREA</H4>");
+			sb.append("<TABLE CELLPADDING='2' CELLSPACING='1'  WIDTH='100%' BORDER='1'>");
 			for (int i = triceps.size()-1; i >= 0; i--) {
 				Node n = triceps.getNode(i);
 				Datum d = triceps.getDatum(n);
@@ -948,22 +991,22 @@ public class TricepsServlet extends HttpServlet {
 					continue;
 				sb.append("<TR>");
 				sb.append("<TD>" + (i + 1) + "</TD>");
-				sb.append("<TD>" + Node.encodeHTML(n.getExternalName(),true) + "</TD>");
+				sb.append("<TD>" + n.getExternalName() + "</TD>");
 				if (!d.isType(Datum.STRING)) {
-					sb.append("<TD><B><I>" + Node.encodeHTML(triceps.toString(n,true),true) + "</I></B></TD>");
+					sb.append("<TD><B><I>" + triceps.toString(n,true) + "</I></B></TD>");
 				}
 				else {
-					sb.append("<TD><B>" + Node.encodeHTML(triceps.toString(n,true),true) + "</B></TD>");
+					sb.append("<TD><B>" + triceps.toString(n,true) + "</B></TD>");
 				}
-				sb.append("<TD>" +  Node.encodeHTML(Datum.TYPES[n.getDatumType()]) + "</TD>");
-				sb.append("<TD>" + Node.encodeHTML(n.getLocalName(),true) + "</TD>");
-				sb.append("<TD>" + Node.encodeHTML(n.getConcept(),true) + "</TD>");
-				sb.append("<TD>" + Node.encodeHTML(n.getDependencies(),true) + "</TD>");
-				sb.append("<TD>" + Node.encodeHTML(n.getQuestionOrEvalTypeField(),true) + "</TD>");
-				sb.append("<TD>" + Node.encodeHTML(n.getQuestionOrEval(),true) + "</TD>");
-				sb.append("</TR>\n");
+				sb.append("<TD>" +  Datum.TYPES[n.getDatumType()] + "</TD>");
+				sb.append("<TD>" + n.getLocalName() + "</TD>");
+				sb.append("<TD>" + n.getConcept() + "</TD>");
+				sb.append("<TD>" + n.getDependencies() + "</TD>");
+				sb.append("<TD>" + n.getQuestionOrEvalTypeField() + "</TD>");
+				sb.append("<TD>" + n.getQuestionOrEval() + "</TD>");
+				sb.append("</TR>");
 			}
-			sb.append("</TABLE>\n");
+			sb.append("</TABLE>");
 		}
 		return sb.toString();
 	}
@@ -972,26 +1015,19 @@ public class TricepsServlet extends HttpServlet {
 		if (developerMode) {
 			StringBuffer sb = new StringBuffer();
 
-			sb.append("	<TR><TD COLSPAN='" + ((showQuestionNum) ? 4 : 3 ) + "' ALIGN='center'>\n");
-			sb.append("	<input type='SUBMIT' name='directive' value='turn developerMode " + ((developerMode) ? "OFF" : "ON") + "'>\n");
-			sb.append("	<input type='SUBMIT' name='directive' value='turn debugMode " + ((debugMode) ? "OFF" : "ON" )+ "'>\n");
-			sb.append("	<input type='SUBMIT' name='directive' value='turn showQuestionNum " + ((showQuestionNum) ? "OFF" : "ON") + "'>\n");
-			sb.append("</TD></TR>\n");
+			sb.append("<TR><TD COLSPAN='" + ((showQuestionNum) ? 4 : 3 ) + "' ALIGN='center'>");
+			sb.append("<input type='SUBMIT' name='directive' value='turn developerMode " + ((developerMode) ? "OFF" : "ON") + "'>");
+			sb.append("<input type='SUBMIT' name='directive' value='turn debugMode " + ((debugMode) ? "OFF" : "ON" )+ "'>");
+			sb.append("<input type='SUBMIT' name='directive' value='turn showQuestionNum " + ((showQuestionNum) ? "OFF" : "ON") + "'>");
+			sb.append("</TD></TR>");
 			return sb.toString();
 		}
 		else
 			return "";
 	}
-
-	private String header() {
+	
+	private String createJavaScript() {
 		StringBuffer sb = new StringBuffer();
-
-		sb.append("<!DOCTYPE html PUBLIC \"-//W3C//DTD HTML 4.01 Transitional//EN\">\n");
-		sb.append("<html>\n");
-		sb.append("<head>\n");
-		sb.append("<META HTTP-EQUIV='Content-Type' CONTENT='text/html;CHARSET=iso-8859-1'>\n");
-		sb.append("<title>" + ((triceps == null || isSplashScreen) ? "TRICEPS SYSTEM" : triceps.getTitle()) + "</title>\n");
-
 		sb.append("<SCRIPT  type=\"text/javascript\"> <!--\n");
 		sb.append("var actionName = null;\n");
 		sb.append("\n");
@@ -1006,7 +1042,7 @@ public class TricepsServlet extends HttpServlet {
 		sb.append("	var ans = prompt('Enter password to enter Administrative Mode','');\n");
 		sb.append("	if (ans == null || ans == '') return;\n");
 		sb.append("	document.myForm.PASSWORD_FOR_ADMIN_MODE.value = ans;\n");
-		sb.append("	document.myForm.submit();\n");
+		sb.append("	document.myForm.submit();\n\n");
 		sb.append("}\n");
 		sb.append("function markAsRefused(name) {\n");
 		sb.append("	if (!name) name = actionName;\n");
@@ -1048,7 +1084,7 @@ public class TricepsServlet extends HttpServlet {
 		sb.append("		document.myForm.elements[name + '_NOT_UNDERSTOOD_ICON'].src = '" + NOT_UNDERSTOOD_T_ICON + "';\n");
 		sb.append("	}\n}\n");
 		sb.append("function help(target) {\n");
-		sb.append("	if (target != null && target.length != 0) {	window.open(target,'__HELP__'); }\n");
+		sb.append("	if (target != null && target.length != 0) { window.open(target,'__HELP__'); }\n");
 		sb.append("}\n");
 		sb.append("function comment(name) {\n");
 		sb.append("	if (!name) name = actionName;\n");
@@ -1065,10 +1101,37 @@ public class TricepsServlet extends HttpServlet {
 		sb.append("	document.myForm.submit();\n");
 		sb.append("}\n");
 		sb.append("// --> </SCRIPT>\n");
+		
+		return sb.toString();
+	}
 
+	private String header() {
+		StringBuffer sb = new StringBuffer();
+		String title = null;
+		
+		if (isSplashScreen || triceps == null) {
+			title = "Triceps System";
+		}
+		else {
+			title = triceps.getTitle();
+		}
+
+		sb.append("<!DOCTYPE html PUBLIC \"-//W3C//DTD HTML 4.01 Transitional//EN\">\n");
+		sb.append("<html>\n");
+		sb.append("<head>\n");
+		sb.append("<META HTTP-EQUIV='Content-Type' CONTENT='text/html;CHARSET=iso-8859-1'>\n");
+		sb.append("<title>" + title + "</title>\n");
+
+		sb.append(createJavaScript());
+		
 		sb.append("</head>\n");
-		sb.append("<body bgcolor='white' onload='javascript:init();'>\n");
+		sb.append("<body bgcolor='white' onload='javascript:init();'>");
 
 		return sb.toString();
+	}
+	
+	private void setError(String s) {
+		if (s != null)
+			errors.append(s);
 	}
 }
