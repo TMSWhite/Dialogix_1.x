@@ -183,7 +183,11 @@ public class Datum  {
 						}
 						catch (Exception e) {}
 						calendar.setTime(date);
-						calendar.roll(Calendar.DAY_OF_WEEK,i);
+						
+						for (int j=0;j<i;++j) {
+							calendar.roll(Calendar.DAY_OF_WEEK,true);
+						}
+						
 						date = calendar.getTime();
 						type = WEEKDAY;
 						break;
