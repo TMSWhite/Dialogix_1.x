@@ -32,7 +32,7 @@ public class Qss implements QssConstants {
                 }
                 finally {
                         if (d == null)
-                                return new Datum(Datum.INVALID);
+                                return Datum.getInstance(Datum.INVALID);
                         else
                                 return d;
                 }
@@ -665,11 +665,11 @@ public class Qss implements QssConstants {
                                 stack.push(new Datum(node.getDescription(),Datum.STRING));
                         }
                         catch (Exception e) {
-                                stack.push(new Datum(Datum.INVALID));
+                                stack.push(Datum.getInstance(Datum.INVALID));
                         }
                 }
                 else {
-                        stack.push(new Datum(Datum.INVALID));
+                        stack.push(Datum.getInstance(Datum.INVALID));
                 }
   }
 
@@ -680,7 +680,7 @@ public class Qss implements QssConstants {
     t = jj_consume_token(ID);
     jj_consume_token(RP);
                 data.unset(t.image);
-                stack.push(new Datum(Datum.INVALID));
+                stack.push(Datum.getInstance(Datum.INVALID));
   }
 
   final public void Variable() throws ParseException {
@@ -691,7 +691,7 @@ public class Qss implements QssConstants {
                 }
                 else {
                         errors.addElement("Undefined variable '" + token.image + "'");
-                        stack.push(new Datum(Datum.INVALID));
+                        stack.push(Datum.getInstance(Datum.INVALID));
                 }
   }
 
