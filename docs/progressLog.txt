@@ -183,3 +183,11 @@ Encryption & Non-repudiation
   Encourage investigators to send Jar datafiles (currently unsigned) via SSL-mail
   
  
+<<changes from version 2.7.0 to 2.7.1
+BUGFIX
+-problem: workingDir, completedDir and floppyDir were being read from datafile, not master web.xml
+-fix: overload the master values once the schedule was fully loaded
+
+TEST
+-semi-completed Adult and Youth BYS study files saved, restored, and re-saved, and compared (TkDiff)
+-no errorrs detected
