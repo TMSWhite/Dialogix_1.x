@@ -426,13 +426,13 @@ public class XmlString extends Object {
 									i += (entity.length()-1);
 								}
 								else {
-									error("not a recognized Unicode entity:" + asEntity(entity.substring(1,entity.length()-1)));
+//									error("not a recognized Unicode entity:" + asEntity(entity.substring(1,entity.length()-1)));
 									dst.write(AMP);
 									column += AMP.length();
 								}
 							}
 							else {
-								error("not an entity - ampersand without matching semicolon");
+//								error("not an entity - ampersand without matching semicolon");
 								dst.write(AMP);
 								column += AMP.length();
 							}
@@ -449,7 +449,7 @@ public class XmlString extends Object {
 				}
 			}
 			catch (Throwable t) {
-				error("Exception while HTMLizing string" + t.getMessage());
+				error("Unexpected error while HTMLizing string" + t.getMessage());
 			}
 		}
 		insertMissingEndTags(null);

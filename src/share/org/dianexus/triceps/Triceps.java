@@ -74,7 +74,7 @@ public class Triceps {
 			}
 		}
 		catch (Throwable t) {
-			String msg = "Error loading datafile: " + t.getMessage() + " restoring original schedule";
+			String msg = "Error loading datafile: " + t.getMessage() + " - restoring original schedule";
 			setError(msg);
 			nodes = oldNodes;
 			evidence = oldEvidence;
@@ -318,7 +318,7 @@ public class Triceps {
 		while (true) {
 			if (--step < 0) {
 				if (braceLevel < 0)
-					setError("Missing " + braceLevel + " openining braces");
+					setError("Missing " + braceLevel + " opening braces");
 
 				setError("You are already at the beginning.");
 				return ERROR;

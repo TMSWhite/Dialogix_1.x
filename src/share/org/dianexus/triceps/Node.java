@@ -108,7 +108,7 @@ public class Node  {
 		int field = 0;
 
 		if (numLanguages < 1) {
-			setParseError("Invalid language number (" + numLanguages + "): must be >= 1");
+			setParseError("numLanguages must be greater than zero: " + numLanguages);
 			numLanguages = 1;	// the default
 		}
 
@@ -123,12 +123,7 @@ public class Node  {
 
 		while(ans.hasMoreTokens()) {
 			String s = null;
-			try {
-				s = ans.nextToken();
-			}
-			catch (Throwable t) {
-				setParseError("tokenization error: " + t.getMessage());
-			}
+			s = ans.nextToken();
 
 			if (s.equals("\t")) {
 				++field;
@@ -160,11 +155,11 @@ public class Node  {
 						i = Integer.parseInt(fixExcelisms(s));
 					}
 					catch (Throwable t) {
-						setParseError("LanguageNum for answer not an integer: " + t.getMessage());
+						setParseError("languageNum must be an integer: " + t.getMessage());
 						i = 0; // default language
 					}
 					if (i < 0 || i >= numLanguages) {
-						setParseError("Invalid language number '" + i + "': must be between 0 and " + (numLanguages - 1));
+						setParseError("languageNum must be in range (0 - " + (numLanguages - 1) + "): " + i);
 						i = 0;	// default language
 					}
 					answerLanguageNum = i;
@@ -178,31 +173,31 @@ public class Node  {
 			}
 		}
 		if (dependencies == null || dependencies.trim().length() == 0) {
-			setParseError("Missing dependencies column");
+			setParseError("dependencies column is missing");
 		}
 
 		if (conceptName != null && conceptName.trim().length() > 0) {
 			conceptName = conceptName.trim();
 			if (Character.isDigit(conceptName.charAt(0))) {
-				setNamingError("Invalid conceptName '" + conceptName + "':  it begins with a digit - prepending '_'");
+				setNamingError("conceptName may not begin with a digit - prepending '_': " + conceptName);
 				conceptName = "_" + conceptName;
 			}
 		}
 		if (localName != null && localName.trim().length() > 0) {
 			localName = localName.trim();
 			if (Character.isDigit(localName.charAt(0))) {
-				setNamingError("Invalid localName '" + localName + "':  it begins with a digit - prepending '_'");
+				setNamingError("localName may not begin with a digit - prepending '_': " + conceptName);
 				localName = "_" + localName;
 			}
 		}
 		else {
-			setNamingError("A localName must be specified for this node");
+			setNamingError("localName must be specified");
 		}
 
 		parseQuestionOrEvalTypeField();
 		
 		if (questionOrEvalType == BADTYPE) {
-			setParseError("Invalid questionOrEvalType");
+			setParseError("Invalid questionOrEvalType: " + questionOrEvalTypeField);
 		}
 
 		for (int i=0;i<answerChoicesStr.size();++i) {
@@ -250,7 +245,7 @@ public class Node  {
 		int z;
 
 		if (questionOrEvalTypeField == null) {
-			setParseError("Syntax error - must specify questionOrEvalTypeField");
+			setParseError("questionOrEvalTypeField must be exist");
 			return;
 		}
 
@@ -258,12 +253,7 @@ public class Node  {
 
 		for(int field=0;ans.hasMoreTokens();) {
 			String s = null;
-			try {
-				s = ans.nextToken();
-			}
-			catch (Throwable t) {
-				setParseError("tokenization error: " + t.getMessage());
-			}
+			s = ans.nextToken();
 
 			if (";".equals(s)) {
 				++field;
@@ -288,7 +278,7 @@ public class Node  {
 						}
 					}
 					if (z == Datum.TYPES.length) {
-						setParseError("Unknown datum type <B>" + datumTypeStr + "</B>");
+						setParseError("Invalid datum type: " + datumTypeStr);
 					}
 					break;
 				case 2:
@@ -313,7 +303,7 @@ public class Node  {
 			mask = Datum.buildMask(maskStr, datumType);
 			/* if mask is null here, it means that the maskStr is invalid */
 			if (mask == null) {
-				setParseError("Invalid formatting mask <B>" + maskStr + "</B>");
+				setParseError("Invalid formatting mask: " + maskStr);
 				mask = Datum.getDefaultMask(datumType);	// set  to default to avoid NullPointerException
 			}
 		}
@@ -363,7 +353,7 @@ public class Node  {
 		}
 		if (minDatum != null && maxDatum != null) {
 			if (DatumMath.lt(maxDatum,minDatum).booleanVal()) {
-				setError("Max value (" + max + ") less than Min value (" + min + ")");
+				setError("max value less than min value: " + "(" + minStr + " - " + maxStr + ")");
 			}
 		}
 
@@ -377,7 +367,7 @@ public class Node  {
 	private boolean parseAnswerOptions(int langNum, String src) {
 		/* Need to make sure that the answer type, order of answers, and internal values of answers are the same across all languages */
 		if (src == null) {
-			setParseError("Syntax error - must specify answerOptions");
+			setParseError("answerOptions column is missing");
 			return false;
 		}
 
@@ -413,7 +403,7 @@ public class Node  {
 			return true;	// XXX? - should this really return?
 		}
 		else if (answerType == BADTYPE) {
-			setParseError("Unknown data type for answer <B>" + token + "</B>");
+			setParseError("invalid answerType");
 			answerType = NOTHING;
 		}
 
@@ -436,23 +426,13 @@ public class Node  {
 
 				if (langNum > 0) {
 					prevAnsOptions = getValuesAt(answerChoicesVector,0);
-					/*
-					if (ans.countTokens() != (1 + 2 * prevAnsOptions.size())) {
-						setParseError("mismatch across languages in number of answerChoices");
-					}
-					*/
 				}
 
 				int ansPos = 0;
 
 				while(ans.hasMoreTokens()) {
 					String s = null;
-					try {
-						s = ans.nextToken();
-					}
-					catch (Throwable t) {
-						setParseError("tokenization error: " + t.getMessage());
-					}
+					s = ans.nextToken();
 
 					if ("|".equals(s)) {
 						++field;
@@ -482,7 +462,7 @@ public class Node  {
 						case 2: msg = s;
 							field = 0;	// so that cycle between val & msg;
 							if (val == null || msg == null) {
-								setParseError("Answer choice has null value or message");
+								setParseError("Missing value or message for answerChoice # " + (ansPos-1));
 							}
 							else {
 								AnswerChoice ac = new AnswerChoice(val,msg);
@@ -491,7 +471,7 @@ public class Node  {
 								/* check for duplicate answer choice values */
 								if (langNum == 0) {	// only for first pass
 									if (answerChoicesHash.put(val, ac) != null) {
-										setParseError("Answer value <B>" + val + "</B> already used");
+										setParseError("answerChoice value already used: " + val);
 									}
 								}
 							}
@@ -501,10 +481,15 @@ public class Node  {
 					}
 				}
 				if (ansOptions.size() == 0) {
-					setParseError("No answer choices specified");
+					setParseError("answerChoices must be specified");
 				}
-				else if (field == 1) {
-					setParseError("Missing message for option <b>" + val + "</b>");
+				if (field == 1) {
+					setParseError("missing message for answerChoice # " + (ansPos-1));
+				}
+				if (langNum > 0) {
+					if (prevAnsOptions.size() != ansOptions.size()) {
+						setParseError("mismatch across languages in number of answerChoices: " + prevAnsOptions.size() + " != " + ansOptions.size());
+					}
 				}
 				answerChoicesVector.addElement(ansOptions);
 				break;
@@ -635,8 +620,9 @@ public class Node  {
 					((answerType == LIST) ? (" size = '" + Math.min(MAX_ITEMS_IN_LIST,totalLines+1) + "'") : "") +
 					">");
 				sb.append("<option value=''" +
-					((nothingSelected) ? " SELECTED" : "") +	// so that focus is properly shifted on List box
-					">--select one of the following--</option>");	// first choice is empty
+					((nothingSelected) ? " SELECTED" : "") + ">" +	// so that focus is properly shifted on List box
+					"--select one of the following--" +
+					"</option>");	// first choice is empty
 				sb.append(choices);
 				sb.append("</select>");
 			}
@@ -808,7 +794,7 @@ public class Node  {
 			time = Datum.TIME_MASK.parse(timeStr);
 		}
 		catch (Throwable t) {
-			setParseError("<b>" + t.getMessage() + "</b>");
+			setParseError(t.getMessage());
 		}
 		if (time == null) {
 			setTimeStamp();
@@ -881,7 +867,7 @@ public class Node  {
 
 	public void setAnswerLanguageNum(int langNum) {
 		if (langNum < 0 || langNum >= numLanguages) {
-			setParseError("LanguageNum must be between 0 and " + (numLanguages - 1));
+			setParseError("languageNum must be in range (0 - " + (numLanguages - 1) + "): " + langNum);
 			return;
 		}
 		answerLanguageNum = langNum;

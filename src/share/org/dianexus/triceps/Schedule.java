@@ -78,14 +78,14 @@ public class Schedule  {
 	public String getLoadedFrom() { return ((isFound) ? getReserved(LOADED_FROM) : ""); }
 
 	private void setDefaultReserveds() {
-		setReserved(TITLE,"Triceps System");
+		setReserved(TITLE,"Triceps");
 		setReserved(STARTING_STEP,"0");
 		setReserved(START_TIME,Datum.TIME_MASK.format(new Date(System.currentTimeMillis())));
 		setReserved(PASSWORD_FOR_ADMIN_MODE,"");
 		setReserved(AUTOGEN_OPTION_NUM,"true");
 		setReserved(FILENAME,getReserved(START_TIME));
 		setReserved(ICON,"");
-		setReserved(HEADER_MSG,"Triceps System");
+		setReserved(HEADER_MSG,"Triceps");
 		setReserved(SHOW_QUESTION_REF,"false");
 		setReserved(DEVELOPER_MODE,"false");
 		setReserved(DEBUG_MODE,"false");
@@ -220,11 +220,11 @@ public class Schedule  {
 
 	public Node getNode(int index) {
 		if (index < 0) {
-			System.err.println("Node[" + index + "] does't exist");
+			System.err.println("Node[" + index + "] does not exist");
 			return null;
 		}
 		if (index > size()) {
-			System.err.println("Node[" + index + "/" + size() + "] doesn't exist");
+			System.err.println("Node[" + index + "/" + size() + "] does not exist");
 			return null;
 		}
 		return (Node)nodes.elementAt(index);
@@ -448,10 +448,10 @@ public class Schedule  {
 			if (source != null) {
 				File file = new File(source);
 				if (!file.exists()) {
-					setError("Error: file '" + source + "' doesn't exist");
+					setError("Error: file '" + source + "' does not exist");
 				}
 				else if (!file.isFile()) {
-					setError("Error: file '" + source + "' isn't a file");
+					setError("Error: file '" + source + "' is not a file");
 				}
 				else if (!file.canRead()) {
 					setError("Error: file '" + source + "' is not accessible");

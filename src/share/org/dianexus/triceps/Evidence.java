@@ -137,7 +137,7 @@ public class Evidence  {
 					However, each node must have non-overlapping aliases with other nodes */
 					aliases.put(alias,o);	// restore overwritten alias?
 					Node prevNode = ((Value) values.elementAt(pastIndex)).getNode();
-					n.setParseError("<b>" + alias + "</b> previously used on line <b>" + prevNode.getSourceLine() + "</b>");
+					n.setParseError("alias previously used on line " + prevNode.getSourceLine() + ": " + alias);
 				}
 			} catch (Throwable t) {
 				setError("Unexpected error: " + t.getMessage());
@@ -243,7 +243,7 @@ public class Evidence  {
 			values.addElement(value);
 			aliases.put(name, new Integer(i));
 
-			String errmsg = "new variable '" + name + "' will be transient";
+			String errmsg = "new variable will be transient: " + name;
 			setError(errmsg);
 		}
 		else {
@@ -428,12 +428,10 @@ public class Evidence  {
 
 	private void setError(String s) {
 		errors.addElement(s + "<br>");
-//System.err.println(s);
 	}
 
 	private void setError(String s, int line, int column) {
 		errors.addElement("Syntax Error: line " + line + " column " + line + " - " + s + "<br>");
-//System.err.println((String) errors.elementAt(errors.size()-1));
 	}
 
 	public boolean hasErrors() {
