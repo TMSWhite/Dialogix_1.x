@@ -135,10 +135,10 @@ public class Evidence  {
 					However, each node must have non-overlapping aliases with other nodes */
 					aliases.put(alias,o);	// restore overwritten alias?
 					Node prevNode = ((Value) values.elementAt(pastIndex)).getNode();
-					n.setParseError(alias + " previously used on line " + prevNode.getSourceLine());
+					n.setParseError("<b>" + alias + "</b> previously used on line <b>" + prevNode.getSourceLine() + "</b>");
 				}
 			} catch (Throwable t) {
-				System.err.println("Unexpected error: " + t.getMessage());
+				setError("Unexpected error: " + t.getMessage());
 			}
 		}
 	}
@@ -160,7 +160,7 @@ public class Evidence  {
 	public Node getNode(Object val) {
 		int i = getNodeIndex(val);
 		if (i == -1) {
-			System.err.println("Node not found: " + val);
+			setError("Node not found: " + val);
 			return null;
 		}
 		return ((Value) values.elementAt(i)).getNode();
@@ -200,18 +200,18 @@ public class Evidence  {
 
 	public void set(Node node, Datum val, String time) {
 		if (node == null) {
-			System.err.println("null Node");
+			setError("null Node");
 			return;
 		}
 		if (val == null) {
-			System.err.println("null Datum");
+			setError("null Datum");
 			return;
 		}
 		int i;
 
 		i = getNodeIndex(node);
 		if (i == -1) {
-			System.err.println("Node does not exist");
+			setError("Node does not exist");
 			return;
 		}
 		
@@ -225,11 +225,11 @@ public class Evidence  {
 
 	public void set(String name, Datum val) {
 		if (name == null) {
-			System.err.println("null Node name");
+			setError("null Node name");
 			return;
 		}
 		if (val == null) {
-			System.err.println("null Datum");
+			setError("null Datum");
 			return;
 		}
 
@@ -419,13 +419,13 @@ public class Evidence  {
 	}
 
 	private void setError(String s) {
-		errors.addElement(s);
-System.err.println(s);
+		errors.addElement(s + "<br>");
+//System.err.println(s);
 	}
 
 	private void setError(String s, int line, int column) {
-		errors.addElement("Syntax Error: line " + line + " column " + line + " - " + s);
-System.err.println((String) errors.elementAt(errors.size()-1));
+		errors.addElement("Syntax Error: line " + line + " column " + line + " - " + s + "<br>");
+//System.err.println((String) errors.elementAt(errors.size()-1));
 	}
 
 	public boolean hasErrors() {
