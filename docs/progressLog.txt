@@ -271,5 +271,13 @@ Reorganization & Documentation
   Undo
     affected files:  qss.jj, Qss.java, Node.java, Triceps.java, Parser.java
     functionality:  qss builds hashtable of nodeName->oldValue.  When do 'previous' from Triceps, oldValues are restored.
+  "Previous" Algorithm Changed
+    affected files:  Schedule.java, Triceps.java
+    functionality: dramatic change in way previous is handled - now keeps stack of visited starting steps instead of re-evaluating dependencies
   XMLString
     numeric entities can now have integer digits.
+  Netscape6
+    tested - does not work with Triceps, does not throw any useful messages.  Seems to re-call GET after POST, clearing any progress
+    affected files:  TricepsServlet.java
+  Cocoon
+    affected files:  AnswerChoice.java, Node.java, TricepsEngine
