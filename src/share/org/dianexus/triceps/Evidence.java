@@ -41,8 +41,7 @@ public class Evidence implements Serializable {
 		this.size = ev.size;
 	}
 
-	public void saveSuspended() throws IOException {
-		String filename = "/tmp/test-suspended";	// need a naming convention for these!!
+	public void save(String filename) throws IOException {
 		try {
 			FileOutputStream fos = new FileOutputStream(filename);
 			ObjectOutputStream out = new ObjectOutputStream(fos);
