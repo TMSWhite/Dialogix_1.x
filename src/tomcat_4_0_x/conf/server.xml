@@ -208,11 +208,11 @@
 		
 		    <parameter>
 		     <name>username</name>
-		     <value>javauser</value>
+		     <value>root</value>
 		    </parameter>
 		    <parameter>
 		     <name>password</name>
-		     <value>javadude</value>
+		     <value></value>
 		    </parameter>
 		
 		    <parameter>
@@ -222,7 +222,7 @@
 		
 		    <parameter>
 		      <name>url</name>
-		      <value>jdbc:mysql://localhost:3306/dialogix2993?autoReconnect=true</value>
+		      <value>jdbc:mysql://192.168.10.57:3306/dialogix2994?autoReconnect=true</value>
 		    </parameter>
 		  </ResourceParams>
 		</DefaultContext>                 

@@ -103,4 +103,3 @@ package.access=sun.
 # the class loaders supplied with the JDK call checkPackageDefinition.
 #
 #package.definition=
-

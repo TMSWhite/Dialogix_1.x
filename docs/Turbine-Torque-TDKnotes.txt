@@ -1,0 +1,31 @@
+Services vital for TDK / Torque / Turbine
+
+AssemblyBroker = assembles screens, actions, layouts
+#CryptoService = 
+#CacheService
+ComponentService
+FactoryService
+#IntakeService = tries to do form-based validation - deserves a further look
+#JSPService
+LocalizationService = a nice way to deal with bundles, dynamically responding to browser preferences?
+LoggingService = see example of how to do it
+MimeTypeService = used internally
+NamingService = e.g. for connecting to a database using current LogigTricepsServlet
+PoolService = a generic system for pooling Dialogix objects?
+PullService = needed for Velocity
+ResourcesService = a way to access resource file values
+RunDataService = deals with session management [read more on this]
+SchedulerService = works like cron jobs [see examples - could this do emailing of logs?]
+SecurityService = [read more on this]
+ServletService = makes context information available more broadly
+SessionService = can check whether user logged into another session - requires some setup [read more]
+TemplateService = required for Velocity
+UniqueIDService = for temporary filenames, and jsessionIDs
+UploadService = if set to true, then can handle multi-part form submissions
+VelocityService = required
+# XML-RPCService = for distributed computing
+XSLTService = may be needed by Velocity
+
+##
+Additional services can be added
+How stable is version 2.3?

@@ -15,4 +15,3 @@ BASEDIR=`dirname $0`
 
 $BASEDIR/tomcat.sh stop "$@"
 
-

@@ -1,0 +1,42 @@
+doPost
+	processPost
+		getSession
+			loginPage if {new,null}
+		if logon_command
+	processAuthenticatedRequest
+	logPageHit
+	
+loginPage
+	logAccess
+		-
+	shutdown
+		-
+	createLoginPage
+	
+okPage
+	getSession
+	session.getID
+	restoreFile = null (so not reloaded)
+	getTricepsEngine()
+		if null
+			if completed
+				loginPage
+			new TricepsEngine
+			if working
+				logAccess
+	getLoginRecord -- is this still stable?
+	
+	
+	
+===========
+storedIP
+storedLoginToken
+
+
+	static final String LOGIN_TOKEN = "_DlxLTok";
+	static final String LOGIN_COMMAND = "_DlxLCom";
+	static final String LOGIN_COMMAND_LOGON = "logon";	- only present when logging in
+	static final String LOGIN_IP = "_DlxLIP";
+	static final String LOGIN_USERNAME = "_DlxUname";
+	static final String LOGIN_PASSWORD = "_DlxPass";
+	static final String LOGIN_RECORD = "_DlxLRec";	
