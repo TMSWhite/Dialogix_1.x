@@ -4,8 +4,8 @@ import java.lang.String;
 
 /*public*/ interface VersionIF {
     /*public*/ final static boolean DEBUG = true;
-    /*public*/ final static boolean AUTHORABLE = true;
-    /*public*/ final static boolean DEPLOYABLE = true;
+    /*public*/ final static boolean AUTHORABLE = false;
+    /*public*/ final static boolean DEPLOYABLE = false;
     /*public*/ final static String VERSION_MAJOR = "2.0";
     /*public*/ final static String VERSION_MINOR = "0";
     /*public*/ final static String VERSION_TYPE = ((AUTHORABLE && DEPLOYABLE) ? "Development System" : ((AUTHORABLE) ? "Authoring System" : ((DEPLOYABLE) ? "Interviewing System" : "Demo")));
