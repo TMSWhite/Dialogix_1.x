@@ -183,7 +183,7 @@ public class Node  {
 			setParseError("Too few columns: " + field);
 		}
 		if (numLanguagesFound < numLanguages) {
-			setParseError("Missing entries for languages " + (numLanguages - numLanguagesFound) + " to " + (numLanguages - 1));
+//			setParseError("Missing entries for languages " + (numLanguages - numLanguagesFound) + " to " + (numLanguages - 1));
 		}
 
 		if (conceptName != null && conceptName.trim().length() > 0) {
