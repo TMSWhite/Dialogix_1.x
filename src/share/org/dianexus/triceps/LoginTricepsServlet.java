@@ -40,7 +40,7 @@ public class LoginTricepsServlet extends TricepsServlet {
 	static final String LOGIN_ERR_NEW_SESSION = "Please login";
 	static final String LOGIN_ERR_MISSING_UNAME_OR_PASS = "Please enter both your username and password";
 	static final String LOGIN_ERR_INVALID_UNAME_OR_PASS = "The username or password you entered was incorrect";	/* don't mix so many messages? */
-	static final String LOGIN_ERR_INVALID = "Please login again --  You will resume from where you left off.<br><br>(Your login session was invalided either because you accidentaly pressed the browser's back button (instead of the 'previous' button, or you attempted to use a bookmarked page from the instrument)";
+	static final String LOGIN_ERR_INVALID = "Please login again --  You will resume from where you left off.<br><br>(Your login session was invalidated either because you accidentally pressed the browser's back button instead of the 'previous' button, or you attempted to use a bookmarked page from the instrument)";
 	static final String LOGIN_ERR_ALREADY_COMPLETED = "Thank you!  You have already completed this instrument.";
 	static final String LOGIN_ERR_UNABLE_TO_LOAD_FILE = "Please contact the administrator -- the program was unable to load the interview: ";
 	
