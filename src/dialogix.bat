@@ -10,7 +10,7 @@ rem File for starting Dialogix server and browser
 rem ----- Verify and Set Required Environment Variables ---------------------
 
 set _PATH=%PATH%
-PATH=%PATH%;/usr/local/dialogix/bin
+PATH=%PATH%;@@TOMCAT.HOME@@/bin
 
 if not "%JAVA_HOME%" == "" goto gotJavaHome
 

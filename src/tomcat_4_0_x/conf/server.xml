@@ -72,7 +72,7 @@
 
     <!-- Define an AJP 1.3 Connector on port 8009 -->
     <Connector className="org.apache.ajp.tomcat4.Ajp13Connector"
-               port="8009" minProcessors="5" maxProcessors="75"
+               port="@@AJP13.PORT@@" minProcessors="5" maxProcessors="75"
                acceptCount="10" debug="0"/>
 
     <!-- Define a Proxied HTTP/1.1 Connector on port 8081 -->

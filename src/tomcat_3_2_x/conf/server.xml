@@ -105,8 +105,9 @@
 
       <!-- ==================== Interceptors ==================== -->
 
-        <!-- Dialogix - enabled -->
-         ContextInterceptor className="org.apache.tomcat.context.LogEvents" 
+        <!-- Dialogix - enabled?
+         <ContextInterceptor className="org.apache.tomcat.context.LogEvents" />
+         -->
         
         <ContextInterceptor className="org.apache.tomcat.context.AutoSetup" />
 
@@ -220,7 +221,6 @@
       <!-- ==================== Connectors ==================== -->
 
         <!-- Normal HTTP -->
-<!-- Dialogix:  port change to 8297 so that non-standard -->          
         <Connector className="org.apache.tomcat.service.PoolTcpConnector">
             <Parameter name="handler" 
                 value="org.apache.tomcat.service.http.HttpConnectionHandler"/>
@@ -244,7 +244,6 @@
             You can set parameter keystore and keypass if you want 
             to change the default ( user.home/.keystore with changeit )
          -->
-<!-- Dialogix:  port change to 8498 so that non-standard --> 
 <!--
         <Connector className="org.apache.tomcat.service.PoolTcpConnector">
             <Parameter name="handler" 
@@ -261,7 +260,7 @@
         <Connector className="org.apache.tomcat.service.PoolTcpConnector">
             <Parameter name="handler" 
        value="org.apache.tomcat.service.connector.Ajp12ConnectionHandler"/>
-            <Parameter name="port" value="8007"/>
+            <Parameter name="port" value="@@AJP12.PORT@@"/>
         </Connector>
 
         <!-- ==================== Special webapps ==================== -->

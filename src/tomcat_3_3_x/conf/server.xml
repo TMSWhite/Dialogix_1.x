@@ -15,7 +15,8 @@
         <TrustedLoader />
 
         <LogSetter name="tc_log" timestamps="true"
-		   verbosityLevel="WARNING"  />
+        	path="logs/tomcat-${yyyyMMdd}.log"
+		   verbosityLevel="INFORMATION"  />
 
         <LogEvents enabled="false" />
         
@@ -52,14 +53,14 @@
           -->
         <LogSetter name="servlet_log" 
 		   timestamps="true"
-		   verbosityLevel = "WARNING"
+		   verbosityLevel = "INFORMATION"
 		   path="logs/servlet-${yyyyMMdd}.log" 
 		   />
 
         <LogSetter  name="JASPER_LOG"
 		   timestamps="true" 
 		   path="logs/jasper-${yyyyMMdd}.log" 
-		   verbosityLevel = "WARNING"  />
+		   verbosityLevel = "INFORMATION"  />
 
         <WebXmlReader validate="true" />
 
@@ -144,7 +145,7 @@
         -->
         <LogSetter  name="tag_pool_log" timestamps="true" 
             path="logs/tagpool-${yyyyMMdd}.log" 
-            verbosityLevel="WARNING" />
+            verbosityLevel="INFORMATION" />
 
         <TagPoolManagerInterceptor />
 
@@ -232,7 +233,7 @@
              tomcatAuthentication="false"
              
           -->
-        <Ajp12Connector	 port="8007" />
+        <Ajp12Connector	 port="@@AJP12.PORT@@" />
 
         <!-- Apache AJP13 support (mod_jk)
              Parameter "address" defines network interface this Interceptor
@@ -249,7 +250,7 @@
              
 
           -->
-        <Ajp13Connector port="8009" />
+        <Ajp13Connector port="@@AJP13.PORT@@" />
 
       <!-- 
            Context definitions can be placed here ( not recommended ) or 
