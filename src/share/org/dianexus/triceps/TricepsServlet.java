@@ -16,12 +16,66 @@ import javax.servlet.http.HttpUtils;
 import java.io.PrintWriter;
 import java.util.Date;
 
+import javax.naming.*;
+import javax.sql.*;
+import java.sql.*;
+
 public class TricepsServlet extends HttpServlet implements VersionIF {
 	static final String TRICEPS_ENGINE = "TricepsEngine";
 	static final String USER_AGENT = "User-Agent";
 	static final String ACCEPT_LANGUAGE = "Accept-Language";
 	static final String ACCEPT_CHARSET = "Accept-Charset";
 	static final String CONTENT_TYPE = "text/html; charset=UTF-8";	// can make UTF-8 by default?
+	
+	/* Strings for storing / retrieving state of authentication */
+	static final String LOGIN_TOKEN = "_DlxLTok";
+	static final String LOGIN_COMMAND = "_DlxLCom";
+	static final String LOGIN_COMMAND_LOGON = "logon";
+	static final String LOGIN_IP = "_DlxLIP";
+	static final String LOGIN_USERNAME = "_DlxUname";
+	static final String LOGIN_PASSWORD = "_DlxPass";
+	static final String LOGIN_RECORD = "_DlxLRec";	
+	
+	/* Strings serving as messages for login error pages - these should really be JSP */
+	static final int LOGIN_ERR_NO_TOKEN = 0;
+	static final int LOGIN_ERR_NEW_SESSION = 1;
+	static final int LOGIN_ERR_MISSING_UNAME_OR_PASS = 2;
+	static final int LOGIN_ERR_INVALID_UNAME_OR_PASS = 3;
+	static final int LOGIN_ERR_INVALID = 4;
+	static final int LOGIN_ERR_ALREADY_COMPLETED = 5;
+	static final int LOGIN_ERR_UNABLE_TO_LOAD_FILE = 6;
+	static final int LOGIN_ERR_EXPIRED_SESSION = 7;
+	static final int LOGIN_ERR_INVALID_RELOGON = 8;
+	static final int LOGIN_ERR_UNSUPPORTED_BROWSER = 9;
+	static final int LOGIN_ERR_OK = 10;
+	static final int LOGIN_ERR_FINISHED = 11;
+		
+	static final String[] LOGIN_ERRS_BRIEF = {
+		" LOGIN_ERR_NO_TOKEN",
+		" LOGIN_ERR_NEW_SESSION",
+		" LOGIN_ERR_MISSING_UNAME_OR_PASS",
+		" LOGIN_ERR_INVALID_UNAME_OR_PASS",
+		" LOGIN_ERR_INVALID",
+		" LOGIN_ERR_ALREADY_COMPLETED",
+		" LOGIN_ERR_UNABLE_TO_LOAD_FILE", 
+		" LOGIN_ERR_EXPIRED_SESSION", 
+		" LOGIN_ERR_INVALID_RELOGON",
+		" LOGIN_ERR_UNSUPPORTED_BROWSER",
+		" OK",
+		" FINISHED",
+	};
+	
+	static final String[] LOGIN_ERRS_VERBOSE = {
+		"Please login",
+		"Please login",
+		"Please enter both your username and password",
+		"The username or password you entered was incorrect",
+		"Please login again --  You will resume from where you left off.<br><br>(Your login session was invalidated either because you accidentally pressed the browser's back button instead of the 'previous' button; or you attempted to use a bookmarked page from the instrument; or you triple-clicked an icon or button)",
+		"Thank you!  You have already completed this instrument.",
+		"Please contact the administrator -- the program was unable to load the interview: ",
+		"Please login again -- You will resume from where you left off.<br><br>(Your session expired, either because of prolonged inactivity, or because the server was restarted)",
+		"Please login again --  You will resume from where you left off.<br><br>(Your login session was invalidated because the login page was submitted twice)",
+	};	
 	
 	ServletConfig config = null;
 	TricepsEngine tricepsEngine = null;
@@ -32,6 +86,10 @@ public class TricepsServlet extends HttpServlet implements VersionIF {
 		super.init(config);
 		this.config = config;
 		Logger.init(config.getInitParameter("dialogix.dir"));
+		
+		if (!initDBLogging()) {
+			Logger.writeln("Unable to initialize DBLogging");
+		}		
 	}
 
 	public void destroy() {
@@ -44,12 +102,13 @@ public class TricepsServlet extends HttpServlet implements VersionIF {
 
 	public void doPost(HttpServletRequest req, HttpServletResponse res)  {
 		tricepsEngine = null;	// reset it in case of error page
+		int result = LOGIN_ERR_OK;
 		try {
 			if (isSupportedBrowser(req)) {
-				okPage(req,res);
+				result = okPage(req,res);
 			}
 			else {
-				errorPage(req,res);
+				result = errorPage(req,res);
 			}
 		}
 		catch (Throwable t) {
@@ -57,6 +116,7 @@ if (DEBUG) Logger.writeln("##Throwable @ Servlet.doPost()" + t.getMessage());
 if (DEBUG) Logger.printStackTrace(t);
 			errorPage(req,res);
 		}
+		if (result >= 0) { logPageHit(req,LOGIN_ERRS_BRIEF[result]); }	// way to avoid re-logging post shutdown
 	}
 	
 	boolean isSupportedBrowser(HttpServletRequest req) {
@@ -88,13 +148,13 @@ if (DEBUG) Logger.printStackTrace(t);
 		}
 	}
 
-	private void okPage(HttpServletRequest req, HttpServletResponse res) {
+	private int okPage(HttpServletRequest req, HttpServletResponse res) {
 		HttpSession session = req.getSession();
 		
 		if ((session == null || session.isNew()) && "POST".equals(req.getMethod())) {
-			shutdown(req,"post-expired session",false);
+			shutdown(req,LOGIN_ERRS_BRIEF[LOGIN_ERR_EXPIRED_SESSION],false);
 			expiredSessionErrorPage(req,res);
-			return;
+			return -1;
 		}
 		
 		sessionID = session.getId();
@@ -112,20 +172,22 @@ if (DEBUG) Logger.printStackTrace(t);
 			
 			tricepsEngine.doPost(req,res,out,null,null);
 						
-			out.close();
 			out.flush();
+			out.close();
 			
 			session.setAttribute(TRICEPS_ENGINE, tricepsEngine);
 			
 			/* disable session if completed */
 			if (tricepsEngine.isFinished()) {
 				logAccess(req, " FINISHED");
-				shutdown(req,"post-FINISHED",false);	// if don't remove the session, can't login as someone new
+				shutdown(req,LOGIN_ERRS_BRIEF[LOGIN_ERR_FINISHED],false);	// if don't remove the session, can't login as someone new
+				return -1;
 			}			
 		}
 		catch (Throwable t) {
 if (DEBUG) Logger.printStackTrace(t);
-		}			
+		}
+		return LOGIN_ERR_OK;
 	}
 	
 	void logAccess(HttpServletRequest req, String msg) {
@@ -162,7 +224,7 @@ if (DEBUG && false) {
 	}
 	
 
-	void errorPage(HttpServletRequest req, HttpServletResponse res) {
+	int errorPage(HttpServletRequest req, HttpServletResponse res) {
 		logAccess(req, " UNSUPPORTED BROWSER");
 		try {
 			res.setContentType(CONTENT_TYPE);
@@ -189,7 +251,8 @@ if (DEBUG && false) {
 		}
 		catch (Throwable t) {
 if (DEBUG) Logger.printStackTrace(t);
-		}		
+		}
+		return LOGIN_ERR_UNSUPPORTED_BROWSER;
 	}
 	
 	void expiredSessionErrorPage(HttpServletRequest req, HttpServletResponse res) {
@@ -235,6 +298,8 @@ if (DEBUG) Logger.printStackTrace(t);
 		
 		Logger.writeln("...discarding session: " + sessionID + ":  " + msg);
 		
+		logPageHit(req,msg);
+		
 		if (tricepsEngine != null) {
 			tricepsEngine.getTriceps().shutdown();
 		}
@@ -259,4 +324,76 @@ if (DEBUG) Logger.printStackTrace(t);
 			Logger.writeln(e.getMessage());
 		}
 	}
+	
+	/** This part is for logging to a database **/
+	
+	protected Context ctx = null;
+	protected DataSource ds = null;	
+	protected boolean isLoaded = false;
+	
+	boolean initDBLogging() {
+		/* Load login info file from init param */
+	    try {
+	      ctx = new InitialContext();
+	      if(ctx == null ) 
+	          throw new Exception("Boom - No Context");
+	
+	      ds = (DataSource)ctx.lookup("java:comp/env/jdbc/dialogix_users");
+	      if(ds == null ) 
+	          throw new Exception("Boom - No DataSource");	      
+	    }catch(Exception e) {
+if (DEBUG) Logger.printStackTrace(e);
+	      return false;
+	    }
+	    isLoaded = true;
+	    return true;
+	}	
+	
+	
+	boolean writeToDB(String command) {
+		try {
+			if (ds == null) throw new Exception("Unable to access DataSource");
+			
+	        Connection conn = ds.getConnection();
+	        
+	        if (conn == null) throw new Exception("Unable to connect to database");	// really need a way to report that there are database problems!
+	        
+	        Statement stmt = conn.createStatement();
+	        ResultSet rst =  stmt.executeQuery(command);
+	
+	        conn.close();
+	        
+			return true;
+		}
+		catch (Throwable t) {
+			Logger.writeln("SQL-ERROR on: " + command);
+			Logger.writeln(t.getMessage());
+			return false;
+		}
+	}
+	
+	boolean logPageHit(HttpServletRequest req, String msg) {
+		StringBuffer sb = new StringBuffer();
+		String workingFile = null;
+		try {
+			workingFile = tricepsEngine.getTriceps().dataLogger.getFilename().replace('\\','/');
+		}
+		catch (Exception e) {
+			workingFile = "null";
+		}
+		
+		sb.append("INSERT INTO pagehits (currentIP, username, sessionID, workingFile, javaObject, browser, instrumentName, currentStep, lastAction, statusMsg) VALUES (");
+		sb.append("'").append(req.getRemoteAddr()).append("'");
+		sb.append(", '").append(req.getParameter(LOGIN_USERNAME)).append("'");	
+		sb.append(", '").append((sessionID == null) ? "null" : sessionID).append("'");
+		sb.append(", '").append(workingFile).append("'");
+		sb.append(", '").append((tricepsEngine == null) ? "null" : tricepsEngine.getHashCode()).append("'");
+		sb.append(", '").append(req.getHeader(USER_AGENT)).append("'");
+		sb.append(", '").append((tricepsEngine == null) ? "null" : tricepsEngine.getInstrumentName().replace('\\','/')).append("'");
+		sb.append(", '").append((tricepsEngine == null) ? "null" : tricepsEngine.getCurrentStep()).append("'");
+		sb.append(", '").append(req.getParameter("DIRECTIVE")).append("'");
+		sb.append(", '").append(msg).append("'");
+		sb.append(")");
+		return writeToDB(sb.toString());
+	}	
 }

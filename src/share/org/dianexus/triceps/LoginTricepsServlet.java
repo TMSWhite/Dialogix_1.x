@@ -31,60 +31,10 @@ import java.io.FileWriter;
 import java.text.DateFormat;
 
 public class LoginTricepsServlet extends TricepsServlet {
-	/* Strings for storing / retrieving state of authentication */
-	static final String LOGIN_TOKEN = "_DlxLTok";
-	static final String LOGIN_COMMAND = "_DlxLCom";
-	static final String LOGIN_COMMAND_LOGON = "logon";
-	static final String LOGIN_IP = "_DlxLIP";
-	static final String LOGIN_USERNAME = "_DlxUname";
-	static final String LOGIN_PASSWORD = "_DlxPass";
-	static final String LOGIN_RECORD = "_DlxLRec";
-	
-	/* Strings serving as messages for login error pages - these should really be JSP */
-	static final int LOGIN_ERR_NO_TOKEN = 0;
-	static final int LOGIN_ERR_NEW_SESSION = 1;
-	static final int LOGIN_ERR_MISSING_UNAME_OR_PASS = 2;
-	static final int LOGIN_ERR_INVALID_UNAME_OR_PASS = 3;
-	static final int LOGIN_ERR_INVALID = 4;
-	static final int LOGIN_ERR_ALREADY_COMPLETED = 5;
-	static final int LOGIN_ERR_UNABLE_TO_LOAD_FILE = 6;
-	static final int LOGIN_ERR_EXPIRED_SESSION = 7;
-	static final int LOGIN_ERR_INVALID_RELOGON = 8;
-
-	
-	static final String[] LOGIN_ERRS_BRIEF = {
-		" LOGIN_ERR_NO_TOKEN",
-		" LOGIN_ERR_NEW_SESSION",
-		" LOGIN_ERR_MISSING_UNAME_OR_PASS",
-		" LOGIN_ERR_INVALID_UNAME_OR_PASS",
-		" LOGIN_ERR_INVALID",
-		" LOGIN_ERR_ALREADY_COMPLETED",
-		" LOGIN_ERR_UNABLE_TO_LOAD_FILE", 
-		" LOGIN_ERR_EXPIRED_SESSION", 
-		" LOGIN_ERR_INVALID_RELOGON",
-	};
-	
-	static final String[] LOGIN_ERRS_VERBOSE = {
-		"Please login",
-		"Please login",
-		"Please enter both your username and password",
-		"The username or password you entered was incorrect",
-		"Please login again --  You will resume from where you left off.<br><br>(Your login session was invalidated either because you accidentally pressed the browser's back button instead of the 'previous' button; or you attempted to use a bookmarked page from the instrument; or you triple-clicked an icon or button)",
-		"Thank you!  You have already completed this instrument.",
-		"Please contact the administrator -- the program was unable to load the interview: ",
-		"Please login again -- You will resume from where you left off.<br><br>(Your session expired, either because of prolonged inactivity, or because the server was restarted)",
-		"Please login again --  You will resume from where you left off.<br><br>(Your login session was invalidated because the login page was submitted twice)",
-	};
-
-	
 	static Random random = new Random();
 	
 	public void init(ServletConfig config) throws ServletException {
 		super.init(config);
-		
-		if (!initLoginService()) {
-			Logger.writeln("Unable to initialize LoginTricepsServlet");
-		}
 	}
 
 	public void destroy() {
@@ -96,15 +46,17 @@ public class LoginTricepsServlet extends TricepsServlet {
 	}
 
 	public void doPost(HttpServletRequest req, HttpServletResponse res)  {
+		int result = LOGIN_ERR_OK;
 		try {
-			processPost(req,res);
+			result = processPost(req,res);
 		}
 		catch (Throwable t) {
 if (DEBUG) Logger.printStackTrace(t);
-		}	
+		}
+		if (result >= 0) { logPageHit(req,LOGIN_ERRS_BRIEF[result]); }	// way to avoid re-logging post shutdown
 	}
 	
-	void processPost(HttpServletRequest req, HttpServletResponse res)  {
+	int processPost(HttpServletRequest req, HttpServletResponse res)  {
 		/* validate session */
 		/* Ensure that there is actually a session object  -- if not, will be created by loginPage */
 		HttpSession session = req.getSession();
@@ -113,11 +65,11 @@ if (DEBUG) Logger.printStackTrace(t);
 			/* If session is expired, give appropriiate error page */
 			if ("POST".equals(req.getMethod())) {
 				loginPage(req,res,LOGIN_ERR_EXPIRED_SESSION);
-				return;
+				return -1;
 			}
 			/* if new, require login */
 			loginPage(req,res,LOGIN_ERR_NEW_SESSION);
-			return;
+			return -1;
 		}
 		
 		String loginCommand = req.getParameter(LOGIN_COMMAND);
@@ -132,7 +84,7 @@ if (DEBUG) Logger.printStackTrace(t);
 			if ((storedLoginToken != null && !storedLoginToken.trim().equals("")) || loginRecord != null) {
 				/* the person is trying to login again -- don't let them continue, since have active session */
 				loginPage(req,res,LOGIN_ERR_INVALID_RELOGON);
-				return;
+				return -1;
 			}
 			
 			/* then try to validate this person */
@@ -141,14 +93,14 @@ if (DEBUG) Logger.printStackTrace(t);
 			if (uname == null || uname.trim().equals("") ||
 				pass == null || pass.trim().equals("")) {
 				loginPage(req,res,LOGIN_ERR_MISSING_UNAME_OR_PASS);
-				return;
+				return -1;
 			}
 			
 			loginRecord = validateLogin(uname,pass);
 			if (loginRecord == LoginRecord.NULL) {
 				/* then invalid */
 				loginPage(req,res,LOGIN_ERR_INVALID_UNAME_OR_PASS);
-				return;
+				return -1;
 			}
 			
 			/* create tokens needed for remainder of processing */
@@ -169,7 +121,7 @@ if (DEBUG) Logger.printStackTrace(t);
 			loginRecord == null) {
 			/* Then user has not logged in */
 			loginPage(req,res,LOGIN_ERR_NO_TOKEN);
-			return;
+			return -1;
 		}
 		
 		/* compare login token to the one stored in the session */
@@ -182,23 +134,24 @@ if (DEBUG) Logger.printStackTrace(t);
 			String hiddenLoginToken = "<input type='hidden' name='" + LOGIN_TOKEN + "' value='" + loginToken + "'>";
 
 			/* pass control through to main Dialogix servlet */
-			processAuthenticatedRequest(req,res,hiddenLoginToken);
+			return processAuthenticatedRequest(req,res,hiddenLoginToken);
 		}
 		else {
 			/* What if try to re-submit -- what will happen? */
 			loginPage(req,res,LOGIN_ERR_INVALID);
-			return;
+			return -1;
 		}
 	}
 	
-	void processAuthenticatedRequest(HttpServletRequest req, HttpServletResponse res, String hiddenLoginToken)  {
+	int processAuthenticatedRequest(HttpServletRequest req, HttpServletResponse res, String hiddenLoginToken)  {
 		/* Now, must load the proper instrument from the "database" */
 		/* Might also want to warn about the unsupported browser feature earlier? */
 		if (isSupportedBrowser(req)) {
-			okPage(req,res,hiddenLoginToken);
+			return okPage(req,res,hiddenLoginToken);
 		}
 		else {
 			errorPage(req,res);
+			return LOGIN_ERR_UNSUPPORTED_BROWSER;
 		}
 	}
 	
@@ -214,7 +167,7 @@ if (DEBUG) Logger.printStackTrace(t);
 	void loginPage(HttpServletRequest req, HttpServletResponse res, int login_err, String message) {
 		logAccess(req, LOGIN_ERRS_BRIEF[login_err]);
 		
-		shutdown(req,"now at loginPage",true);
+		shutdown(req,LOGIN_ERRS_BRIEF[login_err],true);	// at login page
 		
 		try {
 			res.setContentType(CONTENT_TYPE);
@@ -314,7 +267,7 @@ if (DEBUG) Logger.printStackTrace(t);
 		}
 	}
 	
-	void okPage(HttpServletRequest req, HttpServletResponse res, String hiddenLoginToken) {
+	int okPage(HttpServletRequest req, HttpServletResponse res, String hiddenLoginToken) {
 		HttpSession session = req.getSession();	// must alreay exist by this stage
 		
 		sessionID = session.getId();
@@ -332,7 +285,7 @@ if (DEBUG) Logger.printStackTrace(t);
 			if (loginRecord.isCompleted()) {
 				/* if completed, give the option to sign on as someone else */
 				loginPage(req,res,LOGIN_ERR_ALREADY_COMPLETED);
-				return;
+				return -1;
 			}
 			
 			tricepsEngine = new TricepsEngine(config);
@@ -369,7 +322,7 @@ if (DEBUG) Logger.printStackTrace(t);
 			}
 			else {
 				loginPage(req,res,LOGIN_ERR_UNABLE_TO_LOAD_FILE,LOGIN_ERRS_VERBOSE[LOGIN_ERR_UNABLE_TO_LOAD_FILE] + " '" + src + "'");
-				return;
+				return -1;
 			}
 		}
 		else {
@@ -386,50 +339,31 @@ if (DEBUG) Logger.printStackTrace(t);
 			/* process session before finalizing print writer */
 			session.setAttribute(TRICEPS_ENGINE, tricepsEngine);
 			
-			out.close();
 			out.flush();
+			out.close();
 			
 			/* disable session if completed */
 			if (tricepsEngine.isFinished()) {
 				logAccess(req, " FINISHED");
 				try {
-					shutdown(req,"post-FINISHED",false);	// if don't remove the session, can't login as someone new
+					shutdown(req,LOGIN_ERRS_BRIEF[LOGIN_ERR_FINISHED],false);	// if don't remove the session, can login as someone new
 					loginRecord.setStatusCompleted();
 					updateRecord(loginRecord, req);
 				}
 				catch (java.lang.IllegalStateException e) {
 					Logger.writeln(e.getMessage());
 				}
+				return -1;
 			}					}
 		catch (Throwable t) {
 if (DEBUG) Logger.printStackTrace(t);
 		}
+		return LOGIN_ERR_OK;
 	}	
 	
 	/** 
 		These functions are pulled  from the old LoginRecords, now that a database.  Better separation of function is desirable for the future
 	**/
-	private Context ctx = null;
-	private DataSource ds = null;	
-	private boolean isLoaded = false;
-	
-	boolean initLoginService() {
-		/* Load login info file from init param */
-	    try {
-	      ctx = new InitialContext();
-	      if(ctx == null ) 
-	          throw new Exception("Boom - No Context");
-	
-	      ds = (DataSource)ctx.lookup("java:comp/env/jdbc/dialogix_users");
-	      if(ds == null ) 
-	          throw new Exception("Boom - No DataSource");	      
-	    }catch(Exception e) {
-if (DEBUG) Logger.printStackTrace(e);
-	      return false;
-	    }
-	    isLoaded = true;
-	    return true;
-	}
 	
 	LoginRecord validateLogin(String username, String password) {
 		if (!isLoaded || username == null || username.trim().equals("") || password == null || password.trim().equals("")) {
@@ -492,80 +426,35 @@ if (DEBUG) Logger.printStackTrace(t);
 	
 	boolean updateRecord(LoginRecord lr, HttpServletRequest req) {
 		/* This assumes that each unique username is only assigned to a single instrument */
-		
-		try {
-			StringBuffer sb = new StringBuffer();
-			sb.append("UPDATE wave6users SET ");
-			sb.append("	filename='").append(lr.getFilename());
-			sb.append("',	status='").append(lr.getStatus());
-			sb.append("'	WHERE username='").append(lr.getUsername()).append("'");
-			
-//	if (DEBUG) Logger.writeln(sb.toString());	/* so that show the command about to be executed */
-	            			
-			if (ds == null) throw new Exception("Unable to access DataSource");
-			
-	        Connection conn = ds.getConnection();
-	        
-	        if (conn == null) throw new Exception("Unable to connect to database");	// really need a way to report that there are database problems!
-	        
-	        /* could benefit from prepared statement? */
-	        
-	        Statement stmt = conn.createStatement();
-	        ResultSet rst =  stmt.executeQuery(sb.toString());
 	
-	        conn.close();
-	        
-			return true;
-		}
-		catch (Throwable t) {
-			Logger.writeln("Error updating database: " + t.getMessage());
-if (DEBUG) Logger.printStackTrace(t);
-			return false;
-		}
+		StringBuffer sb = new StringBuffer();
+		sb.append("UPDATE wave6users SET ");
+		sb.append("	filename='").append(lr.getFilename());
+		sb.append("',	status='").append(lr.getStatus());
+		sb.append("'	WHERE username='").append(lr.getUsername()).append("'");
+		
+		return writeToDB(sb.toString());
 	}
 	
 	boolean updateStatus(HttpServletRequest req, String msg) {
 		/* This assumes that each unique username is only assigned to a single instrument */
+		LoginRecord lr = (LoginRecord) req.getSession().getAttribute(LOGIN_RECORD);
+		if (lr == null || tricepsEngine == null) { return false; }
 		
-		try {
-			LoginRecord lr = (LoginRecord) req.getSession().getAttribute(LOGIN_RECORD);
-			if (lr == null || tricepsEngine == null) { return false; }
-			
-			StringBuffer sb = new StringBuffer();
-			sb.append("UPDATE wave6users SET ");
-			sb.append("	status='").append(lr.getStatus());
-			sb.append("',	lastAccess='").append(DateFormat.getDateTimeInstance(DateFormat.MEDIUM,DateFormat.MEDIUM).format(new Date(System.currentTimeMillis())));
-			sb.append("',	currentStep='").append(tricepsEngine.getCurrentStep());
-			sb.append("',	currentIP='").append(req.getRemoteAddr());
-			sb.append("',	lastAction='").append(req.getParameter("DIRECTIVE"));
-			sb.append("',	sessionID='").append(sessionID);
-			sb.append("',	browser='").append(req.getHeader(USER_AGENT));
-			sb.append("',	statusMsg='").append(msg);
-			sb.append("'	WHERE username='").append(lr.getUsername()).append("'");
-			
-//	if (DEBUG) Logger.writeln(sb.toString());	/* so that show the command about to be executed */
-	            			
-			if (ds == null) throw new Exception("Unable to access DataSource");
-			
-	        Connection conn = ds.getConnection();
-	        
-	        if (conn == null) throw new Exception("Unable to connect to database");	// really need a way to report that there are database problems!
-	        
-	        /* could benefit from prepared statement? */
-	        
-	        Statement stmt = conn.createStatement();
-	        ResultSet rst =  stmt.executeQuery(sb.toString());
-	
-	        conn.close();
-	        
-			return true;
-		}
-		catch (Throwable t) {
-			Logger.writeln("Error updating database \"" + t.getMessage());
-if (DEBUG) Logger.printStackTrace(t);
-			return false;
-		}
-	}
+		StringBuffer sb = new StringBuffer();
+		sb.append("UPDATE wave6users SET ");
+		sb.append("	status='").append(lr.getStatus());
+		sb.append("',	lastAccess='").append(DateFormat.getDateTimeInstance(DateFormat.MEDIUM,DateFormat.MEDIUM).format(new Date(System.currentTimeMillis())));
+		sb.append("',	currentStep='").append(tricepsEngine.getCurrentStep());
+		sb.append("',	currentIP='").append(req.getRemoteAddr());
+		sb.append("',	lastAction='").append(req.getParameter("DIRECTIVE"));
+		sb.append("',	sessionID='").append(sessionID);
+		sb.append("',	browser='").append(req.getHeader(USER_AGENT));
+		sb.append("',	statusMsg='").append(msg);
+		sb.append("'	WHERE username='").append(lr.getUsername()).append("'");
+		
+		return writeToDB(sb.toString());
+	}	
 	
 	void logAccess(HttpServletRequest req, String msg) {
 		super.logAccess(req,msg);
@@ -724,12 +613,3 @@ class LoginRecord {
 		return sb.toString();
 	}
 }
-
-/* Add status information to database */
-/* [] last access time:  new Date(System.currentTimeMillis()) */
-/* [] current step: tricepsEngine.getScheduleStatus() */
-/* [] get source IP address: req.getRemoteAddr() */
-/* [] last action: req.getParameter("DIRECTIVE") */
-/* [] sessionID: sessionID */
-/* [] browser: req.getHeader(USER_AGENT) */
-/* [] statusmsg: OK, ERROR, etc. */
