@@ -65,7 +65,8 @@ import java.io.ByteArrayInputStream;
 	/*public*/ static final int TRICEPS_FILE_TYPE = 44;
 	/*public*/ static final int DISPLAY_COUNT = 45;
 	/*public*/ static final int SCHEDULE_DIR = 46;
-	/*public*/ static final int ALLOW_JUMP_TO_HEADER_MSG = 47;
+	/*public*/ static final int ALLOW_JUMP_TO_MODULE = 47;
+	/*public*/ static final int MODULE=48;
 
 	private static final String DEFAULT_LANGUAGE = "en_US";
 	/*public*/ static final String TRICEPS_DATA_FILE = "DATA";
@@ -120,7 +121,8 @@ import java.io.ByteArrayInputStream;
 		"__TRICEPS_FILE_TYPE__",
 		"__DISPLAY_COUNT__",
 		"__SCHEDULE_DIR__",
-		"__ALLOW_JUMP_TO_HEADER_MSG__"
+		"__ALLOW_JUMP_TO_MODULE__",
+		"__MODULE__",
 	};
 
 	private Date startTime = null;
@@ -138,6 +140,8 @@ import java.io.ByteArrayInputStream;
 	private Evidence evidence = null;
 	private ScheduleSource scheduleSource = null;
 	private boolean isDatafile = false;
+	
+	private Hashtable headerMsgs = new Hashtable();
 
 	/*public*/ static final Schedule NULL = new Schedule(null,null);
 	
@@ -214,7 +218,8 @@ import java.io.ByteArrayInputStream;
 		setReserved(ACTIVE_BUTTON_SUFFIX,"»»");
 		setReserved(DISPLAY_COUNT,"0");
 		setReserved(SCHEDULE_DIR,"");
-		setReserved(ALLOW_JUMP_TO_HEADER_MSG,"false");
+		setReserved(ALLOW_JUMP_TO_MODULE,"false");
+		setReserved(MODULE,"");
 	}
 		
 	/*public*/ boolean init() {
@@ -261,13 +266,14 @@ if (DEBUG && false) {
 		Vector lines=null;
 		String line=null;
 		int lineNum = 1;
+		int nodeCount = 0;
 		
 		lines = scheduleSource.getHeaders();
 		for (int i=0;i<lines.size();++i,++lineNum) {
 			line = (String) lines.elementAt(i);
 			if (!line.startsWith("RESERVED"))
 				continue;
-			if (parseReserved(lineNum, source, line)) {
+			if (parseReserved(lineNum, nodeCount, source, line)) {
 				++reservedCount;
 			}
 		}
@@ -287,7 +293,7 @@ if (DEPLOYABLE) {
 				line = (String) lines.elementAt(i);
 				if (!line.startsWith("RESERVED"))
 					continue;
-				if (parseReserved(lineNum, source, line)) {
+				if (parseReserved(lineNum, nodeCount, source, line)) {
 					++reservedCount;
 				}
 			}
@@ -333,12 +339,13 @@ if (DEBUG) Logger.writeln("##@@Error loading dataBody");
 		String source = ss.getSourceInfo().getSource();
 		String line = null;
 		int lineNum = 1;
+		int nodeCount = 0;
 		
 		for (int i=0;i<lines.size();++i,++lineNum) {
 			line = (String) lines.elementAt(i);
 			if (line.startsWith("COMMENT"))
 				continue;
-			if (!parseReserved(lineNum,source,line))
+			if (!parseReserved(lineNum,nodeCount,source,line))
 				return false;
 		}
 		return true;
@@ -355,6 +362,7 @@ if (DEBUG) Logger.writeln("##@@Error loading dataBody");
 		String source = ss.getSourceInfo().getSource();
 		int lineNum = 1 + ss.getHeaders().size();
 		String line=null;
+		int nodeCount = 0;
 		
 		for (int i=0;i<lines.size();++i,++lineNum) {
 			line = (String) lines.elementAt(i);
@@ -362,12 +370,13 @@ if (DEBUG) Logger.writeln("##@@Error loading dataBody");
 				continue;
 			if (line.startsWith("RESERVED")) {
 //if (DEBUG) Logger.writeln("##**Schedule.parseReserved(" + lineNum + "," + line + ")");
-				if (!parseReserved(lineNum,source,line))
+				if (!parseReserved(lineNum,nodeCount,source,line))
 					return false;
 			}
 			else {
 				if (!parseNode(line))
 					return false;
+				++nodeCount;
 			}
 		}
 		return true;
@@ -399,7 +408,7 @@ if (DEBUG) Logger.writeln("##@@Error loading dataBody");
 			line = (String) lines.elementAt(i);
 			if (line.startsWith("COMMENT"))
 				continue;
-			ok = parseReserved(lineNum,source,line);
+			ok = parseReserved(lineNum,0,source,line);
 if (!AUTHORABLE) if (!ok) return false;	
 		}
 		lines = ss.getBody();
@@ -583,7 +592,7 @@ else node.setParseError("syntax error");
 		return nodes.size();
 	}
 
-	private boolean parseReserved(int line, String filename, String fileLine) {
+	private boolean parseReserved(int line, int nodeCount, String filename, String fileLine) {
 		StringTokenizer tokens = new StringTokenizer(fileLine,"\t",true);
 		int field = 0;
 		String name=null;
@@ -709,7 +718,8 @@ if (DEPLOYABLE) {
 			case TRICEPS_FILE_TYPE: if (expert) s = setTricepsFileType(value); break;
 			case DISPLAY_COUNT: if (expert) s = setDisplayCount(value); break;
 			case SCHEDULE_DIR: if (expert) s = value; break;
-			case ALLOW_JUMP_TO_HEADER_MSG: s = Boolean.valueOf(value.trim()).toString(); break;
+			case ALLOW_JUMP_TO_MODULE: s = Boolean.valueOf(value.trim()).toString(); break;
+			case MODULE: s = value;
 			default: return false;
 		}
 		
