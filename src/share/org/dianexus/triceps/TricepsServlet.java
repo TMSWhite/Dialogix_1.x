@@ -132,10 +132,10 @@ public class TricepsServlet extends HttpServlet {
 				if ("test-suspended".equals(req.getParameter("interview"))) {
 //					evidence = new Evidence("/tmp/test-suspended");
 					try {
-						FileInputStream istream = new FileInputStream("/tmp/test-suspended");
-						ObjectInputStream p = new ObjectInputStream(istream);
-						this.evidence = (Evidence)p.readObject();
-						istream.close();
+						FileInputStream fis = new FileInputStream("/tmp/test-suspended");
+						ObjectInputStream ois = new ObjectInputStream(fis);
+						evidence = (Evidence) ois.readObject();
+						ois.close();
 					}
 					catch (IOException e) {
 						System.out.println(e);
