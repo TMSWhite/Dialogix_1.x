@@ -217,7 +217,6 @@ import java.io.File;
 	private Date startTime = new Date(System.currentTimeMillis());
 	private Logger errorLogger = new Logger();
 	Triceps triceps = null;	// need package-level access in Qss
-	private Schedule schedule = null;
 	
 	/*public*/ static final Evidence NULL = new Evidence(null);
 	
@@ -229,7 +228,7 @@ import java.io.File;
 	/*public*/ void createReserved() {
 		values = new Vector();
 		numReserved = Schedule.RESERVED_WORDS.length;	// these are always added at the beginning
-		schedule = triceps.getSchedule();
+		Schedule schedule = triceps.getSchedule();
 //if (DEBUG) Logger.writeln("##Evidence.createReserved()");
 
 		Value value=null;
@@ -245,7 +244,7 @@ import java.io.File;
 	
 	/*public*/ void initReserved() {
 		numReserved = Schedule.RESERVED_WORDS.length;	// these are always added at the beginning
-		schedule = triceps.getSchedule();
+		Schedule schedule = triceps.getSchedule();
 		if (schedule == null) {
 if (DEBUG) Logger.writeln("##Evidence.initReserved()-schedule=null");			
 			schedule = Schedule.NULL;
@@ -268,7 +267,7 @@ if (DEBUG) Logger.writeln("##Evidence.initReserved()-schedule=null");
 		Datum datum = null;
 		int idx=numReserved;
 
-		schedule = triceps.getSchedule();
+		Schedule schedule = triceps.getSchedule();
 		int size = schedule.size();
 		int startingStep = Integer.parseInt(schedule.getReserved(Schedule.STARTING_STEP));
 		String timeStamp = null;
@@ -314,7 +313,7 @@ if (DEBUG) Logger.writeln("##Evidence.initReserved()-schedule=null");
 		Node node=null;
 		Value value=null;
 
-		schedule = triceps.getSchedule();
+		Schedule schedule = triceps.getSchedule();
 		int size = schedule.size();
 
 		for (int i = 0; i < size; ++i) {
@@ -429,7 +428,7 @@ if (DEBUG) Logger.writeln("##Evidence.initReserved()-schedule=null");
 			
 if (DEPLOYABLE) {			
 		if (value.isReserved()) {
-			schedule.writeReserved(value.getReservedNum());
+			triceps.getSchedule().writeReserved(value.getReservedNum());
 		}
 		else {
 			writeNode(node,val);
@@ -511,7 +510,7 @@ if (DEPLOYABLE) {
 	
 	/*public*/ void writeDatafileHeaders() {
 if (DEPLOYABLE) {		
-		schedule = triceps.getSchedule();
+		Schedule schedule = triceps.getSchedule();
 		
 		schedule.setReserved(Schedule.TRICEPS_FILE_TYPE,Schedule.TRICEPS_DATA_FILE);
 		schedule.writeReserved(Schedule.TRICEPS_FILE_TYPE);
@@ -533,6 +532,7 @@ if (DEPLOYABLE) {
 if (DEPLOYABLE) {		
 		Node node = null;
 		Datum datum = null;
+		Schedule schedule = triceps.getSchedule();
 		
 		for (int i=0;i<schedule.size();++i) {
 			node = schedule.getNode(i);
