@@ -104,7 +104,10 @@ while($r  = mysql_fetch_assoc($res))
 			echo "$ActionPhrase";
 		}
 		echo "</td><td><font color='blue'>";
-		if ($DisplayType == 'double') {
+		if ($ActionType == 'e') {
+			echo "equation";
+		}
+		else if ($DisplayType == 'double') {
 			echo "number";
 		}
 		else if ($DisplayType == 'nothing') {

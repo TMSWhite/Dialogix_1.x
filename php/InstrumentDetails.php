@@ -49,9 +49,10 @@ while($r  = mysql_fetch_assoc($res))
 		extract($s);
 		
 		echo "<tr>\t
-		<td>$ID</td>
+		<td><a title='View LOINC file for this instrument'
+			href=\"InstrumentLOINCFile.php?Instrument=$InstrumentName\">$ID</a></td>
 		<td><a title='View logic file for this instrument'
-			href=\"InstrumentLogicFile.php?Instrument=$InstrumentName\">$Title</td>
+			href=\"InstrumentLogicFile.php?Instrument=$InstrumentName\">$Title</a></td>
 		<td>$Version</td>
 		<td>$NumVars</td>
 		<td><a title='View Translation File' href=\"InstrumentTranslationFile.php?Instrument=$InstrumentName&NumLanguages=$NumLanguages\">$LanguageList</a></td>
