@@ -59,7 +59,7 @@ import java.text.DecimalFormat;
 	/*public*/ static final String ACTION_TYPE_NAMES[] = {"*unknown*","question", "expression", "group_open", "group_close", "brace_open", "brace_close", "call_schedule"};
 	/*public*/ static final String ACTION_TYPES[] = {"?","q","e","[","]", "{", "}", "call" };
 
-	private static final int MAX_TEXT_LEN_FOR_COMBO = 60;
+	/*public*/ static final int MAX_TEXT_LEN_FOR_COMBO = 60;
 	private static final int MAX_ITEMS_IN_LIST = 20;
 
 	private static final String INTRA_OPTION_LINE_BREAK = "<br>";
@@ -511,6 +511,7 @@ else setParseError("syntax error");
 		String defaultValue = "";
 		AnswerChoice ac;
 		Enumeration ans = null;
+		Vector v = null;
 
 		switch (answerType) {
 		case RADIO:	// will store integers
@@ -524,7 +525,7 @@ else setParseError("syntax error");
 			break;
 		case RADIO_HORIZONTAL: // will store integers
 			/* table underneath questions */
-			Vector v = getAnswerChoices();
+			v = getAnswerChoices();
 			ans = v.elements();
 			int count = v.size();
 
@@ -569,65 +570,26 @@ else setParseError("syntax error");
 				String messageStr = ac.getMessage();
 				String prefix = "<option value='" + ac.getValue() + "'";
 				boolean selected = isSelected(datum,ac);
-				int stop;
-				int start=0;
-				int line=0;
-				String option = null;
-
-				/* must also detect <br> for intra-option line-breaks */
-
-				int lineBreak = 0;
-
-				while (start < messageStr.length()) {
-					lineBreak = messageStr.indexOf(INTRA_OPTION_LINE_BREAK,start);
-					if (lineBreak == -1) {
-						option = messageStr.substring(start,messageStr.length());
-						start = messageStr.length();
+				
+				v = AnswerChoice.subdivideMessage(messageStr,MAX_TEXT_LEN_FOR_COMBO);
+				
+				for (int i=0;i<v.size();++i) {
+					choices.append(prefix);
+					if (i == 0 && selected) {
+						choices.append(" selected");
 					}
-					else {
-						option = messageStr.substring(start,lineBreak);
-						start = lineBreak + INTRA_OPTION_LINE_BREAK.length();
+					choices.append(">");
+					if (i == 0) {	// show selection number
+						choices.append((autogen) ? String.valueOf(optionNum) : ac.getValue());
+						choices.append(")&nbsp;");
 					}
-
-					while (option.length() > 0) {
-						if (option.length() < MAX_TEXT_LEN_FOR_COMBO) {
-							stop = option.length();
-						}
-						else {
-							stop = option.lastIndexOf(' ',MAX_TEXT_LEN_FOR_COMBO);
-							if (stop <= 0) {
-								stop = MAX_TEXT_LEN_FOR_COMBO;	// if no extra space, take entire string
-							}
-						}
-
-						choices.append(prefix);
-						if (line++ == 0) {
-							if (selected) {
-								choices.append(" selected>" +
-									((autogen) ? String.valueOf(optionNum) : ac.getValue()) +
-									")&nbsp;");
-								nothingSelected = false;
-							}
-							else {
-								choices.append(">" +
-									((autogen) ? String.valueOf(optionNum) : ac.getValue()) +
-									")&nbsp;");
-							}
-						}
-						else {
-							choices.append(">&nbsp;&nbsp;&nbsp;");
-						}
-						choices.append(option.substring(0,stop));
-
-						if (stop<option.length())
-							option = option.substring(stop+1,option.length());
-						else
-							option = "";
-
-						choices.append("</option>");
+					else {	// indent to indicate that same as previous
+						choices.append("&nbsp;&nbsp;&nbsp;");
 					}
+					choices.append((String) v.elementAt(i));
+					choices.append("</option>");
 				}
-				totalLines += line;
+				totalLines += v.size();
 			}
 			sb.append("<select name='" + getLocalName() + "'" +
 				((answerType == LIST) ? (" size = '" + Math.min(MAX_ITEMS_IN_LIST,totalLines+1) + "' ") : " ") +
