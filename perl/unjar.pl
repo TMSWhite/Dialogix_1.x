@@ -138,14 +138,30 @@ sub unjarall {
 	
 	foreach (@files) {
 		# unjar to temp directory; then determine which instrument belong to; then move to that new directory
+		my $srcname = $_;
 		&doit("$Prefs->{JAR}  xvf \"$_\"");
-		&doit("del *.err");	
+		foreach (glob("*.err")) {
+			unlink $_ unless (-d $_);
+		}
 		
 		my @files = glob("*");
-		&moveDataFiles(@files);
+		my $instrument_name = &moveDataFiles($srcname,@files);
 		foreach (@files) {
-			&doit("del $_");
+			unlink $_ unless (-d $_);
 		}
+		
+		# move jar files to the appropriate directory for easier maintenance
+		my $dstdir = "$Prefs->{JAR_FILES}/$instrument_name";
+		$dstdir =~ s/\*\.jar//g;	# remove "*.jar" from path 
+		unless (-d $dstdir) {
+			mkdir($dstdir, 0777);
+		}
+
+		my $msg = "copy \"$srcname\" \"$dstdir\"";
+		# convert to dos format
+		$msg =~ s/\/+/\\/g;
+		&doit($msg);
+		unlink $srcname;
 	}
 }
 
@@ -154,21 +170,40 @@ sub moveWorkingFiles {
 	my @files = glob("*.dat *.");
 	
 	foreach (@files) {
-		&moveDataFiles($_);
+		my $srcname = $_;
+		my $instrument_name = &moveDataFiles($_,glob("$srcname*"));
+		
+		# move src files to the appropriate directory for easier maintenance
+		my $dstdir = "$Prefs->{UNFINISHED_DIR}/$instrument_name";
+		$dstdir =~ s/\/+/\//g;	# remove duplicate '/' from path
+		unless (-d $dstdir) {
+			mkdir($dstdir, 0777);
+		}
+		
+		foreach my $file (glob("$srcname*")) {
+			my $msg = "copy \"$file\" \"$dstdir\"";
+			# convert to dos format
+			$msg =~ s/\/+/\\/g;
+			&doit($msg);
+			unlink $file;		
+		}
 	}
 }
 
 sub moveDataFiles {
+	my $srcname = shift;
 	my @files = @_;
-	my $inst = &which_inst($files[0]);	# assume that they are all from the same same data prefix
 	
-	my $locdir;
-	if ($inst =~ /^\s+$/) {
-		$locdir = '_unknown_';
+	if ($srcname =~ /^.+[\\\/](.+)(\.(jar|txt|dat|dat\.evt))$/) {
+		$srcname = $1;
 	}
 	else {
-		$locdir = $inst;
+		$srcname = $_;
 	}
+	
+	my ($filename,$inst,$timestamp) = &Dialogix::Utils::whichInstrument($files[0]);	# assume that they are all from the same same data prefix
+	print "$files[0] => $inst\n";
+	my $locdir = $inst;
 	my $dstdir = "$Prefs->{UNJAR_DIR}/$locdir";
 	unless (-d $dstdir) {
 		mkdir($dstdir, 0777);
@@ -177,48 +212,16 @@ sub moveDataFiles {
 	$dstdir =~ s/\//\\/g;
 	
 	foreach (@files) {
-		&doit("copy \"$_\" \"$dstdir\"");
+		&doit("copy \"$_\" \"$dstdir\\$timestamp-($srcname)-$_\"");
 	}
+	return $inst;
 }
 
 sub doit {
 	my $cmd = shift;
 	print "$cmd\n";
-	system($cmd);
+	(system($cmd) == 0)	or die "ERROR";
 }
-
-sub which_inst {
-	my $datfile = shift;
-	unless (open (IN, "<$datfile")) {
-		print "unable to open $datfile\n";
-		return '';
-	}
-	my @lines = (<IN>);
-	close (IN);
-	print "read data from $datfile\n";
-	my $count = 0;
-	foreach my $line (@lines) {
-		++$count;
-		if ($count > 40) { return ''; }	;	# don't go beyond reasonable header section length
-		my @vals = split(/\t/,$line);
-		if ($vals[0] eq 'RESERVED') {
-			if ($vals[1] eq '__SCHEDULE_SOURCE__') {
-				my $src = $vals[2];
-				print $src;
-				if ($src =~ /^.+[\\\/](.+)(\.(jar|txt))$/) {
-					my $filename = $1;
-					print " -- $filename\n";
-					return $filename;
-				}
-				else {
-					print " -- ???\n";
-					return '';
-				}
-			}
-		}
-	}
-}
-
 
 sub removeOldAnalysisFiles {
 	my @files = glob("$Prefs->{RESULTS_DIR}/*.log");
