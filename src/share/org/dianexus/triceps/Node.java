@@ -284,7 +284,7 @@ else setParseError("syntax error");
 					if (inputValidator.hasErrors()) {
 						setParseError(inputValidator.getErrors());
 					}
-if (DEBUG)	Logger.writeln(s + " ->" + inputValidator.isNull() + "/" + inputValidator.isValid() + ": " + inputValidator.getErrors());	
+//if (DEBUG)	Logger.writeln(s + " ->" + inputValidator.isNull() + "/" + inputValidator.isValid() + ": " + inputValidator.getErrors());	
 					break;
 				default:
 					/* extra parameters are additional allowable values, as Strings that will be parsed */
@@ -760,6 +760,7 @@ else setParseError("syntax error");
 	}
 
 	/*public*/ void setParseError(String error) {
+if (DEBUG) Logger.writeln("##parseError:  " + error);		
 		parseErrors.println(error);
 	}
 	/*public*/ void setError(String error) {
