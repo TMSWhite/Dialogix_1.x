@@ -317,3 +317,12 @@ Reorganization & Documentation
   RESTORE_FROM_FLOPPY: copies from /suspended directory, unless larger file exists there
   Jarred working files: ScheduleList unzips them (unless a larger, presumably more recent file exists in same place), then deletes jar
   
+<< changes from 2.8.6 to 2.8.7
+  Triceps bundles - changed wording for suspend/restore from floppy
+  BUGFIX - questionReference # missing when icons present
+  Enhancement - multi-line restore option now indicates whether it is a working file, or one restored from floppy (by file name only) 
+
+<< changes from 2.8.7 to 2.8.8
+  BUGFIX - Web.xml session timeout was 30 min - changed to 600
+  BUGFIX - Reload questions was resetting everyting to UNASKED
+  BUGFIX - Expired sessions generated messages like "already at beginning" or "already at end" - now generate proper info page
