@@ -2,6 +2,7 @@
 
 use strict;
 use IO::File;
+use XML::Parser;
 
 my $PERLDIR = "c:/cvs2/dialogix/perl";
 
@@ -43,6 +44,7 @@ sub main {
 	foreach (@args) {
 		foreach (glob($_)) {
 			&inst2xml($_);
+			&validate_xml("$_.xml");
 		}
 	}
 }
@@ -80,6 +82,28 @@ sub inst2xml {
 	
 	# write them as XML (initially not taking advantage of Perl's XML / DOM features
 	&write_xml($filename,\@languages,\@lines);
+}
+
+sub validate_xml {
+	my $filename = shift;
+	my ($starttime,$stoptime);
+	$starttime = time;
+	
+	my $parser = new XML::Parser(Style => 'Tree', ErrorContext => 2);
+	my $parse = $parser->parsefile($filename);
+	$stoptime = time;
+	print "Validating \"$filename\" took " . ($stoptime - $starttime) . " seconds\n";
+#	&dump_parse($filename,$parse);
+}
+
+sub dump_parse {
+	my ($filename, $parse) = @_;
+	
+	use Data::Dumper;
+	
+	open (DUMP,">$filename.dump;") or die "unable to dump to $filename.dump";
+	print DUMP Data::Dumper->Dump($parse);
+	close (DUMP);
 }
 
 sub parse_languages {
@@ -181,6 +205,7 @@ sub write_xml {
 	print OUT "</dialogix_instrument>\n";
 	close (OUT);
 	print "wrote XML to $filename.xml\n";
+	return "$filename.xml";
 }
 
 sub basename {
@@ -200,7 +225,7 @@ sub parse_reserved {
 	return {
 		line_type => 'RESERVED',
 		resname => $args[1],
-		resval => $args[2]
+		resval => &parse_html($args[2])
 	};
 }
 
@@ -209,7 +234,7 @@ sub parse_comment {
 	$line =~ s/\s*COMMENT\s*//;
 	return {
 		line_type => 'COMMENT',
-		comment => $line,
+		comment => &parse_html($line),
 	};
 }
 
@@ -219,9 +244,9 @@ sub parse_node {
 	my $line = shift;
 	my @args = &deExcelize(split(/\t/,$line));
 	
-	my $concept = shift(@args);
-	my $uniqueName = shift(@args);
-	my $displayName = shift(@args);
+	my $concept = &parse_html(shift(@args));
+	my $uniqueName = &parse_html(shift(@args));
+	my $displayName = &parse_html(shift(@args));
 	my $relevance = &parse_relevance(shift(@args));
 	my $qoreval = &parse_qoreval(shift(@args));
 	
@@ -230,7 +255,7 @@ sub parse_node {
 	my @hows;
 	
 	while (@args) {
-		my $readback = shift(@args);
+		my $readback = &parse_html(shift(@args));
 		my $action = &parse_action($qoreval->{'qoreval'},shift(@args));
 		my $answerChoices = &parse_answerChoices(shift(@args));
 		my $helpURL = &parse_helpURL(shift(@args));
@@ -322,13 +347,26 @@ sub parse_action {
 		};
 	}
 	else {
+		my $temp = $line;
+		my $parsed;
+		
+		while (1) {
+			if ($temp =~ /^(.*?)(`.*?`)(.*)$/) {
+				$parsed .= $1 . &parse_eqn($2);
+				$temp = $3;
+			}
+			else {
+				$parsed .= $temp;
+				last;
+			}
+		}
+
 		return {
 			action_orig => $line,
-			action_exp => &parse_html($line),
+			action_exp => &parse_html($parsed),
 		}
 	}
 }
-
 
 #		];number;0;(tAGE-10);;77;88;99
 sub parse_qoreval {
@@ -420,8 +458,13 @@ sub parse_html {
 		
 		$exp =~ s/%20/ /g;
 	}
-	
-#	$exp =~ s/(.*?)`(.*?)`/$1<eval>$2<\/eval>/g;	// looks like I need to avoid removing back-ticks?
+	else {
+		# remove special characters
+		$exp =~ s/&nbsp;/&#160;/g;
+		$exp =~ s/&(?![#\d\w]{1,5};)/&amp;/g;
+		$exp =~ s/</&lt;/g;
+		$exp =~ s/>/&gt;/g;
+	}
 	
 	return $exp;
 }
