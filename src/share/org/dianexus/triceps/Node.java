@@ -56,7 +56,7 @@ public class Node {
 						break;
 					case 3:
 						stepName = "_" + token;
-						break; // assumes, for now, that input is nubmer without underscore
+						break; // assumes, for now, that input is number without underscore
 					case 4:
 						dependencies = token;
 						break;
@@ -75,7 +75,8 @@ public class Node {
 							if (index != -1) {
 								answerType = answerOptions.substring(0, index);
 							}
-						}
+							else answerType = answerOptions;
+					}
 				}
 			}
 			if (j != 8) {
