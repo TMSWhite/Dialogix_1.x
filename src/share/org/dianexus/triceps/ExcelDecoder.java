@@ -15,7 +15,7 @@ class ExcelDecoder implements VersionIF {
 	/** Convert Excel-encoded string (whether <i>stringized</i> or not), to standard Java String format
 	**/
 	static String decode(String s) { 
-		if (s.startsWith("\"") && s.endsWith("\"")) {
+		if (s.startsWith("\"") && s.endsWith("\"") && s.length() > 1) {
 			StringBuffer sb = new StringBuffer();
 
 			int start=1;
@@ -25,7 +25,9 @@ class ExcelDecoder implements VersionIF {
 				sb.append("\"");
 				start = stop+2;
 			}
-			sb.append(s.substring(start,s.length()-1));
+			if (s.length() - 1 > start) {
+				sb.append(s.substring(start,s.length()-1));
+			}
 			return sb.toString();
 		}
 		else {
