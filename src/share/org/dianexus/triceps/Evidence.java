@@ -22,7 +22,6 @@ public class Evidence {
 			nodes.addElement(null);
 		}
 	}
-	
 	public boolean containsKey(Object val) {
 		if (val == null)
 			return false;
@@ -111,7 +110,6 @@ public class Evidence {
 	public int size() {
 		return data.size();
 	}
-	
 	public String toString() {
 		StringBuffer sb = new StringBuffer();
 		Enumeration e = aliases.keys();

@@ -3,8 +3,14 @@ import java.io.*;
 import javax.servlet.*;
 import javax.servlet.http.*;
 
-/**	This is the central engine that runs a schedule producing an interview.
-	It */
+/**	This is the central engine that iterates through the nodes in
+	a schedule producing, e.g., an interview.
+
+	It also organizes the connection to the display.
+	In the first version, this is an http response as defined in the
+	JSDK. 
+	*/
+	
 public class TricepsServlet extends HttpServlet {
 	private Qss parser = new Qss();
 	private Schedule nodes;
@@ -21,13 +27,13 @@ public class TricepsServlet extends HttpServlet {
 		super.destroy();
 	}
 	public void doGet(HttpServletRequest req, HttpServletResponse res)
-	throws ServletException, IOException 
-	{
+	throws ServletException, IOException {
+		
 	    doPost(req, res);
 	}
 	public void doPost(HttpServletRequest req, HttpServletResponse res)
-	throws ServletException, IOException 
-	{
+	throws ServletException, IOException {
+		
 	    this.req = req;
 	    this.res = res;
 	    
@@ -44,13 +50,13 @@ public class TricepsServlet extends HttpServlet {
 		out.println("<body bgcolor='white'>");
 		
 		out.println("<head>");
-		out.println("<title>ADHD Schedule</title>");
+		out.println("<title>Diagnostic Interview Schedule for Children -- ADHD</title>");
 		out.println("</head>");
 		
 		out.println("<body>");
 		
-      doit();
-      
+	  doit();
+	  
 		out.println("</body>");
 		out.println("</html>");
 		
@@ -59,7 +65,12 @@ public class TricepsServlet extends HttpServlet {
 		if (evidence != null)
 			session.putValue("evidence", evidence);
 	}
-	
+	/** This method basically gets the next node in the schedule,
+		checks the nodes dependencies to see if it should be executed,
+		then, if it's a question it invokes queryUser(),
+		otherwise, it evaluates the evidence and moves to the next node.
+		*/
+		
 	private void doit() {
 	try {
 	    infoMessage = null;	// reset to nothing each time
@@ -106,7 +117,7 @@ public class TricepsServlet extends HttpServlet {
 	   	forward = true;
 	   }
 	   else if (directive.equals("reload questions")) {
-	   	loadQuestions();
+	   	loadSchedule();
 	   	queryUser();
 	  		return;
 	   }
@@ -211,16 +222,27 @@ public class TricepsServlet extends HttpServlet {
 	    System.out.println(evidence.toString());
 	    return node.toString();
 	}
-	public void loadQuestions() {
-		nodes = new Schedule("http://localhost:8080/triceps/docs/navigation.txt");
-	}
+	/** This method runs only when the servlet is first loaded by the
+		webserver.  It calls the loadSchedule method to input all the
+		nodes into memory.  The Schedule is then available to all
+		sessions that might be running.
+		*/
+		
 	public void init(ServletConfig config) throws ServletException {
 		super.init(config);
-		loadQuestions();
+		loadSchedule();
+	}
+	/** This method loads all the nodes that comprise a Schedule.
+		Currently, these are represented as tuples in a tab-delimited
+		spreadsheet file called "navigation.txt".
+		*/
+		
+	public void loadSchedule() {
+		nodes = new Schedule("http://localhost:8080/triceps/docs/navigation.txt");
 	}
 	private void queryUser() {
 
-		out.println("<form method='POST' action='/triceps/servlet/TricepsServlet'>");
+		out.println("<form method='POST' action='http://localhost:8080/triceps/TricepsServlet'>");
 		
 	     out.println("<B>Question " + node.getQuestionRef() + "</B>: " + parser.parseJSP(evidence,node.getAction()) + "<br>");
 	     
@@ -319,7 +341,6 @@ public class TricepsServlet extends HttpServlet {
 				evidence.toString(n) + "</B><BR>");
 		}
 	}
-	
 	private String suspendInterview() {
 	    return "Suspending Interview....";
 	}

@@ -70,15 +70,14 @@ public class Node {
 	}
 	public String getAction() { return action; }
 	public String getActionType() { return actionType; }
-	public String getAnswerType() { return answerType; }
 	public String getAnswerOptions() { return answerOptions; }
+	public String getAnswerType() { return answerType; }
 	public String getConcept() { return concept; }
 	public String getDependencies() { return dependencies; }
 	public String getDescription() { return description; }
 	public String getName() { return stepName; }
 	public String getQuestionRef() { return questionRef; }
 	public int getStep() { return step; }
-	
 	public String toString() {
 		return "Node (" + step + "): <B>" + stepName + "</B><BR>\n" +
 			"Concept: <B>" + concept + "</B><BR>\n" +

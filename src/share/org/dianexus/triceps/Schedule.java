@@ -3,8 +3,15 @@ import java.util.*;
 import java.io.*;
 import java.net.*;
 
-/* Contains single copy of questions to be asked */
+/** Change name to Schedule
+	Schedule holds a collection of nodes.  At present it is
+	iterated by a directed, sequential traversal of the nodes.  This
+	order is externally imposed at present.
 
+	In future, the iteration of nodes might not require an external
+	ordering but be a function of the logical dependencies between nodes.
+	*/
+	
 public class Schedule {
 	private Vector nodes = new Vector();
 	
