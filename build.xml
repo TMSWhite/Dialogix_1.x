@@ -71,6 +71,14 @@
 
   <property file="build.properties"  />  
   <property file="${build.license_file}" />
+  
+  <!-- Static properties - Do not change these -->
+  <property name="dialogix.version_major" value="2.9"/>
+  <property name="dialogix.version_minor" value="7"/>
+  <property name="tomcat.home" value="/${zip.basedir}"/>
+  <property name="dialogix.dir" value="${tomcat.home}/webapps/"/>
+  <property name="win98.desktop" value="Windows/Desktop"/>
+  <property name="win2000.desktop" value="Documents and Settings/All Users/Desktop"/>
 
 
   <property name="app.name"      value="dialogix"/>
@@ -358,6 +366,10 @@
          <filter token="HTTPS.PORT" value="${https.port}"/>
          <filter token="AJP12.PORT" value="${ajp12.port}"/>
          <filter token="AJP13.PORT" value="${ajp13.port}"/>
+         <filter token="SSL.COMMENT_START" value="${SSL.COMMENT_START}"/>
+         <filter token="SSL.COMMENT_END" value="${SSL.COMMENT_END}"/>
+         <filter token="SSL.KEYSTORE" value="${SSL.KEYSTORE}"/>
+         <filter token="SSL.KEYPASS" value="${SSL.KEYPASS}"/>
        </filterset>
      </copy>       
 
@@ -592,8 +604,9 @@
     </copy>
     <move file="${dist.home}/${zip.name}/Dialogix-install-script.iss" tofile="${dist.home}/${zip.name}/${zip.name}-install-script.iss"/>
     
-    
-	<exec dir="${dist.home}/${zip.name}" executable="C:\Program Files\Inno Setup 2\Compil32.exe" os="Windows 2000">
+   <!-- this is hard-coded to the default Inno Setup install directory --> 
+	<exec dir="${dist.home}/${zip.name}" executable="C:\Program Files\Inno Setup 2\Compil32.exe" os="Windows 98,Windows 2000"
+		failonerror="true" timeout="60000">
 		<arg line="/cc ${zip.name}-install-script.iss"/>
 	</exec>
 	
