@@ -63,6 +63,7 @@ public class Datum  {
 	private Date date = null;
 	private Format mask = null;
 	private String error = null;
+	private String variableName = null;
 
 	public Datum(double d) {
 		type = NUMBER;
@@ -344,6 +345,9 @@ public class Datum  {
 	public int type() { return type; }
 	public Format getMask() { return mask; }
 	public void setMask(Format mask) { this.mask = mask; }
+	
+	public void setName(String name) { variableName = name; }
+	public String getName() { return variableName; }
 
 	public boolean isValid() {
 		return (isType(type) && type != INVALID);
