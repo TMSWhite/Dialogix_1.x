@@ -11,6 +11,7 @@ my @width = ( "width='30%'", "width='12%'", "width='12%'", "width='48%'" );
 my @style = ( "style='background:silver'", "style='background-color:#E9E9E9'");
 #my $htmlprefix = "/usr/local/dialogix/webapps/Prefs/";
 my $htmlprefix = "/cvs2/Dialogix/web/Prefs/";
+my $relprefix = "a01";	# prefix to facilitate reliability testing (since variables need (?) different names
 
 
 &main;
@@ -84,7 +85,7 @@ sub load_discuss {
 		my @vars = split(/\t/);
 		if ($vars[1] =~ /^(.+)_discuss$/) {
 			$disc_mapping{ucfirst($1)} = $vars[2];
-			$disc_varnames{ucfirst($1)} = $vars[0];
+			$disc_varnames{ucfirst($1)} = "${relprefix}d$vars[0]";
 		}
 	}
 }
@@ -98,7 +99,7 @@ sub prepare_screening {
 		my $lcclass = lc($class);
 		my $varname = $varnames{"screen_" . lc($class)};
 		
-		push @new_screen, "$varname\tscreen_$lcclass\t\t1\t" . &qtype($counter,$max,1,1) . "\t\t$mapping{$class}\t" . 
+		push @new_screen, "${relprefix}p${varname}\tscreen_$lcclass\t\t1\t" . &qtype($counter,$max,1,1) . "\t\t$mapping{$class}\t" . 
 			"check|1|Yes\t../" . lc($class) . ".htm";
 	}
 	
@@ -153,7 +154,7 @@ sub prepare_subclasses {
 		my $msg = $vals[1];
 		$msg = "$vals[1] (please specify on next page)"	if ($vals[0] =~ /Other/i);
 		
-		push @new_present, "p$subprefix\t$vals[0]" . "_present\t$counter.$subc\tscreen_" . lc($class) . "==1\t" . &qtype($subc,$max,$endable,1) . "\t\t$msg\tcheck|1|Yes"; 
+		push @new_present, "${relprefix}p$subprefix\t$vals[0]" . "_present\t$counter.$subc\tscreen_" . lc($class) . "==1\t" . &qtype($subc,$max,$endable,1) . "\t\t$msg\tcheck|1|Yes"; 
 	}
 }
 
@@ -183,7 +184,7 @@ sub prepare_other {
 		
 		$others_present .= "||($vals[0]_present==1)";
 		
-		push @new_other, "n$subprefix\t$vals[0]" . "_name\tOther.$subc\tscreen_" . lc($class) . "==1&&$vals[0]_present==1\t" . &qtype($subc,$max,1,1) . "\t\t$vals[1] (please specify)\ttext"; 
+		push @new_other, "${relprefix}n$subprefix\t$vals[0]" . "_name\tOther.$subc\tscreen_" . lc($class) . "==1&&$vals[0]_present==1\t" . &qtype($subc,$max,1,1) . "\t\t$vals[1] (please specify)\ttext"; 
 	}
 	$others_present .= ")";
 	
@@ -223,8 +224,8 @@ sub prepare_importance {
 		++$counter;
 		my $lcclass = lc($class);
 		
-		my $prefix = $varnames{$class};
- 		push @new_importance, "i$counter$lcclass\t${class}_imp\t\tcolltype!=3&&screen_$lcclass==1\t" . &qtype($counter,$max,1,1) . "\t$mapping{$class}\t$mapping{$class}\t" .
+		my $prefix = $varnames{"screen_$lcclass"};
+ 		push @new_importance, "${relprefix}i${prefix}\t${class}_imp\t\tcolltype!=3&&screen_$lcclass==1\t" . &qtype($counter,$max,1,1) . "\t\t$mapping{$class}\t" .
  			"radio2|0|0 Not important|1|1|2|2|3|3|4|4|5|5|6|6|7|7|8|8|9|9|10|10 Very important";
 	}
 }
@@ -265,11 +266,11 @@ sub prepare_subclass_followup {
 		}
 
 				
-		push @new_followup, "s$subprefix\t$vals[0]" . "_severity\t$counter.$subc" . "s\tcolltype!=3&&screen_" . lc($class) . "==1 && $vals[0]" . "_present==1\t" . 
+		push @new_followup, "${relprefix}s$subprefix\t$vals[0]" . "_severity\t$counter.$subc" . "s\tcolltype!=3&&screen_" . lc($class) . "==1 && $vals[0]" . "_present==1\t" . 
 			&qtype($subc,$max,0,1) . "\t\t<b>$msg</b>" .
 			qq|<center><font color='#0000ff'>$severity_msg</font></center>	| .
 			$severity_scale;
-		push @new_followup, "b$subprefix\t$vals[0]" . "_bother\t$counter.$subc" . "b\tcolltype!=3&&screen_" . lc($class) . "==1 && $vals[0]" . "_present==1\t" . 
+		push @new_followup, "${relprefix}b$subprefix\t$vals[0]" . "_bother\t$counter.$subc" . "b\tcolltype!=3&&screen_" . lc($class) . "==1 && $vals[0]" . "_present==1\t" . 
 			&qtype($subc,$max,$endable,1) . "\t\t"	. 	# used to list name: $vals[1]" .
 			qq|<center><font color='#006600'>$bother_msg</font></center>	| .
 			"radio3|0|<font color='#006600'>None</font>|1|<font color='#006600'>A little</font>|2|<font color='#006600'>Moderately</font>|3|<font color='#006600'>Quite a bit</font>|4|<font color='#006600'>Extremely</font>";
