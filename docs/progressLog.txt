@@ -494,3 +494,9 @@ Reorganization & Documentation
 		added Mysql resource
 	/Wave6/WEB-INF/web.xml
 		accesses MySql DB for authentication
+
+<< changes from 2.9.8.1 to 2.9.9
+	Added mySQL databases for:
+	wave6users -- for tracking login authorizations
+	pageHits -- all hits on a page, in both Login and TricepsServlet
+	pageHitDetails -- all HTTP parameter values - which can get hugs
