@@ -334,9 +334,24 @@ if (Triceps.AUTHORABLE) {
 				">");
 		}
 		sb.append("	</td>");
-		sb.append("	<td align='left'><font SIZE='5'><b>" + ((triceps.isValid() && !isSplashScreen) ? triceps.getHeaderMsg() : "Triceps") + "</b></font></td>");
-		sb.append("	<td width='1%'><img src='" + HELP_T_ICON + "' alt='" + triceps.get("Help") + "' align='top' border='0' onMouseUp='evHandler(event);help(\"_TOP_\",\"" + helpURL + "\");'></td>");
-		sb.append("</tr>");
+		sb.append("	<td align='left'><font SIZE='5'><b>" + ((triceps.isValid() && !isSplashScreen) ? triceps.getHeaderMsg() : Triceps.VERSION_NAME) + "</b></font></td>");
+		
+		String globalHelp = null;
+		if (triceps.isValid() && !isSplashScreen) {
+			globalHelp = schedule.getReserved(Schedule.SCHED_HELP_URL);
+		}
+		else {
+			globalHelp = helpURL;
+		}
+		
+		sb.append("	<td width='1%'>");
+		if (globalHelp != null && globalHelp.trim().length() != 0) {
+			sb.append("<img src='" + HELP_T_ICON + "' alt='" + triceps.get("Help") + "' align='top' border='0' onMouseUp='evHandler(event);help(\"_TOP_\",\"" + globalHelp + "\");'>");
+		}
+		else {
+			sb.append("&nbsp;");
+		}
+		sb.append("</td></tr>");
 		sb.append("</table>");
 //		sb.append("<hr>");
 
@@ -986,10 +1001,10 @@ if (Triceps.AUTHORABLE) {
 		else if (datum.isNotUnderstood())
 			isNotUnderstood = true;
 
-		String helpURL = node.getHelpURL();
-		if (helpURL != null && helpURL.trim().length() != 0) {
+		String localHelpURL = node.getHelpURL();
+		if (localHelpURL != null && localHelpURL.trim().length() != 0) {
 			sb.append("<img src='" + HELP_T_ICON +
-				"' align='top' border='0' alt='" + triceps.get("Help") + "' onMouseUp='evHandler(event);help(\"" + inputName + "\",\"" + helpURL + "\");'>");
+				"' align='top' border='0' alt='" + triceps.get("Help") + "' onMouseUp='evHandler(event);help(\"" + inputName + "\",\"" + localHelpURL + "\");'>");
 		}
 		else {
 			// don't show help icon if no help is available?
@@ -1291,7 +1306,7 @@ if (Triceps.AUTHORABLE) {
 		String title = null;
 
 		if (isSplashScreen || !triceps.isValid()) {
-			title = "Triceps";
+			title = Triceps.VERSION_NAME;
 		}
 		else {
 			title = triceps.getTitle();
