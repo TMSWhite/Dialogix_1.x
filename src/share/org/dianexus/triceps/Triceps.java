@@ -707,7 +707,7 @@ public class Triceps {
 				else {
 					br = new BufferedReader(new FileReader(file));
 					ok = true;
-					System.err.println("successfully read from " + fileSrc);
+//					System.err.println("successfully read from " + fileSrc);
 				}
 			}
 			else {
