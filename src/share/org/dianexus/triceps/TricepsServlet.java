@@ -21,6 +21,14 @@ public class TricepsServlet extends HttpServlet {
 	private String scheduleSrcDir = "";
 	private String workingFilesDir = "";
 	private String completedFilesDir = "";
+	
+	/* hidden variables */
+	private boolean debug = false;
+	private boolean developerMode = false;
+	private boolean refuseToAnswerCurrent = false;
+	private boolean showQuestionNum = false;	
+	
+	private String directive = null;	// the default
 
 	/**
 	 * This method runs only when the servlet is first loaded by the
@@ -69,16 +77,21 @@ public class TricepsServlet extends HttpServlet {
 		this.res = res;
 		HttpSession session = req.getSession(true);
 		String form = null;
+		String hiddenStr = "";
 		firstFocus = null; // reset it each time
 		
 
 		triceps = (Triceps) session.getValue("triceps");
 
 		res.setContentType("text/html");
+		
+		directive = req.getParameter("directive");	// XXX: directive must be set before calling processHidden
+		
+		hiddenStr = processHidden();
 
-		/* This is the meat. */
+		/* Process the form */
 		try {
-			form = processDirective(req.getParameter("directive"));
+			form = processDirective();
 		}
 		catch (Exception e) {
 			System.out.println(e.getMessage());
@@ -87,8 +100,11 @@ public class TricepsServlet extends HttpServlet {
 
 		out = res.getWriter();
 		out.println(header());
+		out.println(getCustomHeader());
+		
 		if (form != null) {
 			out.println("<FORM method='POST' name='myForm' action='" + HttpUtils.getRequestURL(req) + "'>\n");
+			out.println(hiddenStr);
 			out.println(form);
 			out.println("</FORM>\n");
 		}
@@ -100,6 +116,61 @@ public class TricepsServlet extends HttpServlet {
 
 		out.flush();
 //		out.close();	// XXX:  causes "Network Connection reset by peer" with Ham-D.txt - WHY?  Without close, dangling resources?
+	}
+	
+	private String processHidden() {
+		StringBuffer sb = new StringBuffer();
+		
+		if ("on".equals(req.getParameter("DEBUG"))) {
+			debug = true;
+		}
+		else
+			debug = false;
+
+		if ("on".equals(req.getParameter("developerMode"))) {
+			developerMode = true;
+		}
+		else
+			developerMode = false;
+			
+		/* XXX: Kludge - put in HIDDEN if developerMode && debug = false (else lose its state)
+			This must follow assessement of developerMode && debug, else lose state */
+		if ("on".equals(req.getParameter("showQuestionNum"))) {
+			showQuestionNum = true;
+			if (!debug && !developerMode) {
+				sb.append("<input type='HIDDEN' name='showQuestionNum' value='on'>\n");
+			}
+		}
+		else
+			showQuestionNum = false;
+			
+		String attemptingToRefuse = null;
+		refuseToAnswerCurrent = false;	// the default value
+		
+		if (triceps != null) {
+			/* XXX: Refusals only apply once Triceps has been initialized */
+			attemptingToRefuse = req.getParameter("passwordForRefused");
+			if (attemptingToRefuse != null && !attemptingToRefuse.trim().equals("")) {
+				/* if try to enter a password, make sure that doesn't reset the form if password fails */
+				directive = "next";	// XXX - since JavaScript can't set a SUBMIT value in the subjectRefusesToAnswer() function
+				
+				if (triceps.getPasswordForRefused() == null) {
+					sb.append("You are not allowed to refuse to answer these questions<BR>");
+				}
+				else {
+					if (triceps.getPasswordForRefused().equals(attemptingToRefuse)) {
+						refuseToAnswerCurrent = true;
+					}
+					else {
+						sb.append("Incorrect password to refuse to answer these questions<BR>");
+					}
+				}
+			}
+		}
+		
+		sb.append("<input type='HIDDEN' name='passwordForRefused' value=''>\n");	// must manually bypass each time
+		
+		return sb.toString();
 	}
 
 	private String header() {
@@ -118,41 +189,31 @@ public class TricepsServlet extends HttpServlet {
 		sb.append("</head>\n");
 		sb.append("<body>\n");
 		
-		sb.append(getCustomHeader());
-
+		sb.append("<SCRIPT>\n");
+		sb.append("<!--\n");
+		sb.append("function subjectRefusesToAnswer() {\n");
+		sb.append("	var ans = prompt('Enter the password to refuse to answer this question','');\n");
+		sb.append("	if (ans == null) { return; /* to avoid submit */ }\n");
+		sb.append("	document.myForm.passwordForRefused.value = ans;\n");
+		sb.append("	document.myForm.submit();\n");
+		sb.append("} //-->\n");
+		sb.append("</SCRIPT>\n");		
+		
 		return sb.toString();
 	}
 	
 	private String getCustomHeader() {
 		StringBuffer sb = new StringBuffer();
 		
-			sb.append("<SCRIPT>\n");
-			sb.append("<!--\n");
-			sb.append("function loadTarget() {\n");
-			sb.append("var ans = prompt('Enter the password to bypass this question','');\n");
-			sb.append("if (ans == 'cicbypass') {\n");
-			sb.append("//	document.myForm.REFUSED=\n");
-			sb.append("//	document.myForm.submit();\n");
-			sb.append("	}\n");
-			sb.append("alert('This functionality not currently supported');\n");
-			sb.append("} //-->\n");
-			sb.append("</SCRIPT>");
-
-		
 		sb.append("<TABLE BORDER='0' CELLPADDING='0' CELLSPACING='3' WIDTH='100%'>\n");
-		sb.append("	<TR>\n");
-		sb.append("		<TD WIDTH='18%'>");
-		
-			sb.append("<A HREF='javascript:loadTarget();'>");
-			
-		sb.append("<IMG SRC='file:///C|/cic/images/ciclogo.gif' ALIGN='BOTTOM' BORDER='0' ALT='Children In the Community'>\n");
-		
-			sb.append("</A>");
-		
-		sb.append("</TD>\n		<TD WIDTH='82%'><B><FONT SIZE='5'>Transitions Study</FONT>\n");
-//		sb.append("<BR>\n");
-//		sb.append("</B>(Implemented using the Triceps Interview/Questionnaire System)</TD>\n");
-		sb.append("	</TR>\n");
+		sb.append("<TR>\n");
+		sb.append("	<TD WIDTH='18%'>\n");
+		sb.append("		<A HREF='javascript:subjectRefusesToAnswer();'>\n");
+		sb.append("			<IMG SRC='file:///C|/cic/images/ciclogo.gif' ALIGN='BOTTOM' BORDER='0' ALT='Children In the Community'>\n");
+		sb.append("		</A>\n");
+		sb.append("	</TD>\n");
+		sb.append("	<TD WIDTH='82%'><FONT SIZE='5'><B>Transitions Study</B></FONT>\n");
+		sb.append("</TR>\n");
 		sb.append("</TABLE>\n");
 		sb.append("<HR>\n");
 		
@@ -173,13 +234,7 @@ public class TricepsServlet extends HttpServlet {
 		return sb.toString();
 	}
 
-	/**
-	 * This method basically gets the next node in the schedule, checks the activation
-	 * dependencies to see if it should be executed, then, if it's a question it
-	 * invokes queryUser(), otherwise, it evaluates the evidence and moves to
-	 * the next node.
-	 */
-	private String processDirective(String directive) {
+	private String processDirective() {
 		boolean ok = true;
 		int gotoMsg = Triceps.OK;
 		StringBuffer sb = new StringBuffer();
@@ -189,12 +244,6 @@ public class TricepsServlet extends HttpServlet {
 		// get the POSTed directive (start, back, next, help, suspend, etc.)	- default is opening screen
 		if (directive == null || "select new interview".equals(directive)) {
 			/* read list of available schedules from file */
-			
-			boolean developerMode = false;
-			
-			if ("on".equals(req.getParameter("developerMode"))) {
-				developerMode = true;
-			}
 			
 			BufferedReader br = Triceps.getReader(scheduleList, scheduleSrcDir);
 			if (br == null) {
@@ -307,9 +356,7 @@ public class TricepsServlet extends HttpServlet {
 				"</TD>\n");
 			sb.append("	<TD><input type='SUBMIT' name='directive' value='RESTORE'></TD>\n");
 			
-			if (developerMode) {
-				sb.append("</TR><TR><TD>&nbsp;</TD><TD COLSPAN='2' ALIGN='center'><input type='checkbox' name='DEBUG' value='1'>Show debugging information</TD></TR>\n");
-			}
+			sb.append(showOptions());
 			
 			sb.append("</TABLE>\n");
 			return sb.toString();
@@ -346,8 +393,10 @@ public class TricepsServlet extends HttpServlet {
 			ok = triceps.setSchedule(restore,workingFilesDir);
 			
 			if (!ok) {
+				directive = null;	// so that processDirective() will select new interview
+				
 				return "<B>Unable to find or access schedule '" + restore + "'</B><HR>" +
-					processDirective(null);	// select new interview
+					processDirective();
 			}
 
 			ok = ok && ((gotoMsg = triceps.gotoStarting()) == Triceps.OK);	// don't proceed if prior error
@@ -359,7 +408,7 @@ public class TricepsServlet extends HttpServlet {
 			ok = (gotoMsg == Triceps.OK);
 			// ask this question
 		}
-		else if (directive.equals("clear all and re-start")) { // restart from scratch
+		else if (directive.equals("restart (clean)")) { // restart from scratch
 			ok = triceps.resetEvidence();
 			ok = ok && ((gotoMsg = triceps.gotoFirst()) == Triceps.OK);	// don't proceed if prior error
 			// ask first question
@@ -397,17 +446,11 @@ public class TricepsServlet extends HttpServlet {
 					for (int j=0;j<v.size();++j) {
 						if (j > 0)
 							sb.append("<BR>");
-						sb.append((String) v.elementAt(j));
+						sb.append(Node.encodeHTML((String) v.elementAt(j)));
 					}
 				}
 			}
 		}
-/*
-		else if (directive.equals("help")) {	// FIXME
-			sb.append("<B>No help currently available</B><HR>\n");
-			// re-ask same question
-		}
-*/
 		else if (directive.equals("show XML")) {
 			sb.append("<B>Use 'Show Source' to see data in Schedule as XML</B><BR>\n");
 			sb.append("<!--\n" + triceps.toXML() + "\n-->\n");
@@ -427,7 +470,7 @@ public class TricepsServlet extends HttpServlet {
 					Node n = pe.getNode();
 
 					if (i == 0) {
-						sb.append("<FONT color='red'>The following errors were found in file <B>" + n.getSourceFile() + "</B></FONT><BR>\n");
+						sb.append("<FONT color='red'>The following errors were found in file <B>" + Node.encodeHTML(n.getSourceFile()) + "</B></FONT><BR>\n");
 						sb.append("<TABLE CELLPADDING='2' CELLSPACING='1' WIDTH='100%' border='1'>\n");
 						sb.append("<TR><TD>line#</TD><TD>name</TD><TD>Dependencies</TD><TD><B>Dependency Errors</B></TD><TD>Action Type</TD><TD>Action</TD><TD><B>Action Errors</B></TD><TD><B>Other Errors</B></TD></TR>\n");
 					}
@@ -471,7 +514,7 @@ public class TricepsServlet extends HttpServlet {
 						for (int j=0;j<errs.size();++j) {
 							if (j > 0)
 								sb.append("<BR>");
-							sb.append("" + (j+1) + ")&nbsp;" + (String) errs.elementAt(j));	// don't Node.encodeHTML() these, since pre-processed within Node
+							sb.append("" + (j+1) + ")&nbsp;" + (String) errs.elementAt(j));	// XXX: don't Node.encodeHTML() these, since pre-processed within Node
 						}
 					}
 					sb.append("</TD></TR>");
@@ -483,17 +526,11 @@ public class TricepsServlet extends HttpServlet {
 			// store current answer(s)
 			Enumeration questionNames = triceps.getQuestions();
 			
-			boolean bypass = false;
-			
-			if ("true".equals(req.getParameter("BYPASS"))) {
-				bypass = true;
-			}
-
 			while(questionNames.hasMoreElements()) {
 				Node q = (Node) questionNames.nextElement();
 				boolean status;
 
-				status = triceps.storeValue(q, req.getParameter(q.getName()),bypass);
+				status = triceps.storeValue(q, req.getParameter(q.getName()),refuseToAnswerCurrent);
 				ok = status && ok;
 
 			}
@@ -528,7 +565,7 @@ public class TricepsServlet extends HttpServlet {
 			Enumeration errs = triceps.getErrors();
 			if (errs.hasMoreElements()) {
 				while (errs.hasMoreElements()) {
-					sb.append("<B>" + (String) errs.nextElement() + "</B><BR>\n");
+					sb.append("<B>" + Node.encodeHTML((String) errs.nextElement()) + "</B><BR>\n");
 				}
 			}
 
@@ -567,14 +604,6 @@ public class TricepsServlet extends HttpServlet {
 	private String queryUser() {
 		// if parser internal to Schedule, should have method access it, not directly
 		StringBuffer sb = new StringBuffer();
-
-		boolean debug = false;
-		if ("1".equals(req.getParameter("DEBUG"))) {
-			debug = true;
-			sb.append("<input type='HIDDEN' name='DEBUG' value='1'>\n");
-		}
-		
-		sb.append("<input type='HIDDEN' name='BYPASS' value='0'>\n");	// this is reset when want to REFUSE an answer
 	
 		if (debug) {
 			sb.append("<H4>QUESTION AREA</H4>\n");
@@ -599,7 +628,7 @@ public class TricepsServlet extends HttpServlet {
 					if (j > 0) {
 						errStr.append("<BR>\n");
 					}
-					errStr.append((String) errs.elementAt(j));
+					errStr.append(Node.encodeHTML((String) errs.elementAt(j)));
 				}
 				errStr.append("</FONT>");
 				errMsg = errStr.toString();
@@ -611,7 +640,7 @@ public class TricepsServlet extends HttpServlet {
 
 			sb.append("	<TR>\n");
 			
-			if (debug) {
+			if (showQuestionNum) {
 				sb.append("<TD><FONT" + color + "><B>" + Node.encodeHTML(node.getQuestionRef()) + "</FONT></B></TD>\n");
 			}
 			
@@ -622,10 +651,10 @@ public class TricepsServlet extends HttpServlet {
 				case Node.RADIO2:
 					sb.append("		<TD COLSPAN='2'><FONT" + color + ">" + Node.encodeHTML(triceps.getQuestionStr(node)) + "</FONT></TD>\n");
 					sb.append("</TR>\n<TR>\n");
-					if (debug) {
+					if (showQuestionNum) {
 						sb.append("<TD>&nbsp;</TD>");
 					}
-					sb.append(node.prepareChoicesAsHTML(datum) + errMsg);
+					sb.append(node.prepareChoicesAsHTML(datum,errMsg));
 					break;
 				default:
 					sb.append("		<TD><FONT" + color + ">" + Node.encodeHTML(triceps.getQuestionStr(node)) + "</FONT></TD>\n");
@@ -634,26 +663,22 @@ public class TricepsServlet extends HttpServlet {
 			}
 			sb.append("	</TR>\n");
 		}
-		sb.append("	<TR><TD COLSPAN='" + 
-			((debug) ? 3 : 2 ) + "' ALIGN='center'>\n");
+		sb.append("	<TR><TD COLSPAN='" + ((showQuestionNum) ? 3 : 2 ) + "' ALIGN='center'>\n");
 		sb.append("<input type='SUBMIT' name='directive' value='next'>\n");
 		sb.append("<input type='SUBMIT' name='directive' value='previous'>");
 		
-		if (debug) {
-			sb.append("<input type='SUBMIT' name='directive' value='clear all and re-start'>\n");
-			sb.append("<input type='SUBMIT' name='directive' value='select new interview'>\n");
-		}
-		
 		sb.append("	</TD></TR>\n");
 
-		if (debug) {
-			sb.append("	<TR><TD COLSPAN='3' ALIGN='center'>\n");
-			sb.append("<input type='SUBMIT' name='directive' value='jump to:'>\n");
+		if (developerMode || debug) {
+			sb.append("	<TR><TD COLSPAN='" + ((showQuestionNum) ? 3 : 2 ) + "' ALIGN='center'>\n");
+			sb.append("<input type='SUBMIT' name='directive' value='select new interview'>\n");
+			sb.append("<input type='SUBMIT' name='directive' value='restart (clean)'>\n");
+			sb.append("<input type='SUBMIT' name='directive' value='jump to:' size='10'>\n");
 			sb.append("<input type='text' name='jump to:'>\n");
 			sb.append("<input type='SUBMIT' name='directive' value='save to:'>\n");
 			sb.append("<input type='text' name='save to:'>\n");
 			sb.append("	</TD></TR>\n");
-			sb.append("	<TR><TD COLSPAN='3' ALIGN='center'>\n");
+			sb.append("	<TR><TD COLSPAN='" + ((showQuestionNum) ? 3 : 2 ) + "' ALIGN='center'>\n");
 			sb.append("<input type='SUBMIT' name='directive' value='reload questions'>\n");
 			sb.append("<input type='SUBMIT' name='directive' value='show Errors'>\n");
 			sb.append("<input type='SUBMIT' name='directive' value='show XML'>\n");
@@ -661,6 +686,8 @@ public class TricepsServlet extends HttpServlet {
 			sb.append("<input type='text' name='evaluate expr:'>\n");
 			sb.append("	</TD></TR>\n");
 		}
+		
+		sb.append(showOptions());
 
 		sb.append("</TABLE>\n");
 
@@ -710,5 +737,20 @@ public class TricepsServlet extends HttpServlet {
 			sb.append("</TABLE>\n");
 		}
 		return sb.toString();
+	}
+	
+	private String showOptions() {
+		if (developerMode || debug) {
+			StringBuffer sb = new StringBuffer();
+		
+			sb.append("	<TR><TD COLSPAN='" + ((showQuestionNum) ? 3 : 2 ) + "' ALIGN='center'>\n");
+			sb.append("  developerMode<input type='checkbox' name='developerMode' value='on'" + ((developerMode) ? " CHECKED" : "") + ">\n");
+			sb.append("  showQuestionNum<input type='checkbox' name='showQuestionNum' value='on'" + ((showQuestionNum) ? " CHECKED" : "") + ">\n");
+			sb.append("  debug<input type='checkbox' name='DEBUG' value='on'" + ((debug) ? " CHECKED" : "") + ">\n");
+			sb.append("</TD></TR>\n");
+			return sb.toString();
+		}
+		else
+			return "";
 	}
 }
