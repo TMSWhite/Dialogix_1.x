@@ -13,6 +13,7 @@ chomp($java_home);
 $java_home =~ s|^(.*)/bin/java|$1|;
 #my $java_home = "/usr/local/bin/jdk1.3";
 #my $java_home = "/usr/java/jdk1.3.1_01";
+my $java_home = "/usr/java/j2sdk1.4.1_01";
 my $logs = "$prefix/logs";
 my $logname = "Dialogix.log.err";
 my $bin = "$prefix/bin";
@@ -64,7 +65,13 @@ if (-e "$logs/$logname") {
 }
 
 #wait a few seconds to ensure that Tomcat completely stopped
-sleep(60);
+sleep(120);
+
+#now check that all of the java processes are terminated
+my @java_ps = qx/ps ax | grep java | cut -d ' ' -f 1/;
+foreach (@java_ps) {
+	system("kill -9 $_");
+}
 
 #restart server
 $val = system("$bin/startup.sh 1>/tmp/dialogix_startup.stdout 2>/tmp/dialogix_startup.stderr");	
