@@ -38,8 +38,8 @@ public class TricepsServlet extends HttpServlet {
 		out.println("<html>");
 		out.println("<body bgcolor='white'>");
 		out.println("<head>");
-		out.println("<title>Diagnostic Interview Schedule for Children -- ADHD</title>");
-		out.println("</head>");
+		out.println("<title>TRICEPS SYSTEM -- Diagnostic Interview Schedule for Children</title>");
+ 		out.println("</head>");
 		out.println("<body>");
 		doit();
 		out.println("</body>");
@@ -50,8 +50,10 @@ public class TricepsServlet extends HttpServlet {
 			session.putValue("evidence", evidence);
 	}
 	/**
-	 * This method basically gets the next node in the schedule, checks the nodes dependencies to see if it should be executed,
-	 * then, if it's a question it invokes queryUser(), otherwise, it evaluates the evidence and moves to the next node.
+	 * This method basically gets the next node in the schedule, checks the nodes
+	 * dependencies to see if it should be executed, then, if it's a question it
+	 * invokes queryUser(), otherwise, it evaluates the evidence and moves to
+	 * the next node.
 	 */
 	private void doit() {
 		try {
@@ -86,7 +88,7 @@ public class TricepsServlet extends HttpServlet {
 					node = next;
 					queryUser();
 					return;
-					//                      forward = true; // fall through to skipping eval elements
+					//  forward = true; // fall through to skipping eval elements
 				}
 			}
 			else if (directive.equals("clear evidence")) {
@@ -157,7 +159,7 @@ public class TricepsServlet extends HttpServlet {
 						}
 						else {
 
-							/* indicate that this evidice is not applicable */
+							/* indicate that this evidence is not applicable */
 
 							evidence.set(node, new Datum(Datum.NA));
 						}
@@ -168,7 +170,7 @@ public class TricepsServlet extends HttpServlet {
 
 				/* backwards */
 
-				//            evidence.unset(node);
+				// evidence.unset(node);
 				while (true) {
 					if (--step < 0) {
 						infoMessage = "You can't back up any further";
@@ -203,7 +205,8 @@ public class TricepsServlet extends HttpServlet {
 	}
 	/**
 	 * This method runs only when the servlet is first loaded by the
-	 * webserver.  It calls the loadSchedule method to input all the nodes into memory.  The Schedule is then available to all
+	 * webserver.  It calls the loadSchedule method to input all the
+	 * nodes into memory.  The Schedule is then available to all
 	 * sessions that might be running.
 	 */
 	public void init(ServletConfig config) throws ServletException {
@@ -211,14 +214,21 @@ public class TricepsServlet extends HttpServlet {
 		loadSchedule();
 	}
 	/**
-	 * This method loads all the nodes that comprise a Schedule. Currently, these are represented as tuples in a tab-delimited
+	 * This method loads all the nodes that comprise a Schedule. Currently,
+	 * these are represented as tuples in a tab-delimited
 	 * spreadsheet file called "navigation.txt".
 	 */
 	public void loadSchedule() {
 		nodes = new Schedule("http://localhost/navigation.txt");
 	}
+
+	/**
+	 * This method assembles the displayed question and answer options
+	 * and formats them in HTML for return to the client browser.
+	 */
 	private void queryUser() {
 		out.println("<form method='POST' action='http://localhost/triceps/servlet/TricepsServlet'>");
+		out.println("<H4>QUESTION AREA</H4><BR>");
 		out.println("<B>Question " + node.getQuestionRef() + "</B>: " + parser.parseJSP(evidence, node.getAction()) + "<br>");
 		// display the answer options
 		StringTokenizer ans;
@@ -283,7 +293,10 @@ public class TricepsServlet extends HttpServlet {
 		}
 		if (infoMessage != null)
 			out.println("<B>" + infoMessage + "</B><br>");
+
+		// Navigation buttons
 		out.println("<hr>");
+		out.println("<H4>NAVIGATION AREA</H4><BR>");
 		out.println("<input type='SUBMIT' name='directive' value='backward'>");
 		out.println("<input type='SUBMIT' name='directive' value='forward'>");
 		out.println("<input type='SUBMIT' name='directive' value='help'>");
@@ -293,8 +306,15 @@ public class TricepsServlet extends HttpServlet {
 		out.println("<input type='SUBMIT' name='directive' value='clear evidence'>");
 		out.println("<input type='SUBMIT' name='directive' value='reload questions'>");
 		out.println("</form>");
-		out.println("<hr>" + node.toString());
-		out.println("<hr> Evidence so far: <br>");
+
+		// Node info area
+		out.println("<hr>");
+		out.println("<H4>NODE INFORMATION AREA</H4><BR>" + node.toString());
+
+		// Complete printout of what's been collected per node
+		out.println("<hr>");
+		out.println("<H4>EVIDENCE AREA</H4> <BR>");
+		out.println("Evidence so far: <BR>");
 		for (int i = 0; i < nodes.size(); i++) {
 			Node n = nodes.getNode(i);
 			if (evidence.toString(n) == "null")
@@ -303,6 +323,12 @@ public class TricepsServlet extends HttpServlet {
 				evidence.toString(n) + "</B><BR>");
 		}
 	}
+
+	/**
+	 * This method assembles the evidence accumulated and stores it with
+	 * a marker indicating it is an incomplete collection of data.
+	 * In version 1 this hasn't been implemented.
+	 */
 	private String suspendInterview() {
 		return "Suspending Interview....";
 	}
