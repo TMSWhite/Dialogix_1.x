@@ -367,7 +367,7 @@ public class Node  {
 
 		if (questionOrEvalType == EVAL) {
 			answerType = NOTHING;	// so no further processing
-			datumType = Datum.STRING;
+			datumType = Datum.STRING;	// this isn't really true - should allow anything (and be overridden appropriately
 			return true;	// XXX? - should this really return?
 		}
 		else if (answerType == BADTYPE) {
@@ -683,6 +683,14 @@ public class Node  {
 
 	public int getAnswerType() { return answerType; }
 	public int getDatumType() { return datumType; }
+	public void setDatumType(int type) { 
+		if (Datum.isValidType(type)) {
+			datumType = type;
+		}
+		else {
+			datumType = Datum.INVALID;
+		}
+	}
 
 
 	public int getSourceLine() { return sourceLine; }
@@ -820,7 +828,7 @@ public class Node  {
 			return ans;
 	}
 
-	public String getReadback() { return getValueAt(readback,answerLanguageNum); }
+	public String getReadback(int lang) { return getValueAt(readback,lang); }
 	public String getQuestionOrEval() { return getQuestionOrEval(answerLanguageNum); }
 	
 	public String getQuestionOrEval(int langNum) { 
