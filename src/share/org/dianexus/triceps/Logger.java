@@ -44,9 +44,15 @@ public class Logger implements VersionIF {
 	public Logger(String eol, boolean discard, File w) {
 		this.discard = discard;
 		file = w;
+		openFile();
+		this.eol = ((eol == null) ? HTML_EOL : eol);
+		reset();
+	}
+	
+	private void openFile() {
 		if (file != null) {
 			try {
-				out = new BufferedWriter(new FileWriter(file.toString(),true));	// append to file, if it exists
+				out = new FileWriter(file.toString(),true);	// append to file, if it exists
 			}
 			catch (IOException e) {
 				writeln(file + ": " + e.getMessage());
@@ -55,8 +61,6 @@ public class Logger implements VersionIF {
 				writeln(file + ": " + e.getMessage());
 			}
 		}
-		this.eol = ((eol == null) ? HTML_EOL : eol);
-		reset();
 	}
 
 	public Logger(Writer out) { this(out,HTML_EOL,false); }
@@ -98,7 +102,7 @@ public class Logger implements VersionIF {
 
 			if (out != null) {
 				out.write(msg);
-				out.flush();
+				flush();
 			}
 			if (sb != null) {
 				sb.append(msg);
@@ -165,8 +169,14 @@ public class Logger implements VersionIF {
 
 	public void flush() {
 		try {
-			if (out != null)
+			if (out != null) {
 				out.flush();
+			}
+			if (file != null) {
+				/* close and re-open file so that committed to disk */
+				close();
+				openFile();
+			}
 		}
 		catch (IOException e) {
 			writeln(e.getMessage());
