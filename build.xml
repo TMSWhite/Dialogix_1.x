@@ -267,9 +267,11 @@
     <fileset dir="xml" />
     </copy>
     
+    <!--
     <copy  todir="${build.home}/perl">
     <fileset dir="perl" />
     </copy>
+    -->
     
   </target>
 
@@ -626,7 +628,7 @@
      
     <copy toDir="${build.home}/web" >
       <fileset dir="web-test" >
-      	<include name="${LICENSE.PACKAGE_DIR}/**" if="using.tomcat_4_0"/>
+      	<include name="${LICENSE.PACKAGE_DIR}/**"/>
       </fileset>
      </copy>     
 
