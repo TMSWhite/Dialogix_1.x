@@ -755,6 +755,7 @@ if (DEPLOYABLE) {
 		if (s != null) {
 			reserved.put(RESERVED_WORDS[resIdx], s);
 if (DEPLOYABLE) {
+//if (true) Logger.writeln("@@Schedule.setReserved(RESERVED " + RESERVED_WORDS[resIdx] + ")");			
 			if (isLoaded) writeReserved(resIdx);
 }			
 
@@ -1039,6 +1040,12 @@ if (AUTHORABLE) {
 		ok = jf.addEntry("headers",vectorToIS(scheduleSource.getHeaders()));
 		ok = jf.addEntry("body",vectorToIS(scheduleSource.getBody())) && ok;
 		jf.close();
+		
+		File f = new File(name);
+		if (f.length() == 0L) {
+			triceps.setError("signAndSaveAsJar: file has 0 size");
+			ok = false;
+		}
 		
 		return (ok) ? name : null;
 }
