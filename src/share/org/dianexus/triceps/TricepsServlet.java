@@ -99,6 +99,16 @@ if (DEBUG) Logger.printStackTrace(t);
 		
 		logAccess(req);
 		
+		/* is this an expired session? */
+		if (session.isNew() && "POST".equals(req.getMethod())) {
+			expiredSessionErrorPage(req,res);
+			try {
+				session.invalidate();	// so that retrying same session gives same message
+			}
+			catch (java.lang.IllegalStateException e) { }
+			return;
+		}
+		
 		tricepsEngine.doPost(req,res);
 		
 		session.setAttribute(fullSessionID, tricepsEngine);
@@ -156,6 +166,36 @@ if (DEBUG && false) {
 			out.println("      <tr>");
 			out.println("         <td width='1%'><img name='icon' src='/images/trilogo.jpg' align='top' border='0' alt='Logo' /> </td>");
 			out.println("         <td align='left'><font SIZE='4'>Sorry for the inconvenience, but Triceps currently only works with Netscape 4.xx. and Internet Explorer 5.x<br />Please email <a href='mailto:tw176@columbia.edu'>me</a> to be notified when other browsers are supported.<br />In the meantime, Netscape 4.75 can be downloaded <a href='http://home.netscape.com/download/archive/client_archive47x.html'>here</a></font></td>");
+			out.println("      </tr>");
+			out.println("   </table>");
+			out.println("</body>");
+			out.println("</html>");
+	
+			out.flush();
+			out.close();
+		}
+		catch (Throwable t) {
+if (DEBUG) Logger.printStackTrace(t);
+		}		
+	}
+	
+	private void expiredSessionErrorPage(HttpServletRequest req, HttpServletResponse res) {
+		logAccess(req);
+		try {
+			res.setContentType("text/html");
+			PrintWriter out = res.getWriter();
+			
+			out.println("<!DOCTYPE html PUBLIC '-//W3C//DTD HTML 4.01 Transitional//EN'>");
+			out.println("<html>");
+			out.println("<head>");
+			out.println("<META HTTP-EQUIV='Content-Type' CONTENT='text/html;CHARSET=iso-8859-1'>");
+			out.println("<title>Triceps Error-Expired Session</title>");
+			out.println("</head>");
+			out.println("<body bgcolor='white'>");
+			out.println("   <table border='0' cellpadding='0' cellspacing='3' width='100%'>");
+			out.println("      <tr>");
+			out.println("         <td width='1%'><img name='icon' src='/images/trilogo.jpg' align='top' border='0' alt='Logo' /> </td>");
+			out.println("         <td align='left'><font SIZE='4'>Sorry for the inconvenience, but Triceps session you were using expired (ran out of time).  Please RESTORE the schedule</font></td>");
 			out.println("      </tr>");
 			out.println("   </table>");
 			out.println("</body>");
