@@ -1062,7 +1062,7 @@ if (DEPLOYABLE) {
 					String fname;
 					
 					/** Working dir - read schedules and get their FILENAMEs **/
-					ScheduleList interviews = new ScheduleList(triceps, sched.getReserved(Schedule.WORKING_DIR));
+					ScheduleList interviews = new ScheduleList(triceps, sched.getReserved(Schedule.WORKING_DIR), true);
 					Schedule sc = null;
 					Vector schedules = interviews.getSchedules();
 					for (int i=0;i<schedules.size();++i) {
