@@ -198,9 +198,9 @@ public class Evidence  {
 
 			Integer j = new Integer(idx);
 
-			addAlias(node,node.getConcept(),j);
+//			addAlias(node,node.getConcept(),j);
 			addAlias(node,node.getLocalName(),j);
-			addAlias(node,node.getExternalName(),j);
+//			addAlias(node,node.getExternalName(),j);
 			aliases.put(node,j);
 		}
 	}
