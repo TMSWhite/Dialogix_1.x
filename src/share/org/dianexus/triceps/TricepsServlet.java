@@ -243,7 +243,7 @@ public class TricepsServlet extends HttpServlet {
 			
 			BufferedReader br = Triceps.getReader(scheduleList, scheduleSrcDir);
 			if (br == null) {
-				sb.append("<B>Unable to find '" + scheduleList + "'</B><HR>");
+				sb.append("<B>" + Triceps.getReaderError() + "</B><HR>");
 			}			
 			else {
 				try {
@@ -268,7 +268,7 @@ public class TricepsServlet extends HttpServlet {
 							/* Test whether these files exist */
 							Reader target = Triceps.getReader(fileLoc,scheduleSrcDir);
 							if (target == null) {
-								sb.append("Unable to access file '" + fileLoc + "'");
+								sb.append("<B>" + Triceps.getReaderError() + "</B><HR>");
 							}
 							else {
 								try { target.close(); } catch (Exception e) {}

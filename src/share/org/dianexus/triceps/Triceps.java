@@ -21,6 +21,7 @@ public class Triceps {
 	static private Parser parser = new Parser();
 
 	private Vector errors = new Vector();
+	private static String fileAccessError = null;
 	private int currentStep=0;
 	private int numQuestions=0;	// so know how many to skip for compount question
 	private Date startTime = null;
@@ -42,7 +43,7 @@ public class Triceps {
 		BufferedReader br = Triceps.getReader(filename, optionalFilePrefix);
 		if (br == null) {
 			scheduleURL = null;
-			errors.addElement("Unable to find or access '" + filename + "'");
+			errors.addElement("Unable to find or access '" + Triceps.getReaderError() + "'");
 			return false;
 		}
 		else {
@@ -709,10 +710,16 @@ public class Triceps {
 				sb.append("[filename=" + filename + "], [optionalFilePrefix=" + optionalFilePrefix + "]");
 			}
 				
-			System.out.println("Error accessing or reading from " + sb.toString());
+			fileAccessError = "Error accessing or reading from " + sb.toString();
 		}		
 		
 		return null;
+	}
+	
+	public static String getReaderError() {
+		String tmp = fileAccessError;
+		fileAccessError = null;
+		return tmp;
 	}
 	
 	public String getTitle() {
