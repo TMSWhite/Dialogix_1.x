@@ -175,7 +175,7 @@ public class TricepsServlet extends HttpServlet {
 			session.putValue("triceps", triceps);
 
 			if (triceps.get("next").equals(directive) && !triceps.isAtEnd()) {
-				triceps.toTSV(workingFilesDir);
+				triceps.saveWorkingInfo();	// don't I want to catch potential errors?
 			}
 		}
 		catch (Throwable t) {
@@ -686,13 +686,10 @@ public class TricepsServlet extends HttpServlet {
 				String filename = triceps.getFilename();
 
 				info.println(triceps.get("the_interview_is_completed"));
-//				triceps.toTSV(workingFilesDir,filename);
-				savedOK = triceps.toTSV(completedFilesDir,filename);
+				savedOK = triceps.saveCompletedInfo();
 				ok = savedOK && ok;
 				if (savedOK) {
 					info.println(triceps.get("interview_saved_successfully_as") + (completedFilesDir + filename));
-					/* also remove the file from the working directory */
-					triceps.deleteFile(workingFilesDir,filename);
 				}
 
 				savedOK = triceps.toTSV(floppyDir,filename);
@@ -822,7 +819,7 @@ public class TricepsServlet extends HttpServlet {
 
 			String inputName = node.getLocalName();
 
-			boolean isSpecial = (datum.isType(Datum.REFUSED) || datum.isType(Datum.UNKNOWN) || datum.isType(Datum.NOT_UNDERSTOOD));
+			boolean isSpecial = (datum.isRefused() || datum.isUnknown() || datum.isNotUnderstood());
 			allowEasyBypass = allowEasyBypass || isSpecial;	// if a value has already been refused, make it easy to re-refuse it
 
 			String clickableOptions = buildClickableOptions(node,inputName,isSpecial);
@@ -932,11 +929,11 @@ public class TricepsServlet extends HttpServlet {
 		boolean isUnknown = false;
 		boolean isNotUnderstood = false;
 
-		if (datum.isType(Datum.REFUSED))
+		if (datum.isRefused())
 			isRefused = true;
-		else if (datum.isType(Datum.UNKNOWN))
+		else if (datum.isUnknown())
 			isUnknown = true;
-		else if (datum.isType(Datum.NOT_UNDERSTOOD))
+		else if (datum.isNotUnderstood())
 			isNotUnderstood = true;
 
 		String helpURL = node.getHelpURL();
@@ -1023,8 +1020,11 @@ public class TricepsServlet extends HttpServlet {
 			sb.append("<hr>");
 			sb.append(triceps.get("EVIDENCE_AREA"));
 			sb.append("<table cellpadding='2' cellspacing='1'  width='100%' border='1'>");
-			for (int i = triceps.size()-1; i >= 0; i--) {
-				Node n = triceps.getNode(i);
+			
+			Schedule sched = triceps.getSchedule();
+			
+			for (int i = sched.size()-1; i >= 0; i--) {
+				Node n = sched.getNode(i);
 				Datum d = triceps.getDatum(n);
 				if (!triceps.isSet(n))
 					continue;
