@@ -37,21 +37,22 @@
 use IO::File;
 use strict;
 
-if ($#ARGV < 9) {
-	print "Usage:\nperl dat2sas.pl instrument uniqueID modularizeByPrefix discardVarsMatchingPattern NA REFUSED UNKNOWN HUH INVALID UNASKED *.dat\n";
-	print "e.g. perl dat2sas.pl FullHUID [A-Za-z]+ ND.* 9999 8888 7777 6666 5555 4444 *.dat\n";
+if ($#ARGV < 10) {
+	print "Usage:\nperl dat2sas.pl sortby instrument uniqueID modularizeByPrefix discardVarsMatchingPattern NA REFUSED UNKNOWN HUH INVALID UNASKED *.dat\n";
+	print "e.g. perl dat2sas.pl sortby_order_asked AdultBYS FullHUID \"[A-Za-z]+\" \"ND.*\" 9999 8888 7777 6666 5555 4444 *.dat\n";
 	exit(0);
 }
 
 my $MAX_PREV = 27;
 
 my ($instrument, %sched, %sched_nodes);
-my ($uniqueID, $modulePrefix, $discardPrefix,@gargs,$filename);
+my ($uniqueID, $modulePrefix, $discardPrefix,@gargs,$filename,$sortby);
 my ($NA, $REFUSED, $UNKNOWN, $HUH, $INVALID, $UNASKED);
 @gargs = @ARGV;
 my (@pathLog,@pathHash,@pathByStep);
 my (@stepOrder, @stepDirection);	# make global for faster processing by &computeVarHistory?
 
+$sortby = shift(@gargs);
 $instrument = shift(@gargs);
 $uniqueID = shift(@gargs);
 $modulePrefix = shift(@gargs);
@@ -290,7 +291,7 @@ foreach(@gargs) {
 		
 		#open module files for output, creating hash of filehandles
 		foreach my $key (sort(keys(%modules))) {
-			$out = $key . '-summary.log';
+			$out = $key . '-summary.tsv';
 			my $fh = new IO::File;
 			die "error opening file $out" unless ($fh->open(">>$out"));	# append to existing files
 			$outs{$key} = $fh;
@@ -299,35 +300,59 @@ foreach(@gargs) {
 				# file doesn't exist yet, so create it with the proper column headings
 				print { $fh } "UniqueID\tFinished\tStartDate\tStopDate\tTitle\tVersion";
 				
-#				foreach my $arg (sort { $a->{'count'} <=> $b->{'count'} } values(%data)) {		# this sorts by order asked
-#					my %datum = %{ $arg };					
-				foreach my $arg (sort(keys(%data))) {	# this sorts alphabetically by variable name
-					my %datum = %{ $data{$arg} };
-					next unless ($key eq $datum{'module'});
-					print { $fh } "\t", $datum{'internalName'};	#separate labels by tab
+				if ($sortby eq 'sortby_order_asked') {
+					foreach my $arg (sort { $a->{'count'} <=> $b->{'count'} } values(%data)) {		# this sorts by order asked
+						my %datum = %{ $arg };		
+						next unless ($key eq $datum{'module'});
+						print { $fh } "\t", $datum{'internalName'};	#separate labels by tab
+					}
+				}
+				else {
+					# default to sort alphabetically by name
+					foreach my $arg (sort(keys(%data))) {	# this sorts alphabetically by variable name
+						my %datum = %{ $data{$arg} };
+						next unless ($key eq $datum{'module'});
+						print { $fh } "\t", $datum{'internalName'};	#separate labels by tab
+					}
 				}
 				print { $fh } "\n";	# add newline
 				
 				# now do the same for the concept
 				print { $fh } "UniqueID\tFinished\tStartDate\tStopDate\tTitle\tVersion";
 				
-#				foreach my $arg (sort { $a->{'count'} <=> $b->{'count'} } values(%data)) {
-#					my %datum = %{ $arg };					
-				foreach my $arg (sort(keys(%data))) {
-					my %datum = %{ $data{$arg} };
-					next unless ($key eq $datum{'module'});
-					print { $fh } "\t", $datum{'concept'};	#separate labels by tab
+				if ($sortby eq 'sortby_order_asked') {
+					foreach my $arg (sort { $a->{'count'} <=> $b->{'count'} } values(%data)) {
+						my %datum = %{ $arg };
+						next unless ($key eq $datum{'module'});
+						print { $fh } "\t", $datum{'concept'};	#separate labels by tab
+					}
+				}
+				else {
+					# default to sort alphabetically by name
+					foreach my $arg (sort(keys(%data))) {
+						my %datum = %{ $data{$arg} };
+						next unless ($key eq $datum{'module'});
+						print { $fh } "\t", $datum{'concept'};	#separate labels by tab
+					}					
 				}
 				print { $fh } "\n";	# add newline	
 				
 				print { $fh } "UniqueID\tFinished\tStartDat\tStopDate\tTitle\tVersion";
 				
-#				foreach my $arg (sort { $a->{'count'} <=> $b->{'count'} } values(%data)) {
-#					my %datum = %{ $arg };					
-				foreach my $arg (sort(keys(%data))) {
-					my %datum = %{ $data{$arg} };
-					next unless ($key eq $datum{'module'});
-					print { $fh } "\t", $datum{'c8name'};	#separate labels by tab
+				if ($sortby eq 'sortby_order_asked') {
+					foreach my $arg (sort { $a->{'count'} <=> $b->{'count'} } values(%data)) {
+						my %datum = %{ $arg };					
+						next unless ($key eq $datum{'module'});
+						print { $fh } "\t", $datum{'c8name'};	#separate labels by tab
+					}
+				}
+				else {
+					# default to sort alphabetically by name
+					foreach my $arg (sort(keys(%data))) {
+						my %datum = %{ $data{$arg} };
+						next unless ($key eq $datum{'module'});
+						print { $fh } "\t", $datum{'c8name'};	#separate labels by tab
+					}
 				}
 				print { $fh } "\n";	# add newline								
 			}
@@ -340,12 +365,20 @@ foreach(@gargs) {
 		}
 		
 		# foreach variable, print it in row form to the appropriate file
-		foreach my $key (sort(keys(%data))) {
-			my %datum = %{ $data{$key} };
-#		foreach my $key (sort { $a->{'count'} <=> $b->{'count'} } values(%data)) {
-#			my %datum = %{ $key };
-			next unless defined(%datum);
-			print { $outs{$datum{'module'}} } "\t", $datum{'answerGiven'};
+		if ($sortby eq 'sortby_order_asked') {
+			foreach my $key (sort { $a->{'count'} <=> $b->{'count'} } values(%data)) {
+				my %datum = %{ $key };		
+				next unless defined(%datum);
+				print { $outs{$datum{'module'}} } "\t", $datum{'answerGiven'};				
+			}
+		}
+		else {
+			# default sort alphabetically by name
+			foreach my $key (sort(keys(%data))) {
+				my %datum = %{ $data{$key} };
+				next unless defined(%datum);
+				print { $outs{$datum{'module'}} } "\t", $datum{'answerGiven'};
+			}
 		}
 		
 		#close all output files, add newline and close
@@ -359,9 +392,9 @@ foreach(@gargs) {
 		#write status file - vertical with most recent values
 		
 		foreach my $module (sort(keys(%modules))) {
-			unless (-e "$module-complete.log") {
-				print "creating $module-complete.log\n";
-				open (OUT, ">$module-complete.log");	
+			unless (-e "$module-complete.tsv") {
+				print "creating $module-complete.tsv\n";
+				open (OUT, ">$module-complete.tsv");	
 #				print OUT "UniqueID\tStep\tName\tc8name\tLanguage\tAnswer\tComment\tVersion";
 				print OUT "UniqueID\tFinished\tc8name\tLanguage\tVersion";
 				print OUT "\tAnswers\tDispCnts\tDirectns\tVisits\tPrevs\tRepeats\tNexts\tChanges\tRetains\tNa2Na\tNa2Ok\tOk2Na\tOk2Ok\tNonAns\n";				
@@ -370,7 +403,7 @@ foreach(@gargs) {
 		}	
 		
 		foreach my $module (sort(keys(%modules))) {
-			open (OUT, ">>$module-complete.log");
+			open (OUT, ">>$module-complete.tsv");
 			foreach my $key (sort { $a->{'count'} <=> $b->{'count'} } values(%data)) {
 				my %datum = %{ $key };
 				next if ($datum{'module'} ne $module);
@@ -467,7 +500,7 @@ sub processPath {
 }
 
 sub pathByStep {
-	open (PATH,">pathstep-timing.log")	or die("unable to open pathstep-timing.log");
+	open (PATH,">pathstep-timing.tsv")	or die("unable to open pathstep-timing.tsv");
 	print PATH "UniqueID\tDispCnt\tGroup\tWhen\ttDur\tQlen\tAlen\tTlen\tNumQs\ttDurSec\tTimevsQ\tTimevsT\tTitle\tVersion\n";
 	
 	foreach (@pathByStep) {
@@ -478,9 +511,10 @@ sub pathByStep {
 		
 	
 sub showPathLog {
-	open (PATH,">pathstep-summary.log")	or die("unable to open pathstep-summary.log");
+	open (PATH,">pathstep-summary.tsv")	or die("unable to open pathstep-summary.tsv");
 #	print PATH "UniqueID\tType\tTitle\tVersion\tIP\tStartTime\tStopTime\ttDur\ttDurSec\tNumSteps\tPath\tRawPath\n";
-	print PATH "UniqueID\tTitle\tVersion\tFinished\ttDur\ttDurSec\tNumSteps\tPath\tlastAns\tlastAnsN\tlstView\tlstViewN\n";
+#	print PATH "UniqueID\tTitle\tVersion\tFinished\ttDur\ttDurSec\tNumSteps\tPath\tlastAns\tlastAnsN\tlstView\tlstViewN\n";
+	print PATH "UniqueID\tTitle\tVersion\tFinished\ttDur\ttDurSec\tNumSteps\tPath\tlastAns\tlstView\n";
 	
 	foreach my $line (@pathLog) {
 		print PATH $line;
@@ -584,7 +618,7 @@ sub fixComment {
 }
 
 sub pathTotals {
-	open (PATH,">pathstep-visits.log")	or die("unable to open pathstep-visits.log");
+	open (PATH,">pathstep-visits.tsv")	or die("unable to open pathstep-visits.tsv");
 	
 	# print headers - will be variable number based on max # of possible display steps - may be limited by Excel's ~250 column limit
 	print PATH "UniqueID\tType\tInstrument\tIP\tStartTime\tStopTime\ttDur\ttDurSec\tNumSteps\tFinish\tEnd\tJump\tPrev\tRepeat\t";
@@ -708,18 +742,18 @@ sub pathHash {
 			}
 		}
 	}
-	my ($lastAnsweredName, $lastViewedName);
+#	my ($lastAnsweredName, $lastViewedName);
 	$node = $sched{$lastViewed};
 	$lastViewedStep = $node->{'display'};
-	$lastViewedName = "[$lastViewedStep] $node->{'name'}";
+#	$lastViewedName = "[$lastViewedStep] $node->{'name'}";
 	$node = $sched{$lastAnswered};
 	if ($lastAnswered eq '.' || !defined($node)) {
-		$lastAnsweredName = '.';
+#		$lastAnsweredName = '.';
 		$lastAnsweredStep = '.';
 	}
 	else {
 		$lastAnsweredStep = $node->{'display'};
-		$lastAnsweredName = "[$lastAnsweredStep] $node->{'name'}";
+#		$lastAnsweredName = "[$lastAnsweredStep] $node->{'name'}";
 	}
 	
 	return {
@@ -737,9 +771,9 @@ sub pathHash {
 		pathStep => join(' ',@path_step),
 		finished => $finished,
 		lastViewed => $lastViewedStep,
-		lastViewedName => $lastViewedName,
+#		lastViewedName => $lastViewedName,
 		lastAnswered => $lastAnsweredStep,
-		lastAnsweredName => $lastAnsweredName,
+#		lastAnsweredName => $lastAnsweredName,
 	};
 }
 
@@ -751,8 +785,10 @@ sub processPathHash {
 		# print PATH "UniqueID\tInstrument\tVersion\tFinished\ttDur\ttDurSec\tNumSteps\tPath\tlastAns\tlastAnsN\tlstView\tlstViewN\n";
 		
 #		push @pathLog, "$p{'huid'}\t$p{'type'}\t$p{'instrument'}\t$p{'version'}\t$p{'ip'}\t$p{'startTime'}\t$p{'stopTime'}\t$p{'duration'}\t$p{'durSec'}\t$p{'numSteps'}\t$p{'path'}\t$p{'pathStep'}\n";
+#		push @pathLog, "$p{'huid'}\t$p{'instrument'}\t$p{'version'}\t$p{'finished'}\t$p{'duration'}\t$p{'durSec'}\t$p{'numSteps'}\t$p{'path'}" .
+#			"\t$p{'lastAnswered'}\t$p{'lastAnsweredName'}\t$p{'lastViewed'}\t$p{'lastViewedName'}\n";
 		push @pathLog, "$p{'huid'}\t$p{'instrument'}\t$p{'version'}\t$p{'finished'}\t$p{'duration'}\t$p{'durSec'}\t$p{'numSteps'}\t$p{'path'}" .
-			"\t$p{'lastAnswered'}\t$p{'lastAnsweredName'}\t$p{'lastViewed'}\t$p{'lastViewedName'}\n";
+			"\t$p{'lastAnswered'}\t$p{'lastViewed'}\n";
 
 	}
 }

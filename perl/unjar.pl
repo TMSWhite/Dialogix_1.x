@@ -41,6 +41,7 @@ $Prefs = {
 	INVALID => 11111,
 	UNASKED => 44444,
 	INSTRUMENT => '',	# name of the instrument file (without .txt extensions)
+	SORTBY => 'sortby_variable_name',	# 'sortby_order_asked'
 	
 	VARMAP_INFO_FILE => 'varMapInfo',
 	
@@ -221,6 +222,7 @@ sub which_inst {
 sub removeOldAnalysisFiles {
 	my @files = glob("$Prefs->{RESULTS_DIR}/*.log");
 	push @files, glob("$Prefs->{RESULTS_DIR}/*.s*");
+	push @files, glob("$Prefs->{RESULTS_DIR}/*.tsv");
 
 	foreach (@files) {
 		unlink $_ unless (-d $_);
@@ -236,7 +238,7 @@ sub update_dat {
 
 sub dat2sas {
 	chdir($Prefs->{RESULTS_DIR});
-	my $command = "perl $DAT2SAS $Prefs->{INSTRUMENT_DIR}/$Prefs->{INSTRUMENT} $Prefs->{UNIQUE_ID} $Prefs->{modularizeByPrefix} $Prefs->{discardVarsMatchingPattern} $Prefs->{NA} $Prefs->{REFUSED} $Prefs->{UNKNOWN} $Prefs->{HUH} $Prefs->{INVALID} $Prefs->{UNASKED} $Prefs->{DAT_FILES}";
+	my $command = "perl $DAT2SAS $Prefs->{SORTBY} $Prefs->{INSTRUMENT_DIR}/$Prefs->{INSTRUMENT} $Prefs->{UNIQUE_ID} $Prefs->{modularizeByPrefix} $Prefs->{discardVarsMatchingPattern} $Prefs->{NA} $Prefs->{REFUSED} $Prefs->{UNKNOWN} $Prefs->{HUH} $Prefs->{INVALID} $Prefs->{UNASKED} $Prefs->{DAT_FILES}";
 	print "$command\n";
 	&doit($command);
 }
@@ -271,7 +273,7 @@ sub removeErrFiles {
 
 sub sched2sas {
 	chdir($Prefs->{INSTRUMENT_DIR});
-	my $command = "perl $SCHED2SAS $Prefs->{modularizeByPrefix} $Prefs->{discardVarsMatchingPattern} $Prefs->{RESULTS_DIR} $Prefs->{NA} $Prefs->{REFUSED} $Prefs->{UNKNOWN} $Prefs->{HUH} $Prefs->{INVALID} $Prefs->{UNASKED} $INSTRUMENT_FILE";
+	my $command = "perl $SCHED2SAS $Prefs->{SORTBY} $Prefs->{modularizeByPrefix} $Prefs->{discardVarsMatchingPattern} $Prefs->{RESULTS_DIR} $Prefs->{NA} $Prefs->{REFUSED} $Prefs->{UNKNOWN} $Prefs->{HUH} $Prefs->{INVALID} $Prefs->{UNASKED} $INSTRUMENT_FILE";
 	print "$command\n";
 	&doit($command);
 }
