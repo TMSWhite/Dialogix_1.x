@@ -361,6 +361,9 @@ public class Datum  {
 	public boolean isNumeric() { return (!Double.isNaN(dVal)); }
 	public boolean isDate() { return (date != null); }
 	static public boolean isDate(int t) { return (t >= DATE && t <= DAY_NUM); }
+	public boolean isRefused() { return (type == REFUSED); }
+	public boolean isUnknown() { return (type == UNKNOWN); }
+	public boolean isNotUnderstood() { return (type == NOT_UNDERSTOOD); }
 
 	public boolean isType(int t) {
 		switch(t) {
