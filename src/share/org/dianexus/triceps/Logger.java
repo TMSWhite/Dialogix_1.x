@@ -133,6 +133,9 @@ import java.io.InputStream;
 	/*public*/ static void write(String s) { Logger.write(s,false); }
 
 	/*public*/ static void write(String s, boolean eol) {
+		if (s == null) {
+			s = "null";
+		}
 		if (STDERR != null) {
 			STDERR.write(s);
 			if (eol)
@@ -147,6 +150,9 @@ import java.io.InputStream;
 	}
 
 	/*public*/ static void printStackTrace(Throwable t) {
+		if (t == null) {
+			return;
+		}
 		if (STDERR != null) {
 			t.printStackTrace(STDERR);
 			STDERR.flush();
@@ -267,7 +273,9 @@ if (DEBUG) Logger.writeln("Logger.getInputStream(" + STDERR_NAME + ")->" + e.get
 		
 		try {
 			STDERR = new PrintWriter(new FileWriter(STDERR_NAME,true),true);	// append to log by default
-			writeln("**" + VERSION_NAME + " Log file started on " + new Date(System.currentTimeMillis()));
+			Runtime rt = Runtime.getRuntime();
+			writeln("**" + VERSION_NAME + " Log file started on " + new Date(System.currentTimeMillis()) +
+				"with Runtime.maxMemory = " + rt.maxMemory() + "; RT.totalMemory = " + rt.totalMemory() + "; RT.freeMemory = " + rt.freeMemory());
 		}
 		catch (IOException e) {
 			System.err.println("unable to create '" + STDERR_NAME + "'");

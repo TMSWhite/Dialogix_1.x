@@ -197,8 +197,8 @@ if (DEBUG && XML) cocoonXML();
 				this.isActive = false;
 			}
 		}
-		catch (Throwable t) {
-if (DEBUG) Logger.writeln("##Throwable @ Servlet.doPost()" + t.getMessage());
+		catch (Exception t) {
+if (DEBUG) Logger.writeln("##Exception @ Servlet.doPost()" + t.getMessage());
 			Logger.writeln("##" + triceps.get("unexpected_error") + t.getMessage());
 			Logger.printStackTrace(t);
 		}
@@ -447,16 +447,16 @@ if (AUTHORABLE) {
 							}
 						}
 					}
-					catch (Throwable t) {
-if (DEBUG) Logger.writeln("##Throwable @ Servlet.getSortedNames()" + t.getMessage());
+					catch (Exception t) {
+if (DEBUG) Logger.writeln("##Exception @ Servlet.getSortedNames()" + t.getMessage());
 						errors.println(triceps.get("unexpected_error") + t.getMessage());
 						Logger.printStackTrace(t);
 					}
 				}
 //			}
 		}
-		catch (Throwable t) {
-if (DEBUG) Logger.writeln("##Throwable @ Servlet.getSortedNames()" + t.getMessage());
+		catch (Exception t) {
+if (DEBUG) Logger.writeln("##Exception @ Servlet.getSortedNames()" + t.getMessage());
 			errors.println(triceps.get("unexpected_error") + t.getMessage());
 			Logger.printStackTrace(t);
 		}
@@ -630,8 +630,8 @@ if (DEBUG) Logger.writeln("##Throwable @ Servlet.getSortedNames()" + t.getMessag
 				sb.append("</select>");
 			}
 		}
-		catch (Throwable t) {
-if (DEBUG) Logger.writeln("##Throwable @ Servlet.selectFromInterviewsInDir" + t.getMessage());
+		catch (Exception t) {
+if (DEBUG) Logger.writeln("##Exception @ Servlet.selectFromInterviewsInDir" + t.getMessage());
 			errors.println(triceps.get("error_building_sorted_list_of_interviews") + t.getMessage());
 			Logger.printStackTrace(t);
 		}

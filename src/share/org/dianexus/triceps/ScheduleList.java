@@ -179,11 +179,11 @@ if (DEBUG) Logger.writeln("##parseErrorLog(" + file.getName() + ") " + e.getMess
 				}
 			}
 		}
-		catch (Throwable e) {
+		catch (Exception e) {
 			setError("##unjar " + e.getMessage());
 			ok = false;
 		}
-		if (jf != null) try { jf.close(); } catch (Throwable t) { }
+		if (jf != null) try { jf.close(); } catch (Exception t) { }
 		return ok;
 	}
 	

@@ -38,20 +38,20 @@ import java.io.FileInputStream;
 	}
 	
 	private boolean init(String name) {
-		Throwable err = null;
+		Exception err = null;
 		
 		try {
 			filename = name;
 			fos = new FileOutputStream(filename);
 			jos = new ZipOutputStream(fos);
 		}
-		catch (Throwable e) {	// FileNotFoundException, SecurityException, IOException, NullPointerException
+		catch (Exception e) {	// FileNotFoundException, SecurityException, IOException, NullPointerException
 			err = e;	// unable to create file
 		}
 		
 		if (err != null) {
-			if (jos != null) try { jos.close(); jos=null; } catch (Throwable t) { }
-			if (fos != null) try { fos.close(); fos=null; } catch (Throwable t) { }
+			if (jos != null) try { jos.close(); jos=null; } catch (Exception t) { }
+			if (fos != null) try { fos.close(); fos=null; } catch (Exception t) { }
 
 			setError("JarWriter.init(" + name + ")->" + err.getMessage());
 			return false;			
@@ -76,13 +76,13 @@ import java.io.FileInputStream;
 	
 		ok = addEntry(name, fis);
 		
-//		if (fis != null) try { fis.close(); } catch (Throwable t) { }	// should be closed by addEntry()
+//		if (fis != null) try { fis.close(); } catch (Exception t) { }	// should be closed by addEntry()
 		return ok;
 	}
 	
 	/*public*/ boolean addEntry(String name, InputStream is) {
 		ZipEntry ze = null;
-		Throwable err = null;
+		Exception err = null;
 		
 		if (name == null || is == null)
 			return false;
@@ -106,13 +106,13 @@ import java.io.FileInputStream;
 		if (err != null) {
 			setError("JarWriter.addEntry()->" + err.getMessage());
 		}
-		try { is.close(); } catch (Throwable e) { }
+		try { is.close(); } catch (Exception e) { }
 		
 		return (err == null);
 	}
 	
 	/*public*/ boolean close() {
-		if (jos != null) try { jos.close(); jos=null; } catch (Throwable t) { }
+		if (jos != null) try { jos.close(); jos=null; } catch (Exception t) { }
 		return true;
 	}
 	
@@ -122,7 +122,7 @@ import java.io.FileInputStream;
 			return false;
 		}
 			
-		Throwable err = null;
+		Exception err = null;
 		FileInputStream fis = null;
 		FileOutputStream fos = null;
 		File fi = null;
@@ -163,8 +163,8 @@ import java.io.FileInputStream;
 			err = e;
 		}
 		
-		if (fis != null) try { fis.close(); } catch (Throwable t) { setError("copyFile: " + t.getMessage()); }
-		if (fos != null) try { fos.close(); } catch (Throwable t) { setError("copyFile: " + t.getMessage()); }		
+		if (fis != null) try { fis.close(); } catch (Exception t) { setError("copyFile: " + t.getMessage()); }
+		if (fos != null) try { fos.close(); } catch (Exception t) { setError("copyFile: " + t.getMessage()); }		
 		
 		if (err != null) {
 			setError("copyFile(" + src + ")->(" + dst + "): " + err.getMessage());

@@ -1347,8 +1347,8 @@ if (DEBUG) Logger.writeln("##SecurityException @ Evidence.fileExists()" + e.getM
 				}
 			}
 		}
-		catch (Throwable t) {
-if (DEBUG) Logger.writeln("##Throwable @ Evidence.function()" + t.getMessage());
+		catch (Exception t) {
+if (DEBUG) Logger.writeln("##Exception @ Evidence.function()" + t.getMessage());
 			Logger.printStackTrace(t);
 		}
 		setError("unexpected error running function " + name, line, column, null);

@@ -46,7 +46,7 @@ class XMLAttrEncoder implements VersionIF {
 		try {
 			return ATT_ENTITY_FORMAT.format((long) (c & 0x00ff));	// must strip high byte for HTML
 		}
-		catch (Throwable t) {
+		catch (Exception t) {
 if (DEBUG) Logger.writeln("##Node.attEntityFormat()" + t.getMessage());
 			return "";
 		}

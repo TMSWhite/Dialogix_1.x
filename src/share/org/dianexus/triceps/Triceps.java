@@ -154,7 +154,7 @@ if (DEPLOYABLE) {
 			dataLogger = new Logger(Logger.UNIX_EOL,true,tempDataFile);
 			eventLogger = new Logger(Logger.UNIX_EOL,true,tempEventFile);
 		}
-		catch (Throwable t) {
+		catch (Exception t) {
 			setError("Triceps.createDataLogger()-unable to create temp file" + t.getMessage());
 		}
 }	// DEPLOYABLE
@@ -690,11 +690,11 @@ if (SAVE_ERROR_LOG_WITH_DATA) {
 				}
 			}
 		}
-		catch (Throwable e) {
+		catch (Exception e) {
 			setError("##saveAsJar " + e.getMessage());
 			ok = false;
 		}
-		if (jf != null) try { jf.close(); } catch (Throwable t) { }
+		if (jf != null) try { jf.close(); } catch (Exception t) { }
 		
 		if (!ok) {
 			setError("Please try again!");

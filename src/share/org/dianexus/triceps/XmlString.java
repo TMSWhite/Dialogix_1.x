@@ -354,8 +354,8 @@ if ((AUTHORABLE || DEBUG))	error(triceps.get("prematurely_terminated_element") +
 				return false;	// unterminated attribute-value pairs
 			}
 		}
-		catch (Throwable t) {
-if (DEBUG) Logger.writeln("##Throwable @ XMLString.isValidElement(" + src + ") " + t.getMessage());
+		catch (Exception t) {
+if (DEBUG) Logger.writeln("##Exception @ XMLString.isValidElement(" + src + ") " + t.getMessage());
 if ((AUTHORABLE || DEBUG))	error(triceps.get("prematurely_terminated_element") + parsingPosition[which] + " " + asElement(element));
 			return false;
 		}

@@ -72,7 +72,7 @@ import java.util.Date;
 	
 	/*public*/ static synchronized Datum getInstance(Triceps lang, int i) {
 if (i == INVALID) {
-//if (DEBUG) Logger.printStackTrace(new Throwable("##INVALID Datum"));
+//if (DEBUG) Logger.printStackTrace(new Exception("##INVALID Datum"));
 }
 		String key = (lang.toString() + i);
 		Datum datum = (Datum) SPECIAL_DATA.get(key);
@@ -217,7 +217,7 @@ if (i == INVALID) {
 
 		if (obj == null && !isSpecial(t)) {
 //if (DEBUG) Logger.writeln("##null obj passed to Datum.init()");
-//if (DEBUG) Logger.printStackTrace(new Throwable("##null obj passed to Datum.init()"));
+//if (DEBUG) Logger.printStackTrace(new Exception("##null obj passed to Datum.init()"));
 			t = INVALID;
 		}
 

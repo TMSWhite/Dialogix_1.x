@@ -128,8 +128,8 @@ if (DEBUG) Logger.writeln("##ScheduleSource(" + src + ") is not accessible, or h
 				body.addElement(fileLine);
 			}
 		}
-		catch (Throwable e) {
-if (DEBUG)	Logger.writeln("##Throwable @ ScheduleSource.readFromAscii() " + e.getMessage());
+		catch (Exception e) {
+if (DEBUG)	Logger.writeln("##Exception @ ScheduleSource.readFromAscii() " + e.getMessage());
 		}
 		if (br != null) {
 			try { br.close(); } catch (IOException t) { }
@@ -156,11 +156,11 @@ if (DEBUG)	Logger.writeln("##Throwable @ ScheduleSource.readFromAscii() " + e.ge
 			body = jarEntryToVector(jf, "body");
 			reservedCount = headers.size();
 		}
-		catch (Throwable e) {
+		catch (Exception e) {
 if (DEBUG) Logger.writeln("##readFromJar " + e.getMessage());
 			ok = false;
 		}
-		if (jf != null) try { jf.close(); } catch (Throwable t) { }
+		if (jf != null) try { jf.close(); } catch (Exception t) { }
 		return ok;
 	}
 	
@@ -184,7 +184,7 @@ if (DEBUG) Logger.writeln("##readFromJar " + e.getMessage());
 					v.addElement(fileLine);
 				}
 			}
-			catch (Throwable e) {	// IOException
+			catch (Exception e) {	// IOException
 if (DEBUG)		Logger.writeln("##IOException @ ScheduleSource.jarEntryToVector()" + e.getMessage());
 			}
 			if (br != null) {
@@ -206,15 +206,15 @@ if (DEPLOYABLE)	return new Vector();	// empty;
 //if (DEBUG) Logger.writeln("##verifying certificate " + cert.toString());
 					cert.verify(cert.getPublicKey());
 				}
-				catch (Throwable t) {
+				catch (Exception t) {
 if (DEBUG) Logger.writeln("##invalid certificate or corrupted signing: " + t.getMessage());
 if (DEPLOYABLE)	return new Vector();	// empty;		
 				}
 			}
 */						
 		}	
-		catch (Throwable e) {
-if (DEBUG) Logger.writeln("##Throwable @ jarEntryToVector"  + e.getMessage());
+		catch (Exception e) {
+if (DEBUG) Logger.writeln("##Exception @ jarEntryToVector"  + e.getMessage());
 		}
 		return v;	
 	}
