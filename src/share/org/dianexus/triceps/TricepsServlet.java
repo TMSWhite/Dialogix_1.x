@@ -91,6 +91,7 @@ public class TricepsServlet extends HttpServlet {
 		form = processDirective();
 
 		out = res.getWriter();
+		
 		out.println(header());
 		out.println(getCustomHeader());
 		
@@ -193,7 +194,16 @@ public class TricepsServlet extends HttpServlet {
 		sb.append("	document.myForm.passwordForRefused.value = ans;\n");
 		sb.append("	document.myForm.submit();\n");
 		sb.append("} //-->\n");
-		sb.append("</SCRIPT>\n");		
+		sb.append("</SCRIPT>\n");
+		
+		sb.append("<!--\n");
+		sb.append("scheduleList: " + scheduleList + "\n");
+		sb.append("scheduleSrcDir: " + scheduleSrcDir + "\n");
+		sb.append("workingFilesDir: " + workingFilesDir + "\n");
+		sb.append("completedFilesDir: " + completedFilesDir + "\n");
+		sb.append("-->\n");
+		
+		
 		
 		return sb.toString();
 	}
