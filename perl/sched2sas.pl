@@ -19,12 +19,14 @@ use File::Basename;
 my $levelTypes = {
 	check => 'NOMINAL',
 	combo => 'NOMINAL',
+	combo2 => 'NOMINAL',
 	date => 'SCALE',
 	day => 'SCALE',
 	day_num => 'SCALE',		# since start of year.
 	double => 'SCALE',
 	hour => 'SCALE',
 	list => 'NOMINAL',
+	list2 => 'NOMINAL',
 	memo => 'NOMINAL',
 	minute => 'SCALE',
 	month => 'NOMINAL',		# since name of the month
@@ -33,6 +35,7 @@ my $levelTypes = {
 	password => 'NOMINAL',
 	radio => 'NOMINAL',
 	radio2 => 'NOMINAL',
+	radio3 => 'NOMINAL',
 	second => 'SCALE',
 	text => 'NOMINAL',
 	time => 'SCALE',
@@ -46,12 +49,14 @@ my @reservedVars = ('STARTDAT', 'STOPDATE', 'UNIQUEID', 'FINISHED', 'TITLE', 'VE
 my $formats = {
 	check => 'F8.0',
 	combo => 'F8.0',
+	combo2 => 'F8.0',
 	date => 'ADATE10',
 	day => 'date|dd',		# what is syntax for this?
 	day_num => 'date|dd',		# since start of year.
 	double => 'F8.3',
 	hour => 'date|hh',
 	list => 'F8.0',
+	list2 => 'F8.0',
 	memo => 'A254',
 	minute => 'date|mm',
 	month => 'MONTH',		# since name of the month
@@ -60,6 +65,7 @@ my $formats = {
 	password => 'A50',
 	radio => 'F8.0',
 	radio2 => 'F8.0',
+	radio3 => 'F8.0',
 	second => 'date|ss',
 	text => 'A50',
 	time => 'TIME5.3',
@@ -1009,31 +1015,3 @@ sub strip_html {
 	return $text;
 }
 	
-	
-# dataTypes reference SPSS data types -- the date formats have not been validated yet
-sub oldDataType {
-my $dataTypes = {
-	check => 'numeric|8',
-	combo => 'numeric|8',
-	date => 'date|mm/dd/yyyy',
-	day => 'date|dd',		# what is syntax for this?
-	day_num => 'date|dd',		# since start of year.
-	double => 'numeric|8.3',
-	hour => 'date|hh',
-	list => 'numeric|8',
-	memo => 'string|255',
-	minute => 'date|mm',
-	month => 'date|mm',		# since name of the month
-	month_num => 'date|mm',
-	nothing => 'string|1',
-	password => 'string|50',
-	radio => 'numeric|8',
-	radio2 => 'numeric|8',
-	second => 'date|ss',
-	text => 'string|255',
-	time => 'date|hh:mm:ss',
-	weekday => 'date|ww',	# since name of weekday
-	year => 'date|yyyy',	
-};
-}	
-
