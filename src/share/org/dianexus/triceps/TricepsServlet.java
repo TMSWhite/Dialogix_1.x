@@ -446,7 +446,7 @@ if (DEBUG) Logger.writeln("##Throwable @ Servlet.getSortedNames()" + t.getMessag
 				for (int i=0;i<v.size();++i) {
 					sb.append((String) v.elementAt(i));
 					if (i != v.size()-1) {
-						sb.append("|");
+						sb.append(",");
 					}
 				}
 				sb.append("]");
