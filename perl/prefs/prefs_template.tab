@@ -18,16 +18,16 @@ RESERVED	__ALLOW_UNKNOWN__	FALSE
 RESERVED	__SHOW_ADMIN_ICONS__	FALSE					
 RESERVED	__ANSWER_OPTION_FIELD_WIDTH__	65					
 RESERVED	__SUSPEND_TO_FLOPPY__	TRUE					
-RESERVED	__SCHED_VERSION_MAJOR__	2					
-RESERVED	__SCHED_VERSION_MINOR__	9			
+RESERVED	__SCHED_VERSION_MAJOR__	3					
+RESERVED	__SCHED_VERSION_MINOR__	0			
 	start0		1	[		<font size="+3"><center>Welcome to CHOICEs - Administrator page</center></font>	nothing
 	showdate		1	q		Today is `toWeekday(getNow())`, `getNow()` at `getStartTime()`	nothing
 ID	huid		1	q		Please enter the patient's ID	double
 asmtno	asmtno		1	q		Which interview is this? 	list|1|First Interview or Admission|2|Second Interview or Discharge
-	colltype		1	q		Which data collection is this?	list|1|Primary Assessment Data|2|Retest for reliability|3|Consistency (data completed on the consultation checklist)
-	dataclxn		1	q		Type of patient? 	list|1|Inpatient|2|Outpatient|3|Palliative Care
-	comments		1	]		Comments [optional]	text				 
-	TODAY		1	e;date		getNow()	date
+colltype	colltype		1	q		Which data collection is this?	list|1|Primary Assessment Data|2|Retest for reliability|3|Consistency (data completed on the consultation checklist)
+dataclxn	dataclxn		1	q		Type of patient? 	list|1|Inpatient|2|Outpatient|3|Palliative Care
+comments	comments		1	]		Comments [optional]	text				 
+today	TODAY		1	e;date		getNow()	date
 	filename_change		1	e		__FILENAME__ = huid . '.' . asmtno . '.' . colltype	nothing
 	filename_listing		1	e		__TITLE_FOR_PICKLIST_WHEN_IN_PROGRESS__ = filename_change	nothing
 

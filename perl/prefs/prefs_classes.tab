@@ -1,17 +1,17 @@
-pain1	screen_pain	Pain/Discomfort
-breath2	screen_breathing	Breathing
-heart3	screen_heart	Heart, Blood and Infections
-food4	screen_intake	Eating and Drinking
-bowel5	screen_bowel	Bowel and Bladder
-energy6	screen_energy	Energy
-sleep7	screen_sleep	Sleep and Rest
-vision8	screen_vision	Vision and Hearing
-skin9	screen_skin	Skin and Hair
-memor10	screen_memory	Thinking and Memory
-relate11	screen_relation	Relationships with Family and Friends
-ADL12	screen_activities	Activities of Daily Living and Self-care
-mood13	screen_mood	Mood and Feelings
-control14	screen_control	Maintaining Control over my Situation
-worry15	screen_worries	Worries/Concerns
-spirit16	screen_spiritual	Spiritual Needs
-other17	screen_other	Other
+pn	screen_pain	Pain/Discomfort
+br	screen_breathing	Breathing
+hr	screen_heart	Heart, Blood and Infections
+fo	screen_intake	Eating and Drinking
+bw	screen_bowel	Bowel and Bladder
+en	screen_energy	Energy
+sl	screen_sleep	Sleep and Rest
+vi	screen_vision	Vision and Hearing
+sk	screen_skin	Skin and Hair
+mm	screen_memory	Thinking and Memory
+rl	screen_relation	Relationships with Family and Friends
+ad	screen_activities	Activities of Daily Living and Self-care
+mo	screen_mood	Mood and Feelings
+co	screen_control	Maintaining Control over my Situation
+wo	screen_worries	Worries/Concerns
+sp	screen_spiritual	Spiritual Needs
+ot	screen_other	Other
