@@ -43,13 +43,7 @@ class Value {
 	public Datum getDatum() { return datum; }
 	
 	private void init(String name, Datum d) {
-		if (!d.isType(Datum.UNASKED)) {
-			datum = new Datum(d);	// make copy of all except for default (UNASKED)
-			datum.setName(name);
-		}	
-		else {
-			datum = d;
-			// and don't make a reference to it
-		}
+		datum = new Datum(d);
+		datum.setName(name);
 	}
 }
