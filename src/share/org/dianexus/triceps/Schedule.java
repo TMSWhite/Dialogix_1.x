@@ -62,6 +62,7 @@ import java.io.FileReader;
 	/*public*/ static final int ACTIVE_BUTTON_PREFIX = 42;
 	/*public*/ static final int ACTIVE_BUTTON_SUFFIX = 43;
 	/*public*/ static final int TRICEPS_FILE_TYPE = 44;
+	/*public*/ static final int DISPLAY_COUNT = 45;
 
 	private static final String DEFAULT_LANGUAGE = "en_US";
 	/*public*/ static final String TRICEPS_DATA_FILE = "DATA";
@@ -114,6 +115,7 @@ import java.io.FileReader;
 		"__ACTIVE_BUTTON_PREFIX__",
 		"__ACTIVE_BUTTON_SUFFIX__",
 		"__TRICEPS_FILE_TYPE__",
+		"__DISPLAY_COUNT__",
 	};
 
 	private Date startTime = null;
@@ -207,6 +209,7 @@ import java.io.FileReader;
 		setReserved(HELP_ICON,"help_true.gif");
 		setReserved(ACTIVE_BUTTON_PREFIX,"««");
 		setReserved(ACTIVE_BUTTON_SUFFIX,"»»");
+		setReserved(DISPLAY_COUNT,"0");
 	}
 		
 	/*public*/ boolean init() {
@@ -217,7 +220,7 @@ if (DEBUG) {
 		if (scheduleSource != null && ((si = scheduleSource.getSourceInfo()) != null)) {
 			source = si.getSource();
 		}
-		Logger.writeln("##@@Schedule.load(" + source + ")-> " + ((ok) ? "SUCCESS" : "FAILURE"));
+		Logger.writeln("##@@Schedule.load(" + source + "," + getReserved(SCHEDULE_SOURCE) + ")-> " + ((ok) ? "SUCCESS" : "FAILURE"));
 }		
 		return ok;
 	}
@@ -605,7 +608,8 @@ else node.setParseError("syntax error");
 	/*public*/ void writeReserved(int resIdx) {
 if (DEPLOYABLE) {		
 		if (resIdx >= 0 && resIdx < RESERVED_WORDS.length) {
-			triceps.dataLogger.println("RESERVED\t" + RESERVED_WORDS[resIdx] + "\t" + getReserved(resIdx));
+			triceps.dataLogger.println("RESERVED\t" + RESERVED_WORDS[resIdx] + "\t" + getReserved(resIdx) + 
+				"\t\t\t\t" + System.currentTimeMillis());
 		}
 }
 	}
@@ -682,17 +686,8 @@ if (DEPLOYABLE) {
 			case HELP_ICON: s = value; break;
 			case ACTIVE_BUTTON_PREFIX: s = value; break;
 			case ACTIVE_BUTTON_SUFFIX: s = value; break;
-			case TRICEPS_FILE_TYPE: 
-				if (value.equalsIgnoreCase(TRICEPS_DATA_FILE)) {
-					s = TRICEPS_DATA_FILE;
-				}
-				else if (value.equalsIgnoreCase(TRICEPS_SCHEDULE_FILE)) {
-					s = TRICEPS_SCHEDULE_FILE;
-				}
-				else {
-					s = TRICEPS_UNKNOWN_FILE;
-				}
-				break;
+			case TRICEPS_FILE_TYPE: if (expert) s = setTricepsFileType(value); break;
+			case DISPLAY_COUNT: if (expert) s = setDisplayCount(value); break;
 			default: return false;
 		}
 		
@@ -708,6 +703,32 @@ if (DEPLOYABLE) {
 			return false;
 		}
 	}
+	
+	private String setDisplayCount(String value) {
+		Integer ii = null;
+		try {
+			ii = new Integer(value);
+		}
+		catch(NumberFormatException e) {
+if (DEBUG) Logger.writeln("##NumberFormatException @ Schedule.setDisplayCount('" + value + "')" + e.getMessage());
+			setError(triceps.get("invalid_number_for_starting_step") + ": '" + value + "': " + e.getMessage());
+			ii = new Integer(0);
+		}
+		return ii.toString();
+	}
+	
+	private String setTricepsFileType(String value) {
+		if (value.equalsIgnoreCase(TRICEPS_DATA_FILE)) {
+			return TRICEPS_DATA_FILE;
+		}
+		else if (value.equalsIgnoreCase(TRICEPS_SCHEDULE_FILE)) {
+			return TRICEPS_SCHEDULE_FILE;
+		}
+		else {
+			return TRICEPS_UNKNOWN_FILE;
+		}
+	}
+			
 
 	/*public*/ String getReserved(int resIdx) {
 		if (resIdx >= 0 && resIdx < RESERVED_WORDS.length) {
