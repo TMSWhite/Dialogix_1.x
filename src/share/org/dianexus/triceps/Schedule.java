@@ -100,10 +100,14 @@ public class Schedule  {
 	private void setDefaultReserveds() {
 		setReserved(TITLE,"Triceps");
 		setReserved(STARTING_STEP,"0");
+		// START_TIME and *_DIR must preceed FILENAME, which uses the values from each of those //
 		setReserved(START_TIME,triceps.formatDate(new Date(System.currentTimeMillis()),Datum.TIME_MASK));
+		setReserved(WORKING_DIR,null);
+		setReserved(COMPLETED_DIR,null);
+		setReserved(FLOPPY_DIR,null);	
+		setReserved(FILENAME,null);	// sets the default value
 		setReserved(PASSWORD_FOR_ADMIN_MODE,"");
 		setReserved(AUTOGEN_OPTION_NUM,"true");
-		setReserved(FILENAME,getReserved(START_TIME));
 		setReserved(ICON,"");
 		setReserved(HEADER_MSG,"Triceps");
 		setReserved(SHOW_QUESTION_REF,"false");
@@ -120,16 +124,16 @@ public class Schedule  {
 		setReserved(ALLOW_REFUSED,"true");
 		setReserved(ALLOW_UNKNOWN,"true");
 		setReserved(ALLOW_DONT_UNDERSTAND,"true");
-		setReserved(RECORD_EVENTS,"false");
-		setReserved(WORKING_DIR,".");
-		setReserved(COMPLETED_DIR,".");
-		setReserved(FLOPPY_DIR,".");
+		setReserved(RECORD_EVENTS,"true");
 	}
 
 	public boolean init() {
 		nodes = new Vector();
 		comments = new Vector();
 		isLoaded = load(getLoadedFrom(),true);
+		if (getReserved(FILENAME) == null) {
+			setReserved(FILENAME,getReserved(START_TIME));	// set a default value if no filename specified
+		}
 		return isLoaded;
 	}
 
@@ -182,9 +186,6 @@ public class Schedule  {
 			if (reservedCount == 0) {
 				return false;
 			}
-//			if (parseNodes) {
-//				setError("Read " + count + " nodes from " + source);
-//			}
 
 			/* check for mismatching braces */
 			int braceLevel = 0;
@@ -324,7 +325,7 @@ public class Schedule  {
 			case START_TIME: s = setStartTime(value); break;
 			case PASSWORD_FOR_ADMIN_MODE: s = value; break;
 			case AUTOGEN_OPTION_NUM: s = Boolean.valueOf(value.trim()).toString(); break;
-			case FILENAME: s = value; break;
+			case FILENAME: s = setFilename(value); break;
 			case ICON: s = value; break;
 			case HEADER_MSG: s = value; break;
 			case SHOW_QUESTION_REF: s = Boolean.valueOf(value.trim()).toString(); break;
@@ -362,6 +363,37 @@ public class Schedule  {
 		}
 		else
 			return null;
+	}
+	
+	private String setFilename(String s) {
+		String name = s;
+		if (name == null || name.trim().length() == 0 )
+			return null;
+									
+		String previous = getReserved(FILENAME);
+
+		if (previous == null || previous.trim().length() == 0) {	
+			return name;
+		}
+		else {
+			if (previous.equals(s))
+				return previous;	// trying to change to same filename - keep the current name
+				
+			name = getUnusedFilename(name);
+			if (name == null)
+				return previous;
+			
+			if (!previous.equals(name)) {
+				boolean ok = triceps.changeFilenames(getReserved(WORKING_DIR),previous,name);
+				if (ok)
+					return name;
+				else
+					return previous;
+			}
+			else {
+				return name;	// return new name, or unchanged
+			}
+		}
 	}
 
 	private String setStartingStep(String s) {
@@ -621,6 +653,83 @@ public class Schedule  {
 */
 		return null;
 	}
+	
+	
+	public String getUnusedFilename(String template) {
+		String fileroot = null;
+		String date = null;
+		String suffix = null;
+		int count = 0;
+		
+		try {
+			while(true) {
+				fileroot = template + 
+					((date != null) ? ("." + date) : "") +
+					((suffix != null) ? ("." + suffix) : "");
+//Logger.writeln("getUnusedFilename( " + fileroot);					
+				
+				if (isAvailableFilename(getReserved(WORKING_DIR) + fileroot) &&
+					isAvailableFilename(getReserved(COMPLETED_DIR) + fileroot)) {
+//Logger.writeln("	using " + fileroot);					
+					return fileroot;
+				}
+					
+				if (date == null) {
+					date = getReserved(START_TIME);
+				}
+				else {
+					suffix = Integer.toString(++count);
+				}
+			}
+		}
+		catch (SecurityException e) {
+			setError(triceps.get("error_accessing_file") + e.getMessage());
+			return null;
+		}
+	}
+	
+	private boolean isAvailableFilename(String name) throws SecurityException {
+		if (name == null)
+			return false;
+			
+//Logger.writeln("isAvailableFilename(" + name + ")");			
+		File file = new File(name);
+		if (file.exists()) {
+			return false;
+		}
+		else {
+			return true;
+		}
+	}
+		
+	public FileWriter getWriter(String source) {
+		boolean ok = false;
+		FileWriter br = null;
+		
+		try {
+			if (source != null) {
+				br = new FileWriter(source);
+				ok = true;
+			}
+			else {
+				setError(triceps.get("error_null_filename"));
+			}
+		}
+		catch (Throwable t) {
+			setError(triceps.get("error_file") + " '" + source + "' " + triceps.get("is_not_accessible"));
+		}
+		
+		if (ok) {
+			return br;
+		}
+		else {
+			if (br != null) {
+				try { br.close(); } catch (IOException t) { }
+			}
+		}
+		return null;
+	}
+	
 
 	private void setError(String s) { errorLogger.println(s); }
 	public boolean hasErrors() { return (errorLogger.size() > 0); }
