@@ -15,7 +15,7 @@ public class Node implements Serializable {
 	public static final int NOTHING=7;	// do nothing
 	public static final int RADIO2=8;	// different layout
 	private static final String QUESTION_TYPES[] = {"radio", "check", "combo", "date", "month", "text", "double", "nothing", "radio2" };
-	private static final int DATA_TYPES[] = { Datum.DOUBLE, Datum.DOUBLE, Datum.DOUBLE, Datum.DATE, Datum.MONTH, Datum.STRING, Datum.DOUBLE, Datum.STRING, Datum.DOUBLE};
+	private static final int DATA_TYPES[] = { Datum.STRING, Datum.STRING, Datum.STRING, Datum.DATE, Datum.MONTH, Datum.STRING, Datum.DOUBLE, Datum.STRING, Datum.STRING};
 	private static final String QUESTION_MASKS[] = { "", "", "", " (e.g. 7/23/1982)", " (e.g. February)", "", "", "", ""};
 
 	private String concept = "";
@@ -143,7 +143,7 @@ public class Node implements Serializable {
 				while (ans.hasMoreElements()) { // for however many radio buttons there are
 					ac = (AnswerChoice) ans.nextElement();
 					sb.append("<input type='radio'" + "name='" + Node.encodeHTML(getName()) + "' " + "value='" + Node.encodeHTML(ac.getValue()) + "'" +
-						(DatumMath.eq(datum,new Datum(ac.getValue(),Datum.DOUBLE)).booleanVal() ? " CHECKED" : "") + ">" + Node.encodeHTML(ac.getMessage()) + "<br>");
+						(DatumMath.eq(datum,new Datum(ac.getValue(),DATA_TYPES[answerType])).booleanVal() ? " CHECKED" : "") + ">" + Node.encodeHTML(ac.getMessage()) + "<br>");
 				}
 				break;
 			case RADIO2: // will store integers
@@ -155,7 +155,7 @@ public class Node implements Serializable {
 					ac = (AnswerChoice) ans.nextElement();
 					sb.append("<TD VALIGN='top'>");
 					sb.append("<input type='radio'" + "name='" + Node.encodeHTML(getName()) + "' " + "value='" + Node.encodeHTML(ac.getValue()) + "'" +
-						(DatumMath.eq(datum,new Datum(ac.getValue(),Datum.DOUBLE)).booleanVal() ? " CHECKED" : "") + ">" + Node.encodeHTML(ac.getMessage()));
+						(DatumMath.eq(datum,new Datum(ac.getValue(),DATA_TYPES[answerType])).booleanVal() ? " CHECKED" : "") + ">" + Node.encodeHTML(ac.getMessage()));
 					sb.append("</TD>");
 				}
 				sb.append("</TR>");
@@ -166,7 +166,7 @@ public class Node implements Serializable {
 				while (ans.hasMoreElements()) { // for however many radio buttons there are
 					ac = (AnswerChoice) ans.nextElement();
 					sb.append("<input type='checkbox'" + "name='" + Node.encodeHTML(getName()) + "' " + "value='" + Node.encodeHTML(ac.getValue()) + "'" +
-						(DatumMath.eq(datum, new Datum(ac.getValue(),Datum.DOUBLE)).booleanVal() ? " CHECKED" : "") + ">" + Node.encodeHTML(ac.getMessage()) + "<br>");
+						(DatumMath.eq(datum, new Datum(ac.getValue(),DATA_TYPES[answerType])).booleanVal() ? " CHECKED" : "") + ">" + Node.encodeHTML(ac.getMessage()) + "<br>");
 				}
 				break;
 			case COMBO:	// stores integers as value
@@ -175,7 +175,7 @@ public class Node implements Serializable {
 				while (ans.hasMoreElements()) { // for however many radio buttons there are
 					ac = (AnswerChoice) ans.nextElement();
 					sb.append("<option value='" + Node.encodeHTML(ac.getValue()) + "'" +
-						(DatumMath.eq(datum, new Datum(ac.getValue(),Datum.STRING)).booleanVal() ? " SELECTED" : "") + ">" + Node.encodeHTML(ac.getMessage()) + "</option>");
+						(DatumMath.eq(datum, new Datum(ac.getValue(),DATA_TYPES[answerType])).booleanVal() ? " SELECTED" : "") + ">" + Node.encodeHTML(ac.getMessage()) + "</option>");
 				}
 				sb.append("</select>");
 				break;

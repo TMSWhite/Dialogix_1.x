@@ -69,6 +69,7 @@ public class Datum implements Serializable {
 	public Datum(String s, int t) {
 		sVal = s;
 		dVal = Double.NaN;
+		bVal = false;
 		date = null;
 		type = INVALID;	// default is to indicate failure to create new Datum object
 
@@ -76,6 +77,7 @@ public class Datum implements Serializable {
 			case DOUBLE:
 				try {
 					dVal = Double.valueOf(s).doubleValue();
+					bVal = (Double.isNaN(dVal) || (dVal == 0)) ? false : true;
 					type = DOUBLE;
 				}
 				catch(NumberFormatException e) {
@@ -85,6 +87,15 @@ public class Datum implements Serializable {
 				break;
 			case STRING:
 				type = STRING;
+				/* also check whether can be considered a number */
+				try {
+					dVal = Double.valueOf(s).doubleValue();
+					bVal = (Double.isNaN(dVal) || (dVal == 0)) ? false : true;
+					type = DOUBLE;
+				}
+				catch(NumberFormatException e) {
+					dVal = Double.NaN;
+				}
 				break;
 			case DATE:
 				try {
@@ -112,7 +123,6 @@ public class Datum implements Serializable {
 				error = "Internal error: Unexpected data format: " + type;
 				break;
 		}
-		bVal = ((s == null) || (dVal == 0)) ? false : true;
 		timestamp = new Date(System.currentTimeMillis());
 	}
 
@@ -145,5 +155,4 @@ public class Datum implements Serializable {
 		error = null;
 		return temp;
 	}
-
 }
