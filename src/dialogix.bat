@@ -29,6 +29,7 @@ echo    set JAVA_HOME=c:\jdk1.3.1
 goto cleanup
 
 :gotJavaHome
+echo Launching Dialogix using Java at %JAVA_HOME%
 rem -- try to launch browser, using default locations and names --
 
 set _NETSCAPE_="C:\Program Files\Netscape\Communicator\Program\netscape.exe"
@@ -47,10 +48,10 @@ start /MIN startup.bat %1 %2
 cd @@DIALOGIX.HOME@@
 sleep 10
 
-rem -- start browser, giving preference to Netscape --
+rem -- start browser, giving preference to IE (unfortunately) --
 
-if exist %_NETSCAPE_% goto launch_netscape
 if exist %_IE_% goto launch_IE
+if exist %_NETSCAPE_% goto launch_netscape
 
 :launch_netscape
 %_NETSCAPE_% -browser "http://127.0.0.1:@@HTTP.PORT@@/@@DIALOGIX.START_DIR@@/"
