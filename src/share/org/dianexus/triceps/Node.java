@@ -816,32 +816,34 @@ if (AUTHORABLE) {
 	
 	/*public*/ String toXML(Datum datum, boolean autogen) {
 		StringBuffer sb = new StringBuffer();
+		StringBuffer ask = new StringBuffer();
 		String defaultValue = "";
 		AnswerChoice ac;
 		Enumeration ans = null;
 		int count=0;
+		boolean nothingSelected = true;
 		
 		boolean isSpecial = (datum.isRefused() || datum.isUnknown() || datum.isNotUnderstood());
 		
-		sb.append("<node name=\"");
-		sb.append(getLocalName());
-		sb.append("\" concept=\"");
-		sb.append(XMLAttrEncoder.encode(getConcept()));
-		sb.append("\" extName=\"");
-		sb.append(XMLAttrEncoder.encode(getExternalName()));
-		sb.append("\" ansType=\"");
-		sb.append(QUESTION_TYPES[answerType]);
-		sb.append("\" comment=\"");
-		sb.append(XMLAttrEncoder.encode(getComment()));
-		sb.append("\" special=\"");
-		sb.append((isSpecial) ? triceps.toString(this,true) : "");
-		sb.append("\" help=\"");
-		sb.append(XMLAttrEncoder.encode(getHelpURL()));
-		sb.append("\" err=\"");
-		sb.append(XMLAttrEncoder.encode(getRuntimeErrors()));
-		sb.append("\"><ask>");
-		sb.append((new XmlString(triceps,triceps.getQuestionStr(this))).toString());	// can have embedded markup
-		sb.append("</ask>");
+		ask.append("<node name=\"");
+		ask.append(getLocalName());
+		ask.append("\" concept=\"");
+		ask.append(XMLAttrEncoder.encode(getConcept()));
+		ask.append("\" extName=\"");
+		ask.append(XMLAttrEncoder.encode(getExternalName()));
+		ask.append("\" ansType=\"");
+		ask.append(QUESTION_TYPES[answerType]);
+		ask.append("\" comment=\"");
+		ask.append(XMLAttrEncoder.encode(getComment()));
+		ask.append("\" special=\"");
+		ask.append((isSpecial) ? triceps.toString(this,true) : "");
+		ask.append("\" help=\"");
+		ask.append(XMLAttrEncoder.encode(getHelpURL()));
+		ask.append("\" err=\"");
+		ask.append(XMLAttrEncoder.encode(getRuntimeErrors()));
+		ask.append("\"><ask>");
+		ask.append((new XmlString(triceps,triceps.getQuestionStr(this))).toString());	// can have embedded markup
+		ask.append("</ask>");
 		
 		switch(answerType) {
 		case RADIO:
@@ -861,8 +863,17 @@ if (AUTHORABLE) {
 				++count;
 				ac = (AnswerChoice) ans.nextElement();
 				ac.parse(triceps);
-				sb.append(ac.toXML(isSelected(datum,ac), MAX_TEXT_LEN_FOR_COMBO, (autogen) ? Integer.toString(count) : ac.getValue()));
+				boolean selected = isSelected(datum,ac);
+				if (selected) {
+					nothingSelected = false;
+				}
+				sb.append(ac.toXML(selected, MAX_TEXT_LEN_FOR_COMBO, (autogen) ? Integer.toString(count) : ac.getValue()));
 			}
+			StringBuffer acs = sb;
+			sb = new StringBuffer();
+			
+			sb.append(AnswerChoice.toXML(triceps.get("select_one_of_the_following"),nothingSelected));
+			sb.append(acs);
 			break;
 		default:
 		case TEXT:
@@ -876,9 +887,11 @@ if (AUTHORABLE) {
 		case NOTHING:
 			break;
 		}
-		sb.append("</node>");
 		
-		return sb.toString();
+		ask.append(sb);
+		ask.append("</node>");
+		
+		return ask.toString();
 	}
 
 	/*public*/ Date getTimeStamp() { return timeStamp; }
