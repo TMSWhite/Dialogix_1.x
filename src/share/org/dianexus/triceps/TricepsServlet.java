@@ -402,13 +402,13 @@ public class TricepsServlet extends HttpServlet {
 			Vector errs;
 
 			sb.append("<TABLE CELLPADDING='2' CELLSPACING='1' WIDTH='100%' border='1'>\n");
-			sb.append("<TR><TD>#</TD><TD>name</TD><TD>Dependencies</TD><TD>Dependency Errors</TD><TD>Action Type</TD><TD>Action</TD><TD>Action Errors</TD></TR>\n");
+			sb.append("<TR><TD>line#</TD><TD>name</TD><TD>Dependencies</TD><TD><B>Dependency Errors</B></TD><TD>Action Type</TD><TD>Action</TD><TD><B>Action Errors</B></TD><TD><B>Other Errors</B></TD></TR>\n");
 
 			for (int i=0;i<pes.size();++i) {
 				ParseError pe = (ParseError) pes.elementAt(i);
 				Node n = pe.getNode();
 
-				sb.append("\n<TR><TD>" + n.getStep() + "</TD><TD>" + Node.encodeHTML(n.getQuestionRef(),true) + "</TD>");
+				sb.append("\n<TR><TD>" + (n.getStep() + 1) + "</TD><TD>" + Node.encodeHTML(n.getQuestionRef(),true) + "</TD>");
 				sb.append("\n<TD>" + Node.encodeHTML(pe.getDependencies(),true) + "</TD>\n<TD>");
 
 				errs = pe.getDependenciesErrors();
@@ -437,7 +437,9 @@ public class TricepsServlet extends HttpServlet {
 					}
 				}
 
-				sb.append("</TD></TR>");
+				sb.append("</TD><TD>" + Node.encodeHTML(n.getError(),true) + "</TD>");
+
+				sb.append("</TR>");
 			}
 			sb.append("</TABLE><HR>\n");
 		}
