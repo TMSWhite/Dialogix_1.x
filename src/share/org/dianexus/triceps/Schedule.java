@@ -90,12 +90,12 @@ public class Schedule  {
 		setReserved(DEVELOPER_MODE,"false");
 		setReserved(DEBUG_MODE,"false");
 		setReserved(LANGUAGES,"English");
+		setReserved(CURRENT_LANGUAGE,"English");
 		setReserved(SHOW_ADMIN_ICONS,"false");
 		setReserved(TITLE_FOR_PICKLIST_WHEN_IN_PROGRESS,"");	// default is unnamed until initialized
 		setReserved(ALLOW_COMMENTS,"false");
 		setReserved(SCHEDULE_SOURCE,"");
 		setReserved(LOADED_FROM,"");
-		setReserved(CURRENT_LANGUAGE,"0");
 		setReserved(ALLOW_LANGUAGE_SWITCHING,"true");
 	}
 	
@@ -155,8 +155,47 @@ public class Schedule  {
 			if (reservedCount == 0) {
 				return false;
 			}
-			if (parseNodes)
-				System.err.println("Read " + count + " nodes from " + source);
+			if (parseNodes) {
+//				setError("Read " + count + " nodes from " + source);
+			}
+			
+			/* check for mismatching braces */
+			int braceLevel = 0;
+			Node node = null;
+			for (int i=0;i<count;++i) {
+				node = getNode(i);
+				if (node == null) {
+					setError("null node at index #" + i);
+					continue;
+				}
+				switch(node.getQuestionOrEvalType()) {
+					case Node.QUESTION:
+						break;
+					case Node.EVAL:
+						if (braceLevel > 0) 
+							setError("'e' actionTypes not allowed within a group of nodes - line " + node.getSourceLine());
+						break;
+					case Node.GROUP_OPEN:
+						++braceLevel;
+						break;
+					case Node.GROUP_CLOSE:
+						if (--braceLevel < 0) {
+							setError("extra closing brace - line " + node.getSourceLine());
+						}
+						break;
+					case Node.BRACE_OPEN:
+					case Node.BRACE_CLOSE:
+					case Node.CALL_SCHEDULE:
+						setError(node.getQuestionOrEvalTypeField() + " not yet suppported - line " + node.getSourceLine());
+						break;
+					default:
+						setError("unknown actionType for node - line " + node.getSourceLine());
+						break;
+				}
+			}
+			if (braceLevel > 0) {
+				setError("missing " + braceLevel + " closing brace(s)");
+			}
 		}
 		catch(Throwable t) {
 			System.err.println("Unable to access " + source + ": " + t.getMessage());
@@ -370,8 +409,8 @@ public class Schedule  {
 					return s;
 				}
 			}
+			setError("Tried to switch to unsupported language " + s);
 		}
-		setError("Tried to switch to unsupported language " + s);
 		return (String) languages.elementAt(currentLanguage);
 	}
 
@@ -493,9 +532,5 @@ public class Schedule  {
 		errors.addElement(s);
 	}
 	public boolean hasErrors() { return (errors.size() > 0); }
-	public Vector getErrors() {
-		Vector temp = errors;
-		errors = new Vector();
-		return temp;
-	}
+	public Vector getErrors() { return errors; }
 }
