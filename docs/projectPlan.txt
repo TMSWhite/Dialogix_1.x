@@ -1,0 +1,171 @@
+Project Plan Notes for Dialogix
+
+Legal
+	copyright
+	ownership
+	patent
+	liability exclusions
+		failure
+		copyright infringement
+	licencing fees
+		to intellectual property owner
+		per use (to RFMH/Columbia)
+	Distribution limitations
+
+Professional
+	Authorship
+		who?
+		how many?
+		what type
+	Consultation fees
+		5% of salary?
+
+Support
+	Training
+		Authors
+		Interviewers
+	Debuggins
+	Look & Feels
+	Deployment / Maintenance
+	Data collection / Analysis
+
+
+To Do
+	SQL output
+	unicode
+	select which errors to see
+
+Separating out Display
+	Datatypes
+		String
+		Number
+		Date/Time
+		Stream
+	Cardinality
+		static (fixed value - display purposes only)
+		?
+		+
+		*
+	Size?
+		max buffer length for strings, streams
+		max precision for number, date/time
+	Validation
+		min
+		max
+		exceptions (within min/max range)
+		inclusions (outside of min/max range)
+	Pick-lists
+		allow manual override? (e.g. either must be in list, or can enter something not in the list)
+
+
+
+==========================
+Devise timeline phases
+	inception
+		business case
+			success criteria
+			risk assessment
+			resource needs
+			phase plan
+		prototype for proof of concept
+	elaboration
+		analyse problem domain
+		establish architectural foundation
+		project plan
+		eliminate highest risks
+
+	construction
+		develop complete product
+		finalize requirements and acceptance criteria
+		testing
+	transition
+		beta deployment to user
+		correct problems and add delayed features
+		deploy production system
+
+Process:
+	business modeling -- rationale and context of proposed system
+	requirements -- use case based
+	analysis and design -- multiple architectural views
+	implementation -- software development, unit tests, module integration
+	testing -- test cases, procedures, error-tracking mechanism
+	deployment -- deliverable system configuration
+	configuration management -- e.g., CVS
+	project management -- strategies
+	environment -- infrastructure for development
+
+Deliverables:
+	requirements -- what the system must do
+	design plan -- system architecture and functionality
+	implementation plan --  how it's to be built
+	
+Chaining schedules
+	URL to external ones?
+	XML-like namespacing (e.g. load schedule name as ...)
+	child process? (recursion)
+		all new variables should be validated for ID uniqueness
+		
+=================================				
+There are other interview construction systems:
+Survey Solutions for the Web, Perseus 
+WinAsks Professional 2.0, SmartLite Software
+SurveyEase, Golden Hills Software
+InstantSurvey, NetReflector.com, Inc.
+eListen, Scantron Technologies
+Inquisite, Catapult Systems Corp.
+WinQuery, The Analytical Group
+
+
+Typical limits of available interview construction programs are that:
+1."skip" logic is rudimentary or absent
+2.they allow fixed question forms, i.e., little or no dynamic question formation
+3.they provide limited, hard-coded answer types
+4.no reference is made to standard domain concepts or types
+5.display options are fixed, though may be sophisticated
+6.data analysis has minimal effects on data collection, i.e., interviews are static							
+
+=================================
+Testing and verification requirements
+1.paper interview reproduction
+2.test cases for scoring algorithm
+
+
+Requirements for subsequent version(s)
+
+System requirements
+1.authorization/authentication controlled access
+2.upgrade to selectable storage of schedule and results data
+3.upgrade to logical iteration of nodes
+4.context sensitive help
+5.full program documentation
+6.generic interface to actions to allow multiple types
+7.generic interface to concepts to allow multiple ontologies, typologies, vocabularies
+8.generic interface to data to allow multiple types, type checking, and higher order consistency checks
+9.session/access logging
+10.export facilities to common data formats
+
+Interview requirements
+1.support audio rendering of questions
+
+Author requirements
+1.concept editing/definition in selected domain
+2.dynamic tracking of node dependencies (sorting)
+3.optional graphical representation of logic elements
+4.ability to compose reports 
+5.action editing/definition in selected repertoire 
+
+Reporting requirements
+1.diagnostic summary reports for individual interviews
+2.diagnostic summary reports across groups of interviews
+3.exporting evidence to external, standard formats
+4.summaries by concept
+5.report combined parent-child interview results
+6.support arbitrary grouping of interviews 
+
+Testing and verification requirements
+1.system functions
+2.DISC compatibility
+3.interview variations
+4.scoring algorithms
+5.interface/usability issues
+6.test-retest
