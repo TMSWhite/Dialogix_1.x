@@ -894,6 +894,10 @@ if (DEPLOYABLE) {
 		displayCountStr = Integer.toString(++displayCount);
 		nodes.setReserved(Schedule.DISPLAY_COUNT,displayCountStr);	// so that can track the screen count over temporally disjointed sessions
 	}
+	
+	String getDisplayCount() {
+		return displayCountStr;
+	}
 
 	/* Formerly from Lingua */
 

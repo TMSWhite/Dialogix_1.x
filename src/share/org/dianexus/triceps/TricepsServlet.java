@@ -15,6 +15,8 @@ import javax.servlet.http.HttpUtils;
 
 import java.io.PrintWriter;
 import java.util.Date;
+import java.util.StringTokenizer;
+
 
 import javax.naming.*;
 import javax.sql.*;
@@ -339,7 +341,7 @@ if (DEBUG) Logger.printStackTrace(t);
 	      if(ctx == null ) 
 	          throw new Exception("Boom - No Context");
 	
-	      ds = (DataSource)ctx.lookup("java:comp/env/jdbc/dialogix_users");
+	      ds = (DataSource)ctx.lookup("java:comp/env/jdbc/dialogix");
 	      if(ds == null ) 
 	          throw new Exception("Boom - No DataSource");	      
 	    }catch(Exception e) {
@@ -360,6 +362,8 @@ if (DEBUG) Logger.printStackTrace(e);
 	        if (conn == null) throw new Exception("Unable to connect to database");	// really need a way to report that there are database problems!
 	        
 	        Statement stmt = conn.createStatement();
+//Logger.writeln("SQL:  " + command);	        
+//			stmt.executeUpdate(command);	// this violates the purpose from LoginTricepsServlet, but can test main logging for now.
 	        ResultSet rst =  stmt.executeQuery(command);
 	
 	        conn.close();
@@ -373,9 +377,16 @@ if (DEBUG) Logger.printStackTrace(e);
 		}
 	}
 	
+	int lastPageHitIndex=-1;	// this is the last value recorded in the pageHits table - and allows joining on the pageHitDetails and pageHitEvents tables
+	
 	boolean logPageHit(HttpServletRequest req, String msg) {
-		StringBuffer sb = new StringBuffer();
+		StringBuffer pageHit = new StringBuffer("INSERT INTO pagehits VALUES ");
+		StringBuffer pageHitEvents = new StringBuffer("INSERT INTO pageHitEvents VALUES ");
+		int numPageHitEvents = 0;
+		StringBuffer pageHitDetails = new StringBuffer("INSERT INTO pageHitDetails VALUES ");
+		int numPageHitDetails = 0;
 		String workingFile = null;
+		String displayCountStr = null;
 		++accessCount;
 
 		try {
@@ -386,20 +397,21 @@ if (DEBUG) Logger.printStackTrace(e);
 		}
 		
 		String currentStep = (tricepsEngine == null) ? "null" : tricepsEngine.getCurrentStep();
+		String displayCount = (tricepsEngine == null) ? "null" : tricepsEngine.getTriceps().getDisplayCount();
 		
-		sb.append("INSERT INTO pagehits (accessCount, currentIP, username, sessionID, workingFile, javaObject, browser, instrumentName, currentStep, lastAction, statusMsg) VALUES (");
-		sb.append("'").append(accessCount).append("'");
-		sb.append(", '").append(req.getRemoteAddr()).append("'");
-		sb.append(", '").append(req.getParameter(LOGIN_USERNAME)).append("'");	
-		sb.append(", '").append((sessionID == null) ? "null" : sessionID).append("'");
-		sb.append(", '").append(workingFile).append("'");
-		sb.append(", '").append((tricepsEngine == null) ? "null" : tricepsEngine.getHashCode()).append("'");
-		sb.append(", '").append(req.getHeader(USER_AGENT)).append("'");
-		sb.append(", '").append((tricepsEngine == null) ? "null" : tricepsEngine.getInstrumentName().replace('\\','/')).append("'");
-		sb.append(", '").append(currentStep).append("'");
-		sb.append(", '").append(req.getParameter("DIRECTIVE")).append("'");
-		sb.append(", '").append(msg).append("'");
-		sb.append(")");
+		pageHit.append("( NULL, NULL, '").append(accessCount).append("'");
+		pageHit.append(", '").append(req.getRemoteAddr()).append("'");
+		pageHit.append(", '").append(req.getParameter(LOGIN_USERNAME)).append("'");	
+		pageHit.append(", '").append((sessionID == null) ? "null" : sessionID).append("'");
+		pageHit.append(", '").append(workingFile).append("'");
+		pageHit.append(", '").append((tricepsEngine == null) ? "null" : tricepsEngine.getHashCode()).append("'");
+		pageHit.append(", '").append(req.getHeader(USER_AGENT)).append("'");
+		pageHit.append(", '").append((tricepsEngine == null) ? "null" : tricepsEngine.getInstrumentName().replace('\\','/')).append("'");
+		pageHit.append(", '").append(currentStep).append("'");
+		pageHit.append(", '").append(displayCount).append("'");
+		pageHit.append(", '").append(req.getParameter("DIRECTIVE")).append("'");
+		pageHit.append(", '").append(msg).append("'");
+		pageHit.append(")");
 		
 		/* Also want to log raw input parameters to a separate database */
 		try {
@@ -410,8 +422,13 @@ if (DEBUG) Logger.printStackTrace(e);
 	        if (conn == null) throw new Exception("Unable to connect to database");	// really need a way to report that there are database problems!
 	        
 	        Statement stmt = conn.createStatement();
-	        int pageHitID = stmt.executeUpdate(sb.toString());
+	        int pageHitID = stmt.executeUpdate(pageHit.toString(), Statement.RETURN_GENERATED_KEYS);
 	        
+	        /* extract the value of the last insert */
+	        ResultSet rst =  stmt.getGeneratedKeys();
+        	rst.first();
+        	lastPageHitIndex = rst.getInt(1);
+        	
 	        /* now log the raw input */
 	        stmt.clearBatch();
 	        
@@ -420,15 +437,79 @@ if (DEBUG) Logger.printStackTrace(e);
 			while(params.hasMoreElements()) {
 				String param = (String) params.nextElement();
 				String vals[] = req.getParameterValues(param);
-				for (int i=0;i<vals.length;++i) {
-					sb = new StringBuffer("INSERT INTO pageHitDetails (accessCount, currentIP, currentStep, param, value) VALUES (");
-					sb.append("'").append(accessCount).append("'");
-					sb.append(", '").append(req.getRemoteAddr()).append("'");
-					sb.append(", '").append(currentStep).append("'");
-					sb.append(", '").append(param).append("'");
-					sb.append(", '").append(vals[i].replace('\\','/').replace('\'','_')).append("')");
-					stmt.addBatch(sb.toString());
+				if (param.startsWith("DIRECTIVE_") || param.equals("next") || param.equals("previous")) {
+					/* ignore these */
+					;
 				}
+				else if (param.equals("EVENT_TIMINGS")) {
+					for (int i=0;i<vals.length;++i) {
+						StringTokenizer lines = new StringTokenizer(vals[i],"\t",false);
+						StringTokenizer toks = null;
+						String line = null;
+						String token = null;
+						int tokenCount = 0;
+						
+						while(lines.hasMoreTokens()) {
+							if (numPageHitEvents++ > 0) {
+								pageHitEvents.append(",\n");
+							}
+							pageHitEvents.append("	(NULL, '").append(lastPageHitIndex).append("', '");
+							line = (String) lines.nextToken();
+							toks = new StringTokenizer(line,",",true);
+							tokenCount = toks.countTokens();
+							
+							tokenCount = 0;
+							while(toks.hasMoreTokens()) {
+								token = (String) toks.nextToken();
+								if (tokenCount >= 6) {
+									StringBuffer answer = new StringBuffer(token);
+									// remaining contents may contain commas, and thus be incorrectly treated as tokens
+									// so, merge remaining contents into a single value
+									while (toks.hasMoreTokens()) {
+										answer.append((String) toks.nextToken());
+									}
+									token = answer.toString();
+								}
+								else if (token.equals(",")) {
+									pageHitEvents.append("', '");
+									++tokenCount;
+									continue;
+								}
+								if (tokenCount >= 5) {
+									pageHitEvents.append(token.replace('\\','/').replace('\'','_'));
+								}
+								else {
+									pageHitEvents.append(token);
+								}
+							}
+							for (int j=tokenCount;j<6;++j) {
+								pageHitEvents.append("','");	// add any extra empty elements needed.
+							}
+							pageHitEvents.append("')");
+						}
+					}
+					pageHitEvents.append("\n");
+				}
+				else {
+					for (int i=0;i<vals.length;++i) {
+						if (i > 0 || numPageHitDetails > 0) {
+							pageHitDetails.append(",\n");	// so that can do extended inserts
+						}
+						pageHitDetails.append("	(NULL, '").append(lastPageHitIndex).append("'");
+						pageHitDetails.append(", '").append(param).append("'");
+						pageHitDetails.append(", '").append(vals[i].replace('\\','/').replace('\'','_')).append("')");
+						++numPageHitDetails;
+					}
+				}
+			}
+			if (numPageHitDetails > 0) {
+				pageHitDetails.append("\n");
+//Logger.writeln(pageHitDetails.toString());				
+				stmt.addBatch(pageHitDetails.toString());
+			}
+			if (numPageHitEvents > 0) {
+//Logger.writeln(pageHitEvents.toString());				
+				stmt.addBatch(pageHitEvents.toString());
 			}
 			stmt.executeBatch();
 	
@@ -437,7 +518,7 @@ if (DEBUG) Logger.printStackTrace(e);
 			return true;
 		}
 		catch (Throwable t) {
-			Logger.writeln("SQL-ERROR on: " + sb.toString());
+			Logger.writeln("SQL-ERROR: ");
 			Logger.writeln(t.getMessage());
 			return false;
 		}		

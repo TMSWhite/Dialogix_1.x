@@ -180,11 +180,11 @@
         -->
         
 		<DefaultContext crossContext="true">
-		  <Resource name="jdbc/dialogix_users"
+		  <Resource name="jdbc/dialogix"
 		               auth="Container"
 		               type="javax.sql.DataSource"/>
 		
-		  <ResourceParams name="jdbc/dialogix_users">
+		  <ResourceParams name="jdbc/dialogix">
 		    <parameter>
 		      <name>factory</name>
 		      <value>org.apache.commons.dbcp.BasicDataSourceFactory</value>
@@ -239,7 +239,7 @@
 		         -->
 		    <parameter>
 		      <name>url</name>
-		      <value>jdbc:mysql://localhost:3306/dialogix_users?autoReconnect=true</value>
+		      <value>jdbc:mysql://localhost:3306/dialogix2992?autoReconnect=true</value>
 		    </parameter>
 		  </ResourceParams>
 		</DefaultContext>                 
