@@ -56,8 +56,22 @@ if (DEBUG) Logger.printStackTrace(t);
 	
 	private boolean isSupportedBrowser(HttpServletRequest req) {
 		String userAgent = req.getHeader(USER_AGENT);
-		if ((userAgent.indexOf("Mozilla/4") != -1) && (userAgent.indexOf("MSIE") == -1) && (userAgent.indexOf("Opera") == -1)) {
-			return true;
+		if ((userAgent.indexOf("Mozilla/4") != -1)) {
+			if (userAgent.indexOf("MSIE") != -1) {
+				return false;	// false for IE masquerading as Netscape
+			}
+			else if (userAgent.indexOf("Opera") != -1) {
+				return true;	// true for Opera masquerading as Netscape
+			}
+			else {
+				return true;	// true for Netscape 4.x
+			}
+		}
+		else if (userAgent.indexOf("Netscape6") != -1) {
+			return false;	// does not work with Netscape6 - lousy layout, repeat calls to GET (not POST), so re-starts on each screen.  Why?
+		}
+		else if (userAgent.indexOf("Opera") != -1) {
+			return true;	// true for Opera
 		}
 		else {
 			return false;
@@ -93,6 +107,7 @@ if (DEBUG && WEB_SERVER) {
 
 // User-Agent = Mozilla/4.0 (compatible; MSIE 5.5; Windows 98)
 // Accept-Language = en-us
+// User-Agent = Mozilla/5.0 (Windows; U; Win98; en-US; m18) Gecko/20001108 Netscape6/6.0
 }
 if (DEBUG && false) {
 	/* catch all sent parameters */
