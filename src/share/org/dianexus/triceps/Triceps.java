@@ -289,7 +289,7 @@ public class Triceps implements Serializable {
 
 			init = n.getDebugAnswer();
 
-			if (init == null || init.equals(NULL) || init.equals(Datum.TYPES[Datum.UNKNOWN])) {
+			if (init == null || init.length() == 0 || init.equals(NULL) || init.equals(Datum.TYPES[Datum.UNKNOWN])) {
 				evidence.set(n,new Datum(Datum.UNKNOWN));
 			}
 			else if (init.equals(Datum.TYPES[Datum.NA])) {

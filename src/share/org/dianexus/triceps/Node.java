@@ -37,32 +37,39 @@ public class Node implements Serializable {
 	private transient String debugAnswer = null;
 	private transient String questionAsAsked = "";
 
-
 	/* N.B. need this obtuse way of checking for adjacent TABs from tokenizer - no other way seems to work */
 	/* XXX - there is no reliable way to tokenize tab delimited files - constantly dropped null values -
 	so must have dummy variables in empty columns */
 
 	public Node(int step, String tsv) {
-		String token;
-		int count = 0;
+		int	count=0;
 		try {
 			StringTokenizer st = new StringTokenizer(tsv, "\t");
 			this.step = step;
 			count = st.countTokens();
 
-			concept = st.nextToken();
-			description = st.nextToken();
-			stepName = st.nextToken();
-			if (Character.isDigit(stepName.charAt(0))) {
-				stepName = "_" + stepName;
+			concept = getNextToken(st);
+			description = getNextToken(st);
+			stepName = getNextToken(st);
+
+			try {
+				if (Character.isDigit(stepName.charAt(0))) {
+					stepName = "_" + stepName;
+				}
 			}
-			dependencies = st.nextToken();
-			questionRef = st.nextToken();
-			actionType = st.nextToken();
-			action = st.nextToken();
-			answerOptions = st.nextToken();
+			catch (IndexOutOfBoundsException e) {
+				/* Must have a null or zero-length value for stepName */
+			}
+
+			dependencies = getNextToken(st);
+			questionRef = getNextToken(st);
+			actionType = getNextToken(st);
+			action = getNextToken(st);
+			answerOptions = getNextToken(st);
 
 			int index = answerOptions.indexOf(";");
+
+			String token;
 			if (index != -1) {
 				token = answerOptions.substring(0, index);
 			}
@@ -86,8 +93,8 @@ public class Node implements Serializable {
 			parseTSV(answerOptions);
 
 			// XXX these next two lines are a hack - read in, but discard, the stored questions and answers
-			questionAsAsked = st.nextToken();
-			debugAnswer = st.nextToken();
+			questionAsAsked = getNextToken(st);
+			debugAnswer = getNextToken(st);
 		}
 		catch(NoSuchElementException e) {
 			if (count < 8) {
@@ -95,6 +102,44 @@ public class Node implements Serializable {
 			}
 		}
 	}
+
+	private String getNextToken(StringTokenizer st) {
+		try {
+			String s = st.nextToken();
+			if (s == null)
+				return "";
+
+			/* Fix Excel-isms, in which strings with internal quotes have all quotes replaced with double quotes (\"\"), and
+				whole string surrounded by quotes.
+				XXX - this requires assumption that if a field starts AND stops with a quote, then probably an excel-ism
+			*/
+
+			if (s.startsWith("\"") && s.endsWith("\"")) {
+				StringBuffer sb = new StringBuffer();
+
+				int start=1;
+				int stop=0;
+				while ((stop = s.indexOf("\"\"",start)) != -1) {
+					sb.append(s.substring(start,stop));
+					sb.append("\"");
+					start = stop+2;
+				}
+				sb.append(s.substring(start,s.length()-1));
+				return sb.toString();
+			}
+			else {
+				return s;
+			}
+		}
+		catch(NoSuchElementException e) {
+			return "";
+		}
+		catch (IndexOutOfBoundsException e) {
+			System.out.println("Internal error: " + e.getMessage());
+			return "";
+		}
+	}
+
 
 	public boolean parseTSV(String src) {
 		switch (answerType) {
