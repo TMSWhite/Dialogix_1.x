@@ -22,7 +22,8 @@ import java.io.FileInputStream;
 	private String filename = null;
 	private FileOutputStream fos = null;
 	private JarOutputStream jos = null;
-	/*public*/ static JarWriter NULL = new JarWriter();
+	private Logger errorLogger = new Logger();
+	/*public*/ static final JarWriter NULL = new JarWriter();	
 	
 	private JarWriter() {
 	}
@@ -33,7 +34,6 @@ import java.io.FileInputStream;
 			return jf;
 		}
 		else {
-if (DEBUG) Logger.writeln("##JarWriter.getInstance(" + name + ")->null");	
 			return null;
 		}
 	}
@@ -54,7 +54,7 @@ if (DEBUG) Logger.writeln("##JarWriter.getInstance(" + name + ")->null");
 			if (jos != null) try { jos.close(); jos=null; } catch (Throwable t) { }
 			if (fos != null) try { fos.close(); fos=null; } catch (Throwable t) { }
 
-if (DEBUG) Logger.writeln("##JarWriter.init(" + name + ")->" + err.getMessage());
+			setError("JarWriter.init(" + name + ")->" + err.getMessage());
 			return false;			
 		}
 		return true;
@@ -64,14 +64,14 @@ if (DEBUG) Logger.writeln("##JarWriter.init(" + name + ")->" + err.getMessage())
 		FileInputStream fis = null;
 		boolean ok = false;
 		
-		if (name == null || file == null || this == NULL)
+		if (name == null || file == null)
 			return false;
 		
 		try {
 			fis = new FileInputStream(file);
 		}
 		catch (Exception e) {	// FileNotFoundException, SecurityException
-if (DEBUG) Logger.writeln("##JarWriter.addEntry(" + name + "," + file + ")->" + e.getMessage());		
+			setError("JarWriter.addEntry(" + name + "," + file + ")->" + e.getMessage());		
 			ok = false;	
 		}
 	
@@ -85,7 +85,7 @@ if (DEBUG) Logger.writeln("##JarWriter.addEntry(" + name + "," + file + ")->" + 
 		ZipEntry ze = null;
 		Throwable err = null;
 		
-		if (name == null || is == null || this == NULL)
+		if (name == null || is == null)
 			return false;
 		
 		try {
@@ -105,7 +105,7 @@ if (DEBUG) Logger.writeln("##JarWriter.addEntry(" + name + "," + file + ")->" + 
 			err = e;
 		}
 		if (err != null) {
-if (DEBUG) Logger.writeln("##JarWriter.addEntry()->" + err.getMessage());
+			setError("JarWriter.addEntry()->" + err.getMessage());
 		}
 		try { is.close(); } catch (Throwable e) { }
 		
@@ -113,25 +113,44 @@ if (DEBUG) Logger.writeln("##JarWriter.addEntry()->" + err.getMessage());
 	}
 	
 	/*public*/ boolean close() {
-		if (this == NULL)
-			return false;
-			
 		if (jos != null) try { jos.close(); jos=null; } catch (Throwable t) { }
 		return true;
 	}
 	
-	
 	/*public*/ boolean copyFile(String src, String dst) {
-		if (src == null || dst == null)
+		if (src == null || dst == null) {
+			setError("copyFile:  src or dst is null");
 			return false;
+		}
 			
 		Throwable err = null;
 		FileInputStream fis = null;
 		FileOutputStream fos = null;
+		File fi = null;
+		File fo = null;
 			
 		try {
-			fis = new FileInputStream(src);
-			fos = new FileOutputStream(dst);
+			fi = new File(src);
+			fo = new File(dst);
+			
+			if (!fi.canRead()) {
+				setError("copyFile: " + src + " is unreadable");
+				return false;
+			}
+			if (fi.length() == 0L) {
+				setError("copyFile: " + src + " has 0 size");
+				return false;
+			}
+			// do not overwrite a good copy of the jar File currently on the floppy with a bad (smaller) version
+			if (fo.exists()) {
+				if (fo.length() > fi.length()) {
+					setError("copyFile(" + src + ")->(" + dst + "): dst is larger than source");
+					return false;
+				}
+			}
+				
+			fis = new FileInputStream(fi);
+			fos = new FileOutputStream(fo);
 			
 			byte[] buf = new byte[1000];
 			int bytesRead = 0;
@@ -145,13 +164,20 @@ if (DEBUG) Logger.writeln("##JarWriter.addEntry()->" + err.getMessage());
 			err = e;
 		}
 		
-		if (fis != null) try { fis.close(); } catch (Throwable t) { }
-		if (fos != null) try { fos.close(); } catch (Throwable t) { }		
+		if (fis != null) try { fis.close(); } catch (Throwable t) { setError("copyFile: " + t.getMessage()); }
+		if (fos != null) try { fos.close(); } catch (Throwable t) { setError("copyFile: " + t.getMessage()); }		
 		
-if (DEBUG) Logger.writeln("##Triceps.copyFile(" + src + ")->(" + dst + "): " + ((err != null) ? err.getMessage() : "OK"));
 		if (err != null) {
+			setError("copyFile(" + src + ")->(" + dst + "): " + err.getMessage());
 			return false;
 		}
 		return true;
 	}
+	
+	private void setError(String s) { 
+if (DEBUG) Logger.writeln("##" + s);
+		errorLogger.println(s); 
+	}
+	/*public*/ boolean hasErrors() { return (errorLogger.size() > 0); }
+	/*public*/ String getErrors() { return errorLogger.toString(); }		
 }
