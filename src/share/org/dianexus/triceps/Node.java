@@ -74,8 +74,8 @@ public class Node implements Serializable {
 					break;
 				}
 			}
-			if (!"e".equals(actionType) && answerType == UNKNOWN) {
-				System.out.println("Unknown data type (" + token + ") on line " + (step + 1));
+			if ("e".equals(actionType) || answerType == UNKNOWN) {
+//				System.out.println("Unknown data type (" + token + ") on line " + (step + 1));
 				answerType = NOTHING;
 				datumType = DATA_TYPES[answerType];
 			}
