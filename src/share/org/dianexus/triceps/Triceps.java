@@ -27,14 +27,15 @@ public class Triceps {
 	private Date stopTime = null;
 	private String startTimeStr = null;
 	private String stopTimeStr = null;
-	private String urlPrefix = null;
+	
+	private String workingFilesDir = null;
+	private String completedFilesDir = null;
 
-	public Triceps(String urlBase) {
-		urlPrefix = urlBase;
+	public Triceps() {
 	}
 
 	public boolean setSchedule(String filename, String optionalFilePrefix) {
-		BufferedReader br = Triceps.getReader(filename, urlPrefix, optionalFilePrefix);
+		BufferedReader br = Triceps.getReader(filename, optionalFilePrefix);
 		if (br == null) {
 			scheduleURL = null;
 			errors.addElement("Unable to find or access '" + filename + "'");
@@ -51,7 +52,7 @@ public class Triceps {
 
 	public boolean reloadSchedule() {
 		nodes = new Schedule();
-		return nodes.load(Triceps.getReader(scheduleURL,urlPrefix,scheduleFilePrefix),scheduleURL);
+		return nodes.load(Triceps.getReader(scheduleURL,scheduleFilePrefix),scheduleURL);
 	}
 
 	public Datum getDatum(Node n) {
@@ -591,22 +592,56 @@ public class Triceps {
 		}
 	}
 
-	static BufferedReader getReader(String filename, String urlPrefix, String optionalFilePrefix) {
+	static BufferedReader getReader(String filename, String optionalFilePrefix) {
 		boolean ok = false;
 		BufferedReader br = null;
-
-		String fullSourcePath = null;
+		URL url = null;
+		File file = null;
 
 		if (filename == null)
 			return null;
-			
 
-		/* first try reading from file */
-		File file = null;
-
+		/* Is it a URL pointing to a file? If so, try reading from it*/
 		try {
-			fullSourcePath = ((optionalFilePrefix != null) ? optionalFilePrefix : "") + filename;
-			file = new File(fullSourcePath);
+			url = new URL(filename);
+			br = new BufferedReader(new InputStreamReader(url.openStream()));
+			br.mark(1000);	// allows stream be reset to beginning, rather than closing & re-opening it
+
+			String fileLine;
+			while ((fileLine = br.readLine()) != null) {
+				fileLine = fileLine.trim();
+				if (fileLine.equals(""))
+					continue;
+
+				/* If this is an HTML page instead of a text file, then an error has occurred */
+				if (fileLine.startsWith("<")) {
+					ok = false;
+					break;
+				}
+				else {
+					br.reset();	// so that resume reading from the beginning of the file
+					ok = true;
+					break;
+				}
+			}
+		}
+		catch (Throwable t) {
+			/* not a valid URL, or unable to access it - so try reading from a file */
+		}
+		finally {
+			if (ok) {
+				return br;
+			}
+			else {
+				if (br != null) {
+					try { br.close(); } catch (Exception e) {}
+				}
+			}
+		}		
+
+		/* If not a URL, then try reading from a file */
+		try {
+			file = new File(((optionalFilePrefix != null) ? optionalFilePrefix : "") + filename);
 			if (!file.exists() || !file.isFile() || !file.canRead()) {
 				ok = false;
 			}
@@ -627,46 +662,6 @@ public class Triceps {
 				}
 			}
 		}			
-
-		/* then try reading from URL */
-		try {
-			fullSourcePath = ((urlPrefix != null) ? urlPrefix : "") + filename;
-			URL url = new URL(fullSourcePath);
-			br = new BufferedReader(new InputStreamReader(url.openStream()));
-			br.mark(1000);
-			int count;
-
-			String fileLine;
-			while ((fileLine = br.readLine()) != null) {
-				fileLine = fileLine.trim();
-				if (fileLine.equals(""))
-					continue;
-
-				/* If this is an HTML page instead of a text file, then an error has occurred */
-				if (fileLine.startsWith("<")) {
-					ok = false;
-					break;
-				}
-				else {
-					br.reset();	// so that resume reading from the beginning of the file
-					ok = true;
-					break;
-				}
-			}
-
-		}
-		catch (Throwable t) {
-		}
-		finally {
-			if (ok) {
-				return br;
-			}
-			else {
-				if (br != null) {
-					try { br.close(); } catch (Exception e) {}
-				}
-			}
-		}
 		
 		return null;
 	}

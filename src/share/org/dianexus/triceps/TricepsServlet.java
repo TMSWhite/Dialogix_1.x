@@ -20,7 +20,6 @@ public class TricepsServlet extends HttpServlet {
 	private String scheduleList = "";
 	private String scheduleFileRoot = "";
 	private String scheduleSaveDir = "";
-	private String urlPrefix = "";
 
 	/**
 	 * This method runs only when the servlet is first loaded by the
@@ -67,7 +66,6 @@ public class TricepsServlet extends HttpServlet {
 		HttpSession session = req.getSession(true);
 		String form = null;
 		firstFocus = null; // reset it each time
-		urlPrefix = "http://" + req.getServerName() + "/";
 		
 
 		triceps = (Triceps) session.getValue("triceps");
@@ -144,7 +142,7 @@ public class TricepsServlet extends HttpServlet {
 		if (directive == null || "select new interview".equals(directive)) {
 			/* read list of available schedules from file */
 			
-			BufferedReader br = Triceps.getReader(scheduleList, urlPrefix, scheduleFileRoot);
+			BufferedReader br = Triceps.getReader(scheduleList, scheduleFileRoot);
 			if (br == null) {
 				sb.append("<B>Unable to find '" + scheduleList + "'</B><HR>");
 			}			
@@ -169,7 +167,7 @@ public class TricepsServlet extends HttpServlet {
 								continue;
 
 							/* Test whether these files exist */
-							Reader target = Triceps.getReader(fileLoc,urlPrefix,scheduleFileRoot);
+							Reader target = Triceps.getReader(fileLoc,scheduleFileRoot);
 							if (target == null) {
 								sb.append("Unable to access file '" + fileLoc + "'");
 							}
@@ -219,7 +217,7 @@ public class TricepsServlet extends HttpServlet {
 		}
 		else if (directive.equals("START")) {
 			// load schedule
-			triceps = new Triceps(urlPrefix);
+			triceps = new Triceps();
 			ok = triceps.setSchedule(req.getParameter("schedule"), scheduleFileRoot);
 
 			if (!ok) {
@@ -241,7 +239,7 @@ public class TricepsServlet extends HttpServlet {
 			restore = restore + "." + req.getRemoteUser() + "." + req.getRemoteHost() + ".tsv";
 
 			// load schedule
-			triceps = new Triceps(urlPrefix);
+			triceps = new Triceps();
 			ok = triceps.setSchedule(restore, scheduleSaveDir);
 
 			if (!ok) {
