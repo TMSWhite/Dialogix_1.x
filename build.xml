@@ -330,16 +330,6 @@
     </copy>   
 
     <!-- Copy the contents of the build directory -->
-    
-     <copy toDir="${deploy.home}/" >
-      <fileset dir="${build.home}/web" >
-      	<include name="ROOT/**"/>
-      	<include name="images/**"/>
-      	<include name="${LICENSE.PACKAGE_DIR}/**"/>
-      	<exclude name="**/web.xml"/>
-      </fileset>
-     </copy>      
-    
      <copy toDir="${deploy.home}/" filtering="true">
       <fileset dir="${build.home}/web">
       	<include name="ROOT/**/web.xml"/>
@@ -352,6 +342,30 @@
 		   <filter token="TOMCAT.HOME" value="${tomcat.home}"/>
        </filterset>
      </copy>
+     
+     <!-- allow customization of htm(l) and jsp pages - especially for switching between SSL and regular access -->
+     <copy toDir="${deploy.home}/" filtering="true">
+      <fileset dir="${build.home}/web">
+      	<include name="${LICENSE.PACKAGE_DIR}/*.htm"/>
+      	<include name="${LICENSE.PACKAGE_DIR}/*.html"/>
+      	<include name="${LICENSE.PACKAGE_DIR}/*.jsp"/>
+      </fileset>
+       <filterset begintoken="@@" endtoken="@@">
+         <filter token="HTTP.PORT" value="${http.port}"/>
+         <filter token="HTTPS.PORT" value="${https.port}"/>
+         <filter token="DEPLOY.HOSTNAME" value="${deploy.hostname}"/>
+         <filter token="DIALOGIX.VERSION" value="${app.version}"/>
+       </filterset>
+     </copy>         
+     
+     <copy toDir="${deploy.home}/" >
+      <fileset dir="${build.home}/web" >
+      	<include name="ROOT/**"/>
+      	<include name="images/**"/>
+      	<include name="${LICENSE.PACKAGE_DIR}/**"/>
+      	<exclude name="**/web.xml"/>
+      </fileset>
+     </copy>           
      
      <!-- copy the server.xml files, converting the port values as needed -->
      <copy toDir="${tomcat.home}/conf" filtering="true">
@@ -718,6 +732,7 @@
     <echo message="tomcat.version=${tomcat.version}"/>
     <echo message="zip.basedir=${zip.basedir}"/>
     <echo message="cvs.basedir=${cvs.basedir}"/>
+    <echo message="deploy.hostname=${deploy.hostname}"/>
     <echo message="deploy.os=${deploy.os}"/>
     <echo message="dialogix.authorable=${dialogix.authorable}"/>
     <echo message="dialogix.deployable=${dialogix.deployable}"/>
