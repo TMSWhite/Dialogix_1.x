@@ -123,7 +123,7 @@ public class Schedule  {
 
 		boolean err = false;
 
-	try {
+		try {
 			int line = 0;
 			int count=0;
 			int reservedCount=0;
@@ -182,7 +182,9 @@ public class Schedule  {
 							setError(lingua.get("evaluations_disallowed_within_block") + node.getSourceLine());
 						break;
 					case Node.GROUP_OPEN:
-						++braceLevel;
+						if (++braceLevel > 1) {
+							setError(lingua.get("starting_nested_group_at_line") + node.getSourceLine());
+						}
 						break;
 					case Node.GROUP_CLOSE:
 						if (--braceLevel < 0) {
