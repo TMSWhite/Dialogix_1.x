@@ -18,6 +18,7 @@ public class TricepsServlet extends HttpServlet {
 	private String firstFocus = null;
 	private String scheduleList = "";
 	private String scheduleFileRoot = "";
+	private String scheduleSaveDir = "";
 
 
 	/**
@@ -36,6 +37,9 @@ public class TricepsServlet extends HttpServlet {
 		s = config.getInitParameter("scheduleFileRoot");
 		if (s != null)
 			scheduleFileRoot = s;
+		s = config.getInitParameter("scheduleSaveDir");
+		if (s != null)
+			scheduleSaveDir = s;
 	}
 
 	public void destroy() {
@@ -89,7 +93,7 @@ public class TricepsServlet extends HttpServlet {
 			session.putValue("triceps", triceps);
 
 		out.flush();
-//		out.close();	// BUG:  causes "Network Connection reset by peer" with Ham-D.txt - WHY?  Without close, dangling resources?
+//		out.close();	// XXX:  causes "Network Connection reset by peer" with Ham-D.txt - WHY?  Without close, dangling resources?
 	}
 
 	private String header() {
@@ -128,6 +132,7 @@ public class TricepsServlet extends HttpServlet {
 	 */
 	private String processDirective(String directive) {
 		boolean ok = true;
+		int gotoMsg;
 		StringBuffer sb = new StringBuffer();
 		StringBuffer options = new StringBuffer();
 
@@ -259,8 +264,8 @@ public class TricepsServlet extends HttpServlet {
 				return sb.toString();
 			}
 
-			ok = ok && triceps.gotoFirst();
-
+			gotoMsg = triceps.gotoFirst();
+			ok = ok && (gotoMsg == Triceps.OK);
 			// ask question
 		}
 /*
@@ -289,7 +294,7 @@ public class TricepsServlet extends HttpServlet {
 */
 		else if (directive.equals("RESTORE")) {
 			String restore = req.getParameter("RESTORE");
-			restore = restore + "." + req.getRemoteUser() + "." + req.getRemoteHost() + ".tsv";
+			restore = scheduleSaveDir + restore + "." + req.getRemoteUser() + "." + req.getRemoteHost() + ".tsv";
 
 			// load schedule
 			triceps = new Triceps();
@@ -303,18 +308,21 @@ public class TricepsServlet extends HttpServlet {
 				return sb.toString();
 			}
 
-			ok = ok && triceps.gotoFirst();
+			gotoMsg = triceps.gotoFirst();
+			ok = ok && (gotoMsg == Triceps.OK);
 
 			// ask question
 		}
 
 		else if (directive.equals("jump to:")) {
-			ok = triceps.gotoNode(req.getParameter("jump to:"));
+			gotoMsg = triceps.gotoNode(req.getParameter("jump to:"));
+			ok = (gotoMsg == Triceps.OK);
 			// ask this question
 		}
 		else if (directive.equals("clear all and re-start")) { // restart from scratch
 			ok = triceps.resetEvidence();
-			ok = ok && triceps.gotoFirst();
+			gotoMsg = triceps.gotoFirst();
+			ok = ok && (gotoMsg == Triceps.OK);
 			// ask first question
 		}
 		else if (directive.equals("reload questions")) { // debugging option
@@ -337,7 +345,7 @@ public class TricepsServlet extends HttpServlet {
 		*/
 		else if (directive.equals("save to:")) {
 			String name = req.getParameter("save to:");
-			String file = name + "." + req.getRemoteUser() + "." + req.getRemoteHost() + ".tsv";
+			String file = scheduleSaveDir + name + "." + req.getRemoteUser() + "." + req.getRemoteHost() + ".tsv";
 
 			ok = triceps.toTSV(file);
 			if (ok) {
@@ -389,13 +397,32 @@ public class TricepsServlet extends HttpServlet {
 
 			}
 			// goto next
-			ok = ok && triceps.gotoNext();	// don't goto next if errors
+			gotoMsg = triceps.gotoNext();
+			ok = ok && (gotoMsg == Triceps.OK);
+
+			if (gotoMsg == Triceps.AT_END) {
+				// save the file, but still give the option to go back and change answers
+				boolean savedOK;
+				String name = triceps.formatDate(triceps.getStartTime());
+				String file = scheduleSaveDir + name + "." + req.getRemoteUser() + "." + req.getRemoteHost() + ".tsv";
+
+				sb.append("<B>Thank you, the interview is completed</B><BR>\n");
+				savedOK = triceps.toTSV(file);
+				ok = savedOK && ok;
+				if (savedOK) {
+					sb.append("<B>Interview saved successfully as " + Node.encodeHTML(name) + " (" + Node.encodeHTML(file) + ")</B><HR>\n");
+				}
+			}
+
+
+			// don't goto next if errors
 			// ask question
 		}
 		else if (directive.equals("backward")) {
 			// don't store current
 			// goto previous
-			ok = triceps.gotoPrevious();
+			gotoMsg = triceps.gotoPrevious();
+			ok = ok && (gotoMsg == Triceps.OK);
 			// ask question
 		}
 		if (!ok) {

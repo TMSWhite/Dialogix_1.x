@@ -2,12 +2,17 @@ import java.lang.*;
 import java.util.*;
 import java.io.*;
 import java.net.*;
+import java.text.*;
 
 /* Triceps
- * TODO:
- *  if gotoXXX returns false, will currentStep be reset?
  */
 public class Triceps implements Serializable {
+	public static final int ERROR = 1;
+	public static final int OK = 2;
+	public static final int AT_END = 3;
+
+	private static final SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy.MM.dd..hh.mm.ss z");
+
 	private static final String NULL = "not set";	// a default value to represent null in config files
 
 	private Object scheduleURL = null;
@@ -18,6 +23,8 @@ public class Triceps implements Serializable {
 	private Stack errors = new Stack();
 	private int currentStep=0;
 	private int numQuestions=0;	// so know how many to skip for compount question
+	private Date startTime = null;
+	private Date stopTime = null;
 
 	public Triceps() {
 	}
@@ -52,6 +59,7 @@ public class Triceps implements Serializable {
 
 	public boolean reloadSchedule() {
 		nodes = new Schedule();
+
 		if (scheduleURL instanceof URL)
 			return nodes.load((URL) scheduleURL);
 		else if (scheduleURL instanceof File)
@@ -62,6 +70,10 @@ public class Triceps implements Serializable {
 
 	public Datum getDatum(Node n) {
 		return evidence.getDatum(n);
+	}
+
+	public Date getStartTime() {
+		return startTime;
 	}
 
 	public Enumeration getErrors() {
@@ -121,29 +133,37 @@ public class Triceps implements Serializable {
 		return q.getQuestionAsAsked();
 	}
 
-	public boolean gotoFirst() {
+	public int gotoFirst() {
 		currentStep = 0;
 		numQuestions = 0;
 		return gotoNext();
 	}
 
-	public boolean gotoNext() {
+	public int gotoNext() {
 		Node node;
 		int braceLevel = 0;
 		String actionType;
 		int step = currentStep + numQuestions;
+
+		if (currentStep == size()) {
+			/* then already at end */
+			errors.push("You are already at the end of interview.  Thanks again.");
+			return ERROR;
+		}
 
 		do {		// loop forward through nodes -- break to query user or to end
 			if (step >= size()) {	// then the schedule is complete
 				if (braceLevel > 0) {
 					errors.push("Missing " + braceLevel + " closing brace(s)");
 				}
-				errors.push("The interview is completed.");
-				return false;	// XXX - need better message passing
+//				errors.push("The interview is completed.");
+				currentStep = size();	// put at last node
+				numQuestions = 0;
+				return AT_END;
 			}
 			if ((node = nodes.getNode(step)) == null) {
 				errors.push("Invalid node at step " + step);
-				return false;
+				return ERROR;
 			}
 
 			actionType = node.getActionType();
@@ -165,7 +185,7 @@ public class Triceps implements Serializable {
 				--braceLevel;	// close an open block
 				if (braceLevel < 0) {
 					errors.push("Extra closing brace");
-					return false;
+					return ERROR;
 				}
 			}
 			else if ("e".equals(actionType)) {
@@ -196,34 +216,34 @@ public class Triceps implements Serializable {
 			}
 			else {
 				errors.push("Unknown actionType " + Node.encodeHTML(actionType));
-				return false;
+				return ERROR;
 			}
 			++step;
 		} while (true);
 		currentStep = step;
 		numQuestions = 0;
-		return true;
+		return OK;
 	}
 
-	public boolean gotoNode(Object val) {
+	public int gotoNode(Object val) {
 		int step = currentStep;
 
 		Node n = evidence.getNode(val);
 		if (n == null) {
 			errors.push("Unknown node: " + Node.encodeHTML(val.toString()));
-			return false;
+			return ERROR;
 		}
 		int result = evidence.getStep(n);
 		if (result == -1) {
 			errors.push("Unable to find index for node: " + n);
-			return false;
+			return ERROR;
 		} else {
 			currentStep = result;
-			return true;
+			return OK;
 		}
 	}
 
-	public boolean gotoPrevious() {
+	public int gotoPrevious() {
 		Node node;
 		int braceLevel = 0;
 		String actionType;
@@ -235,10 +255,10 @@ public class Triceps implements Serializable {
 					errors.push("Missing " + braceLevel + " openining braces");
 
 				errors.push("You are already at the beginning.");
-				return false;	// XXX need better messaging system
+				return ERROR;
 			}
 			if ((node = nodes.getNode(step)) == null)
-				return false;
+				return ERROR;
 
 			actionType = node.getActionType();
 
@@ -253,7 +273,7 @@ public class Triceps implements Serializable {
 				++braceLevel;
 				if (braceLevel > 0) {
 					errors.push("extra opening brace");
-					return false;
+					return ERROR;
 				}
 				if (braceLevel == 0 && parser.booleanVal(evidence, node.getDependencies())) {
 					break;	// ask this block of questions
@@ -267,16 +287,31 @@ public class Triceps implements Serializable {
 			}
 			else {
 				errors.push("invalid actionType " + Node.encodeHTML(actionType));
-				return false;
+				return ERROR;
 			}
 		}
 		currentStep = step;
-		return true;
+		return OK;
 	}
 
 	public boolean resetEvidence() {
 		evidence = new Evidence(nodes);
+		startTimer();		// XXX: reset start time here?
 		return true;
+	}
+
+	private void startTimer() {
+		startTime = new Date(System.currentTimeMillis());
+		stopTime = null;	// reset stopTime, since re-starting
+	}
+
+	private void stopTimer() {
+		if (stopTime == null)
+			stopTime = new Date(System.currentTimeMillis());
+	}
+
+	public String formatDate(Date d) {
+		return dateFormat.format(d);
 	}
 
 	private boolean setDebugEvidence() {
@@ -326,6 +361,10 @@ public class Triceps implements Serializable {
 	}
 
 	public boolean storeValue(Node q, String answer) {
+		if (currentStep >= size() || q == null) {
+			return false;
+		}
+
 		try {	// set answer to the value returned with the "name" of the node
 			if (answer == null) {
 				if (q.getAnswerType() == Node.CHECK || q.getAnswerType() == Node.NOTHING) {
@@ -339,7 +378,6 @@ public class Triceps implements Serializable {
 
 		if ((answer == null || answer.trim().equals("")) && currentStep >= 0) {
 			q.setError("<- Please answer this question");
-//			errors.push("<bold>Please enter a <i>" + Datum.TYPES[q.getDatumType()] + "</i> for question <i>" + Node.encodeHTML(q.getQuestionRef()) + "</i>.");
 			return false;
 		}
 		else {	// got a proper answer -- handle it
@@ -430,6 +468,8 @@ public class Triceps implements Serializable {
 	public boolean toTSV(String filename) {
 		FileWriter fw = null;
 
+		stopTimer();
+
 		try {
 			fw = new FileWriter(filename);
 			boolean ok = writeTSV(fw);
@@ -454,7 +494,15 @@ public class Triceps implements Serializable {
 		if (out == null)
 			return false;
 
+
 		try {
+			/* Write header information */
+
+			out.write("COMMENT " + "Schedule: " + scheduleURL + "\n");
+			out.write("COMMENT " + "Started: " + formatDate(startTime) + "\n");
+			out.write("COMMENT " + "Stopped: " + formatDate(stopTime) + "\n");
+			out.write("COMMENT " + "\n");
+
 			for (int i=0;i<size();++i) {
 				n = nodes.getNode(i);
 				if (n == null)
@@ -468,7 +516,7 @@ public class Triceps implements Serializable {
 					ans = d.stringVal();
 				}
 
-				out.write(n.toTSV() + "\t" + n.getQuestionAsAsked() + "\t" + ans +"\n");
+				out.write(n.toTSV() + "\t" + n.getQuestionAsAsked() + "\t" + ans + "\n");
 			}
 			out.flush();
 			return true;
