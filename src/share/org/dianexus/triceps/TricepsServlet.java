@@ -844,6 +844,10 @@ if (AUTHORABLE) {
 	}
 
 	private boolean getNewTricepsInstance(String name) {
+		if (triceps != null) {
+			triceps.closeDataLogger();
+		}
+		
 		if (name == null || name.trim().length() == 0) {
 			triceps = Triceps.NULL;
 		}
