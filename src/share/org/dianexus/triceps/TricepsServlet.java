@@ -101,6 +101,7 @@ public class TricepsServlet extends HttpServlet {
 			out.println("		<option value='MiHeart2.txt'>MiHeart-radio");
 			out.println("		<option value='GAFTree.txt'>GAFTree");
 			out.println("		<option value='MoodDis.txt'>Major Depression/Dysthymic Disorder");
+			out.println("		<option value='AUDIT.txt'>AUDIT Alcohol Abuse Test");
 			out.println("	</select></TD>");
 			out.println("	<TD><input type='SUBMIT' name='directive' value='START'></TD>");
 			out.println("</TR>");
