@@ -1,0 +1,260 @@
+Data modeling for Dialogix
+
+Reserved Words - can be divided by class / instance, and role
+
+	Instrument (Class level)
+		Owner_Role (person who owns content - there could be subordinate publishing framework to manage revisions)
+			FILENAME
+			LANGUAGES
+			SCHEDULE_SOURCE
+			SCHED_AUTHORS
+			SCHED_HELP_URL
+			SCHED_VERSION_MAJOR
+			SCHED_VERSION_MINOR
+			TITLE
+
+			
+		Deployer_Role (person who decides to use an instrument in a study) [owner might restrict access to some of these - esp with *]
+			*ACTIVE_BUTTON_PREFIX
+			*ACTIVE_BUTTON_SUFFIX
+			*ALLOW_COMMENTS
+			*ALLOW_DONT_UNDERSTAND
+			*ALLOW_JUMP_TO
+			*ALLOW_LANGUAGE_SWITCHING
+			*ALLOW_REFUSED
+			*ALLOW_UNKNOWN
+			*ALWAYS_SHOW_ADMIN_ICONS
+			*ANSWER_OPTION_FIELD_WIDTH
+			*AUTOGEN_OPTION_NUM
+			*COMMENT_ICON_OFF
+			*COMMENT_ICON_ON
+			*DISALLOW_COMMENTS
+			*DONT_UNDERSTAND_ICON_OFF
+			*DONT_UNDERSTAND_ICON_ON
+			*HELP_ICON
+			*ICON
+			*JUMP_TO_FIRST_UNASKED
+			*RECORD_EVENTS
+			*REDIRECT_ON_FINISH_MSG
+			*REDIRECT_ON_FINISH_URL
+			*REFUSED_ICON_OFF
+			*REFUSED_ICON_ON
+			*SET_DEFAULT_FOCUS
+			*SHOW_ADMIN_ICONS
+			*SHOW_QUESTION_REF
+			*SHOW_SAVE_TO_FLOPPY_IN_ADMIN_MODE
+			*STARTING_STEP
+			*SUSPEND_TO_FLOPPY
+			*SWAP_NEXT_AND_PREVIOUS
+			*TITLE_FOR_PICKLIST_WHEN_IN_PROGRESS
+			*UNKNOWN_ICON_OFF
+			*UNKNOWN_ICON_ON
+			*WRAP_ADMIN_ICONS
+			DEBUG_MODE
+			DEVELOPER_MODE
+			HEADER_MSG
+			PASSWORD_FOR_ADMIN_MODE
+	
+	Instument (Instance level - linked to a single user)
+		BROWSER_TYPE
+		COMPLETED_DIR
+		CONNECTION_TYPE
+		CURRENT_LANGUAGE
+		DISPLAY_COUNT
+		FLOPPY_DIR
+		IMAGE_FILES_DIR
+		IP_ADDRESS
+		LOADED_FROM
+		SCHEDULE_DIR
+		START_TIME
+		TRICEPS_FILE_TYPE
+		TRICEPS_VERSION_MAJOR
+		TRICEPS_VERSION_MINOR
+		WORKING_DIR
+		
+=====
+		
+DIALOGIX TABLES
+
+Instrument
+	
+
+
+DataType
+	DataTypeID
+	DataTypeDesc	(e.g. 'string', 'number', ...)
+	
+Node
+	nodeID			(
+	linenum
+	concept
+	uniqueName
+	displayName
+	relevance
+	actionSymbol	('q' or 'e')
+	actionType
+	nesting
+	displayType
+	v_castto
+	v_min
+	v_max
+	v_mask
+	v_regex
+	v_num_extras
+	v_extrasFK
+	num_hows
+	howsFK
+	
+========
+DROP TABLE IF EXISTS users, studies, licenses, instruments, contexts, usages, sandboxes, user_usages;
+
+# Define users - e.g. demographics
+CREATE TABLE users (
+  userID int(11) NOT NULL auto_increment,
+  PRIMARY KEY  ( userID ),
+  first_name varchar(20) NOT NULL default '',
+  last_name varchar(20) NOT NULL default '',
+  email varchar(100) NOT NULL default '',
+  phone varchar(100) NOT NULL default ''
+) ;
+INSERT INTO users VALUES ('1','John','Doe','john.doe@anonmyous.edu','888-555-1212');
+INSERT INTO users VALUES ('2','Jane','Doe','jane.doe@anonmyous.edu','888-555-1212');
+
+
+# Define studies -- which only serve to link a license to a sandbox
+CREATE TABLE studies (
+  studyID int (11) NOT NULL auto_increment,
+  PRIMARY KEY ( studyID ),
+  licenseID int (11) NOT NULL,
+  sandboxID int (11) NOT NULL
+);
+INSERT INTO studies VALUES ('1','1','1');
+INSERT INTO studies VALUES ('2','2','2');
+
+
+# Define usages -- link a study to a user and instrument; providing a username and password if necessary; and tracking the status of that session
+CREATE TABLE usages (
+  usageID int (11) NOT NULL auto_increment,
+  PRIMARY KEY ( usageID ),
+  studyID int (11) NOT NULL,
+  userID int (11) NOT NULL,
+  instrumentID int (11) NOT NULL,
+  username varchar(30) NOT NULL default '',
+  password varchar(30) NOT NULL default '',
+  status enum('unstarted','working','completed') NOT NULL default 'unstarted',
+  current_step int (11) NOT NULL default '0',
+  working_file varchar(100) NOT NULL default ''
+);
+INSERT INTO usages VALUES ('','1','1','3','userA','passwordA','unstarted','0','');
+INSERT INTO usages VALUES ('','1','1','3','userB','passwordB','unstarted','0','');
+INSERT INTO usages VALUES ('','1','1','3','userC','passwordC','working','0','');
+INSERT INTO usages VALUES ('','1','1','3','userD','passwordD','unstarted','0','');
+INSERT INTO usages VALUES ('','2','1','1','userD','passwordD','unstarted','0','');
+
+
+# Define a sandbox -- this is the information from the old web.xml files; and specifies where data is to be stored
+CREATE TABLE sandboxes (
+  sandboxID int (11) NOT NULL auto_increment,
+  PRIMARY KEY ( sandboxID ),
+  dialogix_dir varchar (100) NOT NULL default '/',
+  scheduleSrcDir varchar (100) NOT NULL default '',
+  completedFilesDir varchar (100) NOT NULL default '',
+  workingFilesDir varchar (100) NOT NULL default '',
+  imageFilesDir varchar (100) NOT NULL default '',
+  helpIcon varchar (100) NOT NULL default '',
+  logoIcon varchar (100) NOT NULL default '',
+  floppyDir varchar (100) NOT NULL default '',
+  loginInfoFile varchar (100) NOT NULL default ''
+) ;
+INSERT INTO sandboxes VALUES ('1','/usr/local/dialogix/webapps/','Wave6/WEB-INF/schedules/','Wave6/WEB-INF/completed/','Wave6/WEB-INF/working/','/images/','help_true.gif','cpmc_dmi.jpg','/archive/','');
+INSERT INTO sandboxes VALUES ('2','/usr/local/dialogix/webapps/','BYS/WEB-INF/schedules/','BYS/WEB-INF/completed/','BYS/WEB-INF/working/','/images/','help_true.gif','dialogix.jpg','/archive/','');
+
+
+# Define licenses - this is a meta level for a study?  Hmm, this probably needs to be merged with study
+CREATE TABLE licenses (
+  licenseID int (11) NOT NULL auto_increment,
+  PRIMARY KEY ( licenseID ),
+  package_dir varchar (100) NOT NULL default '',
+  study_alias varchar (100) NOT NULL default '',
+  study_name varchar (100) NOT NULL default '',
+  study_icon varchar (100) NOT NULL default '',
+  principal_investigator varchar (100) NOT NULL default '',
+  grant_name varchar (100) NOT NULL default '',
+  grant_title varchar (100) NOT NULL default '',
+  support_phone varchar (100) NOT NULL default '',
+  support_person varchar (100) NOT NULL default '',
+  support_email varchar (100) NOT NULL default ''
+) ;
+INSERT INTO licenses VALUES ('1','Wave6','Wave6','Children in the Community:  Wave 6','/images/ciclogo.gif','Patricia R. Cohen, Ph.D.','NIMH Grant MH60911-01A1','Personality Disorders over 20 years:  risk, course, and impact','(800) 711-6350','Field Office','cicp75@msn.com');
+INSERT INTO licenses VALUES ('2','BYS','BYS','Boricua Youth Study','/images/BYSlogo.gif','Hector R. Bird, MD and Glorisa Canino, Ph.D.','NIMH Grant MH56401','(5/1/98-2/8/03 Antisocial Behaviors in US and Puerto Rican Youth)','','','');
+
+# Define static aspects of an instrument
+CREATE TABLE instruments (
+  instrumentID int (11) NOT NULL auto_increment,
+  PRIMARY KEY ( instrumentID ),
+  title varchar (100) NOT NULL default '',
+  header_msg varchar (100) NOT NULL default '',
+  languages varchar (100) NOT NULL default '',
+  location varchar (100) NOT NULL default '',
+  author varchar (100) NOT NULL default '',
+  version varchar (100) NOT NULL default '',
+  icon varchar (100) NOT NULL default 'dialogo.jpg',
+  autogen_option_num varchar (100) NOT NULL default ''
+) ;
+INSERT INTO instruments VALUES ('1','A - Introduction to Using Dialogix','How Do I Navigate a Dialogix Interview?', 'en_US','/usr/local/dialogix/webapps/Tutorials/WEB-INF/schedules/introduction.jar','Thomas White', '1.0', '/images/dialogo.jpg','true');
+INSERT INTO instruments VALUES ('2','BYS Adult Baseline (Revised 11/28/2000)','BYS Adult Baseline (Revised 11/28/2000)', 'en_US|es_PR','/usr/local/dialogix/webapps/BYS/WEB-INF/schedules/BYS-Adult.jar','Hector Bird', '2.7.7', '/images/BYSlogo.gif','true');
+INSERT INTO instruments VALUES ('3','Children in the Community: Wave 6','Children in the Community: Wave 6', 'en_US','/usr/local/dialogix/webapps/Wave6/WEB-INF/schedules/wave6-web.jar','Kathy Gordon for Patricia Cohen, Ph.D.', '3.0.2', '/images/ciclogo-with-caption.gif','true');
+
+# define dynamic aspects of an instrument?  Not necessary yet.
+CREATE TABLE contexts (
+	# instrument within a study -- uses reserved words?
+  contextID int (11) NOT NULL auto_increment,
+  PRIMARY KEY ( contextID ),
+  developer_mode varchar (100) NOT NULL default '',
+  debug_mode varchar (100) NOT NULL default '',
+  show_admin_icons varchar (100) NOT NULL default '',
+  allow_comments varchar (100) NOT NULL default '',
+  allow_dont_understand varchar (100) NOT NULL default '',
+  allow_refused varchar (100) NOT NULL default '',
+  allow_unknown varchar (100) NOT NULL default '',
+  password_for_admin_mode varchar (100) NOT NULL default '',
+  suspend_to_floppy varchar (100) NOT NULL default '',
+  jump_to_first_unasked varchar (100) NOT NULL default ''
+) ;
+
+
+#
+# [] Normalize tables?
+# [] Users - shouldn't they refer to a given study, and an instrument within that study?
+# [] UsageDB -- a user, study, and instrument
+# Notes
+# Working and completed files should not link to studies etc. via user?, rather than using hard  path as now?
+# [] support anonymous users (later)
+# [] How do I insert when a join is involved?
+# [] Multiple primary keys?
+# [
+
+# Tests
+# Show all users details for a given study
+
+CREATE TABLE user_usages AS
+SELECT users.first_name, users.last_name, users.email, usages.username, usages.password, usages.current_step, instruments.title, instruments.location, instruments.version
+FROM users, usages, instruments, licenses, studies
+WHERE licenses.study_alias = 'Wave6'
+	AND usages.userID = users.userID 
+	AND usages.instrumentID = instruments.instrumentID
+	AND usages.studyID = studies.studyID
+	AND studies.licenseID = licenses.licenseID
+;
+
+# Show all instruments for a given study
+SELECT DISTINCT instruments.title, instruments.location, instruments.version
+FROM instruments, licenses, studies, usages
+WHERE licenses.study_alias = 'Wave6'
+	AND usages.instrumentID = instruments.instrumentID
+	AND usages.studyID = studies.studyID
+	AND studies.licenseID = licenses.licenseID
+;
+
+# So, a study should have a compendium of instruments from which to choose -- StudyTools?  They can select from these?
+# 
