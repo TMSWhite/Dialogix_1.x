@@ -368,7 +368,7 @@ public class TricepsServlet extends HttpServlet {
 						defaultTitle = getScheduleInfo(sched,isSuspended);
 						title = defaultTitle;
 						for (int count=2;true;++count) {
-							prevVal = names.put(title,sched.getSource());
+							prevVal = names.put(title,sched.getLoadedFrom());
 							if (prevVal != null) {
 								names.put(title,prevVal);
 								title = defaultTitle + " (copy " + count + ")";

@@ -22,6 +22,9 @@ public class Schedule  {
 	public static final int SHOW_ADMIN_ICONS = 12;
 	public static final int TITLE_FOR_PICKLIST_WHEN_IN_PROGRESS = 13;
 	public static final int ALLOW_COMMENTS = 14;
+	public static final int SCHEDULE_SOURCE = 15;
+	public static final int LOADED_FROM = 16;
+
 
 	public static final String[] RESERVED_WORDS = {
 		"__LANGUAGES__",
@@ -38,7 +41,9 @@ public class Schedule  {
 		"__FILENAME__", 
 		"__SHOW_ADMIN_ICONS__", 
 		"__TITLE_FOR_PICKLIST_WHEN_IN_PROGRESS__",
-		"__ALLOW_COMMENTS__"
+		"__ALLOW_COMMENTS__",
+		"__SCHEDULE_SOURCE__",
+		"__LOADED_FROM__",
 	};
 
 	private Date startTime = null;
@@ -47,7 +52,6 @@ public class Schedule  {
 	private int currentLanguage = 0;
 	private boolean isFound = false;
 	private boolean isLoaded = false;
-	private String source = null;
 	private String error = null;
 	
 	private Vector nodes = null;
@@ -55,18 +59,19 @@ public class Schedule  {
 	private Hashtable reserved = new Hashtable();
 
 	public Schedule(String source) {
-		this.source = source;
-		
 		setDefaultReserveds();
+		
+		setReserved(SCHEDULE_SOURCE,source);	// this defaults to LOADED_FROM, but want to keep track of the original source location
 			
-		if (load(false)) {
+		if (load(source,false)) {
 			isFound = true;
 		}
 	}
 	
 	public boolean isFound() { return isFound; }
 	public boolean isLoaded() { return isLoaded; }
-	public String getSource() { return ((isFound) ? source : ""); }
+	public String getScheduleSource() { return ((isFound) ? getReserved(SCHEDULE_SOURCE) : ""); }
+	public String getLoadedFrom() { return ((isFound) ? getReserved(LOADED_FROM) : ""); }
 
 	private void setDefaultReserveds() {
 		setReserved(TITLE,"Triceps System");
@@ -84,12 +89,14 @@ public class Schedule  {
 		setReserved(SHOW_ADMIN_ICONS,"false");
 		setReserved(TITLE_FOR_PICKLIST_WHEN_IN_PROGRESS,"");	// default is unnamed until initialized
 		setReserved(ALLOW_COMMENTS,"false");
+		setReserved(SCHEDULE_SOURCE,"");
+		setReserved(LOADED_FROM,"");
 	}
 	
 	public boolean init() {
 		nodes = new Vector();
 		comments = new Vector();
-		isLoaded = load(true); 
+		isLoaded = load(getLoadedFrom(),true); 
 		return isLoaded;
 	}
 	
@@ -97,7 +104,7 @@ public class Schedule  {
 		return init();
 	}
 
-	private boolean load(boolean parseNodes) {
+	private boolean load(String source, boolean parseNodes) {
 		BufferedReader br = getReader(source);
 		if (br == null)
 			return false;
@@ -151,6 +158,7 @@ public class Schedule  {
 			// set a reasonable default value
 			setReserved(TITLE_FOR_PICKLIST_WHEN_IN_PROGRESS,getReserved(TITLE) + " [" + getReserved(START_TIME) + "]");
 		}
+		setReserved(LOADED_FROM,source);	// keep LOADED_FROM up to date
 		
 		return (!err);
 	}
@@ -215,6 +223,18 @@ public class Schedule  {
 			System.err.println(name + " not recognized [" + filename + "(" + line + ")]");
 		}
 	}
+	
+	public boolean overloadReserved(Schedule oldNodes) {
+		/* FIXME - need to use String Objects for reserved words, not integers, otherwise subject to re-ordering! */
+		if (nodes == null)
+			return false;
+		boolean ok = true;
+			
+		for (int i=0;i<RESERVED_WORDS.length;++i) {
+			ok = setReserved(i,oldNodes.getReserved(i)) && ok;
+		}
+		return ok;
+	}
 
 	public boolean setReserved(int resIdx, String value) {
 		String s;
@@ -236,6 +256,8 @@ public class Schedule  {
 			case SHOW_ADMIN_ICONS: s = Boolean.valueOf(value.trim()).toString(); break;
 			case TITLE_FOR_PICKLIST_WHEN_IN_PROGRESS: s = value; break;
 			case ALLOW_COMMENTS: s = Boolean.valueOf(value.trim()).toString(); break;
+			case SCHEDULE_SOURCE: s = value; break;
+			case LOADED_FROM: s = value; break;
 			default: return false;
 		}
 		if (s != null) {

@@ -12,8 +12,6 @@ public class Triceps {
 
 	static private final Vector EMPTY_LIST = new Vector();
 
-	private String scheduleURL = null;
-	private String scheduleUrlPrefix = null;
 	public	Schedule nodes = null;
 	public	Evidence evidence = null;	// XXX should be private - made public for Node.prepareChoicesAsHTML(parser,...)
 	public	Parser parser = new Parser();	// XXX should be private - made public for Node.prepareChoicesAsHTML(parser,...)
@@ -57,7 +55,7 @@ public class Triceps {
 			nodes = new Schedule(name);
 		}
 		else {
-			nodes = new Schedule(nodes.getSource());
+			nodes = new Schedule(nodes.getScheduleSource());
 		}
 		
 		if (!nodes.init()) {
@@ -85,6 +83,8 @@ public class Triceps {
 			evidence = oldEvidence;
 			return false;
 		}
+		/* data/evidence is loaded from working file; but the nodes are from the schedule soruce directory */
+		nodes.overloadReserved(oldNodes);
 		return true;
 	}
 
@@ -669,7 +669,7 @@ public class Triceps {
 			nodes.toTSV(out);
 
 			/* Write comments saying when started and stopped.  If multiply resumed, will list these several times */
-			out.write("COMMENT " + "Schedule: " + scheduleURL + "\n");
+			out.write("COMMENT " + "Schedule: " + nodes.getReserved(Schedule.LOADED_FROM) + "\n");
 			out.write("COMMENT " + "Started: " + getStartTimeStr() + "\n");
 			out.write("COMMENT " + "Stopped: " + getStopTimeStr() + "\n");
 
