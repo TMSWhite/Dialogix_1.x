@@ -29,7 +29,11 @@ Review:</br>
  <a href="InstrumentDetails.php">Instruments</a><br>
  <a href="LOINC.php">LOINC</a><br>
  <a href="WorkPlan.php">Work Plan</a><br>
- <a href="http://psychinformatics.nyspi.org/phpmyadmin/">phpMyAdmin</a><br>
+ <a href="http://psychinformatics.nyspi.org/phpmyadmin/" target="_blank">phpMyAdmin</a><br>
+ <a href="http://psychinformatics.nyspi.org/phpMyAdmin-2.6.0-pl3/" target="_blank">phpMyAdmin2</a><br>
+ <br>
+ <a href="UploadTest.php">Upload Excel</a><br>
+ <a href="http://www.dialogix.org:8080/ParserTest/index.vm" target="_blank">Parser Test</a><br>
  <br>
  <a href="Logout.php">Logout</a><br>
 <?php } else { ?>
