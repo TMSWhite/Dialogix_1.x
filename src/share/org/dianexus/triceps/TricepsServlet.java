@@ -70,20 +70,20 @@ if (DEBUG) Logger.printStackTrace(t);
 				return true;	// IE masquerading as Netscape - finally fixed so that works OK
 			}
 			else if (userAgent.indexOf("Opera") != -1) {
-				return false;	// Opera masquerading as Netscape - problem with the event model
+				return true;	// false;	// Opera masquerading as Netscape - problem with the event model
 			}
 			else {
 				return true;	// true for Netscape 4.x
 			}
 		}
 		else if (userAgent.indexOf("Netscape6") != -1) {
-			return false;	// does not work with Netscape6 - lousy layout, repeat calls to GET (not POST), so re-starts on each screen.  Why?
+			return true;	// false;	// does not work with Netscape6 - lousy layout, repeat calls to GET (not POST), so re-starts on each screen.  Why?
 		}
 		else if (userAgent.indexOf("Opera") != -1) {
-			return false;	// Opera - problem with the event model
+			return true;	// false;	// Opera - problem with the event model
 		}
 		else {
-			return false;
+			return true;	// false;
 		}
 	}
 

@@ -31,6 +31,7 @@ public class TricepsEngine implements VersionIF {
 	static final int BROWSER_NS = 2;
 	static final int BROWSER_NS6 = 3;
 	static final int BROWSER_OPERA = 4;
+	static final int BROWSER_MOZILLA5 = 5;
 	static final int BROWSER_OTHER = 0;
 	private int browserType = BROWSER_OTHER;
 	private String userAgent = "";
@@ -67,7 +68,7 @@ public class TricepsEngine implements VersionIF {
 	private boolean autogenOptionNums = true;	// default is to make reading options easy
 	private boolean isSplashScreen = false;
 	private boolean allowEasyBypass = false;	// means that a special value is present, so enable the possibility of okPasswordForTempAdminMode
-	private boolean allowComments = false;
+	private boolean allowComments = false;		// lets comments be shown always, and rest of buttons be shown with password
 	private boolean allowRecordEvents = false;
 	private boolean allowRefused = false;
 	private boolean allowUnknown = false;
@@ -77,6 +78,7 @@ public class TricepsEngine implements VersionIF {
 	private boolean alwaysShowAdminIcons = false;
 	private boolean showSaveToFloppyInAdminMode = false;
 	private boolean wrapAdminIcons = true;
+	private boolean disallowComments = false;	// prevents comments from ever being shown
 
 	private String directive = null;	// the default
 	private Triceps triceps = Triceps.NULL;
@@ -256,6 +258,7 @@ if (AUTHORABLE) {
 			alwaysShowAdminIcons = schedule.getBooleanReserved(Schedule.ALWAYS_SHOW_ADMIN_ICONS);
 			showSaveToFloppyInAdminMode = schedule.getBooleanReserved(Schedule.SHOW_SAVE_TO_FLOPPY_IN_ADMIN_MODE);
 			wrapAdminIcons = schedule.getBooleanReserved(Schedule.WRAP_ADMIN_ICONS);
+			disallowComments = schedule.getBooleanReserved(Schedule.DISALLOW_COMMENTS);
 		}
 		else {
 			debugMode = false;
@@ -273,6 +276,7 @@ if (AUTHORABLE) {
 			alwaysShowAdminIcons = false;
 			showSaveToFloppyInAdminMode = false;
 			wrapAdminIcons = true;
+			disallowComments = false;
 		}
 		allowEasyBypass = false;
 		okPasswordForTempAdminMode = false;
@@ -318,7 +322,7 @@ if (AUTHORABLE) {
 			// enables the password for this session only
 			okPasswordForTempAdminMode = true;	// allow AdminModeIcon values to be accepted
 		}
-
+		
 if (AUTHORABLE) {
 		/** Process requests to change developerMode-type status **/
 		if (directive != null) {
@@ -1243,6 +1247,9 @@ if (XML) {
 				browserType = BROWSER_NS;
 			}
 		}
+		else if (userAgent.indexOf("Mozilla/5") != -1) {
+			browserType = BROWSER_MOZILLA5;
+		}		
 		else if (userAgent.indexOf("Netscape6") != -1) {
 			browserType = BROWSER_NS6;
 		}
@@ -1269,6 +1276,9 @@ if (XML) {
 		}
 		else if (browserType == BROWSER_OPERA) {
 			browser = "Opera";
+		}
+		else if (browserType == BROWSER_MOZILLA5) {
+			browser = "Mozilla5";
 		}
 		else {
 			browser = "other";
@@ -1655,7 +1665,7 @@ if (AUTHORABLE) {
 		}
 
 		String comment = node.getComment();
-		if (showAdminModeIcons || okToShowAdminModeIcons || allowComments) {
+		if ((showAdminModeIcons || okToShowAdminModeIcons || allowComments) && (!disallowComments || (comment != null && comment.trim().length() != 0))) {
 			if (comment != null && comment.trim().length() != 0) {
 				sb.append("<img name='" + inputName + "_COMMENT_ICON" + "' src='" + getIcon(Schedule.COMMENT_ICON_ON) +
 					"' align='top' border='0' alt='" + triceps.get("Add_a_Comment") + "' onmouseup='evHandler(event);comment(\"" + inputName + "\");'>");
@@ -1795,6 +1805,7 @@ if (AUTHORABLE) {
 		
 		sb.append("var Ns4 = false; var Ns5 = false; var Ns6 = false; var Ns4up = false; \n");
 		sb.append("var Ie4 = false; var Ie5 = false; var Ie6 = false; var Ie4up = false; \n");
+		sb.append("var Opera = false; var Mozilla5 = false; \n");
 		
 		// note the workaround to get Ns6 
 		sb.append("if (navigator.appName.indexOf('Netscape') != -1) { \n");
@@ -1810,7 +1821,10 @@ if (AUTHORABLE) {
 		sb.append("  else if (parseInt(navigator.appVersion) >= 4) Ie4 = true; \n");
 		sb.append("  if (Ie4 || Ie5 || Ie6) Ie4up = true; \n");
 		sb.append("} \n");
-
+		sb.append("else if (navigator.appName.indexOf('Mozilla/5') != -1) { Mozilla5 = true; }\n");
+		sb.append("else if (navigator.appName.indexOf('Opera') != -1) { Opera = true; }\n");
+		sb.append("if (Mozilla5 || Opera) { Ns4up = true; }\n");	// is this true?
+		
 		sb.append("function keyHandler(e) {\n");
 if (DEPLOYABLE) {		
 		if (allowRecordEvents) {

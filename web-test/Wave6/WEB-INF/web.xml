@@ -42,7 +42,7 @@
         </init-param>
         <init-param>
             <param-name>floppyDir</param-name>
-            <param-value>@@FLOPPY.DIR@@</param-value>
+            <param-value>Wave6/WEB-INF/archive/</param-value>
         </init-param>
         
         <!-- Login (username / password / filename) -->

@@ -82,6 +82,7 @@ import java.io.FileReader;
 	/*public*/ static final int ALWAYS_SHOW_ADMIN_ICONS = 57;
 	/*public*/ static final int SHOW_SAVE_TO_FLOPPY_IN_ADMIN_MODE = 58;
 	/*public*/ static final int WRAP_ADMIN_ICONS = 59;
+	/*public*/ static final int DISALLOW_COMMENTS = 60;
 
 	private static final String DEFAULT_LANGUAGE = "en_US";
 	/*public*/ static final String TRICEPS_DATA_FILE = "DATA";
@@ -148,7 +149,8 @@ import java.io.FileReader;
 		"__SET_DEFAULT_FOCUS__",
 		"__ALWAYS_SHOW_ADMIN_ICONS__",
 		"__SHOW_SAVE_TO_FLOPPY_IN_ADMIN_MODE__",
-		"__WRAP_ADMIN_ICONS__"
+		"__WRAP_ADMIN_ICONS__",
+		"__DISALLOW_COMMENTS__"
 	};
 
 	private Date startTime = null;
@@ -257,6 +259,7 @@ import java.io.FileReader;
 		setReserved(ALWAYS_SHOW_ADMIN_ICONS,"false");
 		setReserved(SHOW_SAVE_TO_FLOPPY_IN_ADMIN_MODE,"false");
 		setReserved(WRAP_ADMIN_ICONS,"false");
+		setReserved(DISALLOW_COMMENTS,"false");
 	}
 		
 	/*public*/ boolean init(boolean log) {
@@ -778,6 +781,7 @@ if (DEPLOYABLE) {
 			case ALWAYS_SHOW_ADMIN_ICONS: s = Boolean.valueOf(value.trim()).toString(); break;
 			case SHOW_SAVE_TO_FLOPPY_IN_ADMIN_MODE: s = Boolean.valueOf(value.trim()).toString(); break;
 			case WRAP_ADMIN_ICONS: s = Boolean.valueOf(value.trim()).toString(); break;
+			case DISALLOW_COMMENTS: s = Boolean.valueOf(value.trim()).toString(); break;
 			default: return false;
 		}
 		
