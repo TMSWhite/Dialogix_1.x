@@ -45,6 +45,7 @@ public class Evidence  {
 	private static final int ISINVALID = 25;
 	private static final int MIN = 26;
 	private static final int MAX = 27;
+	private static final int GETDAYNUM = 28;
 
 	private static final Object FUNCTION_ARRAY[][] = {
 		{ "desc",				ONE,		new Integer(DESC) },
@@ -75,6 +76,7 @@ public class Evidence  {
 		{ "isInvalid",			ONE,		new Integer(ISINVALID) },
 		{ "min",				UNLIMITED,	new Integer(MIN) },
 		{ "max",				UNLIMITED,	new Integer(MAX) },
+		{ "toDayNum",			ONE,		new Integer(GETDAYNUM) },
 	};
 
 	private static final Hashtable FUNCTIONS = new Hashtable();
@@ -331,7 +333,7 @@ public class Evidence  {
 				case ISINVALID:
 					return new Datum(triceps, datum.isType(Datum.INVALID));
 				case ISASKED:
-					return new Datum(triceps, !(datum.isType(Datum.NA)));
+					return new Datum(triceps, !(datum.isType(Datum.NA) || datum.isType(Datum.UNASKED) || datum.isType(Datum.INVALID)));
 				case ISNA:
 					return new Datum(triceps, datum.isType(Datum.NA));
 				case ISREFUSED:
@@ -489,6 +491,8 @@ public class Evidence  {
 						}
 						return new Datum(maxVal);
 					}
+				case GETDAYNUM:
+					return new Datum(triceps, datum.dateVal(),Datum.DAY_NUM);
 				}
 		}
 		catch (Throwable t) { 

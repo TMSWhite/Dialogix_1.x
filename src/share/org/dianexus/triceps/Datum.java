@@ -4,6 +4,7 @@ import java.io.*;
 import java.text.*;
 
 public class Datum  {
+	private static final int FIRST_DATUM_TYPE = 0;
 	public static final int UNASKED = 0;		// haven't asked
 	public static final int NA = 1;				// don't need to ask - not applicable
 	public static final int REFUSED = 2;		// question asked, but subject refuses to answer
@@ -22,12 +23,14 @@ public class Datum  {
 	public static final int MINUTE = 15;
 	public static final int SECOND = 16;
 	public static final int MONTH_NUM = 17;
+	public static final int DAY_NUM = 18;
+	private static final int LAST_DATUM_TYPE = 18;
 	
 	private static final Date SAMPLE_DATE = new Date(System.currentTimeMillis());
 	private static final Double SAMPLE_NUMBER = new Double(12345.678);	
 	
 	private static final String SPECIAL_TYPES[] = { "*UNASKED*", "*N/A*", "*REFUSED*", "*INVALID*", "*UNKNOWN*", "*HUH?*" };
-	private static final String DATUM_TYPES[] = { "number", "string", "date", "time", "year", "month", "day", "weekday", "hour", "minute", "second", "month_num" };
+	private static final String DATUM_TYPES[] = { "number", "string", "date", "time", "year", "month", "day", "weekday", "hour", "minute", "second", "month_num", "day_num" };
 
 	private static final String defaultDateFormat = "MM/dd/yyyy";
 	private static final String defaultMonthFormat = "MMMM";
@@ -41,6 +44,7 @@ public class Datum  {
 	private static final String defaultNumberFormat = null;	// so that Triceps pretty-prints it.
 
 	public static final String defaultMonthNumFormat = "M";
+	public static final String defaultDayNumFormat = "D";
 	public static final String TIME_MASK = "yyyy.MM.dd..HH.mm.ss";	
 
 	private int type = INVALID;
@@ -128,6 +132,7 @@ public class Datum  {
 			case MINUTE:
 			case SECOND:
 			case MONTH_NUM:
+			case DAY_NUM:
 				if (isDate(newType)) {
 					datum = new Datum(this);
 					datum.type = newType;
@@ -230,6 +235,7 @@ public class Datum  {
 			case MINUTE:
 			case SECOND:
 			case MONTH_NUM:
+			case DAY_NUM:
 				date = triceps.parseDate(obj,mask);
 				if (date == null) {
 					type = INVALID;
@@ -289,6 +295,7 @@ public class Datum  {
 			case MINUTE:
 			case SECOND:
 			case MONTH_NUM:
+			case DAY_NUM:
 				if (mask == null)
 					return format(triceps, this,type,Datum.getDefaultMask(type));
 				else
@@ -353,7 +360,7 @@ public class Datum  {
 	static public boolean isSpecical(int t) { return (t >= UNASKED && t <= NOT_UNDERSTOOD); }
 	public boolean isNumeric() { return (!Double.isNaN(dVal)); }
 	public boolean isDate() { return (date != null); }
-	static public boolean isDate(int t) { return (t >= DATE && t <= MONTH_NUM); }
+	static public boolean isDate(int t) { return (t >= DATE && t <= DAY_NUM); }
 
 	public boolean isType(int t) {
 		switch(t) {
@@ -367,6 +374,7 @@ public class Datum  {
 			case MINUTE:
 			case SECOND:
 			case MONTH_NUM:
+			case DAY_NUM:
 				return (date != null);
 			case NUMBER:
 				return (type == NUMBER);
@@ -409,6 +417,7 @@ public class Datum  {
 			case MINUTE:
 			case SECOND:
 			case MONTH_NUM:
+			case DAY_NUM:
 				return true;
 			default:
 				return false;
@@ -441,6 +450,7 @@ public class Datum  {
 			case MINUTE:
 			case SECOND:
 			case MONTH_NUM:
+			case DAY_NUM:
 				if (mask == null)
 					return format(lang, SAMPLE_DATE,t,Datum.getDefaultMask(t));
 				else
@@ -486,6 +496,8 @@ public class Datum  {
 				return defaultSecondFormat;
 			case MONTH_NUM:
 				return defaultMonthNumFormat;
+			case DAY_NUM:
+				return defaultDayNumFormat;
 			default:
 			case INVALID:
 			case NA:
@@ -517,6 +529,7 @@ public class Datum  {
 			case MINUTE:
 			case SECOND:
 			case MONTH_NUM:
+			case DAY_NUM:
 				if (o instanceof Datum) {
 					s = lang.formatDate(((Datum) o).dateVal(),mask);
 				}
@@ -604,6 +617,7 @@ public class Datum  {
 			case MINUTE: return lang.get("MINUTE");
 			case SECOND: return lang.get("SECOND");
 			case MONTH_NUM: return lang.get("MONTH_NUM");
+			case DAY_NUM: return lang.get("DAY_NUM");
 		}		
 	}
 	

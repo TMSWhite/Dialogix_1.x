@@ -4,8 +4,6 @@ import java.text.Format;
 
 /** This class provides the basic logic and mathematical functions for relating objects of type datum. */
 public class DatumMath {
-	private static final String MONTH_AS_NUM_MASK = Datum.getDefaultMask(Datum.MONTH_NUM);
-
 	static Datum hasError(Datum a, Datum b) {
 		// This function needs to be reconsidered as to the proper way to handle error propagation
 		if (a.isType(Datum.INVALID) || (b != null && b.isType(Datum.INVALID))) {
@@ -33,6 +31,7 @@ public class DatumMath {
 			case Datum.MINUTE: return Calendar.MINUTE;
 			case Datum.SECOND: return Calendar.SECOND;
 			case Datum.MONTH_NUM: return Calendar.MONTH;
+			case Datum.DAY_NUM: return Calendar.DAY_OF_YEAR;
 			default: return 0;	// should never get here
 		}
 	}
@@ -73,6 +72,7 @@ public class DatumMath {
 			case Datum.MINUTE:
 			case Datum.SECOND:
 			case Datum.MONTH_NUM:
+			case Datum.DAY_NUM:
 				if (!b.isNumeric()) {
 					/* need way to throw an error here */
 					return Datum.getInstance(a.triceps,Datum.INVALID);
@@ -164,6 +164,7 @@ public class DatumMath {
 				case Datum.MINUTE:
 				case Datum.SECOND:
 				case Datum.MONTH_NUM:
+				case Datum.DAY_NUM:
 					return new Datum(a.triceps, DatumMath.getCalendarField(a,a.type()) == DatumMath.getCalendarField(b,a.type()));
 				case Datum.STRING:
 					if (a.isNumeric())
@@ -205,6 +206,7 @@ public class DatumMath {
 				case Datum.MINUTE:
 				case Datum.SECOND:
 				case Datum.MONTH_NUM:
+				case Datum.DAY_NUM:
 					return new Datum(a.triceps, DatumMath.getCalendarField(a,a.type()) >= DatumMath.getCalendarField(b,a.type()));
 				case Datum.STRING:
 					if (a.isNumeric())
@@ -244,6 +246,7 @@ public class DatumMath {
 				case Datum.MINUTE:
 				case Datum.SECOND:
 				case Datum.MONTH_NUM:
+				case Datum.DAY_NUM:
 					return new Datum(a.triceps, DatumMath.getCalendarField(a,a.type()) > DatumMath.getCalendarField(b,a.type()));
 				case Datum.STRING:
 					if (a.isNumeric())
@@ -285,6 +288,7 @@ public class DatumMath {
 				case Datum.MINUTE:
 				case Datum.SECOND:
 				case Datum.MONTH_NUM:
+				case Datum.DAY_NUM:
 					return new Datum(a.triceps, DatumMath.getCalendarField(a,a.type()) <= DatumMath.getCalendarField(b,a.type()));
 				case Datum.STRING:
 					if (a.isNumeric())
@@ -322,6 +326,7 @@ public class DatumMath {
 				case Datum.MINUTE:
 				case Datum.SECOND:
 				case Datum.MONTH_NUM:
+				case Datum.DAY_NUM:
 					return new Datum(a.triceps, DatumMath.getCalendarField(a,a.type()) < DatumMath.getCalendarField(b,a.type()));
 				case Datum.STRING:
 					if (a.isNumeric())
@@ -391,6 +396,7 @@ public class DatumMath {
 				case Datum.MINUTE:
 				case Datum.SECOND:
 				case Datum.MONTH_NUM:
+				case Datum.DAY_NUM:
 					return new Datum(a.triceps, DatumMath.getCalendarField(a,a.type()) != DatumMath.getCalendarField(b,a.type()));
 				case Datum.STRING:
 					if (a.isNumeric())
@@ -451,6 +457,7 @@ public class DatumMath {
 			case Datum.MINUTE:
 			case Datum.SECOND:
 			case Datum.MONTH_NUM:
+			case Datum.DAY_NUM:
 				if (!b.isNumeric()) {
 					/* need way to throw an error here */
 					return Datum.getInstance(a.triceps,Datum.INVALID);
