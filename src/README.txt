@@ -7,8 +7,7 @@ Licensed to @@LICENSE.STUDY_NAME@@ for @@LICENSE.STUDY_ALIAS@@ Study
 Installed to @@DIALOGIX.HOME@@
 
 ==== REQUIREMENTS ====
-Dialogix requires Java, and runs on Windows 98, NT, ME, and 2000 systems.
-It has not yet been tested on Windows XP.
+Dialogix requires Java, and runs on Windows 98, NT, ME, 2000 and XP systems.
 A server version runs under Unix.
 
 Dialogix has been designed to take as little space as possible.  It will

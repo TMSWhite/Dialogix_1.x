@@ -222,7 +222,7 @@
 		
 		    <parameter>
 		      <name>url</name>
-		      <value>jdbc:mysql://192.168.10.57:3306/dialogix2994?autoReconnect=true</value>
+		      <value>jdbc:mysql://127.0.0.1:3306/dialogix2994?autoReconnect=true</value>
 		    </parameter>
 		  </ResourceParams>
 		</DefaultContext>                 
