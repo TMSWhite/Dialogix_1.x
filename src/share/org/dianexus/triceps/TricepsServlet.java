@@ -277,7 +277,7 @@ public class TricepsServlet extends HttpServlet {
 	 */
 	private void queryUser() {
 		// if parser internal to Schedule, should have method access it, not directly
-		out.println("<form method='POST' action='" + HttpUtils.getRequestURL(req) + "'");
+		out.println("<form method='POST' action='" + HttpUtils.getRequestURL(req) + "'>");
 		out.println("<H4>QUESTION AREA</H4>");
 		
 		Enumeration questionNames = triceps.getQuestions();
