@@ -68,6 +68,7 @@ import java.util.Date;
 
 	/*public*/ Datum(Triceps lang, double d) { init(lang, new Double(d), NUMBER, null); }
 	/*public*/ Datum(Triceps lang, long l) { init(lang, new Long(l), NUMBER, null); }
+	/*public*/ Datum(Triceps lang, int i) { init(lang, new Integer(i), NUMBER, null); }
 	
 	/*public*/ static synchronized Datum getInstance(Triceps lang, int i) {
 if (i == INVALID) {
@@ -78,12 +79,12 @@ if (i == INVALID) {
 		if (datum != null)
 			return datum;
 
-		datum = new Datum(lang,i);
+		datum = new Datum(i,lang);
 		SPECIAL_DATA.put(key,datum);
 		return datum;
 	}
 
-	private Datum(Triceps lang, int i) {
+	private Datum(int i, Triceps lang) {
 		// only for creating reserved instances
 		triceps = lang;
 		type = i;
