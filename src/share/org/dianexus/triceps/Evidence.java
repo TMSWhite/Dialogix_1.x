@@ -12,8 +12,8 @@ import java.net.*;
  */
 public class Evidence  {
 	Hashtable aliases;
-	Vector data;
-	Vector nodes;
+	Vector data;	// stores the Datum values associated with a node
+	Vector nodes;	// stores the references to the nodes - at identical indices to the data Vector
 	Schedule schedule = null;
 	int size;
 
@@ -54,7 +54,7 @@ public class Evidence  {
 			if (pastIndex != index.intValue()) {
 				/* Allow a single node to try to set the same alias for itself multiple times.
 				However, each node must have non-overlapping aliases with other nodes */
-				aliases.put(alias,o);	// restore overwritten alias
+				aliases.put(alias,o);	// restore overwritten alias?
 				Node prevNode = schedule.getNode(pastIndex);
 				n.setParseError("Duplicate alias <B>" + Node.encodeHTML(alias) + "</B> previously used for node <B>" + Node.encodeHTML(prevNode.getName()) + "</B> on line " + prevNode.getSourceLine());
 //				prevNode.setParseError("Node '" + n.getName() + "' is trying to steal your alias '" + alias + "'");
@@ -62,7 +62,7 @@ public class Evidence  {
 		}
 	}
 
-
+/*
 	public Evidence(int size) {
 		schedule = null;
 		this.size = size;
@@ -74,6 +74,7 @@ public class Evidence  {
 			nodes.addElement(null);
 		}
 	}
+*/
 
 	public boolean containsKey(Object val) {
 		if (val == null)
@@ -124,11 +125,7 @@ public class Evidence  {
 	public int getStep(Node n) {
 		if (n == null)
 			return -1;
-		if (nodes.contains(n)) {
-			return nodes.indexOf(n);
-		} else {
-			return -1;
-		}
+		return nodes.indexOf(n);	// returns -1 if !nodes.contains(n)
 	}
 
 	public void set(Node node, Datum val) {
@@ -137,23 +134,20 @@ public class Evidence  {
 			return;
 		}
 		Integer i;
-		i = (Integer)aliases.get(node.getName());	// fast way to access value - via hash
-		if (i == null)
-			i = (Integer)aliases.get(node.getQuestionRef());	// fast way to access value - via hash
-		if (i == null)
-			i = (Integer)aliases.get(node.getConcept());	// fast way to access value - via hash
-		if (i == null)
-			i = new Integer(getStep(node));	// potentially slow way - search for identical node within vector
-		if (i == null) {
+		
+		i = new Integer(getStep(node));
+		if (i.intValue() == -1) {
 			System.out.println("Node does not exist within evidence");
 			return;
 		}
 
 		data.setElementAt(val, i.intValue());
+		/*
 		nodes.setElementAt(node, i.intValue());
 		aliases.put(node.getConcept(), i);
 		aliases.put(node.getName(), i);
 		aliases.put(node.getQuestionRef(), i);
+		*/
 	}
 
 	public void set(String name, Datum val) {
@@ -167,12 +161,12 @@ public class Evidence  {
 			i = new Integer(data.size());
 			data.addElement(val);
 			nodes.addElement(name);
+			aliases.put(name, i);
 		}
 		else {
 			data.setElementAt(val, i.intValue());
-			nodes.setElementAt(name, i.intValue());
+//			nodes.setElementAt(name, i.intValue());
 		}
-		aliases.put(name, i);
 	}
 
 	public int size() {
