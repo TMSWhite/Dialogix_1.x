@@ -33,6 +33,7 @@ sub main {
 	foreach (@lines) {
 		chomp;
 		next if (/^(RESERVED)|(COMMENT)/);
+		next if (/^\s*$/);
 		my @args = split(/\t/);
 		
 		++$count;
