@@ -197,6 +197,10 @@ public class Node  {
 				localName = "_" + localName;
 			}
 		}
+		else {
+			setParseError("A localName must be specified for this node");
+		}
+		/*
 		if (externalName != null && externalName.trim().length() > 0) {
 			externalName = externalName.trim();
 			if (Character.isDigit(externalName.charAt(0))) {
@@ -204,7 +208,8 @@ public class Node  {
 				externalName = "_" + externalName;
 			}
 		}
-
+		*/
+		
 		parseQuestionOrEvalTypeField();
 
 		for (int i=0;i<answerChoicesStr.size();++i) {
