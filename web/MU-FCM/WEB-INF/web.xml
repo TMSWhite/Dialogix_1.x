@@ -18,15 +18,15 @@
         </init-param>           
         <init-param>
             <param-name>scheduleSrcDir</param-name>
-            <param-value>MU-FCM/WEB-INF/schedules/</param-value>
+            <param-value>CriticalAppraisal/WEB-INF/schedules/</param-value>
         </init-param>
         <init-param>
             <param-name>workingFilesDir</param-name>
-            <param-value>MU-FCM/WEB-INF/working/</param-value>
+            <param-value>CriticalAppraisal/WEB-INF/working/</param-value>
         </init-param>
         <init-param>
             <param-name>completedFilesDir</param-name>
-            <param-value>MU-FCM/WEB-INF/completed/</param-value>
+            <param-value>CriticalAppraisal/WEB-INF/completed/</param-value>
         </init-param>
         <init-param>
             <param-name>imageFilesDir</param-name>
