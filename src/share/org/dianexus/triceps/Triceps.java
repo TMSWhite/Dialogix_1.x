@@ -427,7 +427,13 @@ public class Triceps {
 
 		/* check for type error */
 		if (!d.exists()) {
-			q.setError("<- " + d.getError());
+			String s = d.getError();
+			if (s.length() == 0) {
+				q.setError("<- Please answer this question");
+			}
+			else {
+				q.setError("<- " + s);
+			}
 			evidence.set(q,Datum.getInstance(Datum.UNKNOWN));
 			return false;
 		}
