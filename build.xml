@@ -70,8 +70,10 @@
   <property name="app.version"   value="2.9.5"/>
   <property name="build.home"    value="build"/>
   <property name="tomcat.home.orig"   value="/apache/tomcat33"/> 
-  <property name="tomcat.home"   value="/usr/local/dialogix2"/> 
-  <property name="dialogix.home" value="/usr/local/dialogix2" />
+  <property name="tomcat.home"   value="/usr/local/dialogix"/> 
+  <property name="dialogix.home" value="/usr/local/dialogix" />
+  <property name="zip.basedir"		value="usr/local/dialogix" />	<!-- must not include initial /, else zip file doesn't match it -->
+  <property name="cvs.basedir"	value="cvs2/Dialogix" />	<!-- must not include initial /, else jar procedure doesn't match subdirectories -->
   <property name="deploy.home"   value="${tomcat.home}/webapps/"/>
   <property name="dist.home"     value="dist"/>
   <property name="jakarta.oro"	 value="jakarta-oro"/>
@@ -326,15 +328,21 @@
    description="Create binary distribution">
    
     <!-- backup project source -->
-         
-    <jar jarfile="${dist.home}/${app.name}_${app.version}-src.jar" basedir=".">
-        <exclude name="${build.home}/**"/>
-        <exclude name="${dist.home}/**"/>
+    <mkdir dir="${dist.home}"/>
+    
+	<delete file="${dist.home}/${app.name}_${app.version}-src.jar"/>
+    <jar jarfile="${dist.home}/${app.name}_${app.version}-src.jar" basedir="/">
+		<include name="${cvs.basedir}/**"/>
+       <exclude name="${cvs.basedir}/${build.home}/**"/>
+        <exclude name="${cvs.basedir}/${dist.home}/**"/>
     </jar>
 
-    <!-- Create application JAR file -->
-    <jar jarfile="${dist.home}/${app.name}_${app.version}.jar"
-         basedir="${tomcat.home}" includes="**"/>
+    <!-- Create application Zip file -->
+    <delete file="${dist.home}/${app.name}_${app.version}.zip" />
+    <zip zipfile="${dist.home}/${app.name}_${app.version}.zip"
+         basedir="/">
+         <include name="${zip.basedir}/**"/>
+    </zip>
   </target>
 
 
@@ -352,12 +360,13 @@
 
   <target name="javadoc" depends="compile"
    description="Create Javadoc API documentation">
+   <!--
 
     <mkdir          dir="${dist.home}/docs/api"/>
     <javadoc sourcepath="src"
                 destdir="${dist.home}/docs/api"
            packagenames="mypackage.*"/>
-
+   -->
   </target>
 
 
