@@ -334,21 +334,35 @@
        <filterset begintoken="@@" endtoken="@@">
          <filter token="DIALOGIX.DIR" value="${dialogix.dir}"/>
          <filter token="FLOPPY.DIR" value="${floppy.dir}"/>
+		   <filter token="TOMCAT.HOME" value="${tomcat.home}"/>
        </filterset>
-     </copy>  
+     </copy>
+     
+     <!-- copy the server.xml files, converting the port values as needed -->
+     <copy toDir="${tomcat.home}/conf" filtering="true">
+		<fileset dir="src/tomcat_3_2_x/conf">
+			<include name="server.xml" if="using.tomcat_3_2"/>
+		</fileset>
+		<fileset dir="src/tomcat_3_3_x/conf">
+			<include name="server.xml" if="using.tomcat_3_3"/>
+		</fileset>
+		<fileset dir="src/tomcat_4_0_x/conf">
+			<include name="server.xml" if="using.tomcat_4_0"/>
+		</fileset>
+       <filterset begintoken="@@" endtoken="@@"> 
+         <filter token="HTTP.PORT" value="${http.port}"/>
+         <filter token="HTTPS.PORT" value="${https.port}"/>
+       </filterset>
+     </copy>       
 
 	<!-- copy tomcat specific files to the appropriate target locations -->    
      <copy    todir="${tomcat.home}/">
      	<fileset dir="src/tomcat_3_2_x">
      		<include name="**" if="using.tomcat_3_2"/>
      	</fileset>
-    </copy>
-     <copy    todir="${tomcat.home}/">
      	<fileset dir="src/tomcat_3_3_x">
      		<include name="**" if="using.tomcat_3_3"/>
      	</fileset>
-    </copy>   
-    <copy    todir="${tomcat.home}/">
      	<fileset dir="src/tomcat_4_0_x">
      		<include name="**" if="using.tomcat_4_0"/>
      	</fileset>
@@ -449,6 +463,8 @@
 		   <filter token="ZIP.NAME" value="${zip.name}"/>
 			<filter token="WORKING.DIR" value="${WORKING.DIR}"/>
 			<filter token="COMPLETED.DIR" value="${COMPLETED.DIR}"/>		 
+         <filter token="HTTP.PORT" value="${http.port}"/>
+         <filter token="HTTPS.PORT" value="${https.port}"/>			
        </filterset>
     </copy>	
     
@@ -623,6 +639,9 @@
     <echo message="dialogix.version_major=${dialogix.version_major}"/>
     <echo message="dialogix.version_minor=${dialogix.version_minor}"/>
     <echo message="dialogix.xml=${dialogix.xml}"/>
+    <echo message="http.port=${http.port}"/>
+    <echo message="https.port=${https.port}"/>
+
     
     <echo message="LICENSE.PACKAGE_DIR=${LICENSE.PACKAGE_DIR}"/>
     <echo message="LICENSE.STUDY_ALIAS=${LICENSE.STUDY_ALIAS}"/>

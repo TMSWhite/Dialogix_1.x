@@ -225,7 +225,7 @@
             <Parameter name="handler" 
                 value="org.apache.tomcat.service.http.HttpConnectionHandler"/>
             <Parameter name="port" 
-                value="8080"/>
+                value="@@HTTP.PORT@@"/>
         </Connector>
 
         <!--
@@ -250,7 +250,7 @@
             <Parameter name="handler" 
                 value="org.apache.tomcat.service.http.HttpConnectionHandler"/>
             <Parameter name="port" 
-                value="8443"/>
+                value="@@HTTPS.PORT@@"/>
             <Parameter name="socketFactory" 
                 value="org.apache.tomcat.net.SSLSocketFactory" />
         </Connector>

@@ -30,7 +30,7 @@
       <init-param>
          <param-name>jdbcURL</param-name>
          <param-value>
-            jdbc:cloudscape:/usr/local/dialogix/webapps/case-study/WEB-INF/cloudscape/sunpress;create=false
+            jdbc:cloudscape:@@TOMCAT.HOME@@/webapps/case-study/WEB-INF/cloudscape/sunpress;create=false
          </param-value>
       </init-param>
 

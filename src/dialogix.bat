@@ -46,11 +46,11 @@ if exist %_NETSCAPE_% goto launch_netscape
 if exist %_IE_% goto launch_IE
 
 :launch_netscape
-%_NETSCAPE_% -browser "http://127.0.0.1:8080/@@DIALOGIX.START_DIR@@/"
+%_NETSCAPE_% -browser "http://127.0.0.1:@@HTTP.PORT@@/@@DIALOGIX.START_DIR@@/"
 goto cleanup
 
 :launch_IE
-%_IE_% "http://127.0.0.1:8080/@@DIALOGIX.START_DIR@@/"
+%_IE_% "http://127.0.0.1:@@HTTP.PORT@@/@@DIALOGIX.START_DIR@@/"
 goto cleanup
 
 :cleanup
