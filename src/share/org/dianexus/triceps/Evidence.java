@@ -1,6 +1,7 @@
 import java.lang.*;
 import java.util.*;
 import java.io.*;
+import java.net.*;
 
 /**
  * Contains data generated at each node.  Such data are produced either 
@@ -157,13 +158,15 @@ public class Evidence implements Serializable {
 		return data.size();
 	}
 	
-	public String toString() {
-		StringBuffer sb = new StringBuffer();
+	public String toXML() {
+		StringBuffer sb = new StringBuffer("<Evidence>\n");
 		Enumeration e = aliases.keys();
+		
 		while (e.hasMoreElements()) {
 			String s = (String)e.nextElement();
-			sb.append(s + "->" + toString(s) + "\n");
+			sb.append("	<datum name='" + s + "' value='" + toString(s) + "'/>\n");
 		}
+		sb.append("</Evidence>");
 		return sb.toString();
 	}
 	

@@ -238,4 +238,28 @@ public class Triceps implements Serializable {
 		else
 			return d.StringVal();
 	}
+	
+	public String evidenceToXML() {
+		return evidence.toXML();
+	}
+	
+	public String toXML() {
+		StringBuffer sb = new StringBuffer("<Evidence>\n");
+		Node n;
+		Datum d;
+		
+		for (int i=0;i<nodes.size();++i) {
+			n = nodes.getNode(i);
+			if (n == null)
+				continue;
+				
+			d = evidence.getDatum(n);
+			if (d == null)
+				continue;
+				
+			sb.append(" <datum name='" + n.getName() + "' value='" + d.StringVal() + "'/>\n");
+		}
+		sb.append("</Evidence>\n");
+		return sb.toString();
+	}
 }

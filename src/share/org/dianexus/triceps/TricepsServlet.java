@@ -2,6 +2,7 @@ import java.util.*;
 import java.io.*;
 import javax.servlet.*;
 import javax.servlet.http.*;
+import java.net.*;
 
 /**
  *	 This is the central engine that iterates through the nodes 
@@ -171,6 +172,17 @@ public class TricepsServlet extends HttpServlet {
 			out.println("<B>No help currently available</B><HR>");
 			// re-ask same question
 		}
+		else if (directive.equals("show evidence as XML (unordered, duplicated)")) {
+			out.println("<B>Use 'Show Source' to see data in Evidence as XML</B><BR>");
+			out.println("<!--\n" + triceps.evidenceToXML() + "\n-->");
+			out.println("<HR>");
+			// re-ask same question
+		}
+		else if (directive.equals("show schedule as XML (ordered)")) {
+			out.println("<B>Use 'Show Source' to see data in Schedule as XML</B><BR>");
+			out.println("<!--\n" + triceps.toXML() + "\n-->");
+			out.println("<HR>");			
+		}
 		else if (directive.equals("forward")) {
 			// store current answer(s)
 			Enumeration questionNames = triceps.getQuestions();
@@ -301,6 +313,9 @@ public class TricepsServlet extends HttpServlet {
 		out.println("<input type='text' name='jump-to'>");
 		out.println("<input type='SUBMIT' name='directive' value='clear evidence'>");
 		out.println("<input type='SUBMIT' name='directive' value='reload questions'>");
+		out.println("<BR>");
+		out.println("<input type='SUBMIT' name='directive' value='show evidence as XML (unordered, duplicated)'>");
+		out.println("<input type='SUBMIT' name='directive' value='show schedule as XML (ordered)'>");		
 		out.println("</form>");
 
 		// Node info area
