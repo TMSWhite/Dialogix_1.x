@@ -195,7 +195,15 @@ if (DEBUG) Logger.printStackTrace(t);
 			out.println("   <table border='0' cellpadding='0' cellspacing='3' width='100%'>");
 			out.println("      <tr>");
 			out.println("         <td width='1%'><img name='icon' src='/images/trilogo.jpg' align='top' border='0' alt='Logo' /> </td>");
-			out.println("         <td align='left'><font SIZE='4'>Sorry for the inconvenience, but Triceps session you were using expired (ran out of time).  Please RESTORE the schedule</font></td>");
+			out.println("         <td align='left'><font SIZE='4'>Sorry for the inconvenience, but web session you were using is no longer valid.  Either it ran of of time, or the server was restarted.");
+			if (!WEB_SERVER) {
+				out.print("  You can resume the instrument from where you left off by clicking <a href=\"JavaScript:void;\"");
+				out.print(" onclick=\"JavaScript:window.top.open('");
+				out.print(res.encodeURL(HttpUtils.getRequestURL(req).toString()));
+				out.print("','_blank','resizable=yes,scrollbars=yes');JavaScript:top.close();\">here</a>");
+				out.print("and selecting it from the RESTORE list.");
+			}
+			out.println("</font></td>");
 			out.println("      </tr>");
 			out.println("   </table>");
 			out.println("</body>");
