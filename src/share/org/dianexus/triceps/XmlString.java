@@ -199,18 +199,26 @@ if (DEBUG) Logger.writeln("##IOException @ new XMLString()" + e.getMessage());
 		boolean withinEscape = false;
 		int tagType;
 		int which = TAG;
+		boolean xhtmlizedUnary = false;
 
 		String element = src.substring(1,src.length()-1);	// remove open and close angle brackets
-
+		
 		++column;	// to account for the opening left angle bracket
 
 		if (element == null)
 			element = "";
 
 		try {
+			/* is it an XMLized unary tag? */
+			
+			element = element.trim();
+			if (element.endsWith("/")) {
+				xhtmlizedUnary = true;	// probably a unary tag like <br />
+				element = element.substring(0,element.length()-1).trim();	// remove the terminator
+			}
+			
 			/* build a string stripped of the opening and closing angle brackets */
 			StringTokenizer st = new StringTokenizer(element," \t\n\r\f=\'\"\\",true);
-
 
 
 			/* get and check tag name */
@@ -248,6 +256,7 @@ if (AUTHORABLE)	error(triceps.get("rejecting_mismatched_endTag") + asElement(ele
 
 			if (BINARY_TAGS.containsKey(tag)) {
 				tagType = BINARY_TAG;
+if (AUTHORABLE && xhtmlizedUnary) error("binary tags may not contain unary terminators" + asElement(element));
 			}
 			else if (UNARY_TAGS.containsKey(tag)) {
 				tagType = UNARY_TAG;
@@ -326,10 +335,10 @@ if (AUTHORABLE)	error(triceps.get("expected_start_of_a_string") + asElement(elem
 				}
 
 				if (TAGS_AFFECTED_BY_WHITESPACE.containsKey(tag)) {
-					prettyPrint(src,false);
+					prettyPrint(rebuildElement(element,tagType),false);
 				}
 				else {
-					prettyPrint(src,true);
+					prettyPrint(rebuildElement(element,tagType),true);
 				}
 				return true;
 			}
@@ -540,6 +549,16 @@ if (AUTHORABLE)	error(triceps.get("name_contains_invalid_character") + chars[i])
 	}
 	private String asEntity(String s) {
 		return (AMP + s + ";");
+	}
+	
+	private String rebuildElement(String s, int tagType) {
+		StringBuffer sb = new StringBuffer("<");
+		sb.append(s);
+		if (tagType == UNARY_TAG) {
+			sb.append(" /");
+		}
+		sb.append(">");
+		return sb.toString();
 	}
 }
 
