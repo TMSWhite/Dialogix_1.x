@@ -40,6 +40,7 @@ import java.util.jar.JarEntry;
 	private static final String DATAFILE_PREFIX = "tri";
 	private static final String DATAFILE_SUFFIX = ".dat";
 	private static final String EVENTFILE_SUFFIX = ".evt";
+	static final String ERRORLOG_SUFFIX = ".log.err";
 	
 	/*public*/ static final int ERROR = 1;
 	/*public*/ static final int OK = 2;
@@ -856,6 +857,7 @@ if (DEPLOYABLE) {
 		boolean ok = true;
 		ok = jw.addEntry(fn + DATAFILE_SUFFIX, dataLogger.getInputStream());
 		ok = jw.addEntry(fn + DATAFILE_SUFFIX + EVENTFILE_SUFFIX, eventLogger.getInputStream()) && ok;
+		ok = jw.addEntry(fn + ERRORLOG_SUFFIX, Logger.getDefaultInputStream()) && ok;		
 		jw.close();
 		
 		File f = new File(name);
@@ -883,6 +885,7 @@ if (DEPLOYABLE) {
 					srcName = fn + DATAFILE_SUFFIX + EVENTFILE_SUFFIX;
 					srcLogger = eventLogger.getFilename();
 				}
+				// ignore whether saved Triceps.err.log correctly
 				je = jf.getJarEntry(srcName);
 				srcFile = new File(srcLogger);
 				
