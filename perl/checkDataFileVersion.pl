@@ -99,7 +99,7 @@ sub processFile {
 	
 	my @path = split(/[\/\\]/,$file);
 	my $filebase = $path[$#path];
-	print OUT "$schedule\tv$sched_version\t$filebase\t$when\t$title\tTriceps v$triceps_version\n";	
+	print OUT "$title\tv$sched_version\t$schedule\t$when\t$filebase\tTriceps v$triceps_version\n";	
 }
 	
 sub fixTime {
