@@ -384,13 +384,13 @@ if (AUTHORABLE) {
 		String title = null;
 
 		try {
-			ScheduleList interviews = new ScheduleList(triceps, dir);
+			ScheduleList interviews = new ScheduleList(triceps, dir, isSuspended);
 
 			if (interviews.hasErrors()) {
-				errors.println(triceps.get("error_getting_list_of_available_interviews"));
+//				errors.println(triceps.get("error_getting_list_of_available_interviews"));
 				errors.print(interviews.getErrors());
 			}
-			else {
+//			else {
 				Vector schedules = interviews.getSchedules();
 				for (int i=0;i<schedules.size();++i) {
 					sched = (Schedule) schedules.elementAt(i);
@@ -415,7 +415,7 @@ if (DEBUG) Logger.writeln("##Throwable @ Servlet.getSortedNames()" + t.getMessag
 						Logger.printStackTrace(t);
 					}
 				}
-			}
+//			}
 		}
 		catch (Throwable t) {
 if (DEBUG) Logger.writeln("##Throwable @ Servlet.getSortedNames()" + t.getMessage());
@@ -487,7 +487,17 @@ if (DEBUG) Logger.writeln("##Throwable @ Servlet.getSortedNames()" + t.getMessag
 				while(iterator.hasNext()) {
 					String title = (String) iterator.next();
 					String target = (String) names.get(title);
-					sb.append("	<option value='" + target + "'>" + title + "</option>");
+					File file = new File(target);
+					
+					Vector v = AnswerChoice.subdivideMessage(title + "<br>(from " + file.getName() + ")", Node.MAX_TEXT_LEN_FOR_COMBO);
+					for (int i=0;i<v.size();++i) {
+						sb.append("	<option value='" + target + "'>");
+						if (i > 0) {
+							sb.append("&nbsp;&nbsp;&nbsp;");
+						}
+						sb.append((String) v.elementAt(i));
+						sb.append("</option>");
+					}
 				}
 				sb.append("</select>");
 			}
