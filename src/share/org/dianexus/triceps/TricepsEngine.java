@@ -608,6 +608,7 @@ if (DEPLOYABLE) {
 		// get the POSTed directive (start, back, next, help, suspend, etc.)	- default is opening screen
 		if (directive == null || directive.equals("select_new_interview")) {
 			/* Construct splash screen */
+if (DISPLAY_SPLASH) {
 			isSplashScreen = true;
 			triceps.setLanguage(null);	// the default
 
@@ -621,7 +622,8 @@ if (DEPLOYABLE) {
 			sb.append("</td><td>");
 			sb.append(buildSubmit("START"));
 			sb.append("</td></tr>");
-
+			
+if (DISPLAY_WORKING) {			
 			/* Build the list of suspended interviews */
 			sb.append("<tr><td>");
 			sb.append(triceps.get("or_restore_an_interview_in_progress"));
@@ -632,6 +634,7 @@ if (DEPLOYABLE) {
 			sb.append("</td><td>");
 			sb.append(buildSubmit("RESTORE"));
 			sb.append("</td></tr>");
+}			
 			
 			if (!WEB_SERVER) {
 				sb.append("<tr><td>");
@@ -641,6 +644,7 @@ if (DEPLOYABLE) {
 				sb.append("</td></tr>");
 			}
 			sb.append("</table>");
+}			
 
 			return sb.toString();
 		}
