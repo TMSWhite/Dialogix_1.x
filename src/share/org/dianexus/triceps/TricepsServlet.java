@@ -48,9 +48,15 @@ public class TricepsServlet extends HttpServlet {
 	private boolean isSplashScreen = false;
 	private boolean allowEasyBypass = false;	// means that a special value is present, so enable the possibility of okPasswordForTempAdminMode
 	private boolean allowComments = false;
+	private boolean allowRecordEvents = false;
+	private boolean allowRefused = false;
+	private boolean allowUnknown = false;
+	private boolean allowNotUnderstood = false;
+	private boolean allowLanguageSwitching = false;
 
 	private String directive = null;	// the default
 	private Triceps triceps = Triceps.NULL;
+	private Schedule schedule = null;	// triceps.getSchedule()
 	private boolean isloaded = false;
 	
 
@@ -230,12 +236,18 @@ if (Triceps.AUTHORABLE) {
 
 	private void setGlobalVariables() {
 		if (triceps.isValid()) {
-			debugMode = triceps.isDebugMode();
-			developerMode = triceps.isDeveloperMode();
-			showQuestionNum = triceps.isShowQuestionRef();
-			showAdminModeIcons = triceps.isShowAdminModeIcons();
-			autogenOptionNums = triceps.isAutoGenOptionNum();
-			allowComments = triceps.isAllowComments();
+			debugMode = schedule.getBooleanReserved(Schedule.DEBUG_MODE);
+			developerMode = schedule.getBooleanReserved(Schedule.DEVELOPER_MODE);
+			showQuestionNum = schedule.getBooleanReserved(Schedule.SHOW_QUESTION_REF);
+			showAdminModeIcons = schedule.getBooleanReserved(Schedule.SHOW_ADMIN_ICONS);
+			autogenOptionNums = schedule.getBooleanReserved(Schedule.AUTOGEN_OPTION_NUM);
+			allowComments = schedule.getBooleanReserved(Schedule.ALLOW_COMMENTS);
+			allowRecordEvents = schedule.getBooleanReserved(Schedule.RECORD_EVENTS);
+			allowRefused = schedule.getBooleanReserved(Schedule.ALLOW_REFUSED);
+			allowUnknown = schedule.getBooleanReserved(Schedule.ALLOW_UNKNOWN);
+			allowNotUnderstood = schedule.getBooleanReserved(Schedule.ALLOW_DONT_UNDERSTAND);
+			allowLanguageSwitching = schedule.getBooleanReserved(Schedule.ALLOW_LANGUAGE_SWITCHING);
+			
 		}
 		else {
 			debugMode = false;
@@ -244,6 +256,11 @@ if (Triceps.AUTHORABLE) {
 			showAdminModeIcons = false;
 			autogenOptionNums = true;
 			allowComments = false;
+			allowRecordEvents = false;
+			allowRefused = false;
+			allowUnknown = false;
+			allowNotUnderstood = false;
+			allowLanguageSwitching = false;
 		}
 		allowEasyBypass = false;
 		okPasswordForTempAdminMode = false;
@@ -282,17 +299,17 @@ if (Triceps.AUTHORABLE) {
 			/* Toggle these values, as requested */
 			if (directive.startsWith(triceps.get("turn_developerMode"))) {
 				developerMode = !developerMode;
-				triceps.getSchedule().setReserved(Schedule.DEVELOPER_MODE, String.valueOf(developerMode));
+				schedule.setReserved(Schedule.DEVELOPER_MODE, String.valueOf(developerMode));
 				directive = "refresh current";
 			}
 			else if (directive.startsWith(triceps.get("turn_debugMode"))) {
 				debugMode = !debugMode;
-				triceps.getSchedule().setReserved(Schedule.DEBUG_MODE, String.valueOf(debugMode));
+				schedule.setReserved(Schedule.DEBUG_MODE, String.valueOf(debugMode));
 				directive = "refresh current";
 			}
 			else if (directive.startsWith(triceps.get("turn_showQuestionNum"))) {
 				showQuestionNum = !showQuestionNum;
-				triceps.getSchedule().setReserved(Schedule.SHOW_QUESTION_REF, String.valueOf(showQuestionNum));
+				schedule.setReserved(Schedule.SHOW_QUESTION_REF, String.valueOf(showQuestionNum));
 				directive = "refresh current";
 			}
 		}
@@ -472,20 +489,20 @@ Logger.writeln("##Throwable @ Servlet.selectFromInterviewsInDir" + t.getMessage(
 	}
 
 	private String languageButtons() {
-		if (isSplashScreen || !triceps.isValid() || !triceps.isAllowLanguageSwitching())
+		if (isSplashScreen || !triceps.isValid() || !allowLanguageSwitching)
 			return "";
 
 		StringBuffer sb = new StringBuffer();
 
 		/* language switching section */
 		if (!isSplashScreen && triceps.isValid()) {
-			Vector languages = triceps.getSchedule().getLanguages();
+			Vector languages = schedule.getLanguages();
 			if (languages.size() > 1) {
 				sb.append("<table width='100%' border='0'><tr><td align='center'>");
 				for (int i=0;i<languages.size();++i) {
 					String language = (String) languages.elementAt(i);
 					boolean selected = (i == triceps.getLanguage());
-					sb.append(((selected) ? "<u>" : "") +
+					sb.append(((selected) ? "\n<u>" : "") +
 						"<input type='button' onClick='evHandler(event);setLanguage(\"" + language + "\");' name='select_" + language + "' value='" + language + "'>" +
 						((selected) ? "</u>" : ""));
 				}
@@ -667,11 +684,11 @@ if (Triceps.AUTHORABLE) {
 				}
 				errors.print("</table><hr>");
 			}
-			if (triceps.getSchedule().hasErrors()) {
+			if (schedule.hasErrors()) {
 				errors.print("<font color='red'>" +
 					triceps.get("The_following_flow_errors_were_found") + "</font>");
 				errors.print("<table cellpadding='2' cellspacing='1' width='100%' border='1'><tr><td>");
-				errors.print(triceps.getSchedule().getErrors());
+				errors.print(schedule.getErrors());
 				errors.print("</td></tr></table>");
 			}
 			if (triceps.getEvidence().hasErrors()) {
@@ -797,6 +814,7 @@ if (Triceps.AUTHORABLE) {
 		if (!Triceps.AUTHORABLE && !triceps.getSchedule().isLoaded()) {
 			triceps = Triceps.NULL;
 		}
+		schedule = triceps.getSchedule();		
 		return triceps.isValid();
 	}
 
@@ -992,15 +1010,15 @@ if (Triceps.AUTHORABLE) {
 		/* If something has been set as Refused, Unknown, etc, allow going forward without additional headache */
 
 		if (showAdminModeIcons || okToShowAdminModeIcons || isSpecial) {
-			if (triceps.isAllowRefused() || isRefused) {
+			if (allowRefused || isRefused) {
 				sb.append("<img name='" + inputName + "_REFUSED_ICON" + "' src='" + ((isRefused) ? REFUSED_T_ICON : REFUSED_F_ICON) +
 					"' align='top' border='0' alt='" + triceps.get("Set_as_Refused") + "' onMouseUp='evHandler(event);markAsRefused(\"" + inputName + "\");'>");
 			}
-			if (triceps.isAllowUnknown() || isUnknown) {
+			if (allowUnknown || isUnknown) {
 				sb.append("<img name='" + inputName + "_UNKNOWN_ICON" + "' src='" + ((isUnknown) ? UNKNOWN_T_ICON : UNKNOWN_F_ICON) +
 					"' align='top' border='0' alt='" + triceps.get("Set_as_Unknown") + "' onMouseUp='evHandler(event);markAsUnknown(\"" + inputName + "\");'>");
 			}
-			if (triceps.isAllowNotUnderstood() || isNotUnderstood) {
+			if (allowNotUnderstood || isNotUnderstood) {
 				sb.append("<img name='" + inputName + "_NOT_UNDERSTOOD_ICON" + "' src='" + ((isNotUnderstood) ? NOT_UNDERSTOOD_T_ICON : NOT_UNDERSTOOD_F_ICON) +
 					"' align='top' border='0' alt='" + triceps.get("Set_as_Not_Understood") + "' onMouseUp='evHandler(event);markAsNotUnderstood(\"" + inputName + "\");'>");
 			}
@@ -1054,10 +1072,8 @@ if (Triceps.AUTHORABLE) {
 			sb.append(triceps.get("EVIDENCE_AREA"));
 			sb.append("<table cellpadding='2' cellspacing='1'  width='100%' border='1'>");
 			
-			Schedule sched = triceps.getSchedule();
-			
-			for (int i = sched.size()-1; i >= 0; i--) {
-				Node n = sched.getNode(i);
+			for (int i = schedule.size()-1; i >= 0; i--) {
+				Node n = schedule.getNode(i);
 				Datum d = triceps.getDatum(n);
 				if (!triceps.isSet(n))
 					continue;
@@ -1109,7 +1125,7 @@ if (Triceps.AUTHORABLE) {
 		sb.append("var name = null;\n");
 		sb.append("var msg = null;\n");
 		
-		if (triceps.isRecordEvents()) {
+		if (allowRecordEvents) {
 			sb.append("var startTime = new Date();\n");
 			sb.append("var el = null;\n");
 			sb.append("var evH = null;\n");
@@ -1146,7 +1162,7 @@ if (Triceps.AUTHORABLE) {
 			
 		sb.append("function evHandler(e) {\n");
 			
-		if (triceps.isRecordEvents()) {
+		if (allowRecordEvents) {
 			sb.append("	now = new Date();\n");
 			sb.append("	val = ',' + e.target.value;\n");
 			sb.append("	name = e.target.name;\n");
@@ -1157,14 +1173,14 @@ if (Triceps.AUTHORABLE) {
 		sb.append("	return true;\n");
 		sb.append("}\n");
 			
-		if (triceps.isRecordEvents()) {
+		if (allowRecordEvents) {
 			sb.append("window.captureEvents(Event.Load);\n");
 			sb.append("window.onLoad = evHandler;\n");
 		}
 
 		sb.append("function init() {\n");
 
-		if (triceps.isRecordEvents()) {
+		if (allowRecordEvents) {
 			sb.append("	for (var i=0;i<document.myForm.elements.length;++i) {\n");
 			sb.append("		el = document.myForm.elements[i];\n");
 			sb.append("		evH = evHandler;\n");
@@ -1207,9 +1223,12 @@ if (Triceps.AUTHORABLE) {
 		sb.append("		document.myForm.elements[name + '_REFUSED_ICON'].src = '" + REFUSED_F_ICON + "';\n");
 		sb.append("	} else {\n");
 		sb.append("		val.value = '" + Datum.getSpecialName(Datum.REFUSED) + "';\n");
-		sb.append("		document.myForm.elements[name + '_REFUSED_ICON'].src = '" + REFUSED_T_ICON + "';\n");
-		sb.append("		document.myForm.elements[name + '_UNKNOWN_ICON'].src = '" + UNKNOWN_F_ICON + "';\n");
-		sb.append("		document.myForm.elements[name + '_NOT_UNDERSTOOD_ICON'].src = '" + NOT_UNDERSTOOD_F_ICON + "';\n");
+		if (allowRefused)
+			sb.append("		document.myForm.elements[name + '_REFUSED_ICON'].src = '" + REFUSED_T_ICON + "';\n");
+		if (allowUnknown)
+			sb.append("		document.myForm.elements[name + '_UNKNOWN_ICON'].src = '" + UNKNOWN_F_ICON + "';\n");
+		if (allowNotUnderstood)
+			sb.append("		document.myForm.elements[name + '_NOT_UNDERSTOOD_ICON'].src = '" + NOT_UNDERSTOOD_F_ICON + "';\n");
 		sb.append("	}\n");
 		sb.append("}\n");
 		sb.append("function markAsUnknown(name) {\n");
@@ -1220,9 +1239,12 @@ if (Triceps.AUTHORABLE) {
 		sb.append("		document.myForm.elements[name + '_UNKNOWN_ICON'].src = '" + UNKNOWN_F_ICON + "';\n");
 		sb.append("	} else {\n");
 		sb.append("		val.value = '" + Datum.getSpecialName(Datum.UNKNOWN) + "';\n");
-		sb.append("		document.myForm.elements[name + '_REFUSED_ICON'].src = '" + REFUSED_F_ICON + "';\n");
-		sb.append("		document.myForm.elements[name + '_UNKNOWN_ICON'].src = '" + UNKNOWN_T_ICON + "';\n");
-		sb.append("		document.myForm.elements[name + '_NOT_UNDERSTOOD_ICON'].src = '" + NOT_UNDERSTOOD_F_ICON + "';\n");
+		if (allowRefused)
+			sb.append("		document.myForm.elements[name + '_REFUSED_ICON'].src = '" + REFUSED_F_ICON + "';\n");
+		if (allowUnknown)
+			sb.append("		document.myForm.elements[name + '_UNKNOWN_ICON'].src = '" + UNKNOWN_T_ICON + "';\n");
+		if (allowNotUnderstood)
+			sb.append("		document.myForm.elements[name + '_NOT_UNDERSTOOD_ICON'].src = '" + NOT_UNDERSTOOD_F_ICON + "';\n");
 		sb.append("	}\n");
 		sb.append("}\n");
 		sb.append("function markAsNotUnderstood(name) {\n");
@@ -1233,9 +1255,12 @@ if (Triceps.AUTHORABLE) {
 		sb.append("		document.myForm.elements[name + '_NOT_UNDERSTOOD_ICON'].src = '" + NOT_UNDERSTOOD_F_ICON + "';\n");
 		sb.append("	} else {\n");
 		sb.append("		val.value = '" + Datum.getSpecialName(Datum.NOT_UNDERSTOOD) + "';\n");
-		sb.append("		document.myForm.elements[name + '_REFUSED_ICON'].src = '" + REFUSED_F_ICON + "';\n");
-		sb.append("		document.myForm.elements[name + '_UNKNOWN_ICON'].src = '" + UNKNOWN_F_ICON + "';\n");
-		sb.append("		document.myForm.elements[name + '_NOT_UNDERSTOOD_ICON'].src = '" + NOT_UNDERSTOOD_T_ICON + "';\n");
+		if (allowRefused)
+			sb.append("		document.myForm.elements[name + '_REFUSED_ICON'].src = '" + REFUSED_F_ICON + "';\n");
+		if (allowUnknown)
+			sb.append("		document.myForm.elements[name + '_UNKNOWN_ICON'].src = '" + UNKNOWN_F_ICON + "';\n");
+		if (allowNotUnderstood)
+			sb.append("		document.myForm.elements[name + '_NOT_UNDERSTOOD_ICON'].src = '" + NOT_UNDERSTOOD_T_ICON + "';\n");
 		sb.append("	}\n");
 		sb.append("}\n");
 		sb.append("function help(name,target) {\n");
