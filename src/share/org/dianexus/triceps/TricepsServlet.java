@@ -398,7 +398,7 @@ public class TricepsServlet extends HttpServlet {
 			if (gotoMsg == Triceps.AT_END) {
 				// save the file, but still give the option to go back and change answers
 				boolean savedOK;
-				String name = Datum.format(triceps.getStartTime(),Datum.DATE,Triceps.TIME_MASK);
+				String name = Datum.format(triceps.getStartTime(),Datum.DATE,Datum.TIME_MASK);
 				String file = scheduleSaveDir + name + "." + req.getRemoteUser() + "." + req.getRemoteHost() + ".tsv";
 
 				sb.append("<B>Thank you, the interview is completed</B><BR>\n");

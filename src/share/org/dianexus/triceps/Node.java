@@ -75,8 +75,9 @@ public class Node  {
 
 	// loading from extended Schedule with default answers
 	// XXX hack - Node shouldn't know values of evidence - Schedule should know how to load itself.
-	private transient String debugAnswer = null;
-	private transient String questionAsAsked = "";
+	private String defaultAnswer = null;
+	private String defaultAnswerTimeStampStr = null;
+	private String questionAsAsked = "";
 
 	public Node(int sourceLine, String sourceFile, String tsv) {
 //		initialize();
@@ -114,12 +115,13 @@ public class Node  {
 				case 6: action = fixExcelisms(s); ++count; break;
 				case 7: answerOptions = fixExcelisms(s); ++count; break;
 				case 8: questionAsAsked = fixExcelisms(s); ++count; break;
-				case 9: debugAnswer = fixExcelisms(s); ++count; break;
+				case 9: defaultAnswer = fixExcelisms(s); ++count; break;
+				case 10: defaultAnswerTimeStampStr = fixExcelisms(s); ++count; break;
 				default:	break;	// discard any extras
 			}
 		}
-		if (count < 7 || count > 10) {
-			setParseError("Expected 8-10 tokens; found " + count);
+		if (count < 7 || count > 11) {
+			setParseError("Expected 8-11 tokens; found " + count);
 		}
 
 		/* Fix step names */
@@ -639,7 +641,8 @@ public class Node  {
 	public String getDescription() { return description; }
 	public String getName() { return stepName; }
 	public String getQuestionRef() { return questionRef; }
-	public String getDebugAnswer() { return debugAnswer; }
+	public String getDefaultAnswer() { return defaultAnswer; }
+	public String getDefaultAnswerTimeStampStr() { return defaultAnswerTimeStampStr; }
 //	public String getQuestionMask() { return ((maskStr == null) ? DATATYPE_EG_STRS[answerType] : maskStr) + rangeStr; }
 	public String getQuestionMask() {
 		if (rangeStr != null)
@@ -704,7 +707,7 @@ public class Node  {
 
 	public String toTSV() {
 		return concept + "\t" + description + "\t" + stepName + "\t" + dependencies + "\t" + questionRef +
-			"\t" + actionTypeStr + "\t" + action + "\t" + answerOptions;
+			"\t" + actionTypeField + "\t" + action + "\t" + answerOptions;
 	}
 
 

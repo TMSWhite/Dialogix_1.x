@@ -34,12 +34,16 @@ public class Datum  {
 	private static final SimpleDateFormat defaultMinuteFormat = new SimpleDateFormat("m");
 	private static final SimpleDateFormat defaultSecondFormat = new SimpleDateFormat("s");
 	private static final DecimalFormat defaultNumberFormat = new DecimalFormat();
+	
+	public static final SimpleDateFormat TIME_MASK = new SimpleDateFormat("yyyy.MM.dd..hh.mm.ss.z");
+	
 
 	private int type = UNKNOWN;
 	private String sVal = TYPES[type];
 	private double dVal = Double.NaN;
 	private boolean bVal = false;
-	private Date timestamp = null;
+	private Date timeStamp = null;
+	private String timeStampStr = null;
 	private Date date = null;
 	private Format mask = null;
 	private String error = null;
@@ -49,9 +53,8 @@ public class Datum  {
 		dVal = d;
 		bVal = (Double.isNaN(d) || (d == 0)) ? false : true;
 		sVal = (bVal) ? Double.toString(d) : "";
-		timestamp = new Date(System.currentTimeMillis());
+		setTimeStamp();
 	}
-	
 	
 	public Datum(int i) {
 		type = i;
@@ -59,7 +62,7 @@ public class Datum  {
 		bVal = false;
 		dVal = Double.NaN;
 		date = null;
-		timestamp = new Date(System.currentTimeMillis());
+		setTimeStamp();
 
 		switch (i) {
 			case NA:
@@ -79,7 +82,7 @@ public class Datum  {
 		dVal = (double)l;
 		bVal = (l == 0) ? false : true;
 		sVal = Long.toString(l);
-		timestamp = new Date(System.currentTimeMillis());
+		setTimeStamp();
 	}
 	public Datum(Datum val) {
 		dVal = val.doubleVal();
@@ -88,7 +91,7 @@ public class Datum  {
 		date = val.date;
 		type = val.type();
 		mask = val.getMask();
-		timestamp = new Date(System.currentTimeMillis());
+		setTimeStamp();
 	}
 
 	public Datum(Date d, int t) {
@@ -200,7 +203,7 @@ public class Datum  {
 				error = "Internal error: Unexpected data format: " + type;
 				break;
 		}
-		timestamp = new Date(System.currentTimeMillis());
+		setTimeStamp();
 	}
 
 	public Datum(boolean b) {
@@ -208,7 +211,7 @@ public class Datum  {
 		dVal = (b ? 1 : 0);
 		bVal = b;
 		sVal = (b ? "1" : "0");
-		timestamp = new Date(System.currentTimeMillis());
+		setTimeStamp();
 	}
 
 	public String stringVal() {
@@ -234,7 +237,8 @@ public class Datum  {
 	public String timeVal() { if (date == null) return ""; return Datum.format(date,Datum.TIME); }
 	public long longVal() { return (long)dVal; }
 	public int type() { return type; }
-	public Date getTimeStamp() { return timestamp; }
+	public Date getTimeStamp() { return timeStamp; }
+	public String getTimeStampStr() { return timeStampStr; }
 	public Format getMask() { return mask; }
 	public void setMask(Format mask) { this.mask = mask; }
 
@@ -477,6 +481,28 @@ public class Datum  {
 			case STRING:
 			case REFUSED:
 				return "";	// no formatting string to contrain input
+		}
+	}
+	
+	private void setTimeStamp() {
+		timeStamp = new Date(System.currentTimeMillis());
+		timeStampStr = Datum.format(timeStamp,Datum.DATE,Datum.TIME_MASK);
+	}
+	
+	public void setTimeStamp(String t) {
+		Date time = null;
+		try {
+			time = TIME_MASK.parse(t);
+		}
+		catch (java.text.ParseException e) {
+			System.out.println("Error parsing time " + e.getMessage());
+		}
+		if (time == null) {
+			setTimeStamp();
+		}
+		else {
+			timeStamp = time;
+			timeStampStr = t;
 		}
 	}
 }

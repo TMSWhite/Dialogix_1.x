@@ -7,10 +7,11 @@ import java.net.*;
  * Schedule holds a collection of nodes.
 */
 public class Schedule  {
-	private Vector nodes;
+	private Vector nodes = new Vector();
+	private Vector comments = new Vector();
+	private Vector reserved = new Vector();
 
 	public Schedule() {
-		nodes = new Vector();
 	}
 
 	public boolean load(BufferedReader br, String filename) {
@@ -27,8 +28,17 @@ public class Schedule  {
 			while ((fileLine = br.readLine()) != null) {
 				++line;
 				fileLine = fileLine.trim();
-				if (fileLine.startsWith("COMMENT")  || fileLine.equals(""))
+				if (fileLine.equals(""))
 					continue;
+					
+				if (fileLine.startsWith("COMMENT")) {
+					comments.addElement(fileLine);
+					continue;
+				}
+				if (fileLine.startsWith("RESERVED")) {
+					reserved.addElement(fileLine);
+					continue;
+				}
 
 				Node node = new Node(line, filename, fileLine);
 				++count;
@@ -59,6 +69,9 @@ public class Schedule  {
 		}
 		return (Node)nodes.elementAt(index);
 	}
+	
+	public Vector getComments() { return comments; }
+	public Vector getReserved() { return reserved; }
 
 	public int size() {
 		return nodes.size();

@@ -2,7 +2,6 @@ import java.lang.*;
 import java.util.*;
 import java.io.*;
 import java.net.*;
-import java.text.Format;
 
 /* Triceps
  */
@@ -10,7 +9,6 @@ public class Triceps {
 	public static final int ERROR = 1;
 	public static final int OK = 2;
 	public static final int AT_END = 3;
-	public static final Format TIME_MASK = Datum.buildMask("yyyy.MM.dd..hh.mm.ss.z",Datum.DATE);
 
 	static private final Vector EMPTY_LIST = new Vector();
 
@@ -47,7 +45,7 @@ public class Triceps {
 			scheduleFilePrefix = optionalFilePrefix;
 			
 			nodes = new Schedule();
-			return (nodes.load(br,scheduleURL) && resetEvidence() && setDebugEvidence());
+			return (nodes.load(br,scheduleURL) && resetEvidence() && setDefaultEvidence());
 		}
 	}
 
@@ -322,38 +320,52 @@ public class Triceps {
 
 	private void startTimer() {
 		startTime = new Date(System.currentTimeMillis());
-		startTimeStr = Datum.format(startTime,Datum.DATE,TIME_MASK);
+		startTimeStr = Datum.format(startTime,Datum.DATE,Datum.TIME_MASK);
 		stopTime = null;	// reset stopTime, since re-starting
 	}
 
 	private void stopTimer() {
 		if (stopTime == null) {
 			stopTime = new Date(System.currentTimeMillis());
-			stopTimeStr = Datum.format(stopTime,Datum.DATE,TIME_MASK);
+			stopTimeStr = Datum.format(stopTime,Datum.DATE,Datum.TIME_MASK);
 		}
 	}
 
-	private boolean setDebugEvidence() {
+	private boolean setDefaultEvidence() {
 		Node n;
+		Datum d;
 		String init;
 		for (int i=0;i<size();++i) {
 			n = nodes.getNode(i);
 			if (n == null)
 				continue;
 
-			init = n.getDebugAnswer();
+			init = n.getDefaultAnswer();
 
-			if (init == null || init.length() == 0 || init.equals(NULL) || init.equals(Datum.TYPES[Datum.UNKNOWN])) {
-				evidence.set(n,new Datum(Datum.UNKNOWN));
+			if (init == null || init.length() == 0 || init.equals(NULL)) {
+				d = new Datum(Datum.UNKNOWN);
+			}
+			else if (init.equals(Datum.TYPES[Datum.UNKNOWN])) {
+				d = new Datum(Datum.UNKNOWN);
 			}
 			else if (init.equals(Datum.TYPES[Datum.NA])) {
-				evidence.set(n,new Datum(Datum.NA));
+				d = new Datum(Datum.NA);
 			}
 			else if (init.equals(Datum.TYPES[Datum.INVALID])) {
-				evidence.set(n,new Datum(Datum.INVALID));
+				d = new Datum(Datum.INVALID);
+			}
+			else if (init.equals(Datum.TYPES[Datum.REFUSED])) {
+				d = new Datum(Datum.REFUSED);
 			}
 			else {
-				evidence.set(n,new Datum(init,n.getDatumType(),n.getMask()));	// set an initial value for the node
+				d = new Datum(init,n.getDatumType(),n.getMask());
+			}
+			
+			evidence.set(n,d);
+			
+			String timeStampStr = n.getDefaultAnswerTimeStampStr();
+			if (timeStampStr != null) {
+				d.setTimeStamp(timeStampStr);
 			}
 		}
 		return true;
@@ -544,7 +556,11 @@ public class Triceps {
 			out.write("COMMENT " + "Schedule: " + scheduleURL + "\n");
 			out.write("COMMENT " + "Started: " + getStartTimeStr() + "\n");
 			out.write("COMMENT " + "Stopped: " + getStopTimeStr() + "\n");
-			out.write("COMMENT " + "\n");
+			
+			Vector comments = nodes.getComments();
+			for (int i=0;i<comments.size();++i) {
+				out.write((String) comments.elementAt(i) + "\n");
+			}
 
 			for (int i=0;i<size();++i) {
 				n = nodes.getNode(i);
@@ -559,7 +575,7 @@ public class Triceps {
 					ans = d.stringVal(true);
 				}
 
-				out.write(n.toTSV() + "\t" + n.getQuestionAsAsked() + "\t" + ans + "\t" + Datum.format(d.getTimeStamp(),Datum.DATE,TIME_MASK) + "\n");
+				out.write(n.toTSV() + "\t" + n.getQuestionAsAsked() + "\t" + ans + "\t" + d.getTimeStampStr() + "\n");
 			}
 			out.flush();
 			return true;
