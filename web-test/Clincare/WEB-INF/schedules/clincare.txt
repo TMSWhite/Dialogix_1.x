@@ -1,0 +1,25 @@
+RESERVED	__TRICEPS_FILE_TYPE__	SCHEDULE
+RESERVED	__ICON__	nypi.jpg
+RESERVED	__DEVELOPER_MODE__	true
+RESERVED	__DEBUG_MODE__	true
+RESERVED	__TITLE__	Clincare
+RESERVED	__HEADER_MSG__	Clincare
+RESERVED	__AUTOGEN_OPTION_NUM__	false
+RESERVED	__SHOW_ADMIN_ICONS__	false
+RESERVED	__ALLOW_COMMENTS__	false
+RESERVED	__ALLOW_DONT_UNDERSTAND__	true
+RESERVED	__ALLOW_REFUSED__	true
+RESERVED	__ALLOW_UNKNOWN__	true
+RESERVED	__PASSWORD_FOR_ADMIN_MODE__	admin
+RESERVED	__LANGUAGES__	en_US
+RESERVED	__SUSPEND_TO_FLOPPY__	false
+RESERVED	__JUMP_TO_FIRST_UNASKED__	false
+RESERVED	__SCHED_AUTHORS__	
+RESERVED	__SCHED_VERSION_MAJOR__	0.1
+RESERVED	__SCHED_VERSION_MINOR__	0
+COMMENT: Concept	VariableName	DisplayName	Relevance	QuestionOrEval	Readback	QuestionOrEvalText	AnswerOptions
+general health:intro	_GHintro		1	[		General Health	nothing
+general health:any	GHany		1	q		Have you had any kind of problem with your health over the past month?	list|0|Yes|1|No|7777|No response/not interpretable|8888|Refused
+general health:self care	GHself_care		1	q		Any difficulty doing things for yourself?	list|0|Yes|1|No|7777|No response/not interpretable|8888|Refused
+general health:self rating	GHself_rating		1	]		Compared with persons your age, how would you rate your health at the present time -- excellent, good, fair, or poor?	list|1|Excellent|2|Good|3|Fair|4|Poor|7777|No response/not interpretable|8888|Refused
+end	end	end	1	q		This is the end	nothing
