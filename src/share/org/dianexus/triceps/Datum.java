@@ -186,7 +186,7 @@ public class Datum  {
 		type = INVALID;	// default is to indicate failure to create new Datum object
 		this.mask = mask;	// what happens when convert data types?
 
-		if (s == null || s.trim().equals("")) {
+		if (s == null) {
 			t = INVALID;
 		}
 
@@ -358,7 +358,8 @@ public class Datum  {
 	}
 
 	public boolean exists() {
-		return (type != UNKNOWN && isValid());
+		/* not only must it be valid, but STRING vals must be non-null */
+		return (type != UNKNOWN && isValid() && ((type == STRING) ? !sVal.equals("") : true));
 	}
 
 	public boolean isType(int t) {
