@@ -127,7 +127,6 @@ public class Node  {
 			}
 			catch (Throwable t) {
 				setParseError("tokenization error: " + t.getMessage());
-				System.err.println("tokenization error: " + t.getMessage());
 			}
 
 			if (s.equals("\t")) {
@@ -161,12 +160,10 @@ public class Node  {
 					}
 					catch (Throwable t) {
 						setParseError("LanguageNum for answer not an integer: " + t.getMessage());
-						System.err.println("LanguageNum for answer not an integer: " + t.getMessage());
 						i = 0; // default language
 					}
 					if (i < 0 || i >= numLanguages) {
 						setParseError("Invalid language number '" + i + "': must be between 0 and " + (numLanguages - 1));
-						System.err.println("Invalid language number '" + i + "': must be between 0 and " + (numLanguages - 1));
 						i = 0;	// default language
 					}
 					answerLanguageNum = i;
@@ -273,7 +270,6 @@ public class Node  {
 			}
 			catch (Throwable t) {
 				setParseError("tokenization error: " + t.getMessage());
-				System.err.println("tokenization error: " + t.getMessage());
 			}
 
 			if (";".equals(s)) {
@@ -404,7 +400,6 @@ public class Node  {
 		}
 		catch (Throwable t) {
 			setParseError("tokenization error: " + t.getMessage());
-			System.err.println("tokenization error: " + t.getMessage());
 		}
 
 		if (langNum == 0) {
@@ -467,7 +462,6 @@ public class Node  {
 					}
 					catch (Throwable t) {
 						setParseError("tokenization error: " + t.getMessage());
-						System.err.println("tokenization error: " + t.getMessage());
 					}
 
 					if (";".equals(s)) {
@@ -520,7 +514,7 @@ public class Node  {
 					setParseError("No answer choices specified");
 				}
 				else if (field == 1) {
-					setParseError("Missing message for value " + val);
+					setParseError("Missing message for option <b>" + val + "</b>");
 				}
 				answerChoicesVector.addElement(ansOptions);
 				break;
@@ -701,7 +695,6 @@ public class Node  {
 		}
 		catch (Throwable t) {
 			setError("Internal error: " + t.getMessage());
-			System.err.println("Internal error: " + t.getMessage());
 			return "";
 		}
 
@@ -710,12 +703,6 @@ public class Node  {
 
 	public boolean isWithinRange(Datum d) {
 		boolean err = false;
-
-/*
-		System.err.println("(" + minStr + "|" + ((minDatum != null) ? Datum.format(minDatum,mask) : "") +
-			"," + d.stringVal() +
-			"," + maxStr + "|" + ((maxDatum != null) ? Datum.format(maxDatum,mask) : "") + ")");
-*/
 
 		if (minDatum != null) {
 			if (!DatumMath.ge(d,minDatum).booleanVal())
@@ -764,12 +751,12 @@ public class Node  {
 
 	public void setParseError(String error) {
 		if (error != null)
-			parseErrors.addElement(error);
+			parseErrors.addElement(error + "<br>");
 
 	}
 	public void setError(String error) {
 		if (error != null)
-			runtimeErrors.addElement(error);
+			runtimeErrors.addElement(error + "<br>");
 	}
 
 	public Vector getErrors() {
@@ -822,8 +809,7 @@ public class Node  {
 			time = Datum.TIME_MASK.parse(timeStr);
 		}
 		catch (Throwable t) {
-			setParseError("Error parsing time " + t.getMessage());
-			System.err.println("error parsing time " + t.getMessage());
+			setParseError("<b>" + t.getMessage() + "</b>");
 		}
 		if (time == null) {
 			setTimeStamp();
