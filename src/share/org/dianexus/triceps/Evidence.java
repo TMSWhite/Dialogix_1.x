@@ -1,16 +1,17 @@
 package org.dianexus.triceps;
 
-import java.lang.*;
-import java.util.*;
-import java.io.*;
-import java.net.*;
+/*import java.lang.*;*/
+/*import java.util.*;*/
+/*import java.io.*;*/
+/*import java.net.*;*/
+import java.util.Vector;
+import java.util.Hashtable;
+import java.util.Date;
+import java.util.GregorianCalendar;
+import java.util.Calendar;
+import java.io.File;
 
-/**
- * Contains data generated at each node.  Such data are produced either
- * by the person running the interview in response to
- * questions, or by the system evaluating previously stored evidence
- */
-public class Evidence implements VersionIF  {
+/*public*/ class Evidence implements VersionIF  {
 	private static final int FUNCTION_INDEX = 2;
 	private static final int FUNCTION_NUM_PARAMS = 1;
 	private static final int FUNCTION_NAME = 0;
@@ -131,79 +132,114 @@ public class Evidence implements VersionIF  {
 	}
 
 	private Hashtable aliases = new Hashtable();
-	private Vector values = new Vector();
+	private Vector values = null;
 	private int	numReserved = 0;
 	private Date startTime = new Date(System.currentTimeMillis());
 	private Logger errorLogger = new Logger();
 	Triceps triceps = null;	// need package-level access in Qss
+	private Schedule schedule = null;
+	
+	/*public*/ static final Evidence NULL = new Evidence(null);
+	
 
-	public Evidence(Triceps tri, boolean toUnasked) {
-		if (tri == null)
-			return;
-		triceps = tri;
-		Schedule schedule = triceps.getSchedule();
-
+	/*public*/ Evidence(Triceps tri) {
+		triceps = (tri == null) ? Triceps.NULL : tri;
+	}
+	
+	/*public*/ void createReserved() {
+		values = new Vector();
 		numReserved = Schedule.RESERVED_WORDS.length;	// these are always added at the beginning
+		schedule = triceps.getSchedule();
+//if (DEBUG) Logger.writeln("##Evidence.createReserved()");
 
+		Value value=null;
+		int idx=0;
+		
+		for (idx=0;idx<numReserved;++idx) {
+			value = new Value(Schedule.RESERVED_WORDS[idx],Datum.getInstance(triceps,Datum.UNKNOWN),idx,schedule);
+			values.addElement(value);
+			aliases.put(Schedule.RESERVED_WORDS[idx], new Integer(idx));
+//if (DEBUG) Logger.writeln("##Evidence.createReserved(" + Schedule.RESERVED_WORDS[idx] + "," + schedule.getReserved(idx) + ")");
+		}
+	}
+	
+	/*public*/ void initReserved() {
+		numReserved = Schedule.RESERVED_WORDS.length;	// these are always added at the beginning
+		schedule = triceps.getSchedule();
+		if (schedule == null) {
+if (DEBUG) Logger.writeln("##Evidence.initReserved()-schedule=null");			
+			schedule = Schedule.NULL;
+		}
+
+		Value value=null;
+		int idx=0;
+		
+		for (idx=0;idx<numReserved;++idx) {
+			value = (Value) values.elementAt(idx);
+			value.setDatum(new Datum(triceps, schedule.getReserved(idx),Datum.STRING),null);
+//if (DEBUG) Logger.writeln("##Evidence.initReserved(" + Schedule.RESERVED_WORDS[idx] + "," + schedule.getReserved(idx) + "," + ((Value) values.elementAt(idx)).isReserved() + "," + ((Value) values.elementAt(idx)).getDatum().stringVal() + "," + getNodeIndex(Schedule.RESERVED_WORDS[idx]) + "," + getValue(Schedule.RESERVED_WORDS[idx]).getDatum().stringVal() + ")");
+		}	
+	}
+	
+	/*public*/ void init() {
 		Node node=null;
 		Value value=null;
 		String init=null;
 		Datum datum = null;
-		int idx=0;
+		int idx=numReserved;
 
-		/* first assign the reserved words */
-		for (idx=0;idx<Schedule.RESERVED_WORDS.length;++idx) {
-			value = new Value(Schedule.RESERVED_WORDS[idx],new Datum(triceps, schedule.getReserved(idx),Datum.STRING),idx,schedule);
-			values.addElement(value);
-			addAlias(null,Schedule.RESERVED_WORDS[idx],new Integer(idx));
-		}
-
+		schedule = triceps.getSchedule();
 		int size = schedule.size();
 		int startingStep = Integer.parseInt(schedule.getReserved(Schedule.STARTING_STEP));
 		String timeStamp = null;
 		String startTime = schedule.getReserved(Schedule.START_TIME);
-
+		
 
 		/* then assign the user-defined words */
 		for (int i = 0; i < size; ++i, ++idx) {
 			node = schedule.getNode(i);
 
-			if (toUnasked) {
-				datum = Datum.getInstance(tri,Datum.UNASKED);
-				timeStamp = startTime;
-			}
-			else {
-				/* read default values from schedule file */
-				init = node.getAnswerGiven();
-				if (init == null || init.length() == 0) {
-					if (i < startingStep && node.getAnswerType() == Node.NOTHING) {
-						datum = new Datum(tri,"",Datum.STRING);	// so that not marked as UNASKED
-					}
-					else {
-						datum = Datum.getInstance(tri,Datum.UNASKED);
-					}
+			/* read default values from schedule file */
+			init = node.getAnswerGiven();
+			if (init == null || init.length() == 0) {
+				if (i < startingStep && node.getAnswerType() == Node.NOTHING) {
+					datum = new Datum(triceps,"",Datum.STRING);	// so that not marked as UNASKED
 				}
 				else {
-					datum = Datum.parseSpecialType(tri,init);
-					if (datum == null) {
-						/* then not special, so use the init value */
-						datum = new Datum(tri, init, node.getDatumType(), node.getMask());
-					}
+					datum = Datum.getInstance(triceps,Datum.UNASKED);
 				}
-				timeStamp = node.getAnswerTimeStampStr();
-				if (timeStamp == null || timeStamp.trim().length() == 0)
-					timeStamp = startTime;
 			}
+			else {
+				datum = Datum.parseSpecialType(triceps,init);
+				if (datum == null) {
+					/* then not special, so use the init value */
+					datum = new Datum(triceps, init, node.getDatumType(), node.getMask());
+				}
+			}
+			timeStamp = node.getAnswerTimeStampStr();
+			if (timeStamp == null || timeStamp.trim().length() == 0)
+				timeStamp = startTime;
 
 			value = new Value(node, datum, timeStamp);
 			values.addElement(value);
 
 			Integer j = new Integer(idx);
 
-//			addAlias(node,node.getConcept(),j);
 			addAlias(node,node.getLocalName(),j);
-//			addAlias(node,node.getExternalName(),j);
 			aliases.put(node,j);
+		}
+	}
+	
+	/*public*/ void reset() {
+		Node node=null;
+		Value value=null;
+
+		schedule = triceps.getSchedule();
+		int size = schedule.size();
+
+		for (int i = 0; i < size; ++i) {
+			node = schedule.getNode(i);
+			set(node,Datum.getInstance(triceps,Datum.UNASKED));
 		}
 	}
 
@@ -220,18 +256,20 @@ public class Evidence implements VersionIF  {
 				However, each node must have non-overlapping aliases with other nodes */
 				aliases.put(alias,o);	// restore overwritten alias?
 				Node prevNode = ((Value) values.elementAt(pastIndex)).getNode();
+				if (prevNode == null)
+					return;
 				n.setParseError(triceps.get("alias_previously_used_on_line") + prevNode.getSourceLine() + ": " + alias);
 			}
 		}
 	}
 
-	public boolean containsKey(Object val) {
+	/*public*/ boolean containsKey(Object val) {
 		if (val == null)
 			return false;
 		return aliases.containsKey(val);
 	}
 
-	public Datum getDatum(Object val) {
+	/*public*/ Datum getDatum(Object val) {
 		int i = getNodeIndex(val);
 		if (i == -1) {
 			return null;
@@ -239,7 +277,7 @@ public class Evidence implements VersionIF  {
 		return ((Value) values.elementAt(i)).getDatum();
 	}
 
-	public Node getNode(Object val) {
+	/*public*/ Node getNode(Object val) {
 		int i = getNodeIndex(val);
 		if (i == -1) {
 			setError(triceps.get("node_not_found"),val);
@@ -248,7 +286,7 @@ public class Evidence implements VersionIF  {
 		return ((Value) values.elementAt(i)).getNode();
 	}
 
-	public int getStep(Object n) {
+	/*public*/ int getStep(Object n) {
 		if (n == null)
 			return -1;
 		int step = getNodeIndex(n);
@@ -269,9 +307,6 @@ public class Evidence implements VersionIF  {
 			return -1;
 
 		Node node = (Node) n;
-		o = aliases.get(node.getConcept());
-		if (o != null && o instanceof Integer)
-			return ((Integer) o).intValue();
 
 		o = aliases.get(node.getLocalName());
 		if (o != null && o instanceof Integer)
@@ -279,8 +314,17 @@ public class Evidence implements VersionIF  {
 
 		return -1;
 	}
+	
+	/*public*/ Value getValue(Object n) {
+		int idx = getNodeIndex(n);
+		if (idx == -1) {
+			return null;
+		}
+		return (Value) values.elementAt(idx);
+	}
+	
 
-	public void set(Node node, Datum val, String time) {
+	/*public*/ void set(Node node, Datum val, String time, boolean record) {
 		if (node == null) {
 			setError(triceps.get("null_node"),null);
 			return;
@@ -299,13 +343,25 @@ public class Evidence implements VersionIF  {
 
 		Value value = (Value) values.elementAt(i);
 		value.setDatum(val,time);
+		
+		if (!record)
+			return;
+			
+if (DEPLOYABLE) {			
+		if (value.isReserved()) {
+			writeReserved(value.getReservedNum());
+		}
+		else {
+			writeNode(node,val);
+		}
+}		
 	}
 
-	public void set(Node node, Datum val) {
-		set(node,val,null);
+	/*public*/ void set(Node node, Datum val) {
+		set(node,val,null,true);
 	}
 
-	public void set(String name, Datum val) {
+	/*public*/ void set(String name, Datum val) {
 		if (name == null) {
 			setError(triceps.get("null_node"),null);
 			return;
@@ -331,8 +387,80 @@ public class Evidence implements VersionIF  {
 			v.setDatum(val,null);
 		}
 	}
+	
+	private void writeNode(Node q, Datum d) {
+if (DEPLOYABLE) {		
+		String ans=null;
+		String comment=null;
+		StringBuffer sb = new StringBuffer("\t");
+		
+		if (d == null) { ans = ""; }
+		else { ans = d.stringVal(true); }
+		comment = q.getComment();
+		if (comment == null) comment = "";
+		
+		sb.append(q.getLocalName());
+		sb.append("\t");
+		sb.append(q.getAnswerLanguageNum());
+		sb.append("\t");
+		sb.append(q.getQuestionAsAsked());
+		sb.append("\t");
+		sb.append(ans);				
+		sb.append("\t");
+		sb.append(comment);
+		sb.append("\t");
+		sb.append(q.getTimeStampStr());
+		triceps.dataLogger.println(sb.toString());
+}		
+	}
+	
 
-	public int size() {
+	void writeReserved(int id) {	// package level access
+if (DEPLOYABLE) {	
+		StringBuffer sb = new StringBuffer("\t");
+		
+		sb.append(Schedule.RESERVED_WORDS[id]);
+		sb.append("\t0\t\t");
+		sb.append(schedule.getReserved(id));
+		sb.append("\t\t");
+		triceps.dataLogger.println(sb.toString());
+}		
+	}
+	
+	/*public*/ void writeDatafileHeaders() {
+if (DEPLOYABLE) {		
+		schedule = triceps.getSchedule();
+		
+		schedule.setReserved(Schedule.TRICEPS_FILE_TYPE,Schedule.TRICEPS_DATA_FILE);
+		schedule.writeReserved(Schedule.TRICEPS_FILE_TYPE);
+		schedule.writeReserved(Schedule.START_TIME);
+		schedule.writeReserved(Schedule.FILENAME);
+		schedule.writeReserved(Schedule.SCHEDULE_SOURCE);
+		schedule.writeReserved(Schedule.TRICEPS_VERSION_MAJOR);
+		schedule.writeReserved(Schedule.TRICEPS_VERSION_MINOR);
+		schedule.writeReserved(Schedule.SCHED_VERSION_MAJOR);
+		schedule.writeReserved(Schedule.SCHED_VERSION_MINOR);
+		schedule.writeReserved(Schedule.SCHED_AUTHORS);
+		schedule.writeReserved(Schedule.STARTING_STEP);
+		schedule.writeReserved(Schedule.TITLE);
+		schedule.writeReserved(Schedule.TITLE_FOR_PICKLIST_WHEN_IN_PROGRESS);
+}		
+	}
+	
+	/*public*/ void writeStartingValues() {
+if (DEPLOYABLE) {		
+		Node node = null;
+		Datum datum = null;
+		
+		for (int i=0;i<schedule.size();++i) {
+			node = schedule.getNode(i);
+			datum = triceps.getDatum(node);
+			writeNode(node,datum);
+		}
+}		
+	}
+
+	/*public*/ int size() {
 		return values.size();
 	}
 
@@ -344,7 +472,7 @@ public class Evidence implements VersionIF  {
 			return d.stringVal();
 	}
 
-	public Date getStartTime() { return startTime; }
+	/*public*/ Date getStartTime() { return startTime; }
 
 	private Datum getParam(Object o) {
 		if (o == null)
@@ -356,7 +484,7 @@ public class Evidence implements VersionIF  {
 	}
 
 
-	public Datum function(String name, Vector params, int line, int column) {
+	/*public*/ Datum function(String name, Vector params, int line, int column) {
 		/* passed a vector of Datum values */
 		try {
 			Integer func = (Integer) FUNCTIONS.get(name);
@@ -835,6 +963,9 @@ public class Evidence implements VersionIF  {
 					return new Datum(triceps,datum.isNumeric());
 				case FILEEXISTS:
 				{
+					/* FIXME Needs to be modified to check for not only the actual filenames in the completed dir,
+					but also the pending filenames as indicated by the temp files in the working dir */
+					
 					String fext = datum.stringVal();
 					if (fext == null)
 						return new Datum(triceps,false);
@@ -846,20 +977,26 @@ public class Evidence implements VersionIF  {
 					File file;
 					Schedule sched = triceps.getSchedule();
 					String fname;
-
-					try {
-						fname = sched.getReserved(Schedule.WORKING_DIR) + fext;
-if (DEBUG) Logger.writeln("##exists(" + fname + ")");
-						file = new File(fname);
-						if (file.exists())
-							return new Datum(triceps,true);;
+					
+					/** Working dir - read schedules and get their FILENAMEs **/
+					ScheduleList interviews = new ScheduleList(triceps, sched.getReserved(Schedule.WORKING_DIR));
+					Schedule sc = null;
+					Vector schedules = interviews.getSchedules();
+					for (int i=0;i<schedules.size();++i) {
+						sc = (Schedule) schedules.elementAt(i);
+						if (sc.getReserved(Schedule.FILENAME).equals(fext)) {
+							if (sc.getReserved(Schedule.LOADED_FROM).equals(triceps.dataLogger.getFilename())) {
+								continue;	// since examining the current file
+							}
+							else {
+								return new Datum(triceps,true);
+							}
+						}
 					}
-					catch (SecurityException e) {
-if (DEBUG) Logger.writeln("##SecurityException @ Evidence.fileExists()" + e.getMessage());
-						return Datum.getInstance(triceps,Datum.INVALID);
-					}
+					
+					/** For Completed dir - check actual filenames **/
 					try {
-						fname = sched.getReserved(Schedule.COMPLETED_DIR) + fext;
+						fname = sched.getReserved(Schedule.COMPLETED_DIR) + fext + ".jar";
 if (DEBUG) Logger.writeln("##exists(" + fname + ")");
 						file = new File(fname);
 						if (file.exists())
@@ -906,8 +1043,8 @@ if (DEBUG) Logger.writeln("##Throwable @ Evidence.function()" + t.getMessage());
 		errorLogger.println(msg);
 		Logger.writeln("##" + msg);
 	}
-	public boolean hasErrors() { return (errorLogger.size() > 0); }
-	public String getErrors() { return errorLogger.toString(); }
+	/*public*/ boolean hasErrors() { return (errorLogger.size() > 0); }
+	/*public*/ String getErrors() { return errorLogger.toString(); }
 
 	private String functionError(int funcNum, int datumType, int index) {
 		return FUNCTION_ARRAY[funcNum][FUNCTION_NAME] + " " +
