@@ -296,8 +296,12 @@ public class Triceps {
 				else {
 					if (parser.booleanVal(this, node.getDependencies())) {
 						Datum datum = parser.parse(this, node.getQuestionOrEval());
-						node.setDatumType(datum.type());
-						evidence.set(node, datum);						
+//						node.setDatumType(datum.type());
+						int type = node.getDatumType();
+						if (type != Datum.STRING && type != datum.type()) {
+							datum = datum.cast(type,null);
+						}
+						evidence.set(node, datum);					
 					}
 					else {
 						evidence.set(node, Datum.getInstance(this,Datum.NA));	// if doesn't satisfy dependencies, store NA
@@ -680,11 +684,12 @@ public class Triceps {
 			ok = f.delete();
 		}
 		catch (SecurityException e) {
+Logger.writeln("##SecurityException @ Triceps.deleteFile()" + e.getMessage());
 			String msg = get("error_deleting") + filename + ": " + e.getMessage();
 			setError(msg);
 		}
 		if (!ok)
-			Logger.writeln("delete(" + filename + ") -> " + ok);			
+			Logger.writeln("##delete(" + filename + ") -> " + ok);			
 		return ok;
 	}
 
@@ -705,7 +710,7 @@ public class Triceps {
 			try { fw.close(); } catch (IOException t) { }
 		}
 		if (!ok) 
-			Logger.writeln("save(" + filename + ") -> " + ok);			
+			Logger.writeln("##save(" + filename + ") -> " + ok);			
 		return ok;
 	}
 
@@ -768,6 +773,7 @@ public class Triceps {
 			return true;
 		}
 		catch (IOException e) {
+Logger.writeln("##IOException @ Triceps.toTSV()" + e.getMessage());
 			String msg = get("Unable_to_write_schedule_file") + e.getMessage();
 			setError(msg);
 			return false;
@@ -893,7 +899,7 @@ public class Triceps {
 			bundle = ResourceBundle.getBundle(BUNDLE_NAME,locale);
 		}
 		catch (MissingResourceException t) {
-			Logger.writeln("error loading resources '" + BUNDLE_NAME + "': " + t.getMessage());
+Logger.writeln("##error loading resources '" + BUNDLE_NAME + "': " + t.getMessage());
 		}
 	}
 
@@ -907,10 +913,12 @@ public class Triceps {
 			try {
 				s = bundle.getString(localizeThis);
 			}
-			catch (MissingResourceException e) { }
+			catch (MissingResourceException e) { 
+Logger.writeln("##MissingResourceException @ Triceps.get()" + e.getMessage());
+			}
  
 			if (s == null || s.trim().length() == 0) {
-				Logger.writeln("error accessing resource '" + BUNDLE_NAME + "[" + localizeThis + "]'");
+Logger.writeln("##error accessing resource '" + BUNDLE_NAME + "[" + localizeThis + "]'");
 				return "";
 			}
 			else {
@@ -961,9 +969,11 @@ public class Triceps {
 					Locale.setDefault(defaultLocale);
 				}
 			}
-			catch (SecurityException e ) { }
+			catch (SecurityException e ) { 
+Logger.writeln("##SecurityException @ Triceps.getDecimalFormat()" + e.getMessage());
+				}
 			catch (NullPointerException e) { 
-				Logger.writeln("error creating DecimalFormat for locale " + locale.toString() + " using mask " + mask);
+Logger.writeln("##error creating DecimalFormat for locale " + locale.toString() + " using mask " + mask);
 			}
 			if (df == null) {
 				;	// allow this - will use Double.format() internally
@@ -996,7 +1006,8 @@ public class Triceps {
 				try {
 					d = Double.valueOf(str);
 				}
-				catch (NumberFormatException t) { }
+				catch (NumberFormatException t) {}
+				catch (NullPointerException e) {}
 				if (d != null) {
 					num = assessDouble(d);
 				}
@@ -1005,7 +1016,8 @@ public class Triceps {
 				try {
 					num = df.parse(str);
 				}
-				catch (java.text.ParseException e) {
+				catch (java.text.ParseException e) { 
+Logger.writeln("##ParseException @ Triceps.parseNumber()" + e.getMessage());
 				}
 			}
 		}
@@ -1033,7 +1045,7 @@ public class Triceps {
 				}
 			}
 			catch (java.text.ParseException e) { 
-Logger.writeln("Error parsing date " + obj + " with mask " + mask);
+Logger.writeln("##Error parsing date " + obj + " with mask " + mask);
 			}
 		}
 		else {
@@ -1111,7 +1123,9 @@ Logger.writeln("Error parsing date " + obj + " with mask " + mask);
 			try {
 				s = df.format(obj);
 			}
-			catch(IllegalArgumentException e) { }
+			catch(IllegalArgumentException e) { 
+Logger.writeln("##IllegalArgumentException @ Triceps.formatNumber()" + e.getMessage());
+				}
 		}	
 
 		return s;
@@ -1128,6 +1142,7 @@ Logger.writeln("Error parsing date " + obj + " with mask " + mask);
 			return df.format(obj);
 		}
 		catch (IllegalArgumentException e) {
+Logger.writeln("##IllegalArgumentException @ Triceps.formatDate()" + e.getMessage());
 			return null;
 		}
 	}
