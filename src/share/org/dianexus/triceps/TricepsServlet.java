@@ -132,7 +132,7 @@ public class TricepsServlet extends HttpServlet {
 	 */
 	private String processDirective(String directive) {
 		boolean ok = true;
-		int gotoMsg;
+		int gotoMsg = Triceps.OK;
 		StringBuffer sb = new StringBuffer();
 		StringBuffer options = new StringBuffer();
 
@@ -141,8 +141,8 @@ public class TricepsServlet extends HttpServlet {
 			/* read list of available schedules from file */
 			File file = new File(scheduleFileRoot + scheduleList);
 
-			if (file == null || !file.exists()) {
-				sb.append("<B>Unable to find '" + file + "'</B>");
+			if (file == null || !file.exists() || !file.isFile() || !file.canRead()) {
+				sb.append("<B>Unable to find '" + file + "'</B><HR>");
 			}
 			else {
 				BufferedReader br = null;
@@ -177,11 +177,12 @@ public class TricepsServlet extends HttpServlet {
 								found = true;
 							}
 							catch (MalformedURLException e) {
-								System.out.println("Malformed url '" + src + "':" + e.getMessage());
+//								System.out.println("Malformed url '" + src + "':" + e.getMessage());
 							}
 							catch (IOException e) {
 								System.out.println("Unable to access url '" + src + "':" + e.getMessage());
 							}
+							catch (Throwable t) {}
 							finally {
 								if (is != null) {
 									try { is.close(); } catch (Exception e) {}
@@ -193,7 +194,7 @@ public class TricepsServlet extends HttpServlet {
 								try {
 									File f = new File(src);
 									if (f == null || !f.exists() || !f.isFile() || !f.canRead()) {
-										System.out.println("Unable to access file " + src);
+										sb.append("Unable to access file " + src);
 									}
 									else {
 										found=true;
@@ -201,8 +202,10 @@ public class TricepsServlet extends HttpServlet {
 								}
 								catch (NullPointerException e) { }
 								catch (SecurityException e) {
-									System.out.println("Unable to access file " + src + ": " + e);
+									sb.append("Unable to access file " + src + ": " + e.getMessage());
 								}
+								catch (Throwable t) {}
+
 							}
 
 							if (found) {
@@ -211,38 +214,41 @@ public class TricepsServlet extends HttpServlet {
 							}
 						}
 						catch (NullPointerException e) {
-							System.out.println("Error tokenizing schedule list '" + file + "' on line " + line + ": " + e);
+							sb.append("Error tokenizing schedule list '" + file + "' on line " + line + ": " + e);
 						}
 						catch (NoSuchElementException e) {
-							System.out.println("Error tokenizing schedule list '" + file + "' on line " + line + ": " + e);
+							sb.append("Error tokenizing schedule list '" + file + "' on line " + line + ": " + e);
 						}
+						catch (Throwable t) {}
 					}
-					System.out.println("Read " + count + " files from " + file);
+//					System.out.println("Read " + count + " files from " + file);
 				}
 				catch(IOException e) {
-					System.out.println("Unable to open " + file);
+					sb.append("Unable to open " + file);
 				}
+				catch (Throwable t) {}
 				finally {
 					if (br != null) {
 						try { br.close(); } catch (Throwable t) { }
 					}
-
-					sb.append("<H2>Triceps Interview/Questionnaire System</H2><HR>\n");
-					sb.append("<TABLE CELLPADDING='2' CELLSPACING='2' BORDER='1'>\n");
-					sb.append("<TR><TD>Please select an interview/questionnaire from the pull-down list:  </TD>\n");
-					sb.append("	<TD><select name='schedule'>\n");
-					sb.append(options);
-					sb.append("	</select></TD>\n");
-					sb.append("	<TD><input type='SUBMIT' name='directive' value='START'></TD>\n");
-					sb.append("</TR>\n");
-					sb.append("<TR><TD>OR, restore an interview/questionnaire in progress:  </TD>\n");
-					sb.append("	<TD><input type='text' name='RESTORE'></TD>\n");
-					sb.append("	<TD><input type='SUBMIT' name='directive' value='RESTORE'></TD>\n");
-					sb.append("</TR><TR><TD>&nbsp;</TD><TD COLSPAN='2' ALIGN='center'><input type='checkbox' name='DEBUG' value='1'>Show debugging information</input></TD></TR>\n");
-					sb.append("</TABLE>\n");
 				}
 			}
 
+			/* Now construct splash screen */
+
+			sb.append("<H2>Triceps Interview/Questionnaire System</H2><HR>\n");
+			sb.append("<TABLE CELLPADDING='2' CELLSPACING='2' BORDER='1'>\n");
+			sb.append("<TR><TD>Please select an interview/questionnaire from the pull-down list:  </TD>\n");
+			sb.append("	<TD><select name='schedule'>\n");
+			sb.append(options);
+			sb.append("	</select></TD>\n");
+			sb.append("	<TD><input type='SUBMIT' name='directive' value='START'></TD>\n");
+			sb.append("</TR>\n");
+			sb.append("<TR><TD>OR, restore an interview/questionnaire in progress:  </TD>\n");
+			sb.append("	<TD><input type='text' name='RESTORE'></TD>\n");
+			sb.append("	<TD><input type='SUBMIT' name='directive' value='RESTORE'></TD>\n");
+			sb.append("</TR><TR><TD>&nbsp;</TD><TD COLSPAN='2' ALIGN='center'><input type='checkbox' name='DEBUG' value='1'>Show debugging information</input></TD></TR>\n");
+			sb.append("</TABLE>\n");
 			return sb.toString();
 		}
 		else if (directive.equals("START")) {
@@ -264,8 +270,7 @@ public class TricepsServlet extends HttpServlet {
 				return sb.toString();
 			}
 
-			gotoMsg = triceps.gotoFirst();
-			ok = ok && (gotoMsg == Triceps.OK);
+			ok = ok && ((gotoMsg = triceps.gotoFirst()) == Triceps.OK);	// don't proceed if prior error
 			// ask question
 		}
 /*
@@ -294,22 +299,21 @@ public class TricepsServlet extends HttpServlet {
 */
 		else if (directive.equals("RESTORE")) {
 			String restore = req.getParameter("RESTORE");
-			restore = scheduleSaveDir + restore + "." + req.getRemoteUser() + "." + req.getRemoteHost() + ".tsv";
+			restore = restore + "." + req.getRemoteUser() + "." + req.getRemoteHost() + ".tsv";
 
 			// load schedule
 			triceps = new Triceps();
 			ok = triceps.setSchedule("http://" + req.getServerName() + "/" + restore);
 			if (!ok) {
-				ok = triceps.setSchedule(new File(restore));
+				ok = triceps.setSchedule(new File(scheduleSaveDir + restore));
 			}
 
 			if (!ok) {
-				processDirective(null);	// select new interview
-				return sb.toString();
+				return "<B>Unable to find or access schedule '" + restore + "'</B><HR>" +
+					processDirective(null);	// select new interview
 			}
 
-			gotoMsg = triceps.gotoFirst();
-			ok = ok && (gotoMsg == Triceps.OK);
+			ok = ok && ((gotoMsg = triceps.gotoFirst()) == Triceps.OK);	// don't proceed if prior error
 
 			// ask question
 		}
@@ -321,8 +325,7 @@ public class TricepsServlet extends HttpServlet {
 		}
 		else if (directive.equals("clear all and re-start")) { // restart from scratch
 			ok = triceps.resetEvidence();
-			gotoMsg = triceps.gotoFirst();
-			ok = ok && (gotoMsg == Triceps.OK);
+			ok = ok && ((gotoMsg = triceps.gotoFirst()) == Triceps.OK);	// don't proceed if prior error
 			// ask first question
 		}
 		else if (directive.equals("reload questions")) { // debugging option
@@ -397,8 +400,7 @@ public class TricepsServlet extends HttpServlet {
 
 			}
 			// goto next
-			gotoMsg = triceps.gotoNext();
-			ok = ok && (gotoMsg == Triceps.OK);
+			ok = ok && ((gotoMsg = triceps.gotoNext()) == Triceps.OK);	// don't proceed if prior errors - e.g. unanswered questions
 
 			if (gotoMsg == Triceps.AT_END) {
 				// save the file, but still give the option to go back and change answers

@@ -14,9 +14,10 @@ public class Node implements Serializable {
 	public static final int DOUBLE=6;
 	public static final int NOTHING=7;	// do nothing
 	public static final int RADIO2=8;	// different layout
-	private static final String QUESTION_TYPES[] = {"radio", "check", "combo", "date", "month", "text", "double", "nothing", "radio2" };
-	private static final int DATA_TYPES[] = { Datum.STRING, Datum.STRING, Datum.STRING, Datum.DATE, Datum.MONTH, Datum.STRING, Datum.DOUBLE, Datum.STRING, Datum.STRING};
-	private static final String QUESTION_MASKS[] = { "", "", "", " (e.g. 7/23/1982)", " (e.g. February)", "", "", "", ""};
+	public static final int PASSWORD=9;
+	private static final String QUESTION_TYPES[] = {"radio", "check", "combo", "date", "month", "text", "double", "nothing", "radio2", "password" };
+	private static final int DATA_TYPES[] = { Datum.STRING, Datum.STRING, Datum.STRING, Datum.DATE, Datum.MONTH, Datum.STRING, Datum.DOUBLE, Datum.STRING, Datum.STRING, Datum.STRING};
+	private static final String QUESTION_MASKS[] = { "", "", "", " (e.g. 7/23/1982)", " (e.g. February)", "", "", "", "", ""};
 
 	private String concept = "";
 	private String description = "";
@@ -174,6 +175,7 @@ public class Node implements Serializable {
 			case TEXT:
 			case DOUBLE:
 			case NOTHING:
+			case PASSWORD:
 				break;
 		}
 
@@ -245,6 +247,11 @@ public class Node implements Serializable {
 				if (datum != null && datum.exists())
 					defaultValue = datum.stringVal();
 				sb.append("<input type='text' name='" + Node.encodeHTML(getName()) + "' value='" + Node.encodeHTML(defaultValue) + "'>");
+				break;
+			case PASSWORD:	// stores Text type
+				if (datum != null && datum.exists())
+					defaultValue = datum.stringVal();
+				sb.append("<input type='password' name='" + Node.encodeHTML(getName()) + "'>");
 				break;
 			case DOUBLE:	// stores Double type
 				if (datum != null && datum.exists())

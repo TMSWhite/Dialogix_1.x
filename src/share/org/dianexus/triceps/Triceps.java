@@ -30,8 +30,9 @@ public class Triceps implements Serializable {
 	}
 
 	public boolean setSchedule(File file) {
-		if (file == null || !file.exists())
+		if (file == null || !file.exists() || !file.isFile() || !file.canRead()) {
 			return false;
+		}
 		scheduleURL = file;
 		return (reloadSchedule() && resetEvidence() && setDebugEvidence());
 	}
