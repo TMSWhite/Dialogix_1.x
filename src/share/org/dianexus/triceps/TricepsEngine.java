@@ -609,10 +609,11 @@ if (DEPLOYABLE) {
 			sb.append(buildSubmit("RESTORE"));
 			sb.append("</td></tr>");
 			
-			// should this only be present if there is data in the suspended directory?
-			sb.append("<tr><td colspan='3' align='center'>");
-			sb.append(buildSubmit("RESTORE_FROM_FLOPPY"));
-			sb.append("</td></tr>");
+			if (!WEB_SERVER) {
+				sb.append("<tr><td colspan='3' align='center'>");
+				sb.append(buildSubmit("RESTORE_FROM_FLOPPY"));
+				sb.append("</td></tr>");
+			}
 			sb.append("</table>");
 
 			return sb.toString();
