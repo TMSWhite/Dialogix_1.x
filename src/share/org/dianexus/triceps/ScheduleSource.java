@@ -186,6 +186,7 @@ if (DEBUG)		Logger.writeln("##IOException @ ScheduleSource.jarEntryToVector()" +
 			}
 			
 			/* then validate certificates */
+/*	Temporarily remove need to validate certificates
 			Certificate certs[] = je.getCertificates();
 			
 			if (certs == null || certs.length == 0) {
@@ -203,7 +204,8 @@ if (DEPLOYABLE)	return new Vector();	// empty;
 if (DEBUG) Logger.writeln("##invalid certificate or corrupted signing: " + t.getMessage());
 if (DEPLOYABLE)	return new Vector();	// empty;		
 				}
-			}			
+			}
+*/						
 		}	
 		catch (Throwable e) {
 if (DEBUG) Logger.writeln("##Throwable @ jarEntryToVector"  + e.getMessage());
