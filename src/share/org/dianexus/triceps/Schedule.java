@@ -128,7 +128,7 @@ public class Schedule  {
 	public String getLoadedFrom() { return ((isFound) ? getReserved(LOADED_FROM) : ""); }
 
 	private void setDefaultReserveds() {
-		setReserved(TITLE,"Triceps");
+		setReserved(TITLE,Triceps.VERSION_NAME);
 		setReserved(STARTING_STEP,"0",true);
 		// START_TIME and *_DIR must preceed FILENAME, which uses the values from each of those //
 		setReserved(START_TIME,triceps.formatDate(new Date(System.currentTimeMillis()),Datum.TIME_MASK),true);
@@ -139,7 +139,7 @@ public class Schedule  {
 		setReserved(PASSWORD_FOR_ADMIN_MODE,"");
 		setReserved(AUTOGEN_OPTION_NUM,"true");
 		setReserved(ICON,"");
-		setReserved(HEADER_MSG,"Triceps");
+		setReserved(HEADER_MSG,Triceps.VERSION_NAME);
 		setReserved(SHOW_QUESTION_REF,"false");
 		setReserved(DEVELOPER_MODE,"false");
 		setReserved(DEBUG_MODE,"false");
