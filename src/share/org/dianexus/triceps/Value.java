@@ -40,7 +40,7 @@ class Value implements VersionIF {
 		if (reserved >= 0 && schedule != null) {
 			if (schedule.setReserved(reserved,d.stringVal(),false)) {
 				// to restrict ability to change certain reserved words from within a schedule
-				datum = new Datum(d,datum.getName());
+//				datum = new Datum(d,datum.getName());
 			}
 			else {
 				// a reserved word which should not be changed
@@ -50,7 +50,14 @@ class Value implements VersionIF {
 			datum = new Datum(d,datum.getName());
 		}
 	}
-	public Datum getDatum() { return datum; }
+	public Datum getDatum() { 
+		if (reserved >= 0) {
+			return new Datum(schedule.getTriceps(), schedule.getReserved(reserved),Datum.STRING);
+		}
+		else {
+			return datum;
+		}
+	}
 	public boolean isReserved() { return (reserved >= 0); }
 	public int getReservedNum() { return reserved; }
 }
