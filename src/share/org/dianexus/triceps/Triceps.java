@@ -175,6 +175,10 @@ public class Triceps {
 //				errors.addElement("The interview is completed.");
 				currentStep = size();	// put at last node
 				numQuestions = 0;
+				
+				/* Before advancing any further, save to completed files dir */
+				toTSV(getCompletedFilesDir() + startTimeStr);		
+				
 				return AT_END;
 			}
 			if ((node = nodes.getNode(step)) == null) {
@@ -243,6 +247,10 @@ public class Triceps {
 		} while (true);
 		currentStep = step;
 		numQuestions = 0;
+		
+		/* Before advancing any further, save a scratch file */
+		toTSV(getWorkingFilesDir() + startTimeStr);
+		
 		return OK;
 	}
 
@@ -328,13 +336,18 @@ public class Triceps {
 		startTimer();		// XXX: reset start time here?
 		return true;
 	}
-
+	
 	private void startTimer() {
-		startTime = new Date(System.currentTimeMillis());
-		startTimeStr = Datum.format(startTime,Datum.DATE,Datum.TIME_MASK);
-		stopTime = null;	// reset stopTime, since re-starting
+		startTimer(new Date(System.currentTimeMillis()));
 	}
 
+	private void startTimer(Date time) {
+		startTime = time;
+		startTimeStr = Datum.format(startTime,Datum.DATE,Datum.TIME_MASK);
+		stopTime = null;	// reset stopTime, since re-starting
+		nodes.setStartTime(startTimeStr);	// so that saved schedule knows when it was started
+	}
+	
 	private void stopTimer() {
 		if (stopTime == null) {
 			stopTime = new Date(System.currentTimeMillis());
@@ -379,6 +392,14 @@ public class Triceps {
 				d.setTimeStamp(timeStampStr);
 			}
 		}
+		
+		/* this must happen after the evidence is reset, otherwise end up using current time */
+		Date time = nodes.getStartTime();
+		System.out.println(Datum.TIME_MASK.format(time));
+		if (time != null) {
+			startTimer(time);
+		}
+		
 		return true;
 	}
 
@@ -677,7 +698,18 @@ public class Triceps {
 			return nodes.getTitle();
 	}
 	
-	public void setWorkingFilesDir(String s) { workingFilesDir = ((s == null) ? "" : s); }
+	public void setWorkingFilesDir(String s) { 
+		workingFilesDir = ((s == null) ? "" : s); 
+		try {
+			File f = new File(workingFilesDir);
+			if (!f.isDirectory() || !f.canRead()) {
+				System.out.println("unreadable directory " + f.toString());
+			}
+		}
+		catch (Throwable t) {
+			System.out.println(t.getMessage());
+		}
+	}
 	public String getWorkingFilesDir() { return workingFilesDir; }
 	public void setCompletedFilesDir(String s) { completedFilesDir = ((s == null) ? "" : s); }
 	public String getCompletedFilesDir() { return completedFilesDir; }

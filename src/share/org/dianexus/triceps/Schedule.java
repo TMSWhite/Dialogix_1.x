@@ -9,19 +9,22 @@ import java.net.*;
 public class Schedule  {
 	public static final int TITLE = 0;
 	public static final int STARTING_STEP = 1;
+	public static final int START_TIME = 2;
 	
 	public static final String[] RESERVED_WORDS = {
-		"__TITLE__", "__STARTING_STEP__"
+		"__TITLE__", "__STARTING_STEP__", "__START_TIME__"
 	};
 	
 	private String title = "";
 	private Integer startingStep = new Integer(0);
+	private Date startTime = null;
 	
 	private Vector nodes = new Vector();
 	private Vector comments = new Vector();
 	private Hashtable reserved = new Hashtable();
 
 	public Schedule() {
+		startTime = new Date(System.currentTimeMillis());
 	}
 
 	public boolean load(BufferedReader br, String filename) {
@@ -65,6 +68,7 @@ public class Schedule  {
 			if (br != null) {
 				try { br.close(); } catch (Exception e) {}
 			}
+			setStartTime(Datum.TIME_MASK.format(startTime));
 		}
 	}
 
@@ -106,7 +110,8 @@ public class Schedule  {
 			switch(field) {
 				case 0: break;
 				case 1: name = Node.fixExcelisms(s); break;
-				case 2: value = Node.fixExcelisms(s); break;	
+				case 2: value = Node.fixExcelisms(s); break;
+				default: break;
 			}
 		}
 		if (field != 2) {
@@ -126,6 +131,7 @@ public class Schedule  {
 		switch (resIdx) {
 			case TITLE: setTitle(value); break;
 			case STARTING_STEP: setStartingStep(value); break;
+			case START_TIME: setStartTime(value); break;
 			default: System.out.println("unrecognized reserved word " + name + " on line " + line + " of file " + filename); break;
 		}
 	}
@@ -151,6 +157,21 @@ public class Schedule  {
 		reserved.put(RESERVED_WORDS[STARTING_STEP],startingStep);
 	}
 	public int getStartingStep() { return startingStep.intValue(); }
+	
+	public void setStartTime(String t) {
+		Date time = null;
+		try {
+			time = Datum.TIME_MASK.parse(t);
+		}
+		catch (java.text.ParseException e) {
+			System.out.println("Error parsing time " + e.getMessage());
+		}
+		if (time != null) {
+			startTime = time;
+			reserved.put(RESERVED_WORDS[START_TIME],t);
+		}
+	}
+	public Date getStartTime() { return startTime; }
 	
 	public void toTSV(Writer out) {
 		Enumeration keys = reserved.keys();
