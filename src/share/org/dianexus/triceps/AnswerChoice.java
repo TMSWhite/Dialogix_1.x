@@ -51,7 +51,7 @@ import java.util.Vector;
 		StringBuffer sb = new StringBuffer();
 if (XML) {
 			
-		Vector v = subdivideMessage(maxLen);
+		Vector v = subdivideMessage(getMessage(),maxLen);
 		String val = XMLAttrEncoder.encode(getValue());
 		
 		for (int i=0;i<v.size();++i) {
@@ -81,15 +81,18 @@ if (XML) {
 		return sb.toString();
 	}
 	
-	private Vector subdivideMessage(int maxLen) {
+	/*public*/ static Vector subdivideMessage(String src, int maxLen) {
+		/** splits a string at a natural boundaries so that no line is longer than maxLen */
 		Vector choices = new Vector();
-if (XML) {
 		int start=0;
 		int stop=0;
 		int toadd=0;
 		int lineBreak=0;
+		char breakChar;
+		char[] breakChars = {' ', '-', '.', ':', ']', '[', '(', ')'};
+		int breakCharIdx = 0;
 		String option = null;
-		String messageStr = getMessage();
+		String messageStr = src;
 		
 		if (maxLen == -1) {
 			choices.addElement(messageStr);
@@ -98,7 +101,7 @@ if (XML) {
 
 		/* also detects <br> for intra-option line-breaks */
 		while (start < messageStr.length()) {
-			toadd = 1;	// length of space;
+			toadd = 0;
 			
 			lineBreak = messageStr.indexOf(INTRA_OPTION_LINE_BREAK,start);
 			if (lineBreak == -1) {
@@ -106,21 +109,32 @@ if (XML) {
 			}
 			else {
 				option = messageStr.substring(start,lineBreak);
-				toadd += INTRA_OPTION_LINE_BREAK.length();
 			}
 			
 			if (option.length() <= maxLen) {
 				stop = option.length();
+				choices.addElement(option.substring(0,stop));
+				if (lineBreak != -1) {
+					toadd = INTRA_OPTION_LINE_BREAK.length();
+				}
 			}
 			else {
-				stop = option.lastIndexOf(' ',maxLen);
+				for (breakCharIdx=0;breakCharIdx<breakChars.length;++breakCharIdx) {
+					stop = option.lastIndexOf(breakChars[breakCharIdx],maxLen);
+					if (stop != -1) {
+						toadd = 1;
+						break;
+					}
+				}
+				if (breakCharIdx == 0 || stop == -1) {
+					choices.addElement(option.substring(0,stop));	// exclude the space
+				}
+				else {
+					choices.addElement(option.substring(0,stop+1));	// include the punctuation
+				}
 			}
-			
-			choices.addElement(option.substring(0,stop));
-			
 			start += (stop + toadd);
 		}
-}								
 		return choices;
 	}
 }
