@@ -380,6 +380,10 @@ public class DatumMath {
 		Datum d = DatumMath.hasError(a,b);
 		if (d != null)
 			return d;
+			
+		if (a.type() == Datum.NA || b.type() == Datum.NA) {
+			return new Datum(a.triceps, true);	// neq to anything
+		}
 
 		try {
 			switch (a.type()) {
@@ -406,10 +410,8 @@ public class DatumMath {
 					}
 				case Datum.NUMBER:
 					return new Datum(a.triceps, a.doubleVal() != b.doubleVal());
-				case Datum.NA:
-					return new Datum(a.triceps, true);	// not equal to anything.
 				default:
-					return new Datum(a.triceps, false);
+					return new Datum(a.triceps, false);	// value is indeterminate - neither eq nor neq
 			}
 		}
 		catch(NullPointerException e) {}
