@@ -402,9 +402,16 @@ Reorganization & Documentation
       -- Changed SESSION_TIMEOUT from 12 hours for laptops to 20 minutes for servers
       -- invalidate session when user finishes instrument; update error messages to reflect this.
 
-<< changes since 2.9.5
+<< changes from 2.9.5 to 2.9.6
   BUGFIX
     TricepsEngine.java
       -- floppyDir of A:\ was having /usr/local/dialogix prepended
     Node.java
       -- added "radio3", with horizontal buttons, but the layout doesn't work for Netscape -- only IE renders nested tables accurately.
+      -- added "combo2" and "list2" -- neither of which use accelerator keys (e.g. for list of states so can use first letter to search)
+  ORGANIZATION
+    -- complete re-organization of directory structure to facilitate management and deployment
+    -- created jakarta Ant project that can build Dialogix to target Tomcat 3.2 and 3.3; and compile for JDK1.8 vs. 1.2 (although won't want to use 1.8 -- too slow)
+    -- build.properties has flags for compilation and deployment
+    -- to re-compile, use "ant clean" followed by "ant dist" (to create zip files) or "ant deploy" to make working copy
+    -- put all instruments in /web directory so that can re-create deployment tree cleanly
