@@ -85,9 +85,10 @@ if (DEBUG) Logger.printStackTrace(t);
 	private void okPage(HttpServletRequest req, HttpServletResponse res) {
 		HttpSession session = req.getSession(true);
 		
-		sessionID = TRICEPS_ENGINE + "." + session.getId();
+		sessionID = session.getId();
+		String fullSessionID = TRICEPS_ENGINE + "." + sessionID;
 		
-		tricepsEngine = (TricepsEngine) session.getAttribute(sessionID);
+		tricepsEngine = (TricepsEngine) session.getAttribute(fullSessionID);
 		if (tricepsEngine == null) {
 			tricepsEngine = new TricepsEngine(config);
 		}
@@ -96,17 +97,16 @@ if (DEBUG) Logger.printStackTrace(t);
 		
 		tricepsEngine.doPost(req,res);
 		
-		session.setAttribute(sessionID, tricepsEngine);
+		session.setAttribute(fullSessionID, tricepsEngine);
 	}
 	
 	private void logAccess(HttpServletRequest req) {
 if (DEBUG) {	
 		
 	/* standard Apache log format (after the #@# prefix for easier extraction) */
-	Logger.writeln("#@#(" + req.getParameter("DIRECTIVE") + ") " + 
+	Logger.writeln("#@#(" + req.getParameter("DIRECTIVE") + ") [" + new Date(System.currentTimeMillis()) + "] " + 
 		sessionID + 
-		((WEB_SERVER) ? (" " + req.getRemoteAddr() + " - [" + new Date(System.currentTimeMillis()) + "] \"" +
-		req.getMethod() + " " + req.getRequestURI() + "\" \"" +
+		((WEB_SERVER) ? (" " + req.getRemoteAddr() + " \"" + req.getMethod() + " " + req.getRequestURI() + "\" \"" +
 		req.getHeader(USER_AGENT) + "\" \"" + req.getHeader(ACCEPT_LANGUAGE) + "\" \"" + req.getHeader(ACCEPT_CHARSET) + "\"") : "") +
 		((tricepsEngine != null) ? tricepsEngine.getScheduleStatus() : ""));
 		
