@@ -50,6 +50,7 @@ public class TricepsServlet extends HttpServlet {
 		this.res = res;
 		HttpSession session = req.getSession(true);
 		String form = null;
+		firstFocus = null; // reset it each time
 
 		triceps = (Triceps) session.getValue("triceps");
 
@@ -83,7 +84,11 @@ public class TricepsServlet extends HttpServlet {
 
 		sb.append("<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 3.2//EN\">\n");
 		sb.append("<html>\n");
-		sb.append("<body bgcolor='white' onload='javascript:document.myForm.mrn.focus()'>\n");
+		sb.append("<body bgcolor='white'");
+		if (firstFocus != null) {
+			sb.append(" onload='javascript:document.myForm." + firstFocus + ".focus()'");
+		}
+		sb.append(">\n");
 		sb.append("<head>\n");
 		sb.append("<META HTTP-EQUIV='Content-Type' CONTENT='text/html;CHARSET=iso-8859-1'>\n");
 		sb.append("<title>TRICEPS SYSTEM</title>\n");
