@@ -324,7 +324,7 @@ Logger.writeln("##IOException @ Schedule.load()" + e.getMessage());
 		}
 		return ok;
 	}
-
+	
 	public boolean setReserved(int resIdx, String value) {
 		String s;
 		if (value == null)
@@ -352,9 +352,9 @@ Logger.writeln("##IOException @ Schedule.load()" + e.getMessage());
 			case ALLOW_REFUSED: s = Boolean.valueOf(value.trim()).toString(); break;
 			case ALLOW_UNKNOWN: s = Boolean.valueOf(value.trim()).toString(); break;
 			case ALLOW_DONT_UNDERSTAND: s = Boolean.valueOf(value.trim()).toString(); break;
-			case RECORD_EVENTS: s = Boolean.valueOf(value.trim()).toString(); break;
+			case RECORD_EVENTS: s = Boolean.valueOf(value.trim()).toString(); break;	
 			case WORKING_DIR: s = value; break;
-			case COMPLETED_DIR: s = value; break;		
+			case COMPLETED_DIR: s = value; break;
 			case FLOPPY_DIR: s = value; break;	
 			default: return false;
 		}
@@ -375,6 +375,14 @@ Logger.writeln("##IOException @ Schedule.load()" + e.getMessage());
 			return null;
 	}
 	
+	public boolean getBooleanReserved(int resIdx) {
+		if (resIdx >= 0 && resIdx < RESERVED_WORDS.length) {
+			return Boolean.valueOf((String) reserved.get(RESERVED_WORDS[resIdx])).booleanValue();
+		}
+		else
+			return false;
+	}
+
 	private String setFilename(String s) {
 		String name = s;
 		if (name == null)
