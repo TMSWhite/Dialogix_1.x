@@ -648,7 +648,7 @@ public class TricepsServlet extends HttpServlet {
 				case Node.NOTHING:
 					sb.append("		<TD COLSPAN='2'><FONT" + color + ">" + Node.encodeHTML(triceps.getQuestionStr(node)) + "</FONT></TD>\n");
 					break;
-				case Node.RADIO2:
+				case Node.RADIO_HORIZONTAL:
 					sb.append("		<TD COLSPAN='2'><FONT" + color + ">" + Node.encodeHTML(triceps.getQuestionStr(node)) + "</FONT></TD>\n");
 					sb.append("</TR>\n<TR>\n");
 					if (showQuestionNum) {

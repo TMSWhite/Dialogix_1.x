@@ -10,27 +10,28 @@ public class Node  {
 	public static final int RADIO = 2;
 	public static final int CHECK = 3;
 	public static final int COMBO = 4;
-	public static final int TEXT = 5;
-	public static final int DOUBLE = 6;
-	public static final int RADIO2 = 7;	// different layout
-	public static final int PASSWORD = 8;
-	public static final int MEMO = 9;
-	public static final int DATE = 10;
-	public static final int TIME = 11;
-	public static final int YEAR = 12;
-	public static final int MONTH = 13;
-	public static final int DAY = 14;
-	public static final int WEEKDAY = 15;
-	public static final int HOUR = 16;
-	public static final int MINUTE = 17;
-	public static final int SECOND = 18;
+	public static final int LIST = 5;	// combo of size=(min (6,#lines))
+	public static final int TEXT = 6;
+	public static final int DOUBLE = 7;
+	public static final int RADIO_HORIZONTAL = 8;	// different layout
+	public static final int PASSWORD = 9;
+	public static final int MEMO = 10;
+	public static final int DATE = 11;
+	public static final int TIME = 12;
+	public static final int YEAR = 13;
+	public static final int MONTH = 14;
+	public static final int DAY = 15;
+	public static final int WEEKDAY = 16;
+	public static final int HOUR = 17;
+	public static final int MINUTE = 18;
+	public static final int SECOND = 19;
 	
 	private static final String QUESTION_TYPES[] = {
-		"*unknown*", "nothing", "radio", "check", "combo", 
+		"*unknown*", "nothing", "radio", "check", "combo", "list",
 		"text", "double", "radio2", "password","memo", 
-		"date", "time", "year", "month", "day", "weekday", "hour", "minute", "second" };
+		"date", "time", "year", "month", "day", "weekday", "hour", "minute", "second"};
 	private static final int DATA_TYPES[] = { 
-		Datum.STRING, Datum.NA, Datum.STRING, Datum.STRING, Datum.STRING,
+		Datum.STRING, Datum.NA, Datum.STRING, Datum.STRING, Datum.STRING, Datum.STRING,
 		Datum.STRING, Datum.NUMBER, Datum.STRING, Datum.STRING, Datum.STRING,
 		Datum.DATE, Datum.TIME, Datum.YEAR, Datum.MONTH, Datum.DAY, Datum.WEEKDAY, Datum.HOUR, Datum.MINUTE, Datum.SECOND };
 
@@ -395,8 +396,9 @@ public class Node  {
 		switch (answerType) {
 			case CHECK:
 			case COMBO:
+			case LIST:
 			case RADIO:
-			case RADIO2:
+			case RADIO_HORIZONTAL:
 				String val=null;
 				String msg=null;
 				int field=0;
@@ -456,7 +458,7 @@ public class Node  {
 	}
 
 	public String prepareChoicesAsHTML(Datum datum, String errMsg) {
-		/* errMsg is a hack - only applies to RADIO2 */
+		/* errMsg is a hack - only applies to RADIO_HORIZONTAL */
 		StringBuffer sb = new StringBuffer();
 		String defaultValue = "";
 		AnswerChoice ac;
@@ -471,7 +473,7 @@ public class Node  {
 						(DatumMath.eq(datum,new Datum(ac.getValue(),DATA_TYPES[answerType])).booleanVal() ? " CHECKED" : "") + ">" + Node.encodeHTML(ac.getMessage()) + "<br>");
 				}
 				break;
-			case RADIO2: // will store integers
+			case RADIO_HORIZONTAL: // will store integers
 				/* table underneath questions */
 				int count = answerChoices.size();
 
@@ -503,9 +505,12 @@ public class Node  {
 				}
 				break;
 			case COMBO:	// stores integers as value
-				sb.append("\n<select name='" + Node.encodeHTML(getName()) + "'>");
-				sb.append("\n<option value=''>--select one of the following--");	// first choice is empty
+			case LIST: {
+				StringBuffer choices = new StringBuffer();
+				
 				int optionNum=0;
+				int totalLines = 0;
+				boolean nothingSelected = true;
 				while (ans.hasMoreElements()) { // for however many radio buttons there are
 					ac = (AnswerChoice) ans.nextElement();
 					++optionNum;
@@ -527,29 +532,39 @@ public class Node  {
 							}
 						}
 
-						sb.append(prefix);
+						choices.append(prefix);
 						if (line++ == 0) {
 							if (selected) {
-								sb.append(" SELECTED>" + optionNum + ")&nbsp;");
+								choices.append(" SELECTED>" + optionNum + ")&nbsp;");
+								nothingSelected = false;
 							}
 							else {
-								sb.append(">" + optionNum + ")&nbsp;");
+								choices.append(">" + optionNum + ")&nbsp;");
 							}
 						}
 						else {
-							sb.append(">&nbsp;&nbsp;&nbsp;");
+							choices.append(">&nbsp;&nbsp;&nbsp;");
 						}
-						sb.append(Node.encodeHTML(option.substring(0,stop)));
+						choices.append(Node.encodeHTML(option.substring(0,stop)));
 
 						if (stop<option.length())
 							option = option.substring(stop+1,option.length());
 						else
 							option = "";
 					}
+					totalLines += line;
 
-					sb.append("</option>");
+					choices.append("</option>");
 				}
+				sb.append("\n<select name='" + Node.encodeHTML(getName()) + "'" +
+					((answerType == LIST) ? " size = '" + Math.min(6,totalLines+1) + "'" : "") +
+					">");
+				sb.append("\n<option value=''" + 
+					((nothingSelected) ? " SELECTED" : "") +	// so that focus is properly shifted on List box
+					">--select one of the following--");	// first choice is empty				
+				sb.append(choices);
 				sb.append("</select>");
+			}
 				break;
 			case TEXT:	// stores Text type
 				if (datum != null && datum.exists())
