@@ -12,7 +12,7 @@
             Dialogix
         </servlet-name>
         <servlet-class>
-            org.dialogix.parser.ParserServlet
+            org.dianexus.triceps.TricepsServlet
         </servlet-class>
         
         <init-param>
@@ -70,36 +70,12 @@
         </init-param>        
     </servlet>
     
-  <servlet>
-    <servlet-name>velocity</servlet-name>
-    <servlet-class>org.apache.velocity.tools.view.servlet.VelocityLayoutServlet</servlet-class>
-    <init-param>
-      <param-name>org.apache.velocity.toolbox</param-name>
-      <param-value>/WEB-INF/velocity-toolbox.xml</param-value>
-    </init-param>
-    <init-param>
-      <param-name>org.apache.velocity.properties</param-name>
-      <param-value>/WEB-INF/velocity.properties</param-value>
-    </init-param>
-    <load-on-startup>10</load-on-startup>
-  </servlet>
-    
   <!-- Define the Servlet Mapping -->
   <servlet-mapping>
     <servlet-name>Dialogix</servlet-name>
     <url-pattern>/servlet/*</url-pattern>
   </servlet-mapping>
   
-  <servlet-mapping>
-    <servlet-name>velocity</servlet-name>
-    <url-pattern>*.vm</url-pattern>
-  </servlet-mapping>  
-  
-
-  <welcome-file-list>
-    <welcome-file>index.vm</welcome-file>
-  </welcome-file-list>   
-    
     <!-- Login (username / password / filename) -->   
    @@DB.COMMENT_START@@
   <resource-ref>
