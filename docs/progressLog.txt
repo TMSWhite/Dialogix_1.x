@@ -500,3 +500,95 @@ Reorganization & Documentation
 	wave6users -- for tracking login authorizations
 	pageHits -- all hits on a page, in both Login and TricepsServlet
 	pageHitDetails -- all HTTP parameter values - which can get hugs
+	
+<< changes from 2.9.9 to 2.9.9.2
+	MAJOR BUGFIX!
+		The TricepsServlet had instance copies of tricepsEngine and sessionID.  These were potentially shared by multiple users, thereby mixing data.
+		This problem dates back over a year, and only affects the web-based version.  Since these may have been convenience values, it is possible
+		that some sharing was avoided
+		[] Assess where and when this sharing could have occurred
+			[] e.g. look at timestamps in data files -- if two sessions at nearly the same time, might have overwritten
+		N.B.  Notes re which versions used on dianexus:
+			DEV 2.9.2 from 10/19/01 => 1/3/02
+			DEV 2.9.4 from 1/4/02 => 2/15/02
+			DEV 2.9.5 from 2/16/02 => 5/30/02
+			CET 2.9.7 from 5/30/02 => 6/22/02
+			Wave6 2.9.8 from 6/22/02 => 9/24/02
+			Wave6 2.9.8.1 from 9/25/02 => 12/13/02
+			Wave6 2.9.9 from 12/13/02 => present	
+	Enhancement
+		Revised mySQL databases to allow for proper joins via getGeneratedKeys()
+			pageHits
+			pageHitDetails [this is not the same as values, which are set via TricepsEngine]
+			pageHitEvents [still missing send and receive requests]
+			
+	See file "mysql_tests" for details of tests performed to track down cause and extent of problem
+			
+=== Here is the record of changes in TricepsServlert across versions ===
+	DEV 2.9.2 from 10/19/01 => 1/3/02
+		- no LoginTricepsServlet
+		- disable completed sessions
+		- uses private ServletConfig, TricepsEngine, sessionID
+		- okPage encapsulates access to session / tricepsEngine - so processing will be correct (unless there is a concurrency problem)
+		- logging is not encapsulated, so might be wrong
+		- config is passed to TricepsEngine -- only contains web.xml paramaters, so OK
+		- Conclusion:  GOOD	
+	DEV 2.9.4 from 1/4/02 => 2/15/02
+		- identical to 2.9.2
+		- Conclusion:  GOOD
+	DEV 2.9.5 from 2/16/02 => 5/30/02
+		- identical to 2.9.2
+		- Conclusion:  GOOD	
+	CET 2.9.7 from 5/30/02 => 6/22/02
+		- init global logger (since location now dynamic in web.xml) and explicitly expire completed sessions
+		- rest is identical to 2.9.2
+		- Conclusion:  GOOD
+	Wave6 2.9.8 from 6/22/02 => 9/24/02
+		- added LoginTricepsServlet (so made config, tricepsEngine, and sessionID public)
+		- added shutdown() - not encapsulated (uses global tricepsEngine) - so may shutdown wrong tricepsEngine
+		- TricepsEngine no longer based upon sessionID, so more risk of cross-contamination, but still resetting to null at doPost()
+		- Conclusion - TricepsServlet OK
+		- XXX ?? LoginTricepsServlet?
+	Wave6 2.9.8.1 from 9/25/02 => 12/13/02
+		- convert to UTF-8
+		- otherwise same as 2.9.8
+		- Conclusion - TricepsServlet OK
+		- XXX ?? LoginTricepsServlet?		
+	Wave6 2.9.9 from 12/13/02 => present	
+		- ??
+	Wave6 2.9.9.1 from 12/16/02 => present?	(listed as 2.9.9, even though really 2.9.9.1)
+		- ??
+		
+=== N.B. First problem noted with Wave6 data on 11/06:  possibly 10/31 ===
+
+<< changes from 2.9.9.2 to 2.9.9.3
+	BUGFIX:  There are major memory leaks
+	(1) Converted all catch(Throwable) to catch(Exception) so that servlet container can catch OutOfMemoryErrors appropriately
+	(2) Explicitly close database statement and connection 
+	(3) Log totalFree and totalMemory to database and log file so can track problems
+	(4) TODO - use ObjectPools instead of new for StringBuffer, XMLString(?), QSSparser(?), Triceps(?), Schedule(?)
+	(5) Change default JVM max memory from 128m to 256m
+	(6) Only set session objects once -- which seems to fix the data sharing problem
+
+
+
+<< changes from 2.9.9 to ??
+	[DONE] Change mysql to use last_insert_key() so that can join appropriately - upload this to Dianexus (will allow removal of redundancies, like timestamp)
+	[DONE] send processed event info to mysql
+	[] derive business rules from all perl code and document - to ensure that db design will allow asking of proper questions
+	[] when load schedule (nodes) calculate group # - send this to html; store this in dbs
+	[] what is lift to read instrument file from blob?
+	[] make mysql stuff conditional (a config parameter)?
+	[] create domentation for how to install Dialogix, mysql, etc.
+	[] create documentation for how to use Dialogix
+	[] create project plan showing these tasks, with estimated times - so know what can assign to Wonmoh
+	[] create table of sessions (or something like it) to deal with memory leaks
+	[] parse instrument as XML
+	[] better XML model of instrument (so can add LOINC, etc without changing data model)
+	[] LOINC
+	[] document nuances of math
+	[] test cases - require alternate access to the system
+	[] re-organize files for better management
+	[] need way to track which files have been used
+	[] does OMH use CVS - if not, install on their servers.
+	[] Wave6 errors:  /data/Wave6/query_msql.pl & test db
