@@ -1,6 +1,6 @@
 %let helpers = C:\data\cet-irb5\analysis\AutoMEQ-SA-v3.0-(AutoMEQ-SA-irb);
 
-%let cet7_lib = C:\data\cet7\analysis\AutoMEQ-SA-v5.0-(AutoMEQ-SA-irb);
+%let cet7_lib = C:\data\cet-2005-04\;
 
 %let cet3_lib = C:\data\cet7\analysis\AutoMEQ-SA-v3.0-(AutoMEQ-SA-irb);
 %let cet4_lib = C:\data\cet7\analysis\AutoMEQ-SA-v4.0-(AutoMEQ-SA-irb);
@@ -14,13 +14,23 @@ libname cet3 "&cet3_lib";
 libname cet4 "&cet4_lib";
 libname cet5 "&cet5_lib";
 
+
+%let cet7a_lib = C:\data\cet-2005-04\new;
+libname cet7a "&cet7a_lib";
+
+
 /* Also need to load format statements from AutoMEQ5 */
 
 options compress=NO;
 
 /* %include "&cet7_lib\deformat_automeq.sas"; */
 
-%include "&cet7_lib\automeq_formats.sas";
+/* %include "&cet5_lib\automeq_formats.sas"; */
+
+/* 4/13/2005 - Inserted for Automeq7 */
+data cet7a.automeq_all; set cet7.automeq3 cet7.automeq4 cet7.automeq5all cet7a.automeq7a;
+run;
+/**/
 
 
 proc format;
@@ -136,13 +146,13 @@ data zips; set zips;
 run;
 
 /* backup this table */
-data work.zips; set zips;
+data cet7a.zips; set zips;
 run;
 
 proc sql;
 	create table automeq as
 	select distinct l.*, r.*
-	 from cet7.summary l left join work.states r
+	 from cet7a.automeq_all l left join work.states r
 	 on l.d_state = r.stateid
 	 order by startdat;
 	 
@@ -224,10 +234,15 @@ data automeq; set automeq;
 	else if (startdat >= mdy(10,26,2002) and startdat < mdy(4,6,2003)) then wasDST = 0;
 	else if (startdat >= mdy(4,6,2003) and startdat < mdy(10,26,2003)) then wasDST = 1;
 	else if (startdat >= mdy(10,26,2003) and startdat < mdy(4,4,3004)) then wasDST = 0;
-	else if (startdat >= mdy(4,4,2004) and startdat < mdy(10,26,2004)) then wasDST = 1;	
-	else if (startdat >= mdy(10,26,2004) and startdat < mdy(4,4,2005)) then wasDST = 0;
-	else if (startdat >= mdy(4,4,2005)) then wasDST = 1;
+	else if (startdat >= mdy(4,4,2004) and startdat < mdy(10,31,2004)) then wasDST = 1;	
+	else if (startdat >= mdy(10,31,2004) and startdat < mdy(4,3,2005)) then wasDST = 0;
+	else if (startdat >= mdy(4,3,2005) and startdat < mdy(10,30,2005)) then wasDST = 1;
+	else if (startdat >= mdy(10,30,2005) and startdat < mdy(4,2,2006)) then wasDST = 0;
+	else if (startdat >= mdy(4,2,2006)) then wasDST = 1;
 	
+	format zip_gis $ 5.;
+	zip_gis = put(d_zip,z5.);
+		
 	if (DST eq "Y") then localDST = 1; else localDST = 0;
 	
 	/* adjust for daylight savings time, using knowledge that server is based in EST */
@@ -445,10 +460,14 @@ data automeq; set automeq;
 	if (askPIDS = 1 and (Bscore < 7 or (Bscore>=7 and C6_Err_Num=0))) then PIDSdone = 1;
 	
 	/* Were these from the week of the solstices? */
+	if (mdy(4,7,2005) < startdat < mdy(6,5,2005)) then solstice = 'summer';
+	if (mdy(4,7,2004) < startdat < mdy(6,5,2004)) then solstice = 'summer';
 	if (mdy(4,7,2003) < startdat < mdy(6,5,2003)) then solstice = 'summer';
 	if (mdy(4,7,2002) < startdat < mdy(6,5,2002)) then solstice = 'summer';
 	if (mdy(4,7,2001) < startdat < mdy(6,5,2001)) then solstice = 'summer';
 
+	if (mdy(12,7,2005) < startdat < mdy(1,4,2006)) then solstice = 'winter';
+	if (mdy(12,7,2004) < startdat < mdy(1,4,2005)) then solstice = 'winter';
 	if (mdy(12,7,2003) < startdat < mdy(1,4,2004)) then solstice = 'winter';
 	if (mdy(12,7,2002) < startdat < mdy(1,4,2003)) then solstice = 'winter';
 	if (mdy(12,7,2001) < startdat < mdy(1,4,2002)) then solstice = 'winter';
@@ -526,19 +545,23 @@ proc sql;
 	select l.*, r.NumCasesAtLatbin_1, r.NumMajorDDAtLatbin_1, r.NumMinorDDAtLatbin_1, r.PctMajorDDAtLatBin_1, r.PctMinorDDAtLatBin_1
 	from subsetForSADvsMDD l, latbin_1 r
 	where l.latbin_1 = r.latbin_1;
-	
+quit;
+
+proc sql;	
 	create table automeq2 as
 	select l.*, r.NumCasesAtLatbin_2, r.NumMajorDDAtLatbin_2, r.NumMinorDDAtLatbin_2, r.PctMajorDDAtLatBin_2, r.PctMinorDDAtLatBin_2
 	from automeq2 l, latbin_2 r
 	where l.latbin_2 = r.latbin_2;	
+quit;
 	
-	
+proc sql;	
 	create table automeq2 as
 	select l.*, r.NumCasesAtLatbin_2_5, r.NumMajorDDAtLatbin_2_5, r.NumMinorDDAtLatbin_2_5, r.PctMajorDDAtLatBin_2_5, r.PctMinorDDAtLatBin_2_5
 	from automeq2 l, latbin_2_5 r
 	where l.latbin_2_5 = r.latbin_2_5;	
-	
-	
+quit;
+
+proc sql;	
 	create table automeq2 as
 	select l.*, r.NumCasesAtLatbin_5, r.NumMajorDDAtLatbin_5, r.NumMinorDDAtLatbin_5, r.PctMajorDDAtLatBin_5, r.PctMinorDDAtLatBin_5
 	from automeq2 l, latbin_5 r
@@ -588,13 +611,14 @@ run;
 proc sql;
 	create table work.keepers as
 	select distinct
+		uniqueid,
 		joined, complete, d_who, abnlslep,
 		startdat, month, season,
 		startabs, startloc,wasDST,GMToffset,
 		d_sex, d_age, age_cat,
 		d_eye, eye_type, ethnicity, irb_ethnicity,
 		country, statenam, stateabr, statecode, d_los,
-		d_zip, okzip, latitude, latabout, lat_good, lat_bin, latbinmd, longitude,
+		d_zip, zip_gis, okzip, latitude, latabout, lat_good, lat_bin, latbinmd, longitude,
 		workdays, 
 		circphas, meq_type, meq, meqstd, 		
 		sleepmeq, wakemeq, sdurmeq, smidmeq,
@@ -626,8 +650,38 @@ proc sql;
 	;
 quit;
 
+/* Add analyses used for detecting cases of SANS */
 data SADvsMD; set keepers;
 	where useForSADvsMDDanalysis = 1;
+	
+	if (d_age > 15 and d_age < 26) then youngadult=1; else youngadult=0;
+	if (month >= 11 or month <= 2) then iswinter=1; else iswinter=0;
+
+	if (PIDSdone = 1 and Dscore >= 6 and 
+		hasWinterSeasonality = 1 and MajorDepression_dx ne 1 and MinorDepression_dx ne 1) 
+		then SANS = 1; else SANS = 0;
+
+	if (hasWinterSeasonality = 1) then do;
+		if (MajorDepression_dx = 1) then dx_cat = 'MDD';
+		else if (MinorDepression_Dx = 1) then dx_cat = 'MIN';
+		else if (SANS = 1) then dx_cat = 'SANS';
+		else dx_cat = 'SANS';
+	end;
+	else dx_cat = 'OTHER';
+
+	if (latbin_2_5 <= 32.5) then latbin_2_5b = 32.5;
+	else if (latbin_2_5 >= 47.5) then latbin_2_5b = 47.5;
+	else latbin_2_5b = latbin_2_5;
+
+	if (latbin_2_5 <= 32.5) then latbin_2_5C = 32.5;
+	else if (latbin_2_5 >= 45) then latbin_2_5C = 45;
+	else latbin_2_5C = latbin_2_5;
+
+	if (d_age < 25) then age_bin = 1;
+	else if (d_age < 35) then age_bin = 2;
+	else if (d_age < 45) then age_bin = 3;
+	else if (d_age < 55) then age_bin = 4;
+	else age_bin = 5;	
 run;
 
 /*
@@ -671,21 +725,21 @@ proc sql;
 */
 	
 PROC EXPORT DATA= work.keepers 
-            OUTFILE= "&cet7_lib\Automeq.xls" 
+            OUTFILE= "&cet7a_lib\Automeq.xls" 
             DBMS=EXCEL2000 REPLACE;
 RUN;
 
-PROC EXPORT DATA= CET7.SADvsMD 
-            OUTFILE= "&cet7_lib\SADvsMD.xls" 
+PROC EXPORT DATA= work.SADvsMD 
+            OUTFILE= "&cet7a_lib\SADvsMD.xls" 
             DBMS=EXCEL2000 REPLACE;
 RUN;
 
 /* Backup up data */
-data cet7.automeq; set automeq; run;
+data cet7a.automeq; set automeq; run;
 
-data cet7.keepers; set keepers; run;
+data cet7a.keepers; set keepers; run;
 
-data cet7.SADvsMD; set SADvsMD; run;
+data cet7a.SADvsMD; set SADvsMD; run;
 
 
 /* Why no keepers? -- COMPLETE = 0 for all -- why? *
@@ -717,7 +771,7 @@ run;
 */
 
 /* 
-data automeq; set cet7.keepers;
+data automeq; set cet7a.keepers;
 	if (mdy(4,7,2003) < startdat < mdy(6,5,2003)) then solstice = 'summer';
 	if (mdy(4,7,2002) < startdat < mdy(6,5,2002)) then solstice = 'summer';
 	if (mdy(4,7,2001) < startdat < mdy(6,5,2001)) then solstice = 'summer';
@@ -729,7 +783,7 @@ run;
 */
 
 /*
-data nonwinterworse; set cet7.keepers;
+data nonwinterworse; set cet7a.keepers;
 	winterbad = ((CscoresA10 >= 4) + (CscoresA11 >= 4) + (CscoresA12 >= 4) + (CscoresA1 >= 4) + (CscoresA2 >= 4));
 	summergood = ((CscoresB5 >= 4) + (CscoresB6 >= 4) + (CscoresB7 >= 4) + (CscoresB8 >= 4) + (CscoresB9 >= 4));
 run;
@@ -747,7 +801,7 @@ proc freq data=SADvsMD;
 	table MDcrit3;
 run;
 
-data nonwinterworse; set cet7.keepers;
+data nonwinterworse; set cet7a.keepers;
 	winterbad = ((CscoresA10 >= 4) + (CscoresA11 >= 4) + (CscoresA12 >= 4) + (CscoresA1 >= 4) + (CscoresA2 >= 4));
 	summerbad = ((CscoresA5 >= 4) + (CscoresA6 >= 4) + (CscoresA7 >= 4) + (CscoresA8 >= 4) + (CscoresA9 >= 4));
 run;
@@ -768,7 +822,7 @@ proc freq data=SADvsMD;
 	table MDcrit3;
 run;
 
-proc freq data=cet7.keepers; 
+proc freq data=cet7a.keepers; 
 	where C_SummerBad ne 1 and C_WinterBad = 1;
 	tables MDcrit3;
 run;
@@ -786,7 +840,7 @@ proc freq data=SADvsMD;
 	tables lat_bin;
 run;
 
-proc freq data=cet7.keepers;
+proc freq data=cet7a.keepers;
 	tables lat_bin;
 run;
 */
@@ -829,11 +883,11 @@ run;
 proc sql;
 	create table vegitativenonMD as
 	select distinct * from 
-	cet7.sadvsmd
+	cet7a.sadvsmd
 	where Dscore >= 4 and hasWinterSeasonality = 1 and MinorDepression_dx = 0 and MajorDepression_Dx = 0
 	;
 
-data sadvsmd; set cet7.sadvsmd;
+data sadvsmd; set cet7a.sadvsmd;
 	if (MajorDepression_Dx = 1) then DepressionType = 'Major';
 	else if (MinorDepression_Dx = 1) then DepressionType = 'Minor';
 	else if (Dscore >= 4) then DepressionType = 'SVD';	* SVD = seasonal vegitative depression
@@ -880,11 +934,11 @@ run;
 proc sql;
 	create table vegitativenonMD as
 	select distinct * from 
-	cet7.sadvsmd
+	cet7a.sadvsmd
 	where Dscore >= 4 and hasWinterSeasonality = 1 and MinorDepression_dx = 0 and MajorDepression_Dx = 0
 	;
 
-data sadvsmd; set cet7.sadvsmd;
+data sadvsmd; set cet7a.sadvsmd;
 	if (MajorDepression_Dx = 1) then DepressionType = 'Major';
 	else if (MinorDepression_Dx = 1) then DepressionType = 'Minor';
 	else if (Dscore >= 4) then DepressionType = 'SVD';
@@ -1472,4 +1526,42 @@ proc freq data=sadvsmd2;
 run;
 
 
+*/
+
+/* IRB Report *
+
+data automeq; set cet7a.automeq;
+run;
+
+proc sort data=automeq;
+	by age_cat;
+run;
+
+%StartAnODSReport("&cet7a_lib.irbreport.htm");
+
+proc freq data=automeq;
+	by age_cat;
+
+	tables d_sex * irb_ethnicity;
+run;
+
+%FinishAnODSReport;
+
+*/
+
+/* Possible analysis of relationship between sleep duration, latitude and depression *
+data test2; set cet7a.sadvsmd2;
+	keep lat_good sduravg season MajorDepression_dx;
+	where season=1;
+run;
+
+proc sort data=test2;
+	by MajorDepression_Dx;
+run;
+
+proc corr data=test2;
+	by MajorDepression_Dx;
+	with sduravg;
+	var lat_good;
+run;
 */
