@@ -1,0 +1,50 @@
+
+
+Theories:
+
+-Seasonality within women occurs in early 30s with attenuation as get older (by age 60, see less of it) - 
+-80% of people with SAD are women -- can test selection bias
+-Winter seasonality more prevalent at higher latitudes - internal validation
+-Latitude clines of seasonal vs. not (as % of sample size) [see PPT & repeat]
+
+-Use Latitude cline by seasonal type and slice by gender & age
+-Correlation coefficients with actual latitude info
+
+*Sleep duration - hypersomnia greater in the north?  What is relationship between hypersomnia and SAD?  Distinguishing it from sadness
+	distinguish night length from amount of sleep - want to see stronger association between hypersomnia in north with winter depression
+	than in the south; and must do this winter vs. summer (since population as a whole sleeps longer in winter)
+	Average weighted sleep duration (just within winter) within Subjects with SAD vs Latitude -- if stronger correlation with SAD than with latitude, then suggesgts that hypersomnia associated with SAD, not night length
+	
+What variables are needed for this?  sduravg, lat_good, season, MajorDepression_dx, MinorDepression_dx
+	
+*What is relationship between sleep duration and SAD vs. SAN (how closely is hypersomnia associated with depression vs. seasonality / 
+
+-Urban vs. rural
+(1) amount of time in direct sunlight
+(2) incidence of diagnosis (SAD vs SANS distribution)
+(3) plotting the data we have - ability to filter by age, etc.
+
+Mapping - compare our data to census	
+
+Action Items
+[2]How many people referred to Kripke (Feedback7a)
+[ ]Data preparation for avg sleep duration during winter (should be OK - just sub-select and then correlation?)
+[ ]Updating data for the latitude clines
+[-]George Musa about geo-plotting - might know climatic breakdowns (rainy season)
+
+
+---
+GIS
+Climatic variables and SAD?  Rainfall, Snowfall, Cloudcover, # of hours with sunshine (Seattle group), Barometric pressure
+Urban vs. Rural
+Elevation
+Face Validity - features of respondants vs. our sample
+
+---
+What questions for May 15th?
+(1) Latitude cline of XX sliced by gender and age - show as rates per 100,000?
+(2) Hours of sunshine on average over last 5 years vs. Latitude (from station data)
+(3) Compare our data to zip?
+
+
+[DONE - zip_gis] Convert zip code to text with leading zeros
