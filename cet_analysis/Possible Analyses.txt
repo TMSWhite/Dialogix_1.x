@@ -48,3 +48,281 @@ What questions for May 15th?
 
 
 [DONE - zip_gis] Convert zip code to text with leading zeros
+
+
+---
+[ ] how does seasonality correlate with brightness / raininess?
+[ ] 
+
+independent variables:
+(1) urban (0/1) - we do have some other area
+(2) hours of daylight (from weather station)
+(3) age, gender
+(4) latitude / longitude
+(5) eye-color
+(6) diagnosis - can we do more of a continuous variable based upon part A scores?	 (e.g. use Ascore - scale 1-7 (ordinal))
+
+Dependent variables
+(1) average sleep duration
+(2) Bscore
+(3) MEQ
+(4) Ascore = 
+
+Stepwise regression of independent and dependent variables to get regression equation
+
+---
+New variables?
+(1) SES - socioeconomic status
+(2) postal codes from 
+(3) Questions about sleep say "on average" - for what period?  Refine question to ask over the last XX weeks?
+(4) Ask if received a MDD diagnosis
+
+(5) Ask if taking any sleep aids (any of these types - antidepressants, antihystamines)
+
+--
+/* Ignore
+(1) Would expect longer sleep with longer night - lab tests show longer sleep with longer nights
+ [ ] lat_good vs sdurnwrk - filtering out rural vs. urban -- and even if no correlation between two, reportable; if rural vs. urban good too.
+ 
+(2) Sleep duration vs. season
+[ ] sduravg vs. season - (one way anova - no difference using entire sample - perhaps)
+
+(3) Is sleep duration more of a property of seasonal depression than night length
+[ ] Seasonal depression diagnosis = age, gender, latitude, self-reported hypersomnia (and interaction effects)
+
+(3) Do non-depressed control group have change in sleep.
+*/
+
+Self-reported hypersomnia = say 3 or 4 on B1 (moderate / severe sleeping longer in winter); C4A subset - how many bad winter months (from 0-4)
+[ ] Need to data preparation for self-reported hypersomnia
+---
+FINAL ANALYSES:
+---
+***
+(1) is depression more strongly correlated with depression or latitude - stepwise linear regression
+[ ] Sleep duration = Ascore (or depression), lat_good, age, gender, urbanness, season
+
+[ ] self-reported hypersomnia = ... (same covariates)
+
+(2) Latitude cline at two different longitudes - (west, midwest/south, east)
+Major + Minor in winter = latitude - simple regression slope - hope that all three lines will be parallel.
+
+
+Since 10+% of patients with depression 
+
+
+---
+How representative is our data compared to census? - compare to table that George will send us.
+
+
+[ ] Aggregate our data to grid ID
+
+[ ] Is there are gradation of Bscore or other signs of winter depression further away from the time zone boundaries.
+Winter seasonality - expect more winter hypersomnia in detroit vs east cost
+
+Really want degree of hypersomnia
+
+
+----
+5/6/05  East vs. West within a time-zone  See significant difference via chi squared:
+N: 
+
+data test; set keepers2;
+	if (hypsomsr > 0) then is_hypsomsr = 1; else is_hypsomsr = 0;
+run;
+
+proc sql;
+	create table daylightsavings as
+	select statenam, avg(lat_good) as Avg_Lat, count(*) as N, sum(is_hypsomsr) as N_hypersom,  sum(is_hypsomsr) / count(*) as Ratio, avg(hypsomsr) / count(*) as Scale_ratio
+	from test
+	group by statenam
+	having N >= 75
+	order by Ratio;
+quit;
+
+proc print data=daylightsavings;
+run;
+
+data daylightsavings2; set keepers2;
+	if (hypsomsr > 0) then is_hypsomsr = 1; else is_hypsomsr = 0;
+	if (stateabr in ('NH', 'VT', 'MA', 'RI','CT', 'NJ', 'DE', 'DC')) then place='east';
+	else if (stateabr in ('NY', 'PA')) then place = 'mid';
+	else if (stateabr in ('MI', 'OH', 'WV')) then place = 'west';
+	else delete;
+
+	keep statenam stateabr is_hypsomsr lat_good longitude place;
+run;
+
+
+?? Is total global seasonality greater at the west.
+
+
+[ ] Can George show washout of this effect in southern latitudes?
+[ ] Prepare data for George so he can do those analyses?  May require merging with zip-based centroids?
+
+
+
+-----------------------------------
+Notes from Terman from 3/5 - 3/11
+-----------------------------------
+George,
+
+Let's continue this discussion in person before deciding what info we  
+need.
+
+Meanwhile, Tom and I met last Friday and reoriented the theme of our  
+abstract (doc attached).  We were able to find that symptoms are  
+worse the farther west you go in the Eastern time zone, then suddenly  
+improve when you cross the time zone.  (The topic is related to the  
+current debate about extending daylight saving time, and was  
+suggested to us by David Avery of Univ. of Washington.) I've drafted  
+an abstract (attached), which we all need to review and discuss by  
+the end of the week.  We would be delighted to include you as an  
+author if you can make the commitment to work up map-based graphics  
+(subject distribution, longitude and latitude effects, separately and  
+in combination, perhaps stratified by MEQ score).  Tom is continuing  
+to examine related effects.
+
+/Michael 
+
+Tom,
+
+You probably realized this already, but just in case...
+
+To refine the longitude criteria I suggested yesterday: we cannot literally
+use -87.5 deg longitude as the divider between eastern and central time,
+since that only approximates the IN and IL borders (which we need to
+retain). I think all the other latitude and longitude criteria are OK.
+Right?
+
+/Michael
+
+Still needs very careful review (primarily yours).  Numbers to be adjusted
+given revised map coordinates.
+
+George should be an author only if we are assured of a meaningful
+contribution.
+
+Will hold off showing this to Avery till you and I finalize.
+
+/M 
+
+Tom,
+
+I've been staring at the map.
+
+I think it would be cleanest for us to define equivalent latitude and
+longitude ranges for our comparisons, disregarding state lines.
+
+For example, 6-deg ranges seem to catch all our current major urban areas.
+
+LAT/LONG DIVISIONS in 6-deg bins:
+
+Northeast tier of EST: lat 39-45 deg, long 69-75 deg
+
+Northwest tier of EST: lat 39-45 deg, long 81.5-87.5 deg
+
+Northeast tier of CST: lat 39-45 deg, long 87.5-93.5
+
+There are actually 4 time zones (not 3!), EST, CST, MST and PST.  The
+Pacific range (total 6 deg longitude) is too narrow to define a
+within-time-zone gradient (it includes only WA and OR in the north), and the
+high symptomatology there is probably a pure latitude effect, since both
+Portland and Seattle both lie above 45 deg N. The Pacific data would be
+great for the latitude analyses, but not for the time zone analyses.
+
+Agreed?
+
+If you can possible redefine the 3 relevant groups and grind out the data, I
+think our abstract would be clearer.
+
+Possible to do quickly?  If not, I'll use the present numbers.
+
+/Michael
+
+Tom,
+
+Dave Avery wrote that he is very pleased to join us, but not as an author or
+investigator with primary responsibility.  Good -- what we need him for is
+the Introduction and Discussion sections....
+
+It occurs to me that our within-time-zone effect should be modulated by MEQ
+score, although I'm not sure how.  The late risers will miss the dawn
+anyway, so location might not make a difference for them.  On the other
+hand, MEQ score might actually decrease while moving west within a time
+zone, since delayed dawn could encourage circadian delay drift.
+
+Can we check for such MEQ effects, both latitudinally and longitudinally?
+
+Possibly we can find an MEQ subgroup that is particularly hard hit (in terms
+of B score, winter MDD, atypical vegetative symptoms, and wake-up time*) by
+either or both factors.
+
+We didn't look at this, but it would be nice to see if the western subgroup
+wakes up later, either on average for the whole week or work days vs. rest
+days.
+
+If there is an MEQ effect, it would be great to mention in the abstract,
+which I am starting to draft.
+
+/Michael
+
+Dave,
+
+Inspired by your notes of the past few days, I sat down with Tom White
+MD, medical informatics director at NYS Office of Mental Health, who
+devised our on-line questionnaires at www.cet.org, for which we have
+thousands of respondents from all over the country.
+
+So . . .
+
+we said seasonality and SAD should be worse the farther west you go in
+any time zone, since sunrise is later, and should get better as soon as
+you cross to the next time zone.  We have 4 regions with sufficient
+sample size: northeast coast, northwest tier of eastern time zone (MI,
+OH, IN), northeast tier of central time zone (WI, IL) and northwest
+coast (WA, OR).
+
+The results are large, significant and unambiguous:  Higher global
+seasonality scores, higher prevalence of SAD (MDD criteria), more
+severe atypical symptoms (fatigue, hypersomnia, weight gain) in both
+northwest tiers compared with northeast tiers.
+
+For example, winter seasonal MDD
+
+northeast tiers combined, 24.5% of 1160 respondents
+northwest tiers combined, 30.2% of 758 respondents
+
+chi-sq = 7.44, df = 1, p = .006
+
+Similar results when the 4 regions are separated.
+
+This is very exciting.  We want to make a SLTBR abstract out of it, and
+for you to join as an author if you would contribute to an expanded
+paper on the subject.  We're giving the raw data to our geographic
+statistician, who will look more closely and possibly add a latitude
+factor.  If this works out, possibly we have the basis for a Science
+paper (innovative, topical, public health impact) that would argue
+against expanding daylight saving time.  Let us both know your
+impressions.
+
+/Michael
+
+Recent discussion with colleagues about SAD-exacerbating implication  
+of extending daylight saving time (with less morning light before and  
+after the winter episode).  Point was made that even under standard  
+time, those living at the western edge of any time zone (probably  
+most obvious in our eastern zone) have a ~1-h delay in sunrise  
+relative to the eastern edge. If so, there might be a longitudinal  
+cline in seasonality (B score) or SAD (A+B+C score criteria) that we  
+could detect in our data.  It might be concentrated higher latitudes  
+(latitude/longitude interaction within time zones).  That would be a  
+spectacular finding, and could contribute to the current federal  
+debate on extending daylight saving time, since people vulnerable to  
+SAD would experience a ~2h delay in sunrise if they live in the  
+western tier of a time zone.  Think we can explore for such a  
+relationship?
+
+See you later.
+
+/Michael

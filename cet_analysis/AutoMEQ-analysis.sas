@@ -18,6 +18,9 @@ libname cet5 "&cet5_lib";
 %let cet7a_lib = C:\data\cet-2005-04\new;
 libname cet7a "&cet7a_lib";
 
+%let cet7b_lib = C:\data\cet-2005-04\new050506;
+libname cet7b "&cet7b_lib";
+
 
 /* Also need to load format statements from AutoMEQ5 */
 
@@ -497,6 +500,11 @@ data automeq; set automeq;
 		if (Ascore >= 2 and Ascore <= 4 and (A4 = 1 or A5 = 1) and (A9 = 0)) then MinorDepression_dx = 1; 
 		else MinorDepression_dx = 0;
 	end;
+	
+	if (B1  >= 3) then do;
+		hypsomsr =  1 + (C4A_Nov + C4A_Dec + C4A_Jan + C4A_Feb);
+	end;
+	else hypsomsr = 0;
 run;
 
 data subsetForSADvsMDD; set automeq;
@@ -641,6 +649,7 @@ proc sql;
 		useForSADvsMDDanalysis, hasWinterSeasonality,
 		latbin_1, latbin_2, latbin_2_5, latbin_5,
 		MajorDepression_dx, MinorDepression_dx,
+		hypsomsr,
 		NumCasesAtLatbin_1, NumMajorDDAtLatbin_1, NumMinorDDAtLatbin_1, PctMajorDDAtLatBin_1, PctMinorDDAtLatBin_1, NumMajorMinorAtLatBin_1, PctMajorMinorAtLatBin_1,
 		NumCasesAtLatbin_2, NumMajorDDAtLatbin_2, NumMinorDDAtLatbin_2, PctMajorDDAtLatBin_2, PctMinorDDAtLatBin_2, NumMajorMinorAtLatBin_2, PctMajorMinorAtLatBin_2,
 		NumCasesAtLatbin_2_5, NumMajorDDAtLatbin_2_5, NumMinorDDAtLatbin_2_5, PctMajorDDAtLatBin_2_5, PctMinorDDAtLatBin_2_5, NumMajorMinorAtLatBin_2_5, PctMajorMinorAtLatBin_2_5,
@@ -741,7 +750,12 @@ data cet7a.keepers; set keepers; run;
 
 data cet7a.SADvsMD; set SADvsMD; run;
 
+/* Add code for 4/13/05 analyses:
+Self-reported hypersomnia = say 3 or 4 on B1 (moderate / severe sleeping longer in winter); 
+C4A subset - how many bad winter months (from 0-4)
+*/
 
+/* proc freq data=cet7a.automeq; tables C4A_Nov C4A_Dec C4A_Jan C4A_Feb; run; */
 /* Why no keepers? -- COMPLETE = 0 for all -- why? *
 proc freq data=automeq;
 	table d_age;
@@ -1564,4 +1578,153 @@ proc corr data=test2;
 	with sduravg;
 	var lat_good;
 run;
+*/
+
+/* 5/6/05 */
+data daylightsavings2; set cet7b.keepers;
+	if (hypsomsr > 1) then is_hypsomsr = 1; else is_hypsomsr = 0;
+	if (Bscore >= 11 and hasWinterSeasonality = 1) then seasonal = 1; else seasonal=0;
+	if (Bscore >= 11 and hasWinterSeasonality = 1 and MajorDepression_dx = 1) then mdd = 1; else mdd=0;
+	if (Bscore >= 11 and hasWinterSeasonality = 1 and hypsomsr > 1) then seasonal_hypersom = 1; else seasonal_hypersom = 0;
+	if (Bscore >= 11 and hasWinterSeasonality = 1 and D9 = 1) then hyperphagia = 1; else hyperphagia=0;
+	if (Bscore >= 11 and hasWinterSeasonality = 1 and D3 = 1) then fatigue = 1; else fatigue=0;
+	
+	/*
+	if (stateabr in ('NH', 'VT', 'MA', 'RI','CT', 'NJ', 'DE', 'DC')) then place='east';
+	else if (stateabr in ('NY', 'PA')) then place = 'mid';
+	else if (stateabr in ('MI', 'OH', 'IN')) then place = 'west';
+	else if (stateabr in ('WI', 'IL')) then place = 'midw';
+	else if (stateabr in ('WA', 'OR')) then place = 'wcst';
+	else delete;
+
+	if (longitude > -75) then long='east-EST';
+	else if (place eq 'west') then long='west-EST';
+	else if (place eq 'midw') then long='east-CST';
+	else if (place eq 'wcst') then long='west-MST';
+	*/
+	
+	/* revised area computations (5/11/05) *
+	if (lat_good < 39 or lat_good > 45) then delete;
+	if (longitude > -75 and longitude < -69) then long='east-EST';
+	else if (longitude < -81.5 and stateabr in ('ME','NY','MA','VT','RI','CT','NJ','DE','MD','VA','NC','WV','PA','OH','MI')) 
+		then long='west-EST';
+	else if (longitude > -93.5 and stateabr in ('ND','SD','NE','KS','OK','MN','IA','MO','WI','IL','IN','TN','ID')) 
+		then long='east-CST';
+	else if (stateabr in ('OR','WA')) then long='west-PST';
+	else long='other';
+
+	if (long in ('east-EST', 'east-CST')) then tier='east';
+	else if (long in ('west-EST', 'west-PST')) then tier='west';
+	*/
+	
+	/* 4/16/05 revisions */
+	if (lat_good < 39 or lat_good > 50) then delete;
+	if (longitude >= -75 and longitude < -69) then long='east-EST';
+	else if ((longitude <= -81.5 and stateabr in ('ME','NY','MA','VT','RI','CT','NJ','DE','MD','VA','NC','WV','PA','OH','MI'))
+		or (longitude < -81.5 and longitude >= -90 and country in ('Canada')))
+		then long='west-EST';
+	else if ((longitude >= -93.5 and stateabr in ('ND','SD','NE','KS','OK','MN','IA','MO','WI','IL','IN','TN','ID'))
+		or (longitude >= -96 and longitude < -90 and country in ('Canada')))
+		then long='east-CST';
+	else if (stateabr in ('OR','WA')
+		or (longitude < -120 and country in ('Canada'))) then long='west-PST';
+	else delete;
+
+	if (long in ('east-EST', 'east-CST')) then tier='east';
+	else if (long in ('west-EST', 'west-PST')) then tier='west';	
+
+run;
+
+proc sql;
+	create table test as
+	select long, count(*) as N, sum(is_hypsomsr) as N_hypersom, sum(is_hypsomsr) / count(*) as Ratio,
+		 sum(seasonal_hypersom) as N_seasonal_hypersom, sum(seasonal_hypersom) / count(*) as Ratio_seasonal_hypersom,
+		 sum(seasonal) as N_seasonal, sum(seasonal) / count(*) as Ratio_Seasonal,
+		 sum(mdd) as N_mdd, sum(mdd) / count(*) as Ratio_MDD,
+		 sum(hyperphagia) as N_hyperphagia, sum(hyperphagia) / count(*) as Ratio_hyperphagia,
+		 sum(fatigue) as N_fatigue, sum(fatigue) / count(*) as Ratio_fatigue,
+		 avg(meq) as Avg_MEQ,
+		 avg(sduravg) as Avg_SleepDuration,
+		 avg(smidavg) as Avg_SleepMidpoint,
+		 avg(d_age) as Avg_Age,
+		 sum(d_sex) / count(*) as Pct_Female		 
+	from daylightsavings2
+	group by long
+	order by long;
+quit;
+
+proc print data=test; run;
+
+
+proc sql;
+	create table test2 as
+	select tier, count(*) as N, sum(is_hypsomsr) as N_hypersom, sum(is_hypsomsr) / count(*) as Ratio,
+		 sum(seasonal_hypersom) as N_seasonal_hypersom, sum(seasonal_hypersom) / count(*) as Ratio_seasonal_hypersom,
+		 sum(seasonal) as N_seasonal, sum(seasonal) / count(*) as Ratio_Seasonal,
+		 sum(mdd) as N_mdd, sum(mdd) / count(*) as Ratio_MDD,
+		 sum(hyperphagia) as N_hyperphagia, sum(hyperphagia) / count(*) as Ratio_hyperphagia,
+		 sum(fatigue) as N_fatigue, sum(fatigue) / count(*) as Ratio_fatigue,
+		 avg(meq) as Avg_MEQ,
+		 avg(sduravg) as Avg_SleepDuration,
+		 avg(smidavg) as Avg_SleepMidpoint,
+		 avg(d_age) as Avg_Age,
+		 sum(d_sex) / count(*) as Pct_Female
+	from daylightsavings2
+	group by tier
+	order by tier;
+quit;
+
+proc print data=test2; run;
+
+proc sql;
+	create table test3 as
+	select season, long, count(*) as N, sum(is_hypsomsr) as N_hypersom, sum(is_hypsomsr) / count(*) as Ratio,
+		 sum(seasonal_hypersom) as N_seasonal_hypersom, sum(seasonal_hypersom) / count(*) as Ratio_seasonal_hypersom,
+		 sum(seasonal) as N_seasonal, sum(seasonal) / count(*) as Ratio_Seasonal,
+		 sum(mdd) as N_mdd, sum(mdd) / count(*) as Ratio_MDD,
+		 sum(hyperphagia) as N_hyperphagia, sum(hyperphagia) / count(*) as Ratio_hyperphagia,
+		 sum(fatigue) as N_fatigue, sum(fatigue) / count(*) as Ratio_fatigue,
+		 avg(meq) as Avg_MEQ,
+		 avg(sduravg) as Avg_SleepDuration,
+		 avg(smidavg) as Avg_SleepMidpoint,
+		 avg(d_age) as Avg_Age,
+		 sum(d_sex) / count(*) as Pct_Female
+	from daylightsavings2
+	group by season, long
+	order by season, long;
+quit;
+
+proc print data=test3; run;
+
+
+proc sql;
+	create table test4 as
+	select season, tier, count(*) as N, sum(is_hypsomsr) as N_hypersom, sum(is_hypsomsr) / count(*) as Ratio,
+		 sum(seasonal_hypersom) as N_seasonal_hypersom, sum(seasonal_hypersom) / count(*) as Ratio_seasonal_hypersom,
+		 sum(seasonal) as N_seasonal, sum(seasonal) / count(*) as Ratio_Seasonal,
+		 sum(mdd) as N_mdd, sum(mdd) / count(*) as Ratio_MDD,
+		 sum(hyperphagia) as N_hyperphagia, sum(hyperphagia) / count(*) as Ratio_hyperphagia,
+		 sum(fatigue) as N_fatigue, sum(fatigue) / count(*) as Ratio_fatigue,
+		 avg(meq) as Avg_MEQ,
+		 avg(sduravg) as Avg_SleepDuration,
+		 avg(smidavg) as Avg_SleepMidpoint,
+		 avg(d_age) as Avg_Age,
+		 sum(d_sex) / count(*) as Pct_Female
+	from daylightsavings2
+	group by season, tier;
+	order by season, tier;
+quit;
+
+proc print data=test4; run;
+
+proc freq data=daylightsavings2;
+	tables tier * mdd / chisq;
+	tables tier * seasonal_hypersom / chisq;
+	tables tier * hyperphagia / chisq;
+	tables tier * fatigue / chisq;
+run;
+
+/** TODO:
+	(1) Why don't my numbers match Michael's
+	(2) Prepare data for George
 */
