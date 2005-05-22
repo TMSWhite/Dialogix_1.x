@@ -1582,12 +1582,24 @@ run;
 
 /* 5/6/05 */
 data daylightsavings2; set cet7b.keepers;
+	if (d_age < 22) then delete;	/* remove children */
+	if (d_age > 70) then delete;	/* remove elderly */
 	if (hypsomsr > 1) then is_hypsomsr = 1; else is_hypsomsr = 0;
 	if (Bscore >= 11 and hasWinterSeasonality = 1) then seasonal = 1; else seasonal=0;
-	if (Bscore >= 11 and hasWinterSeasonality = 1 and MajorDepression_dx = 1) then mdd = 1; else mdd=0;
+	if (Bscore >= 11 and hasWinterSeasonality = 1 and (MajorDepression_dx = 1)) then mdd = 1; else mdd=0;
 	if (Bscore >= 11 and hasWinterSeasonality = 1 and hypsomsr > 1) then seasonal_hypersom = 1; else seasonal_hypersom = 0;
 	if (Bscore >= 11 and hasWinterSeasonality = 1 and D9 = 1) then hyperphagia = 1; else hyperphagia=0;
 	if (Bscore >= 11 and hasWinterSeasonality = 1 and D3 = 1) then fatigue = 1; else fatigue=0;
+	
+	if (Bscore >= 11 and hasWinterSeasonality = 1 and A1 = 1) then sleep_dist = 1; else sleep_dist=0;
+	if (Bscore >= 11 and hasWinterSeasonality = 1 and A2 = 1) then fatigue_A2 = 1; else fatigue_A2=0;
+	if (Bscore >= 11 and hasWinterSeasonality = 1 and A3 = 1) then eating_dist = 1; else eating_dist=0;
+	if (Bscore >= 11 and hasWinterSeasonality = 1 and A4 = 1) then anhedonia = 1; else anhedonia=0;
+	if (Bscore >= 11 and hasWinterSeasonality = 1 and A5 = 1) then mood_dist = 1; else mood_dist=0;
+	if (Bscore >= 11 and hasWinterSeasonality = 1 and A6 = 1) then negative_thoughts = 1; else negative_thoughts=0;
+	if (Bscore >= 11 and hasWinterSeasonality = 1 and A7 = 1) then concentration = 1; else concentration=0;
+	if (Bscore >= 11 and hasWinterSeasonality = 1 and A8 = 1) then restless = 1; else restless=0;
+	if (Bscore >= 11 and hasWinterSeasonality = 1 and A9 = 1) then suicidal = 1; else suicidal=0;
 	
 	/*
 	if (stateabr in ('NH', 'VT', 'MA', 'RI','CT', 'NJ', 'DE', 'DC')) then place='east';
@@ -1617,7 +1629,7 @@ data daylightsavings2; set cet7b.keepers;
 	else if (long in ('west-EST', 'west-PST')) then tier='west';
 	*/
 	
-	/* 4/16/05 revisions */
+	/* 4/16/05 revisions *//*
 	if (lat_good < 39 or lat_good > 50) then delete;
 	if (longitude >= -75 and longitude < -69) then long='east-EST';
 	else if ((longitude <= -81.5 and stateabr in ('ME','NY','MA','VT','RI','CT','NJ','DE','MD','VA','NC','WV','PA','OH','MI'))
@@ -1632,6 +1644,21 @@ data daylightsavings2; set cet7b.keepers;
 
 	if (long in ('east-EST', 'east-CST')) then tier='east';
 	else if (long in ('west-EST', 'west-PST')) then tier='west';	
+	*/
+	
+	/* 5/20 revisions */
+	if (lat_good < 39 or lat_good > 45) then delete;
+	if (longitude >= -75 and longitude < -69) then long='east-EST';
+	else if ((longitude <= -81.5 and stateabr in ('ME','NY','MA','VT','RI','CT','NJ','DE','MD','VA','NC','WV','PA','OH','MI'))
+		or (longitude < -81.5 and longitude >= -90 and country in ('Canada')))
+		then long='west-EST';
+	else if ((longitude >= -93.5 and stateabr in ('ND','SD','NE','KS','OK','MN','IA','MO','WI','IL','IN','TN','ID'))
+		or (longitude >= -96 and longitude < -90 and country in ('Canada')))
+		then long='east-CST';
+	else delete;
+
+	if (long in ('east-EST', 'east-CST')) then tier='east';
+	else if (long in ('west-EST')) then tier='west';			
 
 run;
 
@@ -1711,7 +1738,7 @@ proc sql;
 		 avg(d_age) as Avg_Age,
 		 sum(d_sex) / count(*) as Pct_Female
 	from daylightsavings2
-	group by season, tier;
+	group by season, tier
 	order by season, tier;
 quit;
 
@@ -1722,8 +1749,90 @@ proc freq data=daylightsavings2;
 	tables tier * seasonal_hypersom / chisq;
 	tables tier * hyperphagia / chisq;
 	tables tier * fatigue / chisq;
+	tables tier * seasonal / chisq;
+	
+	tables tier * sleep_dist / chisq;
+	tables tier * fatigue_A2 / chisq;
+	tables tier * eating_dist / chisq;
+	tables tier * anhedonia / chisq;
+	tables tier * mood_dist / chisq;
+	tables tier * negative_thoughts / chisq;
+	tables tier * concentration / chisq;
+	tables tier * restless / chisq;
+	tables tier * suicidal / chisq;
 run;
 
+proc freq data=daylightsavings2;
+	where long ne 'east-EST';
+	tables long * mdd / chisq;
+	tables long * seasonal_hypersom / chisq;
+	tables long * hyperphagia / chisq;
+	tables long * fatigue / chisq;
+	tables long * seasonal / chisq;
+	
+	tables long * sleep_dist / chisq;
+	tables long * fatigue_A2 / chisq;
+	tables long * eating_dist / chisq;
+	tables long * anhedonia / chisq;
+	tables long * mood_dist / chisq;
+	tables long * negative_thoughts / chisq;
+	tables long * concentration / chisq;
+	tables long * restless / chisq;
+	tables long * suicidal / chisq;	
+run;
+
+proc freq data=daylightsavings2;
+	where long ne 'east-CST';
+	tables long * mdd / chisq;
+	tables long * seasonal_hypersom / chisq;
+	tables long * hyperphagia / chisq;
+	tables long * fatigue / chisq;
+	tables long * seasonal / chisq;
+	
+	tables long * sleep_dist / chisq;
+	tables long * fatigue_A2 / chisq;
+	tables long * eating_dist / chisq;
+	tables long * anhedonia / chisq;
+	tables long * mood_dist / chisq;
+	tables long * negative_thoughts / chisq;
+	tables long * concentration / chisq;
+	tables long * restless / chisq;
+	tables long * suicidal / chisq;	
+run;
+
+/* Mean latitudes are the same */
+proc sql;
+	create table long_means as
+	select long, mean(latitude) as MeanLat
+	from daylightsavings2
+	group by long
+	order by long;
+	
+proc sql;
+	create table all_means as
+	select mean(latitude) as AvgMeanLat
+	from daylightsavings2;
+	
+proc sql;
+	select a.long, a.MeanLat, b.AvgMeanLat, (a.MeanLat - b.AvgMeanLat) as Diff
+	from long_means a, all_means b
+	order by a.long;
+	
+
+/* 
+                                         The SAS System           14:24 Friday, May 20, 2005  83
+
+                                       long       MeanLat
+                                       ŸŸŸŸŸŸŸŸŸŸŸŸŸŸŸŸŸŸ
+                                       east-CST  42.15711
+                                       east-EST  41.72658
+                                       west-EST  41.72248
+*/
+
+
+/* [ ] latitude effect - ANOVA of latitudes - show that non-significant */
+/* What about if for women only */
+	
 /** TODO:
 	(1) Why don't my numbers match Michael's
 	(2) Prepare data for George
