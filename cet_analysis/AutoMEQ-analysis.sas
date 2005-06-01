@@ -511,6 +511,7 @@ data subsetForSADvsMDD; set automeq;
 	where useForSADvsMDDanalysis = 1;
 run;
 
+/*
 proc sql;
 	create table latbin_1 as 
 	select distinct latbin_1, count(*) as NumCasesAtLatbin_1, sum(MajorDepression_dx) as NumMajorDDAtLatbin_1, sum(MinorDepression_dx) as NumMinorDDAtLatbin_1,
@@ -547,7 +548,6 @@ proc sql;
 	order by latbin_5;
 quit;
 
-/* Re-merge with Bscore data */
 proc sql;
 	create table automeq2 as
 	select l.*, r.NumCasesAtLatbin_1, r.NumMajorDDAtLatbin_1, r.NumMinorDDAtLatbin_1, r.PctMajorDDAtLatBin_1, r.PctMinorDDAtLatBin_1
@@ -576,8 +576,6 @@ proc sql;
 	where l.latbin_5 = r.latbin_5;			
 quit;
 
-/* Compute % total (Major + Minor) at each latitute binning */
-
 data automeq2; set automeq2;
 	NumMajorMinorAtLatBin_1 = (NumMajorDDAtLatbin_1 + NumMinorDDAtLatbin_1);
 	PctMajorMinorAtLatBin_1 = NumMajorMinorAtLatBin_1 / NumCasesAtLatbin_1;
@@ -591,6 +589,7 @@ data automeq2; set automeq2;
 	NumMajorMinorAtLatBin_5 = (NumMajorDDAtLatbin_5 + NumMinorDDAtLatbin_5);
 	PctMajorMinorAtLatBin_5 = NumMajorMinorAtLatBin_5 / NumCasesAtLatbin_5;
 run;
+*/
 
 data automeq0; set automeq;
 	where useForSADvsMDDanalysis ne 1;
@@ -1580,13 +1579,28 @@ proc corr data=test2;
 run;
 */
 
+/* 5/27/05 - Import Musa's Zipcode file needed for GIS mapping */
+PROC IMPORT OUT=cet7b.musa_zip 
+            DATAFILE= "C:\data\cet-2005-04\analysis-0526\zip_centroids_div_coop_5dg_1dg_cnty_dem99.xls"
+            DBMS=EXCEL2000 REPLACE;
+     GETNAMES=YES;
+RUN;
+
+proc sql;
+	create table cet7b.keepers2 as
+	select a.*, b.*
+	from cet7b.musa_zip a join cet7b.keepers b
+	on a.zip = b.zip_gis;
+quit;
+
 /* 5/6/05 */
-data daylightsavings2; set cet7b.keepers;
+data daylightsavings2; set cet7b.keepers2;
 	if (d_age < 22) then delete;	/* remove children */
 	if (d_age > 70) then delete;	/* remove elderly */
 	if (hypsomsr > 1) then is_hypsomsr = 1; else is_hypsomsr = 0;
 	if (Bscore >= 11 and hasWinterSeasonality = 1) then seasonal = 1; else seasonal=0;
 	if (Bscore >= 11 and hasWinterSeasonality = 1 and (MajorDepression_dx = 1)) then mdd = 1; else mdd=0;
+	if (Bscore >= 11 and hasWinterSeasonality = 1 and (MajorDepression_dx = 1 or MinorDepression_dx = 1)) then majmin = 1; else majmin=0;
 	if (Bscore >= 11 and hasWinterSeasonality = 1 and hypsomsr > 1) then seasonal_hypersom = 1; else seasonal_hypersom = 0;
 	if (Bscore >= 11 and hasWinterSeasonality = 1 and D9 = 1) then hyperphagia = 1; else hyperphagia=0;
 	if (Bscore >= 11 and hasWinterSeasonality = 1 and D3 = 1) then fatigue = 1; else fatigue=0;
@@ -1601,6 +1615,17 @@ data daylightsavings2; set cet7b.keepers;
 	if (Bscore >= 11 and hasWinterSeasonality = 1 and A8 = 1) then restless = 1; else restless=0;
 	if (Bscore >= 11 and hasWinterSeasonality = 1 and A9 = 1) then suicidal = 1; else suicidal=0;
 	
+	if (PIDSdone = 1 and Dscore >= 6 and 
+		hasWinterSeasonality = 1 and MajorDepression_dx ne 1 and MinorDepression_dx ne 1) 
+		then SANS = 1; else SANS = 0;	
+	
+	if (hasWinterSeasonality = 1) then do;
+		if (MajorDepression_dx = 1) then dx_cat = 'MDD';
+		else if (MinorDepression_Dx = 1) then dx_cat = 'MIN';
+		else if (SANS = 1) then dx_cat = 'SANS';
+		else dx_cat = 'SANS';
+	end;
+	else dx_cat = 'OTHER';
 	/*
 	if (stateabr in ('NH', 'VT', 'MA', 'RI','CT', 'NJ', 'DE', 'DC')) then place='east';
 	else if (stateabr in ('NY', 'PA')) then place = 'mid';
@@ -1647,7 +1672,8 @@ data daylightsavings2; set cet7b.keepers;
 	*/
 	
 	/* 5/20 revisions */
-	if (lat_good < 39 or lat_good > 45) then delete;
+	if (lat_good < 39 or lat_good > 45) then latband = 'other';
+	else latband = '39-45';
 	if (longitude >= -75 and longitude < -69) then long='east-EST';
 	else if ((longitude <= -81.5 and stateabr in ('ME','NY','MA','VT','RI','CT','NJ','DE','MD','VA','NC','WV','PA','OH','MI'))
 		or (longitude < -81.5 and longitude >= -90 and country in ('Canada')))
@@ -1655,10 +1681,19 @@ data daylightsavings2; set cet7b.keepers;
 	else if ((longitude >= -93.5 and stateabr in ('ND','SD','NE','KS','OK','MN','IA','MO','WI','IL','IN','TN','ID'))
 		or (longitude >= -96 and longitude < -90 and country in ('Canada')))
 		then long='east-CST';
-	else delete;
-
+	else if (stateabr in ('OR','WA')
+		or (longitude < -120 and country in ('Canada'))) then long='west-PST';
+	else 
+		long='other';
+	
 	if (long in ('east-EST', 'east-CST')) then tier='east';
-	else if (long in ('west-EST')) then tier='west';			
+	if (long in ('west-EST', 'west-PST')) then tier='west';
+	
+	/* 6/1/05 */
+	X_1dg = round(X,1);
+	Y_1dg = round(Y,1);
+	X_5dg = round(X,5);
+	Y_5dg = round(Y,5);
 
 run;
 
@@ -1837,3 +1872,372 @@ proc sql;
 	(1) Why don't my numbers match Michael's
 	(2) Prepare data for George
 */
+
+/** ToDos for George (5/27/04)
+Tom, George,
+
+I am going to be away for a week starting Wednesday.  I'm hoping the two of you can meet this Friday to clarify/plan poster presentation analyses for our abstract.  I am not familiar with George's techniques, but imagine that we want:
+
+a. a map showing distribution of respondents across North America
+
+b. a map for North America illustrating the latitude effect on global seasonality score and/or winter depression (major or major + minor?).  Our previous analyses were based on proportion of respondents in latitude bins.  I am not sure what is gained by correcting the numbers for population density, since the sample is self-selected and does not provide a basis for absolute prevalence estimates.  Maybe I misunderstand.
+
+c. close-up map(s?) of our 3 longitude tiers, showing distribution of respondents and color coded for some (all?) of our outcome measures.  I think it is important to show some measures (sleep?) that do not show a longitude effect, in order to raise confidence that we have something more than a regional bias toward overreporting.
+
+d. If you can work out a continuous longitude analysis for EST, not restricted to our arbitrary longitude divisions, that would be great, since it would allow us to correlate our variables with the time of sunrise.
+
+I'm sure you have other ideas, as well, very likely better than mine!
+
+Then, I hope we can meet the following Friday to select data and figures for final presentation, so I can draft poster text.  There is not much time left to get this all done.
+
+How does this plan sound?
+
+/Michael 	
+*/
+
+proc sql;
+	create table sad_data_at_1dg as
+	select distinct long,
+		_dgID as dg1_ID,
+		count(*) as dg1_NumResondants,
+		max(_dgPOP99) as dg1_POP99,
+		count(*) * 1000 / max(_dgPOP99) as dg1_RespondantsPer1000,
+		avg(d_age) as dg1_avg_Age,
+		avg(d_sex) as dg1_pct_Female,
+		avg(sduravg) as dg1_avg_SleepDuration,
+		avg(smidavg) as dg1_avg_SleepMidpoint,
+		avg(seasonal) as dg1_pct_Seasonal,
+		avg(Bscore) as dg1_avg_Bscore,
+		avg(meq) as dg1_avg_MEQ,
+		avg(circphas) as dg1_avg_CircPhase,
+		avg(mdd) as dg1_pct_MDD,
+		avg(SANS) as dg1_pct_SANS,
+		avg(d_BMI) as dg1_avg_BMI,
+		avg(workdays) as dg1_avg_Workdays,
+		avg(majmin) as dg1_pct_majmin,
+		avg(seasonal_hypersom) as dg1_pct_seasonal_hypersom,
+		avg(hyperphagia) as dg1_pct_hyperphagia,
+		avg(fatigue) as dg1_pct_fatigue,
+		avg(sleep_dist) as dg1_pct_sleep_dist,
+		avg(fatigue_A2) as dg1_pct_fatigue_A2,
+		avg(eating_dist) as dg1_pct_eating_dist,
+		avg(anhedonia) as dg1_pct_anhedonia,
+		avg(mood_dist) as dg1_pct_mood_dist,
+		avg(negative_thoughts) as dg1_pct_negative_thoughts,
+		avg(concentration) as dg1_pct_concentration,
+		avg(restless) as dg1_pct_restless,
+		avg(suicidal) as dg1_pct_suicidal
+	from daylightsavings2
+	group by long, dg1_ID
+	order by long, dg1_ID;
+quit;
+
+/* Export these data */
+PROC EXPORT DATA= WORK.SAD_DATA_AT_1DG 
+            OUTFILE= "C:\data\cet-2005-04\analysis-0526\sad_data_at_1dg.xls" 
+            DBMS=EXCEL2000 REPLACE;
+RUN;
+
+proc sql;
+	create table sad_data_at_5dg as
+	select distinct long,
+		_dgID0 as dg5_ID,
+		count(*) as dg5_NumResondants,
+		max(_dgPOP990) as dg5_POP99,
+		count(*) * 1000 / max(_dgPOP990) as dg5_RespondantsPer1000,
+		avg(d_age) as dg5_avg_Age,
+		avg(d_sex) as dg5_pct_Female,
+		avg(sduravg) as dg5_avg_SleepDuration,
+		avg(smidavg) as dg5_avg_SleepMidpoint,
+		avg(seasonal) as dg5_pct_Seasonal,
+		avg(Bscore) as dg5_avg_Bscore,
+		avg(meq) as dg5_avg_MEQ,
+		avg(circphas) as dg5_avg_CircPhase,
+		avg(mdd) as dg5_pct_MDD,
+		avg(SANS) as dg5_pct_SANS,
+		avg(d_BMI) as dg5_avg_BMI,
+		avg(workdays) as dg5_avg_Workdays,
+		avg(majmin) as dg5_pct_majmin,
+		avg(seasonal_hypersom) as dg5_pct_seasonal_hypersom,
+		avg(hyperphagia) as dg5_pct_hyperphagia,
+		avg(fatigue) as dg5_pct_fatigue,
+		avg(sleep_dist) as dg5_pct_sleep_dist,
+		avg(fatigue_A2) as dg5_pct_fatigue_A2,
+		avg(eating_dist) as dg5_pct_eating_dist,
+		avg(anhedonia) as dg5_pct_anhedonia,
+		avg(mood_dist) as dg5_pct_mood_dist,
+		avg(negative_thoughts) as dg5_pct_negative_thoughts,
+		avg(concentration) as dg5_pct_concentration,
+		avg(restless) as dg5_pct_restless,
+		avg(suicidal) as dg5_pct_suicidal
+	from daylightsavings2
+	group by long, dg5_ID
+	order by long, dg5_ID;
+quit;
+
+/* Export these data */
+PROC EXPORT DATA= WORK.SAD_DATA_AT_5DG 
+            OUTFILE= "C:\data\cet-2005-04\analysis-0526\sad_data_at_5dg.xls" 
+            DBMS=EXCEL2000 REPLACE;
+RUN;
+
+proc sql;
+	create table sad_data_at_tier as
+	select distinct long,
+		count(*) as tier_NumResondants,
+		avg(d_age) as tier_avg_Age,
+		avg(d_sex) as tier_pct_Female,
+		avg(sduravg) as tier_avg_SleepDuration,
+		avg(smidavg) as tier_avg_SleepMidpoint,
+		avg(seasonal) as tier_pct_Seasonal,
+		avg(Bscore) as tier_avg_Bscore,
+		avg(meq) as tier_avg_MEQ,
+		avg(circphas) as tier_avg_CircPhase,
+		avg(mdd) as tier_pct_MDD,
+		avg(SANS) as tier_pct_SANS,
+		avg(d_BMI) as tier_avg_BMI,
+		avg(workdays) as tier_avg_Workdays,
+		avg(majmin) as tier_pct_majmin,
+		avg(seasonal_hypersom) as tier_pct_seasonal_hypersom,
+		avg(hyperphagia) as tier_pct_hyperphagia,
+		avg(fatigue) as tier_pct_fatigue,
+		avg(sleep_dist) as tier_pct_sleep_dist,
+		avg(fatigue_A2) as tier_pct_fatigue_A2,
+		avg(eating_dist) as tier_pct_eating_dist,
+		avg(anhedonia) as tier_pct_anhedonia,
+		avg(mood_dist) as tier_pct_mood_dist,
+		avg(negative_thoughts) as tier_pct_negative_thoughts,
+		avg(concentration) as tier_pct_concentration,
+		avg(restless) as tier_pct_restless,
+		avg(suicidal) as tier_pct_suicidal
+	from daylightsavings2
+	group by long
+	order by long;
+quit;
+
+/* Export these data */
+PROC EXPORT DATA= WORK.SAD_DATA_AT_TIER
+            OUTFILE= "C:\data\cet-2005-04\analysis-0526\sad_data_at_tier.xls" 
+            DBMS=EXCEL2000 REPLACE;
+RUN;
+
+
+proc freq data=daylightsavings2;
+	where long ne 'other';
+	tables urban * mdd / chisq;
+	tables urban * seasonal_hypersom / chisq;
+	tables urban * hyperphagia / chisq;
+	tables urban * fatigue / chisq;
+	tables urban * seasonal / chisq;
+	
+	tables urban * sleep_dist / chisq;
+	tables urban * fatigue_A2 / chisq;
+	tables urban * eating_dist / chisq;
+	tables urban * anhedonia / chisq;
+	tables urban * mood_dist / chisq;
+	tables urban * negative_thoughts / chisq;
+	tables urban * concentration / chisq;
+	tables urban * restless / chisq;
+	tables urban * suicidal / chisq;	
+run;
+
+proc freq data=daylightsavings2;
+	tables urban * long * mdd / chisq;
+	tables urban * long * seasonal_hypersom / chisq;
+	tables urban * long * hyperphagia / chisq;
+	tables urban * long * fatigue / chisq;
+	tables urban * long * seasonal / chisq;
+	
+	tables urban * long * sleep_dist / chisq;
+	tables urban * long * fatigue_A2 / chisq;
+	tables urban * long * eating_dist / chisq;
+	tables urban * long * anhedonia / chisq;
+	tables urban * long * mood_dist / chisq;
+	tables urban * long * negative_thoughts / chisq;
+	tables urban * long * concentration / chisq;
+	tables urban * long * restless / chisq;
+	tables urban * long * suicidal / chisq;	
+run;
+
+/* Data preparation for Latitude and Longitude ANOVAs */
+
+proc sql;
+	create table sad_data_for_Anova as
+	select long,
+		X, Y,
+		X_1dg, Y_1dg,
+		X_5dg, Y_5dg,
+		d_age,
+		d_sex,
+		sduravg,
+		smidavg,
+		seasonal,
+		Bscore,
+		meq,
+		circphas,
+		mdd,
+		SANS,
+		d_BMI,
+		workdays,
+		majmin,
+		seasonal_hypersom as s_hypsom,
+		hyperphagia as hypphag,
+		fatigue,
+		sleep_dist as abnlslep,
+		fatigue_A2 as fatigue2,
+		eating_dist as abnleat,
+		anhedonia,
+		mood_dist as mooddist,
+		negative_thoughts as negthot,
+		concentration as concentr,
+		restless,
+		suicidal
+	from daylightsavings2;
+quit;
+
+PROC EXPORT DATA= WORK.sad_data_for_Anova
+            OUTFILE= "C:\data\cet-2005-04\analysis-0526\sad_data_for_Anova.xls" 
+            DBMS=EXCEL2000 REPLACE;
+RUN;
+
+/* Compute rightmost boundary by zip for longitude using zip data? */
+/* What is timezone by zip code? */
+proc sql;
+	create table timezones as
+	select distinct state, statecode, dst, county, timezone, gmtoffset, zipcode, latitude, longitude
+	from helpers.zipcodes
+	where statecode not in ('AA', 'AE', 'AP', 'AS')
+	order by state, statecode, dst;
+quit;
+
+/* Merge this with GIS data */
+proc sql;
+	create table timezones2 as
+	select a.*, b.X, b.Y
+	from timezones a join cet7b.musa_zip b
+	on a.zipcode = b.zip;
+quit;
+
+/* get rounded values to the 1 and 5 degree levels */
+
+data timezones2; set timezones2;
+	X_1dg = round(X,1);
+	Y_1dg = round(Y,1);
+	X_5dg = round(X,5);
+	Y_5dg = round(Y,5);
+run;
+		
+/* What is the rightmost longitude at each latitude? */
+proc sql;
+	create table dist_from_boundary as
+	select distinct
+		zipcode, X, Y, 
+		timezone, gmtoffset, dst,
+		Y_1dg,
+		min(X) as min_X, max(X) as max_X
+	from timezones2
+	group by timezone, gmtoffset, Y_1dg
+	order by timezone, gmtoffset, Y_1dg;
+quit;
+
+/* By zip code, what is the distance from the eastern edge of the timezone -- this is accurate */
+data cet7b.dist_from_boundary; set dist_from_boundary;
+	dist_from_timezone_boundary = max_X - X;
+	timezone_width = max_X - min_X;
+run;
+
+/* Re-merge this data with the rest of the data */
+proc sql;
+	create table daylightsavings3 as
+	select a.*, b.*
+	from daylightsavings2 a join cet7b.dist_from_boundary b
+	on a.zip_gis = b.ZIPcode;
+quit;
+
+/* Extract just the data needed for ANOVA analysis */
+proc sql;
+	create table sad_data_for_Anova as
+	select long,
+		timezone, 
+		gmtoffset as gmt,
+		dst,
+		zip_gis,
+		dist_from_timezone_boundary as dist_tzb,
+		timezone_width as tzwidth,
+		X, Y,
+		X_1dg, Y_1dg,
+		X_5dg, Y_5dg,
+		d_age,
+		d_sex,
+		sduravg,
+		smidavg,
+		seasonal,
+		Ascore,
+		Bscore,
+		meq,
+		circphas,
+		mdd as seas_mdd,
+		MajorDepression_Dx as mdd_dx,
+		SANS,
+		d_BMI,
+		workdays,
+		majmin,
+		seasonal_hypersom as s_hypsom,
+		season,
+		hyperphagia as hypphag,
+		fatigue,
+		sleep_dist as abnlslep,
+		fatigue_A2 as fatigue2,
+		eating_dist as abnleat,
+		anhedonia,
+		mood_dist as mooddist,
+		negative_thoughts as negthot,
+		concentration as concentr,
+		restless,
+		suicidal,
+		urban,
+		eye_type
+	from daylightsavings3;
+quit;
+
+PROC EXPORT DATA= WORK.sad_data_for_Anova
+            OUTFILE= "C:\data\cet-2005-04\analysis-0526\sad_data_for_Anova.xls" 
+            DBMS=EXCEL2000 REPLACE;
+RUN;
+
+/* Attempts at statistical analysis of this */
+title 'Stepwise Logistic Regression of Major Depression Covariates';
+proc logistic data=sad_data_for_Anova;
+	model mdd_dx (event='1')=season Y dist_tzb d_age d_sex urban d_BMI workdays meq sduravg gmt eye_type
+		/ selection=stepwise slentry=0.3 slstay=0.35 details lackfit;
+run;
+
+title 'Stepwise Logistic Regression of Seasonal Major Depression Covariates';
+proc logistic data=sad_data_for_Anova;
+	model seas_mdd (event='1')=season Y dist_tzb d_age d_sex urban d_BMI workdays meq sduravg gmt eye_type
+		/ selection=stepwise slentry=0.3 slstay=0.35 details lackfit;
+run;
+
+title 'Stepwise Logistic Regression of Seasonality Covariates';
+proc logistic data=sad_data_for_Anova;
+	model seasonal (event='1')=Ascore season Y dist_tzb d_age d_sex urban d_BMI workdays meq sduravg gmt eye_type
+		/ selection=stepwise slentry=0.3 slstay=0.35 details lackfit;
+run;
+
+title 'Stepwise Linear Regression of Sleep Duration Covariates';
+proc reg data=sad_data_for_Anova;
+	model sduravg =Ascore season Y dist_tzb d_age d_sex urban d_BMI workdays meq gmt eye_type
+		/ selection=stepwise slentry=0.3 slstay=0.35 details;
+run;
+
+title 'Stepwise Linear Regression of Sleep Duration Covariates - Just latitude and Ascore';
+proc reg data=sad_data_for_Anova;
+	model sduravg =Ascore Y 
+		/ selection=stepwise slentry=0.3 slstay=0.35 details;
+run;
+
+title 'Stepwise Logistic Regression of Self-Reported Hypersomnia Covariates';
+proc logistic data=sad_data_for_Anova;
+	model s_hypsom (event='1')=Ascore season Y dist_tzb d_age d_sex urban d_BMI workdays meq sduravg gmt eye_type
+		/ selection=stepwise slentry=0.3 slstay=0.35 details lackfit;
+run;
