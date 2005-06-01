@@ -99,7 +99,7 @@ Self-reported hypersomnia = say 3 or 4 on B1 (moderate / severe sleeping longer 
 FINAL ANALYSES:
 ---
 ***
-(1) is depression more strongly correlated with depression or latitude - stepwise linear regression
+(1) is sleep duration more strongly correlated with depression or latitude - stepwise linear regression
 [ ] Sleep duration = Ascore (or depression), lat_good, age, gender, urbanness, season
 
 [ ] self-reported hypersomnia = ... (same covariates)
