@@ -18,15 +18,16 @@
 Welcome, <i><?php echo $_COOKIE['dgx_username']; ?></i>
 <hr>
 Word Lists:<br>
- <a href="word_list.php?type=noun">Nouns</a><br>
- <a href="word_list.php?type=verb">Verbs</a><br>
- <a href="word_list.php?type=adjective">Adjectives</a><br>
+ <a href="word_list.php?guideme">Custom List</a><br>
+ <a href="word_list.php?type[]=noun">Nouns</a><br>
+ <a href="word_list.php?type[]=verb">Verbs</a><br>
+ <a href="word_list.php?type[]=adjective">Adjectives</a><br>
  <a href="word_list.php">Mixed</a><br>
- <a href="word_list.php?type=noun&subtype=animal">Animals</a><br>
- <a href="word_list.php?type=noun&subtype=bodypart">Body Parts</a><br>
- <a href="word_list.php?type=noun&subtype=state">States</a><br>
- <a href="word_list.php?type=noun&subtype=capital">Capitals</a><br>
- <a href="word_list.php?type=noun&subtype=food">Food</a><br>
+ <a href="word_list.php?subtype[]=animal">Animals</a><br>
+ <a href="word_list.php?subtype[]=bodypart">Body Parts</a><br>
+ <a href="word_list.php?subtype[]=state">States</a><br>
+ <a href="word_list.php?subtype[]=capital">Capitals</a><br>
+ <a href="word_list.php?subtype[]=food">Food</a><br>
 <br>
 <hr>
  <a href="https://host118.ipowerweb.com:8087/phpMyAdmin/index.php?lang=en-iso-8859-1&server=1" target="_blank">Databases</a><br>

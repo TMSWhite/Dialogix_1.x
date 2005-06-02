@@ -2,9 +2,67 @@
 
 <?php
 
-/* Should give option to select multiple word types */
-
 require_once("conn_dialogix.php");
+
+if (isset($_GET['guideme'])) {
+	$query = "select distinct type, subtype from words order by type, subtype";
+	$res = mysql_query($query);
+	if (!$res) {
+	   echo "Could not successfully run query ($query) from DB: " . mysql_error();
+	   exit;
+	}
+	$num_words = mysql_num_rows($res);
+	if ($num_words == 0) {
+	   echo "No rows found, nothing to print so exiting";
+	   exit;
+	}
+	$types = array();
+	
+	while($r  = mysql_fetch_assoc($res)) {
+		array_push($types, $r);
+	}	
+	
+	include("Dialogix_Table_PartA.php");
+
+	$php_self = $_SERVER['PHP_SELF'];
+	echo "<Form Action='$php_self' METHOD=GET>";
+	echo "<DIV ALIGN='center'>";
+	echo "<H1>Word Lists</H1>";
+	echo "<H2>Type</H2>";
+	echo "<select name='type[]' multiple>";
+	$lastval = '';
+	foreach ($types as $t) {
+		extract($t);
+		if ($type != $lastval) {
+			echo "	<option value='$type'>$type</option>";
+		}
+		$lastval = $type;
+	}
+	echo "</select>";
+	
+	echo "<H2>SubType</H2>";
+	echo "<select name='subtype[]' multiple>";
+	$lastval = '';
+	foreach ($types as $t) {
+		extract($t);
+		if ($subtype != $lastval && $subtype != 'NULL') {
+			echo "	<option value='$subtype'>$subtype</option>";
+		}
+		$lastval = $subtype;
+	}
+	echo "</select>";
+	
+	echo "<H2>Length</H2>";
+	echo "<input type='text' name='length'>";
+	
+	echo "<BR>";
+	echo "<Input Type='submit' Value='Submit'>";
+	echo "</DIV>";
+	echo "</FORM>";
+	include("Dialogix_Table_PartB.php");
+	
+	exit;
+}
 
 if (!isset($_GET['length'])) {
 	$length = 20;
@@ -16,24 +74,47 @@ else {
 	}
 }
 
-$where_clause = "where 1";
-
 if(isset($_GET['type'])) {
 	$type = $_GET['type'];
-	$where_clause .= " and type = '$type'";
+	$where_clause1 .= "where type in (";
+	for ($i=0;$i<count($type);++$i) {
+		if ($i > 0) {
+			$where_clause1 .= ",";
+		}
+		$where_clause1 .= "'$type[$i]'";
+	}
+	$where_clause1 .= ")";
 }
 
 if (isset($_GET['subtype'])) {
 	$subtype = $_GET['subtype'];
-	$where_clause .= " and subtype = '$subtype'";
+	$where_clause2 .= "where subtype in (";
+	for ($i=0;$i<count($subtype);++$i) {
+		if ($i > 0) {
+			$where_clause2 .= ",";
+		}
+		$where_clause2 .= "'$subtype[$i]'";
+	}
+	$where_clause2 .= ")";	
 }
 
-$query = "select * from words $where_clause";
+if (isset($where_clause1) and isset($where_clause2)) {
+	$query = "select * from words $where_clause1 union select * from words $where_clause2";
+}
+else if (isset($where_clause1)) {
+	$query = "select * from words $where_clause1";
+}
+else if (isset($where_clause2)) {
+	$query = "select * from words $where_clause2";
+}
+else {
+	$query = "select * from words";
+}
 
 $res = mysql_query($query);
 
 if (!$res) {
-   echo "Could not successfully run query ($sql) from DB: " . mysql_error();
+   echo "Could not successfully run query ($query) from DB: " . mysql_error();
    exit;
 }
 
