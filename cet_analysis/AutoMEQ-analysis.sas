@@ -1,40 +1,26 @@
-%let helpers = C:\data\cet-irb5\analysis\AutoMEQ-SA-v3.0-(AutoMEQ-SA-irb);
+/* Modularizing code for easier replication */
 
-%let cet7_lib = C:\data\cet-2005-04\;
+%macro SetInitParams;
+options compress=NO;
+
+%global helpers cet3_lib cet4_lib cet5_lib cet7old_lib cet7_06_lib;
+
+%let helpers = C:\data\cet-irb5\analysis\AutoMEQ-SA-v3.0-(AutoMEQ-SA-irb);
 
 %let cet3_lib = C:\data\cet7\analysis\AutoMEQ-SA-v3.0-(AutoMEQ-SA-irb);
 %let cet4_lib = C:\data\cet7\analysis\AutoMEQ-SA-v4.0-(AutoMEQ-SA-irb);
 %let cet5_lib = C:\data\cet7\analysis\AutoMEQ-SA-v5.0-(AutoMEQ-SA-irb);
+%let cet7old_lib = C:\data\cet-2005-04\;
 
+%let cet7_06_lib = C:\data\cet_200506\analysis;
 
 libname helpers "&helpers";
-libname cet7 "&cet7_lib";
 
 libname cet3 "&cet3_lib";
 libname cet4 "&cet4_lib";
 libname cet5 "&cet5_lib";
-
-
-%let cet7a_lib = C:\data\cet-2005-04\new;
-libname cet7a "&cet7a_lib";
-
-%let cet7b_lib = C:\data\cet-2005-04\new050506;
-libname cet7b "&cet7b_lib";
-
-
-/* Also need to load format statements from AutoMEQ5 */
-
-options compress=NO;
-
-/* %include "&cet7_lib\deformat_automeq.sas"; */
-
-/* %include "&cet5_lib\automeq_formats.sas"; */
-
-/* 4/13/2005 - Inserted for Automeq7 */
-data cet7a.automeq_all; set cet7.automeq3 cet7.automeq4 cet7.automeq5all cet7a.automeq7a;
-run;
-/**/
-
+libname cet7old "&cet7old_lib";
+libname cet7 "&cet7_06_lib";
 
 proc format;
 	value phasef   
@@ -112,20 +98,36 @@ proc format;
 	;
 run;
 
+%mend SetInitParams;
 
-/* Import times mapping from txt files */
-PROC IMPORT OUT=work.times 
-            DATAFILE= "&helpers\times.xls"
-            DBMS=EXCEL2000 REPLACE;
-     GETNAMES=YES;
-RUN;
 
-data work.times; set work.times;
-	format time_val time18.;
-	time_val = timepart(timeval);
-	/* time_num is floating point equivalent of time */
-	time_num = hour(time_val) + minute(time_val) / 60;
+%macro LoadRawData;
+
+/* %include "&cet7_lib\deformat_automeq.sas"; */
+
+/* %include "&cet5_lib\automeq_formats.sas"; */
+
+%include "\cvs2\Dialogix\cet_analysis\LoadAutomeq7-200506-data.sas";
+
+data cet7.automeq7; set automeq7;
 run;
+
+data cet7.automeq_all; set cet7old.automeq3 cet7old.automeq4 cet7old.automeq5all cet7.automeq7;
+	format zip_gis $ 5.;
+	zip_gis = put(d_zip,z5.);
+run;
+
+/* 6/27:  Not needed -- 21763 records either way
+proc sql;
+	create table cet7.automeq_all as
+	select distinct *
+	from cet7.automeq_all;
+quit;
+*/
+
+%mend LoadRawData;
+
+%macro LoadSupportTables;
 
 /* Import States */
 PROC IMPORT OUT=work.States 
@@ -139,7 +141,7 @@ proc sql;
 	create table zips as
 	select distinct
 		zipcode, 
-		statecode, latitude, longitude, GMTOffset, DST
+		statecode, latitude, longitude, GMTOffset, DST, timezone
 	from helpers.zipcodes
 	order by zipcode;
 	
@@ -149,86 +151,215 @@ data zips; set zips;
 run;
 
 /* backup this table */
-data cet7a.zips; set zips;
+data cet7.zips; set zips;
 run;
 
+PROC IMPORT OUT=cet7.musa_zip_25dg
+            DATAFILE= "C:\data\cet-2005-04\zip_centroids_2p5dg.xls"
+            DBMS=EXCEL2000 REPLACE;
+     GETNAMES=YES;
+RUN;
+
+/* 6/27: join zips together here? */
+
 proc sql;
-	create table automeq as
-	select distinct l.*, r.*
-	 from cet7a.automeq_all l left join work.states r
-	 on l.d_state = r.stateid
-	 order by startdat;
-	 
-data automeq; set automeq;
-	d_awake_ = left(d_awake_workday);
-	rename d_awake_workday = wakewrk_str;
-	d_awake_nonworkday = left(d_awake_nonworkday);
-	rename d_awake_nonworkday = wakenwk_str;
-	
-	d_sleep_workday = left(d_sleep_workday);
-	rename d_sleep_workday = sleepwrk_str;
-	d_sleep_nonworkday = left(d_sleep_nonworkday);
-	rename d_sleep_nonworkday = sleepnwk_str;
-	
-	rename LIGHTS_ON_time = wakemeq_str;
-	rename SL_ONSET_time = sleepmeq_str;
-	
-	rename d_abnl_sleep = abnlslep;
-	rename d_country = country;
-	rename d_working_days = workdays;
-	rename Feedback_us = comments;
+	create table cet7.zip_gis as
+	select a.zipcode, b.zip, a.statecode, b.state, a.latitude, b.Y, a.longitude, b.X, a.gmtoffset, a.dst, a.timezone, 
+		b.po_name, b.urban, b.name, b.sad_div,
+		(a.latitude-b.Y) as Diff_Lat,
+		(a.longitude-b.X) as Diff_Long
+	from cet7.zips a full outer join cet7.musa_zip_25dg b
+	on a.zipcode = b.zip and a.statecode = b.state
+	order by a.zipcode, b.zip;
+quit;
+
+/* 6/27: which is best match for zips from our data (e.g. how much is lost?) */
+proc sql;
+	create table test as
+	select a.zip_gis, count(zip) as NumMatches
+	from cet7.automeq_all a left join cet7.zip_gis b
+	on a.zip_gis = b.zip
+	where a.zip_gis ne ''
+	group by a.zip_gis
+	order by NumMatches, a.zip_gis;
+quit;
+
+proc freq data=test;
+	tables NumMatches;
+run;
+/* 149 non-matches to Musa data */
+
+proc sql;
+	create table test as
+	select a.zip_gis, count(zipcode) as NumMatches
+	from cet7.automeq_all a left join cet7.zip_gis b
+	on a.zip_gis = b.zipcode
+	where a.zip_gis ne ''
+	group by a.zip_gis
+	order by NumMatches, a.zip_gis;
+quit;
+
+proc freq data=test;
+	tables NumMatches;
+run;
+/* 26 non-matches on purchased data */
+
+/* Also merge in 1 degree units? */
+PROC IMPORT OUT=cet7.musa_zip_1and5dg 
+            DATAFILE= "C:\data\cet-2005-04\analysis-0526\zip_centroids_div_coop_5dg_1dg_cnty_dem99.xls"
+            DBMS=EXCEL2000 REPLACE;
+     GETNAMES=YES;
+RUN;
+
+/* So, do two step match */
+proc sql;
+	create table cet7.zip_gis as
+	select a.zipcode, a.statecode, a.latitude, b.Y, a.longitude, b.X, a.gmtoffset, a.dst, a.timezone, 
+		b.po_name, b.urban, b.name, b.sad_div,
+		b._p5dgID as ID_dg2p5, b.pop1999 as pop99_dg2p5
+	from cet7.zips a join cet7.musa_zip_25dg b
+	on a.zipcode = b.zip and a.statecode = b.state
+	order by a.zipcode;
+quit;
+
+
+proc sql;
+	create table cet7.zip_gis as
+	select a.*, b._dgID as ID_dg1, b._dgID0 as ID_dg5, b._dgPOP99 as pop99_dg1, b._dgPOP990 as pop99_dg5, b.pop1999 as pop99_zip
+	from cet7.zip_gis a left join cet7.musa_zip_1and5dg b
+	on a.zipcode = b.zip
+	order by a.zipcode;
+quit;
+
+/* Now compute distances from timezone */
+
+data cet7.zip_gis; set cet7.zip_gis;
+	X_1dg = round(X,1);
+	Y_1dg = round(Y,1);
+	X_5dg = round(X,5);
+	Y_5dg = round(Y,5);
+	X_2_5dg = round(X,2.5);
+	Y_2_5dg = round(Y,2.5);	
+run;
+		
+/* What is the rightmost longitude at each latitude? */
+proc sql;
+	create table dist_from_boundary as
+	select distinct
+		zipcode, X, Y, 
+		timezone, gmtoffset, dst,
+		Y_1dg,
+		min(X) as min_X, max(X) as max_X
+	from cet7.zip_gis
+	group by timezone, gmtoffset, Y_1dg
+	order by timezone, gmtoffset, Y_1dg;
+quit;
+
+proc sql;
+	select min(Y), max(Y)
+	from dist_from_boundary;
+quit;
+
+/* By zip code, what is the distance from the eastern edge of the timezone -- this is accurate */
+data cet7.dist_from_boundary; set dist_from_boundary;
+	dist_from_timezone_boundary = max_X - X;
+	timezone_width = max_X - min_X;
 run;
 
 proc sql;	
-	create table automeq as
-	select distinct l.*, r.*
-	from automeq l left join work.zips r
-	on r.zipnum = l.d_zip
-	;
-	
-data automeq; set automeq;
-	if country = 'Canada'  then latabout = 47;
+	create table cet7.zip_gis as
+	select a.*, b.min_X, b.max_X, b.dist_from_timezone_boundary, b.timezone_width
+	from cet7.zip_gis a join cet7.dist_from_boundary b
+	on a.zipcode = b.zipcode
+	order by a.zipcode;
+quit;
 
-	if (stateabr eq statecode or (statecode eq '' and d_zip = 0)) then okzip = 1; else okzip = 0;
-	if (stateabr eq '') then lat_good = latabout;
-	else if (okzip = 1) then lat_good = latitude;
-	else lat_good = latabout;
+%mend LoadSupportTables;
+
+%macro JoinAutomeqWithGeocoding;
+/* N.B. This may lose considerable data if people aren't filling in their zip codes! */
+/* This used to join on the state name, in which case we approximated the latitude */
+proc sql;
+	create table cet7.automeq_zip as
+	select distinct l.*, r.*
+	 from cet7.automeq_all l left join cet7.zip_gis r
+	 on l.zip_gis = r.zipcode
+	 order by startdat;
+quit;
+
+/* How many missing or invalid zip codes? */
+data nozip; set cet7.automeq_zip;
+	keep version _state_name ziptype ziptype2;
+	if (d_zip = .) then ziptype = 'missing';
+	else if (d_zip <= 0) then ziptype = 'invalid';
+	else if (d_zip > 0) then ziptype = 'real?';
+	if (zipcode ne '') then ziptype2 = 'real'; else ziptype2 = 'invalid';
 run;
 
-proc sql;	 
-	create table automeq as
-	select distinct l.*, r.time_num as wakewrk
-	from automeq l left join work.times r
-	on l.wakewrk_str = r.timename;
+proc freq data=nozip;
+	tables _state_name * ziptype;
+	tables _state_name * ziptype2;
+run;
+/* 7259 "real?" values, 374 invalid, 24 missing */
+/* 6941 "real" values, 716 invalid (9.35%) - using Musa's zip criteria */
+/* Note, 6789 subjects "joined" the study - so how are there more real values than participants? */
+%mend JoinAutomeqWithGeocoding;
+
+%macro ProcessAutoMeqData;
+data cet7.automeq; set cet7.automeq_zip;
+	d_awake_ = left(d_awake_workday);
+	wakewrk_str = d_awake_workday;
+	drop d_awake_workday;
+	d_awake_nonworkday = left(d_awake_nonworkday);
+	wakenwk_str = d_awake_nonworkday;
+	drop d_awake_nonworkday;
 	
-	create table automeq as
-	select distinct l.*, r.time_num as wakenwk
-	from automeq l left join work.times r
-	on l.wakenwk_str = r.timename;
+	d_sleep_workday = left(d_sleep_workday);
+	sleepwrk_str = d_sleep_workday;
+	drop d_sleep_workday;
+	d_sleep_nonworkday = left(d_sleep_nonworkday);
+	sleepnwk_str = d_sleep_nonworkday;
+	drop d_sleep_nonworkday;
 	
-	create table automeq as
-	select distinct l.*, r.time_num as wakemeq
-	from automeq l left join work.times r
-	on l.wakemeq_str = r.timename;
+	wakemeq_str = LIGHTS_ON_time;
+	drop LIGHTS_ON_time;
+	sleepmeq_str = SL_ONSET_time;
+	drop SL_ONSET_time;
 	
-	create table automeq as
-	select distinct l.*, r.time_num as sleepwrk
-	from automeq l left join work.times r
-	on l.sleepwrk_str = r.timename;
+	abnlslep = d_abnl_sleep; drop d_abnl_sleep;
+	country = d_country; drop d_country;
+	workdays = d_working_days; drop d_working_days;
+	comments = Feedback_us; drop Feedback_us;
 	
-	create table automeq as
-	select distinct l.*, r.time_num as sleepnwk
-	from automeq l left join work.times r
-	on l.sleepnwk_str = r.timename;
+	if country = 'Canada'  then latabout = 47;
+
+	if (zipcode ne '') then okzip = 1; else okzip = 0;
+
+	if (statecode eq '') then lat_good = latabout;
+	else if (okzip = 1) then lat_good = latitude;
+	else lat_good = latabout;
 	
-	create table automeq as
-	select distinct l.*, r.time_num as sleepmeq
-	from automeq l left join work.times r
-	on l.sleepmeq_str = r.timename;	
-quit;
-				
-	 
-data automeq; set automeq;
+	/* Manually process the time data -- much faster */
+	format time_val time18.;
+		
+	time_val = timepart(input(left(wakewrk_str),TIME.));	
+	wakewrk = hour(time_val) + minute(time_val) / 60;
+	
+	time_val = timepart(input(left(wakenwk_str),TIME.));
+	wakenwk = hour(time_val) + minute(time_val) / 60;
+	
+	time_val = timepart(input(left(wakemeq_str),TIME.));	
+	wakemeq = hour(time_val) + minute(time_val) / 60;
+	
+	time_val = timepart(input(left(sleepwrk_str),TIME.));	
+	sleepwrk = hour(time_val) + minute(time_val) / 60;
+	
+	time_val = timepart(input(left(sleepnwk_str),TIME.));
+	sleepnwk = hour(time_val) + minute(time_val) / 60;
+		
+	time_val = timepart(input(left(sleepmeq_str),TIME.));	
+	sleepmeq = hour(time_val) + minute(time_val) / 60;
+
 	/* calculate start time (when the subject completed the instrument */
 	startabs = int(substr(uniqueid,12,2)) + int(substr(uniqueid,15,2)) / 60;
 	
@@ -363,13 +494,12 @@ data automeq; set automeq;
 	
 	/* flag to indicate that there are missing values */
 	if ((d_age > 100 or d_age < 14) or
-		(meqstd > 1.5) or
-		(lat_good = . or lat_good > 50 or lat_good < 30) or
+		(meqstd > 1.7) or
+		(lat_good = .) or
 		(workdays < 0) or
 		(wakenwk = . or sleepnwk = .) or
 		(workdays > 0 and (wakewrk = . or sleepwrk = .)) or
 		(sduravg = . or smidavg = .) or
-		(statenam eq 'Hawaii') or
 		(meq = . or meq > 100) or
 		(d_sex = -1 or d_sex > 2) or
 		(eye_type = .) or
@@ -386,7 +516,7 @@ data automeq; set automeq;
 	)
 		then keep = 0;
 	else keep = 1;	
-
+	
 	/* Attempt to determine the scores for Part 3:
 		Winter Depression if score of >= 4 on A for 3-5 consecutive months starting from Sept to January:
 		Also >= 4 on part B for 3-5 consecutive months starting from March - June
@@ -505,162 +635,6 @@ data automeq; set automeq;
 		hypsomsr =  1 + (C4A_Nov + C4A_Dec + C4A_Jan + C4A_Feb);
 	end;
 	else hypsomsr = 0;
-run;
-
-data subsetForSADvsMDD; set automeq;
-	where useForSADvsMDDanalysis = 1;
-run;
-
-/*
-proc sql;
-	create table latbin_1 as 
-	select distinct latbin_1, count(*) as NumCasesAtLatbin_1, sum(MajorDepression_dx) as NumMajorDDAtLatbin_1, sum(MinorDepression_dx) as NumMinorDDAtLatbin_1,
-		(sum(MajorDepression_dx) / count(*)) as PctMajorDDAtLatBin_1, (sum(MinorDepression_dx) / count(*)) as PctMinorDDAtLatBin_1
-	from subsetForSADvsMDD
-	group by latbin_1
-	order by latbin_1;
-quit;
-
-proc sql;
-	create table latbin_2 as 
-	select distinct latbin_2, count(*) as NumCasesAtLatbin_2, sum(MajorDepression_dx) as NumMajorDDAtLatbin_2, sum(MinorDepression_dx) as NumMinorDDAtLatbin_2,
-		(sum(MajorDepression_dx) / count(*)) as PctMajorDDAtLatBin_2, (sum(MinorDepression_dx) / count(*)) as PctMinorDDAtLatBin_2
-	from subsetForSADvsMDD
-	group by latbin_2
-	order by latbin_2;
-quit;
-
-proc sql;
-	create table latbin_2_5 as 
-	select distinct latbin_2_5, count(*) as NumCasesAtLatbin_2_5, sum(MajorDepression_dx) as NumMajorDDAtLatbin_2_5, sum(MinorDepression_dx) as NumMinorDDAtLatbin_2_5,
-		(sum(MajorDepression_dx) / count(*)) as PctMajorDDAtLatBin_2_5, (sum(MinorDepression_dx) / count(*)) as PctMinorDDAtLatBin_2_5
-	from subsetForSADvsMDD
-	group by latbin_2_5
-	order by latbin_2_5;
-quit;
-
-proc sql;
-	create table latbin_5 as 
-	select distinct latbin_5, count(*) as NumCasesAtLatbin_5, sum(MajorDepression_dx) as NumMajorDDAtLatbin_5, sum(MinorDepression_dx) as NumMinorDDAtLatbin_5,
-		(sum(MajorDepression_dx) / count(*)) as PctMajorDDAtLatBin_5, (sum(MinorDepression_dx) / count(*)) as PctMinorDDAtLatBin_5
-	from subsetForSADvsMDD
-	group by latbin_5
-	order by latbin_5;
-quit;
-
-proc sql;
-	create table automeq2 as
-	select l.*, r.NumCasesAtLatbin_1, r.NumMajorDDAtLatbin_1, r.NumMinorDDAtLatbin_1, r.PctMajorDDAtLatBin_1, r.PctMinorDDAtLatBin_1
-	from subsetForSADvsMDD l, latbin_1 r
-	where l.latbin_1 = r.latbin_1;
-quit;
-
-proc sql;	
-	create table automeq2 as
-	select l.*, r.NumCasesAtLatbin_2, r.NumMajorDDAtLatbin_2, r.NumMinorDDAtLatbin_2, r.PctMajorDDAtLatBin_2, r.PctMinorDDAtLatBin_2
-	from automeq2 l, latbin_2 r
-	where l.latbin_2 = r.latbin_2;	
-quit;
-	
-proc sql;	
-	create table automeq2 as
-	select l.*, r.NumCasesAtLatbin_2_5, r.NumMajorDDAtLatbin_2_5, r.NumMinorDDAtLatbin_2_5, r.PctMajorDDAtLatBin_2_5, r.PctMinorDDAtLatBin_2_5
-	from automeq2 l, latbin_2_5 r
-	where l.latbin_2_5 = r.latbin_2_5;	
-quit;
-
-proc sql;	
-	create table automeq2 as
-	select l.*, r.NumCasesAtLatbin_5, r.NumMajorDDAtLatbin_5, r.NumMinorDDAtLatbin_5, r.PctMajorDDAtLatBin_5, r.PctMinorDDAtLatBin_5
-	from automeq2 l, latbin_5 r
-	where l.latbin_5 = r.latbin_5;			
-quit;
-
-data automeq2; set automeq2;
-	NumMajorMinorAtLatBin_1 = (NumMajorDDAtLatbin_1 + NumMinorDDAtLatbin_1);
-	PctMajorMinorAtLatBin_1 = NumMajorMinorAtLatBin_1 / NumCasesAtLatbin_1;
-
-	NumMajorMinorAtLatBin_2 = (NumMajorDDAtLatbin_2 + NumMinorDDAtLatbin_2);
-	PctMajorMinorAtLatBin_2 = NumMajorMinorAtLatBin_2 / NumCasesAtLatbin_2;
-	
-	NumMajorMinorAtLatBin_2_5 = (NumMajorDDAtLatbin_2_5 + NumMinorDDAtLatbin_2_5);
-	PctMajorMinorAtLatBin_2_5 = NumMajorMinorAtLatBin_2_5 / NumCasesAtLatbin_2_5;
-	
-	NumMajorMinorAtLatBin_5 = (NumMajorDDAtLatbin_5 + NumMinorDDAtLatbin_5);
-	PctMajorMinorAtLatBin_5 = NumMajorMinorAtLatBin_5 / NumCasesAtLatbin_5;
-run;
-*/
-
-data automeq0; set automeq;
-	where useForSADvsMDDanalysis ne 1;
-run;
-
-data automeq2; set automeq0 automeq2;
-run;
-
-/* FIXME:  Re-merge with data that lacked latitude? */
-	
-
-/*
-proc freq data=automeq;
-	table age_cat;
-	table d_age;
-	table country;
-run;
-*/
-
-/* make a backup copy of the datafile *
-data work.automeq; set automeq;
-run;
-*/
-
-/* make a data set of only those values we want to keep */
-proc sql;
-	create table work.keepers as
-	select distinct
-		uniqueid,
-		joined, complete, d_who, abnlslep,
-		startdat, month, season,
-		startabs, startloc,wasDST,GMToffset,
-		d_sex, d_age, age_cat,
-		d_eye, eye_type, ethnicity, irb_ethnicity,
-		country, statenam, stateabr, statecode, d_los,
-		d_zip, zip_gis, okzip, latitude, latabout, lat_good, lat_bin, latbinmd, longitude,
-		workdays, 
-		circphas, meq_type, meq, meqstd, 		
-		sleepmeq, wakemeq, sdurmeq, smidmeq,
-		sleepwrk, wakewrk, sdurwrk, smidwrk,
-		sleepnwk, wakenwk, sdurnwk, smidnwk, 
-		sduravg, smidavg,
-		longslep,
-		q1, q2, q3, q4, q5, q6, q7, q8, q9, q10, q11, q12, q13, q14, q15, q16, q17, q18, q19,
-		d_sleep_darkroom, d_wake_withlight, d_outsidelight_work, d_outsidelight_nonwork,
-		d_BMI, d_BMI_int,
-		askPIDS, PIDSdone,
-		A1, A2, A3, A4, A5, A6, A7, A8, A9, Ascore,
-		B1, B2, B3, B4, B5, B6, B7, Bscore,
-		CscoresA1, CscoresA2, CscoresA3, CscoresA4, CscoresA5, CscoresA6, CscoresA7, CscoresA8, CscoresA9, CscoresA10, CscoresA11, CscoresA12, CscoresA13,
-		CscoresB1, CscoresB2, CscoresB3, CscoresB4, CscoresB5, CscoresB6, CscoresB7, CscoresB8, CscoresB9, CscoresB10, CscoresB11, CscoresB12, CscoresB13,
-		D1, D2, D3, D4, D5, D6, D7, D8, D9, Dscore,
-		MDcrit1, MDcrit2, MDcrit3, MDcrit4, MDcrit5, MDcrit6,
-		C_WinterBad, C_WinterGood, C_SummerBad, C_SummerGood,
-		solstice, winterbad, summerbad,
-		useForSADvsMDDanalysis, hasWinterSeasonality,
-		latbin_1, latbin_2, latbin_2_5, latbin_5,
-		MajorDepression_dx, MinorDepression_dx,
-		hypsomsr,
-		NumCasesAtLatbin_1, NumMajorDDAtLatbin_1, NumMinorDDAtLatbin_1, PctMajorDDAtLatBin_1, PctMinorDDAtLatBin_1, NumMajorMinorAtLatBin_1, PctMajorMinorAtLatBin_1,
-		NumCasesAtLatbin_2, NumMajorDDAtLatbin_2, NumMinorDDAtLatbin_2, PctMajorDDAtLatBin_2, PctMinorDDAtLatBin_2, NumMajorMinorAtLatBin_2, PctMajorMinorAtLatBin_2,
-		NumCasesAtLatbin_2_5, NumMajorDDAtLatbin_2_5, NumMinorDDAtLatbin_2_5, PctMajorDDAtLatBin_2_5, PctMinorDDAtLatBin_2_5, NumMajorMinorAtLatBin_2_5, PctMajorMinorAtLatBin_2_5,
-		NumCasesAtLatbin_5, NumMajorDDAtLatbin_5, NumMinorDDAtLatbin_5, PctMajorDDAtLatBin_5, PctMinorDDAtLatBin_5, NumMajorMinorAtLatBin_5, PctMajorMinorAtLatBin_5
-	from automeq2
-	where keep = 1;
-	;
-quit;
-
-/* Add analyses used for detecting cases of SANS */
-data SADvsMD; set keepers;
-	where useForSADvsMDDanalysis = 1;
 	
 	if (d_age > 15 and d_age < 26) then youngadult=1; else youngadult=0;
 	if (month >= 11 or month <= 2) then iswinter=1; else iswinter=0;
@@ -689,7 +663,110 @@ data SADvsMD; set keepers;
 	else if (d_age < 35) then age_bin = 2;
 	else if (d_age < 45) then age_bin = 3;
 	else if (d_age < 55) then age_bin = 4;
-	else age_bin = 5;	
+	else age_bin = 5;		
+	
+	/* Code from April-June / 05 */
+	
+	if (hypsomsr > 1) then is_hypsomsr = 1; else is_hypsomsr = 0;
+	if (Bscore >= 11 and hasWinterSeasonality = 1) then seasonal = 1; else seasonal=0;
+	if (Bscore >= 11 and hasWinterSeasonality = 1 and (MajorDepression_dx = 1)) then seas_mdd = 1; else seas_mdd=0;
+	if (Bscore >= 11 and hasWinterSeasonality = 1 and (MajorDepression_dx = 1 or MinorDepression_dx = 1)) then majmin = 1; else majmin=0;
+	if (Bscore >= 11 and hasWinterSeasonality = 1 and hypsomsr > 1) then seasonal_hypersom = 1; else seasonal_hypersom = 0;
+	if (Bscore >= 11 and hasWinterSeasonality = 1 and D9 = 1) then hyperphagia = 1; else hyperphagia=0;
+	if (Bscore >= 11 and hasWinterSeasonality = 1 and D3 = 1) then fatigue = 1; else fatigue=0;
+	
+	if (Bscore >= 11 and hasWinterSeasonality = 1 and A1 = 1) then sleep_dist = 1; else sleep_dist=0;
+	if (Bscore >= 11 and hasWinterSeasonality = 1 and A2 = 1) then fatigue_A2 = 1; else fatigue_A2=0;
+	if (Bscore >= 11 and hasWinterSeasonality = 1 and A3 = 1) then eating_dist = 1; else eating_dist=0;
+	if (Bscore >= 11 and hasWinterSeasonality = 1 and A4 = 1) then anhedonia = 1; else anhedonia=0;
+	if (Bscore >= 11 and hasWinterSeasonality = 1 and A5 = 1) then mood_dist = 1; else mood_dist=0;
+	if (Bscore >= 11 and hasWinterSeasonality = 1 and A6 = 1) then negative_thoughts = 1; else negative_thoughts=0;
+	if (Bscore >= 11 and hasWinterSeasonality = 1 and A7 = 1) then concentration = 1; else concentration=0;
+	if (Bscore >= 11 and hasWinterSeasonality = 1 and A8 = 1) then restless = 1; else restless=0;
+	if (Bscore >= 11 and hasWinterSeasonality = 1 and A9 = 1) then suicidal = 1; else suicidal=0;
+	
+	/* 5/20/05 revisions */
+	if (X >= -75 and X < -69) then timezone_band='east-EST';
+	else if ((X <= -81.5 and statecode in ('ME','NY','MA','VT','RI','CT','NJ','DE','MD','VA','NC','WV','PA','OH','MI'))
+		or (X < -81.5 and Y >= -90 and country in ('Canada')))
+		then timezone_band='west-EST';
+	else if ((X >= -93.5 and statecode in ('ND','SD','NE','KS','OK','MN','IA','MO','WI','IL','IN','TN','ID'))
+		or (X >= -96 and Y < -90 and country in ('Canada')))
+		then timezone_band='east-CST';
+	else if (statecode in ('OR','WA')
+		or (X < -120 and country in ('Canada'))) then timezone_band='west-PST';
+	else 
+		timezone_band='other';
+	
+	if (timezone_band in ('east-EST', 'east-CST')) then timezone_side='east';
+	if (timezone_band in ('west-EST', 'west-PST')) then timezone_side='west';	
+	
+	X_1dg = round(X,1);
+	Y_1dg = round(Y,1);
+	X_5dg = round(X,5);
+	Y_5dg = round(Y,5);
+	
+	X_2_5dg = round(X,2.5);
+	Y_2_5dg = round(Y,2.5);		
+run;
+
+/* distributions */
+proc freq data=cet7.automeq; 
+/*	tables country wakewrk_str wakenwk_str wakemeq_str sleepwrk_str workdays abnlslep; */
+	tables useForSADvsMDDanalysis;
+	tables keep;	/* 0 */
+	tables d_sex eye_type abnlslep longslep joined 
+		complete d_who okzip d_los;
+	tables timezone_band timezone_side;
+run;
+
+/* make a data set of only those values we want to keep *
+proc sql;
+	create table cet7.keepers as
+	select distinct
+		uniqueid,
+		joined, complete, d_who, abnlslep,
+		startdat, month, season,
+		startabs, startloc,wasDST,GMToffset,
+		d_sex, d_age, age_cat,
+		d_eye, eye_type, ethnicity, irb_ethnicity,
+		country, statenam, statecode, statecode, d_los,
+		d_zip, zip_gis, okzip, latitude, latabout, lat_good, lat_bin, latbinmd, longitude,
+		workdays, 
+		circphas, meq_type, meq, meqstd, 		
+		sleepmeq, wakemeq, sdurmeq, smidmeq,
+		sleepwrk, wakewrk, sdurwrk, smidwrk,
+		sleepnwk, wakenwk, sdurnwk, smidnwk, 
+		sduravg, smidavg,
+		longslep,
+		q1, q2, q3, q4, q5, q6, q7, q8, q9, q10, q11, q12, q13, q14, q15, q16, q17, q18, q19,
+		d_sleep_darkroom, d_wake_withlight, d_outsidelight_work, d_outsidelight_nonwork,
+		d_BMI, d_BMI_int,
+		askPIDS, PIDSdone,
+		A1, A2, A3, A4, A5, A6, A7, A8, A9, Ascore,
+		B1, B2, B3, B4, B5, B6, B7, Bscore,
+		CscoresA1, CscoresA2, CscoresA3, CscoresA4, CscoresA5, CscoresA6, CscoresA7, CscoresA8, CscoresA9, CscoresA10, CscoresA11, CscoresA12, CscoresA13,
+		CscoresB1, CscoresB2, CscoresB3, CscoresB4, CscoresB5, CscoresB6, CscoresB7, CscoresB8, CscoresB9, CscoresB10, CscoresB11, CscoresB12, CscoresB13,
+		C1A_Nov, C2A_Nov, C3A_Nov, C4A_Nov, C5A_Nov, C6A_Nov, CscrNovA,
+		C1A_Mar, C2A_Mar, C3A_Mar, C4A_Mar, C5A_Mar, C6A_Mar, CscrMarA,
+		D1, D2, D3, D4, D5, D6, D7, D8, D9, Dscore,
+		MDcrit1, MDcrit2, MDcrit3, MDcrit4, MDcrit5, MDcrit6,
+		C_WinterBad, C_WinterGood, C_SummerBad, C_SummerGood,
+		solstice, winterbad, summerbad,
+		useForSADvsMDDanalysis, hasWinterSeasonality,
+		latbin_1, latbin_2, latbin_2_5, latbin_5,
+		MajorDepression_dx, MinorDepression_dx,
+		hypsomsr,
+		youngadult, iswinter, SANS, dx_cat, latbin_2_5b, latbin_2_5C, age_bin
+	from cet7.automeq
+	where keep = 1;
+	;
+quit;
+*/
+
+/* Add analyses used for detecting cases of SANS */
+data cet7.SADvsMD; set cet7.automeq;
+	where useForSADvsMDDanalysis = 1 and keep=1;
 run;
 
 /*
@@ -727,11 +804,12 @@ run;
 /*
 proc sql;
 	create table latcomp as
-	select country, statenam, stateabr, statecode, d_zip, okzip, latabout, latitude, lat_good
+	select country, statenam, statecode, statecode, d_zip, okzip, latabout, latitude, lat_good
 	from work.keepers
 	order by okzip;
 */
 	
+/*
 PROC EXPORT DATA= work.keepers 
             OUTFILE= "&cet7a_lib\Automeq.xls" 
             DBMS=EXCEL2000 REPLACE;
@@ -741,20 +819,14 @@ PROC EXPORT DATA= work.SADvsMD
             OUTFILE= "&cet7a_lib\SADvsMD.xls" 
             DBMS=EXCEL2000 REPLACE;
 RUN;
-
-/* Backup up data */
-data cet7a.automeq; set automeq; run;
-
-data cet7a.keepers; set keepers; run;
-
-data cet7a.SADvsMD; set SADvsMD; run;
+*/
 
 /* Add code for 4/13/05 analyses:
 Self-reported hypersomnia = say 3 or 4 on B1 (moderate / severe sleeping longer in winter); 
 C4A subset - how many bad winter months (from 0-4)
 */
 
-/* proc freq data=cet7a.automeq; tables C4A_Nov C4A_Dec C4A_Jan C4A_Feb; run; */
+/* proc freq data=cet7.automeq; tables C4A_Nov C4A_Dec C4A_Jan C4A_Feb; run; */
 /* Why no keepers? -- COMPLETE = 0 for all -- why? *
 proc freq data=automeq;
 	table d_age;
@@ -783,25 +855,6 @@ proc freq data=automeq;
 run;
 */
 
-/* 
-data automeq; set cet7a.keepers;
-	if (mdy(4,7,2003) < startdat < mdy(6,5,2003)) then solstice = 'summer';
-	if (mdy(4,7,2002) < startdat < mdy(6,5,2002)) then solstice = 'summer';
-	if (mdy(4,7,2001) < startdat < mdy(6,5,2001)) then solstice = 'summer';
-
-	if (mdy(12,7,2003) < startdat < mdy(1,4,2004)) then solstice = 'winter';
-	if (mdy(12,7,2002) < startdat < mdy(1,4,2003)) then solstice = 'winter';
-	if (mdy(12,7,2001) < startdat < mdy(1,4,2002)) then solstice = 'winter';
-run;
-*/
-
-/*
-data nonwinterworse; set cet7a.keepers;
-	winterbad = ((CscoresA10 >= 4) + (CscoresA11 >= 4) + (CscoresA12 >= 4) + (CscoresA1 >= 4) + (CscoresA2 >= 4));
-	summergood = ((CscoresB5 >= 4) + (CscoresB6 >= 4) + (CscoresB7 >= 4) + (CscoresB8 >= 4) + (CscoresB9 >= 4));
-run;
-*/
-
 /*
 data SADvsMD; set nonwinterworse;
 	where Bscore ne . and MDcrit3 ne . and 
@@ -812,11 +865,6 @@ proc sort data=SADvsMD; by Bscore;
 proc freq data=SADvsMD;
 	by Bscore;
 	table MDcrit3;
-run;
-
-data nonwinterworse; set cet7a.keepers;
-	winterbad = ((CscoresA10 >= 4) + (CscoresA11 >= 4) + (CscoresA12 >= 4) + (CscoresA1 >= 4) + (CscoresA2 >= 4));
-	summerbad = ((CscoresA5 >= 4) + (CscoresA6 >= 4) + (CscoresA7 >= 4) + (CscoresA8 >= 4) + (CscoresA9 >= 4));
 run;
 
 proc freq data=nonwinterworse; 
@@ -835,7 +883,7 @@ proc freq data=SADvsMD;
 	table MDcrit3;
 run;
 
-proc freq data=cet7a.keepers; 
+proc freq data=cet7.keepers; 
 	where C_SummerBad ne 1 and C_WinterBad = 1;
 	tables MDcrit3;
 run;
@@ -853,7 +901,7 @@ proc freq data=SADvsMD;
 	tables lat_bin;
 run;
 
-proc freq data=cet7a.keepers;
+proc freq data=cet7.keepers;
 	tables lat_bin;
 run;
 */
@@ -896,11 +944,11 @@ run;
 proc sql;
 	create table vegitativenonMD as
 	select distinct * from 
-	cet7a.sadvsmd
+	cet7.sadvsmd
 	where Dscore >= 4 and hasWinterSeasonality = 1 and MinorDepression_dx = 0 and MajorDepression_Dx = 0
 	;
 
-data sadvsmd; set cet7a.sadvsmd;
+data sadvsmd; set cet7.sadvsmd;
 	if (MajorDepression_Dx = 1) then DepressionType = 'Major';
 	else if (MinorDepression_Dx = 1) then DepressionType = 'Minor';
 	else if (Dscore >= 4) then DepressionType = 'SVD';	* SVD = seasonal vegitative depression
@@ -947,11 +995,11 @@ run;
 proc sql;
 	create table vegitativenonMD as
 	select distinct * from 
-	cet7a.sadvsmd
+	cet7.sadvsmd
 	where Dscore >= 4 and hasWinterSeasonality = 1 and MinorDepression_dx = 0 and MajorDepression_Dx = 0
 	;
 
-data sadvsmd; set cet7a.sadvsmd;
+data sadvsmd; set cet7.sadvsmd;
 	if (MajorDepression_Dx = 1) then DepressionType = 'Major';
 	else if (MinorDepression_Dx = 1) then DepressionType = 'Minor';
 	else if (Dscore >= 4) then DepressionType = 'SVD';
@@ -987,6 +1035,37 @@ RUN;
 
 * Determine cumulative probability of having Diagnosis above the threshold of each given score
 * Do this for MajorOrMinor (total), Major, Minor, and Vegitative
+
+* Can these individual frequency calculations be re-written for easier use? *
+* How about use proc freq -- shows cummulative frequencies *
+data sadvsmd; set sadvsmd;
+	if (Bscore >= 0) then BscoreGe0 = 1;
+	if (Bscore >= 1) then BscoreGe1 = 1;
+	if (Bscore >= 2) then BscoreGe2 = 1;
+	if (Bscore >= 3) then BscoreGe3 = 1;
+	if (Bscore >= 4) then BscoreGe4 = 1;
+	if (Bscore >= 5) then BscoreGe5 = 1;
+	if (Bscore >= 6) then BscoreGe6 = 1;
+	if (Bscore >= 7) then BscoreGe7 = 1;
+	if (Bscore >= 8) then BscoreGe8 = 1;
+	if (Bscore >= 9) then BscoreGe9 = 1;
+	if (Bscore >= 10) then BscoreGe10 = 1;
+	if (Bscore >= 11) then BscoreGe11 = 1;
+	if (Bscore >= 12) then BscoreGe12 = 1;
+	if (Bscore >= 13) then BscoreGe13 = 1;
+	if (Bscore >= 14) then BscoreGe14 = 1;
+	if (Bscore >= 15) then BscoreGe15 = 1;
+	if (Bscore >= 16) then BscoreGe16 = 1;
+	if (Bscore >= 17) then BscoreGe17 = 1;
+	if (Bscore >= 18) then BscoreGe18 = 1;
+	if (Bscore >= 19) then BscoreGe19 = 1;
+	if (Bscore >= 20) then BscoreGe20 = 1;
+	if (Bscore >= 21) then BscoreGe21 = 1;
+	if (Bscore >= 22) then BscoreGe22 = 1;
+	if (Bscore >= 23) then BscoreGe23 = 1;
+	if (Bscore >= 24) then BscoreGe24 = 1;
+run;
+
 
 proc freq data=sadvsmd;
 	title Bscore >= 7;
@@ -1543,7 +1622,7 @@ run;
 
 /* IRB Report *
 
-data automeq; set cet7a.automeq;
+data automeq; set cet7.automeq;
 run;
 
 proc sort data=automeq;
@@ -1563,7 +1642,7 @@ run;
 */
 
 /* Possible analysis of relationship between sleep duration, latitude and depression *
-data test2; set cet7a.sadvsmd2;
+data test2; set cet7.sadvsmd2;
 	keep lat_good sduravg season MajorDepression_dx;
 	where season=1;
 run;
@@ -1579,130 +1658,22 @@ proc corr data=test2;
 run;
 */
 
-/* 5/27/05 - Import Musa's Zipcode file needed for GIS mapping */
-PROC IMPORT OUT=cet7b.musa_zip 
-            DATAFILE= "C:\data\cet-2005-04\analysis-0526\zip_centroids_div_coop_5dg_1dg_cnty_dem99.xls"
-            DBMS=EXCEL2000 REPLACE;
-     GETNAMES=YES;
-RUN;
-
-proc sql;
-	create table cet7b.keepers2 as
-	select a.*, b.*
-	from cet7b.musa_zip a join cet7b.keepers b
-	on a.zip = b.zip_gis;
-quit;
-
 /* 5/6/05 */
-data daylightsavings2; set cet7b.keepers2;
+data cet7.daylightsavings2; set cet7.automeq;
 	if (d_age < 22) then delete;	/* remove children */
 	if (d_age > 70) then delete;	/* remove elderly */
-	if (hypsomsr > 1) then is_hypsomsr = 1; else is_hypsomsr = 0;
-	if (Bscore >= 11 and hasWinterSeasonality = 1) then seasonal = 1; else seasonal=0;
-	if (Bscore >= 11 and hasWinterSeasonality = 1 and (MajorDepression_dx = 1)) then mdd = 1; else mdd=0;
-	if (Bscore >= 11 and hasWinterSeasonality = 1 and (MajorDepression_dx = 1 or MinorDepression_dx = 1)) then majmin = 1; else majmin=0;
-	if (Bscore >= 11 and hasWinterSeasonality = 1 and hypsomsr > 1) then seasonal_hypersom = 1; else seasonal_hypersom = 0;
-	if (Bscore >= 11 and hasWinterSeasonality = 1 and D9 = 1) then hyperphagia = 1; else hyperphagia=0;
-	if (Bscore >= 11 and hasWinterSeasonality = 1 and D3 = 1) then fatigue = 1; else fatigue=0;
-	
-	if (Bscore >= 11 and hasWinterSeasonality = 1 and A1 = 1) then sleep_dist = 1; else sleep_dist=0;
-	if (Bscore >= 11 and hasWinterSeasonality = 1 and A2 = 1) then fatigue_A2 = 1; else fatigue_A2=0;
-	if (Bscore >= 11 and hasWinterSeasonality = 1 and A3 = 1) then eating_dist = 1; else eating_dist=0;
-	if (Bscore >= 11 and hasWinterSeasonality = 1 and A4 = 1) then anhedonia = 1; else anhedonia=0;
-	if (Bscore >= 11 and hasWinterSeasonality = 1 and A5 = 1) then mood_dist = 1; else mood_dist=0;
-	if (Bscore >= 11 and hasWinterSeasonality = 1 and A6 = 1) then negative_thoughts = 1; else negative_thoughts=0;
-	if (Bscore >= 11 and hasWinterSeasonality = 1 and A7 = 1) then concentration = 1; else concentration=0;
-	if (Bscore >= 11 and hasWinterSeasonality = 1 and A8 = 1) then restless = 1; else restless=0;
-	if (Bscore >= 11 and hasWinterSeasonality = 1 and A9 = 1) then suicidal = 1; else suicidal=0;
-	
-	if (PIDSdone = 1 and Dscore >= 6 and 
-		hasWinterSeasonality = 1 and MajorDepression_dx ne 1 and MinorDepression_dx ne 1) 
-		then SANS = 1; else SANS = 0;	
-	
-	if (hasWinterSeasonality = 1) then do;
-		if (MajorDepression_dx = 1) then dx_cat = 'MDD';
-		else if (MinorDepression_Dx = 1) then dx_cat = 'MIN';
-		else if (SANS = 1) then dx_cat = 'SANS';
-		else dx_cat = 'SANS';
-	end;
-	else dx_cat = 'OTHER';
-	/*
-	if (stateabr in ('NH', 'VT', 'MA', 'RI','CT', 'NJ', 'DE', 'DC')) then place='east';
-	else if (stateabr in ('NY', 'PA')) then place = 'mid';
-	else if (stateabr in ('MI', 'OH', 'IN')) then place = 'west';
-	else if (stateabr in ('WI', 'IL')) then place = 'midw';
-	else if (stateabr in ('WA', 'OR')) then place = 'wcst';
-	else delete;
-
-	if (longitude > -75) then long='east-EST';
-	else if (place eq 'west') then long='west-EST';
-	else if (place eq 'midw') then long='east-CST';
-	else if (place eq 'wcst') then long='west-MST';
-	*/
-	
-	/* revised area computations (5/11/05) *
-	if (lat_good < 39 or lat_good > 45) then delete;
-	if (longitude > -75 and longitude < -69) then long='east-EST';
-	else if (longitude < -81.5 and stateabr in ('ME','NY','MA','VT','RI','CT','NJ','DE','MD','VA','NC','WV','PA','OH','MI')) 
-		then long='west-EST';
-	else if (longitude > -93.5 and stateabr in ('ND','SD','NE','KS','OK','MN','IA','MO','WI','IL','IN','TN','ID')) 
-		then long='east-CST';
-	else if (stateabr in ('OR','WA')) then long='west-PST';
-	else long='other';
-
-	if (long in ('east-EST', 'east-CST')) then tier='east';
-	else if (long in ('west-EST', 'west-PST')) then tier='west';
-	*/
-	
-	/* 4/16/05 revisions *//*
-	if (lat_good < 39 or lat_good > 50) then delete;
-	if (longitude >= -75 and longitude < -69) then long='east-EST';
-	else if ((longitude <= -81.5 and stateabr in ('ME','NY','MA','VT','RI','CT','NJ','DE','MD','VA','NC','WV','PA','OH','MI'))
-		or (longitude < -81.5 and longitude >= -90 and country in ('Canada')))
-		then long='west-EST';
-	else if ((longitude >= -93.5 and stateabr in ('ND','SD','NE','KS','OK','MN','IA','MO','WI','IL','IN','TN','ID'))
-		or (longitude >= -96 and longitude < -90 and country in ('Canada')))
-		then long='east-CST';
-	else if (stateabr in ('OR','WA')
-		or (longitude < -120 and country in ('Canada'))) then long='west-PST';
-	else delete;
-
-	if (long in ('east-EST', 'east-CST')) then tier='east';
-	else if (long in ('west-EST', 'west-PST')) then tier='west';	
-	*/
-	
-	/* 5/20 revisions */
-	if (lat_good < 39 or lat_good > 45) then latband = 'other';
-	else latband = '39-45';
-	if (longitude >= -75 and longitude < -69) then long='east-EST';
-	else if ((longitude <= -81.5 and stateabr in ('ME','NY','MA','VT','RI','CT','NJ','DE','MD','VA','NC','WV','PA','OH','MI'))
-		or (longitude < -81.5 and longitude >= -90 and country in ('Canada')))
-		then long='west-EST';
-	else if ((longitude >= -93.5 and stateabr in ('ND','SD','NE','KS','OK','MN','IA','MO','WI','IL','IN','TN','ID'))
-		or (longitude >= -96 and longitude < -90 and country in ('Canada')))
-		then long='east-CST';
-	else if (stateabr in ('OR','WA')
-		or (longitude < -120 and country in ('Canada'))) then long='west-PST';
-	else 
-		long='other';
-	
-	if (long in ('east-EST', 'east-CST')) then tier='east';
-	if (long in ('west-EST', 'west-PST')) then tier='west';
-	
-	/* 6/1/05 */
-	X_1dg = round(X,1);
-	Y_1dg = round(Y,1);
-	X_5dg = round(X,5);
-	Y_5dg = round(Y,5);
-
+	where (Y >= 39 and Y <= 50 and keep=1);	/* keep restricted latitude band */
 run;
 
+%mend ProcessAutoMeqData;
+
+%macro TimezoneAnalyses_0;
 proc sql;
 	create table test as
-	select long, count(*) as N, sum(is_hypsomsr) as N_hypersom, sum(is_hypsomsr) / count(*) as Ratio,
+	select timezone_band, count(*) as N, sum(is_hypsomsr) as N_hypersom, sum(is_hypsomsr) / count(*) as Ratio,
 		 sum(seasonal_hypersom) as N_seasonal_hypersom, sum(seasonal_hypersom) / count(*) as Ratio_seasonal_hypersom,
 		 sum(seasonal) as N_seasonal, sum(seasonal) / count(*) as Ratio_Seasonal,
-		 sum(mdd) as N_mdd, sum(mdd) / count(*) as Ratio_MDD,
+		 sum(seas_mdd) as N_mdd, sum(seas_mdd) / count(*) as Ratio_MDD,
 		 sum(hyperphagia) as N_hyperphagia, sum(hyperphagia) / count(*) as Ratio_hyperphagia,
 		 sum(fatigue) as N_fatigue, sum(fatigue) / count(*) as Ratio_fatigue,
 		 avg(meq) as Avg_MEQ,
@@ -1710,9 +1681,9 @@ proc sql;
 		 avg(smidavg) as Avg_SleepMidpoint,
 		 avg(d_age) as Avg_Age,
 		 sum(d_sex) / count(*) as Pct_Female		 
-	from daylightsavings2
-	group by long
-	order by long;
+	from cet7.daylightsavings2
+	group by timezone_band
+	order by timezone_band;
 quit;
 
 proc print data=test; run;
@@ -1720,10 +1691,10 @@ proc print data=test; run;
 
 proc sql;
 	create table test2 as
-	select tier, count(*) as N, sum(is_hypsomsr) as N_hypersom, sum(is_hypsomsr) / count(*) as Ratio,
+	select timezone_side, count(*) as N, sum(is_hypsomsr) as N_hypersom, sum(is_hypsomsr) / count(*) as Ratio,
 		 sum(seasonal_hypersom) as N_seasonal_hypersom, sum(seasonal_hypersom) / count(*) as Ratio_seasonal_hypersom,
 		 sum(seasonal) as N_seasonal, sum(seasonal) / count(*) as Ratio_Seasonal,
-		 sum(mdd) as N_mdd, sum(mdd) / count(*) as Ratio_MDD,
+		 sum(seas_mdd) as N_mdd, sum(seas_mdd) / count(*) as Ratio_MDD,
 		 sum(hyperphagia) as N_hyperphagia, sum(hyperphagia) / count(*) as Ratio_hyperphagia,
 		 sum(fatigue) as N_fatigue, sum(fatigue) / count(*) as Ratio_fatigue,
 		 avg(meq) as Avg_MEQ,
@@ -1731,19 +1702,19 @@ proc sql;
 		 avg(smidavg) as Avg_SleepMidpoint,
 		 avg(d_age) as Avg_Age,
 		 sum(d_sex) / count(*) as Pct_Female
-	from daylightsavings2
-	group by tier
-	order by tier;
+	from cet7.daylightsavings2
+	group by timezone_side
+	order by timezone_side;
 quit;
 
 proc print data=test2; run;
 
 proc sql;
 	create table test3 as
-	select season, long, count(*) as N, sum(is_hypsomsr) as N_hypersom, sum(is_hypsomsr) / count(*) as Ratio,
+	select season, timezone_band, count(*) as N, sum(is_hypsomsr) as N_hypersom, sum(is_hypsomsr) / count(*) as Ratio,
 		 sum(seasonal_hypersom) as N_seasonal_hypersom, sum(seasonal_hypersom) / count(*) as Ratio_seasonal_hypersom,
 		 sum(seasonal) as N_seasonal, sum(seasonal) / count(*) as Ratio_Seasonal,
-		 sum(mdd) as N_mdd, sum(mdd) / count(*) as Ratio_MDD,
+		 sum(seas_mdd) as N_mdd, sum(seas_mdd) / count(*) as Ratio_MDD,
 		 sum(hyperphagia) as N_hyperphagia, sum(hyperphagia) / count(*) as Ratio_hyperphagia,
 		 sum(fatigue) as N_fatigue, sum(fatigue) / count(*) as Ratio_fatigue,
 		 avg(meq) as Avg_MEQ,
@@ -1751,9 +1722,9 @@ proc sql;
 		 avg(smidavg) as Avg_SleepMidpoint,
 		 avg(d_age) as Avg_Age,
 		 sum(d_sex) / count(*) as Pct_Female
-	from daylightsavings2
-	group by season, long
-	order by season, long;
+	from cet7.daylightsavings2
+	group by season, timezone_band
+	order by season, timezone_band;
 quit;
 
 proc print data=test3; run;
@@ -1761,10 +1732,10 @@ proc print data=test3; run;
 
 proc sql;
 	create table test4 as
-	select season, tier, count(*) as N, sum(is_hypsomsr) as N_hypersom, sum(is_hypsomsr) / count(*) as Ratio,
+	select season, timezone_side, count(*) as N, sum(is_hypsomsr) as N_hypersom, sum(is_hypsomsr) / count(*) as Ratio,
 		 sum(seasonal_hypersom) as N_seasonal_hypersom, sum(seasonal_hypersom) / count(*) as Ratio_seasonal_hypersom,
 		 sum(seasonal) as N_seasonal, sum(seasonal) / count(*) as Ratio_Seasonal,
-		 sum(mdd) as N_mdd, sum(mdd) / count(*) as Ratio_MDD,
+		 sum(seas_mdd) as N_mdd, sum(seas_mdd) / count(*) as Ratio_MDD,
 		 sum(hyperphagia) as N_hyperphagia, sum(hyperphagia) / count(*) as Ratio_hyperphagia,
 		 sum(fatigue) as N_fatigue, sum(fatigue) / count(*) as Ratio_fatigue,
 		 avg(meq) as Avg_MEQ,
@@ -1772,92 +1743,103 @@ proc sql;
 		 avg(smidavg) as Avg_SleepMidpoint,
 		 avg(d_age) as Avg_Age,
 		 sum(d_sex) / count(*) as Pct_Female
-	from daylightsavings2
-	group by season, tier
-	order by season, tier;
+	from cet7.daylightsavings2
+	group by season, timezone_side
+	order by season, timezone_side;
 quit;
 
 proc print data=test4; run;
+%mend TimezoneAnalyses_0;
 
-proc freq data=daylightsavings2;
-	tables tier * mdd / chisq;
-	tables tier * seasonal_hypersom / chisq;
-	tables tier * hyperphagia / chisq;
-	tables tier * fatigue / chisq;
-	tables tier * seasonal / chisq;
+%macro ChiSquare_0;
+/* these are significant */
+proc freq data=cet7.daylightsavings2;
+	where timezone_side ne '';
+	tables timezone_side * seas_mdd / chisq;
+	tables timezone_side * seasonal_hypersom / chisq;
+	tables timezone_side * hyperphagia / chisq;
+	tables timezone_side * fatigue / chisq;
+	tables timezone_side * seasonal / chisq;
 	
-	tables tier * sleep_dist / chisq;
-	tables tier * fatigue_A2 / chisq;
-	tables tier * eating_dist / chisq;
-	tables tier * anhedonia / chisq;
-	tables tier * mood_dist / chisq;
-	tables tier * negative_thoughts / chisq;
-	tables tier * concentration / chisq;
-	tables tier * restless / chisq;
-	tables tier * suicidal / chisq;
+	tables timezone_side * sleep_dist / chisq;
+	tables timezone_side * fatigue_A2 / chisq;
+	tables timezone_side * eating_dist / chisq;
+	tables timezone_side * anhedonia / chisq;
+	tables timezone_side * mood_dist / chisq;
+	tables timezone_side * negative_thoughts / chisq;
+	tables timezone_side * concentration / chisq;
+	tables timezone_side * restless / chisq;
+	tables timezone_side * suicidal / chisq;
 run;
 
-proc freq data=daylightsavings2;
-	where long ne 'east-EST';
-	tables long * mdd / chisq;
-	tables long * seasonal_hypersom / chisq;
-	tables long * hyperphagia / chisq;
-	tables long * fatigue / chisq;
-	tables long * seasonal / chisq;
+/* so are these */
+proc freq data=cet7.daylightsavings2;
+	where timezone_band in ('east-EST', 'west-EST');
+	tables timezone_band * seas_mdd / chisq;
+	tables timezone_band * seasonal_hypersom / chisq;
+	tables timezone_band * hyperphagia / chisq;
+	tables timezone_band * fatigue / chisq;
+	tables timezone_band * seasonal / chisq;
 	
-	tables long * sleep_dist / chisq;
-	tables long * fatigue_A2 / chisq;
-	tables long * eating_dist / chisq;
-	tables long * anhedonia / chisq;
-	tables long * mood_dist / chisq;
-	tables long * negative_thoughts / chisq;
-	tables long * concentration / chisq;
-	tables long * restless / chisq;
-	tables long * suicidal / chisq;	
+	tables timezone_band * sleep_dist / chisq;
+	tables timezone_band * fatigue_A2 / chisq;
+	tables timezone_band * eating_dist / chisq;
+	tables timezone_band * anhedonia / chisq;
+	tables timezone_band * mood_dist / chisq;
+	tables timezone_band * negative_thoughts / chisq;
+	tables timezone_band * concentration / chisq;
+	tables timezone_band * restless / chisq;
+	tables timezone_band * suicidal / chisq;	
 run;
 
-proc freq data=daylightsavings2;
-	where long ne 'east-CST';
-	tables long * mdd / chisq;
-	tables long * seasonal_hypersom / chisq;
-	tables long * hyperphagia / chisq;
-	tables long * fatigue / chisq;
-	tables long * seasonal / chisq;
+/* few of these are significant, beyling the switch across timezone boundaries */
+proc freq data=cet7.daylightsavings2;
+	where timezone_band in ('east-CST', 'west-EST');
+	tables timezone_band * seas_mdd / chisq;
+	tables timezone_band * seasonal_hypersom / chisq;
+	tables timezone_band * hyperphagia / chisq;
+	tables timezone_band * fatigue / chisq;
+	tables timezone_band * seasonal / chisq;
 	
-	tables long * sleep_dist / chisq;
-	tables long * fatigue_A2 / chisq;
-	tables long * eating_dist / chisq;
-	tables long * anhedonia / chisq;
-	tables long * mood_dist / chisq;
-	tables long * negative_thoughts / chisq;
-	tables long * concentration / chisq;
-	tables long * restless / chisq;
-	tables long * suicidal / chisq;	
+	tables timezone_band * sleep_dist / chisq;
+	tables timezone_band * fatigue_A2 / chisq;
+	tables timezone_band * eating_dist / chisq;
+	tables timezone_band * anhedonia / chisq;
+	tables timezone_band * mood_dist / chisq;
+	tables timezone_band * negative_thoughts / chisq;
+	tables timezone_band * concentration / chisq;
+	tables timezone_band * restless / chisq;
+	tables timezone_band * suicidal / chisq;	
 run;
+%mend ChiSquare_0;
+
 
 /* Mean latitudes are the same */
+%macro TimezoneAnalyses_1;
 proc sql;
 	create table long_means as
-	select long, mean(latitude) as MeanLat
-	from daylightsavings2
-	group by long
-	order by long;
+	select timezone_band, mean(latitude) as MeanLat
+	from cet7.daylightsavings2
+	group by timezone_band
+	order by timezone_band;
 	
 proc sql;
 	create table all_means as
 	select mean(latitude) as AvgMeanLat
-	from daylightsavings2;
+	from cet7.daylightsavings2;
 	
 proc sql;
-	select a.long, a.MeanLat, b.AvgMeanLat, (a.MeanLat - b.AvgMeanLat) as Diff
+	select a.timezone_band, a.MeanLat, b.AvgMeanLat, (a.MeanLat - b.AvgMeanLat) as Diff
 	from long_means a, all_means b
-	order by a.long;
-	
+	order by a.timezone_band;
+quit;
+
+%mend TimezoneAnalyses_1;
 
 /* 
                                          The SAS System           14:24 Friday, May 20, 2005  83
 
-                                       long       MeanLat
+                                       timezone_band       MeanLat
                                        ŸŸŸŸŸŸŸŸŸŸŸŸŸŸŸŸŸŸ
                                        east-CST  42.15711
                                        east-EST  41.72658
@@ -1894,10 +1876,10 @@ How does this plan sound?
 
 /Michael 	
 */
-
+%macro TimezoneAnalyses_3;
 proc sql;
 	create table sad_data_at_1dg as
-	select distinct long,
+	select distinct timezone_band,
 		_dgID as dg1_ID,
 		count(*) as dg1_NumResondants,
 		max(_dgPOP99) as dg1_POP99,
@@ -1910,7 +1892,7 @@ proc sql;
 		avg(Bscore) as dg1_avg_Bscore,
 		avg(meq) as dg1_avg_MEQ,
 		avg(circphas) as dg1_avg_CircPhase,
-		avg(mdd) as dg1_pct_MDD,
+		avg(seas_mdd) as dg1_pct_MDD,
 		avg(SANS) as dg1_pct_SANS,
 		avg(d_BMI) as dg1_avg_BMI,
 		avg(workdays) as dg1_avg_Workdays,
@@ -1927,12 +1909,11 @@ proc sql;
 		avg(concentration) as dg1_pct_concentration,
 		avg(restless) as dg1_pct_restless,
 		avg(suicidal) as dg1_pct_suicidal
-	from daylightsavings2
-	group by long, dg1_ID
-	order by long, dg1_ID;
+	from cet7.daylightsavings2
+	group by timezone_band, dg1_ID
+	order by timezone_band, dg1_ID;
 quit;
 
-/* Export these data */
 PROC EXPORT DATA= WORK.SAD_DATA_AT_1DG 
             OUTFILE= "C:\data\cet-2005-04\analysis-0526\sad_data_at_1dg.xls" 
             DBMS=EXCEL2000 REPLACE;
@@ -1940,7 +1921,7 @@ RUN;
 
 proc sql;
 	create table sad_data_at_5dg as
-	select distinct long,
+	select distinct timezone_band,
 		_dgID0 as dg5_ID,
 		count(*) as dg5_NumResondants,
 		max(_dgPOP990) as dg5_POP99,
@@ -1953,7 +1934,7 @@ proc sql;
 		avg(Bscore) as dg5_avg_Bscore,
 		avg(meq) as dg5_avg_MEQ,
 		avg(circphas) as dg5_avg_CircPhase,
-		avg(mdd) as dg5_pct_MDD,
+		avg(seas_mdd) as dg5_pct_MDD,
 		avg(SANS) as dg5_pct_SANS,
 		avg(d_BMI) as dg5_avg_BMI,
 		avg(workdays) as dg5_avg_Workdays,
@@ -1970,20 +1951,77 @@ proc sql;
 		avg(concentration) as dg5_pct_concentration,
 		avg(restless) as dg5_pct_restless,
 		avg(suicidal) as dg5_pct_suicidal
-	from daylightsavings2
-	group by long, dg5_ID
-	order by long, dg5_ID;
+	from cet7.daylightsavings2
+	group by timezone_band, dg5_ID
+	order by timezone_band, dg5_ID;
 quit;
 
-/* Export these data */
 PROC EXPORT DATA= WORK.SAD_DATA_AT_5DG 
             OUTFILE= "C:\data\cet-2005-04\analysis-0526\sad_data_at_5dg.xls" 
             DBMS=EXCEL2000 REPLACE;
 RUN;
 
 proc sql;
+	create table deg_2_5_ID as
+	select distinct X_2_5dg, Y_2_5dg
+	from cet7.daylightsavings2
+	order by X_2_5dg, Y_2_5dg;
+quit;
+
+data deg_2_5_ID; set deg_2_5_ID;
+	dg2_5_ID = _N_;
+run;
+
+proc sql;
+	create table sad_data_at_2_5dg as
+	select distinct timezone_band,
+		X_2_5dg, Y_2_5dg,
+		count(*) as dg2_5_NumResondants,
+		avg(d_age) as dg2_5_avg_Age,
+		avg(d_sex) as dg2_5_pct_Female,
+		avg(sduravg) as dg2_5_avg_SleepDuration,
+		avg(smidavg) as dg2_5_avg_SleepMidpoint,
+		avg(seasonal) as dg2_5_pct_Seasonal,
+		avg(Bscore) as dg2_5_avg_Bscore,
+		avg(meq) as dg2_5_avg_MEQ,
+		avg(circphas) as dg2_5_avg_CircPhase,
+		avg(seas_mdd) as dg2_5_pct_MDD,
+		avg(SANS) as dg2_5_pct_SANS,
+		avg(d_BMI) as dg2_5_avg_BMI,
+		avg(workdays) as dg2_5_avg_Workdays,
+		avg(majmin) as dg2_5_pct_majmin,
+		avg(seasonal_hypersom) as dg2_5_pct_seasonal_hypersom,
+		avg(hyperphagia) as dg2_5_pct_hyperphagia,
+		avg(fatigue) as dg2_5_pct_fatigue,
+		avg(sleep_dist) as dg2_5_pct_sleep_dist,
+		avg(fatigue_A2) as dg2_5_pct_fatigue_A2,
+		avg(eating_dist) as dg2_5_pct_eating_dist,
+		avg(anhedonia) as dg2_5_pct_anhedonia,
+		avg(mood_dist) as dg2_5_pct_mood_dist,
+		avg(negative_thoughts) as dg2_5_pct_negative_thoughts,
+		avg(concentration) as dg2_5_pct_concentration,
+		avg(restless) as dg2_5_pct_restless,
+		avg(suicidal) as dg2_5_pct_suicidal
+	from cet7.daylightsavings2
+	group by timezone_band, X_2_5dg, Y_2_5dg
+	order by timezone_band, X_2_5dg, Y_2_5dg;
+quit;
+
+proc sql;
+	create table sad_data_at_2_5dg as
+	select a.dg2_5_ID, b.*
+	from deg_2_5_ID a join sad_data_at_2_5dg b
+	on a.X_2_5dg = b.X_2_5dg and a.Y_2_5dg = b.Y_2_5dg;
+quit;
+
+PROC EXPORT DATA= WORK.sad_data_at_2_5dg 
+            OUTFILE= "C:\data\cet-2005-04\analysis-0526\sad_data_at_2_5dg.xls" 
+            DBMS=EXCEL2000 REPLACE;
+RUN;
+
+proc sql;
 	create table sad_data_at_tier as
-	select distinct long,
+	select distinct timezone_band,
 		count(*) as tier_NumResondants,
 		avg(d_age) as tier_avg_Age,
 		avg(d_sex) as tier_pct_Female,
@@ -1993,7 +2031,7 @@ proc sql;
 		avg(Bscore) as tier_avg_Bscore,
 		avg(meq) as tier_avg_MEQ,
 		avg(circphas) as tier_avg_CircPhase,
-		avg(mdd) as tier_pct_MDD,
+		avg(seas_mdd) as tier_pct_MDD,
 		avg(SANS) as tier_pct_SANS,
 		avg(d_BMI) as tier_avg_BMI,
 		avg(workdays) as tier_avg_Workdays,
@@ -2010,21 +2048,23 @@ proc sql;
 		avg(concentration) as tier_pct_concentration,
 		avg(restless) as tier_pct_restless,
 		avg(suicidal) as tier_pct_suicidal
-	from daylightsavings2
-	group by long
-	order by long;
+	from cet7.daylightsavings2
+	group by timezone_band
+	order by timezone_band;
 quit;
 
-/* Export these data */
 PROC EXPORT DATA= WORK.SAD_DATA_AT_TIER
             OUTFILE= "C:\data\cet-2005-04\analysis-0526\sad_data_at_tier.xls" 
             DBMS=EXCEL2000 REPLACE;
 RUN;
+%mend TimezoneAnalyses_3;
 
-
-proc freq data=daylightsavings2;
-	where long ne 'other';
-	tables urban * mdd / chisq;
+/* Analyses */
+%macro TimezoneAnalyses_4;	/* ChiSquares of Urbanness */
+/* few of these are significant */
+proc freq data=cet7.daylightsavings2;
+	where timezone_band ne 'other';
+	tables urban * seas_mdd / chisq;
 	tables urban * seasonal_hypersom / chisq;
 	tables urban * hyperphagia / chisq;
 	tables urban * fatigue / chisq;
@@ -2041,131 +2081,41 @@ proc freq data=daylightsavings2;
 	tables urban * suicidal / chisq;	
 run;
 
-proc freq data=daylightsavings2;
-	tables urban * long * mdd / chisq;
-	tables urban * long * seasonal_hypersom / chisq;
-	tables urban * long * hyperphagia / chisq;
-	tables urban * long * fatigue / chisq;
-	tables urban * long * seasonal / chisq;
+proc freq data=cet7.daylightsavings2;
+	tables urban * timezone_band * seas_mdd / chisq;
+	tables urban * timezone_band * seasonal_hypersom / chisq;
+	tables urban * timezone_band * hyperphagia / chisq;
+	tables urban * timezone_band * fatigue / chisq;
+	tables urban * timezone_band * seasonal / chisq;
 	
-	tables urban * long * sleep_dist / chisq;
-	tables urban * long * fatigue_A2 / chisq;
-	tables urban * long * eating_dist / chisq;
-	tables urban * long * anhedonia / chisq;
-	tables urban * long * mood_dist / chisq;
-	tables urban * long * negative_thoughts / chisq;
-	tables urban * long * concentration / chisq;
-	tables urban * long * restless / chisq;
-	tables urban * long * suicidal / chisq;	
+	tables urban * timezone_band * sleep_dist / chisq;
+	tables urban * timezone_band * fatigue_A2 / chisq;
+	tables urban * timezone_band * eating_dist / chisq;
+	tables urban * timezone_band * anhedonia / chisq;
+	tables urban * timezone_band * mood_dist / chisq;
+	tables urban * timezone_band * negative_thoughts / chisq;
+	tables urban * timezone_band * concentration / chisq;
+	tables urban * timezone_band * restless / chisq;
+	tables urban * timezone_band * suicidal / chisq;	
 run;
+%mend TimezoneAnalyses_4;	/* ChiSquares of Urbanness */
 
 /* Data preparation for Latitude and Longitude ANOVAs */
 
-proc sql;
-	create table sad_data_for_Anova as
-	select long,
-		X, Y,
-		X_1dg, Y_1dg,
-		X_5dg, Y_5dg,
-		d_age,
-		d_sex,
-		sduravg,
-		smidavg,
-		seasonal,
-		Bscore,
-		meq,
-		circphas,
-		mdd,
-		SANS,
-		d_BMI,
-		workdays,
-		majmin,
-		seasonal_hypersom as s_hypsom,
-		hyperphagia as hypphag,
-		fatigue,
-		sleep_dist as abnlslep,
-		fatigue_A2 as fatigue2,
-		eating_dist as abnleat,
-		anhedonia,
-		mood_dist as mooddist,
-		negative_thoughts as negthot,
-		concentration as concentr,
-		restless,
-		suicidal
-	from daylightsavings2;
-quit;
-
-PROC EXPORT DATA= WORK.sad_data_for_Anova
-            OUTFILE= "C:\data\cet-2005-04\analysis-0526\sad_data_for_Anova.xls" 
-            DBMS=EXCEL2000 REPLACE;
-RUN;
-
-/* Compute rightmost boundary by zip for longitude using zip data? */
-/* What is timezone by zip code? */
-proc sql;
-	create table timezones as
-	select distinct state, statecode, dst, county, timezone, gmtoffset, zipcode, latitude, longitude
-	from helpers.zipcodes
-	where statecode not in ('AA', 'AE', 'AP', 'AS')
-	order by state, statecode, dst;
-quit;
-
-/* Merge this with GIS data */
-proc sql;
-	create table timezones2 as
-	select a.*, b.X, b.Y
-	from timezones a join cet7b.musa_zip b
-	on a.zipcode = b.zip;
-quit;
-
-/* get rounded values to the 1 and 5 degree levels */
-
-data timezones2; set timezones2;
-	X_1dg = round(X,1);
-	Y_1dg = round(Y,1);
-	X_5dg = round(X,5);
-	Y_5dg = round(Y,5);
-run;
-		
-/* What is the rightmost longitude at each latitude? */
-proc sql;
-	create table dist_from_boundary as
-	select distinct
-		zipcode, X, Y, 
-		timezone, gmtoffset, dst,
-		Y_1dg,
-		min(X) as min_X, max(X) as max_X
-	from timezones2
-	group by timezone, gmtoffset, Y_1dg
-	order by timezone, gmtoffset, Y_1dg;
-quit;
-
-/* By zip code, what is the distance from the eastern edge of the timezone -- this is accurate */
-data cet7b.dist_from_boundary; set dist_from_boundary;
-	dist_from_timezone_boundary = max_X - X;
-	timezone_width = max_X - min_X;
-run;
-
-/* Re-merge this data with the rest of the data */
-proc sql;
-	create table daylightsavings3 as
-	select a.*, b.*
-	from daylightsavings2 a join cet7b.dist_from_boundary b
-	on a.zip_gis = b.ZIPcode;
-quit;
-
+%macro TimezoneAnalyes_5;	/* extract subset -- not needed? */
 /* Extract just the data needed for ANOVA analysis */
 proc sql;
 	create table sad_data_for_Anova as
-	select long,
+	select timezone_band,
 		timezone, 
-		gmtoffset as gmt,
+		gmtoffset as GMTOffset,
 		dst,
 		zip_gis,
-		dist_from_timezone_boundary as dist_tzb,
-		timezone_width as tzwidth,
+		dist_from_timezone_boundary,
+		timezone_width,
 		X, Y,
 		X_1dg, Y_1dg,
+		X_2_5dg, Y_2_5dg,
 		X_5dg, Y_5dg,
 		d_age,
 		d_sex,
@@ -2176,71 +2126,82 @@ proc sql;
 		Bscore,
 		meq,
 		circphas,
-		mdd as seas_mdd,
-		MajorDepression_Dx as mdd_dx,
+		seas_mdd,
+		MajorDepression_Dx,
 		SANS,
 		d_BMI,
 		workdays,
 		majmin,
-		seasonal_hypersom as s_hypsom,
+		seasonal_hypersom,
 		season,
-		hyperphagia as hypphag,
+		hyperphagia,
 		fatigue,
-		sleep_dist as abnlslep,
-		fatigue_A2 as fatigue2,
-		eating_dist as abnleat,
+		sleep_dist,
+		fatigue_A2,
+		eating_dist,
 		anhedonia,
-		mood_dist as mooddist,
-		negative_thoughts as negthot,
-		concentration as concentr,
+		mood_dist,
+		negative_thoughts,
+		concentration,
 		restless,
 		suicidal,
 		urban,
-		eye_type
-	from daylightsavings3;
+		eye_type,
+		C1A_Nov, C2A_Nov, C3A_Nov, C4A_Nov, C5A_Nov, C6A_Nov, CscrNovA,
+		C1A_Mar, C2A_Mar, C3A_Mar, C4A_Mar, C5A_Mar, C6A_Mar, CscrMarA
+	from cet7.daylightsavings2
 quit;
 
 PROC EXPORT DATA= WORK.sad_data_for_Anova
             OUTFILE= "C:\data\cet-2005-04\analysis-0526\sad_data_for_Anova.xls" 
             DBMS=EXCEL2000 REPLACE;
 RUN;
+%mend TimezoneAnalyes_5;	/* extract subset -- not needed? */
 
+%macro Regressions_1;
 /* Attempts at statistical analysis of this */
 title 'Stepwise Logistic Regression of Major Depression Covariates';
-proc logistic data=sad_data_for_Anova;
-	model mdd_dx (event='1')=season Y dist_tzb d_age d_sex urban d_BMI workdays meq sduravg gmt eye_type
+proc logistic data=cet7.daylightsavings2;
+	model MajorDepression_Dx (event='1')=seasonal Y dist_from_timezone_boundary d_age d_sex urban d_BMI workdays meq sduravg GMTOffset eye_type 
+		Y*dist_from_timezone_boundary d_age*dist_from_timezone_boundary d_sex*dist_from_timezone_boundary
 		/ selection=stepwise slentry=0.3 slstay=0.35 details lackfit;
 run;
 
 title 'Stepwise Logistic Regression of Seasonal Major Depression Covariates';
-proc logistic data=sad_data_for_Anova;
-	model seas_mdd (event='1')=season Y dist_tzb d_age d_sex urban d_BMI workdays meq sduravg gmt eye_type
+proc logistic data=cet7.daylightsavings2;
+	model seas_mdd (event='1')= Y dist_from_timezone_boundary d_age d_sex urban d_BMI workdays meq sduravg GMTOffset eye_type
+		Y*dist_from_timezone_boundary d_age*dist_from_timezone_boundary d_sex*dist_from_timezone_boundary
 		/ selection=stepwise slentry=0.3 slstay=0.35 details lackfit;
 run;
 
 title 'Stepwise Logistic Regression of Seasonality Covariates';
-proc logistic data=sad_data_for_Anova;
-	model seasonal (event='1')=Ascore season Y dist_tzb d_age d_sex urban d_BMI workdays meq sduravg gmt eye_type
+proc logistic data=cet7.daylightsavings2;
+	model seasonal (event='1')=Ascore Y dist_from_timezone_boundary d_age d_sex urban d_BMI workdays meq sduravg GMTOffset eye_type
+		Y*dist_from_timezone_boundary d_age*dist_from_timezone_boundary d_sex*dist_from_timezone_boundary
 		/ selection=stepwise slentry=0.3 slstay=0.35 details lackfit;
 run;
 
 title 'Stepwise Linear Regression of Sleep Duration Covariates';
-proc reg data=sad_data_for_Anova;
-	model sduravg =Ascore season Y dist_tzb d_age d_sex urban d_BMI workdays meq gmt eye_type
+proc reg data=cet7.daylightsavings2;
+	model sduravg =Ascore seasonal Y dist_from_timezone_boundary d_age d_sex urban d_BMI workdays meq GMTOffset eye_type
+		Y*dist_from_timezone_boundary d_age*dist_from_timezone_boundary d_sex*dist_from_timezone_boundary
 		/ selection=stepwise slentry=0.3 slstay=0.35 details;
 run;
 
 title 'Stepwise Linear Regression of Sleep Duration Covariates - Just latitude and Ascore';
-proc reg data=sad_data_for_Anova;
-	model sduravg =Ascore Y 
+proc reg data=cet7.daylightsavings2;
+	model sduravg =Ascore Y dist_from_timezone_boundary
 		/ selection=stepwise slentry=0.3 slstay=0.35 details;
 run;
 
 title 'Stepwise Logistic Regression of Self-Reported Hypersomnia Covariates';
-proc logistic data=sad_data_for_Anova;
-	model s_hypsom (event='1')=Ascore season Y dist_tzb d_age d_sex urban d_BMI workdays meq sduravg gmt eye_type
+proc logistic data=cet7.daylightsavings2;
+	model seasonal_hypersom (event='1')=Ascore Y dist_from_timezone_boundary d_age d_sex urban d_BMI workdays meq sduravg GMTOffset eye_type
+		Y*dist_from_timezone_boundary d_age*dist_from_timezone_boundary d_sex*dist_from_timezone_boundary
 		/ selection=stepwise slentry=0.3 slstay=0.35 details lackfit;
 run;
+%mend Regressions_1;
+
 
 /* Code to create 2nd order correlations among input variables *
 data test;
@@ -2248,7 +2209,7 @@ data test;
 	cards;
 season
 Y
-dist_tzb 
+dist_from_timezone_boundary 
 d_age 
 d_sex 
 urban 
@@ -2256,7 +2217,7 @@ d_BMI
 workdays 
 meq 
 sduravg 
-gmt 
+GMTOffset 
 eye_type
 ;
 run;
@@ -2271,459 +2232,394 @@ quit;
 
 proc print data=test2; run;
 */
+
 /** Revised Analyses using all first order interactions */
 /* Attempts at statistical analysis of this */
+%macro Regressions_2;
 title 'Stepwise Logistic Regression of Major Depression Covariates';
-proc logistic data=sad_data_for_Anova;
-	model mdd_dx (event='1')=season Y dist_tzb d_age d_sex urban d_BMI workdays meq sduravg gmt eye_type
+proc logistic data=cet7.daylightsavings2;
+	model MajorDepression_Dx (event='1')=seasonal Y dist_from_timezone_boundary d_age d_sex urban d_BMI workdays meq sduravg GMTOffset eye_type
 
 Y*d_BMI
 Y*d_age
 Y*d_sex
-Y*dist_tzb
+Y*dist_from_timezone_boundary
 Y*eye_type
-Y*gmt
+Y*GMTOffset
 Y*meq
 Y*sduravg
-Y*season
+Y*seasonal
 Y*urban
 Y*workdays
 d_BMI*Y
 d_BMI*d_age
 d_BMI*d_sex
-d_BMI*dist_tzb
+d_BMI*dist_from_timezone_boundary
 d_BMI*eye_type
-d_BMI*gmt
+d_BMI*GMTOffset
 d_BMI*meq
 d_BMI*sduravg
-d_BMI*season
+d_BMI*seasonal
 d_BMI*urban
 d_BMI*workdays
 d_age*Y
 d_age*d_BMI
 d_age*d_sex
-d_age*dist_tzb
+d_age*dist_from_timezone_boundary
 d_age*eye_type
-d_age*gmt
+d_age*GMTOffset
 d_age*meq
 d_age*sduravg
-d_age*season
+d_age*seasonal
 d_age*urban
 d_age*workdays
 d_sex*Y
 d_sex*d_BMI
 d_sex*d_age
-d_sex*dist_tzb
+d_sex*dist_from_timezone_boundary
 d_sex*eye_type
-d_sex*gmt
+d_sex*GMTOffset
 d_sex*meq
 d_sex*sduravg
-d_sex*season
+d_sex*seasonal
 d_sex*urban
 d_sex*workdays
-dist_tzb*Y
-dist_tzb*d_BMI
-dist_tzb*d_age
-dist_tzb*d_sex
-dist_tzb*meq
-dist_tzb*sduravg
-dist_tzb*season
-dist_tzb*urban
-dist_tzb*workdays
+dist_from_timezone_boundary*Y
+dist_from_timezone_boundary*d_BMI
+dist_from_timezone_boundary*d_age
+dist_from_timezone_boundary*d_sex
+dist_from_timezone_boundary*meq
+dist_from_timezone_boundary*sduravg
+dist_from_timezone_boundary*seasonal
+dist_from_timezone_boundary*urban
+dist_from_timezone_boundary*workdays
 eye_type*Y
 eye_type*d_BMI
 eye_type*d_age
 eye_type*d_sex
-eye_type*dist_tzb
-eye_type*gmt
+eye_type*dist_from_timezone_boundary
+eye_type*GMTOffset
 eye_type*meq
 eye_type*sduravg
-eye_type*season
+eye_type*seasonal
 eye_type*urban
 eye_type*workdays
-gmt*Y
-gmt*d_BMI
-gmt*d_age
-gmt*d_sex
-gmt*dist_tzb
-gmt*eye_type
-gmt*meq
-gmt*sduravg
-gmt*season
-gmt*urban
-gmt*workdays
+GMTOffset*Y
+GMTOffset*d_BMI
+GMTOffset*d_age
+GMTOffset*d_sex
+GMTOffset*dist_from_timezone_boundary
+GMTOffset*eye_type
+GMTOffset*meq
+GMTOffset*sduravg
+GMTOffset*seasonal
+GMTOffset*urban
+GMTOffset*workdays
 meq*Y
 meq*d_BMI
 meq*d_age
 meq*d_sex
-meq*dist_tzb
+meq*dist_from_timezone_boundary
 meq*eye_type
-meq*gmt
+meq*GMTOffset
 meq*sduravg
-meq*season
+meq*seasonal
 meq*urban
 meq*workdays
 sduravg*Y
 sduravg*d_BMI
 sduravg*d_age
 sduravg*d_sex
-sduravg*dist_tzb
+sduravg*dist_from_timezone_boundary
 sduravg*eye_type
-sduravg*gmt
+sduravg*GMTOffset
 sduravg*meq
-sduravg*season
+sduravg*seasonal
 sduravg*urban
-season*d_BMI
-season*d_age
-season*d_sex
-season*dist_tzb
-season*eye_type
-season*gmt
-season*meq
-season*sduravg
-season*urban
-season*workdays
+seasonal*d_BMI
+seasonal*d_age
+seasonal*d_sex
+seasonal*dist_from_timezone_boundary
+seasonal*eye_type
+seasonal*GMTOffset
+seasonal*meq
+seasonal*sduravg
+seasonal*urban
+seasonal*workdays
 urban*Y
 urban*d_BMI
 urban*d_age
 urban*d_sex
-urban*dist_tzb
+urban*dist_from_timezone_boundary
 urban*eye_type
-urban*gmt
+urban*GMTOffset
 urban*meq
 urban*sduravg
-urban*season
+urban*seasonal
 urban*workdays
 workdays*Y
 workdays*d_BMI
 workdays*d_age
 workdays*d_sex
-workdays*dist_tzb
+workdays*dist_from_timezone_boundary
 workdays*eye_type
-workdays*gmt
+workdays*GMTOffset
 workdays*meq
 workdays*sduravg
-workdays*season
+workdays*seasonal
 workdays*urban
 
 		/ selection=stepwise slentry=0.3 slstay=0.35 details lackfit;
 run;
 
-/*
-season
-Y 
-dist_tzb 
-d_age 
-d_sex 
-data test;
-	input varname $;
-	cards;
-season
-Y
-dist_tzb 
-d_age 
-d_sex 
-urban 
-d_BMI 
-workdays 
-meq 
-sduravg 
-gmt 
-eye_type
-;
-run;
-
-proc sql;
-	create table test2 as
-	select trim(a.varname) || '*' || trim(b.varname) as xprod
-	from test a, test b
-	where a.varname ne b.varname
-	order by xprod;
-quit;
-
-proc print data=test2; run;
-*/
 title 'Stepwise Logistic Regression of Seasonal Major Depression Covariates';
-proc logistic data=sad_data_for_Anova;
-	model seas_mdd (event='1')=season Y dist_tzb d_age d_sex urban d_BMI workdays meq sduravg gmt eye_type
+proc logistic data=cet7.daylightsavings2;
+	model seas_mdd (event='1')=Y dist_from_timezone_boundary d_age d_sex urban d_BMI workdays meq sduravg GMTOffset eye_type
 Y*d_BMI
 Y*d_age
 Y*d_sex
-Y*dist_tzb
+Y*dist_from_timezone_boundary
 Y*eye_type
-Y*gmt
+Y*GMTOffset
 Y*meq
 Y*sduravg
-Y*season
+Y*seasonal
 Y*urban
 Y*workdays
 d_BMI*Y
 d_BMI*d_age
 d_BMI*d_sex
-d_BMI*dist_tzb
+d_BMI*dist_from_timezone_boundary
 d_BMI*eye_type
-d_BMI*gmt
+d_BMI*GMTOffset
 d_BMI*meq
 d_BMI*sduravg
-d_BMI*season
+d_BMI*seasonal
 d_BMI*urban
 d_BMI*workdays
 d_age*Y
 d_age*d_BMI
 d_age*d_sex
-d_age*dist_tzb
+d_age*dist_from_timezone_boundary
 d_age*eye_type
-d_age*gmt
+d_age*GMTOffset
 d_age*meq
 d_age*sduravg
-d_age*season
+d_age*seasonal
 d_age*urban
 d_age*workdays
 d_sex*Y
 d_sex*d_BMI
 d_sex*d_age
-d_sex*dist_tzb
+d_sex*dist_from_timezone_boundary
 d_sex*eye_type
-d_sex*gmt
+d_sex*GMTOffset
 d_sex*meq
 d_sex*sduravg
-d_sex*season
+d_sex*seasonal
 d_sex*urban
 d_sex*workdays
-dist_tzb*Y
-dist_tzb*d_BMI
-dist_tzb*d_age
-dist_tzb*d_sex
-dist_tzb*eye_type
-dist_tzb*gmt
-dist_tzb*meq
-dist_tzb*sduravg
-dist_tzb*season
-dist_tzb*urban
-dist_tzb*workdays
+dist_from_timezone_boundary*Y
+dist_from_timezone_boundary*d_BMI
+dist_from_timezone_boundary*d_age
+dist_from_timezone_boundary*d_sex
+dist_from_timezone_boundary*eye_type
+dist_from_timezone_boundary*GMTOffset
+dist_from_timezone_boundary*meq
+dist_from_timezone_boundary*sduravg
+dist_from_timezone_boundary*seasonal
+dist_from_timezone_boundary*urban
+dist_from_timezone_boundary*workdays
 eye_type*Y
 eye_type*d_BMI
 eye_type*d_age
 eye_type*d_sex
-eye_type*dist_tzb
-eye_type*gmt
+eye_type*dist_from_timezone_boundary
+eye_type*GMTOffset
 eye_type*meq
 eye_type*sduravg
-eye_type*season
+eye_type*seasonal
 eye_type*urban
 eye_type*workdays
-gmt*Y
-gmt*d_BMI
-gmt*d_age
-gmt*d_sex
-gmt*dist_tzb
-gmt*eye_type
-gmt*meq
-gmt*sduravg
-gmt*season
-gmt*urban
-gmt*workdays
+GMTOffset*Y
+GMTOffset*d_BMI
+GMTOffset*d_age
+GMTOffset*d_sex
+GMTOffset*dist_from_timezone_boundary
+GMTOffset*eye_type
+GMTOffset*meq
+GMTOffset*sduravg
+GMTOffset*seasonal
+GMTOffset*urban
+GMTOffset*workdays
 meq*Y
 meq*d_BMI
 meq*d_age
 meq*d_sex
-meq*dist_tzb
+meq*dist_from_timezone_boundary
 meq*eye_type
-meq*gmt
+meq*GMTOffset
 meq*sduravg
-meq*season
+meq*seasonal
 meq*urban
 meq*workdays
 sduravg*Y
 sduravg*d_BMI
 sduravg*d_age
 sduravg*d_sex
-sduravg*dist_tzb
+sduravg*dist_from_timezone_boundary
 sduravg*eye_type
-sduravg*gmt
+sduravg*GMTOffset
 sduravg*meq
-sduravg*season
+sduravg*seasonal
 sduravg*urban
 sduravg*workdays
-season*Y
-season*d_BMI
-season*d_age
-season*d_sex
-season*dist_tzb
-season*eye_type
-season*gmt
-season*meq
-season*sduravg
-season*urban
-season*workdays
+seasonal*Y
+seasonal*d_BMI
+seasonal*d_age
+seasonal*d_sex
+seasonal*dist_from_timezone_boundary
+seasonal*eye_type
+seasonal*GMTOffset
+seasonal*meq
+seasonal*sduravg
+seasonal*urban
+seasonal*workdays
 urban*Y
 urban*d_BMI
 urban*d_age
 urban*d_sex
-urban*dist_tzb
+urban*dist_from_timezone_boundary
 urban*eye_type
-urban*gmt
+urban*GMTOffset
 urban*meq
 urban*sduravg
-urban*season
+urban*seasonal
 urban*workdays
 workdays*Y
 workdays*d_BMI
 workdays*d_age
 workdays*d_sex
-workdays*dist_tzb
+workdays*dist_from_timezone_boundary
 workdays*eye_type
-workdays*gmt
+workdays*GMTOffset
 workdays*meq
 workdays*sduravg
-workdays*season
+workdays*seasonal
 workdays*urban
 	
 		/ selection=stepwise slentry=0.3 slstay=0.35 details lackfit;
 run;
 
-
-/*** ***/
-/*
-
-data test;
-	input varname $;
-	cards;
-Ascore 
-season 
-Y 
-dist_tzb 
-d_age 
-d_sex 
-urban 
-d_BMI 
-workdays 
-meq 
-sduravg 
-gmt 
-eye_type
-;
-run;
-
-proc sql;
-	create table test2 as
-	select trim(a.varname) || '*' || trim(b.varname) as xprod
-	from test a, test b
-	where a.varname ne b.varname
-	order by xprod;
-quit;
-
-proc print data=test2; run;
-*/
 title 'Stepwise Logistic Regression of Seasonality Covariates';
-proc logistic data=sad_data_for_Anova;
-	model seasonal (event='1')=Ascore season Y dist_tzb d_age d_sex urban d_BMI workdays meq sduravg gmt eye_type
+proc logistic data=cet7.daylightsavings2;
+	model seasonal (event='1')=Ascore seasonal Y dist_from_timezone_boundary d_age d_sex urban d_BMI workdays meq sduravg GMTOffset eye_type
 Ascore*Y
 Ascore*d_BMI
 Ascore*d_age
 Ascore*d_sex
-Ascore*dist_tzb
+Ascore*dist_from_timezone_boundary
 Ascore*eye_type
-Ascore*gmt
+Ascore*GMTOffset
 Ascore*meq
 Ascore*sduravg
-Ascore*season
+Ascore*seasonal
 Ascore*urban
 Ascore*workdays
 Y*Ascore
 Y*d_BMI
 Y*d_age
 Y*d_sex
-Y*dist_tzb
+Y*dist_from_timezone_boundary
 Y*eye_type
-Y*gmt
+Y*GMTOffset
 Y*meq
 Y*sduravg
-Y*season
+Y*seasonal
 Y*urban
 Y*workdays
 d_BMI*Ascore
 d_BMI*Y
 d_BMI*d_age
 d_BMI*d_sex
-d_BMI*dist_tzb
+d_BMI*dist_from_timezone_boundary
 d_BMI*eye_type
-d_BMI*gmt
+d_BMI*GMTOffset
 d_BMI*meq
 d_BMI*sduravg
-d_BMI*season
+d_BMI*seasonal
 d_BMI*urban
 d_BMI*workdays
 d_age*Ascore
 d_age*Y
 d_age*d_BMI
 d_age*d_sex
-d_age*dist_tzb
+d_age*dist_from_timezone_boundary
 d_age*eye_type
-d_age*gmt
+d_age*GMTOffset
 d_age*meq
 d_age*sduravg
-d_age*season
+d_age*seasonal
 d_age*urban
 d_age*workdays
 d_sex*Ascore
 d_sex*Y
 d_sex*d_BMI
 d_sex*d_age
-d_sex*dist_tzb
+d_sex*dist_from_timezone_boundary
 d_sex*eye_type
-d_sex*gmt
+d_sex*GMTOffset
 d_sex*meq
 d_sex*sduravg
-d_sex*season
+d_sex*seasonal
 d_sex*urban
 d_sex*workdays
-dist_tzb*Ascore
-dist_tzb*Y
-dist_tzb*d_BMI
-dist_tzb*d_age
-dist_tzb*d_sex
-dist_tzb*eye_type
-dist_tzb*gmt
-dist_tzb*meq
-dist_tzb*sduravg
-dist_tzb*season
-dist_tzb*urban
-dist_tzb*workdays
+dist_from_timezone_boundary*Ascore
+dist_from_timezone_boundary*Y
+dist_from_timezone_boundary*d_BMI
+dist_from_timezone_boundary*d_age
+dist_from_timezone_boundary*d_sex
+dist_from_timezone_boundary*eye_type
+dist_from_timezone_boundary*GMTOffset
+dist_from_timezone_boundary*meq
+dist_from_timezone_boundary*sduravg
+dist_from_timezone_boundary*seasonal
+dist_from_timezone_boundary*urban
+dist_from_timezone_boundary*workdays
 eye_type*Ascore
 eye_type*Y
 eye_type*d_BMI
 eye_type*d_age
 eye_type*d_sex
-eye_type*dist_tzb
-eye_type*gmt
+eye_type*dist_from_timezone_boundary
+eye_type*GMTOffset
 eye_type*meq
 eye_type*sduravg
-eye_type*season
+eye_type*seasonal
 eye_type*urban
 eye_type*workdays
-gmt*Ascore
-gmt*Y
-gmt*d_BMI
-gmt*d_age
-gmt*d_sex
-gmt*dist_tzb
-gmt*eye_type
-gmt*meq
-gmt*sduravg
-gmt*season
-gmt*urban
-gmt*workdays
+GMTOffset*Ascore
+GMTOffset*Y
+GMTOffset*d_BMI
+GMTOffset*d_age
+GMTOffset*d_sex
+GMTOffset*dist_from_timezone_boundary
+GMTOffset*eye_type
+GMTOffset*meq
+GMTOffset*sduravg
+GMTOffset*seasonal
+GMTOffset*urban
+GMTOffset*workdays
 meq*Ascore
 meq*Y
 meq*d_BMI
 meq*d_age
 meq*d_sex
-meq*dist_tzb
+meq*dist_from_timezone_boundary
 meq*eye_type
-meq*gmt
+meq*GMTOffset
 meq*sduravg
-meq*season
+meq*seasonal
 meq*urban
 meq*workdays
 sduravg*Ascore
@@ -2731,163 +2627,153 @@ sduravg*Y
 sduravg*d_BMI
 sduravg*d_age
 sduravg*d_sex
-sduravg*dist_tzb
+sduravg*dist_from_timezone_boundary
 sduravg*eye_type
-sduravg*gmt
+sduravg*GMTOffset
 sduravg*meq
-sduravg*season
+sduravg*seasonal
 sduravg*urban
 sduravg*workdays
-season*Ascore
-season*Y
-season*d_BMI
-season*d_age
-season*d_sex
-season*dist_tzb
-season*eye_type
-season*gmt
-season*meq
-season*sduravg
-season*urban
-season*workdays
+seasonal*Ascore
+seasonal*Y
+seasonal*d_BMI
+seasonal*d_age
+seasonal*d_sex
+seasonal*dist_from_timezone_boundary
+seasonal*eye_type
+seasonal*GMTOffset
+seasonal*meq
+seasonal*sduravg
+seasonal*urban
+seasonal*workdays
 urban*Ascore
 urban*Y
 urban*d_BMI
 urban*d_age
 urban*d_sex
-urban*dist_tzb
+urban*dist_from_timezone_boundary
 urban*eye_type
-urban*gmt
+urban*GMTOffset
 urban*meq
 urban*sduravg
-urban*season
+urban*seasonal
 urban*workdays
 workdays*Ascore
 workdays*Y
 workdays*d_BMI
 workdays*d_age
 workdays*d_sex
-workdays*dist_tzb
+workdays*dist_from_timezone_boundary
 workdays*eye_type
-workdays*gmt
+workdays*GMTOffset
 workdays*meq
 workdays*sduravg
-workdays*season
+workdays*seasonal
 workdays*urban
 	
 		/ selection=stepwise slentry=0.3 slstay=0.35 details lackfit;
 run;
 
-/*** ***/
 title 'Stepwise Logistic Regression of Self-Reported Hypersomnia Covariates';
-proc logistic data=sad_data_for_Anova;
-	model s_hypsom (event='1')=Ascore season Y dist_tzb d_age d_sex urban d_BMI workdays meq sduravg gmt eye_type
+proc logistic data=cet7.daylightsavings2;
+	model seasonal_hypersom (event='1')=Ascore Y dist_from_timezone_boundary d_age d_sex urban d_BMI workdays meq sduravg GMTOffset eye_type
 Ascore*Y
 Ascore*d_BMI
 Ascore*d_age
 Ascore*d_sex
-Ascore*dist_tzb
+Ascore*dist_from_timezone_boundary
 Ascore*eye_type
-Ascore*gmt
+Ascore*GMTOffset
 Ascore*meq
 Ascore*sduravg
-Ascore*season
 Ascore*urban
 Ascore*workdays
 Y*Ascore
 Y*d_BMI
 Y*d_age
 Y*d_sex
-Y*dist_tzb
+Y*dist_from_timezone_boundary
 Y*eye_type
-Y*gmt
+Y*GMTOffset
 Y*meq
 Y*sduravg
-Y*season
 Y*urban
 Y*workdays
 d_BMI*Ascore
 d_BMI*Y
 d_BMI*d_age
 d_BMI*d_sex
-d_BMI*dist_tzb
+d_BMI*dist_from_timezone_boundary
 d_BMI*eye_type
-d_BMI*gmt
+d_BMI*GMTOffset
 d_BMI*meq
 d_BMI*sduravg
-d_BMI*season
 d_BMI*urban
 d_BMI*workdays
 d_age*Ascore
 d_age*Y
 d_age*d_BMI
 d_age*d_sex
-d_age*dist_tzb
+d_age*dist_from_timezone_boundary
 d_age*eye_type
-d_age*gmt
+d_age*GMTOffset
 d_age*meq
 d_age*sduravg
-d_age*season
 d_age*urban
 d_age*workdays
 d_sex*Ascore
 d_sex*Y
 d_sex*d_BMI
 d_sex*d_age
-d_sex*dist_tzb
+d_sex*dist_from_timezone_boundary
 d_sex*eye_type
-d_sex*gmt
+d_sex*GMTOffset
 d_sex*meq
 d_sex*sduravg
-d_sex*season
 d_sex*urban
 d_sex*workdays
-dist_tzb*Ascore
-dist_tzb*Y
-dist_tzb*d_BMI
-dist_tzb*d_age
-dist_tzb*d_sex
-dist_tzb*eye_type
-dist_tzb*gmt
-dist_tzb*meq
-dist_tzb*sduravg
-dist_tzb*season
-dist_tzb*urban
-dist_tzb*workdays
+dist_from_timezone_boundary*Ascore
+dist_from_timezone_boundary*Y
+dist_from_timezone_boundary*d_BMI
+dist_from_timezone_boundary*d_age
+dist_from_timezone_boundary*d_sex
+dist_from_timezone_boundary*eye_type
+dist_from_timezone_boundary*GMTOffset
+dist_from_timezone_boundary*meq
+dist_from_timezone_boundary*sduravg
+dist_from_timezone_boundary*urban
+dist_from_timezone_boundary*workdays
 eye_type*Ascore
 eye_type*Y
 eye_type*d_BMI
 eye_type*d_age
 eye_type*d_sex
-eye_type*dist_tzb
-eye_type*gmt
+eye_type*dist_from_timezone_boundary
+eye_type*GMTOffset
 eye_type*meq
 eye_type*sduravg
-eye_type*season
 eye_type*urban
 eye_type*workdays
-gmt*Ascore
-gmt*Y
-gmt*d_BMI
-gmt*d_age
-gmt*d_sex
-gmt*dist_tzb
-gmt*eye_type
-gmt*meq
-gmt*sduravg
-gmt*season
-gmt*urban
-gmt*workdays
+GMTOffset*Ascore
+GMTOffset*Y
+GMTOffset*d_BMI
+GMTOffset*d_age
+GMTOffset*d_sex
+GMTOffset*dist_from_timezone_boundary
+GMTOffset*eye_type
+GMTOffset*meq
+GMTOffset*sduravg
+GMTOffset*urban
+GMTOffset*workdays
 meq*Ascore
 meq*Y
 meq*d_BMI
 meq*d_age
 meq*d_sex
-meq*dist_tzb
+meq*dist_from_timezone_boundary
 meq*eye_type
-meq*gmt
+meq*GMTOffset
 meq*sduravg
-meq*season
 meq*urban
 meq*workdays
 sduravg*Ascore
@@ -2895,48 +2781,162 @@ sduravg*Y
 sduravg*d_BMI
 sduravg*d_age
 sduravg*d_sex
-sduravg*dist_tzb
+sduravg*dist_from_timezone_boundary
 sduravg*eye_type
-sduravg*gmt
+sduravg*GMTOffset
 sduravg*meq
-sduravg*season
 sduravg*urban
 sduravg*workdays
-season*Ascore
-season*Y
-season*d_BMI
-season*d_age
-season*d_sex
-season*dist_tzb
-season*eye_type
-season*gmt
-season*meq
-season*sduravg
-season*urban
-season*workdays
 urban*Ascore
 urban*Y
 urban*d_BMI
 urban*d_age
 urban*d_sex
-urban*dist_tzb
+urban*dist_from_timezone_boundary
 urban*eye_type
-urban*gmt
+urban*GMTOffset
 urban*meq
 urban*sduravg
-urban*season
+urban*seasonal
 urban*workdays
 workdays*Ascore
 workdays*Y
 workdays*d_BMI
 workdays*d_age
 workdays*d_sex
-workdays*dist_tzb
+workdays*dist_from_timezone_boundary
 workdays*eye_type
-workdays*gmt
+workdays*GMTOffset
 workdays*meq
 workdays*sduravg
-workdays*season
+workdays*seasonal
 workdays*urban	
 		/ selection=stepwise slentry=0.3 slstay=0.35 details lackfit;
 run;
+%mend Regressions_2;
+
+/* 
+6/3/2005 Conversation with Michael Terman
+
+Within timezone effect and latitude effect - are they separable (independent)?  
+Draw regression lines
+
+Is there a latitude effect for 39 and above?
+Can we graph interaction of Y*dist_from_timezone_boundary for Seasonality -- each separately 
+
+[ ] Do we have a latitude effect from 39-50 (Y) [31% of cases are below 39 degrees] [correlation]
+- What has strongest latitude effects?  E.g. winter depression, GSS, symptoms.
+- Latitude by longitude interaction (need south for latitidude)
+
+Is there different sleep duration? in winter and summer? YES
+proc sort data=daylightsavings3; by season;
+run;
+proc corr data=daylightsavings3;
+	by season;
+*	by MajorDepression_Dx;
+	with sduravg;
+	var Y;
+run;
+
+proc corr data=daylightsavings3;
+	with seas_mdd;
+	var Y;
+run;
+
+proc corr data=daylightsavings3;
+	with seas_mdd;
+	var dist_from_timezone_boundary;
+run;
+
+proc corr data=daylightsavings3;
+	where Y >= 39 and Y <= 50;
+	with seasonal_hypersom;
+	var dist_from_timezone_boundary;
+run;
+
+
+proc corr data=daylightsavings3;
+	with Bscore;
+	var Y;
+run;
+
+proc corr data=daylightsavings3;
+	where Y >= 39 and Y <= 50; 
+	with seasonal_hypersom;
+	var dist_from_timezone_boundary;
+run;
+
+
+
+-- why isn't this showing an interaction effect?
+
+[] What is the slope of the line (need regression constants - mx + b)
+[ ] Do we have a timezone effect from 39-50 (dist_from_timezone_boundary) -- plot each of these as a function of degrees
+
+[ ] Given 2.5 degree groupings to George, throwing out N below 20 (I can give it to him this way)
+
+[ ] Get rid of higher order interactions?
+[ ] Throw in all three way interactions just to see what it does
+
+[ ] How do we predict impact of extending daylight savings time on incidence of depression? -- look at November and March
+[ ] What is prevalence of Depressed mood in November and March? -- apply one hour later sunrise to current November / March
+Multiply odds ratio (percent change) of people in western timezone_side X percent worse than they are now
+
+[ ] Analyze BRFSS data? -- are they asking the right question
+
+[ ] When looking at Phi - keep subscale components (Cscores for November)
+
+*/
+/* 6/24/05 discussion *
+(1) Which sample are we using -- 
+  (a) fallback is to use original sample (east-EST, west-EST)
+  (b) add east-CST
+  (c) whole country 39-50
+  (d) whole country all latutides -- want to see interaction effect between Y and dist_from_timezone_boundary with no dist_from_timezone_boundary alone
+  -- do we just want to include respondants from the winter season (may have stronger effects) -- only filter to Winter if no strong conclusions all year
+(2) Dependent variables
+	(a) seas_mdd (Bscore > 11, seasonalality, Major Depression)
+	(b) Bscore
+	(c) Ascore
+	(d) A1-9
+	(e) Dscore - atypical neurovegetative
+(3) Independent variables
+	(a) Y
+	(b) dist_from_timezone_boundary
+	(c) Y * dist_from_timezone_boundary?
+	(d) sex
+	(e) age
+	(f) d_BMI
+(4) Map of sample distribution -- e.g. 3D with spikes - secondary (bin at 1 degree level and just show counts of respondants).
+
+*/
+
+%macro Regressions_3;
+proc logistic data=cet7.automeq;
+	model seasonal_hypersom (event='1')=Y dist_from_timezone_boundary Y*dist_from_timezone_boundary d_BMI d_age d_sex
+		/ selection=stepwise slentry=0.3 slstay=0.35 details lackfit;
+run;
+
+proc logistic data=cet7.automeq;
+	model seas_mdd (event='1')=Y dist_from_timezone_boundary Y*dist_from_timezone_boundary d_BMI d_age d_sex
+		/ selection=stepwise slentry=0.3 slstay=0.35 details lackfit;
+run;
+
+
+proc logistic data=cet7.automeq;
+	model Bscore (event='1')=Y dist_from_timezone_boundary Y*dist_from_timezone_boundary d_BMI d_age d_sex
+		/ selection=stepwise slentry=0.3 slstay=0.35 details lackfit;
+run;
+
+
+proc logistic data=cet7.automeq;
+	model Ascore (event='1')=Y dist_from_timezone_boundary Y*dist_from_timezone_boundary d_BMI d_age d_sex
+		/ selection=stepwise slentry=0.3 slstay=0.35 details lackfit;
+run;
+
+
+proc logistic data=cet7.automeq;
+	model Dscore (event='1')=Y dist_from_timezone_boundary Y*dist_from_timezone_boundary d_BMI d_age d_sex
+		/ selection=stepwise slentry=0.3 slstay=0.35 details lackfit;
+run;
+%mend Regressions_3;
