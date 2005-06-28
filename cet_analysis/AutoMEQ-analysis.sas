@@ -38,6 +38,7 @@ proc format;
 	value seasonf
 		1 = 'Winter'
 		2 = 'Summer'
+		3 = 'Other'
 	;
 	
 	value latbinf
@@ -98,6 +99,8 @@ proc format;
 	;
 run;
 
+options pagesize=80 linesize=120;
+	
 %mend SetInitParams;
 
 
@@ -423,7 +426,7 @@ data cet7.automeq; set cet7.automeq_zip;
 	format season seasonf.;
 	if (month >= 11 or month <= 2) then season = 1;
 	else if (month >= 4 and month <= 9) then season = 2;
-	else season = .;
+	else season = 3;
 		
 	format lat_bin latbinf.;
 	lat_bin = 0;
@@ -685,6 +688,11 @@ data cet7.automeq; set cet7.automeq_zip;
 	if (Bscore >= 11 and hasWinterSeasonality = 1 and A8 = 1) then restless = 1; else restless=0;
 	if (Bscore >= 11 and hasWinterSeasonality = 1 and A9 = 1) then suicidal = 1; else suicidal=0;
 	
+	if (Bscore >= 11 and hasWinterSeasonality = 1 and D2 = 1) then diff_awakening = 1; else diff_awakening=0;
+	if (Bscore >= 11 and hasWinterSeasonality = 1 and D7 = 1) then carbo_eating = 1; else carbo_eating=0;
+	if (Bscore >= 11 and hasWinterSeasonality = 1 and D9 = 1) then weight_gain = 1; else weight_gain=0;
+
+	
 	/* 5/20/05 revisions */
 	if (X >= -75 and X < -69) then timezone_band='east-EST';
 	else if ((X <= -81.5 and statecode in ('ME','NY','MA','VT','RI','CT','NJ','DE','MD','VA','NC','WV','PA','OH','MI'))
@@ -708,6 +716,26 @@ data cet7.automeq; set cet7.automeq_zip;
 	
 	X_2_5dg = round(X,2.5);
 	Y_2_5dg = round(Y,2.5);		
+	
+	Y_2dg = round(Y,2);
+	
+	/* Add binning by distance from Timezone for graphing purposes */
+	dtz_1dg = round(dist_from_timezone_boundary,1);
+	dtz_2p5dg = round(dist_from_timezone_boundary,2.5);
+	dtz_3dg = round(dist_from_timezone_boundary,3);
+	dtz_5dg = round(dist_from_timezone_boundary,5);
+	
+	dtz_4dg = round(dist_from_timezone_boundary,4);
+	
+	if (dtz_4dg > 16) then dtz_4dg = 20;
+	
+	Y_2dg = round(Y,2);
+	if (Y_2dg > 48) then Y_2dg = 50;		
+	
+	if (Y_2dg <= 26) then delete;	/* Do I really want to delete these? */
+
+	Y_4dg = round(Y,4);
+	if (Y_4dg > 48) then Y_4dg = 52;	
 run;
 
 /* distributions */
@@ -2911,32 +2939,214 @@ Multiply odds ratio (percent change) of people in western timezone_side X percen
 
 */
 
-%macro Regressions_3;
-proc logistic data=cet7.automeq;
-	model seasonal_hypersom (event='1')=Y dist_from_timezone_boundary Y*dist_from_timezone_boundary d_BMI d_age d_sex
-		/ selection=stepwise slentry=0.3 slstay=0.35 details lackfit;
-run;
+%macro RunAllRegressions;
+	data automeq; set cet7.automeq;
+		where keep=1;
+	run;
+	
+	%RunRegressions(automeq);
+	
+	data automeq_gt_39; set cet7.automeq;
+		where keep=1 and Y >= 39;
+	run;
+	
+	%RunRegressions(automeq_gt_39);
+	
+	data automeq_gt_39_winter; set automeq_gt_39;
+		where season=1;
+	run;
+	
+	%RunRegressions(automeq_gt_39_winter);
+	
+%mend;
 
-proc logistic data=cet7.automeq;
-	model seas_mdd (event='1')=Y dist_from_timezone_boundary Y*dist_from_timezone_boundary d_BMI d_age d_sex
-		/ selection=stepwise slentry=0.3 slstay=0.35 details lackfit;
-run;
+%macro RunRegressions(db);
+	%put '=============================================';
+	%put "======= START OF REGRESSIONS USING &db ========";
+	%put '=============================================';
+	%RunRegression(logistic, seasonal_hypersom, &db);
+	%RunRegression(logistic, seas_mdd, &db);
+	%RunRegression(reg, Bscore, &db);
+/*	%RunRegression(reg, Ascore, &db); */
+/*	%RunRegression(logistic, sleep_dist, &db); */
+	%RunRegression(logistic, fatigue_A2, &db);
+	%RunRegression(logistic, eating_dist, &db);
+	%RunRegression(logistic, anhedonia, &db);
+	%RunRegression(logistic, negative_thoughts, &db);
+	%RunRegression(logistic, concentration, &db);
+	%RunRegression(logistic, restless, &db);
+	%RunRegression(logistic, suicidal, &db);
+	%RunRegression(reg, Dscore, &db);
+	%RunRegression(logistic, diff_awakening, &db);
+	%RunRegression(logistic, carbo_eating, &db);
+	%RunRegression(logistic, weight_gain, &db);
+	%RunRegression(reg, smidavg, &db);
+	%RunRegression(reg, meq, &db);
+	%RunRegression(reg, sduravg, &db);
+	
+	%put '=============================================';
+	%put "======= END OF REGRESSIONS USING &db ========";
+	%put '=============================================';
+%mend RunRegressions;
+
+%macro CreateTimezoneBins;
+	proc sql;
+		create table automeq_gt39_dtz_3dg as
+		select 
+			dtz_3dg,
+			count(*) as N,
+			avg(seasonal_hypersom) as pct_seasonal_hypersom,
+			avg(seas_mdd) as pct_seas_mdd,
+			avg(fatigue_A2) as pct_fatigue_A2,
+			avg(eating_dist) as pct_eating_dist,
+			avg(anhedonia) as pct_anhedonia,
+			avg(negative_thoughts) as pct_guilt,
+			avg(concentration) as pct_concentration,
+			avg(restless) as pct_restless,
+			avg(suicidal) as pct_suicidal,
+			avg(diff_awakening) as pct_diff_awakening,
+			avg(carbo_eating) as pct_carbo_eating,
+			avg(weight_gain) as pct_weight_gain
+		from automeq_gt_39
+		group by dtz_3dg
+		order by dtz_3dg;
+	quit;
+
+	proc print data=automeq_gt39_dtz_3dg; run;
+	
+	proc sql;
+		create table automeq_gt39_dtz_4dg as
+		select 
+			dtz_4dg,
+			count(*) as N,
+			avg(seasonal_hypersom) as pct_seasonal_hypersom,
+			avg(seas_mdd) as pct_seas_mdd,
+			avg(fatigue_A2) as pct_fatigue_A2,
+			avg(eating_dist) as pct_eating_dist,
+			avg(anhedonia) as pct_anhedonia,
+			avg(negative_thoughts) as pct_guilt,
+			avg(concentration) as pct_concentration,
+			avg(restless) as pct_restless,
+			avg(suicidal) as pct_suicidal,
+			avg(diff_awakening) as pct_diff_awakening,
+			avg(carbo_eating) as pct_carbo_eating,
+			avg(weight_gain) as pct_weight_gain
+		from automeq_gt_39
+		group by dtz_4dg
+		order by dtz_4dg;
+	quit;
+
+	proc print data=automeq_gt39_dtz_4dg; run;	
+			
+	PROC EXPORT DATA= automeq_gt39_dtz_4dg 
+	            OUTFILE= "&cet7_06_lib\automeq_gt39_dtz_4dg.xls" 
+	            DBMS=EXCEL2000 REPLACE;
+	RUN;			
+	
+	proc sql;
+		create table automeq_gt39_Y_2dg as
+		select 
+			Y_2dg,
+			count(*) as N,
+			avg(seasonal_hypersom) as pct_seasonal_hypersom,
+			avg(seas_mdd) as pct_seas_mdd,
+			avg(fatigue_A2) as pct_fatigue_A2,
+			avg(eating_dist) as pct_eating_dist,
+			avg(anhedonia) as pct_anhedonia,
+			avg(negative_thoughts) as pct_guilt,
+			avg(concentration) as pct_concentration,
+			avg(restless) as pct_restless,
+			avg(suicidal) as pct_suicidal,
+			avg(diff_awakening) as pct_diff_awakening,
+			avg(carbo_eating) as pct_carbo_eating,
+			avg(weight_gain) as pct_weight_gain
+		from automeq_gt_39
+		group by Y_2dg
+		order by Y_2dg;
+	quit;
+
+	proc print data=automeq_gt39_Y_2dg; run;		
+			
+	PROC EXPORT DATA= automeq_gt39_Y_2dg 
+	            OUTFILE= "&cet7_06_lib\automeq_gt39_Y_2dg.xls" 
+	            DBMS=EXCEL2000 REPLACE;
+	RUN;	
+	
+	proc sql;
+		create table automeq_Y_4dg as
+		select 
+			Y_4dg,
+			count(*) as N,
+			avg(seasonal_hypersom) as pct_seasonal_hypersom,
+			avg(seas_mdd) as pct_seas_mdd,
+			avg(fatigue_A2) as pct_fatigue_A2,
+			avg(eating_dist) as pct_eating_dist,
+			avg(anhedonia) as pct_anhedonia,
+			avg(negative_thoughts) as pct_guilt,
+			avg(concentration) as pct_concentration,
+			avg(restless) as pct_restless,
+			avg(suicidal) as pct_suicidal,
+			avg(diff_awakening) as pct_diff_awakening,
+			avg(carbo_eating) as pct_carbo_eating,
+			avg(weight_gain) as pct_weight_gain
+		from automeq
+		group by Y_4dg
+		order by Y_4dg;
+	quit;
+
+	proc print data=automeq_Y_4dg; run;		
+			
+	PROC EXPORT DATA= automeq_Y_4dg 
+	            OUTFILE= "&cet7_06_lib\automeq_Y_4dg.xls" 
+	            DBMS=EXCEL2000 REPLACE;
+	RUN;												
+		
+%mend CreateTimezoneBins;
+
+%macro RunRegression(type,dependent,db);
+	%put '************************************************';
+	%put "***** START &type REGRESSION of &dependent using &db *****";
+	%put '************************************************';
+	title "REGRESSION(&type) of &dependent using &db";
+	proc &type data=&db;
+		model &dependent
+			%if (&type eq logistic) %then (event='1');
+		=Y dist_from_timezone_boundary /* d_BMI */ d_age d_sex /* season */
+			%if (&type eq logistic) %then %do;
+			Y*dist_from_timezone_boundary 
+			/*
+			d_BMI*dist_from_timezone_boundary d_age*dist_from_timezone_boundary d_sex*dist_from_timezone_boundary
+			d_BMI*Y d_age*Y d_sex*Y 
+			season*d_BMI
+			season*d_BMI*Y season*d_BMI*dist_from_timezone_boundary
+			*/
+		%end;
+			/ selection=stepwise slentry=0.3 slstay=0.35 details
+			%if (&type eq logistic) %then lackfit;
+				;
+	run;
+	%put '************************************************';
+	%put "***** END &type REGRESSION of &dependent using &db ****";
+	%put '************************************************';	
+%mend RunRegression;
 
 
-proc logistic data=cet7.automeq;
-	model Bscore (event='1')=Y dist_from_timezone_boundary Y*dist_from_timezone_boundary d_BMI d_age d_sex
-		/ selection=stepwise slentry=0.3 slstay=0.35 details lackfit;
-run;
+%SetInitParams;
+%ProcessAutoMeqData;
+%RunAllRegressions;
+%RunAllRegressions;
 
 
-proc logistic data=cet7.automeq;
-	model Ascore (event='1')=Y dist_from_timezone_boundary Y*dist_from_timezone_boundary d_BMI d_age d_sex
-		/ selection=stepwise slentry=0.3 slstay=0.35 details lackfit;
-run;
+/* Notes from June 28, 2005 *
 
+Scatterplot - show for only 39 and above?
 
-proc logistic data=cet7.automeq;
-	model Dscore (event='1')=Y dist_from_timezone_boundary Y*dist_from_timezone_boundary d_BMI d_age d_sex
-		/ selection=stepwise slentry=0.3 slstay=0.35 details lackfit;
-run;
-%mend Regressions_3;
+How do we interpret the goodness of fit test?
+
+[ ] Table of regression equations e.g. Depression = mx + b -- ideally for all three samples (automeq, automeq_39, winter_only)
+[ ] Table of p values for each parameter for each equation
+[ ] Total R-squared?  -- how much variance is predicted by model?
+[ ] Paragarph re criteria for inclusion/exclusion within a stepwise regression (e.g. which parameters used for retain/omit)
+[ ] Map of respondants from George with 3D distribution?  2D map is good too (at 2.5 degrees) (just Ns at those degrees)
+
+*/
