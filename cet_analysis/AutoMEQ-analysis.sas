@@ -2939,25 +2939,37 @@ Multiply odds ratio (percent change) of people in western timezone_side X percen
 
 */
 
-%macro RunAllRegressions;
-	data automeq; set cet7.automeq;
+%macro MakeDataSubsets;
+	data cet7.automeq_keepers; set cet7.automeq;
 		where keep=1;
+		/* create constants needed for regression, which can't seem to model them itself */
+		Y_x_dist_from_tzb = Y*dist_from_timezone_boundary;
+		BMI_x_dist_from_tzb = d_BMI*dist_from_timezone_boundary;
+		age_x_dist_from_tzb = d_age*dist_from_timezone_boundary;
+		sex_x_dist_from_tzb = d_sex*dist_from_timezone_boundary;
+		BMI_x_Y = d_BMI*Y;
+		age_x_Y = d_age*Y;
+		sex_x_Y = d_sex*Y;
+		season_x_BMI = season*d_BMI;
+		season_x_BMI_x_Y = season*d_BMI*Y;
+		season_x_BMI_x_dist_tzb = season*d_BMI*dist_from_timezone_boundary;		
 	run;
 	
-	%RunRegressions(automeq);
+	data cet7.automeq_gt_39; set cet7.automeq_keepers;
+		where Y >= 39;
+	run;	
 	
-	data automeq_gt_39; set cet7.automeq;
-		where keep=1 and Y >= 39;
-	run;
-	
-	%RunRegressions(automeq_gt_39);
-	
-	data automeq_gt_39_winter; set automeq_gt_39;
+	data cet7.automeq_gt_39_winter; set cet7.automeq_gt_39;
 		where season=1;
-	run;
+	run;	
+%mend MakeDataSubsets;
+
+%macro RunAllRegressions;
+	%RunRegressions(cet7.automeq_keepers);
 	
-	%RunRegressions(automeq_gt_39_winter);
+	%RunRegressions(cet7.automeq_gt_39);
 	
+	%RunRegressions(cet7.automeq_gt_39_winter);
 %mend;
 
 %macro RunRegressions(db);
@@ -3007,7 +3019,7 @@ Multiply odds ratio (percent change) of people in western timezone_side X percen
 			avg(diff_awakening) as pct_diff_awakening,
 			avg(carbo_eating) as pct_carbo_eating,
 			avg(weight_gain) as pct_weight_gain
-		from automeq_gt_39
+		from cet7.automeq_gt_39
 		group by dtz_3dg
 		order by dtz_3dg;
 	quit;
@@ -3031,7 +3043,7 @@ Multiply odds ratio (percent change) of people in western timezone_side X percen
 			avg(diff_awakening) as pct_diff_awakening,
 			avg(carbo_eating) as pct_carbo_eating,
 			avg(weight_gain) as pct_weight_gain
-		from automeq_gt_39
+		from cet7.automeq_gt_39
 		group by dtz_4dg
 		order by dtz_4dg;
 	quit;
@@ -3060,7 +3072,7 @@ Multiply odds ratio (percent change) of people in western timezone_side X percen
 			avg(diff_awakening) as pct_diff_awakening,
 			avg(carbo_eating) as pct_carbo_eating,
 			avg(weight_gain) as pct_weight_gain
-		from automeq_gt_39
+		from cet7.automeq_gt_39
 		group by Y_2dg
 		order by Y_2dg;
 	quit;
@@ -3089,7 +3101,7 @@ Multiply odds ratio (percent change) of people in western timezone_side X percen
 			avg(diff_awakening) as pct_diff_awakening,
 			avg(carbo_eating) as pct_carbo_eating,
 			avg(weight_gain) as pct_weight_gain
-		from automeq
+		from cet7.automeq_keepers
 		group by Y_4dg
 		order by Y_4dg;
 	quit;
@@ -3109,21 +3121,36 @@ Multiply odds ratio (percent change) of people in western timezone_side X percen
 	%put '************************************************';
 	title "REGRESSION(&type) of &dependent using &db";
 	proc &type data=&db;
+		%if (&type eq logistic) %then %do;
+			class d_sex;
+		%end;
 		model &dependent
 			%if (&type eq logistic) %then (event='1');
-		=Y dist_from_timezone_boundary /* d_BMI */ d_age d_sex /* season */
+				=Y dist_from_timezone_boundary /* d_BMI */ d_age d_sex /* season */
 			%if (&type eq logistic) %then %do;
-			Y*dist_from_timezone_boundary 
-			/*
-			d_BMI*dist_from_timezone_boundary d_age*dist_from_timezone_boundary d_sex*dist_from_timezone_boundary
-			d_BMI*Y d_age*Y d_sex*Y 
-			season*d_BMI
-			season*d_BMI*Y season*d_BMI*dist_from_timezone_boundary
-			*/
+				Y*dist_from_timezone_boundary 
+			%end;
+			%else %do;
+				Y_x_dist_from_tzb
+				/*
+				BMI_x_dist_from_tzb
+				age_x_dist_from_tzb 
+				sex_x_dist_from_tzb
+				BMI_x_Y
+				age_x_Y
+				sex_x_Y
+				season_x_BMI
+				season_x_BMI_x_Y
+				season_x_BMI_x_dist_tzb	
+				*/		
 		%end;
 			/ selection=stepwise slentry=0.3 slstay=0.35 details
-			%if (&type eq logistic) %then lackfit;
+			%if (&type eq logistic) %then lackfit expb;
 				;
+		%if (&type eq reg) %then %do;
+			plot &dependent*Y / conf pred cframe=ligr;
+			plot &dependent*dist_from_timezone_boundary / conf pred cframe=ligr;
+		%end;
 	run;
 	%put '************************************************';
 	%put "***** END &type REGRESSION of &dependent using &db ****";
@@ -3132,9 +3159,13 @@ Multiply odds ratio (percent change) of people in western timezone_side X percen
 
 
 %SetInitParams;
+
+/*
 %ProcessAutoMeqData;
+%MakeDataSubsets;
 %RunAllRegressions;
-%RunAllRegressions;
+%CreateTimezoneBins;
+*/
 
 
 /* Notes from June 28, 2005 *
