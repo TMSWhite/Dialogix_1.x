@@ -3131,7 +3131,84 @@ Multiply odds ratio (percent change) of people in western timezone_side X percen
 	PROC EXPORT DATA= automeq_Y_4dg 
 	            OUTFILE= "&cet7_06_lib\automeq_Y_4dg.xls" 
 	            DBMS=EXCEL2000 REPLACE;
-	RUN;												
+	RUN;								
+	
+	/* Also make bins for winter respondants only to show no variable in sleep midpoint, duration, and MEQ */
+	data automeq_gt_39_winter; set cet7.automeq_gt_39;
+		where season=1;
+	run;	
+	
+	data automeq_winter; set cet7.automeq_keepers;
+		where season=1;
+	run;	
+
+	proc sql;
+		create table automeq_gt39_winter_dtz_4dg as
+		select 
+			dtz_4dg,
+			min(dist_from_timezone_boundary) as min_dtz,
+			max(dist_from_timezone_boundary) as max_dtz,			
+			count(*) as N,
+			avg(seasonal_hypersom) as pct_seasonal_hypersom,
+			avg(seas_mdd) as pct_seas_mdd,
+			avg(fatigue_A2) as pct_fatigue_A2,
+			avg(eating_dist) as pct_eating_dist,
+			avg(anhedonia) as pct_anhedonia,
+			avg(negative_thoughts) as pct_guilt,
+			avg(concentration) as pct_concentration,
+			avg(restless) as pct_restless,
+			avg(suicidal) as pct_suicidal,
+			avg(diff_awakening) as pct_diff_awakening,
+			avg(carbo_eating) as pct_carbo_eating,
+			avg(weight_gain) as pct_weight_gain,
+			avg(meq) as avg_meq,
+			avg(smidavg) as avg_smidavg,
+			avg(sduravg) as avg_sduravg		
+		from automeq_gt_39_winter
+		group by dtz_4dg
+		order by dtz_4dg;
+	quit;
+
+	proc print data=automeq_gt39_winter_dtz_4dg; run;	
+			
+	PROC EXPORT DATA= automeq_gt39_winter_dtz_4dg 
+	            OUTFILE= "&cet7_06_lib\automeq_gt39_winter_dtz_4dg.xls" 
+	            DBMS=EXCEL2000 REPLACE;
+	RUN;			
+
+	proc sql;
+		create table automeq_winter_Y_4dg as
+		select 
+			Y_4dg,
+			min(Y) as min_Y,
+			max(Y) as max_Y,			
+			count(*) as N,
+			avg(seasonal_hypersom) as pct_seasonal_hypersom,
+			avg(seas_mdd) as pct_seas_mdd,
+			avg(fatigue_A2) as pct_fatigue_A2,
+			avg(eating_dist) as pct_eating_dist,
+			avg(anhedonia) as pct_anhedonia,
+			avg(negative_thoughts) as pct_guilt,
+			avg(concentration) as pct_concentration,
+			avg(restless) as pct_restless,
+			avg(suicidal) as pct_suicidal,
+			avg(diff_awakening) as pct_diff_awakening,
+			avg(carbo_eating) as pct_carbo_eating,
+			avg(weight_gain) as pct_weight_gain,
+			avg(meq) as avg_meq,
+			avg(smidavg) as avg_smidavg,
+			avg(sduravg) as avg_sduravg		
+		from automeq_winter
+		group by Y_4dg
+		order by Y_4dg;
+	quit;
+
+	proc print data=automeq_winter_Y_4dg; run;		
+			
+	PROC EXPORT DATA= automeq_winter_Y_4dg 
+	            OUTFILE= "&cet7_06_lib\automeq_winter_Y_4dg.xls" 
+	            DBMS=EXCEL2000 REPLACE;
+	RUN;																	
 		
 %mend CreateTimezoneBins;
 
