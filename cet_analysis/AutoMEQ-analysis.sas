@@ -3006,6 +3006,8 @@ Multiply odds ratio (percent change) of people in western timezone_side X percen
 		create table automeq_gt39_dtz_3dg as
 		select 
 			dtz_3dg,
+			min(dist_from_timezone_boundary) as min_dtz,
+			max(dist_from_timezone_boundary) as max_dtz,
 			count(*) as N,
 			avg(seasonal_hypersom) as pct_seasonal_hypersom,
 			avg(seas_mdd) as pct_seas_mdd,
@@ -3018,7 +3020,10 @@ Multiply odds ratio (percent change) of people in western timezone_side X percen
 			avg(suicidal) as pct_suicidal,
 			avg(diff_awakening) as pct_diff_awakening,
 			avg(carbo_eating) as pct_carbo_eating,
-			avg(weight_gain) as pct_weight_gain
+			avg(weight_gain) as pct_weight_gain,
+			avg(meq) as avg_meq,
+			avg(smidavg) as avg_smidavg,
+			avg(sduravg) as avg_sduravg
 		from cet7.automeq_gt_39
 		group by dtz_3dg
 		order by dtz_3dg;
@@ -3030,6 +3035,8 @@ Multiply odds ratio (percent change) of people in western timezone_side X percen
 		create table automeq_gt39_dtz_4dg as
 		select 
 			dtz_4dg,
+			min(dist_from_timezone_boundary) as min_dtz,
+			max(dist_from_timezone_boundary) as max_dtz,			
 			count(*) as N,
 			avg(seasonal_hypersom) as pct_seasonal_hypersom,
 			avg(seas_mdd) as pct_seas_mdd,
@@ -3042,7 +3049,10 @@ Multiply odds ratio (percent change) of people in western timezone_side X percen
 			avg(suicidal) as pct_suicidal,
 			avg(diff_awakening) as pct_diff_awakening,
 			avg(carbo_eating) as pct_carbo_eating,
-			avg(weight_gain) as pct_weight_gain
+			avg(weight_gain) as pct_weight_gain,
+			avg(meq) as avg_meq,
+			avg(smidavg) as avg_smidavg,
+			avg(sduravg) as avg_sduravg		
 		from cet7.automeq_gt_39
 		group by dtz_4dg
 		order by dtz_4dg;
@@ -3059,6 +3069,8 @@ Multiply odds ratio (percent change) of people in western timezone_side X percen
 		create table automeq_gt39_Y_2dg as
 		select 
 			Y_2dg,
+			min(Y) as min_Y,
+			max(Y) as max_Y,			
 			count(*) as N,
 			avg(seasonal_hypersom) as pct_seasonal_hypersom,
 			avg(seas_mdd) as pct_seas_mdd,
@@ -3071,7 +3083,10 @@ Multiply odds ratio (percent change) of people in western timezone_side X percen
 			avg(suicidal) as pct_suicidal,
 			avg(diff_awakening) as pct_diff_awakening,
 			avg(carbo_eating) as pct_carbo_eating,
-			avg(weight_gain) as pct_weight_gain
+			avg(weight_gain) as pct_weight_gain,
+			avg(meq) as avg_meq,
+			avg(smidavg) as avg_smidavg,
+			avg(sduravg) as avg_sduravg		
 		from cet7.automeq_gt_39
 		group by Y_2dg
 		order by Y_2dg;
@@ -3088,6 +3103,8 @@ Multiply odds ratio (percent change) of people in western timezone_side X percen
 		create table automeq_Y_4dg as
 		select 
 			Y_4dg,
+			min(Y) as min_Y,
+			max(Y) as max_Y,			
 			count(*) as N,
 			avg(seasonal_hypersom) as pct_seasonal_hypersom,
 			avg(seas_mdd) as pct_seas_mdd,
@@ -3100,7 +3117,10 @@ Multiply odds ratio (percent change) of people in western timezone_side X percen
 			avg(suicidal) as pct_suicidal,
 			avg(diff_awakening) as pct_diff_awakening,
 			avg(carbo_eating) as pct_carbo_eating,
-			avg(weight_gain) as pct_weight_gain
+			avg(weight_gain) as pct_weight_gain,
+			avg(meq) as avg_meq,
+			avg(smidavg) as avg_smidavg,
+			avg(sduravg) as avg_sduravg		
 		from cet7.automeq_keepers
 		group by Y_4dg
 		order by Y_4dg;
@@ -3123,6 +3143,7 @@ Multiply odds ratio (percent change) of people in western timezone_side X percen
 	proc &type data=&db;
 		%if (&type eq logistic) %then %do;
 			class d_sex;
+			units dist_from_timezone_boundary = 1 2.5 5 10 15;
 		%end;
 		model &dependent
 			%if (&type eq logistic) %then (event='1');
@@ -3145,11 +3166,13 @@ Multiply odds ratio (percent change) of people in western timezone_side X percen
 				*/		
 		%end;
 			/ selection=stepwise slentry=0.3 slstay=0.35 details
-			%if (&type eq logistic) %then lackfit expb;
+			%if (&type eq logistic) %then lackfit rsquare stb;
 				;
 		%if (&type eq reg) %then %do;
+			/*
 			plot &dependent*Y / conf pred cframe=ligr;
 			plot &dependent*dist_from_timezone_boundary / conf pred cframe=ligr;
+			*/
 		%end;
 	run;
 	%put '************************************************';
