@@ -2962,6 +2962,10 @@ Multiply odds ratio (percent change) of people in western timezone_side X percen
 	data cet7.automeq_gt_39_winter; set cet7.automeq_gt_39;
 		where season=1;
 	run;	
+	
+	data cet7.automeq_winter; set cet7.automeq_keepers;
+		where season=1;
+	run;		
 %mend MakeDataSubsets;
 
 %macro RunAllRegressions;
@@ -2970,6 +2974,9 @@ Multiply odds ratio (percent change) of people in western timezone_side X percen
 	%RunRegressions(cet7.automeq_gt_39);
 	
 	%RunRegressions(cet7.automeq_gt_39_winter);
+	
+	%RunRegressions(cet7.automeq_winter);
+	
 %mend;
 
 %macro RunRegressions(db);
@@ -2977,6 +2984,10 @@ Multiply odds ratio (percent change) of people in western timezone_side X percen
 	%put "======= START OF REGRESSIONS USING &db ========";
 	%put '=============================================';
 	%RunRegression(logistic, seasonal_hypersom, &db);
+	%RunRegression(logistic, is_hypsomsr, &db);
+	%RunRegression(logistic, D1, &db);
+	%RunRegression(reg, hypsomsr, &db);
+	
 	%RunRegression(logistic, seas_mdd, &db);
 	%RunRegression(reg, Bscore, &db);
 /*	%RunRegression(reg, Ascore, &db); */
@@ -3002,6 +3013,7 @@ Multiply odds ratio (percent change) of people in western timezone_side X percen
 %mend RunRegressions;
 
 %macro CreateTimezoneBins;
+	/*
 	proc sql;
 		create table automeq_gt39_dtz_3dg as
 		select 
@@ -3030,6 +3042,7 @@ Multiply odds ratio (percent change) of people in western timezone_side X percen
 	quit;
 
 	proc print data=automeq_gt39_dtz_3dg; run;
+	*/
 	
 	proc sql;
 		create table automeq_gt39_dtz_4dg as
@@ -3039,6 +3052,9 @@ Multiply odds ratio (percent change) of people in western timezone_side X percen
 			max(dist_from_timezone_boundary) as max_dtz,			
 			count(*) as N,
 			avg(seasonal_hypersom) as pct_seasonal_hypersom,
+			avg(D1) as pct_D1_hypersom,
+			avg(hypsomsr) as avg_winter_hypersom_months,
+			avg(is_hypsomsr) as pct_atleast_1_hypersom_month,
 			avg(seas_mdd) as pct_seas_mdd,
 			avg(fatigue_A2) as pct_fatigue_A2,
 			avg(eating_dist) as pct_eating_dist,
@@ -3065,6 +3081,7 @@ Multiply odds ratio (percent change) of people in western timezone_side X percen
 	            DBMS=EXCEL2000 REPLACE;
 	RUN;			
 	
+	/*
 	proc sql;
 		create table automeq_gt39_Y_2dg as
 		select 
@@ -3073,6 +3090,9 @@ Multiply odds ratio (percent change) of people in western timezone_side X percen
 			max(Y) as max_Y,			
 			count(*) as N,
 			avg(seasonal_hypersom) as pct_seasonal_hypersom,
+			avg(D1) as pct_D1_hypersom,
+			avg(hypsomsr) as avg_winter_hypersom_months,
+			avg(is_hypsomsr) as pct_atleast_1_hypersom_month,			
 			avg(seas_mdd) as pct_seas_mdd,
 			avg(fatigue_A2) as pct_fatigue_A2,
 			avg(eating_dist) as pct_eating_dist,
@@ -3098,6 +3118,7 @@ Multiply odds ratio (percent change) of people in western timezone_side X percen
 	            OUTFILE= "&cet7_06_lib\automeq_gt39_Y_2dg.xls" 
 	            DBMS=EXCEL2000 REPLACE;
 	RUN;	
+	*/
 	
 	proc sql;
 		create table automeq_Y_4dg as
@@ -3107,6 +3128,9 @@ Multiply odds ratio (percent change) of people in western timezone_side X percen
 			max(Y) as max_Y,			
 			count(*) as N,
 			avg(seasonal_hypersom) as pct_seasonal_hypersom,
+			avg(D1) as pct_D1_hypersom,
+			avg(hypsomsr) as avg_winter_hypersom_months,
+			avg(is_hypsomsr) as pct_atleast_1_hypersom_month,			
 			avg(seas_mdd) as pct_seas_mdd,
 			avg(fatigue_A2) as pct_fatigue_A2,
 			avg(eating_dist) as pct_eating_dist,
@@ -3134,13 +3158,6 @@ Multiply odds ratio (percent change) of people in western timezone_side X percen
 	RUN;								
 	
 	/* Also make bins for winter respondants only to show no variable in sleep midpoint, duration, and MEQ */
-	data automeq_gt_39_winter; set cet7.automeq_gt_39;
-		where season=1;
-	run;	
-	
-	data automeq_winter; set cet7.automeq_keepers;
-		where season=1;
-	run;	
 
 	proc sql;
 		create table automeq_gt39_winter_dtz_4dg as
@@ -3150,6 +3167,9 @@ Multiply odds ratio (percent change) of people in western timezone_side X percen
 			max(dist_from_timezone_boundary) as max_dtz,			
 			count(*) as N,
 			avg(seasonal_hypersom) as pct_seasonal_hypersom,
+			avg(D1) as pct_D1_hypersom,
+			avg(hypsomsr) as avg_winter_hypersom_months,
+			avg(is_hypsomsr) as pct_atleast_1_hypersom_month,			
 			avg(seas_mdd) as pct_seas_mdd,
 			avg(fatigue_A2) as pct_fatigue_A2,
 			avg(eating_dist) as pct_eating_dist,
@@ -3164,7 +3184,7 @@ Multiply odds ratio (percent change) of people in western timezone_side X percen
 			avg(meq) as avg_meq,
 			avg(smidavg) as avg_smidavg,
 			avg(sduravg) as avg_sduravg		
-		from automeq_gt_39_winter
+		from cet7.automeq_gt_39_winter
 		group by dtz_4dg
 		order by dtz_4dg;
 	quit;
@@ -3184,6 +3204,9 @@ Multiply odds ratio (percent change) of people in western timezone_side X percen
 			max(Y) as max_Y,			
 			count(*) as N,
 			avg(seasonal_hypersom) as pct_seasonal_hypersom,
+			avg(D1) as pct_D1_hypersom,
+			avg(hypsomsr) as avg_winter_hypersom_months,
+			avg(is_hypsomsr) as pct_atleast_1_hypersom_month,			
 			avg(seas_mdd) as pct_seas_mdd,
 			avg(fatigue_A2) as pct_fatigue_A2,
 			avg(eating_dist) as pct_eating_dist,
@@ -3198,7 +3221,7 @@ Multiply odds ratio (percent change) of people in western timezone_side X percen
 			avg(meq) as avg_meq,
 			avg(smidavg) as avg_smidavg,
 			avg(sduravg) as avg_sduravg		
-		from automeq_winter
+		from cet7.automeq_winter
 		group by Y_4dg
 		order by Y_4dg;
 	quit;
