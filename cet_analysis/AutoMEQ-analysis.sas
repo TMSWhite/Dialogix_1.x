@@ -2953,6 +2953,8 @@ Multiply odds ratio (percent change) of people in western timezone_side X percen
 		season_x_BMI = season*d_BMI;
 		season_x_BMI_x_Y = season*d_BMI*Y;
 		season_x_BMI_x_dist_tzb = season*d_BMI*dist_from_timezone_boundary;		
+		
+		if (statecode = 'AK') then delete;	/* 7/1/05 - remove Alaska from analyses */
 	run;
 	
 	data cet7.automeq_gt_39; set cet7.automeq_keepers;
@@ -3243,7 +3245,7 @@ Multiply odds ratio (percent change) of people in western timezone_side X percen
 	proc &type data=&db;
 		%if (&type eq logistic) %then %do;
 			class d_sex;
-			units dist_from_timezone_boundary = 1 2.5 5 10 15;
+			units dist_from_timezone_boundary = 15 Y = 20;
 		%end;
 		model &dependent
 			%if (&type eq logistic) %then (event='1');
@@ -3266,7 +3268,7 @@ Multiply odds ratio (percent change) of people in western timezone_side X percen
 				*/		
 		%end;
 			/ selection=stepwise slentry=0.3 slstay=0.35 details
-			%if (&type eq logistic) %then lackfit rsquare stb;
+			%if (&type eq logistic) %then lackfit rsquare stb clodds=wald;
 				;
 		%if (&type eq reg) %then %do;
 			/*
@@ -3304,3 +3306,176 @@ How do we interpret the goodness of fit test?
 [ ] Map of respondants from George with 3D distribution?  2D map is good too (at 2.5 degrees) (just Ns at those degrees)
 
 */
+
+/* Notes from July 15, 2005 *
+(1) Graph - show ramp function repeated over timezones?
+(2) can we retain data - what are minimum variables we need? - what about dropping MEQ criteria?  Can we regain any? - NO
+(3) Validating data against SPARC data?  How do I get it?  How do we see seasonality in those data?  e.g. springtime peak in suicide (but no clear proof that SAD)
+(4) Do other states have data like these so that we can see timezone effect? -- not enough geography in NYS? - Via CDC?
+(5) Are there national databases on suicide incidence? Ask Madeline Gould  543-5329
+(6) Graph of patterns of worst months - there is a small phase difference
+(7) Re-do phase analyses for Sleep (Part C-4), and energy (Part C-5)
+*/
+
+%macro Analyses_20050715;
+data PIDS_3_data; set cet7.automeq_keepers;
+	JanDiff = CscrJanB - CscrJanA;
+	FebDiff = CscrFebB - CscrFebA;
+	MarDiff = CscrMarB - CscrMarA;
+	AprDiff = CscrAprB - CscrAprA;
+	MayDiff = CscrMayB - CscrMayA;
+	JunDiff = CscrJunB - CscrJunA;
+	JulDiff = CscrJulB - CscrJulA;
+	AugDiff = CscrAugB - CscrAugA;
+	SepDiff = CscrSepB - CscrSepA;
+	OctDiff = CscrOctB - CscrOctA;
+	NovDiff = CscrNovB - CscrNovA;
+	DecDiff = CscrDecB - CscrDecA;
+	
+	Jan4Diff = C4B_Jan - C4A_Jan;
+	Feb4Diff = C4B_Feb - C4A_Feb;
+	Mar4Diff = C4B_Mar - C4A_Mar;
+	Apr4Diff = C4B_Apr - C4A_Apr;
+	May4Diff = C4B_May - C4A_May;
+	Jun4Diff = C4B_Jun - C4A_Jun;
+	Jul4Diff = C4B_Jul - C4A_Jul;
+	Aug4Diff = C4B_Aug - C4A_Aug;
+	Sep4Diff = C4B_Sep - C4A_Sep;
+	Oct4Diff = C4B_Oct - C4A_Oct;
+	Nov4Diff = C4B_Nov - C4A_Nov;
+	Dec4Diff = C4B_Dec - C4A_Dec;	
+	
+	Jan5Diff = C5B_Jan - C5A_Jan;
+	Feb5Diff = C5B_Feb - C5A_Feb;
+	Mar5Diff = C5B_Mar - C5A_Mar;
+	Apr5Diff = C5B_Apr - C5A_Apr;
+	May5Diff = C5B_May - C5A_May;
+	Jun5Diff = C5B_Jun - C5A_Jun;
+	Jul5Diff = C5B_Jul - C5A_Jul;
+	Aug5Diff = C5B_Aug - C5A_Aug;
+	Sep5Diff = C5B_Sep - C5A_Sep;
+	Oct5Diff = C5B_Oct - C5A_Oct;
+	Nov5Diff = C5B_Nov - C5A_Nov;
+	Dec5Diff = C5B_Dec - C5A_Dec;		
+	
+	if (d_age < 22) then delete;	/* remove children */
+	if (d_age > 70) then delete;	/* remove elderly */
+	where (Y >= 39 and Y <= 50 and keep=1);	/* keep restricted latitude band */	
+run;	
+
+/* Is there a phase difference between east and west? */
+proc sql;
+	create table PIDS_3 as
+	select 
+		timezone_side,
+		count(*) as N,
+		avg(AprDiff) / 6 as avgApr,
+		avg(MayDiff) / 6 as avgMay,
+		avg(JunDiff) / 6 as avgJun,
+		avg(JulDiff) / 6 as avgJul,
+		avg(AugDiff) / 6 as avgAug,
+		avg(SepDiff) / 6 as avgSep,
+		avg(OctDiff) / 6 as avgOct,
+		avg(NovDiff) / 6 as avgNov,
+		avg(DecDiff) / 6 as avgDec,
+		avg(JanDiff) / 6 as avgJan,
+		avg(FebDiff) / 6 as avgFeb,
+		avg(MarDiff) / 6 as avgMar,
+		avg(AprDiff) / 6 as avgApr2
+ 	from PIDS_3_data
+ 	group by timezone_side
+	;
+quit;
+
+PROC EXPORT DATA= work.PIDS_3 
+            OUTFILE= "&cet7_06_lib\Pids3_diff.xls" 
+            DBMS=EXCEL2000 REPLACE;
+RUN;
+
+/* Is it better to look just at the bad winter months? */
+proc sql;
+	create table PIDS_3worse as
+	select 
+		timezone_side,
+		count(*) as N,
+		avg(CscrAprA) / 6 as avgApr,
+		avg(CscrMayA) / 6 as avgMay,
+		avg(CscrJunA) / 6 as avgJun,
+		avg(CscrJulA) / 6 as avgJul,
+		avg(CscrAugA) / 6 as avgAug,
+		avg(CscrSepA) / 6 as avgSep,
+		avg(CscrOctA) / 6 as avgOct,
+		avg(CscrNovA) / 6 as avgNov,
+		avg(CscrDecA) / 6 as avgDec,
+		avg(CscrJanA) / 6 as avgJan,
+		avg(CscrFebA) / 6 as avgFeb,
+		avg(CscrMarA) / 6 as avgMar,
+		avg(CscrAprA) / 6 as avgApr2
+ 	from PIDS_3_data
+ 	group by timezone_side
+	;
+quit;
+
+PROC EXPORT DATA= work.PIDS_3worse 
+            OUTFILE= "&cet7_06_lib\Pids3_worse_diff.xls" 
+            DBMS=EXCEL2000 REPLACE;
+RUN;
+
+proc sql;
+	create table PIDS_3_sleep as
+	select 
+		timezone_side,
+		count(*) as N,
+		avg(Apr4Diff) / 6 as avgApr,
+		avg(May4Diff) / 6 as avgMay,
+		avg(Jun4Diff) / 6 as avgJun,
+		avg(Jul4Diff) / 6 as avgJul,
+		avg(Aug4Diff) / 6 as avgAug,
+		avg(Sep4Diff) / 6 as avgSep,
+		avg(Oct4Diff) / 6 as avgOct,
+		avg(Nov4Diff) / 6 as avgNov,
+		avg(Dec4Diff) / 6 as avgDec,
+		avg(Jan4Diff) / 6 as avgJan,
+		avg(Feb4Diff) / 6 as avgFeb,
+		avg(Mar4Diff) / 6 as avgMar,
+		avg(Apr4Diff) / 6 as avgApr2
+ 	from PIDS_3_data
+ 	group by timezone_side
+	;
+quit;
+
+PROC EXPORT DATA= work.PIDS_3_sleep 
+            OUTFILE= "&cet7_06_lib\Pids3_sleep_diff.xls" 
+            DBMS=EXCEL2000 REPLACE;
+RUN;
+
+proc sql;
+	create table PIDS_3_energy as
+	select 
+		timezone_side,
+		count(*) as N,
+		avg(Apr5Diff) / 6 as avgApr,
+		avg(May5Diff) / 6 as avgMay,
+		avg(Jun5Diff) / 6 as avgJun,
+		avg(Jul5Diff) / 6 as avgJul,
+		avg(Aug5Diff) / 6 as avgAug,
+		avg(Sep5Diff) / 6 as avgSep,
+		avg(Oct5Diff) / 6 as avgOct,
+		avg(Nov5Diff) / 6 as avgNov,
+		avg(Dec5Diff) / 6 as avgDec,
+		avg(Jan5Diff) / 6 as avgJan,
+		avg(Feb5Diff) / 6 as avgFeb,
+		avg(Mar5Diff) / 6 as avgMar,
+		avg(Apr5Diff) / 6 as avgApr2
+ 	from PIDS_3_data
+ 	group by timezone_side
+	;
+quit;
+
+PROC EXPORT DATA= work.PIDS_3_energy 
+            OUTFILE= "&cet7_06_lib\PIDS_3_energy_diff.xls" 
+            DBMS=EXCEL2000 REPLACE;
+RUN;
+
+
+%mend;
