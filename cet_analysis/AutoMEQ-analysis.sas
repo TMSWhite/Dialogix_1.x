@@ -243,13 +243,17 @@ data cet7.zip_gis; set cet7.zip_gis;
 	Y_5dg = round(Y,5);
 	X_2_5dg = round(X,2.5);
 	Y_2_5dg = round(Y,2.5);	
+	
+	/* Can compute sunrise and daylength for any day of the year!*/
+	
+	%Sunrise(latitude,longitude,gmtoffset,mdy(12,21,2005),win_solst,1);
 run;
 		
 /* What is the rightmost longitude at each latitude? */
 proc sql;
 	create table dist_from_boundary as
 	select distinct
-		zipcode, X, Y, 
+		statecode, zipcode, X, Y, 
 		timezone, gmtoffset, dst,
 		Y_1dg,
 		min(X) as min_X, max(X) as max_X
@@ -258,13 +262,47 @@ proc sql;
 	order by timezone, gmtoffset, Y_1dg;
 quit;
 
+/* 7/21/2005 */
 proc sql;
 	select min(Y), max(Y)
 	from dist_from_boundary;
 quit;
 
+proc sql;
+	create table dist_from_boundary_gmt as
+	select distinct gmtoffset, statecode, max(X) as max_X
+	from cet7.zip_gis
+	group by gmtoffset
+	having gmtoffset = -5
+	order by max_X desc, statecode;
+quit;
+
+data dist_from_boundary; set dist_from_boundary;
+	NN = _N_;
+run;
+
+proc sql;
+	create table dist_from_boundary2 as
+	select a.max_X, b.*
+	from (select statecode, gmtoffset, max(max_X) as max_X from dist_from_boundary_gmt) as a, dist_from_boundary as b
+	where b.statecode in (select distinct statecode from dist_from_boundary_gmt)
+		and a.statecode = b.statecode
+		and a.gmtoffset = b.gmtoffset;
+quit;
+
+proc sql;
+	create table dist_from_boundary3 as
+	select max_X, *
+	from dist_from_boundary
+	where NN not in (select NN from dist_from_boundary2);
+quit;
+
+data dist_from_boundary4; set dist_from_boundary2 dist_from_boundary3;
+run;
+
+
 /* By zip code, what is the distance from the eastern edge of the timezone -- this is accurate */
-data cet7.dist_from_boundary; set dist_from_boundary;
+data cet7.dist_from_boundary; set dist_from_boundary4;
 	dist_from_timezone_boundary = max_X - X;
 	timezone_width = max_X - min_X;
 run;
@@ -3233,28 +3271,98 @@ Multiply odds ratio (percent change) of people in western timezone_side X percen
 	PROC EXPORT DATA= automeq_winter_Y_4dg 
 	            OUTFILE= "&cet7_06_lib\automeq_winter_Y_4dg.xls" 
 	            DBMS=EXCEL2000 REPLACE;
-	RUN;																	
+	RUN;	
+	
+	proc sql;
+		create table automeq_gt39_dtz_5dg as
+		select 
+			dtz_5dg,
+			min(dist_from_timezone_boundary) as min_dtz,
+			max(dist_from_timezone_boundary) as max_dtz,			
+			count(*) as N,
+			avg(seasonal_hypersom) as pct_seasonal_hypersom,
+			avg(D1) as pct_D1_hypersom,
+			avg(hypsomsr) as avg_winter_hypersom_months,
+			avg(is_hypsomsr) as pct_atleast_1_hypersom_month,
+			avg(seas_mdd) as pct_seas_mdd,
+			avg(fatigue_A2) as pct_fatigue_A2,
+			avg(eating_dist) as pct_eating_dist,
+			avg(anhedonia) as pct_anhedonia,
+			avg(negative_thoughts) as pct_guilt,
+			avg(concentration) as pct_concentration,
+			avg(restless) as pct_restless,
+			avg(suicidal) as pct_suicidal,
+			avg(diff_awakening) as pct_diff_awakening,
+			avg(carbo_eating) as pct_carbo_eating,
+			avg(weight_gain) as pct_weight_gain,
+			avg(meq) as avg_meq,
+			avg(smidavg) as avg_smidavg,
+			avg(sduravg) as avg_sduravg		
+		from cet7.automeq_gt_39
+		group by dtz_5dg
+		order by dtz_5dg;
+	quit;
+
+	proc print data=automeq_gt39_dtz_5dg; run;	
+			
+	PROC EXPORT DATA= automeq_gt39_dtz_5dg 
+	            OUTFILE= "&cet7_06_lib\automeq_gt39_dtz_5dg.xls" 
+	            DBMS=EXCEL2000 REPLACE;
+	RUN;																			
 		
 %mend CreateTimezoneBins;
 
+%macro SunriseVsTimezone;
+
+%mend SunriseVsTimezone;
+
 %macro RunRegression(type,dependent,db);
+	%RunARegression(&type,&dependent,&db,sunrise);
+	%RunARegression(&type,&dependent,&db,timezone);
+%mend RunRegression;
+
+
+%macro RunARegression(type,dependent,db,explanvar);
 	%put '************************************************';
 	%put "***** START &type REGRESSION of &dependent using &db *****";
+	%if (&explanvar eq sunrise) %then %do;
+		%put "****** Sunrise / Daylength *****";
+	%end;
+	%else %do;
+		%put "****** Latitude / Distance From Timezone Boundary *****";
+	%end;
 	%put '************************************************';
 	title "REGRESSION(&type) of &dependent using &db";
 	proc &type data=&db;
 		%if (&type eq logistic) %then %do;
 			class d_sex;
-			units dist_from_timezone_boundary = 15 Y = 20;
-		%end;
-		model &dependent
-			%if (&type eq logistic) %then (event='1');
-				=Y dist_from_timezone_boundary /* d_BMI */ d_age d_sex /* season */
-			%if (&type eq logistic) %then %do;
-				Y*dist_from_timezone_boundary 
+			%if (&explanvar eq sunrise) %then %do;
+				 units sunrise_win_solst = 3600 daylength_win_solst = 3600;
 			%end;
 			%else %do;
-				Y_x_dist_from_tzb
+				units dist_from_timezone_boundary = 15 Y = 20;
+			%end;
+		%end;
+		model &dependent 
+			%if (&type eq logistic) %then %do;
+				(event='1')
+			%end;
+			%if (&explanvar eq sunrise) %then %do; 
+				= sunrise_win_solst daylength_win_solst
+			%end;
+			%else %do;
+				= Y dist_from_timezone_boundary 
+			%end;
+			
+			/* d_BMI */ d_age d_sex /* season */
+			
+			%if (&type eq logistic) %then %do;
+				%if (&explanvar ne sunrise) %then Y*dist_from_timezone_boundary 
+			%end;
+			%else %do;
+				%if (&explanvar ne sunrise) %then %do;
+					Y_x_dist_from_tzb
+				%end;
 				/*
 				BMI_x_dist_from_tzb
 				age_x_dist_from_tzb 
@@ -3270,19 +3378,20 @@ Multiply odds ratio (percent change) of people in western timezone_side X percen
 			/ selection=stepwise slentry=0.3 slstay=0.35 details
 			%if (&type eq logistic) %then lackfit rsquare stb clodds=wald;
 				;
-		%if (&type eq reg) %then %do;
-			/*
-			plot &dependent*Y / conf pred cframe=ligr;
-			plot &dependent*dist_from_timezone_boundary / conf pred cframe=ligr;
-			*/
-		%end;
 	run;
 	%put '************************************************';
 	%put "***** END &type REGRESSION of &dependent using &db ****";
+	%if (&explanvar eq sunrise) %then %do;
+		%put "****** Sunrise / Daylength *****";
+	%end;
+	%else %do;
+		%put "****** Latitude / Distance From Timezone Boundary *****";
+	%end;	
 	%put '************************************************';	
-%mend RunRegression;
+%mend RunARegression;
 
 
+%macro doAll;
 %SetInitParams;
 
 /*
@@ -3292,10 +3401,12 @@ Multiply odds ratio (percent change) of people in western timezone_side X percen
 %CreateTimezoneBins;
 */
 
+%mend doAll;
+
 
 /* Notes from June 28, 2005 *
 
-Scatterplot - show for only 39 and above?
+[ ] Line - show for only 39 and above (symptoms vs. distance_from_timezone) - binned at 1 degree - to see prevalance of symptom vs. distance.
 
 How do we interpret the goodness of fit test?
 
@@ -3312,9 +3423,17 @@ How do we interpret the goodness of fit test?
 (2) can we retain data - what are minimum variables we need? - what about dropping MEQ criteria?  Can we regain any? - NO
 (3) Validating data against SPARC data?  How do I get it?  How do we see seasonality in those data?  e.g. springtime peak in suicide (but no clear proof that SAD)
 (4) Do other states have data like these so that we can see timezone effect? -- not enough geography in NYS? - Via CDC?
-(5) Are there national databases on suicide incidence? Ask Madeline Gould  543-5329
+(5) [ ] Are there national databases on suicide incidence? Ask Madeline Gould  543-5329
 (6) Graph of patterns of worst months - there is a small phase difference
 (7) Re-do phase analyses for Sleep (Part C-4), and energy (Part C-5)
+*/
+
+/* Notes from July 21, 2005 *
+[ ] For binning at 5 degrees, have the bins be 2.5, 7.5, and 12.5, dropping all cases above 15 degrees
+
+[ ] Use TKDiff to analyze comparison between 
+C:/cvs2/Dialogix/cet_analysis/SLTBR-2005-analysis-rev3-withoutAlaska.log and 
+C:/cvs2/Dialogix/cet_analysis/SLTBR-2005-analysis-rev4-withoutAlaska.log
 */
 
 %macro Analyses_20050715;
@@ -3479,3 +3598,55 @@ RUN;
 
 
 %mend;
+
+%macro Sunrise(latitude,longitud,timezone,date,label,isdst);
+/* This may inappropriately set daylight savings time for regions which don't use it */
+  radian = 57.29578;
+  pi = 3.1415926536;
+  format sunrise_&label sunset_&label daylength_&label tod.;
+  format daylength_&label hhmm7.;
+  array sun{0:1} sunset_&label sunrise_&label;
+  phi=&latitude/radian;
+  lambda=&longitud/15;
+  
+  n=&date-intnx('year',&date,0)+1;
+  if (dst = 'Y') then do;
+	  select (month(&date));
+	    when (4)
+	      _dst=&date>=intnx('month',&date,0)-weekday(intnx('month',&date,0))+8;
+	    when (10)
+	      _dst=&date<intnx('month',&date,1)-weekday(intnx('month',&date,1))+1;
+	    otherwise _dst=5<=month(&date)<=9;
+	  end;
+	end;
+	else do;
+		_dst = 0;
+	end;
+	
+	if (&isdst = 0) then _dst = 0;
+	
+  do s=0 to 1;
+    t=n+(18-12*s-lambda)/24;
+    m=(.9856*t-3.289)/radian;
+    l=m+(1.916*sin(m)+.02*sin(2*m)+282.634)/radian;
+    delta=.39782*sin(l);
+    sun{s}=3600*(mod(24*((1-2*s)*arcos((-.01454-
+    sin(delta)*sin(phi))/(cos(delta)*cos(phi)))/(2*pi)+s)+atan(.91746
+    *tan(l))*radian/15+12*(mod(floor(l*2/pi)+4,4)
+    in (1,2))-.06571*t-6.622-lambda+&timezone+_dst+48,24)-12*(1-s));
+  end;
+  
+  sunset_&label = sunset_&label + (12 * 60 * 60);
+  
+  daylength_&label = sunset_&label - sunrise_&label;
+  
+  if (sunset_&label > sunrise_&label) then do;
+		daylength_&label = sunset_&label - sunrise_&label;
+	end;
+	else do;
+		daylength_&label = (sunset_&label + (24 * 60 * 60)) - sunrise_&label;
+	end;
+  
+  drop radian pi phi lambda n t m l s delta _dst;
+  
+%mend Sunrise;
