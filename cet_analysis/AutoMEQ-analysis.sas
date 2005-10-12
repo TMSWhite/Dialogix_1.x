@@ -99,7 +99,7 @@ proc format;
 	;
 run;
 
-options pagesize=80 linesize=120;
+options pagesize=50 linesize=120;
 	
 %mend SetInitParams;
 
@@ -246,7 +246,7 @@ data cet7.zip_gis; set cet7.zip_gis;
 	
 	/* Can compute sunrise and daylength for any day of the year!*/
 	
-	%Sunrise(latitude,longitude,gmtoffset,mdy(12,21,2005),win_solst,1);
+	%Sunrise(latitude,longitude,gmtoffset,mdy(12,21,2005),win_solst,0);
 run;
 		
 /* What is the rightmost longitude at each latitude? */
@@ -311,6 +311,14 @@ proc sql;
 	create table cet7.zip_gis as
 	select a.*, b.min_X, b.max_X, b.dist_from_timezone_boundary, b.timezone_width
 	from cet7.zip_gis a join cet7.dist_from_boundary b
+	on a.zipcode = b.zipcode
+	order by a.zipcode;
+quit;
+
+proc sql;
+	create table cet7.zip_gis as
+	select a.*, b.sunrise_local_win_solst
+	from cet7.zip_gis a left join cet7.zip_with_sunrise b
 	on a.zipcode = b.zipcode
 	order by a.zipcode;
 quit;
@@ -558,6 +566,29 @@ data cet7.automeq; set cet7.automeq_zip;
 		then keep = 0;
 	else keep = 1;	
 	
+	if ((d_age > 100 or d_age < 14) or
+		(meqstd > 1.7) or
+		(lat_good = .) or
+		(workdays < 0) or
+		(wakenwk = . or sleepnwk = .) or
+		(workdays > 0 and (wakewrk = . or sleepwrk = .)) or
+		(sduravg = . or smidavg = .) or
+		(meq = . or meq > 100) or
+		(d_sex = -1 or d_sex > 2) or
+		(eye_type = .) or
+		(abnlslep = 1) or
+		(longslep = 1) or
+		(joined ^= 1) or
+		(complete ^= 1) or
+		(d_who ^= 1) or
+		(okzip = 0) or 
+		(d_los ^= 1) or
+		(workdays > 0 and (sdurwrk < 4 or sdurwrk > 12)) or
+		(sdurnwk < 4 or sdurnwk > 12)
+	)
+		then world_keep = 0;
+	else world_keep = 1;		
+	
 	/* Attempt to determine the scores for Part 3:
 		Winter Depression if score of >= 4 on A for 3-5 consecutive months starting from Sept to January:
 		Also >= 4 on part B for 3-5 consecutive months starting from March - June
@@ -712,6 +743,9 @@ data cet7.automeq; set cet7.automeq_zip;
 	if (Bscore >= 11 and hasWinterSeasonality = 1) then seasonal = 1; else seasonal=0;
 	if (Bscore >= 11 and hasWinterSeasonality = 1 and (MajorDepression_dx = 1)) then seas_mdd = 1; else seas_mdd=0;
 	if (Bscore >= 11 and hasWinterSeasonality = 1 and (MajorDepression_dx = 1 or MinorDepression_dx = 1)) then majmin = 1; else majmin=0;
+	if (Bscore >= 11 and hasWinterSeasonality = 1 and (MinorDepression_dx = 1)) then seas_min = 1; else seas_min=0;
+	if (Bscore >= 11 and hasWinterSeasonality = 1 and (SANS = 1)) then seas_sans = 1; else seas_sans=0;
+	
 	if (Bscore >= 11 and hasWinterSeasonality = 1 and hypsomsr > 1) then seasonal_hypersom = 1; else seasonal_hypersom = 0;
 	if (Bscore >= 11 and hasWinterSeasonality = 1 and D9 = 1) then hyperphagia = 1; else hyperphagia=0;
 	if (Bscore >= 11 and hasWinterSeasonality = 1 and D3 = 1) then fatigue = 1; else fatigue=0;
@@ -3046,6 +3080,10 @@ Multiply odds ratio (percent change) of people in western timezone_side X percen
 	%RunRegression(reg, smidavg, &db);
 	%RunRegression(reg, meq, &db);
 	%RunRegression(reg, sduravg, &db);
+	%RunRegression(logistic, seas_min, &db);
+	%RunRegression(logistic, majmin, &db);
+	%RunRegression(logistic, seas_sans, &db);
+	
 	
 	%put '=============================================';
 	%put "======= END OF REGRESSIONS USING &db ========";
@@ -3332,12 +3370,12 @@ Multiply odds ratio (percent change) of people in western timezone_side X percen
 		%put "****** Latitude / Distance From Timezone Boundary *****";
 	%end;
 	%put '************************************************';
-	title "REGRESSION(&type) of &dependent using &db";
+	title "====== REGRESSION(&type) of &dependent vs. &explanvar using &db ======";
 	proc &type data=&db;
 		%if (&type eq logistic) %then %do;
 			class d_sex;
 			%if (&explanvar eq sunrise) %then %do;
-				 units sunrise_win_solst = 3600 daylength_win_solst = 3600;
+				 units sunrise_local_win_solst = 1;
 			%end;
 			%else %do;
 				units dist_from_timezone_boundary = 15 Y = 20;
@@ -3348,7 +3386,7 @@ Multiply odds ratio (percent change) of people in western timezone_side X percen
 				(event='1')
 			%end;
 			%if (&explanvar eq sunrise) %then %do; 
-				= sunrise_win_solst daylength_win_solst
+				= sunrise_local_win_solst
 			%end;
 			%else %do;
 				= Y dist_from_timezone_boundary 
@@ -3389,6 +3427,76 @@ Multiply odds ratio (percent change) of people in western timezone_side X percen
 	%end;	
 	%put '************************************************';	
 %mend RunARegression;
+
+
+%macro RunARegression2(type,dependent,db,explanvar);
+	%put '************************************************';
+	%put "***** START &type REGRESSION of &dependent using &db *****";
+	%if (&explanvar eq sunrise) %then %do;
+		%put "****** Sunrise / Daylength *****";
+	%end;
+	%else %do;
+		%put "****** Latitude / Distance From Timezone Boundary *****";
+	%end;
+	%put '************************************************';
+	title "====== REGRESSION(&type) of &dependent vs. &explanvar using &db ======";
+	proc &type data=&db;
+		by d_sex;
+		%if (&type eq logistic) %then %do;
+			%if (&explanvar eq sunrise) %then %do;
+				 units sunrise_local_win_solst = 1;
+			%end;
+			%else %do;
+				units dist_from_timezone_boundary = 15 Y = 20;
+			%end;
+		%end;
+		model &dependent 
+			%if (&type eq logistic) %then %do;
+				(event='1')
+			%end;
+			%if (&explanvar eq sunrise) %then %do; 
+				= sunrise_local_win_solst
+			%end;
+			%else %do;
+				= Y dist_from_timezone_boundary 
+			%end;
+			
+			/* d_BMI */ d_age /* season */
+			
+			%if (&type eq logistic) %then %do;
+				%if (&explanvar ne sunrise) %then Y*dist_from_timezone_boundary 
+			%end;
+			%else %do;
+				%if (&explanvar ne sunrise) %then %do;
+					Y_x_dist_from_tzb
+				%end;
+				/*
+				BMI_x_dist_from_tzb
+				age_x_dist_from_tzb 
+				sex_x_dist_from_tzb
+				BMI_x_Y
+				age_x_Y
+				sex_x_Y
+				season_x_BMI
+				season_x_BMI_x_Y
+				season_x_BMI_x_dist_tzb	
+				*/		
+		%end;
+			/ selection=stepwise slentry=0.3 slstay=0.35 details
+			%if (&type eq logistic) %then lackfit rsquare stb clodds=wald;
+				;
+	run;
+	%put '************************************************';
+	%put "***** END &type REGRESSION of &dependent using &db ****";
+	%if (&explanvar eq sunrise) %then %do;
+		%put "****** Sunrise / Daylength *****";
+	%end;
+	%else %do;
+		%put "****** Latitude / Distance From Timezone Boundary *****";
+	%end;	
+	%put '************************************************';	
+%mend RunARegression2;
+
 
 
 %macro doAll;
@@ -3486,6 +3594,41 @@ run;
 proc sql;
 	create table PIDS_3 as
 	select 
+		AprDiff /6 as avgApr,
+		MayDiff /6 as avgMay,
+		JunDiff /6 as avgJun,
+		JulDiff /6 as avgJul,
+		AugDiff /6 as avgAug,
+		SepDiff /6 as avgSep,
+		OctDiff /6 as avgOct,
+		NovDiff /6 as avgNov,
+		DecDiff /6 as avgDec,
+		JanDiff /6 as avgJan,
+		FebDiff /6 as avgFeb,
+		MarDiff /6 as avgMar,
+		AprDiff /6 as avgApr2
+ 	from PIDS_3_data
+ 	where AprDiff ne . and hasWinterSeasonality = 1
+	;
+quit;
+
+/* Find inflection point - from when switch from positive to negative */
+data PIDS_3; set PIDS_3;
+	if (JulDiff > 0 and AugDiff < 0) then date_worsens = mdy(7,15,2005);
+	else if (AugDiff > 0 and SepDiff < 0) then month_worsens = mdy(8,15,2005);
+	else if (SepDiff > 0 and OctDiff < 0) then month_worsens = mdy(9,15,2005);
+	else if (OctDiff > 0 and NovDiff < 0) then month_worsens = mdy(10,15,2005);
+	else if (NovDiff > 0 and DecDiff < 0) then month_worsens = mdy(11,15,2005);
+	else if (DecDiff > 0 and JanDiff < 0) then month_worsens = mdy(12,15,2005);
+	else if (JanDiff > 0 and FebDiff < 0) then month_worsens = mdy(1,15,2005);
+	else if (FebDiff > 0 and MarDiff < 0) then month_worsens = mdy(2,15,2005);
+	else if (MarDiff > 0 and AprDiff < 0) then month_worsens = mdy(3,15,2005);
+	else if (AprDiff > 0 and JuDiff < 0) then month_worsens = mdy(4,15,2005);
+	else if (JunDiff > 0 and JulDiff < 0) then month_worsens = mdy(5,15,2005);
+
+proc sql;
+	create table PIDS_3 as
+	select 
 		timezone_side,
 		count(*) as N,
 		avg(AprDiff) / 6 as avgApr,
@@ -3508,6 +3651,32 @@ quit;
 
 PROC EXPORT DATA= work.PIDS_3 
             OUTFILE= "&cet7_06_lib\Pids3_diff.xls" 
+            DBMS=EXCEL2000 REPLACE;
+RUN;
+
+proc sql;
+	create table PIDS_3all as
+	select distinct
+		count(*) as N,
+		avg(AprDiff) / 6 as avgApr,
+		avg(MayDiff) / 6 as avgMay,
+		avg(JunDiff) / 6 as avgJun,
+		avg(JulDiff) / 6 as avgJul,
+		avg(AugDiff) / 6 as avgAug,
+		avg(SepDiff) / 6 as avgSep,
+		avg(OctDiff) / 6 as avgOct,
+		avg(NovDiff) / 6 as avgNov,
+		avg(DecDiff) / 6 as avgDec,
+		avg(JanDiff) / 6 as avgJan,
+		avg(FebDiff) / 6 as avgFeb,
+		avg(MarDiff) / 6 as avgMar,
+		avg(AprDiff) / 6 as avgApr2
+ 	from PIDS_3_data
+	;
+quit;
+
+PROC EXPORT DATA= work.PIDS_3all 
+            OUTFILE= "&cet7_06_lib\Pids3all_diff.xls" 
             DBMS=EXCEL2000 REPLACE;
 RUN;
 
@@ -3650,3 +3819,206 @@ RUN;
   drop radian pi phi lambda n t m l s delta _dst;
   
 %mend Sunrise;
+
+/* Notes from 7/27/2004
+(1) When is the onset of the symptoms (trigger point) - "break point analysis" of 3 month intervals and test when get first non-zero slope
+	(a) use mid-point of month in which have first worsening and use that as date for sunrise calculation
+	(b) use average mid-point for all population who reported worsening as the average - is this independent?
+(3) Consider doing breakpoint analysis on mood instead of carb craving?
+(4) Do trigger point analysis of each of the symptoms to detect the time-course of the worsening.
+(6) Give George the zip vs. sunrise time and day length - Requires good Sunrisetime calculation - could bad correlation be due to daylight time?
+(7) What is delay in sunrise if within valley in rocky mountains -- how much of a difference? - For discussion section 
+(9) Send zip code data to Steve -- fairhur@pi.cpmc.columbia.edu so can compute sunrise/sunset times. (zip and latitude/longitude?)
+(10) Can I compute better sunrise time be re-engineering the algorithm they mentioned? - NO - didn't work
+*/
+
+/* Notes from 8/19/2005
+(1) Use regression equation to calculate behaviors at each latitude/longidue and use Geoerge's colored map to plot expected values
+	(1) must merge with zip code data to get timezone at that location
+	(2) For George's map - use heat gradient color standard for the light gradient so can clearly read actual values
+	(3) Plots - (a) Sunrise Map Winter (b) Sunrise map Summer (c) Behavior (feeling worst) Winter (d) %worst Summar [2 columns/rows]
+		- three month band of summer/winter, centered on the solstice
+	(4) Worst vs. best month (Feb vs. June) - no, winter/summer solstice
+	(5) Get rid of timezone boundary line so don't have approximation problem
+	(6) [DONE ] Email Steve lat/long vs. zip on winter and summer solstice
+	 (want 1 degree steps in lat/long that span the US - let him do this and generate tsv file)
+	 (I'll join this with zip code data and compute the regression equations => Give final file to George)
+(2) Email Michael C:\data\cet_200506\analysis\Pids3all_diff.xls
+(3) Is there a revser latatide cline of summer worse from south-north -- use CscoreA >= 1 (about 250 people) [validates the notion that summer depression has reverse characteristicss]
+	NO:
+			data test; set cet7.automeq_keepers;
+			if (CscrJulA >= 1) then bad_summer = 1; else bad_summer=0;
+			
+			keep bad_summer latbinmd;
+		run;
+		
+		proc freq data=test;
+			tables bad_summer * latbinmd / chisq;
+		run;
+(4)Can Vesna's clerk process the SLTBR-2005-analysis file to extract the Odds ratio of an hour of change [NO - use Julie]
+	Sunrise, Latitude, Distance from Timezone -- ideally with confidence intervals and p values
+	Summer Solstice:  30 deg - 4:59; 50 Deg => 3:50 - so also an hour difference with 20 degrees at summer solstice
+	- Needed to analyze relative contributions of these
+(5) [DONE ] Calculate expected values for lat/long using regression equations for seas_mdd;
+(6) [ ] Power analysis of sample needed to detect differences in suicidality by lat/long/sunrise - Does George know anyone?  What about Shiela?
+  - could such questions be put in to CDC's BFRSS survey?
+  John Nee's EasyStat - Michael will f/u on this.
+*/
+
+/* Notes from 8/27/2005 
+(1) Should we re-compute the suicide data using units of hours instead of [DONE]
+(2) Logistic regressions are not sensitive to interaction effects, so the fact that we detected some is interesting.
+(3) For power analysis data range -- pick 4 levels (bins) - absolute bin size not important -- just divide by 4
+(4) Need to do odds ratios of interaction effects "Power interaction of logistic regression within EasyStat"?
+*/
+
+%macro JoinSunriseTimeWithZip;
+	proc sql;
+		create table rnd_zip as
+		select distinct Zipcode, Y, round(Y) as rnd_Y, X, -round(X) as rnd_X, GMTOffset
+		from cet7.zip_gis
+		order by Zipcode;
+	quit;
+	
+	proc sql;
+		create table cet7.zip_with_sunrise as
+			select distinct a.Zipcode,
+				abs((b.lat-a.Y) * (b.long+a.X)) as mean_sq_dist,
+				b.lat, a.Y,
+				b.long, a.X,
+				b.sunrise_GMT_win_solst,
+				(b.sunrise_GMT_win_solst + a.GMTOffset) as sunrise_local_win_solst
+		from rnd_zip a, cet7.sunrisetimes b
+		where rnd_Y = b.lat and rnd_X = b.long
+		order by Zipcode, mean_sq_dist;
+	quit;
+	
+	/*
+	proc sql;
+		create table zipmatch_test as
+		select distinct zipcode, count(*) as N, *
+		from temp
+		group by zipcode
+		order by N DESC, zipcode;
+	quit;
+	*/
+	
+%mend JoinSunriseTimeWithZip;
+
+/* Get data to George *
+proc sql;
+	create table latlong_sunrise as
+	select distinct zipcode, lat, long, sunrise_local_win_solst,
+		(-5.2895 + .5415 * sunrise_local_win_solst) as seas_mdd_estimate
+	from cet7.zip_with_sunrise
+	order by zipcode;
+quit;
+*/
+
+/* 9/9/05 Notes with Terman 
+(1) George - Create Calculated Sunrise Time by Zip Code for COntinuous United States -
+	(a) Smooth at the timezone boundaries -- it is related to joining by zipcode? sounds like already smoothed
+	(b) Use a horizontal scale for the continuous data
+	(c) interpolate Steve's data to 10th of a degree?
+	(d) if get good continuous figure, don't need the timezone boundaries.
+	(e) remove internal text labels (showing lat/long)
+	(f) Graph of seasonal_mdd; men vs. women based upon expected values from regression lines
+(2) Recommended - modafinil instead of caffeine
+(3) Graph of seasonal_mdd - 
+(4) Sex effect - men stronger than women
+(5) N.B. Created Excel table with Michael using macro below
+  - Effect sizes are large - graph regression equation from %s of repondants, not the logistic regression line
+  
+Manuscript:
+Graphs
+	(1) geo - Sunrise time
+	(2) geo - MDD (combine men and women) for whole country (e.g. based upon sunrise data)
+Tables
+	(1a) % mdd - lat vs. sex
+	(1b) % mdd - dtz vs sex
+	(2) DSM-IV symptom criteria for MDD 
+	
+Michael will play with graphs and tables
+[ ] Given N's for men and women for confidence intervals - so re-compute Analyses_2005_09_09 (edit workbook for Michael)
+[ ] Do regressions (and geo distributions?) of seas_min, majmin, seas_sans
+*/
+%macro Analyses_2005_09_09;
+	/* Effect is larger for men than women */
+	proc sort data=cet7.automeq_keepers;
+		by d_sex;
+	run;
+	
+	%RunARegression2(logistic,seas_mdd,cet7.automeq_keepers,sunrise);
+	%RunARegression2(logistic,seas_mdd,cet7.automeq_keepers,timezone);
+
+
+	/* Need #s to show % of men affected by DTZ and LAT */
+	data test1; set cet7.automeq_keepers; 
+		if (dtz_4dg > 16) then dtz_4dg = 16;
+	run;
+	
+	proc sort data=test1;
+		by dtz_4dg;
+	run;
+	
+	proc freq data=test1;
+		by dtz_4dg;
+		table d_sex * seas_mdd;
+	run;
+	
+	/* Analyze #s by latitude */
+	data test2; set cet7.automeq_keepers; 
+		if (Y_4dg < 32) then Y_4dg = 32;
+	run;
+	
+	proc sort data=test2;
+		by Y_4dg;
+	run;
+	
+	proc freq data=test2;
+		by Y_4dg;
+		table d_sex * seas_mdd;
+	run;
+	
+	/* Latitude > 39, male vs. female by distnace from timezone boundary */
+	data test3; set cet7.automeq_keepers; 
+		where Y >= 39;
+		if (dtz_4dg > 16) then dtz_4dg = 16;
+	run;
+	
+	proc sort data=test3;
+		by dtz_4dg;
+	run;
+	
+	proc freq data=test3;
+		by dtz_4dg;
+		table d_sex * seas_mdd;
+	run;
+	
+	/* Do male vs. female of sunrisetime, binning by quarter hour */
+	data test4; set cet7.automeq_keepers;
+		sunrise_bin_25 = round(sunrise_local_win_solst,.25);
+		if (sunrise_bin_25 < 7) then sunrise_bin_25 = 7;
+		if (sunrise_bin_25 > 8) then sunrise_bin_25 = 8;
+	run;
+	
+	proc sort data=test4;
+		by sunrise_bin_25;
+	run;
+	
+	proc freq data=test4;
+		by sunrise_bin_25;
+		table d_sex * seas_mdd;
+	run;	
+	
+	/* overall mean */
+	proc freq data=test4;
+		table d_sex * seas_mdd;
+	run;		
+		
+	/* Do we need to weight the differences from the mean by the number of respondants at each sunrise time bin? */
+%mend Analyses_2005_09_09;
+
+/* to Do - 10/7/05 
+	[ ] Chi-squared of binned sunrise time vs. # responses (e.g. 4-8 bins) - to see whether # respondants is comparable
+*/
