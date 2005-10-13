@@ -747,8 +747,6 @@ data cet7.automeq; set cet7.automeq_zip;
 	if (Bscore >= 11 and hasWinterSeasonality = 1 and (SANS = 1)) then seas_sans = 1; else seas_sans=0;
 	
 	if (Bscore >= 11 and hasWinterSeasonality = 1 and hypsomsr > 1) then seasonal_hypersom = 1; else seasonal_hypersom = 0;
-	if (Bscore >= 11 and hasWinterSeasonality = 1 and D9 = 1) then hyperphagia = 1; else hyperphagia=0;
-	if (Bscore >= 11 and hasWinterSeasonality = 1 and D3 = 1) then fatigue = 1; else fatigue=0;
 	
 	if (Bscore >= 11 and hasWinterSeasonality = 1 and A1 = 1) then sleep_dist = 1; else sleep_dist=0;
 	if (Bscore >= 11 and hasWinterSeasonality = 1 and A2 = 1) then fatigue_A2 = 1; else fatigue_A2=0;
@@ -760,10 +758,82 @@ data cet7.automeq; set cet7.automeq_zip;
 	if (Bscore >= 11 and hasWinterSeasonality = 1 and A8 = 1) then restless = 1; else restless=0;
 	if (Bscore >= 11 and hasWinterSeasonality = 1 and A9 = 1) then suicidal = 1; else suicidal=0;
 	
+	if (Bscore >= 11 and hasWinterSeasonality = 1 and D1 = 1) then hypersom_D1 = 1; else hypersom_D1=0;
 	if (Bscore >= 11 and hasWinterSeasonality = 1 and D2 = 1) then diff_awakening = 1; else diff_awakening=0;
+	if (Bscore >= 11 and hasWinterSeasonality = 1 and D3 = 1) then fatigue = 1; else fatigue=0;
+	if (Bscore >= 11 and hasWinterSeasonality = 1 and D4 = 1) then evenings_worst = 1; else evenings_worst=0;
+	if (Bscore >= 11 and hasWinterSeasonality = 1 and D5 = 1) then afternoon_slump = 1; else afternoon_slump=0;
+	if (Bscore >= 11 and hasWinterSeasonality = 1 and D6 = 1) then carb_craving = 1; else carb_craving=0;
 	if (Bscore >= 11 and hasWinterSeasonality = 1 and D7 = 1) then carbo_eating = 1; else carbo_eating=0;
+	if (Bscore >= 11 and hasWinterSeasonality = 1 and D8 = 1) then carb_craving_in_pm = 1; else carb_craving_in_pm=0;
 	if (Bscore >= 11 and hasWinterSeasonality = 1 and D9 = 1) then weight_gain = 1; else weight_gain=0;
+	
+	/* 10/12/05 revisions */
+	if (dist_from_timezone_boundary > 11.31672) then bin2_dtz = ">11.31672"; else bin2_dtz = "<11.31672" ;
+	if (sunrise_local_win_solst > 7.654) then bin2_sunrise = ">7.654"; else bin2_sunrise = "<7.654";
+	if (Y > 36.94834) then bin2_Y = ">36.94834"; else bin2_Y = "<36.94834";
+	
+	if (dist_from_timezone_boundary < 7.54448) then 
+		bin3_dtz = "0.0000-7.54448";
+	else if (dist_from_timezone_boundary < 15.08896) then
+		bin3_dtz = "7.54448-15.08896";
+	else
+		bin3_dtz= "15.08896-22.63344";
+		
+	if (sunrise_local_win_solst < 7.271866667) then
+		bin3_sunrise = "6.507-7.27187";
+	else if (sunrise_local_win_solst < 8.036733333) then
+		bin3_sunrise = "7.27187-8.03673";
+	else
+		bin3_sunrise = "8.03673-8.8016";
 
+	if (Y < 32.82638333) then
+		bin3_Y = "24.58247-32.826383";
+	else if (Y < 41.07029667) then
+		bin3_Y = "24.58247-41.0703";
+	else 
+		bin3_Y = "41.0703-49.31421";
+		
+	if (dist_from_timezone_boundary < 5.66) then
+		bin4_dtz = "0.00-5.66";
+	else if (dist_from_timezone_boundary < 11.32) then
+		bin4_dtz = "5.66-11.32";
+	else if (dist_from_timezone_boundary < 16.98) then
+		bin4_dtz = "16.98-22.63";
+		
+	if (sunrise_local_win_solst < 7.08) then
+		bin4_sunrise = "6.51-7.08";
+	else if (sunrise_local_win_solst < 7.65) then
+		bin4_sunrise = "7.08-7.65";
+	else if (sunrise_local_win_solst < 8.23) then
+		bin4_sunrise = "7.65-8.23";
+	else
+		bin4_sunrise = "8.23-8.80";
+		
+	if (Y < 30.77) then
+		bin4_Y = "24.58-30.77";
+	else if (Y < 36.95) then
+		bin4_Y = "30.77-36.95";
+	else if (Y < 43.13) then
+		bin4_Y = "36.95-43.13";
+	else
+		bin4_Y = "43.13-49.31";
+		
+	if (dist_from_timezone_boundary < 5.0) then 
+		bin3a_dtz = "0.0-5.0";
+	else if (dist_from_timezone_boundary < 10) then
+		bin3a_dtz = "5.0-10.0";
+	else
+		bin3a_dtz= ">10";
+		
+	if (dist_from_timezone_boundary < 3.75) then
+		bin4a_dtz = "0.00-3.75";
+	else if (dist_from_timezone_boundary < 7.5) then
+		bin4a_dtz = "3.75-7.5";
+	else if (dist_from_timezone_boundary < 11.25) then
+		bin4a_dtz = "7.5-11.25";
+	else 
+		bin4a_dtz = ">11.25";
 	
 	/* 5/20/05 revisions */
 	if (X >= -75 and X < -69) then timezone_band='east-EST';
@@ -3051,7 +3121,7 @@ Multiply odds ratio (percent change) of people in western timezone_side X percen
 	
 	%RunRegressions(cet7.automeq_winter);
 	
-%mend;
+%mend RunAllRegressions;
 
 %macro RunRegressions(db);
 	%put '=============================================';
@@ -3064,8 +3134,11 @@ Multiply odds ratio (percent change) of people in western timezone_side X percen
 	
 	%RunRegression(logistic, seas_mdd, &db);
 	%RunRegression(reg, Bscore, &db);
+	%RunRegression(reg, Dscore, &db);
+	
 /*	%RunRegression(reg, Ascore, &db); */
 /*	%RunRegression(logistic, sleep_dist, &db); */
+	/*
 	%RunRegression(logistic, fatigue_A2, &db);
 	%RunRegression(logistic, eating_dist, &db);
 	%RunRegression(logistic, anhedonia, &db);
@@ -3073,10 +3146,31 @@ Multiply odds ratio (percent change) of people in western timezone_side X percen
 	%RunRegression(logistic, concentration, &db);
 	%RunRegression(logistic, restless, &db);
 	%RunRegression(logistic, suicidal, &db);
-	%RunRegression(reg, Dscore, &db);
 	%RunRegression(logistic, diff_awakening, &db);
 	%RunRegression(logistic, carbo_eating, &db);
 	%RunRegression(logistic, weight_gain, &db);
+	*/
+	
+	%RunRegression(logistic,sleep_dist, &db);
+	%RunRegression(logistic,fatigue_A2, &db);
+	%RunRegression(logistic,eating_dist, &db);
+	%RunRegression(logistic,anhedonia, &db);
+	%RunRegression(logistic,mood_dist, &db);
+	%RunRegression(logistic,negative_thoughts, &db);
+	%RunRegression(logistic,concentration, &db);
+	%RunRegression(logistic,restless, &db);
+	%RunRegression(logistic,suicidal, &db);
+	
+	%RunRegression(logistic,hypersom_D1, &db);
+	%RunRegression(logistic,diff_awakening, &db);
+	%RunRegression(logistic,fatigue, &db);
+	%RunRegression(logistic,evenings_worst, &db);
+	%RunRegression(logistic,afternoon_slump, &db);
+	%RunRegression(logistic,carb_craving, &db);
+	%RunRegression(logistic,carbo_eating, &db);
+	%RunRegression(logistic,carb_craving_in_pm, &db);
+	%RunRegression(logistic,weight_gain, &db);
+	
 	%RunRegression(reg, smidavg, &db);
 	%RunRegression(reg, meq, &db);
 	%RunRegression(reg, sduravg, &db);
@@ -3350,10 +3444,6 @@ Multiply odds ratio (percent change) of people in western timezone_side X percen
 		
 %mend CreateTimezoneBins;
 
-%macro SunriseVsTimezone;
-
-%mend SunriseVsTimezone;
-
 %macro RunRegression(type,dependent,db);
 	%RunARegression(&type,&dependent,&db,sunrise);
 	%RunARegression(&type,&dependent,&db,timezone);
@@ -3507,6 +3597,8 @@ Multiply odds ratio (percent change) of people in western timezone_side X percen
 %MakeDataSubsets;
 %RunAllRegressions;
 %CreateTimezoneBins;
+%Analyses_20050715;
+%ComputePhases;
 */
 
 %mend doAll;
@@ -3585,10 +3677,31 @@ data PIDS_3_data; set cet7.automeq_keepers;
 	Nov5Diff = C5B_Nov - C5A_Nov;
 	Dec5Diff = C5B_Dec - C5A_Dec;		
 	
+	/* 10/12/2005 -- These are Feel Best - Feel Worst */
+	Jan1Diff = C1B_Jan - C1A_Jan;
+	Feb1Diff = C1B_Feb - C1A_Feb;
+	Mar1Diff = C1B_Mar - C1A_Mar;
+	Apr1Diff = C1B_Apr - C1A_Apr;
+	May1Diff = C1B_May - C1A_May;
+	Jun1Diff = C1B_Jun - C1A_Jun;
+	Jul1Diff = C1B_Jul - C1A_Jul;
+	Aug1Diff = C1B_Aug - C1A_Aug;
+	Sep1Diff = C1B_Sep - C1A_Sep;
+	Oct1Diff = C1B_Oct - C1A_Oct;
+	Nov1Diff = C1B_Nov - C1A_Nov;
+	Dec1Diff = C1B_Dec - C1A_Dec;		
+	
 	if (d_age < 22) then delete;	/* remove children */
 	if (d_age > 70) then delete;	/* remove elderly */
-	where (Y >= 39 and Y <= 50 and keep=1);	/* keep restricted latitude band */	
+	where keep=1;
+	/* keep restricted latitude band
+	where (Y >= 39 and Y <= 50 and keep=1);	
+	*/
 run;	
+
+data PIDS_3_data_depressed; set PIDS_3_data;
+	where (seas_mdd = 1 or majmin = 1 or seas_min = 1 or seas_sans = 1);
+run;
 
 /* Is there a phase difference between east and west? */
 proc sql;
@@ -3625,6 +3738,7 @@ data PIDS_3; set PIDS_3;
 	else if (MarDiff > 0 and AprDiff < 0) then month_worsens = mdy(3,15,2005);
 	else if (AprDiff > 0 and JuDiff < 0) then month_worsens = mdy(4,15,2005);
 	else if (JunDiff > 0 and JulDiff < 0) then month_worsens = mdy(5,15,2005);
+run;
 
 proc sql;
 	create table PIDS_3 as
@@ -3737,36 +3851,304 @@ PROC EXPORT DATA= work.PIDS_3_sleep
             DBMS=EXCEL2000 REPLACE;
 RUN;
 
+/*
 proc sql;
-	create table PIDS_3_energy as
+	create table PIDS_3_1 as
 	select 
-		timezone_side,
+		"Best-Worst" as Dependent,
+		"Distance From Timezone" as Independent,
+		bin2_dtz,
 		count(*) as N,
-		avg(Apr5Diff) / 6 as avgApr,
-		avg(May5Diff) / 6 as avgMay,
-		avg(Jun5Diff) / 6 as avgJun,
-		avg(Jul5Diff) / 6 as avgJul,
-		avg(Aug5Diff) / 6 as avgAug,
-		avg(Sep5Diff) / 6 as avgSep,
-		avg(Oct5Diff) / 6 as avgOct,
-		avg(Nov5Diff) / 6 as avgNov,
-		avg(Dec5Diff) / 6 as avgDec,
-		avg(Jan5Diff) / 6 as avgJan,
-		avg(Feb5Diff) / 6 as avgFeb,
-		avg(Mar5Diff) / 6 as avgMar,
-		avg(Apr5Diff) / 6 as avgApr2
+		avg(Apr1Diff) as avgApr,
+		avg(May1Diff) as avgMay,
+		avg(Jun1Diff) as avgJun,
+		avg(Jul1Diff) as avgJul,
+		avg(Aug1Diff) as avgAug,
+		avg(Sep1Diff) as avgSep,
+		avg(Oct1Diff) as avgOct,
+		avg(Nov1Diff) as avgNov,
+		avg(Dec1Diff) as avgDec,
+		avg(Jan1Diff) as avgJan,
+		avg(Feb1Diff) as avgFeb,
+		avg(Mar1Diff) as avgMar,
+		avg(Apr1Diff) as avgApr2
  	from PIDS_3_data
- 	group by timezone_side
+ 	group by bin2_dtz
 	;
 quit;
 
-PROC EXPORT DATA= work.PIDS_3_energy 
-            OUTFILE= "&cet7_06_lib\PIDS_3_energy_diff.xls" 
+proc sql;
+	create table PIDS_3_2 as
+	select 
+		"Worst" as Dependent,
+		"Distance From Timezone" as Independent,
+		bin2_dtz,
+		count(*) as N,
+		avg(C1A_Apr) as avgApr,
+		avg(C1A_May) as avgMay,
+		avg(C1A_Jun) as avgJun,
+		avg(C1A_Jul) as avgJul,
+		avg(C1A_Aug) as avgAug,
+		avg(C1A_Sep) as avgSep,
+		avg(C1A_Oct) as avgOct,
+		avg(C1A_Nov) as avgNov,
+		avg(C1A_Dec) as avgDec,
+		avg(C1A_Jan) as avgJan,
+		avg(C1A_Feb) as avgFeb,
+		avg(C1A_Mar) as avgMar,
+		avg(C1A_Apr) as avgApr2
+ 	from PIDS_3_data
+ 	group by bin2_dtz
+	;
+quit;
+
+proc sql;
+	create table PIDS_3_3 as
+	select 
+		"Best-Worst" as Dependent,
+		"Sunrise Time" as Independent,
+		bin2_sunrise,
+		count(*) as N,
+		avg(Apr1Diff) as avgApr,
+		avg(May1Diff) as avgMay,
+		avg(Jun1Diff) as avgJun,
+		avg(Jul1Diff) as avgJul,
+		avg(Aug1Diff) as avgAug,
+		avg(Sep1Diff) as avgSep,
+		avg(Oct1Diff) as avgOct,
+		avg(Nov1Diff) as avgNov,
+		avg(Dec1Diff) as avgDec,
+		avg(Jan1Diff) as avgJan,
+		avg(Feb1Diff) as avgFeb,
+		avg(Mar1Diff) as avgMar,
+		avg(Apr1Diff) as avgApr2
+ 	from PIDS_3_data
+ 	group by bin2_sunrise
+	;
+quit;
+
+proc sql;
+	create table PIDS_3_4 as
+	select 
+		"Worst" as Dependent,
+		"Sunrise Time" as Independent,
+		bin2_sunrise,
+		count(*) as N,
+		avg(C1A_Apr) as avgApr,
+		avg(C1A_May) as avgMay,
+		avg(C1A_Jun) as avgJun,
+		avg(C1A_Jul) as avgJul,
+		avg(C1A_Aug) as avgAug,
+		avg(C1A_Sep) as avgSep,
+		avg(C1A_Oct) as avgOct,
+		avg(C1A_Nov) as avgNov,
+		avg(C1A_Dec) as avgDec,
+		avg(C1A_Jan) as avgJan,
+		avg(C1A_Feb) as avgFeb,
+		avg(C1A_Mar) as avgMar,
+		avg(C1A_Apr) as avgApr2
+ 	from PIDS_3_data
+ 	group by bin2_sunrise
+	;
+quit;
+
+proc sql;
+	create table PIDS_3_5 as
+	select 
+		"Best-Worst" as Dependent,
+		"Latitude" as Independent,
+		bin2_Y,
+		count(*) as N,
+		avg(Apr1Diff) as avgApr,
+		avg(May1Diff) as avgMay,
+		avg(Jun1Diff) as avgJun,
+		avg(Jul1Diff) as avgJul,
+		avg(Aug1Diff) as avgAug,
+		avg(Sep1Diff) as avgSep,
+		avg(Oct1Diff) as avgOct,
+		avg(Nov1Diff) as avgNov,
+		avg(Dec1Diff) as avgDec,
+		avg(Jan1Diff) as avgJan,
+		avg(Feb1Diff) as avgFeb,
+		avg(Mar1Diff) as avgMar,
+		avg(Apr1Diff) as avgApr2
+ 	from PIDS_3_data
+ 	group by bin2_Y
+	;
+quit;
+
+proc sql;
+	create table PIDS_3_6 as
+	select 
+		"Worst" as Dependent,
+		"Latitude" as Independent,
+		bin2_Y,
+		count(*) as N,
+		avg(C1A_Apr) as avgApr,
+		avg(C1A_May) as avgMay,
+		avg(C1A_Jun) as avgJun,
+		avg(C1A_Jul) as avgJul,
+		avg(C1A_Aug) as avgAug,
+		avg(C1A_Sep) as avgSep,
+		avg(C1A_Oct) as avgOct,
+		avg(C1A_Nov) as avgNov,
+		avg(C1A_Dec) as avgDec,
+		avg(C1A_Jan) as avgJan,
+		avg(C1A_Feb) as avgFeb,
+		avg(C1A_Mar) as avgMar,
+		avg(C1A_Apr) as avgApr2
+ 	from PIDS_3_data
+ 	group by bin2_Y
+	;
+quit;
+
+data PIDS_3_all; set PIDS_3_1 PIDS_3_2 PIDS_3_3 PIDS_3_4 PIDS_3_5 PIDS_3_6;
+run;
+
+PROC EXPORT DATA= work.PIDS_3_all 
+            OUTFILE= "&cet7_06_lib\PIDS_3_all.xls" 
             DBMS=EXCEL2000 REPLACE;
 RUN;
+*/
 
+%mend Analyses_20050715; 
 
-%mend;
+/* 10/12/2005 - Generate files needed for analysis */
+%macro ComputePhases;
+	/* %Analyses_20050715; */
+	
+	%global phase_count;
+	%let phase_count = 0;
+
+	%ComputePhase("Distance from Timezone","Num Good - Num Bad",bin2_dtz,2,6,monthly_pre=,monthly_suffix=Diff);
+	%ComputePhase("Distance from Timezone","Feel Best-Worst",bin2_dtz,2,1,monthly_pre=,monthly_suffix=1Diff);
+	%ComputePhase("Distance from Timezone","Worst",bin2_dtz,2,1,monthly_pre=C1A_,monthly_suffix=);
+	%ComputePhase("Sunrise Time","Num Good - Num Bad",bin2_sunrise,2,6,monthly_pre=,monthly_suffix=Diff);
+	%ComputePhase("Sunrise Time","Feel Best-Worst",bin2_sunrise,2,1,monthly_pre=,monthly_suffix=1Diff);
+	%ComputePhase("Sunrise Time","Worst",bin2_sunrise,2,1,monthly_pre=C1A_,monthly_suffix=);
+	%ComputePhase("Latitude","Num Good - Num Bad",bin2_Y,2,6,monthly_pre=,monthly_suffix=Diff);
+	%ComputePhase("Latitude","Feel Best-Worst",bin2_Y,2,1,monthly_pre=,monthly_suffix=1Diff);
+	%ComputePhase("Latitude","Worst",bin2_Y,2,1,monthly_pre=C1A_,monthly_suffix=);
+	
+	%ComputePhase("Distance from Timezone","Num Good - Num Bad",bin3_dtz,3,6,monthly_pre=,monthly_suffix=Diff);
+	%ComputePhase("Distance from Timezone","Feel Best-Worst",bin3_dtz,3,1,monthly_pre=,monthly_suffix=1Diff);
+	%ComputePhase("Distance from Timezone","Worst",bin3_dtz,3,1,monthly_pre=C1A_,monthly_suffix=);
+	%ComputePhase("Distance from Timezone","Num Good - Num Bad",bin3a_dtz,3,6,monthly_pre=,monthly_suffix=Diff);
+	%ComputePhase("Distance from Timezone","Feel Best-Worst",bin3a_dtz,3,1,monthly_pre=,monthly_suffix=1Diff);
+	%ComputePhase("Distance from Timezone","Worst",bin3a_dtz,3,1,monthly_pre=C1A_,monthly_suffix=);
+	%ComputePhase("Sunrise Time","Num Good - Num Bad",bin3_sunrise,3,6,monthly_pre=,monthly_suffix=Diff);
+	%ComputePhase("Sunrise Time","Feel Best-Worst",bin3_sunrise,3,1,monthly_pre=,monthly_suffix=1Diff);
+	%ComputePhase("Sunrise Time","Worst",bin3_sunrise,3,1,monthly_pre=C1A_,monthly_suffix=);
+	%ComputePhase("Latitude","Num Good - Num Bad",bin3_Y,3,6,monthly_pre=,monthly_suffix=Diff);
+	%ComputePhase("Latitude","Feel Best-Worst",bin3_Y,3,1,monthly_pre=,monthly_suffix=1Diff);
+	%ComputePhase("Latitude","Worst",bin3_Y,3,1,monthly_pre=C1A_,monthly_suffix=);
+	
+	%ComputePhase("Distance from Timezone","Num Good - Num Bad",bin4_dtz,4,6,monthly_pre=,monthly_suffix=Diff);
+	%ComputePhase("Distance from Timezone","Feel Best-Worst",bin4_dtz,4,1,monthly_pre=,monthly_suffix=1Diff);
+	%ComputePhase("Distance from Timezone","Worst",bin4_dtz,4,1,monthly_pre=C1A_,monthly_suffix=);
+	%ComputePhase("Distance from Timezone","Num Good - Num Bad",bin4a_dtz,4,6,monthly_pre=,monthly_suffix=Diff);
+	%ComputePhase("Distance from Timezone","Feel Best-Worst",bin4a_dtz,4,1,monthly_pre=,monthly_suffix=1Diff);
+	%ComputePhase("Distance from Timezone","Worst",bin4a_dtz,4,1,monthly_pre=C1A_,monthly_suffix=);
+	%ComputePhase("Sunrise Time","Num Good - Num Bad",bin4_sunrise,4,6,monthly_pre=,monthly_suffix=Diff);
+	%ComputePhase("Sunrise Time","Feel Best-Worst",bin4_sunrise,4,1,monthly_pre=,monthly_suffix=1Diff);
+	%ComputePhase("Sunrise Time","Worst",bin4_sunrise,4,1,monthly_pre=C1A_,monthly_suffix=);
+	%ComputePhase("Latitude","Num Good - Num Bad",bin4_Y,4,6,monthly_pre=,monthly_suffix=Diff);
+	%ComputePhase("Latitude","Feel Best-Worst",bin4_Y,4,1,monthly_pre=,monthly_suffix=1Diff);
+	%ComputePhase("Latitude","Worst",bin4_Y,4,1,monthly_pre=C1A_,monthly_suffix=);	
+	
+	/* create table merging data from all analyses just created */
+	%let _count = 1;
+	data PhaseAnalysis_all; set 
+		%do %while(&_count <= &phase_count);
+			PhaseAnalysis_&_count
+			
+			%let _count = %eval(&_count + 1);
+		%end;	
+		;
+	run;
+	
+	%let _count = 1;
+	proc sql;
+		%do %while(&_count <= &phase_count);
+			drop table PhaseAnalysis_&_count;
+			%let _count = %eval(&_count + 1);
+		%end;	
+	quit;
+
+	PROC EXPORT DATA= work.PhaseAnalysis_all
+	            OUTFILE= "&cet7_06_lib\PhaseAnalysis_all.xls" 
+	            DBMS=EXCEL2000 REPLACE;
+	RUN;
+
+%mend ComputePhases;
+
+%macro ComputePhase(independent,dependent,binner,numbins,divisor,monthly_pre=,monthly_suffix=);
+	%let phase_count = %eval(&phase_count + 1);
+
+	proc sql;
+		create table PhaseAnalysis_&phase_count.a as
+		select 
+			"All Subjects" as Sample,
+			&independent as Independent,
+			&dependent as Dependent,
+			&numbins as NumBins,
+			&binner as BinLabel,
+			&divisor as Divisor,
+			count(*) as N,
+			avg(&monthly_pre.Apr&monthly_suffix.) / &divisor as Apr,
+			avg(&monthly_pre.May&monthly_suffix.) / &divisor as May,
+			avg(&monthly_pre.Jun&monthly_suffix.) / &divisor as Jun,
+			avg(&monthly_pre.Jul&monthly_suffix.) / &divisor as Jul,
+			avg(&monthly_pre.Aug&monthly_suffix.) / &divisor as Aug,
+			avg(&monthly_pre.Sep&monthly_suffix.) / &divisor as Sep,
+			avg(&monthly_pre.Oct&monthly_suffix.) / &divisor as Oct,
+			avg(&monthly_pre.Nov&monthly_suffix.) / &divisor as Nov,
+			avg(&monthly_pre.Dec&monthly_suffix.) / &divisor as Dec,
+			avg(&monthly_pre.Jan&monthly_suffix.) / &divisor as Jan,
+			avg(&monthly_pre.Feb&monthly_suffix.) / &divisor as Feb,
+			avg(&monthly_pre.Mar&monthly_suffix.) / &divisor as Mar,
+			avg(&monthly_pre.Apr&monthly_suffix.) / &divisor as Apr2
+	 	from PIDS_3_data
+	 	group by &binner
+		;
+	quit;
+	
+	proc sql;
+		create table PhaseAnalysis_&phase_count.b as
+		select 
+			"Only Depressed" as Sample,
+			&independent as Independent,
+			&dependent as Dependent,
+			&numbins as NumBins,
+			&binner as BinLabel,
+			&divisor as Divisor,
+			count(*) as N,
+			avg(&monthly_pre.Apr&monthly_suffix.) / &divisor as Apr,
+			avg(&monthly_pre.May&monthly_suffix.) / &divisor as May,
+			avg(&monthly_pre.Jun&monthly_suffix.) / &divisor as Jun,
+			avg(&monthly_pre.Jul&monthly_suffix.) / &divisor as Jul,
+			avg(&monthly_pre.Aug&monthly_suffix.) / &divisor as Aug,
+			avg(&monthly_pre.Sep&monthly_suffix.) / &divisor as Sep,
+			avg(&monthly_pre.Oct&monthly_suffix.) / &divisor as Oct,
+			avg(&monthly_pre.Nov&monthly_suffix.) / &divisor as Nov,
+			avg(&monthly_pre.Dec&monthly_suffix.) / &divisor as Dec,
+			avg(&monthly_pre.Jan&monthly_suffix.) / &divisor as Jan,
+			avg(&monthly_pre.Feb&monthly_suffix.) / &divisor as Feb,
+			avg(&monthly_pre.Mar&monthly_suffix.) / &divisor as Mar,
+			avg(&monthly_pre.Apr&monthly_suffix.) / &divisor as Apr2
+	 	from PIDS_3_data_depressed
+	 	group by &binner
+		;
+	quit;	
+	
+	data PhaseAnalysis_&phase_count; set PhaseAnalysis_&phase_count.a PhaseAnalysis_&phase_count.b;
+	run;
+	
+	proc sql;
+		drop table PhaseAnalysis_&phase_count.a;
+		drop table PhaseAnalysis_&phase_count.b;
+	quit;
+%mend ComputePhase;
 
 %macro Sunrise(latitude,longitud,timezone,date,label,isdst);
 /* This may inappropriately set daylight savings time for regions which don't use it */
@@ -4022,3 +4404,43 @@ Michael will play with graphs and tables
 /* to Do - 10/7/05 
 	[ ] Chi-squared of binned sunrise time vs. # responses (e.g. 4-8 bins) - to see whether # respondants is comparable
 */
+
+%macro Analyses_20051012;
+data zip_gis; set cet7.zip_gis;
+	where (statecode ne 'AK' and statecode ne 'HI');
+run;
+
+proc freq data=zip_gis;
+	tables statecode;
+run;
+
+proc sql;
+	select 
+		min(sunrise_local_win_solst) as min_sunrise, max(sunrise_local_win_solst) as max_sunrise, 
+			min(sunrise_local_win_solst) + ((max(sunrise_local_win_solst) - min(sunrise_local_win_solst)) / 2) as mid_sunrise,
+		min(X) as min_X, max(X) as max_X, 
+			min(X) + ((max(X) - min(X)) / 2) as mid_X,
+		min(Y) as min_Y, max(Y) as max_Y, 
+			min(Y) + ((max(Y) - min(Y)) / 2) as mid_Y,
+		min(dist_from_timezone_boundary) as min_dtz, max(dist_from_timezone_boundary) as max_dtz, 
+			min(dist_from_timezone_boundary) + ((max(dist_from_timezone_boundary) - min(dist_from_timezone_boundary))) / 2 as mid_dtz
+	from zip_gis;
+quit;
+
+/* 
+                                                     The SAS System                17:29 Wednesday, October 12, 2005  14
+
+     min_      max_      mid_
+  sunrise   sunrise   sunrise     min_X     max_X     mid_X     min_Y     max_Y     mid_Y   min_dtz   max_dtz   mid_dtz
+ ƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒ
+    6.507    8.8016    7.6543  -124.532  -67.0127  -95.7722  24.58247  49.31421  36.94834         0  22.63344  11.31672
+    
+what	min	max	bin2_size	bin3_size	bin4_size	bin2_0	bin3_1	bin3_2	bin4_1	bin4_2	bin4_3
+sunrise	6.507	8.8016	1.1473	0.764866667	0.57365	7.6543	7.271866667	8.036733333	7.08065	7.6543	8.22795
+Y	24.58247	49.31421	12.36587	8.243913333	6.182935	36.94834	32.82638333	41.07029667	30.765405	36.94834	43.131275
+dtz	0	22.63344	11.31672	7.54448	5.65836	11.31672	7.54448	15.08896	5.65836	11.31672	16.97508
+    
+*/
+
+
+%mend Analyses_20051012;
