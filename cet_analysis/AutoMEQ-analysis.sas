@@ -317,7 +317,7 @@ quit;
 
 proc sql;
 	create table cet7.zip_gis as
-	select a.*, b.sunrise_local_win_solst
+	select a.*, b.sunrise_local_win_solst, b.sunrise_local_sum_solst, b.Sunrise_WSvsSS
 	from cet7.zip_gis a left join cet7.zip_with_sunrise b
 	on a.zipcode = b.zipcode
 	order by a.zipcode;
@@ -356,6 +356,10 @@ run;
 
 %macro ProcessAutoMeqData;
 data cet7.automeq; set cet7.automeq_zip;
+	if (DST = 'Y') then sunrise_local_sum_solst = sunrise_local_sum_solst + 1;
+	Sunrise_WSvsSS = sunrise_local_sum_solst - sunrise_local_win_solst;
+	if (Sunrise_WSvsSS < 0) then Sunrise_WSvsSS = - Sunrise_WSvsSS;
+
 	d_awake_ = left(d_awake_workday);
 	wakewrk_str = d_awake_workday;
 	drop d_awake_workday;
@@ -488,6 +492,14 @@ data cet7.automeq; set cet7.automeq_zip;
 	if (sleepmeq < 15.) then sleepmeq = sleepmeq + 24.;
 	sdurmeq = (wakemeq - sleepmeq);
 	smidmeq = (sleepmeq + (.5 * sdurmeq));
+	
+	reported_work_waketime = wakewrk;
+	if (reported_work_waketime < 3) then reported_work_waketime = 3;
+	if (reported_work_waketime > 11) then reported_work_waketime = 11;
+	
+	reported_nwork_waketime = wakenwk;
+	if (reported_nwork_waketime < 3) then reported_nwork_waketime = 3;
+	if (reported_nwork_waketime > 11) then reported_nwork_waketime = 11;
 	
 	if (wakewrk < 15.) then wakewrk = wakewrk + 24.;
 	if (sleepwrk < 15.) then sleepwrk = sleepwrk + 24.;
@@ -878,6 +890,16 @@ data cet7.automeq; set cet7.automeq_zip;
 
 	Y_4dg = round(Y,4);
 	if (Y_4dg > 48) then Y_4dg = 52;	
+	
+	/* Notes from 10/28 */
+	diff_wake_sunrise = sunrise_local_win_solst - reported_work_waketime;
+	wakenwk_rounded = round(reported_nwork_waketime,.5);
+	
+	if (d_outsidelight_work > 480) then d_outsidelight_work = 480;
+	if (d_outsidelight_nonwork > 480) then d_outsidelight_nonwork = 480;
+	
+	avg_daily_sunlight_exp = ((d_working_days * d_outsidelight_work) + ((7 - d_working_days) * d_outsidelight_nonwork)) / 7;
+	if (avg_daily_sunlight_exp < 0) then avg_daily_sunlight_exp = 0;
 run;
 
 /* distributions */
@@ -3113,12 +3135,13 @@ Multiply odds ratio (percent change) of people in western timezone_side X percen
 %mend MakeDataSubsets;
 
 %macro RunAllRegressions;
+	/*
 	%RunRegressions(cet7.automeq_keepers);
 	
 	%RunRegressions(cet7.automeq_gt_39);
 	
 	%RunRegressions(cet7.automeq_gt_39_winter);
-	
+	*/
 	%RunRegressions(cet7.automeq_winter);
 	
 %mend RunAllRegressions;
@@ -3463,7 +3486,7 @@ Multiply odds ratio (percent change) of people in western timezone_side X percen
 	title "====== REGRESSION(&type) of &dependent vs. &explanvar using &db ======";
 	proc &type data=&db;
 		%if (&type eq logistic) %then %do;
-			class d_sex;
+			class d_sex d_sleep_darkroom d_wake_withlight;
 			%if (&explanvar eq sunrise) %then %do;
 				 units sunrise_local_win_solst = 1;
 			%end;
@@ -3476,13 +3499,16 @@ Multiply odds ratio (percent change) of people in western timezone_side X percen
 				(event='1')
 			%end;
 			%if (&explanvar eq sunrise) %then %do; 
-				= sunrise_local_win_solst
+				= sunrise_local_win_solst 
 			%end;
 			%else %do;
 				= Y dist_from_timezone_boundary 
 			%end;
 			
 			/* d_BMI */ d_age d_sex /* season */
+			diff_wake_sunrise wakenwk_rounded avg_daily_sunlight_exp
+			Sunrise_WSvsSS
+			/* temperature at winter solstice */
 			
 			%if (&type eq logistic) %then %do;
 				%if (&explanvar ne sunrise) %then Y*dist_from_timezone_boundary 
@@ -3503,7 +3529,7 @@ Multiply odds ratio (percent change) of people in western timezone_side X percen
 				season_x_BMI_x_dist_tzb	
 				*/		
 		%end;
-			/ selection=stepwise slentry=0.3 slstay=0.35 details
+			/ selection=stepwise slentry=0.3 slstay=0.35 /* details */
 			%if (&type eq logistic) %then lackfit rsquare stb clodds=wald;
 				;
 	run;
@@ -4255,6 +4281,7 @@ RUN;
 */
 
 %macro JoinSunriseTimeWithZip;
+	/*
 	proc sql;
 		create table rnd_zip as
 		select distinct Zipcode, Y, round(Y) as rnd_Y, X, -round(X) as rnd_X, GMTOffset
@@ -4274,6 +4301,42 @@ RUN;
 		where rnd_Y = b.lat and rnd_X = b.long
 		order by Zipcode, mean_sq_dist;
 	quit;
+	*/
+	
+	proc sql;
+		create table rnd_zip as
+		select distinct Zipcode, Y, round(Y,.1) as rnd_Y, X, -round(X,.1) as rnd_X, GMTOffset
+		from cet7.zip_gis
+		order by Zipcode;
+	quit;
+	
+	proc sql;
+		create table cet7.zip_with_sunrise as
+			select distinct a.Zipcode,
+				abs((b.lat-a.Y) * (b.long+a.X)) as mean_sq_dist,
+				b.lat, a.Y,
+				b.long, a.X,
+				b.sunrise_ss as sunrise_GMT_sum_solst,
+				b.sunrise_ws as sunrise_GMT_win_solst,
+				(b.sunrise_ws + a.GMTOffset) as sunrise_local_win_solst,
+				(b.sunrise_ss + a.GMTOffset) as sunrise_local_sum_solst,
+				b.Sunrise_WSvsSS
+		from rnd_zip a, cet7.sunrisetimes b
+		where rnd_Y = b.lat and rnd_X = b.long
+		order by Zipcode, mean_sq_dist;
+	quit;	
+	
+	/*
+	* Alaska has values of Y > 50, and Hawaii has some in the 19 range *
+	
+	proc sql;
+		create table test as
+		select statecode, Y, X, zipcode
+		from cet7.zip_gis
+		where Y < 20 or Y >= 50
+		order by statecode, Y, X;
+	quit;
+	*/
 	
 	/*
 	proc sql;
@@ -4444,3 +4507,52 @@ dtz	0	22.63344	11.31672	7.54448	5.65836	11.31672	7.54448	15.08896	5.65836	11.316
 
 
 %mend Analyses_20051012;
+
+/* Notes from 10/28/05:
+	Should we do analysis similar to BMJ's which looks at dark commute time (6-9 am) compared to point prevalance of SAD for a given month
+	(% of SAD with worse symptoms / # of SAD patients)?
+	
+	Map difference between summer and winter solstice (seasonal contrast)
+	E.g. use that difference as a covariate (latitude)
+	[ ] Could temperature be a covariate?  Can George get us those (daily average temperature for winter solstice)?
+	[ ] Can we get sunrise times for winter and summer solstice from Steve?
+	[ ] Other covariates - 
+	Round up wakenwk to nearest half hour since odd reporting bias.
+*/
+
+%macro ImportPoint1SunriseTimes;
+
+PROC IMPORT OUT= WORK.ss 
+            DATAFILE= "C:\cvs2\Dialogix\cet_analysis\sunrisetimes_ss.txt" 
+            DBMS=DLM REPLACE;
+     DELIMITER='09'x; 
+     GETNAMES=YES;
+     DATAROW=2; 
+RUN;
+
+
+PROC IMPORT OUT= WORK.ws 
+            DATAFILE= "C:\cvs2\Dialogix\cet_analysis\sunrisetimes_ws.txt" 
+            DBMS=DLM REPLACE;
+     DELIMITER='09'x; 
+     GETNAMES=YES;
+     DATAROW=2; 
+RUN;
+
+proc sort data=ss;
+	by Lat Long;
+run;
+
+proc sort data=ws;
+	by Lat Long;
+run;
+
+data cet7.sunrisetimes; 
+	merge ss ws;
+	by Lat Long;
+	Sunrise_WSvsSS = Sunrise_WS - Sunrise_SS;
+	if (Sunrise_WSvsSS < 0) then Sunrise_WSvsSS = - Sunrise_WSvsSS;
+	if (Sunrise_WSvsSS = .) then delete;
+run;
+
+%mend ImportPoint1SunriseTimes;
