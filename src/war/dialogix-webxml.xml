@@ -12,7 +12,7 @@
             Dialogix
         </servlet-name>
         <servlet-class>
-            org.dianexus.triceps.TricepsServlet
+            org.dianexus.triceps.@@REQUIRES.LOGIN@@TricepsServlet
         </servlet-class>
         
         <init-param>

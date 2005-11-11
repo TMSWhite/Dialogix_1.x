@@ -645,6 +645,7 @@
          	<filter token="LICENSE.STUDY_NAME" value="${LICENSE.STUDY_NAME}"/>
          	<filter token="LICENSE.STUDY_ICON" value="${LICENSE.STUDY_ICON}"/>
          	<filter token="LICENSE.PACKAGE_DIR" value="${dialogix.package_name}"/>
+         	<filter token="REQUIRES.LOGIN" value="${REQUIRES.LOGIN}"/>
 		</filterset>
 	</copy>
 	
