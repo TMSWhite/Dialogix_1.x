@@ -65,10 +65,10 @@ if (-e "$logs/$logname") {
 }
 
 #wait a few seconds to ensure that Tomcat completely stopped
-sleep(120);
+sleep(90);
 
 #now check that all of the java processes are terminated
-my @java_ps = qx/ps ax | grep java | cut -d ' ' -f 1/;
+my @java_ps = qx/ps ax | grep java | grep dialogix | cut -d ' ' -f 1/;
 foreach (@java_ps) {
 	system("kill -9 $_");
 }
