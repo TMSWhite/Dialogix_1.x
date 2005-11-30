@@ -13,6 +13,8 @@ options compress=NO;
 %let cet7old_lib = C:\data\cet-2005-04\;
 
 %let cet7_06_lib = C:\data\cet_200506\analysis;
+%let cet7_11_lib = C:\data\cet_200511\analysis;
+
 
 libname helpers "&helpers";
 
@@ -20,7 +22,8 @@ libname cet3 "&cet3_lib";
 libname cet4 "&cet4_lib";
 libname cet5 "&cet5_lib";
 libname cet7old "&cet7old_lib";
-libname cet7 "&cet7_06_lib";
+libname cet7_06 "&cet7_06_lib";
+libname cet7 "&cet7_11_lib";
 
 proc format;
 	value phasef   
@@ -110,7 +113,7 @@ options pagesize=50 linesize=120;
 
 /* %include "&cet5_lib\automeq_formats.sas"; */
 
-%include "\cvs2\Dialogix\cet_analysis\LoadAutomeq7-200506-data.sas";
+%include "\cvs2\Dialogix\cet_analysis\LoadAutomeq7-200511data.sas";
 
 data cet7.automeq7; set automeq7;
 run;
@@ -3135,13 +3138,12 @@ Multiply odds ratio (percent change) of people in western timezone_side X percen
 %mend MakeDataSubsets;
 
 %macro RunAllRegressions;
-	/*
 	%RunRegressions(cet7.automeq_keepers);
 	
 	%RunRegressions(cet7.automeq_gt_39);
 	
 	%RunRegressions(cet7.automeq_gt_39_winter);
-	*/
+
 	%RunRegressions(cet7.automeq_winter);
 	
 %mend RunAllRegressions;
@@ -4556,3 +4558,10 @@ data cet7.sunrisetimes;
 run;
 
 %mend ImportPoint1SunriseTimes;
+
+%macro CheckInteractions;
+proc corr data=cet7.automeq_keepers;
+	with Sunrise_WSvsSS;
+	var sunrise_local_win_solst;
+run;
+%mend;
