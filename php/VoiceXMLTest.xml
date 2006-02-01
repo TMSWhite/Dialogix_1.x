@@ -1,0 +1,85 @@
+<?xml version="1.0"?>
+<vxml version="2.0">
+
+<form>
+	<field name="number" type="number">
+		<prompt>
+			Please enter a number from 1 to 100.
+		</prompt>
+		<catch event="nomatch noinput help">
+			I'm sorry I didn't get that.
+			<reprompt/>
+		</catch>		
+		<filled>
+			<audio>I heard you say <value expr="number"/>.</audio>
+		</filled>
+	</field> 
+	
+	<field name="date" type="date">
+		<prompt>
+			What is today's date?
+		</prompt>
+		<catch event="nomatch noinput help">
+			I'm sorry I didn't get that.
+			<reprompt/>
+		</catch>		
+		<filled>
+			<audio>I heard you say <value expr="date"/>.</audio>
+		</filled>
+	</field>
+	
+	<field name="time" type="time">
+		<prompt>
+			What time is it?
+		</prompt>
+		<catch event="nomatch noinput help">
+			I'm sorry I didn't get that.
+			<reprompt/>
+		</catch>		
+		<filled>
+			<audio>I heard you say <value expr="time"/>.</audio>
+		</filled>
+	</field> 	
+	
+	<field name="city">
+		<prompt count="1">
+			Select a city by pressing a number from 1 to 7 or saying its name.
+			<!-- list the options -->
+			<enumerate/>
+		</prompt>
+		
+		<prompt count="2">
+			Select a city by pressing a number from 1 to 7.
+		</prompt>
+
+		<option dtmf="1" value="delhi"> Deli </option>
+		<option dtmf="2" value="tokyo"> Tokyo</option>
+		<option dtmf="3" value="beijing"> Beijing </option>
+		<option dtmf="4" value="calcutta"> Calcutta </option>
+		<option dtmf="5" value="hong_kong"> Hong Kong </option>
+		<option dtmf="6" value="london"> London  </option>
+		<option dtmf="7" value="paris"> Paris </option>
+	
+		<catch event="nomatch noinput">
+			I'm sorry I didn't get that.
+			<reprompt/>
+		</catch>
+		
+		<catch event="help">
+			You asked for help.  Here is the list of cities.  <enumerate/>
+			<reprompt/>
+		</catch>
+		
+		<filled>
+			<audio>Have fun in <value expr="city"/>!</audio>
+		</filled>
+	</field>
+	
+	<filled>
+		<!-- Here we perform the HTTP POST -->
+		<submit enctype="multipart/form-data" next="http://dialogix.org/LogVoiceXMLResponse.php" namelist="number date time city" method="post"/>
+	</filled>
+	
+</form>
+
+</vxml>
