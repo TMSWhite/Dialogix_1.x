@@ -15,15 +15,20 @@ PATH=%PATH%;@@DIALOGIX.HOME@@\bin
 if not "%JAVA_HOME%" == "" goto gotJavaHome
 
 rem -- try to find JAVA_HOME using standard install directories --
+if exist "C:\Program Files\Java\jdk1.5.0_01\bin\java.exe" set JAVA_HOME=C:\Program Files\Java\jdk1.5.0_06
+if exist "C:\Program Files\Java\jdk1.5.0_01\bin\java.exe" set JAVA_HOME=C:\Program Files\Java\jdk1.5.0_05
+if exist "C:\Program Files\Java\jdk1.5.0_01\bin\java.exe" set JAVA_HOME=C:\Program Files\Java\jdk1.5.0_04
+if exist "C:\Program Files\Java\jdk1.5.0_01\bin\java.exe" set JAVA_HOME=C:\Program Files\Java\jdk1.5.0_03
+if exist "C:\Program Files\Java\jdk1.5.0_01\bin\java.exe" set JAVA_HOME=C:\Program Files\Java\jdk1.5.0_02
+if exist "C:\Program Files\Java\jdk1.5.0_01\bin\java.exe" set JAVA_HOME=C:\Program Files\Java\jdk1.5.0_01
+if exist "c:\j2sdk1.4.2_06\bin\java.exe" set JAVA_HOME=c:\j2sdk1.4.2_06
+if exist "c:\jdk1.4.0\bin\java.exe" set JAVA_HOME=c:\jdk1.4.0
+if exist "c:\jdk1.4\bin\java.exe" set JAVA_HOME=c:\jdk1.4
 if exist "c:\jdk1.3\bin\java.exe" set JAVA_HOME=c:\jdk1.3
 if exist "c:\jdk1.3.1\bin\java.exe" set JAVA_HOME=c:\jdk1.3.1
 if exist "c:\jdk1.3.1_01\bin\java.exe" set JAVA_HOME=c:\jdk1.3.1_01
 if exist "c:\jdk1.3.1_02\bin\java.exe" set JAVA_HOME=c:\jdk1.3.1_02
 if exist "c:\jdk1.3.1_03\bin\java.exe" set JAVA_HOME=c:\jdk1.3.1_03
-if exist "c:\jdk1.4\bin\java.exe" set JAVA_HOME=c:\jdk1.4
-if exist "c:\jdk1.4.0\bin\java.exe" set JAVA_HOME=c:\jdk1.4.0
-if exist "c:\j2sdk1.4.2_06\bin\java.exe" set JAVA_HOME=c:\j2sdk1.4.2_06
-if exist "C:\Program Files\Java\jdk1.5.0_01\bin\java.exe" set JAVA_HOME=C:\Program Files\Java\jdk1.5.0_01
 
 
 if not "%JAVA_HOME%" == "" goto gotJavaHome

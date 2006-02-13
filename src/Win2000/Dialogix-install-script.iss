@@ -13,7 +13,6 @@ DefaultDirName=@@DIALOGIX.HOME@@
 DisableDirPage=yes
 DefaultGroupName=Dialogix
 AllowNoIcons=yes
-AlwaysCreateUninstallIcon=yes
 LicenseFile=@@DIALOGIX.HOME@@\License.txt
 InfoAfterFile=@@DIALOGIX.HOME@@\README.txt
 ; uncomment the following line if you want your installation to run on NT 3.51 too.
