@@ -903,6 +903,12 @@ data cet7.automeq; set cet7.automeq_zip;
 	
 	avg_daily_sunlight_exp = ((d_working_days * d_outsidelight_work) + ((7 - d_working_days) * d_outsidelight_nonwork)) / 7;
 	if (avg_daily_sunlight_exp < 0) then avg_daily_sunlight_exp = 0;
+	
+	photoperiod = (1.554/10000000) + (10.689/(1 + (Y/65.160)**3.935));
+	dist_from_timezone_boundary = dist_from_timezone_boundary / 15;	/* adjust units to hours instead of units of longitude */
+	dtz_vs_photoperiod = photoperiod * dist_from_timezone_boundary;
+	
+	seas_mdd_reg = -0.8908 + photoperiod * -0.2143 + sunrise_local_win_solst * 0.2932;
 run;
 
 /* distributions */
@@ -3122,6 +3128,7 @@ Multiply odds ratio (percent change) of people in western timezone_side X percen
 		season_x_BMI_x_dist_tzb = season*d_BMI*dist_from_timezone_boundary;		
 		
 		if (statecode = 'AK') then delete;	/* 7/1/05 - remove Alaska from analyses */
+		
 	run;
 	
 	data cet7.automeq_gt_39; set cet7.automeq_keepers;
@@ -3135,11 +3142,18 @@ Multiply odds ratio (percent change) of people in western timezone_side X percen
 	data cet7.automeq_winter; set cet7.automeq_keepers;
 		where season=1;
 	run;		
+	
+	proc sql;
+		create table Musa_seas_mdd_eqn as
+		select distinct statecode, Zipcode, X, Y, sunrise_local_win_solst, photoperiod, dist_from_timezone_boundary, seas_mdd_reg
+		from cet7.automeq_keepers
+		order by statecode, X, Y;
+	quit;
+	
 %mend MakeDataSubsets;
 
 %macro RunAllRegressions;
 	%RunRegressions(cet7.automeq_keepers);
-	
 	%RunRegressions(cet7.automeq_gt_39);
 	
 	%RunRegressions(cet7.automeq_gt_39_winter);
@@ -3471,7 +3485,7 @@ Multiply odds ratio (percent change) of people in western timezone_side X percen
 
 %macro RunRegression(type,dependent,db);
 	%RunARegression(&type,&dependent,&db,sunrise);
-	%RunARegression(&type,&dependent,&db,timezone);
+/*	%RunARegression(&type,&dependent,&db,timezone); */
 %mend RunRegression;
 
 
@@ -3490,10 +3504,10 @@ Multiply odds ratio (percent change) of people in western timezone_side X percen
 		%if (&type eq logistic) %then %do;
 			class d_sex d_sleep_darkroom d_wake_withlight;
 			%if (&explanvar eq sunrise) %then %do;
-				 units sunrise_local_win_solst = 1;
+				 /* units sunrise_local_win_solst = 1; */
 			%end;
 			%else %do;
-				units dist_from_timezone_boundary = 15 Y = 20;
+				units Y = 20;
 			%end;
 		%end;
 		model &dependent 
@@ -3501,15 +3515,15 @@ Multiply odds ratio (percent change) of people in western timezone_side X percen
 				(event='1')
 			%end;
 			%if (&explanvar eq sunrise) %then %do; 
-				= sunrise_local_win_solst 
+				=  photoperiod dist_from_timezone_boundary /* sunrise_local_win_solst */ /* dtz_vs_photoperiod */
 			%end;
 			%else %do;
 				= Y dist_from_timezone_boundary 
 			%end;
 			
 			/* d_BMI */ d_age d_sex /* season */
-			diff_wake_sunrise wakenwk_rounded avg_daily_sunlight_exp
-			Sunrise_WSvsSS
+			/* diff_wake_sunrise wakenwk_rounded *//* avg_daily_sunlight_exp */
+			/* Sunrise_WSvsSS */
 			/* temperature at winter solstice */
 			
 			%if (&type eq logistic) %then %do;
@@ -3562,7 +3576,7 @@ Multiply odds ratio (percent change) of people in western timezone_side X percen
 		by d_sex;
 		%if (&type eq logistic) %then %do;
 			%if (&explanvar eq sunrise) %then %do;
-				 units sunrise_local_win_solst = 1;
+				 /* units sunrise_local_win_solst = 1; */
 			%end;
 			%else %do;
 				units dist_from_timezone_boundary = 15 Y = 20;
@@ -3615,6 +3629,79 @@ Multiply odds ratio (percent change) of people in western timezone_side X percen
 	%put '************************************************';	
 %mend RunARegression2;
 
+
+
+%macro RunARegression3(type,dependent,db,explanvar);
+	%put '************************************************';
+	%put "***** START &type REGRESSION of &dependent using &db *****";
+	%if (&explanvar eq sunrise) %then %do;
+		%put "****** Sunrise / Daylength *****";
+	%end;
+	%else %do;
+		%put "****** Latitude / Distance From Timezone Boundary *****";
+	%end;
+	%put '************************************************';
+	title "====== REGRESSION(&type) of &dependent vs. &explanvar using &db ======";
+	proc &type data=&db;
+		%if (&type eq logistic) %then %do;
+			class d_sex d_sleep_darkroom d_wake_withlight;
+			%if (&explanvar eq sunrise) %then %do;
+				 /* units sunrise_local_win_solst = 1; */
+			%end;
+			%else %do;
+				units Y = 20;
+			%end;
+		%end;
+		model &dependent 
+			%if (&type eq logistic) %then %do;
+				(event='1')
+			%end;
+			%if (&explanvar eq sunrise) %then %do; 
+				=  photoperiod  sunrise_local_win_solst
+			%end;
+			%else %do;
+				= Y dist_from_timezone_boundary 
+			%end;
+			
+			d_age d_sex  
+			/* d_BMI */ /* season */
+			/* diff_wake_sunrise wakenwk_rounded *//* avg_daily_sunlight_exp */
+			/* Sunrise_WSvsSS */
+			/* temperature at winter solstice */
+			
+			%if (&type eq logistic) %then %do;
+				%if (&explanvar ne sunrise) %then Y*dist_from_timezone_boundary 
+			%end;
+			%else %do;
+				%if (&explanvar ne sunrise) %then %do;
+					Y_x_dist_from_tzb
+				%end;
+				/*
+				BMI_x_dist_from_tzb
+				age_x_dist_from_tzb 
+				sex_x_dist_from_tzb
+				BMI_x_Y
+				age_x_Y
+				sex_x_Y
+				season_x_BMI
+				season_x_BMI_x_Y
+				season_x_BMI_x_dist_tzb	
+				*/		
+		%end;
+			/ selection=stepwise slentry=0.3 slstay=0.35 /* details */
+			%if (&type eq logistic) %then lackfit rsquare stb clodds=wald;
+				;
+	run;
+	%put '************************************************';
+	%put "***** END &type REGRESSION of &dependent using &db ****";
+	%if (&explanvar eq sunrise) %then %do;
+		%put "****** Sunrise / Daylength *****";
+	%end;
+	%else %do;
+		%put "****** Latitude / Distance From Timezone Boundary *****";
+	%end;	
+	%put '************************************************';	
+%mend RunARegression3;
 
 
 %macro doAll;
@@ -4350,6 +4437,68 @@ RUN;
 	quit;
 	*/
 	
+	/* Compute local sunrise time, photoperiod, and seas_mdd_reg here? */
+	data zip_with_sunrise; set cet7.zip_with_sunrise;
+		photoperiod = (1.554/10000000) + (10.689/(1 + (Y/65.160)**3.935));
+		seas_mdd_reg = -0.8908 + photoperiod * -0.2143 + sunrise_local_win_solst * 0.2932;	
+		/* Do I need to do a reverse logit or other tranform to get actual probility? */
+		seas_mdd_odds = (photoperiod * 0.803 + sunrise_local_win_solst * 1.312 - 16.21535) * 100;	/* % increase in odds compared to zero */
+	run;
+	
+	proc sql;	
+		select 
+			min(seas_mdd_reg), max(seas_mdd_reg),
+			min(seas_mdd_odds), max(seas_mdd_odds)
+		from zip_with_sunrise;
+	quit;
+	
+	proc sort data=zip_with_sunrise;
+		by zipcode lat long;
+	run;
+	
+	/* The problem is that I can't join sunrise time with zipcode without losing data - but George can */
+	
+	data sunrisetimes; set cet7.sunrisetimes;
+		photoperiod = (1.554/10000000) + (10.689/(1 + (Lat/65.160)**3.935));
+		
+		/*
+		GMTOffset = which timezone a zipcode is in
+		
+		sunrise_local_win_solst = sunrise_WS + GMTOffset;  
+		seas_mdd_odds = (photoperiod * 0.803 + sunrise_local_win_solst * 1.312 - 16.21535) * 100;	
+		*/
+		/* seas_mdd_odds = % increase in odds compared to zero */
+	run;
+	
+	proc sql;
+		create table zips as
+		select distinct
+			zipcode, 
+			statecode, latitude, longitude, GMTOffset, DST, timezone
+		from helpers.zipcodes
+		order by zipcode;	
+	quit;
+	
+	PROC EXPORT DATA= WORK.Sunrisetimes 
+	            OUTTABLE= "sunrise_times" 
+	            DBMS=ACCESS2000 REPLACE;
+	     DATABASE="C:\cvs2\Dialogix\cet_analysis\data_for_George_20060124.mdb"; 
+	RUN;
+	
+	PROC EXPORT DATA= WORK.zips 
+	            OUTTABLE= "zip_to_timezone" 
+	            DBMS=ACCESS2000 REPLACE;
+	     DATABASE="C:\cvs2\Dialogix\cet_analysis\data_for_George_20060124.mdb"; 
+	RUN;	
+	
+	
+	/* 
+	   -1.17062  -0.04396  16.21535   18.4408
+	*/
+	
+	/* Don't I want to show the change in odds ratio rather than the actual values? Can it be normalized to some "zero" value?  
+		Every unit increase in odds ration represents another 100% risk - so 1 is 100% more than 0; 2 is 200% more than 0 */
+	
 %mend JoinSunriseTimeWithZip;
 
 /* Get data to George *
@@ -4389,6 +4538,12 @@ Michael will play with graphs and tables
 [ ] Given N's for men and women for confidence intervals - so re-compute Analyses_2005_09_09 (edit workbook for Michael)
 [ ] Do regressions (and geo distributions?) of seas_min, majmin, seas_sans
 */
+
+%macro Analyses_2006_01_20;
+	%RunARegression3(logistic,seas_mdd,cet7.automeq_keepers,sunrise);
+%mend Analyses_2006_01_20;
+
+
 %macro Analyses_2005_09_09;
 	/* Effect is larger for men than women */
 	proc sort data=cet7.automeq_keepers;
@@ -4560,8 +4715,197 @@ run;
 %mend ImportPoint1SunriseTimes;
 
 %macro CheckInteractions;
+
+proc corr data=cet7.automeq_keepers;
+	with Sunrise_WSvsSS;
+	var photoperiod;
+run;
+
 proc corr data=cet7.automeq_keepers;
 	with Sunrise_WSvsSS;
 	var sunrise_local_win_solst;
 run;
-%mend;
+
+proc corr data=cet7.automeq_keepers;
+	with Sunrise_WSvsSS;
+	var Y;
+run;
+
+proc corr data=cet7.automeq_keepers;
+	with Y;
+	var photoperiod;
+run;
+
+proc corr data=cet7.automeq_keepers;
+	with sunrise_local_win_solst;
+	var photoperiod;
+run;
+
+proc corr data=cet7.automeq_keepers;
+	with sunrise_local_win_solst;
+	var dist_from_timezone_boundary;
+run;
+
+
+proc corr data=cet7.automeq_keepers;
+	with photoperiod;
+	var dist_from_timezone_boundary;
+run;
+
+
+%mend CheckInteractions;
+
+/* Notes from 12/2/05 *
+New maps:
+(1) Photoperiod
+(2) distance from timezone boundary
+(3) Major depression risk by geography (compujte risk of seas_mdd from regression, give that # plus X,Y to George)
+
+             Intercept                1      2.5879      0.7141       13.1323        0.0003
+             photoperiod              1     -0.3756      0.0782       23.0488        <.0001         -0.0937
+             dist_from_timezone_b     1      0.3652      0.1094       11.1360        0.0008          0.0644
+             
+seas_mdd_reg = 2.5879 + photoperiod * -0.3756 * dist_from_timezone_boundary * 0.3652;
+
+[ ] compute this and send to George (zip, x,y, etc.) (seas_mdd_reg)
+[ ] How convert this into the X,Y coordinates George has?
+
+I'm dying to see scatterplots for seasonal MDD (from which we could  
+derive best-fitting curves, whether or not linear) for the age,  
+photoperiod, time zone variable and integrated sunrise variables.  As  
+for the dichomotous sex variable, I'm confused about how to show the  
+effect.  Again, we have to consider drawing curves for the northern  
+section of the US where SAD is most prevalent.
+
+[ ] scatterplot of MDD vs age, photoperiod, timezone, sunrise
+[ ] show sex variable?
+[ ] scatterplot of suicidal vs. age, photoperiod, timezone, sunrise
+
+*/
+
+/* Notes from 1/20/06 *
+(1) Map of risk of major depression (see #3 above)
+(2) Maps of photoperiod and sunrisetime separate
+(3) Indiana which went with Eastern TZ run risk of being more depressed. (discussion section)
+
+If have map of photoperiod, using units of hours, then can understand the relative contributions of the risk.
+
+Should we run regressions using sunrise time and photoperiod as dependent variables without using Y and dist_from_tzb.
+
+How can I delegate some of this work?
+[ ] Can I get a student to do a scatterplots listed above?
+[ ] Is sex ratio consistent across photoperiod and sunrise time? (interaction effect between sex and photoperiod) - so add interaction effect to regression.
+[ ] What is risk of depression - depends on age and sex - put up on CET as an interaction?
+
+Other Tasks
+[ ] Propose to Marian that we fund a pilot project to use Greenfield Online to do seasonal depression study - how much would it cost?             
+
+
+Analyses from today:
+                                                 The LOGISTIC Procedure
+
+                                       Analysis of Maximum Likelihood Estimates
+
+                                                          Standard          Wald                  Standardized
+         Parameter                      DF    Estimate       Error    Chi-Square    Pr > ChiSq        Estimate
+
+         Intercept                       1     -0.5104      1.5541        0.1079        0.7426
+         photoperiod                     1     -0.2195      0.0903        5.9048        0.0151         -0.0548
+         sunrise_local_win_so            1      0.2715      0.1257        4.6662        0.0308          0.0484
+         d_age                           1    -0.00834     0.00269        9.5819        0.0020         -0.0600
+         d_sex                female     1      0.3146      0.0442       50.7244        <.0001               .
+
+
+                                                 Odds Ratio Estimates
+
+                                                                   Point          95% Wald
+                       Effect                                   Estimate      Confidence Limits
+
+                       photoperiod                                 0.803       0.673       0.958
+                       sunrise_local_win_so                        1.312       1.025       1.678
+                       d_age                                       0.992       0.986       0.997
+                       d_sex                female vs male         1.876       1.578       2.231
+
+
+                             Association of Predicted Probabilities and Observed Responses
+
+                                  Percent Concordant       58.6    Somers' D    0.181
+                                  Percent Discordant       40.5    Gamma        0.183
+                                  Percent Tied              0.9    Tau-a        0.081
+                                  Pairs                 3211754    c            0.591
+
+
+                                   Wald Confidence Interval for Adjusted Odds Ratios
+
+               Effect                                        Unit     Estimate     95% Confidence Limits
+
+               photoperiod                                 1.0000        0.803        0.673        0.958
+               sunrise_local_win_so                        1.0000        1.312        1.025        1.678
+               d_age                                       1.0000        0.992        0.986        0.997
+               d_sex                female vs male         1.0000        1.876        1.578        2.231
+               
+                                                 The LOGISTIC Procedure
+
+                                                 Model Fit Statistics
+
+                                                                      Intercept
+                                                       Intercept         and
+                                        Criterion        Only        Covariates
+
+                                        AIC             4845.523       4825.872
+                                        SC              4851.765       4844.597
+                                        -2 Log L        4843.523       4819.872
+
+
+                                 R-Square    0.0062    Max-rescaled R-Square    0.0086
+
+
+                                        Testing Global Null Hypothesis: BETA=0
+
+                                Test                 Chi-Square       DF     Pr > ChiSq
+
+                                Likelihood Ratio        23.6510        2         <.0001
+                                Score                   23.6678        2         <.0001
+                                Wald                    23.5226        2         <.0001
+                                
+
+                                   Wald Confidence Interval for Adjusted Odds Ratios
+
+               Effect                                        Unit     Estimate     95% Confidence Limits
+
+               photoperiod                                 1.0000        0.803        0.673        0.958
+               sunrise_local_win_so                        1.0000        1.312        1.025        1.678
+               d_age                                       1.0000        0.992        0.986        0.997
+               d_sex                female vs male         1.0000        1.876        1.578        2.231
+                                
+
+NOTE: All effects have been entered into the model.
+
+
+                                              Summary of Stepwise Selection
+
+                                Effect                                 Number         Score          Wald
+     Step    Entered                 Removed                   DF          In    Chi-Square    Chi-Square    Pr > ChiSq
+
+        1    photoperiod                                        1           1       18.0818         .            <.0001
+        2    sunrise_local_win_so                               1           2        5.5475         .            0.0185
+
+
+                                        Analysis of Maximum Likelihood Estimates
+
+                                                       Standard          Wald                  Standardized
+             Parameter               DF    Estimate       Error    Chi-Square    Pr > ChiSq        Estimate
+
+             Intercept                1     -0.8908      1.5349        0.3368        0.5617
+             photoperiod              1     -0.2143      0.0895        5.7390        0.0166         -0.0535
+             sunrise_local_win_so     1      0.2932      0.1246        5.5404        0.0186          0.0523               
+  
+    
+                                   Wald Confidence Interval for Adjusted Odds Ratios
+
+                        Effect                       Unit     Estimate     95% Confidence Limits
+
+                        photoperiod                1.0000        0.807        0.677        0.962
+                        sunrise_local_win_so       1.0000        1.341        1.050        1.712
+
+*/
