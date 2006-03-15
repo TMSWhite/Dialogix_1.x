@@ -15,6 +15,8 @@ import java.util.Date;
 import java.util.GregorianCalendar;
 import java.util.Calendar;
 import java.io.File;
+import java.sql.*;
+import org.dianexus.triceps.modules.data.*;
 
 /*public*/ class Evidence implements VersionIF  {
 	private static final int FUNCTION_INDEX = 2;
@@ -118,8 +120,7 @@ import java.io.File;
 	private static final int SAVE_DATA = 89;
 	private static final int EXEC = 90;
 	private static final int SET_STATUS_COMPLETED = 91;
-
-	
+        
 	private static final Object FUNCTION_ARRAY[][] = {
 		{ "desc",				ONE,		new Integer(DESC) },
 		{ "isAsked",			ONE,		new Integer(ISASKED) },
@@ -191,7 +192,7 @@ import java.io.File;
 		{ "pi",					ZERO,		new Integer(PI) },
 		{ "e",					ZERO,		new Integer(E) },
 		{ "formatNumber",		TWO,		new Integer(FORMAT_NUMBER) },
-		{ "parseNumber",		TWO,		new Integer(PARSE_NUMBER) },
+		{ "parsenumber",		TWO,		new Integer(PARSE_NUMBER) },
 		{ "formatDate",			TWO,		new Integer(FORMAT_DATE) },
 		{ "parseDate",			TWO,		new Integer(PARSE_DATE) },
 		{ "getConcept",			ONE,		new Integer(GET_CONCEPT) },
@@ -229,12 +230,22 @@ import java.io.File;
 	private Date startTime = new Date(System.currentTimeMillis());
 	private Logger errorLogger = new Logger();
 	Triceps triceps = null;	// need package-level access in Qss
+        // ##GFL Code added by Gary Lyons 2-24-06 to add direct db access
+	//private boolean SAVE_TO_DB = true;
+        //private static final int DBID=1; //set for mysql for now
+        //SessionDAO sdao;
+        //RawDataDAO rddao;
+        // ##GFL End Code added by Gary Lyons 2-24-06 to add direct db access
+       
+        
 	
 	/*public*/ static final Evidence NULL = new Evidence(null);
 	
 
 	/*public*/ Evidence(Triceps tri) {
 		triceps = (tri == null) ? Triceps.NULL : tri;
+               
+                
 	}
 	
 	/*public*/ void createReserved() {
@@ -284,6 +295,27 @@ if (DEBUG) Logger.writeln("##Evidence.initReserved()-schedule=null");
 		int startingStep = Integer.parseInt(schedule.getReserved(Schedule.STARTING_STEP));
 		String timeStamp = null;
 		String startTime = schedule.getReserved(Schedule.START_TIME);
+                
+                
+                // ##GFL Code added by Gary Lyons 2-24-06 to add direct db access
+                // Get DAO Objects through factories
+
+                //DialogixDAOFactory ddf = DialogixDAOFactory.getDAOFactory(DBID);
+                // to update instrument session instance table
+                //sdao = ddf.getSessionDAO();
+               
+                // TODO pass this in somehow
+                //String tableName = "parkinsonsratingscale_v__n16_710bd9e9812c0cf0474607370f1af88a";
+                // add some parameters
+                //sdao.setInstanceName("Instrument Instance");
+                //sdao.setInstrumentName("Hard Coded Test Instrument");
+                //java.sql.Timestamp ts = new java.sql.Timestamp(System.currentTimeMillis());
+                //sdao.setStartTime(ts);
+                // create a new session row in the db
+                //sdao.newSession(tableName);
+                // to update raw data table
+                //rddao = ddf.getRawDataDAO();
+                // ##GFL End added Code by Gary Lyons
 		
 
 		/* then assign the user-defined words */
@@ -527,7 +559,7 @@ if (DEPLOYABLE) {
 		
 		sb.append(q.getLocalName());
 		sb.append("\t");
-		sb.append(q.getAnswerLanguageNum());
+		sb.append(q.getAnswerLanguagenum());
 		sb.append("\t");
 		sb.append(q.getTimeStampStr());
 		sb.append("\t");
@@ -537,7 +569,43 @@ if (DEPLOYABLE) {
 		sb.append("\t");
 		sb.append(InputEncoder.encode(comment));
 		triceps.dataLogger.println(sb.toString());
-}		
+                // ##GFL Code added by Gary Lyons 2-24-06 to add direct db access
+                // to update instrument session instance table
+     /*if(SAVE_TO_DB){
+                // update instance table with current values
+
+                sdao.updateSession(q.getLocalName(), InputEncoder.encode(ans));
+                rddao.clearRawDataStructure();
+                rddao.setAnswer(InputEncoder.encode(ans));
+                //rddao.setAnswer("test answer");
+                rddao.setAnswerType(q.getAnswerType());
+                //rddao.setAnswerType(0);
+                rddao.setComment(comment);
+                // TODO where is display num ??
+                rddao.setDisplanNum(0);
+                // TODO where is group num ??
+                rddao.setGroupNum(0);
+                // TODO where is instance name
+                rddao.setInstanceName("");
+                // TODO where is  instrument name
+                rddao.setInstrumentName("");
+                rddao.setLangNum(q.getAnswerLanguagenum());
+                rddao.setQuestionAsAsked(q.getQuestionAsAsked());
+                // TOdO fix this rddao.setTimeStamp(new java.sql.Timestamp(q.getTimeStamp()));
+                rddao.setVarName(d.getName());
+                // TODO where is var num ??
+                rddao.setVarNum(0);
+                // TODO where and what is this ??
+                rddao.setWhenAsMS(0);
+                rddao.setRawData();
+                
+                
+                
+
+                }  */
+}
+              
+                
 	}
 	
 /*
@@ -1189,7 +1257,7 @@ if (DEBUG) Logger.writeln("##SecurityException @ Evidence.fileExists()" + e.getM
 				case FORMAT_NUMBER:
 					return new Datum(triceps, triceps.formatNumber(new Double(datum.doubleVal()), getParam(params.elementAt(1)).stringVal()), Datum.STRING);
 				case PARSE_NUMBER:
-					return new Datum(triceps, triceps.parseNumber(datum.stringVal(), getParam(params.elementAt(1)).stringVal()).doubleValue()); 
+					return new Datum(triceps, triceps.parsenumber(datum.stringVal(), getParam(params.elementAt(1)).stringVal()).doubleValue()); 
 				case FORMAT_DATE:
 					return new Datum(triceps, triceps.formatDate(datum.dateVal(), getParam(params.elementAt(1)).stringVal()), Datum.STRING);
 				case PARSE_DATE:
