@@ -568,19 +568,19 @@ if (DEBUG) Logger.writeln("##Exception @ Servlet.getSortedNames()" + t.getMessag
 		int counter = 0;
 		
 		/* count keys so can allocate array */
-		Enumeration enum = ht.keys();
-		while (enum.hasMoreElements()) {
+		Enumeration _enum = ht.keys();
+		while (_enum.hasMoreElements()) {
 			++counter;
-			enum.nextElement();
+			_enum.nextElement();
 		}
 		/* alloate array */
 		String[] array = new String[counter];
 		
 		/* fill array */
 		counter = 0;
-		enum = ht.keys();
-		while (enum.hasMoreElements()) {
-			array[counter] = (String) enum.nextElement();
+		_enum = ht.keys();
+		while (_enum.hasMoreElements()) {
+			array[counter] = (String) _enum.nextElement();
 			++counter;
 		}
 		
@@ -2076,8 +2076,9 @@ if (DEPLOYABLE) {
 		sb.append("<META HTTP-EQUIV='Content-Type' CONTENT='" + TricepsServlet.CONTENT_TYPE + "'>\n");
 		if ("finished".equals(directive) && schedule != null) {
 			String s = schedule.getReserved(Schedule.REDIRECT_ON_FINISH_URL);
+			String delay = schedule.getReserved(Schedule.REDIRECT_ON_FINISH_DELAY);
 			if (s.length() > 0) {
-				sb.append("<META HTTP-EQUIV='refresh' CONTENT='3;url=http://" + s + "'>\n");
+				sb.append("<META HTTP-EQUIV='refresh' CONTENT='"+delay+";url=http://" + s + "'>\n");
 			}
 		}
 		
