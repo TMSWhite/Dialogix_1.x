@@ -76,6 +76,7 @@ import java.io.FileReader;
 	/*public*/ static final int JUMP_TO_FIRST_UNASKED = 51;
 	/*public*/ static final int REDIRECT_ON_FINISH_URL= 52;
 	/*public*/ static final int REDIRECT_ON_FINISH_MSG = 53;
+	
 	/*public*/ static final int SWAP_NEXT_AND_PREVIOUS = 54;
 	/*public*/ static final int ANSWER_OPTION_FIELD_WIDTH = 55;
 	/*public*/ static final int SET_DEFAULT_FOCUS = 56;
@@ -84,7 +85,8 @@ import java.io.FileReader;
 	/*public*/ static final int WRAP_ADMIN_ICONS = 59;
 	/*public*/ static final int DISALLOW_COMMENTS = 60;
 	/*public*/ static final int CONNECTION_TYPE = 61;
-
+	/*public*/ static final int REDIRECT_ON_FINISH_DELAY = 62;
+	
 	private static final String DEFAULT_LANGUAGE = "en_US";
 	/*public*/ static final String TRICEPS_DATA_FILE = "DATA";
 	/*public*/ static final String TRICEPS_SCHEDULE_FILE = "SCHEDULE";
@@ -152,7 +154,8 @@ import java.io.FileReader;
 		"__SHOW_SAVE_TO_FLOPPY_IN_ADMIN_MODE__",
 		"__WRAP_ADMIN_ICONS__",
 		"__DISALLOW_COMMENTS__",
-		"__CONNECTION_TYPE__"
+		"__CONNECTION_TYPE__",
+		"__REDIRECT_ON_FINISH_DELAY__",
 	};
 
 	private Date startTime = null;
@@ -264,6 +267,7 @@ import java.io.FileReader;
 		setReserved(WRAP_ADMIN_ICONS,"false");
 		setReserved(DISALLOW_COMMENTS,"false");
 		setReserved(CONNECTION_TYPE,"HTTP");
+		setReserved(REDIRECT_ON_FINISH_DELAY,"3");
 	}
 		
 	/*public*/ boolean init(boolean log) {
@@ -311,15 +315,15 @@ if (DEBUG) {	// && false
 		int reservedCount = 0;
 		Vector lines=null;
 		String line=null;
-		int lineNum = 1;
+		int linenum = 1;
 		int nodeCount = 0;
 		
 		lines = scheduleSource.getHeaders();
-		for (int i=0;i<lines.size();++i,++lineNum) {
+		for (int i=0;i<lines.size();++i,++linenum) {
 			line = (String) lines.elementAt(i);
 			if (!line.startsWith("RESERVED"))
 				continue;
-			if (parseReserved(lineNum, nodeCount, source, line)) {
+			if (parseReserved(linenum, nodeCount, source, line)) {
 				++reservedCount;
 			}
 		}
@@ -335,11 +339,11 @@ if (DEBUG) {	// && false
 if (DEPLOYABLE) {			
 			// will have many RESERVED lines interspersed - needed for knowing FILENAME, TITLE_FOR_PICKLIST, etc.
 			lines = scheduleSource.getBody();
-			for (int i=0;i<lines.size();++i,++lineNum) {
+			for (int i=0;i<lines.size();++i,++linenum) {
 				line = (String) lines.elementAt(i);
 				if (!line.startsWith("RESERVED"))
 					continue;
-				if (parseReserved(lineNum, nodeCount, source, line)) {
+				if (parseReserved(linenum, nodeCount, source, line)) {
 					++reservedCount;
 				}
 			}
@@ -384,14 +388,14 @@ if (DEBUG) Logger.writeln("##@@Error loading dataBody");
 		Vector lines = ss.getHeaders();
 		String source = ss.getSourceInfo().getSource();
 		String line = null;
-		int lineNum = 1;
+		int linenum = 1;
 		int nodeCount = 0;
 		
-		for (int i=0;i<lines.size();++i,++lineNum) {
+		for (int i=0;i<lines.size();++i,++linenum) {
 			line = (String) lines.elementAt(i);
 			if (line.startsWith("COMMENT"))
 				continue;
-			if (!parseReserved(lineNum,nodeCount,source,line))
+			if (!parseReserved(linenum,nodeCount,source,line))
 				return false;
 		}
 		return true;
@@ -406,17 +410,17 @@ if (DEBUG) Logger.writeln("##@@Error loading dataBody");
 		
 		Vector lines = ss.getBody();
 		String source = ss.getSourceInfo().getSource();
-		int lineNum = 1 + ss.getHeaders().size();
+		int linenum = 1 + ss.getHeaders().size();
 		String line=null;
 		int nodeCount = 0;
 		
-		for (int i=0;i<lines.size();++i,++lineNum) {
+		for (int i=0;i<lines.size();++i,++linenum) {
 			line = (String) lines.elementAt(i);
 			if (line.startsWith("COMMENT"))
 				continue;
 			if (line.startsWith("RESERVED")) {
-//if (DEBUG) Logger.writeln("##**Schedule.parseReserved(" + lineNum + "," + line + ")");
-				if (!parseReserved(lineNum,nodeCount,source,line))
+//if (DEBUG) Logger.writeln("##**Schedule.parseReserved(" + linenum + "," + line + ")");
+				if (!parseReserved(linenum,nodeCount,source,line))
 					return false;
 			}
 			else {
@@ -448,21 +452,21 @@ if (DEBUG) Logger.writeln("##@@Error loading dataBody");
 		String source = ss.getSourceInfo().getSource();
 		String line=null;
 
-		int lineNum = 1;
+		int linenum = 1;
 		boolean ok = false;
-		for (int i=0;i<lines.size();++i,++lineNum) {
+		for (int i=0;i<lines.size();++i,++linenum) {
 			line = (String) lines.elementAt(i);
 			if (line.startsWith("COMMENT"))
 				continue;
-			ok = parseReserved(lineNum,0,source,line);
+			ok = parseReserved(linenum,0,source,line);
 if (!AUTHORABLE) if (!ok) return false;	
 		}
 		lines = ss.getBody();
-		for (int i=0;i<lines.size();++i,++lineNum) {
+		for (int i=0;i<lines.size();++i,++linenum) {
 			line = (String) lines.elementAt(i);
 			if (line.startsWith("COMMENT"))
 				continue;
-			Node node = new Node(triceps, lineNum, source, line, languageCount);
+			Node node = new Node(triceps, linenum, source, line, languageCount);
 if (!AUTHORABLE) {
 			if (node.hasParseErrors()) {
 				return false;	// schedule must be fully debugged before deployment, otherwise won't load
@@ -552,7 +556,7 @@ if (DEPLOYABLE) {
 		StringTokenizer tokens = new StringTokenizer(tsv,"\t",true);
 		int field = 0;
 		String localName = null;
-		String answerLanguageNum = null;
+		String answerLanguagenum = null;
 		String ans = null;
 		String comment = null;
 		String timeStamp = null;
@@ -573,7 +577,7 @@ if (DEPLOYABLE) {
 			switch(field) {
 				case 0: break;
 				case 1: localName = ExcelDecoder.decode(s); break;
-				case 2: answerLanguageNum = ExcelDecoder.decode(s); break;
+				case 2: answerLanguagenum = ExcelDecoder.decode(s); break;
 				case 3: timeStamp = ExcelDecoder.decode(s); break;
 				case 4: break; // don't reload questionAsAsked
 				case 5: ans = InputDecoder.decode(ExcelDecoder.decode(s)); break;
@@ -606,8 +610,8 @@ if (DEBUG) {
 		
 			int langNum = 0;
 			try {
-				if (answerLanguageNum != null) {	// should only be null if saved via Evidence.set() from 'e' nodes
-					langNum = Integer.parseInt(answerLanguageNum);
+				if (answerLanguagenum != null) {	// should only be null if saved via Evidence.set() from 'e' nodes
+					langNum = Integer.parseInt(answerLanguagenum);
 				}
 				else {
 					Logger.writeln("!! null answerLangNum @ " + tsv);
@@ -615,11 +619,11 @@ if (DEBUG) {
 			}
 			catch (NumberFormatException t) {
 if (DEBUG) Logger.writeln("##NumberFormatException @ Evidence.parseNode" + t.getMessage());
-if (AUTHORABLE) 	node.setParseError(triceps.get("languageNum_must_be_an_integer") + t.getMessage());
+if (AUTHORABLE) 	node.setParseError(triceps.get("languagenum_must_be_an_integer") + t.getMessage());
 else node.setParseError("syntax error");
 				ok = false;
 			}
-			node.setAnswerLanguageNum(langNum);
+			node.setAnswerLanguagenum(langNum);
 			evidence.set(node,datum,timeStamp,false);	// must be called last, since my try to write to data file.
 		}
 		else {
@@ -784,6 +788,7 @@ if (DEPLOYABLE) {
 			case JUMP_TO_FIRST_UNASKED: if (expert) s = Boolean.valueOf(value.trim()).toString(); break;
 			case REDIRECT_ON_FINISH_URL: if (expert) s = value.trim(); break;
 			case REDIRECT_ON_FINISH_MSG: if (expert) s = value.trim(); break;
+			case REDIRECT_ON_FINISH_DELAY: s = value; break;
 			case SWAP_NEXT_AND_PREVIOUS: s = Boolean.valueOf(value.trim()).toString(); break;
 			case ANSWER_OPTION_FIELD_WIDTH: s = setAnswerOptionFieldWidth(value); break;
 			case SET_DEFAULT_FOCUS: s = Boolean.valueOf(value.trim()).toString(); break;
@@ -1032,7 +1037,7 @@ if (DEBUG) Logger.writeln("##NoSuchElementException @ Schedule.setLanguages()" +
 				continue;
 
 			if (node.getQuestionOrEvalType() == Node.EVAL) {
-				node.setAnswerLanguageNum(currentLanguage);	// don't change the language for non-EVAL nodes - want to know what was asked
+				node.setAnswerLanguagenum(currentLanguage);	// don't change the language for non-EVAL nodes - want to know what was asked
 				if (parser.booleanVal(triceps, node.getDependencies())) {
 					Datum datum = parser.parse(triceps, node.getQuestionOrEval());
 //					node.setDatumType(datum.type());
