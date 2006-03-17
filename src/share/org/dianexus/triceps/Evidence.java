@@ -16,7 +16,7 @@ import java.util.GregorianCalendar;
 import java.util.Calendar;
 import java.io.File;
 import java.sql.*;
-import org.dianexus.triceps.modules.data.*;
+//import org.dianexus.triceps.modules.data.*;
 
 /*public*/ class Evidence implements VersionIF  {
 	private static final int FUNCTION_INDEX = 2;
@@ -559,7 +559,7 @@ if (DEPLOYABLE) {
 		
 		sb.append(q.getLocalName());
 		sb.append("\t");
-		sb.append(q.getAnswerLanguagenum());
+		sb.append(q.getAnswerLanguageNum());
 		sb.append("\t");
 		sb.append(q.getTimeStampStr());
 		sb.append("\t");
@@ -1257,7 +1257,7 @@ if (DEBUG) Logger.writeln("##SecurityException @ Evidence.fileExists()" + e.getM
 				case FORMAT_NUMBER:
 					return new Datum(triceps, triceps.formatNumber(new Double(datum.doubleVal()), getParam(params.elementAt(1)).stringVal()), Datum.STRING);
 				case PARSE_NUMBER:
-					return new Datum(triceps, triceps.parsenumber(datum.stringVal(), getParam(params.elementAt(1)).stringVal()).doubleValue()); 
+					return new Datum(triceps, triceps.parseNumber(datum.stringVal(), getParam(params.elementAt(1)).stringVal()).doubleValue()); 
 				case FORMAT_DATE:
 					return new Datum(triceps, triceps.formatDate(datum.dateVal(), getParam(params.elementAt(1)).stringVal()), Datum.STRING);
 				case PARSE_DATE:

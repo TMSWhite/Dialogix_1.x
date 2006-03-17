@@ -623,7 +623,7 @@ if (AUTHORABLE) 	node.setParseError(triceps.get("languagenum_must_be_an_integer"
 else node.setParseError("syntax error");
 				ok = false;
 			}
-			node.setAnswerLanguagenum(langNum);
+			node.setAnswerLanguageNum(langNum);
 			evidence.set(node,datum,timeStamp,false);	// must be called last, since my try to write to data file.
 		}
 		else {
@@ -1037,7 +1037,7 @@ if (DEBUG) Logger.writeln("##NoSuchElementException @ Schedule.setLanguages()" +
 				continue;
 
 			if (node.getQuestionOrEvalType() == Node.EVAL) {
-				node.setAnswerLanguagenum(currentLanguage);	// don't change the language for non-EVAL nodes - want to know what was asked
+				node.setAnswerLanguageNum(currentLanguage);	// don't change the language for non-EVAL nodes - want to know what was asked
 				if (parser.booleanVal(triceps, node.getDependencies())) {
 					Datum datum = parser.parse(triceps, node.getQuestionOrEval());
 //					node.setDatumType(datum.type());
