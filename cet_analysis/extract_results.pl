@@ -1,5 +1,6 @@
 # Perl function to extract results from CET analysis files
 # perl extract_results.pl < SLTBR-2005-analysis-sunrise-20051118-withoutAlaska.log > test.txt
+# perl extract_results.pl < SLTBR-2005-analysis-sunrise-20051202-withoutAlaska.log > test.txt
 
 
 use strict;

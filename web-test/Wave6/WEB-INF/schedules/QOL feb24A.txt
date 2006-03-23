@@ -1,0 +1,389 @@
+RESERVED	__TRICEPS_FILE_TYPE__	SCHEDULE
+RESERVED	__TITLE__	Children in the Community: Wave 7 
+RESERVED	__ICON__	ciclogo-with-caption.gif
+RESERVED	__HEADER_MSG__	Children in the Community: Wave 7 
+RESERVED	__PASSWORD_FOR_ADMIN_MODE__	bypass
+RESERVED	__SHOW_QUESTION_REF__	FALSE
+RESERVED	__AUTOGEN_OPTION_NUM__	TRUE
+RESERVED	__DEVELOPER_MODE__	TRUE
+RESERVED	__DEBUG_MODE__	TRUE
+RESERVED	__SCHED_AUTHORS__	"Kathy Gordon for Patricia Cohen, Ph.D."
+RESERVED	__SCHED_VERSION_MAJOR__	3
+RESERVED	__SCHED_VERSION_MINOR__	0.3
+RESERVED	__SUSPEND_TO_FLOPPY__	TRUE
+RESERVED	__SHOW_ADMIN_ICONS__	TRUE
+RESERVED	__SUSPEND_TO_FLOPPY__	TRUE
+RESERVED	__REFUSED_ICON_OFF__	PreferNotToAnswer-Unchecked.gif
+RESERVED	__REFUSED_ICON_ON__	PreferNotToAnswer-Checked.gif					
+RESERVED	__UNKNOWN_ICON_OFF__	IDontKnow-Unchecked.gif					
+RESERVED	__UNKNOWN_ICON_ON__	IDontKnow-Checked.gif					
+RESERVED	__DONT_UNDERSTAND_ICON_OFF__	IDoNotUnderstand-Unchecked.gif					
+RESERVED	__DONT_UNDERSTAND_ICON_ON__	IDoNotUnderstand-Checked.gif					
+RESERVED	__ALLOW_COMMENTS__	FALSE					
+RESERVED	__WRAP_ADMIN_ICONS__	TRUE					
+RESERVED	__SHOW_SAVE_TO_FLOPPY_IN_ADMIN_MODE__	TRUE					
+RESERVED	__ALWAYS_SHOW_ADMIN_ICONS__	FALSE					
+RESERVED	__DISALLOW_COMMENTS__	TRUE					
+	form	form	1	q		Survey format	list|1|In-person interview |2|Web survey |3|Mailed survey |4|Telephone survey
+Interviewer	Interv	Interv	form==1||form==4	[		Interviewer first name	text
+Idnumber	ID	ID	1	]		Subject id number	double
+NOW6	NOW6	NOW6	1	[		Missing Wave 6?	list|1|Yes|0|No
+NONIDA7	NONIDA7	NONIDA7	1	]		Missing NIDA7?	list|1|Yes|0|No
+confirm	confirm	confirm	1	q		Please enter subject ID number again as confirmation.	double
+confirmid	confirmid	confirmid	1	e		ID==confirm	nothing
+wrongid	wrongid	wrongid	confirmid!=1	q		"Please go back and enter the ID number and its confirmation again, as they did not agree."	nothing
+	makeFilenameEqualID		1	e		__FILENAME__ = ID	nothing
+	makeTitleEqualID		1	e		__TITLE_FOR_PICKLIST_WHEN_IN_PROGRESS__ = ID	nothing
+Demo/2	Dem2	Dem2	1	q		Sex	list|1|female|2|male
+Demo/3	Dem3	Dem3	1	q		Where do you currently live?	list|1|Large city|2|smaller city|3|Suburb|4|Small town|5|Rural area
+	ndp617		NONIDA7==1	[		"For each of the following people, please indicate whether they live with you most of the time."	nothing
+	Np617a		NONIDA7==1	q		Mother 	list|0|No|1|Yes
+	Np617b		NONIDA7==1	q		Father	list|0|No|1|Yes
+	Np617c		NONIDA7==1	q		"Your child(ren) (natural, adopted, step or foster)"	list|0|No|1|Yes
+	Np617d		NONIDA7==1	q		Spouse or partner	list|0|No|1|Yes
+	Np617e		NONIDA7==1	q		Other children	list|0|No|1|Yes
+	Np617f		NONIDA7==1	q		In-laws 	list|0|No|1|Yes
+	Np617g		NONIDA7==1	q		Brother(s) and/or sister(s)	list|0|No|1|Yes
+	Np617h		NONIDA7==1	q		Friend(s) or roommate(s)	list|0|No|1|Yes
+	Np617i		NONIDA7==1	]		Live alone	list|0|No|1|Yes
+QOL/Residence/1b	Q1b	Q1b	1	[		"Do you own, rent or sublet this residence? If owned or rented in spouse's name, code as if joint owner or renter."	list|1|No|2|Rent|3|Sublet|4|Own
+QOL/Residence/comment1	ND1		1	]		"If you live with a friend or partner who owns or rents, indicate NO."	nothing
+QOL/Social/162	Q162	Q162	1	q		What is your current marital status?	list|1|never married|2|married|3|separated|4|divorced|5|widow/widower
+Np615a	Np615a	Np615a	1	q		Please mark the answer that most closely describes your current situation. You are currently:	list|1|Not dating|2|Dating several people|3|Dating one person regularly but also dating others|4|Dating one person exclusively|5|Cohabiting (living with someone in an intimate relationship)|6|Engaged and cohabitating|7|Engaged but not cohabitating|8|Married and living together|9|Married but separated
+Home intro	NDres1	NDres1	1	[		We want to ask you next about your living situation:	nothing
+QOL/Residence/3	Q3	Q3	1	q		Do you have enough space for yourself here?	list|1|not at all|2|you would like a little more|3|you have enough|4|or you have plenty
+QOL/Residence/4	Q4	Q4	1	q		How comfortable is your home?	list|1|Not comfortable|2|barely comfortable|3|pretty comfortable|4|or very comfortable
+QOL/Residence/5	Q5	Q5	1	]		How attractive do you feel it is?	list|1|not attractive|2|barely attractive|3|pretty attractive|4|or very attractive
+QOL/Residence/6	Q6	Q6	1	[		How safe is it for you and your possessions?	list|1|not safe at all|2|barely safe|3|pretty safe|4|or very safe
+QOL/Residence/8	Q8	Q8	1	]		How easy is it to entertain your friends here?	list|1|impossible|2|not easy|3|pretty easy|4|or very easy
+QOL/Residence/9	Q9	Q9	1	[		How private is it when you want it to be?	list|1|not private at all|2|a little private|3|often or mostly private|4|or completely private
+QOL/Residence/10	Q10	Q10	1	q		How quiet is it when you want it to be?	list|1|not quiet at all|2|a little quiet|3|often or mostly quiet|4|or completely quiet
+QOL/Residence/13	Q13	Q13	1	]		"In general, are heat, hot water, and maintenance of this building ...     "	list|1|very poor|2|inadequate|3|mostly good|4|or excellent
+	NDq22		form==1	q		USE YELLOW RESPONSE CARD FOR THE FOLLOWING SECTION.	nothing
+QOL/Residence/cooment3	ND5		1	[		How easy is it for you to get to ...	nothing
+QOL/Residence/22	Q22	Q22	1	q		shopping for things like clothing and food?	list|1|don't go|2|Impossible or almost impossible|3|difficult|4|pretty easy|5|very easy
+QOL/Residence/23	Q23	Q23	1	q		school or work?	list|1|don't go|2|Impossible or almost impossible|3|difficult|4|pretty easy|5|very easy
+QOL/Residence/24	Q24	Q24	1	]		places where you see friends?	list|1|don't go|2|Impossible or almost impossible|3|difficult|4|pretty easy|5|very easy
+QOL/Residence/comment4	ND6		1	[		How easy is it for you to get to ...	nothing
+QOL/Residence/25	Q25	Q25	1	q		"meetings, movies, plays, museums or other cultural activities?"	list|1|don't go|2|Impossible or almost impossible|3|difficult|4|pretty easy|5|very easy
+QOL/Residence/26	Q26	Q26	1	]		" places for outdoor activities, like sports?"	list|1|don't go|2|Impossible or almost impossible|3|difficult|4|pretty easy|5|very easy
+QOL/Residence/26a	Q26a	Q26a	1	q		How many hours do you spend commuting to and from work in an average week?	list|1|5 hours or less|2|6 to 10 hours|3|11 to 15 hours|4|more than 15 hours
+QOL/Residence/26b	Q26b	Q26b	1	q		"If you have a spouse or live-in partner, how many hours does your partner spend commuting?"	list|1|5 hours or less|2|6 to 10 hours|3|11 to 15 hours|4|more than 15 hours|5|no partner
+QOL/Residence/32	Q32	Q32	1	[		Do you have a driver's license?	list|1|No|2|Yes
+QOL/Residence/33	Q33	Q33	1	]		Do you have your own car or a car you can use when you need to?	list|1|No|2|Yes
+QOL/Residence/33a	Q33a	Q33a	Q33==1	q		"Can you generally go to these places we've been talking about without any help from anyone else, such as a ride or being accompanied? Would you say .."	list|1|no|2|occasionally|3|often|4|or always
+QOL/Residence/34	Q34	Q34	1	q		"How satisfied are you with the amount of variety in your life, the number of different kinds of things you are able to do? Are you ..."	list|1|not at all satisfied|2|a little satisfied|3|mostly satisfied|4|or very satisfied
+QOL/Residence/comment6	ND10		1	[		Now what about the neighborhood or area you live in?	nothing
+QOL/Residence/36	Q36	Q36	1	q		How safe is your neighborhood?	list|1|not safe|2|about average|3|or better than average
+QOL/Residence/37	Q37	Q37	1	]		How attractive is it?	list|1|far below average|2|less than average|3|about average|4|better than average|5|or far above average
+QOL/Residence/38	Q38	Q38	1	[		How many people are there like yourself in your neighborhood? 	list|1|hardly any|2|some|3| many
+QOL/Residence/39	Q39	Q39	1	q		How friendly are the people in your neighborhood?	list|1|not friendly at all|2|a little friendly|3|somewhat friendly|4|or very friendly
+QOL/Residence/40	Q40	Q40	1	]		How interesting are they? Would you say...	list|1|not interesting at all|2|a little interesting|3|somewhat interesting|4|or very interesting
+QOL/Residence/41	Q41	Q41	1	[		How many friends do you have who live in your neighborhood?  Would you say...	list|1|none|2|one or two|3|a few|4|or many
+QOL/Residence/42	Q42	Q42	1	q		"How adequate are the services, like water, sewers, garbage collection and police protection? Are they...         "	list|1|completely inadequate|2|poor|3|mostly adequate|4|or excellent
+QOL/Residence/43	Q43	Q43	1	]		How much do citizens in this area have a say in how the community is run? Would you say...        	list|1|none at all|2|a little|3|some|4|or a lot
+QOL/Residence/46	Q46	Q46	1	[		How easy is it for you to get out of the city or area you live in?  Is it...	list|1|very hard|2|not so easy|3|pretty easy|4|or very easy
+QOL/Residence/50	Q50	Q50	1	q		"All in all, are  you generally satisfied with the place you live? Would you say you are..."	list|1|not at all satisfied|2|not very satisfied|3|mostly satisfied|4|or definitely satisfied
+QOL/Residence/51	Q51	Q51	1	]		"On the whole, would you say  your needs for food, clothing and shelter are..."	list|1|very well taken care of|2|pretty well taken care of|3|barely taken care of|4|or not well taken care of
+QOL/Residence/52	Q52	Q52	1	q		"Where you live, can you get medical, eye and dental care whenever you need it?"	list|1|No|2|probably|3|Yes
+QOL/Work/56	Q56	Q56	1	q		Are you currently employed?	list|0|no|1|yes
+QOL/Work/56a	Q56a	Q56a	Q56==0	q		How long since you last held paid employment?	list|1|never held paid employment|2|one to three months|3|three to six months|4|between six months and one year|5|between 1 and 2 years|6|more than 2 years
+QOL/Work/57	Q57	Q57	(Q56==1)||(Q56a>1&&Q56a<5)	q		How many hours a week `Q56==1?'do':'did'` you work?	"list|1|one to nine hours per week|2|10 - 19 hours per week|3|20 hours, but less than full time|4|full time (35-40 hrs/wk)|5|more than 40 hours per week -  -  1 -  Q5"
+QOL/Work/58	Q58	Q58	1	q		Are you seeking `Q56==1?'more or different':' '` employment?	list|0|no|1|yes
+QOL/Work/58a	Q58a	Q58a	Q58==1	[		Are you seeking part time or full time employment?	list|1|Part time|2|Full time
+QOL/Work/58b	Q58b	Q58b	Q58==1	]		How long have you been looking for work?	list|1|Less than 2 weeks|2|2 weeks to less than a month|3|1 month to less than 3 months|4|3 months to less than 6 months|5|6 months to less than 1 year
+	NDq92		form==1&&((Q56==1)||(Q56a>1&&Q56a<5))	q		USE GREEN RESPONSE CARD FOR THE FOLLOWING SECTION.	nothing
+QOL/Work/92	Q92	Q92	(Q56==1)||(Q56a>1&&Q56a<5)	[		Would you say the place you `Q56==1?'work is':'worked was'` attractive?	list|1|not at all|2|somewhat|3|usually or mostly|4|definitely
+QOL/Work/93	Q93	Q93	(Q56==1)||(Q56a>1&&Q56a<5)	q		Would you say that most people there are proud to do that kind of work? 	list|1|not at all|2|somewhat|3|usually or mostly|4|definitely
+QOL/Work/94	Q94	Q94	(Q56==1)||(Q56a>1&&Q56a<5)	]		`Q56==1?'Are':'Were'` most workers there satisfied with their salaries?          	list|1|not at all|2|somewhat|3|usually or mostly|4|definitely
+QOL/Work/95	Q95	Q95	(Q56==1)||(Q56a>1&&Q56a<5)	[		`Q56==1?'Are':'Were'` you satisfied with the appreciation you `Q56==1?'get':'got'` for your work?	list|1|not at all|2|somewhat|3|usually or mostly|4|definitely
+QOL/Work/96	Q96	Q96	(Q56==1)||(Q56a>1&&Q56a<5)	q		`Q56==1?'Do':'Did'` most people there think that the work they do is important and useful?        	list|1|not at all|2|somewhat|3|usually or mostly|4|definitely
+QOL/Work/97	Q97	Q97	(Q56==1)||(Q56a>1&&Q56a<5)	]		`Q56==1?'Do':'Did'` they enjoy their work?	list|1|not at all|2|somewhat|3|usually or mostly|4|definitely
+QOL/Work/98	Q98	Q98	(Q56==1)||(Q56a>1&&Q56a<5)	[		`Q56==1?'Do':'Did'` they find their work stimulating?	list|1|not at all|2|somewhat|3|usually or mostly|4|definitely
+QOL/Work/99	Q99	Q99	(Q56==1)||(Q56a>1&&Q56a<5)	q		`Q56==1?'Do':'Did'` YOU find your work stimulating?	list|1|not at all|2|somewhat|3|usually or mostly|4|definitely
+QOL/Work/100	Q100	Q100	(Q56==1)||(Q56a>1&&Q56a<5)	]		`Q56==1?'Do':'Did'` you think your work `Q56==1?'is':'was'` important and useful?	list|1|not at all|2|somewhat|3|usually or mostly|4|definitely
+QOL/Work/101	Q101	Q101	(Q56==1)||(Q56a>1&&Q56a<5)	[		`Q56==1?'Do':'Did'` you enjoy your work?	list|1|not at all|2|somewhat|3|usually or mostly|4|definitely
+QOL/Work/102	Q102	Q102	(Q56==1)||(Q56a>1&&Q56a<5)	q		`Q56==1?'Are':'Were'` the employees very competitive with each other?	list|1|not at all|2|somewhat|3|usually or mostly|4|definitely
+QOL/Work/103	Q103	Q103	(Q56==1)||(Q56a>1&&Q56a<5)	]		Would you say that you `Q56==1?'work':'worked'` in a high pressure place where people often have trouble keeping up with their work?             	list|1|not at all|2|somewhat|3|usually or mostly|4|definitely
+QOL/Work/104	Q104	Q104	(Q56==1)||(Q56a>1&&Q56a<5)	[		`Q56==1?'Do':'Did'` you find it difficult to meet all the demands placed on you at work?	list|1|not at all|2|somewhat|3|usually or mostly|4|definitely
+QOL/Work/105	Q105	Q105	(Q56==1)||(Q56a>1&&Q56a<5)	q		`Q56==1?'Are':'Were'` you allowed to schedule  your own work?	list|1|not at all|2|somewhat|3|usually or mostly|4|definitely
+QOL/Work/106	Q106	Q106	(Q56==1)||(Q56a>1&&Q56a<5)	]		`Q56==1?'Can you':'Were you able to'` take time off when you `Q56==1?'need':'needed'` to?	list|1|not at all|2|somewhat|3|usually or mostly|4|definitely
+QOL/Work/107	Q107	Q107	(Q56==1)||(Q56a>1&&Q56a<5)	[		`Q56==1?'Do':'Did'` you have any influence on how your workplace `Q56==1?'is':'was'` run?	list|1|not at all|2|somewhat|3|usually or mostly|4|definitely
+QOL/Work/108	Q108	Q108	(Q56==1)||(Q56a>1&&Q56a<5)	q		"To what extent `Q56==1?'do':'did'` you analyze, coordinate, or plan activities in your work?"	list|1|not at all|2|somewhat|3|usually or mostly|4|definitely
+QOL/Work/109	Q109	Q109	(Q56==1)||(Q56a>1&&Q56a<5)	]		`Q56==1?'Does':'Did'` your work contribute to your maturity and independence?	list|1|not at all|2|somewhat|3|usually or mostly|4|definitely
+QOL/Work/110	Q110	Q110	(Q56==1)||(Q56a>1&&Q56a<5)	[		Would you say your place of work `Q56==1?'is':'was'` well organized?	list|1|not at all|2|somewhat|3|usually or mostly|4|definitely
+QOL/Work/111	Q111	Q111	(Q56==1)||(Q56a>1&&Q56a<5)	q		 `Q56==1?'Do':'Did'` most of the people there seem to enjoy working with each other?	list|1|not at all|2|somewhat|3|usually or mostly|4|definitely
+QOL/Work/112	Q112	Q112	(Q56==1)||(Q56a>1&&Q56a<5)	]		"`Q56==1?'Are':'Were'` arguments, conflict, or political in-fighting common there?"	list|1|not at all|2|somewhat|3|usually or mostly|4|definitely
+QOL/Work/113	Q113	Q113	(Q56==1)||(Q56a>1&&Q56a<5)	[		`Q56==1?'Have you had':'Did you have'` any  arguments or disagreements with people at work in the last month `Q56==0?'you worked there':''`?	list|1|not at all|2|somewhat|3|usually or mostly|4|definitely
+QOL/Work/114	Q114	Q114	(Q56==1)||(Q56a>1&&Q56a<5)	q		`Q56==1?'Do':'Did'` you interact a lot with other workers there?	list|1|not at all|2|somewhat|3|usually or mostly|4|definitely
+QOL/Work/115	Q115	Q115	(Q56==1)||(Q56a>1&&Q56a<5)	]		`Q56==1?'Do':'Did'` you consider them friends and see them socially outside of work?	list|1|not at all|2|somewhat|3|usually or mostly|4|definitely
+QOL/Work/116	Q116	Q116	(Q56==1)||(Q56a>1&&Q56a<5)	[		`Q56==1?'Do':'Did'` you work primarily alone?	list|1|not at all|2|somewhat|3|usually or mostly|4|definitely
+QOL/Work/117	Q117	Q117	(Q56==1)||(Q56a>1&&Q56a<5)	q		`Q56==1?'Do':'Did'` you supervise any other workers?	list|1|not at all|2|somewhat|3|usually or mostly|4|definitely
+QOL/Work/118	Q118	Q118	(Q56==1)||(Q56a>1&&Q56a<5)	]		To what extent `Q56==1?'does':'did'` your job include instruction or negotiation with other people?	list|1|not at all|2|somewhat|3|usually or mostly|4|definitely
+QOL/Work/119	Q119	Q119	(Q56==1)||(Q56a>1&&Q56a<5)	[		`Q56==1?'Do':'Did'` you find that your work `Q56==1?'is':'was'` repetitive?	list|1|not at all|2|somewhat|3|usually or mostly|4|definitely
+QOL/Work/120	Q120	Q120	(Q56==1)||(Q56a>1&&Q56a<5)	q		To what extent `Q56==1?'does':'did'` your job include complex problems requiring original and creative solutions and  operations?	list|1|not at all|2|somewhat|3|usually or mostly|4|definitely
+QOL/Work/121	Q121	Q121	(Q56==1)||(Q56a>1&&Q56a<5)	]		`Q56==1?'Do':'Did'` you feel that you `Q56==1?'are':'were'` getting opportunities to develop your skills and abilities?	list|1|not at all|2|somewhat|3|usually or mostly|4|definitely
+QOL/Work/122	Q122	Q122	(Q56==1)||(Q56a>1&&Q56a<5)	[		"To what extent `Q56==1?'does':'did'` your job include using precision equipment, including computers?"	list|1|not at all|2|somewhat|3|usually or mostly|4|definitely
+QOL/Work/123	Q123	Q123	(Q56==1)||(Q56a>1&&Q56a<5)	q		Do you think that your work `Q56==1?'will give you':'gave you'` a good chance to get ahead in the future?	list|1|not at all|2|somewhat|3|usually or mostly|4|definitely
+QOL/Work/124	Q124	Q124	(Q56==1)||(Q56a>1&&Q56a<5)	]		`Q56==1?'Does':'Did'` your workplace or your work involve any risks to your health and safety that you know of?	list|1|not at all|2|somewhat|3|usually or mostly|4|definitely
+QOL/Work/125	Q125	Q125	(Q56==1)||(Q56a>1&&Q56a<5)	[		`Q56==1?'Do':'Did'` you find it physically very demanding or exhausting?	list|1|not at all|2|somewhat|3|usually or mostly|4|definitely
+QOL/Work/126	Q126	Q126	(Q56==1)||(Q56a>1&&Q56a<5)	q		`Q56==1?'Is':'Was'` there a lot of opportunity for promotion at your job?	list|1|not at all|2|somewhat|3|usually or mostly|4|definitely
+QOL/Work/127	Q127	Q127	(Q56==1)||(Q56a>1&&Q56a<5)	]		`Q56==1?'Do':'Did'` you find your salary adequate to your needs?	list|1|not at all|2|somewhat|3|usually or mostly|4|definitely
+QOL/Education/59	Q59	Q59	1	q		Are you currently going to school or receiving special training?	list|0|no|1|yes
+QOL/Education/59b	Q59b	Q59b	Q59==1	q		Do you go part-time or full-time?	list|1|part-time|2|full-time
+QOL/Education/59c	Q59c	Q59c	1	q		What is the highest level of education you have received?	list|1|some high school (no GED)|2|GED|3|high school graduate|4|some college|5|2 year college degree|6|4 year college degree|7|some graduate school|8|graduate degree
+	NDed2		form==1 && ((Q59==1)&&(Q56==0)&&(Q56a==1||Q56a>4))	q		USE GREEN RESPONSE CARD FOR THE FOLLOWING SECTION.	nothing
+	Ndeduc		(Q59==1)&&(Q56==0)&&(Q56a==1||Q56a>4)	[		Now we are going to ask you about your experience in your school.	Nothing
+QOL/Education/63	Q63	Q63	(Q59==1)&&(Q56==0)&&(Q56a==1||Q56a>4)	q		Would you say that most students are proud to be there?	list|1|not at all|2|somewhat|3|usually or mostly|4|definitely
+QOL/Education/64	Q64	Q64	(Q59==1)&&(Q56==0)&&(Q56a==1||Q56a>4)	]		Are most students there satisfied with the courses that are offered?	list|1|not at all|2|somewhat|3|usually or mostly|4|definitely
+QOL/Education/65	Q65	Q65	(Q59==1)&&(Q56==0)&&(Q56a==1||Q56a>4)	[		Are you satisfied with your grades?	list|1|not at all|2|somewhat|3|usually or mostly|4|definitely
+QOL/Education/66	Q66	Q66	(Q59==1)&&(Q56==0)&&(Q56a==1||Q56a>4)	q		Do most students there think that the things they learn are worth knowing?	list|1|not at all|2|somewhat|3|usually or mostly|4|definitely
+QOL/Education/67	Q67	Q67	(Q59==1)&&(Q56==0)&&(Q56a==1||Q56a>4)	]		Do they enjoy their studies?	list|1|not at all|2|somewhat|3|usually or mostly|4|definitely
+QOL/Education/68	Q68	Q68	(Q59==1)&&(Q56==0)&&(Q56a==1||Q56a>4)	[		Do they find their studies stimulating?	list|1|not at all|2|somewhat|3|usually or mostly|4|definitely
+QOL/Education/69	Q69	Q69	(Q59==1)&&(Q56==0)&&(Q56a==1||Q56a>4)	q		Do you find your studies stimulating?	list|1|not at all|2|somewhat|3|usually or mostly|4|definitely
+QOL/Education/70	Q70	Q70	(Q59==1)&&(Q56==0)&&(Q56a==1||Q56a>4)	]		Do you think the things you learn are important and useful?	list|1|not at all|2|somewhat|3|usually or mostly|4|definitely
+QOL/Education/71	Q71	Q71	(Q59==1)&&(Q56==0)&&(Q56a==1||Q56a>4)	[		Do you enjoy your studies?	list|1|not at all|2|somewhat|3|usually or mostly|4|definitely
+QOL/Education/73	Q73	Q73	(Q59==1)&&(Q56==0)&&(Q56a==1||Q56a>4)	q		Would you say that you study in a high pressure place where people often have trouble keeping up with their studies?	list|1|not at all|2|somewhat|3|usually or mostly|4|definitely
+QOL/Education/74	Q74	Q74	(Q59==1)&&(Q56==0)&&(Q56a==1||Q56a>4)	q		Do you find it difficult to meet all the demands placed on you at school?           	list|1|not at all|2|somewhat|3|usually or mostly|4|definitely
+QOL/Education/75	Q75	Q75	(Q59==1)&&(Q56==0)&&(Q56a==1||Q56a>4)	]		Are you able to schedule your own work?	list|1|not at all|2|somewhat|3|usually or mostly|4|definitely
+QOL/Education/76	Q76	Q76	(Q59==1)&&(Q56==0)&&(Q56a==1||Q56a>4)	[		Can you take time off when you need to?	list|1|not at all|2|somewhat|3|usually or mostly|4|definitely
+QOL/Education/77	Q77	Q77	(Q59==1)&&(Q56==0)&&(Q56a==1||Q56a>4)	q		Do you have any influence on how  your work is organized?	list|1|not at all|2|somewhat|3|usually or mostly|4|definitely
+QOL/Education/78	Q78	Q78	(Q59==1)&&(Q56==0)&&(Q56a==1||Q56a>4)	q		Does your schooling contribute to your maturity and independence?	list|1|not at all|2|somewhat|3|usually or mostly|4|definitely
+QOL/Education/80	Q80	Q80	(Q59==1)&&(Q56==0)&&(Q56a==1||Q56a>4)	]		Do most of the students there seem to enjoy studying with each other?	list|1|not at all|2|somewhat|3|usually or mostly|4|definitely
+QOL/Education/81	Q81	Q81	(Q59==1)&&(Q56==0)&&(Q56a==1||Q56a>4)	[		"Are arguments, conflict, or political in-fighting common  there?              "	list|1|not at all|2|somewhat|3|usually or mostly|4|definitely
+QOL/Education/82	Q82	Q82	(Q59==1)&&(Q56==0)&&(Q56a==1||Q56a>4)	q		Have you had any arguments or disagreements with people at school in the last month?	list|1|not at all|2|somewhat|3|usually or mostly|4|definitely
+QOL/Education/88	Q88	Q88	(Q59==1)&&(Q56==0)&&(Q56a==1||Q56a>4)	q		Do you feel that you are getting opportunities to develop your skills and abilities?	list|1|not at all|2|somewhat|3|usually or mostly|4|definitely
+QOL/Education/89	Q89	Q89	(Q59==1)&&(Q56==0)&&(Q56a==1||Q56a>4)	]		Do you think that your studies will  give you a good chance to get ahead in the future?	list|1|not at all|2|somewhat|3|usually or mostly|4|definitely
+QOL/Education/90	Q90	Q90	(Q59==1)&&(Q56==0)&&(Q56a==1||Q56a>4)	[		Does your school involve any risks to your health and safety that you know of?	list|1|not at all|2|somewhat|3|usually or mostly|4|definitely
+QOL/Education/91	Q91	Q91	(Q59==1)&&(Q56==0)&&(Q56a==1||Q56a>4)	]		Do you find it physically very demanding or exhausting?	list|1|not at all|2|somewhat|3|usually or mostly|4|definitely
+QOL/ Homemaker/128a	Q128a	Q128a	(Q56==0||Q57==1)&&(Q59==0)	q		Do you think of yourself as `(Q57==1||Q59b==1)?'primarily':''` a homemaker?	list|1|No|2|Yes
+	NDq129		form==1&&Q128a==2	q		USE GREEN RESPONSE CARD FOR THE FOLLOWING SECTION.	nothing
+QOL/ Homemaker/129	Q129	Q129	Q128a==2	[		Are you satisfied with the appreciation you get for your work?	list|1|not at all|2|somewhat|3|usually or mostly|4|definitely
+QOL/ Homemaker/130	Q130	Q130	Q128a==2	q		Do you find your work stimulating?	list|1|not at all|2|somewhat|3|usually or mostly|4|definitely
+QOL/ Homemaker/131	Q131	Q131	Q128a==2	]		Do you think your work as a homemaker is important and useful?	list|1|not at all|2|somewhat|3|usually or mostly|4|definitely
+QOL/ Homemaker/132	Q132	Q132	Q128a==2	[		Do you enjoy your work?	list|1|not at all|2|somewhat|3|usually or mostly|4|definitely
+QOL/ Homemaker/133	Q133	Q133	Q128a==2	q		Do you find it difficult to meet all the demands placed on in your role as a homemaker?	list|1|not at all|2|somewhat|3|usually or mostly|4|definitely
+QOL/ Homemaker/134	Q134	Q134	Q128a==2	]		Are you able to schedule your own work?	list|1|not at all|2|somewhat|3|usually or mostly|4|definitely
+QOL/ Homemaker/135	Q135	Q135	Q128a==2	[		Can you take time off when you need to?	list|1|not at all|2|somewhat|3|usually or mostly|4|definitely
+QOL/ Homemaker/136	Q136	Q136	Q128a==2	q		Does your work as a homemaker contribute to your maturity and independence?	list|1|not at all|2|somewhat|3|usually or mostly|4|definitely
+QOL/ Homemaker/140	Q140	Q140	Q128a==2	]		Do you feel that you are getting opportunities to develop your skills and abilities?	list|1|not at all|2|somewhat|3|usually or mostly|4|definitely
+QOL/ Homemaker/141	Q141	Q141	Q128a==2	[		Does your work involve any risks to your health and safety that you know of?	list|1|not at all|2|somewhat|3|usually or mostly|4|definitely
+QOL/ Homemaker/142	Q142	Q142	Q128a==2	]		Do you find it physically very demanding or exhausting?	list|1|not at all|2|somewhat|3|usually or mostly|4|definitely
+	NDNp37	Np37	NONIDA7==1	[		"A list of job categories follows. Please identify the category that best describes the kind of work do you usually do. If you are not working now, please answer about your last job (the job at which you spent the most time). Enter the letter of that category below."	nothing
+	NDp37a		NONIDA7==1	q		a. NEVER HAD A JOB 	nothing
+	NDp37b		NONIDA7==1	q		"b. Unskilled laborer (e.g., mover, dockworker, day laborer)"	nothing
+	NDp37c		NONIDA7==1	q		"c. Service worker (e.g., cook, waiter, barber, janitor, gas station attendant, cosmetologist, health care assistant)"	nothing
+	NDp37d		NONIDA7==1	q		"d. Operative or semi-skilled worker (e.g., garage worker, taxicab, bus or truck driver, security guard)"	nothing
+	NDp37e		NONIDA7==1	q		"e. Retail/Sales (e.g., shoe salesperson, department store clerk, drug store clerk, telemarketer)"	nothing
+	NDp37f		NONIDA7==1	q		"f. Clerical or office worker (e.g., bank teller, bookkeeper, word processor, data entry person, postal clerk or carrier, ticket agent)"	nothing
+	NDp37g		NONIDA7==1	q		"g. Protective service (e.g., police officer, fireman, detective, correction officer)"	nothing
+	NDp37h		NONIDA7==1	q		h. Military service	nothing
+	NDp37i		NONIDA7==1	q		"i.Craftsman or skilled worker (e.g., carpenter, electrician, bricklayer, mechanic, machinist, tool maker, telephone installer, computer repair)"	nothing
+	NDp37j		NONIDA7==1	q		"j. Farm owner, farm manager"	nothing
+	NDp37k		NONIDA7==1	q		"k.Owner of a small business (e.g., restaurant owner, shop owner)"	nothing
+	NDp37l		NONIDA7==1	q		"l. Sales representative (e.g., insurance agent, real estate broker, bond salesman)"	nothing
+	NDp37m		NONIDA7==1	q		"m. Manager or administrator (e.g., office manager, sales manager)"	nothing
+	NDp37n		NONIDA7==1	q		"n. Professional without doctoral degree (e.g., registered nurse, librarian, teacher, engineer, architect, social worker, technician, accountant, artist/performer, consultant, computer programmer)"	nothing
+	NDp37o		NONIDA7==1	q		"o. Professional with doctoral degree or equivalent (lawyer, physician, dentist, scientist, college professor)"	nothing
+	NDp37p		NONIDA7==1	q		p. UNABLE TO CODE ELSEWHERE	nothing
+	Np37		NONIDA7==1	]		Please enter the letter of your usual job category from the list above.	text
+	Np37a		Np37=='p'||Np37=='P'	q		Please write in your job title and industry.	text
+	Np511	Np511	NONIDA7==1	q		"On the average, how many hours per week do (did) you work? (Include all jobs)"	list|0|NEVER WORKED|1|10 or less hours|2|11 to 20 hours|3|21 to 30 hours|4|31 to 40 hours|5| 41 to 50 hours|6|51 to 60 hours|7| 61 to 70 hours|8|71 or more hours
+	Q143r	Q143r	1	q		Now we want to ask you about your general financial situation. Does another person (your spouse or partner) contribute to the household income?	list|0|No|1|Yes
+	Ndfin		form==1	q		USE BUFF RESPONSE CARD FOR THE FOLLOWING QUESTION.	nothing
+	NDFin1		1	[		Below are several income categories. Please identify the category which includes your household income before taxes from all sources for the past year (January to December).	nothing
+	NDFin2		1	q		"a. Under $10,000"	nothing
+	NDFin3		1	q		"b. Between $10,000 and $14,999"	nothing
+	NDFin4		1	q		"c. Between $15,000 and $24,999"	nothing
+	NDFin5		1	q		"d. Between $25,000 and $34,999"	nothing
+	NDFin6		1	q		"e. Between $35,000 and $49,999"	nothing
+	NDFin7		1	q		"f.  Between $50,000 and $69,999"	nothing
+	NDFin8		1	q		"g. Between $70,000 and $94,999"	nothing
+	NDFin9		1	q		"h. Between $95,000 and $144,999"	nothing
+	NDFin10		1	q		"i. $145,000 or more"	nothing
+	Fin1		1	]		Please enter the letter of your household income category from the list above.	text
+	Fin2a		1	[		How many people in your household?	double
+	Fin2b		1	q		Do `Q143r!=1?'you':'you or your partner'` pay alimony?	list|0|no|1|yes
+	Fin2c		1	]		Do `Q143r!=1?'you':'you or your partner'` pay child support?	list|0|no|1|yes
+	Fin2d		Fin2c==1	q		For how many children do you and/or your partner pay child support?	double
+	Q143fr		NONIDA7==1	[		"In the last 12 months, did you receive unemployment compensation?"	list|0|No|1|Yes
+	Q143m		NONIDA7==1	q		In the last 12 months did you receive child support?	list|0|No|1|Yes
+	Q143gr		NONIDA7==1	]		"In the last 12 months did you receive public assistance (e.g. food stamps, welfare)?"	list|0|No|1|Yes
+QOL/Financial/143k	Q143k	Q143k	Q143r==1	q		What is the highest educational level of the person (spouse or other) with whom you had shared income?	list|1|did not graduate from high school|2|high school graduate|3|some college or trade school|4|Bachelor's degree|5|post-graduate degree (masters or doctorate)
+	NDNp725	Np37	NONIDA7==1&& Q143r==1	[		"From the list of job categories that follows, please identify the category that best describes the kind of work your partner usually does. If your partner is not working now, please answer about his/her last job. Enter the letter of that category below."	nothing
+	NDNp725a		NONIDA7==1&& Q143r==1	q		a. NEVER HAD A JOB 	nothing
+	NDNp725b		NONIDA7==1&& Q143r==1	q		"b. Unskilled laborer (e.g., mover, dockworker, day laborer)"	nothing
+	NDNp725c		NONIDA7==1&& Q143r==1	q		"c. Service worker (e.g., cook, waiter, barber, janitor, gas station attendant, cosmetologist, health care assistant)"	nothing
+	NDNp725d		NONIDA7==1&& Q143r==1	q		"d. Operative or semi-skilled worker (e.g., garage worker, taxicab, bus or truck driver, security guard)"	nothing
+	NDNp725e		NONIDA7==1&& Q143r==1	q		"e. Retail/Sales (e.g., shoe salesperson, department store clerk, drug store clerk, telemarketer)"	nothing
+	NDNp725f		NONIDA7==1&& Q143r==1	q		"f. Clerical or office worker (e.g., bank teller, bookkeeper, word processor, data entry person, postal clerk or carrier, ticket agent)"	nothing
+	NDNp725g		NONIDA7==1&& Q143r==1	q		"g. Protective service (e.g., police officer, fireman, detective, correction officer)"	nothing
+	NDNp725h		NONIDA7==1&& Q143r==1	q		h. Military service	nothing
+	NDNp725i		NONIDA7==1&& Q143r==1	q		"i.Craftsman or skilled worker (e.g., carpenter, electrician, bricklayer, mechanic, machinist, tool maker, telephone installer, computer repair)"	nothing
+	NDNp725j		NONIDA7==1&& Q143r==1	q		"j. Farm owner, farm manager"	nothing
+	NDNp725k		NONIDA7==1&& Q143r==1	q		"k.Owner of a small business (e.g., restaurant owner, shop owner)"	nothing
+	NDNp725l		NONIDA7==1&& Q143r==1	q		"l. Sales representative (e.g., insurance agent, real estate broker, bond salesman)"	nothing
+	NDNp725m		NONIDA7==1&& Q143r==1	q		"m. Manager or administrator (e.g., office manager, sales manager)"	nothing
+	NDNp725n		NONIDA7==1&& Q143r==1	q		"n. Professional without doctoral degree (e.g., registered nurse, librarian, teacher, engineer, architect, social worker, technician, accountant, artist/performer, consultant, computer programmer)"	nothing
+	NDNp725o		NONIDA7==1&& Q143r==1	q		"o. Professional with doctoral degree or equivalent (lawyer, physician, dentist, scientist, college professor)"	nothing
+	NDNp725p		NONIDA7==1&& Q143r==1	q		p. UNABLE TO CODE ELSEWHERE	nothing
+	Np725		NONIDA7==1&& Q143r==1	]		Please enter the letter of your partner's usual job category from the list above.	text
+	Np725a		Np725=='p'||Np725=='P'	q		Please write in their job title and industry.	text
+Np724	Np724	Np724	NONIDA7==1&& Q143r==1	q		"Aside from any summer or holiday employment, is your spouse or partner?"	"list|1|Working full-time for pay, 35 hours or more per week|2|Working part-time for pay|3|Not at work because of temporary illness or disability|4|Not at work because of leave, vacation, or strike|5|Not employed|6|Not employed, and a full time homemaker"
+QOL/Financial/145	Q145	Q145	1	[		How many years have you worked part or full time at a paid job over the past 5 years?	list|1|less than 6 months|2|6 months to less than 1 1/2 years|3|1 1/2 to less than 2 1/2 years|4|2 1/2 to less than 3 1/2 years|5|3 1/2 to less than 4 1/2 years|6|4 1/2 years or more
+QOL/Financial/146	Q146	Q146	1	q		During the past 5 years how many times were you fired?	double
+QOL/Financial/147	Q147	Q147	1	]		During the past 5 years how many times did you lose your job (other than being fired)?	double
+QOL/Financial/148	Q148	Q148	1	q		During the past 5 years how many times did you collect unemployment insurance?	double
+QOL/Financial/150	Q150	Q150	1	[		"How much money do you have left after your basic needs for food, clothing and housing are taken care of?  Would you say..."	list|1|none|2|a little|3|enough|4|or plenty
+QOL/Financial/151	Q151	Q151	1	q		How much of a problem is money for you?  Would you say...	list|1|not at all|2|a little|3|some problem|4|quite a lot
+QOL/Financial/154	Q154	Q154	1	]		"If something did happen to your income, would you be able to get the financial help you would need?  Would you say..."	list|1|no|2|maybe|3|probably|4|definitely
+QOL/Social/173c	Q173c	Q173c	1	q		How many biological children have you had?	radio2|0|0 |1|1 |2|2 |3|3 |4|4 |5|5 |6|6 |7|7 |8|8 |9|9 |10|10
+	Q173d	Q173d	Q173c>0	q		How many of these children live with you all or most of the time?	radio2|0|0 |1|1 |2|2 |3|3 |4|4 |5|5 |6|6 |7|7 |8|8 |9|9 |10|10
+QOL/Social/173_O	ChO	ChO	1	q		"Are there any `Q173c>0?'other':' '` children that you currently care for on a part or full time basis? ( Do not include paid child care; this means children for whom you serve as a parent or parent substitute such as adopted, step or foster children.)"	list|1|no|2|yes
+	Q173e	Q173e	ChO==2	q		"How many `Q173c>0?'children,apart from your biological children,':'of these children'` live with you all or most of the time?"	radio2|0|0 |1|1 |2|2 |3|3 |4|4 |5|5 |6|6 |7|7 |8|8 |9|9 |10|10
+ND26a	ND26a	ND26a	1	[		Now I am going to ask you some more general questions about how you feel about your life.	nothing
+QOL/Social/185	Q185	Q185	1	q		How often have you felt lonely or cut off from people in the last month?	list|1|never|2|seldom|3|sometimes|4|often|5|always
+QOL/Social/186	Q186	Q186	1	q		How satisfied are you with your relationships with your closest friends?         	list|1|not satisfied|2|somewhat satisfied|3|pretty satisfied|4|completely satisfied
+QOL/Social/187	Q187	Q187	1	]		How satisfied are you with how often you see your closest friends? Would you like to see them...     	list|1|less often|2|about as often as now|3|more often|4|a lot more often
+	NDq200		form==1	q		USE PEACH RESPONSE CARD FOR NEXT 7 QUESTIONS.	nothing
+QOL/Social/200	Q200	Q200	1	[		"Do you sing or play a musical instrument regularly? IF YES, About how often?"	list|1|no|2|once a month or less|3|2 - 3 times a month|4|once a week|5|2 - 4 times a week|6|daily or nearly daily
+QOL/Social/201	Q201	Q201	1	q		"Do you paint, draw, carve or do any other visual art or craft? IF YES, About how often?          "	list|1|no|2|once a month or less|3|2 - 3 times a month|4|once a week|5|2 - 4 times a week|6|daily or nearly daily
+QOL/Social/202	Q202	Q202	1	]		"Do you do projects around the house, like building, remodeling, painting, sewing or gardening? IF YES, About how often?       "	list|1|no|2|once a month or less|3|2 - 3 times a month|4|once a week|5|2 - 4 times a week|6|daily or nearly daily
+QOL/Social/203	Q203a	Q203a	1	[		"Do you play games with other people like cards, chess, board or video games ?  IF YES, About how often?           "	list|1|no|2|once a month or less|3|2 - 3 times a month|4|once a week|5|2 - 4 times a week|6|daily or nearly daily
+QOL/Social/203	Q203b	Q203b	1	]		"Do you play games by yourself ?  IF YES, About how often?           "	list|1|no|2|once a month or less|3|2 - 3 times a month|4|once a week|5|2 - 4 times a week|6|daily or nearly daily
+QOL/Social/204	Q204	Q204	1	[		"Do you read newspapers or magazines, not including what you read for your work?       "	list|1|no|2|once a month or less|3|2 - 3 times a month|4|once a week|5|2 - 4 times a week|6|daily or nearly daily
+QOL/Social/205	Q205	Q205	1	]		"Do you read fiction or other books for your own enjoyment? IF YES, About how often?"	list|1|no|2|once a month or less|3|2 - 3 times a month|4|once a week|5|2 - 4 times a week|6|daily or nearly daily
+	N1733a		NONIDA7==1	[		"On average, how many hours a day do you spend watching TV or videos (DVDs), ON WEEKDAYS?"	list|1|never or almost never|2|Less than one hour |3|1 to 2 hours |4|2 to 3 hours |5|3 to 4 hours |6|4 hours or more
+	N1733b		NONIDA7==1	]		"On average, how many hours a day do you spend watching TV or videos (DVDs), ON WEEKENDS?"	list|1|never or almost never|2|Less than one hour |3|1 to 2 hours |4|2 to 3 hours |5|3 to 4 hours |6|4 hours or more
+	QTV		1	q		"Do you keep the TV on when you are eating meals, housekeeping, cooking or childcare or doing other activities?"	List|0|Never |1|Not often |2|Sometimes |3|Often or usually
+QOL/Social/207	Q207	Q207	1	q		Would you describe yourself as a workaholic; that is a person who works during much of what would be leisure time for most people?	list|1|No|2|Yes
+QOL/Social/208	Q208	Q208	1	q		Do you belong to any clubs or organizations that you attend regularly?	list|1|No|2|Yes
+QOL/Social/209	Q209	Q209	Q208==2	[		About how many hours per week do you spend altogether in activities connected with these organizations?	list|1|0 to less than one hour|2|1 -3 hours|3|4 - 6 hours|4|7 - 10 hours|5|more than 10 hours
+QOL/Social/210	Q210	Q210	Q208==2	]		How satisfied are you with the amount of your involvement in clubs and organizations?  Would you say...	list|1|not satisfied|2|pretty satisfied|3|completely satisfied
+QOL/Social/211	Q211	Q211	1	[		"How often do you jog, swim, or do any other sport or game that gives you a lot of exercise?"	list|1|less than once every 2 weeks|2|once every two weeks|3|once a week|4|1 -3 times a week|5|4 - 5 times a week|6|daily or nearly daily
+QOL/Social/212	Q212	Q212	1	q		"In an average week, how much time do you spend sitting outdoors or walking outdoors?"	list|1|less than 1 hour|2|1 - 3 hours|3|4 - 10 hours|4|11 - 20 hours|5|21 - 40 hours|6|more than 40 hours
+QOL/Social/213	Q213	Q213	1	]		"In an average week, how much time do you spend playing with or taking care of children?"	list|1|less than 1 hour|2|1 - 3 hours|3|4 - 10 hours|4|11 - 20 hours|5|21 - 40 hours|6|more than 40 hours
+QOL/Social/214	Q214	Q214	1	[		"In general, do you have opportunities to meet new people that you might enjoy as friends?  Would you say..."	list|1|never or almost never|2|infrequently|3|sometimes|4|often|5|all the time
+QOL/Social/216	Q216	Q216	1	]		Is there some activity we haven't talked about that you spend a lot of  time on?	list|1|No|2|Yes
+QOL/Social/216a	Q216a	Q216a	Q216==2	[		Describe	text
+QOL/Social/216b	Q216b	Q216b	Q216==2	]		How much time do you spend on that in a usual week?	list|1|less than 1 hour|2|1 - 3 hours|3|4 - 10 hours|4|11 - 20 hours|5|21 - 40 hours|6|more than 40 hours
+QOL/Social/217	Q217	Q217	1	[		"All in all, would you say your life these days is..."	list|1|far from what you want it to be|2|not as good as you want it to be|3|about what you want it to be
+QOL/Health/218	Q218	Q218	1	]		"In general, how is your physical health?"	list|1|poor|2|fair|3|good|4|excellent
+QOL/Health/218a	Q218a	Q218a	1	q		Are you covered by health insurance?	"list|0|No|1|Yes, Medicare or Medicaid only|2|Yes, other health insurance"
+QOL/Health/218b	Q218b	Q218b	Q218a>0	q		Does your health insurance cover mental health care?	list|0|No|1|Yes|2|I don't know
+QOL/Health/221	Q221	Q221	1	[		Last year how many days were you so sick that you had to stay home from school or work or not do what you wanted to?  Would you say....	list|1|0 - 2 days|2|3 - 10 days|3|11 - 20 days (That's 1 or 2 days a month.)|4|more often than that
+QOL/Health/222	Q222	Q222	1	]		"Compared to other people your age, would you say that you have..."	list|1|a lot less energy|2|a little less energy|3|a little more energy|4|a lot more energy
+QOL/Health/223	Q223	Q223	1	[		About how often do you get as much sleep as you really need?	list|1|most nights|2|3 - 4 nights a week|3|about 1 or 2 nights a week|4|less than that
+QOL/Health/224	Q224	Q224	1	]		How long does it usually take you to fall asleep after you start trying?	list|1|less than 10 minutes|2|10 to less than 20 minutes|3|20 to less than 30 minutes|4|30 to less than 45 minutes|5|45 min. to less than 1 hour|6|more than one hour
+QOL/Health/225	Q225	Q225	1	q		Do you get a lot of headaches or stomachaches?	list|1|No|2|Yes
+QOL/Health/226	Q226	Q226	Q225==2	[		Have you gone to the doctor about these?	list|1|No|2|Yes
+QOL/Health/227	Q227	Q227	Q226==2	]		Did the doctor find anything wrong?	list|1|No|2|Yes
+QOL/Health/228	Q228	Q228	1	q		Do you get sick....	list|1|more easily than most people|2|about as easily as most people|3|less easily than most people
+Ltsmoke	Ltsmoke		NOW6	q		"Have you ever smoked cigarettes regularly, at least once a day?"	list|0|No|1|Yes
+Ltsmkage	Ltsmkage		Ltsmoke==1	q		What was the earliest age at which you smoked regularly?	double
+Np152c	Np152c	Np152c	NONIDA7==1	q		How many cigarettes did you smoke in the past year?	"list|1|None at all |2|Some, but less than daily |3|1-5 cigarettes a day|4| About half a pack a day|5|About a pack a day|6|About 1 1/2 packs a day|7|More than 1 1/2 packs a day|8|Don't smoke"
+QOL/Health/229	Q229	Q229	1	q		Do you worry about your health...	list|1|a lot|2|some|3|a little|4|not at all
+Health	Q230	Q230	1	[		How tall are you? Feet	double
+Health	Q230a	Q230a	1	]		                               Inches	double
+Health	Q231	Q231	1	[		How much do you weigh?	double
+Health	Q231a	Q231a	1	]		"In the last year, what was your lowest weight?"	double
+Health	ndhlth	ndhlth	1	[		"The next questions are about SERIOUS, LONG-TERM diseases or physical impairments. Please indicate for each whether you have suffered from that condition or have been taking medications for it IN THE PAST YEAR."	nothing
+Health	hlth1	hlth1	1	q		"Asthma, chronic bronchitis, or emphysema"	list|0|No|1|Yes
+Health	hlth2	hlth2	1	q		Severe allergies or hay fever 	list|0|No|1|Yes
+Health	hlth3	hlth3	1	q		"Chronic joint, muscular pain (back, neck, facial), or severe osteoporosis"	list|0|No|1|Yes
+Health	hlth4	hlth4	1	]		Migraine or other chronic headache	list|0|No|1|Yes
+Health	ndhlth2	ndhlth2	1	[		 Please indicate for each of the following whether you have suffered from that condition or have been taking medications for it IN THE PAST YEAR.	nothing
+Health	hlth5	hlth5	1	q		"Neurological disease (epilepsy, multiple sclerosis)"	list|0|No|1|Yes
+Health	hlth6	hlth6	1	q		"Chronic gastrointestinal problems (ulcers, stomach aches, reflux)"	list|0|No|1|Yes
+Health	hlth7	hlth7	1	q		"Chronic skin problems (severe acne, psoriasis, shingles)"	list|0|No|1|Yes
+Health	hlth8	hlth8	1	]		Cancer of any type	list|0|No|1|Yes
+Health	ndhlth3	ndhlth3	1	[		 Please indicate for each of the following whether you have suffered from that condition or have been taking medications for it IN THE PAST YEAR.	nothing
+Health	hlth9	hlth9	1	q		"Heart disease, hypertension or other vascular problem"	list|0|No|1|Yes
+Health	hlth10	hlth10	1	q		"Anemia, clotting or bleeding problem"	list|0|No|1|Yes
+Health	hlth11	hlth11	1	]		Diabetes	list|0|No|1|Yes
+Health	ndhlth4	ndhlth4	1	[		 Please indicate for each of the following whether you have suffered from that condition or have been taking medications for it IN THE PAST YEAR.	nothing
+Health	hlth12	hlth12	1	q		Thyroid dysfunction	list|0|No|1|Yes
+Health	hlth13	hlth13	1	q		Recurrent kidney stone or chronic renal insufficiency requiring dialysis	list|0|No|1|Yes
+Health	hlth14	hlth14	1	q		Repeated urinary problems 	list|0|No|1|Yes
+Health	hlth15	hlth15	1	]		Hearing impairments	list|0|No|1|Yes
+Health	ndhlth5	ndhlth5	1	[		 Please indicate for each of the following whether you have suffered from that condition or have been taking medications for it IN THE PAST YEAR.	nothing
+Health	hlth16	hlth16	1	q		Visual impairments which can not be corrected by glasses	list|0|No|1|Yes
+Health	hlth18	hlth18	1	q		Sexual dysfunction 	list|0|No|1|Yes
+Health	hlth19	hlth19	1	]		Sexually transmitted disease	list|0|No|1|Yes
+Health	hlth17	hlth17	Dem2==1	q		Menstrual dysfunction (excessive pain or irregular bleeding)	list|0|No|1|Yes
+Health	ndhlth6	ndhlth6	1	[		 Please indicate for each of the following whether you have suffered from that condition or have been taking medications for it IN THE PAST YEAR.	nothing
+QOL/Health/306	hlth20	hlth20	1	q		HIV or AIDS	list|0|No|1|Yes
+QOL/Health/307	hlth21	hlth21	1	q		"Severe injury (e.g., loss of limbs, severe burns)"	list|0|No|1|Yes
+QOL/Health/308	hlth22	hlth22	1	]		Other chronic and severe illness	list|0|No|1|Yes
+QOL/Health/309	hlth22a	hlth22a	hlth22==1	q		Please write in that illness	text
+	Trt1		1	q		"If you had a problem with your emotions, nerves, mental health, or a problem controlling your behavior, would you go for professional help?"	list|0|No|1|Yes
+	Trt1a		Trt1==0	[		Why wouldn't you go for professional help?  Would you say:	nothing
+	Trt1b		Trt1==0	q		It would be too difficult (You are too busy; it's too far/inconvenient; it would take too much time)?	list|0|No|1|Yes
+	Trt1c		Trt1==0	q		You wouldn't know where to go or how to get this kind of help?	list|0|No|1|Yes
+	Trt1d		Trt1==0	q		It would be too expensive?	list|0|No|1|Yes
+	Trt1e		Trt1==0	]		You just wouldn't want to?	list|0|No|1|Yes
+	Q306a		1	[		"In the last 5 years, did you talk about personal problems or things that bothered you with any professional like a psychologist, psychiatrist, therapist, or counselor? "	"list|0|No|1|Yes, within the past year|2|Yes, but more than one year ago"
+	Q306b		1	]		"In the past 5 years, did you talk about such problems with your family doctor?"	"list|0|No|1|Yes, within the past year|3|Yes, but but more than one year ago"
+	Trt2		1	q		"In the last 5 years, did a doctor prescribe medication for anxiety, panic, fears (such as Valium, Xanax, or Ativan)? "	list|0|No|1|Yes
+	Trt2a		Trt2==1	[		Are you still taking this medication?	list|0|No|1|Yes
+	Trt2b		Trt2==1	]		Who prescribed this medication?	list|1|A psychiatrist or other mental health professional|2|Your family doctor|3|Someone else
+	Trt2c		Trt2b==3	q		Please write in the profession of the person who  prescribed this medication	text
+	Trt3		1	q		"In the last 5 years, did a doctor prescribe medication because you were depressed (such as Prozac or Zoloft)?"	list|0|No|1|Yes
+	Trt3a		Trt3==1	[		Are you still taking this medication?	list|0|No|1|Yes
+	Trt3b		Trt3==1	]		Who prescribed this medication?	list|1|A psychiatrist or other mental health professional|2|Your family doctor|3|Someone else
+	Trt3c		Trt3b==3	q		Please write in the profession of the person who  prescribed this medication	text
+	Trt4		1	q		"In the last 5 years, did a doctor prescribe medication to help your hyperactivity or to help your ability to concentrate on things (such as Strattera or Ritalin)?  "	list|0|No|1|Yes
+	Trt4a		Trt4==1	[		Are you still taking this medication?	list|0|No|1|Yes
+	Trt4b		Trt4==1	]		Who prescribed this medication?	list|1|A psychiatrist or other mental health professional|2|Your family doctor|3|Someone else
+	Trt4c		Trt4b==3	q		Please write in the profession of the person who  prescribed this medication	text
+	Trt5		1	q		"In the last 5 years, did a doctor prescribe medication for any other kind of emotional or psychological problems, including bipolar disorder (such as Lithium or Depakote) or psychosis (such as Risperdal, Haldol, Zyprexa)?"	list|0|No|1|Yes
+	Trt5a		Trt5==1	[		Are you still taking this medication?	list|0|No|1|Yes
+	Trt5d		Trt5==1	q		What is this medication?	text
+	Trt5b		Trt5==1	]		Who prescribed this medication?	list|1|A psychiatrist or other mental health professional|2|Your family doctor|3|Someone else
+	Trt5c		Trt5b==3	q		Please write in the profession of the person who  prescribed this medication	text
+	Trt6		1	q		Did you ever stay overnight in the hospital because of a problem with your emotions or mental health?	"list|0|No|1|Yes, one time|2|Yes, more than once"
+	Trt6a		Trt6>0	q		How old were you `Trt6==1?'when ':'the last time'` you were hospitalized for those problems?	double
+	Trt6b		Trt6==2	[		How old were you the first time?	double
+	Trt6c		Trt6==2	]		How many times altogether?	double
+	Trt6d		Trt6>0	q		`Trt6==1?'How long were you':'What is the longest amount of time you were'` hospitalized for those problems?	list|1|1-2 days|2|3 days-1 week|3|longer than one week
+	Trt7		1	[		"In the last 5 years, did you personally talk about problems with drugs or alchohol with any professional like a psychologist, psychiatrist, therapist, or counselor?"	"list|0|No|1|Yes, within the past year|2|Yes, but more than one year ago"
+	Trt7a		1	]		"In the past 5 years, did you talk about such problems with your family doctor?"	"list|0|No|1|Yes, within the past year|3|Yes, but more than one year ago"
+	Trt7b		Trt7>0||Trt7a>0	q		Was this for:	list|1| Alcohol|2|Drugs|3|Both
+	Trt8		1	q		"In the last 5 years, did you participate in a self-help group?"	"list|0|No|1|Yes, within the past year|2|Yes, but more than one year ago"
+	Trt8a		Trt8>0	q		What was the subject of the group?	list|1|problems with alcohol|2|problems with drugs|3|other
+	Trt9		1	q		Did you ever stay overnight in the hospital or a rehab facility because of a problem with drugs or alcohol?	"list|0|No|1|Yes, one time|2|Yes, more than once"
+	Trt9a		Trt9>0	q		How old were you `Trt9==1?' when ':'the last time'` you were hospitalized or in rehab for those problems?	double
+	Trt9b		Trt9==2	[		How old were you the first time?	double
+	Trt9c		Trt9==2	]		How many times altogether?	double
+	Trt9d		Trt9>0	[		`Trt6==1?'How long were you':'What is the longest amount of time you were'` hospitalized or in rehab for those problems?	list|1|1-2 days|2|3 days-1 week|3|longer than one week
+	Trt9e		Trt9>0	]		Was this for:	list|1| Alcohol|2|Drugs|3|Both
+	Trt10		1	q		"In the last 5 years, did you see an advertisement for medicine to help with emotions or mental health, and then ask your doctor to prescribe this medicine for you?"	list|0|No|1|Yes
+	Trt10a		Trt10==1	[		Did your doctor give you this prescription?	list|0|No|1|Yes
+	Trt10c		Trt10==1	]		Did you try taking this medicine?	list|0|No|1|Yes
+	Trt11		1	q		"In the last 5 years, did you ask your doctor to prescribe a medicine  to help with your emotions or mental health because it was recommended by  a friend or family member?"	list|0|No|1|Yes
+	Trt11a		Trt11==1	[		Did your doctor give you this prescription?	list|0|No|1|Yes
+	Trt11c		Trt11==1	]		Did you try taking this medicine?	list|0|No|1|Yes
+	Trt13		1	q		"In the last 5 years, have you taken medication to help you sleep?"	"list|0|No|1|Yes, within the past year|2|Yes, but but more than one year ago"
+	Trt13a		Trt13>0	q		Was that an over-the-counter medication or a presciption?	list|1|Over-the-counter|2|prescribed by a doctor
+	Trt13b		Trt13a==2	q		Did you ask the doctor for the prescription?	"list|1|No, the doctor suggested it|2|Yes, I asked for a specific medication|3|Yes, I asked for something to help me sleep"
+	ndtrt12		1	[		Some people try different ways to help relieve emotional stress or mental health problems. In the past five years did you ?	nothing
+	Trt12a		1	q		Take an over-the-counter medication from the pharmacy for these problems?	"list|0|No|1|Yes, within the past year|2|Yes, but but more than one year ago"
+	Trt12b		1	q		"Exercise (yoga, tai chi, running) to relieve emotional stress or mental health problems?"	"list|0|No|1|Yes, within the past year|2|Yes, but but more than one year ago"
+	Trt12c		1	]		"Get a body-oriented therapy someone does to you (acupuncture, chiropractic, energy healing, massage) for these problems?"	"list|0|No|1|Yes, within the past year|2|Yes, but but more than one year ago"
+	ndtrt12a		1	[		Some people try different ways to help them feel better when they have emotional or mental health problems. In the past five years did you ?	nothing
+	Trt12d		1	q		"Take vitamins, minerals, herbs, homeopathic remedies, or change your diet to help with these problems?"	"list|0|No|1|Yes, within the past year|2|Yes, but but more than one year ago"
+	Trt12e		1	q		"Practice a quiet body-mind technique such as meditation, relaxation/deep breathing, imagery to relieve emotional stress or mental health problems?"	"list|0|No|1|Yes, within the past year|2|Yes, but but more than one year ago"
+	Trt12f		1	q		"Speak with a minister, priest, rabbi, imam or other religious leader about these problems?"	"list|0|No|1|Yes, within the past year|2|Yes, but but more than one year ago"
+	Trt12g		1	]		Pray to help with these problems?	"list|0|No|1|Yes, within the past year|2|Yes, but but more than one year ago"
+	ndq320		form==1	q		USE PINK RESPONSE CARDS FOR NEXT 4 QUESTIONS.	nothing
+QOL/Happiness/4	nd5001	nd5001	1	[		"For each of the following 4 questions or statements, please indicate the point on the seven point scale you feel is most appropriate in describing you. (Choose any number from 1 to 7.)"	nothing
+QOL/Health/230/height/ft	Q320	Q320	1	q		"In general, I consider myself:"	radio2|1|1 Not a very happy person |2|2 |3|3 |4|4 |5|5 |6|6 |7|7 a very happy person
+QOL/Health/230a/height/inches	Q321	Q321	1	q		"Compared to most of my peers, I consider myself:"	radio2|1|1 Less happy |2|2 |3|3 |4|4 |5|5 |6|6 |7|7 more happy
+QOL/Health/231/weight	Q322	Q322	1	q		"Some people are generally very happy. They enjoy life regardless of what is going on, getting the most out of everything. To what extent does this characterization describe you?"	radio2|1|1 Not at all|2|2 |3|3 |4|4 |5|5 |6|6 |7|7 a great deal
+QOL/Health/231a/previous	Q323	Q323	1	]		"Some people are generally not very happy. Although they are not depressed, they never seem as happy as they might be. To what extent does this characterization describe you?"	radio2|1|1 Not at all|2|2 |3|3 |4|4 |5|5 |6|6 |7|7 a great deal
+	Nddna		1	[		Be sure that you have collected the DNA sample.	nothing
+Health/BP	BPsys	BPsys	form==1	q		Please record the blood pressure here. First the systolic number	double
+	Bpdias	Bpdias	form==1	q		Now diastolic number	double
+	pulse	pulse	form==1	]		Please enter the heart rate	double
+	Ndend		1	q		This is the end of the quality of life section. The subject should use the computer for the remainder of the interview.	nothing
+suspend	suspend		1	e		suspendToFloppy()	nothing

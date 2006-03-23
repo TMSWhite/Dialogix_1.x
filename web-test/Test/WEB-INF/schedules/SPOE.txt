@@ -1,7 +1,7 @@
 RESERVED	__TRICEPS_FILE_TYPE__	SCHEDULE									
-RESERVED	__TITLE__	Adult SPOE									
+RESERVED	__TITLE__	Adult SPOE (Draft/Subset)						
 RESERVED	__ICON__	dialogo.jpg									
-RESERVED	__HEADER_MSG__	Adult SPOE									
+RESERVED	__HEADER_MSG__	Adult SPOE (Draft/Subset)								
 RESERVED	__PASSWORD_FOR_ADMIN_MODE__	bypass									
 RESERVED	__SHOW_QUESTION_REF__	TRUE									
 RESERVED	__AUTOGEN_OPTION_NUM__	TRUE									

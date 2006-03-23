@@ -1,0 +1,73 @@
+RESERVED	__TRICEPS_FILE_TYPE__	SCHEDULE					
+RESERVED	__ICON__	dialogo.jpg					
+RESERVED	__DEVELOPER_MODE__	true					
+RESERVED	__TITLE__	Role Recovery Survey					
+RESERVED	__HEADER_MSG__	Survey:  The Role of the Psychiatrist in the Context of Recovery					
+RESERVED	__PASSWORD_FOR_ADMIN_MODE__	bypass					
+RESERVED	__SHOW_QUESTION_REF__	true					
+RESERVED	__AUTOGEN_OPTION_NUM__	false					
+RESERVED	__DEVELOPER_MODE__	true					
+RESERVED	__LANGUAGES__	en_US					
+COMMENT concept	VariableName	externalName	Relevance	ActionType	readback	Action	ResponseOptions
+	I	I	1	[		Section I - Introduction. Please answer each question, using the tab key to scroll down when you reach the bottom of the screen.	nothing
+	I_1	I.1	1	q		To what extent are you aware of the concept of recovery in mental health?	list|0|not at all|1|very little extent|2|little extent|3|some extent|4|great extent|5|very great extent
+	I_2	I.2	1	q		To what extent do you have an understanding of the concept of recovery in mental health?	list|0|not at all|1|very little extent|2|little extent|3|some extent|4|great extent|5|very great extent
+	I_3	I.3	1	q		To what extent do you believe that it is a viable concept for people who have schizophrenia?	list|0|not at all|1|very little extent|2|little extent|3|some extent|4|great extent|5|very great extent
+	I_4	I.4	1	q		What do you think people with schizophrenia are recovering from?	nothing
+	I_4a	I.4a	1	q		Illness	list|0|not at all|1|very little|2|somewhat|3|mostly|4|definitely
+	I_4b	I.4b	1	q		Societal Stigma	list|0|not at all|1|very little|2|somewhat|3|mostly|4|definitely
+	I_4c	I.4c	1	q		Years Lost 	list|0|not at all|1|very little|2|somewhat|3|mostly|4|definitely
+	I_4d	I.4d	1	q		Victimization	list|0|not at all|1|very little|2|somewhat|3|mostly|4|definitely
+	I_4e	I.4e	1	q		Poverty	list|0|not at all|1|very little|2|somewhat|3|mostly|4|definitely
+	I_4f	1.4f	1	q		Loss of Role	list|0|not at all|1|very little|2|somewhat|3|mostly|4|definitely
+	I_5	I.5	1	q		In your practice with people who have schizophrenia and other severe psychiatric disorders, to what extent do you view your activities as treatment?	list|0|not at all|1|very little extent|2|little extent|3|some extent|4|great extent|5|very great extent
+	I_6	I.6	1	]		In your practice with people who have schizophrenia and other severe psychiatric disorders, to what extent do you view your activities as rehabilitation?	list|0|not at all|1|very little extent|2|little extent|3|some extent|4|great extent|5|very great extent
+	II	II	1	[		Section II - Agency Practices that Foster Recovery. Please answer each question, using the tab key to scroll down when you reach the bottom of the screen.	nothing
+	II_1	II.1	1	q		How would you categorize your primary work site (heretofore called agency)?	list|1|Hospital-based inpatient service|2|Hospital-based outpatient service|3|Community-based mental health service agency (e.g CMHC)|4|Community-based social service agency (e.g. family and children services)|5|Community-based rehabilitation agency (e.g clubhouse)|6|Other
+	II_2	II.2	1	q		What does your agency call the people to whom it provides service?	list|1|Patients|2|Clients|3|Consumers|4|Recipients|5|Other terms
+	II_3	II.3	1	q		How would you describe your agency on a continuum of traditional to nontraditional? An example of a traditional organization would be a general hospital which adheres fairly closely to an illness model of mental health care. An example of a nontraditional organization would be a community based agency, following a rehabilitation model.	list|1|Definitely Traditional|2|Fairly Traditional|3|Fairly Nontraditional|4|Definitely Nontraditional
+	II_4	II.4	1	q		To what extent does your agency provide services that deliberately foster recovery (such as housing and vocational services) of clients?	list|0|not at all|1|very little extent|2|little extent|3|some extent|4|great extent|5|very great extent
+	II_5	II.5	1	q		To what extent do the staff at your agency meet with clients in their natural environment (home, community, workplace)? 	list|0|not at all|1|very little extent|2|little extent|3|some extent|4|great extent|5|very great extent
+	II_6	II.6	1	q		How many clients at your agency receive any assistance with housing (e.g., help with section 8 housing voucher, referral to community residence)?	list|1|Fewer than 20% of clients|2|21 to 40% of clients|3|41 to 60% of clients|4|61 to 80% of clients|5|Over 80% of clients
+	II_7	II.7	1	q		How many clients in your agency live in their own house, studio, or apartment where support is available on an as needed basis, as opposed to 24 hour supervised housing?	list|1|Fewer than 20% of clients|2|21 to 40% of clients|3|41 to 60% of clients|4|61 to 80% of clients|5|Over 80% of clients
+	II_8	II.8	1	q		To what extent do staff at your agency meet clients on evenings or weekends, to facilitate their participation in employment or school?	list|0|not at all|1|very little extent|2|little extent|3|some extent|4|great extent|5|very great extent
+	II_9	II.9	1	q		To what extent does your agency make a concerted effort to hire former clients?	list|0|not at all|1|very little extent|2|little extent|3|some extent|4|great extent|5|very great extent
+	II_10	II.10	1	q		To what extent do clients participate in decisions about program development at your agency?	list|0|not at all|1|very little extent|2|little extent|3|some extent|4|great extent|5|very great extent
+	II_11	II.11	1	q		To what extent do clients at your agency believe they have meaningful control over decisions that affect them?	list|0|not at all|1|very little extent|2|little extent|3|some extent|4|great extent|5|very great extent
+	II_12	II.12	1	q		To what extent are clients at your agency able to chose and change their case worker or psychiatrist, if that is their preference?	list|0|not at all|1|very little extent|2|little extent|3|some extent|4|great extent|5|very great extent
+	II_13	II.13	1	q		To what extent are clients at your agency able to pursue educational or vocational opportunities that fit their needs, as opposed to having to accept whatever jobs are available?	list|0|not at all|1|very little extent|2|little extent|3|some extent|4|great extent|5|very great extent
+	II_14	II.14	1	q		To what extent are clients at your agency able to obtain supported employment positions (e.g. with active job coach support) as opposed to having to accept traditional vocational opportunities (e.g. sheltered workshops or TEPs)?	list|0|not at all|1|very little extent|2|little extent|3|some extent|4|great extent|5|very great extent
+	II_15	II.15	1	q		To what extent does your agency provide a meaningful role on its board of directors or advisory board for clients?	list|0|not at all|1|very little extent|2|little extent|3|some extent|4|great extent|5|very great extent
+	II_16	II.16	1	q		To what extent does your agency provide for non-health needs such as spirituality, of clients?	list|0|not at all|1|very little extent|2|little extent|3|some extent|4|great extent|5|very great extent
+	II_17	II.17	1	]		To what extent do staff at your agency involve significant others in planning for services for clients?	list|0|not at all|1|very little extent|2|little extent|3|some extent|4|great extent|5|very great extent
+	II_1a	II.1a	II_1 == 6	[		How would you categorize your primary work site [other than Hospital-based inpatient service, Hospital-based outpatient service, Community-based mental health service agency (e.g CMHC), Community-based social service agency (e.g. family and children services) or Community-based rehabilitation agency (e.g clubhouse)]. Type your answer in the box to the right of this question. 	text
+	II_2a	II.2a	II_2 == 5	]		What does your agency call the people to whom it provides service [other than Patients, Clients, Consumers or Recipients]? Type your answer in the box to the right of this question.	text
+	III	III	1	[		Section III - Your Practices that Foster Recovery Please answer each question, using the tab key to scroll down when you reach the bottom of the screen.	nothing
+	III_1	III.1	1	q		How many hours per week do you work at your primary work site (agency)?	double
+	III_2	III.2	1	q		What do you call the people to whom you provide service?	list|1|Patients|2|Clients|3|Consumers|4|Recipients|5|Other terms
+	III_3	III.3	1	q		To what extent do you deliberately utilize techniques generally accepted as recovery-oriented (focus on housing, jobs, or on instilling hope)? 	list|0|not at all|1|very little extent|2|little extent|3|some extent|4|great extent|5|very great extent
+	III_4	III.4	1	q		To what extent do you feel in synchrony with your agency with regard to utilization of recovery-oriented practices?	list|0|not at all|1|very little extent|2|little extent|3|some extent|4|great extent|5|very great extent
+	III_5	III.5	1	q		To what extent do you meet with the clients in their natural environment (home, community, workplace)?	list|0|not at all|1|very little extent|2|little extent|3|some extent|4|great extent|5|very great extent
+	III_6	III.6	1	q		To what extent do you involve significant others in planning for services for the clients?	list|0|not at all|1|very little extent|2|little extent|3|some extent|4|great extent|5|very great extent
+	III_7	III.7	1	q		On average, how often do you meet with clients?	list|1|less than once every three months|2|every month|3|every two weeks|4|every week|5|more often than once a week
+	III_8	III.8	1	q		On average, how long do you meet with the clients?	list|1|less than 15 minutes|2|15 to 30 minutes|3|16 to 45 minutes|4|46 to 60 minutes|5|more than 60 minutes
+	III_9	III.9	1	q		To what extent do you discuss their life goals above and beyond medication with clients?	list|0|not at all|1|very little extent|2|little extent|3|some extent|4|great extent|5|very great extent
+	III_10	III.10	1	q		To what extent do you ask about social support systems (family, friends, social activities) of clients?	list|0|not at all|1|very little extent|2|little extent|3|some extent|4|great extent|5|very great extent
+	III_11	III.11	1	q		To what extent do you make interventions that change the environment of clients?	list|0|not at all|1|very little extent|2|little extent|3|some extent|4|great extent|5|very great extent
+	III_12	III.12	1	q		To what extent do you encourage clients to participate in peer advocacy or consumer-run programs?	list|0|not at all|1|very little extent|2|little extent|3|some extent|4|great extent|5|very great extent
+	III_13	III.13	1	q		To what extent do you ask clients about their housing situation?	list|0|not at all|1|very little extent|2|little extent|3|some extent|4|great extent|5|very great extent
+	III_14	III.14	1	q		To what extent do you ask clients about their work life?	list|0|not at all|1|very little extent|2|little extent|3|some extent|4|great extent|5|very great extent
+	III_15	III.15	1	q		To what extent do you discuss non-health issues, such as spirituality, with clients?	list|0|not at all|1|very little extent|2|little extent|3|some extent|4|great extent|5|very great extent
+	III_16	III.16	1	q		In general, if a person you serve wants to pursue a course of action that you disagree with, assuming that you do not judge this course to be immediately dangerous, how do you deal with this desire?	list|0|insist the person follows my recommendation|1|give the person an opportunity to convince me otherwise and if not,  set a time limit by when you expect that s/he will follow your approach|2|engage him/her in a discussion, trying to convince the person that your course is better than theirs|3|tell person why you believe your suggestion is better than theirs, but leaving person free to chose his/her own course|4|support the person's choice, even if you believe it is not optimal
+	III_17	III.17	1	q		In general, if a person you serve who has relapsed repeatedly due to nonadherence refuses medication, to what extent do you apply pressure for adherence?	list|0|I apply for permission to medicate the patient involuntarily|1|I use every legal pressure available to encourage the person to take medication|2|I bring the issue up every time we meet|3|I inform the person of the value of medication, and tend to leave it at that|4|I support the person's choice, even if I feel it is not optimal
+	III_18	III.18	1	q		What is your opinion regarding involuntary hospitalization?	list|0|It is a desirable and necessary intervention:  I have no problems with using it|1|It is a necessary intervention:  I use it but am not sure it is always beneficial|2|It is about equally likely to be useful and harmful|3|It is rarely beneficial:  often abused|4|It is never beneficial:  there are always other ways to engage people into treatment
+	III_19	III.19	1	q		What is your opinion regarding outpatient commitment?	list|0|It is a desirable and necessary intervention:  I have no problems with using it|1|It is a necessary intervention:  I use it but am not sure it is always beneficial|2|It is about equally likely to be useful and harmful|3|It is rarely beneficial:  often abused|4|It is never beneficial:  there are always other ways to engage people into treatment
+	III_20	III.20	1	q		Do you have any other thoughts about the value of the concept of recovery? (Optional: if you do not wish to answer this question, enter X to continue) 	memo
+	III_21	III.21	1	]		How would you define recovery? (Optional: if you do not wish to answer this question, enter X to continue)	memo
+	III_2a	III.2a	III_2 == 5	q		What do you call the people to whom you provide service [other than Patients, Clients, Consumers or Recipients]? Type your answer in the box to the right of this question.	text
+	IV	IV	1	[		Section IV -  Brief Identifying Information	nothing
+	IV_1	IV.1	1	q		Age:	double
+	IV_2	IV.2	1	q		Gender:	list|1|male|2|female
+	IV_3	IV.3	1	q		Racial/ethnic group:	list|1|caucasian|2|african-american|3|asian|4|latino|5|other
+	IV_4	IV.4	1	]		Name (Submitting your name is helpful because it will alleviate the need to send you followup requests. Please note that names will be removed from the database for purpose of data analysis)	text
+	IV_3a	IV.3a	IV_3 == 5	q		Racial/ethnic group: [other than caucasian, african-american, asian or latino]?  Type your answer in the box to the right of this question.	text
