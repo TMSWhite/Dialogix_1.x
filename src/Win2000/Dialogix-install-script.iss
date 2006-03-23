@@ -4,11 +4,11 @@
 [Setup]
 AppName=Dialogix
 AppVerName=Dialogix @@DIALOGIX.VERSION_MAJOR@@.@@DIALOGIX.VERSION_MINOR@@ for @@LICENSE.PRINCIPAL_INVESTIGATOR@@ for @@LICENSE.STUDY_ALIAS@@ Study
-AppPublisher=Thomas M. White, MD
-AppCopyright=Copyright © 2000-2002 Thomas M. White, MD
-AppPublisherURL=http://www.dianexus.org
-AppSupportURL=http://www.dianexus.org
-AppUpdatesURL=http://www.dianexus.org
+AppPublisher=Thomas M. White, MD, MS, MA
+AppCopyright=Copyright © 2000-2006 Thomas M. White, MD, MS, MA
+AppPublisherURL=http://www.dialogix.org
+AppSupportURL=http://www.dialogix.org
+AppUpdatesURL=http://www.dialogix.org
 DefaultDirName=@@DIALOGIX.HOME@@
 DisableDirPage=yes
 DefaultGroupName=Dialogix
@@ -26,7 +26,7 @@ Name: "quicklaunchicon"; Description: "Create a &Quick Launch icon"; GroupDescri
 Source: "@@DIALOGIX.HOME@@\*.*"; DestDir: "{app}"; CopyMode: alwaysoverwrite; Flags: recursesubdirs
 
 [INI]
-Filename: "{app}\dialogix.url"; Section: "InternetShortcut"; Key: "URL"; String: "http://www.dianexus.org"
+Filename: "{app}\dialogix.url"; Section: "InternetShortcut"; Key: "URL"; String: "http://www.dialogix.org"
 
 [Icons]
 Name: "{group}\Dialogix"; Filename: "{app}\dialogix.bat"; WorkingDir: "{app}"; IconFilename: "{app}\dialogix.ico"
@@ -35,6 +35,7 @@ Name: "{userdesktop}\Dialogix"; Filename: "{app}\dialogix.bat"; WorkingDir: "{ap
 Name: "{userappdata}\Microsoft\Internet Explorer\Quick Launch\Dialogix"; Filename: "{app}\dialogix.bat"; IconFilename: "{app}\dialogix.ico"; WorkingDir: "{app}"; MinVersion: 4,4; Tasks: quicklaunchicon
 Name: "{group}\View Working Files"; Filename: "{app}\view_working_dir.bat"; WorkingDir: "{app}"; IconFilename: "{app}\folder.ico"
 Name: "{group}\View Completed Files"; Filename: "{app}\view_completed_dir.bat"; WorkingDir: "{app}"; IconFilename: "{app}\folder.ico"
+Name: "{group}\Uninstall Dialogix"; Filename: "{uninstallexe}"
 
 [Run]
 Filename: "{app}\dialogix.bat"; Description: "Launch Dialogix"; Flags: shellexec postinstall skipifsilent runminimized
