@@ -1,3 +1,5 @@
+if "%JAVA_HOME%" == "" set JAVA_HOME=C:\Program Files\Java\jdk1.5.0_06
+
 @echo off
 if "%OS%" == "Windows_NT" setlocal
 rem ---------------------------------------------------------------------------
