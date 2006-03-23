@@ -326,7 +326,6 @@ sub inst2xml {
 	if ($SHOW_LOGIC) {
 		&showLogic("$base.txt","$base.htm","$meta_title v. $meta_version_major.$meta_version_minor $file_creation_date");
 	}
-
 	return "$base.tidy.xml";
 }
 
@@ -455,6 +454,109 @@ sub write_xml {
 	close (OUT);
 }
 
+
+sub write_xforms {
+	my ($base,$filename,$rlangs,$rlines) = @_;
+	my @langs = @$rlangs;
+	my @lines = @$rlines;
+	
+	open (OUT,">$filename.xforms.xml") or die "unable to write XML to $filename.xforms.xml\n";
+	
+	#write XML header
+	print OUT qq|	
+		<html
+		 xmlns="http://www.w3.org/1999/xhtml"
+		 xmlns:xf="http://www.w3.org/2002/xforms"
+		>
+			<object id="FormsPlayer" classid="CLSID:4D0ABA11-C5F0-4478-991A-375C4B648F58" width="0" height="0">
+				<b>FormsPlayer has failed to load! Please check your installation.</b>
+				<br />
+				<br />
+			</object>
+			<?import namespace="xf" implementation="#FormsPlayer"?>
+	|, "\n";
+	
+	my $linenum = 0;
+	foreach my $line (@lines) {
+		# try to cheat by working recursively?
+		my $type = lc($line->{'line_type'});
+		++$linenum;
+		
+#		print OUT "<$type linenum=\"$linenum\">\n";
+		if ($type eq 'reserved') {
+			print OUT "	<resname>$line->{'resname'}</resname>\n";
+			print OUT "	<resval>$line->{'resval'}</resval>\n";
+		}
+		elsif ($type eq 'comment') {
+			print OUT "	<commentval>$line->{'comment'}</commentval>\n";
+		}
+		else {
+			print OUT "	<concept>$line->{'concept'}</concept>\n";
+			print OUT "	<uniqueName>$line->{'uniqueName'}</uniqueName>\n";
+			print OUT "	<displayName>$line->{'displayName'}</displayName>\n";
+			print OUT "	<relevance>$line->{'relevance'}->{'rel_new'}</relevance>\n";
+			print OUT "	<actionSymbol>$line->{'qoreval'}->{'qoreval'}</actionSymbol>\n";
+			print OUT "	<actionType>$line->{'qoreval'}->{'actionType'}</actionType>\n";
+			print OUT "	<nesting>$line->{'qoreval'}->{'nesting'}</nesting>\n";
+			print OUT "	<dataType>$line->{'dataType'}</dataType>\n";
+			print OUT "	<displayType>$line->{'displayType'}</displayType>\n";
+			print OUT "	<validation>\n";
+			print OUT "		<castto>$line->{'qoreval'}->{'returntype'}</castto>\n";
+			print OUT "		<min>$line->{'qoreval'}->{'min'}</min>\n";
+			print OUT "		<max>$line->{'qoreval'}->{'max'}</max>\n";
+			print OUT "		<mask>$line->{'qoreval'}->{'mask'}</mask>\n";
+			print OUT "		<regex>$line->{'qoreval'}->{'regex'}</regex>\n";
+			if ($line->{'qoreval'}->{'num_extras'} > 0) {
+				print OUT "		<extras count=\"$line->{'qoreval'}->{'num_extras'}\">\n";
+				my $rextras = $line->{'qoreval'}->{'extras'};
+				my @extras = @$rextras;
+				foreach my $extra (@extras) {
+					print OUT "			<value>$extra</value>\n";
+				}
+				print OUT "		</extras>\n";
+			}
+			else {
+				print OUT "		<extras count=\"0\"/>\n";
+			}
+			print OUT "	</validation>\n";
+			print OUT "	<hows count=\"$line->{'num_hows'}\">\n";
+			my $rhows = $line->{'hows'};
+			my @hows = @$rhows;
+			my $hcount = 0;
+			foreach my $how (@hows) {
+				++$hcount;
+				print OUT "		<how index=\"$hcount\" lang=\"$langs[$hcount-1]\">\n";
+				print OUT "			<readback>$how->{'readback'}</readback>\n";
+				print OUT "			<helpURL>$how->{'helpURL'}</helpURL>\n";
+				print OUT "			<actionExp>$how->{'action'}->{'action_exp'}</actionExp>\n";
+				my $num_options = $how->{'answerChoices'}->{'num_options'};
+				if ($num_options > 0) {
+					my $roptions = $how->{'answerChoices'}->{'options'};
+					my @options = @$roptions;
+					
+					print OUT "			<options count=\"$num_options\">\n";
+					foreach my $option (@options) {
+						print OUT "				<option index=\"$option->{'option_counter'}\">\n";
+						print OUT "					<msg>$option->{'option_msg'}</msg>\n";
+						print OUT "					<val>$option->{'option_val'}</val>\n";
+						print OUT "				</option>\n";
+					}
+					print OUT "			</options>\n";
+				}
+				else {
+					print OUT "			<options count=\"0\"/>\n";
+				}
+				print OUT "		</how>\n";
+			}
+			print OUT "	</hows>\n";
+		}
+		print OUT "</$type>\n";
+	}
+	
+	print OUT "</dialogix_instrument>\n";
+	close (OUT);
+}
+
 sub groupname {
 	my $arg = shift;
 	
@@ -465,7 +567,7 @@ sub groupname {
 		return $1;
 	}
 	else {
-		return '';
+		return '?';
 	}
 }
 
