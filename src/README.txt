@@ -1,6 +1,6 @@
 ==== README.TXT ====
 Dialogix version @@DIALOGIX.VERSION_MAJOR@@.@@DIALOGIX.VERSION_MINOR@@
-Copyright © 2000-2002 Thomas M. White, MD
+Copyright © 2000-2006 Thomas M. White, MD
 Licensed to @@LICENSE.STUDY_NAME@@ for @@LICENSE.STUDY_ALIAS@@ Study
 (@@LICENSE.GRANT_NAME@@: 
 @@LICENSE.GRANT_TITLE@@)
@@ -20,7 +20,7 @@ In order to run Dialogix, you need two things:
 (2) Your personalized DIALOGIX SETUP FILE.
 
 JAVA DEVELOPMENT KIT
-This can be downloaded from http://java.sun.com/j2se/1.4/download.html, and
+This can be downloaded from http://java.sun.com/, and
 installed by following the directions found there.
 
 DIALOGIX SETUP FILE
@@ -55,7 +55,9 @@ Otherwise, nothing will happen when you press a button in the browser.
 ==== STOPPING DIALOGIX ====
 Simply close both the browser window and the server window.  If the server 
 window does not want to close, you can press CTRL-C, and click that you want
-to stop the script.  Then you can type "exit" to close the DOS window.
+to stop the script.  Then you can type "exit" to close the DOS window.  If
+this doesn't work, simply click the red X in the upper right hand corner of the 
+DOS window
 
 ==== UNINSTALLING DIALOGIX ====
 Run the Uninstall program (named something like unins000.exe) in @@DIALOGIX.HOME@@.
