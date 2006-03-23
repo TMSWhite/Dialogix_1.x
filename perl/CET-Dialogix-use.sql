@@ -372,8 +372,8 @@ create table test.CETstatsDaily as
 	group by year, month, day, instrument, version
 	order by year, month, day, instrument, version;
 	
-drop table if exists  test.CETstats_20041227;
-create table test.CETstats_20041227 as
+drop table if exists  test.CETstats_20051026;
+create table test.CETstats_20051026 as
 	select instrument, 
 		version, 
 		year,
@@ -387,6 +387,6 @@ create table test.CETstats_20041227 as
 		sum(if(MEQ_Done = 1 and MEQ_Demos = 1 and MEQ_PIDS not like "PIDS_Scores",1,0)) as SubjectsWithMEQonly,
 		sum(if(MEQ_Done = 1 and MEQ_Demos = 1 and MEQ_PIDS like "PIDS_Scores",1,0)) as SubjectsWithMEQandPIDS
 	from test.CETlog
-	where date = "20041227"
+	where date = "20051026"
 	group by instrument
 	order by instrument;	
