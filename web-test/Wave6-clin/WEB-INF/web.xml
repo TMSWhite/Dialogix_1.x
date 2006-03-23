@@ -17,15 +17,15 @@
         </init-param>   
         <init-param>
             <param-name>scheduleSrcDir</param-name>
-            <param-value>Wave6-clin/WEB-INF/schedules/</param-value>
+            <param-value>Wave7-clin/WEB-INF/schedules/</param-value>
         </init-param>
         <init-param>
             <param-name>workingFilesDir</param-name>
-            <param-value>Wave6/WEB-INF/archive/suspended/</param-value>
+            <param-value>Wave7/WEB-INF/archive/suspended/</param-value>
         </init-param>
         <init-param>
             <param-name>completedFilesDir</param-name>
-            <param-value>Wave6/WEB-INF/completed/</param-value>
+            <param-value>Wave7/WEB-INF/completed/</param-value>
         </init-param>
         <init-param>
             <param-name>imageFilesDir</param-name>
@@ -41,7 +41,7 @@
         </init-param>
         <init-param>
             <param-name>floppyDir</param-name>
-            <param-value>Wave6/WEB-INF/archive2/</param-value>
+            <param-value>Wave7/WEB-INF/archive2/</param-value>
         </init-param>
         <init-param>
             <param-name>displayWorking</param-name>
