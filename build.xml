@@ -73,7 +73,7 @@
   
   <!-- Static properties - Do not change these -->
   <property name="dialogix.version_major" value="2.9"/>
-  <property name="dialogix.version_minor" value="9.3.2"/>
+  <property name="dialogix.version_minor" value="9.3.3"/>
   <property name="tomcat.home" value="/${zip.basedir}"/>
   <property name="dialogix.dir" value="${tomcat.home}/webapps/"/>
   <property name="win98.desktop" value="Windows/Desktop"/>
@@ -777,7 +777,7 @@
     <move file="${dist.home}/${zip.name}/Dialogix-install-script.iss" tofile="${dist.home}/${zip.name}/${zip.name}-install-script.iss"/>
     
    <!-- this is hard-coded to the default Inno Setup install directory --> 
-	<exec dir="${dist.home}/${zip.name}" executable="C:\Program Files\Inno Setup 2\Compil32.exe" os="Windows 98,Windows 2000"
+	<exec dir="${dist.home}/${zip.name}" executable="C:\Program Files\Inno Setup 5\Compil32.exe" os="Windows 98,Windows 2000,Windows XP"
 		failonerror="true" timeout="60000">
 		<arg line="/cc ${zip.name}-install-script.iss"/>
 	</exec>
