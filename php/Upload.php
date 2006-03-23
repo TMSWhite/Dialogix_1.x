@@ -8,7 +8,7 @@
 <H2>The Dialogix instruction manual can be found <a href="http://www.dialogix.org/downloads/instructions.htm" target="_blank">here</a></H2>
 
 <form enctype="multipart/form-data" action="Upload.php" method="post">
-    <input type="hidden" name="MAX_FILE_SIZE" value="200000" />
+    <input type="hidden" name="MAX_FILE_SIZE" value="6000000" />
     Choose a file to upload: <input name="userfile" type="file" />
     <input type="submit" value="Upload File" />
 </form>
