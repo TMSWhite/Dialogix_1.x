@@ -1,0 +1,14 @@
+LICENSE.PACKAGE_DIR=OMH-CSPS
+LICENSE.STUDY_ALIAS=OMH-CSPS
+LICENSE.STUDY_NAME=OMH Suicide Risk Assessment Survey
+LICENSE.STUDY_ICON=OMH-CSPS-logo.jpg
+LICENSE.PRINCIPAL_INVESTIGATOR=Michelle Lang, Ph.D.
+LICENSE.GRANT_NAME=<several>
+LICENSE.GRANT_TITLE=Center for the Study and Prevention of Suicide
+REQUIRES.LOGIN=
+
+
+# This support personel information is hard-wired -- might want to make this more flexible
+SUPPORT.PHONE=518-408-2025
+SUPPORT.PERSON=Michelle Lang, PhD
+SUPPORT.EMAIL=coevmal@omh.state.ny.us
