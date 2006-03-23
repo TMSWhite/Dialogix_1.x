@@ -4798,7 +4798,12 @@ How can I delegate some of this work?
 [ ] What is risk of depression - depends on age and sex - put up on CET as an interaction?
 
 Other Tasks
-[ ] Propose to Marian that we fund a pilot project to use Greenfield Online to do seasonal depression study - how much would it cost?             
+[ ] Propose to Marian that we fund a pilot project to use Greenfield Online to do seasonal depression study - how much would it cost?    
+
+-- Notes from 2/16/06 --
+[ ] Scatterplots 
+ (1) scatterplot of latitude vs. % of respondants with seas_mdd, binned at what level?    
+ (2) scatterplot of sunrisetime vs.  % of respondants with seas_mdd, binned at what level?
 
 
 Analyses from today:
