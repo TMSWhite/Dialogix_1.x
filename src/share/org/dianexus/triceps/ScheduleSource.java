@@ -9,6 +9,7 @@ import java.io.IOException;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
+import java.io.FileInputStream;
 import java.util.Vector;
 import java.util.Hashtable;
 
@@ -102,8 +103,9 @@ if (DEBUG) Logger.writeln("##ScheduleSource(" + src + ") is not accessible, or h
 		// load from text file
 		boolean pastHeaders = false;
 		BufferedReader br = null;
+		InputStreamReader isr = null;
 		try {
-			br = new BufferedReader(new FileReader(new File(sourceInfo.getSource())));
+			br = new BufferedReader( new InputStreamReader(new FileInputStream(new File(sourceInfo.getSource())),"ISO-8859-1"));
 			String fileLine = null;
 			while ((fileLine = br.readLine()) != null) {
 				if ("".equals(fileLine.trim())) {
