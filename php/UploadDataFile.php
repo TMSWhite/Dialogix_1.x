@@ -3,9 +3,9 @@
 <div style="text-align: center;"><br>
 <img src="images/dialogo.jpg" align="bottom" border="0" height="81" width="180"> <br>
 
-<H1>Upload Data File to the Dialogix Site</H1>
+<H1>Upload Wave7 Data File to the Dialogix Site</H1>
 
-<form enctype="multipart/form-data" action="Upload.php" method="post">
+<form enctype="multipart/form-data" action="UploadDataFile.php" method="post">
     <input type="hidden" name="MAX_FILE_SIZE" value="200000" />
     Choose a file to upload: <input name="userfile" type="file" />
     <input type="submit" value="Upload File" />
@@ -23,11 +23,11 @@ if (isset($_FILES['userfile']['size']) && $_FILES['userfile']['size'] > 0) {
   else {
     $uploadDir = '/usr/local/dialogix/webapps/Wave7/WEB-INF/archive/suspended/';
     $instrument = $matches[1] . ".jar";
-    $uploadFile = $uploadDir . $instrument;  /* so that uploaded file is TSV equivalent of Excel file */  
+    $uploadFile = $uploadDir . $instrument;   
       
 
-if(move_uploaded_file($_FILES['uploadedfile']['tmp_name'], $uploadFile)) {
-    echo "The file ".( $_FILES['uploadedfile']['name']). " has been uploaded";
+if(move_uploaded_file($_FILES['userfile']['tmp_name'], $uploadFile)) {
+    echo "The file ".( $_FILES['userfile']['name']). " has been uploaded";
     @chmod($uploadFile, 0644);
     @unlink($_FILES['userfile']['tmp_name']);  /* remove the temp file */
 
