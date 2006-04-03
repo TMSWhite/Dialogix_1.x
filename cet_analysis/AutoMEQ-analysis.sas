@@ -326,6 +326,28 @@ proc sql;
 	order by a.zipcode;
 quit;
 
+/* 4/3/2006 */
+proc sql;
+	create table cet7.dist_from_boundary as
+	select distinct
+		statecode, timezone, zipcode, X, max(X) as max_X
+	from cet7.zip_gis
+	group by timezone
+	order by timezone, statecode;
+quit;
+
+data cet7.dist_from_boundary; set cet7.dist_from_boundary;
+	dtz2 = (-(X - max_X) / 15);	/* dist_from_easternmost_tz_edge */
+run;
+
+proc sql;
+	create table cet7.zip_gis as
+	select a.*, b.dtz2
+	from cet7.zip_gis a left join cet7.dist_from_boundary b
+	on a.zipcode = b.zipcode
+	order by a.zipcode;
+quit;
+
 %mend LoadSupportTables;
 
 %macro JoinAutomeqWithGeocoding;
@@ -355,6 +377,7 @@ run;
 /* 7259 "real?" values, 374 invalid, 24 missing */
 /* 6941 "real" values, 716 invalid (9.35%) - using Musa's zip criteria */
 /* Note, 6789 subjects "joined" the study - so how are there more real values than participants? */
+
 %mend JoinAutomeqWithGeocoding;
 
 %macro ProcessAutoMeqData;
@@ -910,6 +933,7 @@ data cet7.automeq; set cet7.automeq_zip;
 	
 	seas_mdd_reg = -0.8908 + photoperiod * -0.2143 + sunrise_local_win_solst * 0.2932;
 run;
+
 
 /* distributions */
 proc freq data=cet7.automeq; 
@@ -3116,7 +3140,8 @@ Multiply odds ratio (percent change) of people in western timezone_side X percen
 	data cet7.automeq_keepers; set cet7.automeq;
 		where keep=1;
 		/* create constants needed for regression, which can't seem to model them itself */
-		Y_x_dist_from_tzb = Y*dist_from_timezone_boundary;
+		dtz2 = dist_from_easternmost_tz_edge;
+		Y_x_dist_from_tzb = Y*dtz2;	/* dist_from_timezone_boundary */
 		BMI_x_dist_from_tzb = d_BMI*dist_from_timezone_boundary;
 		age_x_dist_from_tzb = d_age*dist_from_timezone_boundary;
 		sex_x_dist_from_tzb = d_sex*dist_from_timezone_boundary;
@@ -3175,7 +3200,7 @@ Multiply odds ratio (percent change) of people in western timezone_side X percen
 	%RunRegression(reg, Bscore, &db);
 	%RunRegression(reg, Dscore, &db);
 	
-/*	%RunRegression(reg, Ascore, &db); */
+	%RunRegression(reg, Ascore, &db); 
 /*	%RunRegression(logistic, sleep_dist, &db); */
 	/*
 	%RunRegression(logistic, fatigue_A2, &db);
@@ -3485,7 +3510,7 @@ Multiply odds ratio (percent change) of people in western timezone_side X percen
 
 %macro RunRegression(type,dependent,db);
 	%RunARegression(&type,&dependent,&db,sunrise);
-/*	%RunARegression(&type,&dependent,&db,timezone); */
+	%RunARegression(&type,&dependent,&db,timezone); 
 %mend RunRegression;
 
 
@@ -3500,9 +3525,13 @@ Multiply odds ratio (percent change) of people in western timezone_side X percen
 	%end;
 	%put '************************************************';
 	title "====== REGRESSION(&type) of &dependent vs. &explanvar using &db ======";
-	proc &type data=&db;
+	proc &type data=&db
 		%if (&type eq logistic) %then %do;
-			class d_sex d_sleep_darkroom d_wake_withlight;
+			descending
+		%end;
+		;
+		%if (&type eq logistic) %then %do;
+			class d_sex /* d_sleep_darkroom d_wake_withlight */ ;
 			%if (&explanvar eq sunrise) %then %do;
 				 /* units sunrise_local_win_solst = 1; */
 			%end;
@@ -3511,14 +3540,16 @@ Multiply odds ratio (percent change) of people in western timezone_side X percen
 			%end;
 		%end;
 		model &dependent 
+/*
 			%if (&type eq logistic) %then %do;
 				(event='1')
 			%end;
+*/			
 			%if (&explanvar eq sunrise) %then %do; 
-				=  photoperiod dist_from_timezone_boundary /* sunrise_local_win_solst */ /* dtz_vs_photoperiod */
+				=  photoperiod dtz2 /* dist_from_timezone_boundary */  /* sunrise_local_win_solst */ /* dtz_vs_photoperiod */
 			%end;
 			%else %do;
-				= Y dist_from_timezone_boundary 
+				= Y dtz2 /* dist_from_timezone_boundary */
 			%end;
 			
 			/* d_BMI */ d_age d_sex /* season */
@@ -3527,7 +3558,7 @@ Multiply odds ratio (percent change) of people in western timezone_side X percen
 			/* temperature at winter solstice */
 			
 			%if (&type eq logistic) %then %do;
-				%if (&explanvar ne sunrise) %then Y*dist_from_timezone_boundary 
+				%if (&explanvar ne sunrise) %then Y*dtz2 /* dist_from_timezone_boundary */
 			%end;
 			%else %do;
 				%if (&explanvar ne sunrise) %then %do;
@@ -3545,7 +3576,7 @@ Multiply odds ratio (percent change) of people in western timezone_side X percen
 				season_x_BMI_x_dist_tzb	
 				*/		
 		%end;
-			/ selection=stepwise slentry=0.3 slstay=0.35 /* details */
+			/ selection=stepwise slentry=0.3 slstay=0.35  /* details */ 
 			%if (&type eq logistic) %then lackfit rsquare stb clodds=wald;
 				;
 	run;
@@ -3572,31 +3603,37 @@ Multiply odds ratio (percent change) of people in western timezone_side X percen
 	%end;
 	%put '************************************************';
 	title "====== REGRESSION(&type) of &dependent vs. &explanvar using &db ======";
-	proc &type data=&db;
+	proc &type data=&db
+		%if (&type eq logistic) %then %do;
+			descending
+		%end;
+		;
 		by d_sex;
 		%if (&type eq logistic) %then %do;
 			%if (&explanvar eq sunrise) %then %do;
 				 /* units sunrise_local_win_solst = 1; */
 			%end;
 			%else %do;
-				units dist_from_timezone_boundary = 15 Y = 20;
+					units /* dtz2 dist_from_timezone_boundary = 15 */ Y = 20;
 			%end;
 		%end;
 		model &dependent 
+/*
 			%if (&type eq logistic) %then %do;
 				(event='1')
 			%end;
+*/	
 			%if (&explanvar eq sunrise) %then %do; 
 				= sunrise_local_win_solst
 			%end;
 			%else %do;
-				= Y dist_from_timezone_boundary 
+				= Y dtz2 /* dist_from_timezone_boundary */
 			%end;
 			
 			/* d_BMI */ d_age /* season */
 			
 			%if (&type eq logistic) %then %do;
-				%if (&explanvar ne sunrise) %then Y*dist_from_timezone_boundary 
+				%if (&explanvar ne sunrise) %then Y*dtz2 /* dist_from_timezone_boundary */
 			%end;
 			%else %do;
 				%if (&explanvar ne sunrise) %then %do;
@@ -3614,7 +3651,7 @@ Multiply odds ratio (percent change) of people in western timezone_side X percen
 				season_x_BMI_x_dist_tzb	
 				*/		
 		%end;
-			/ selection=stepwise slentry=0.3 slstay=0.35 details
+			/ selection=stepwise slentry=0.3 slstay=0.35 /* details */
 			%if (&type eq logistic) %then lackfit rsquare stb clodds=wald;
 				;
 	run;
@@ -3642,9 +3679,13 @@ Multiply odds ratio (percent change) of people in western timezone_side X percen
 	%end;
 	%put '************************************************';
 	title "====== REGRESSION(&type) of &dependent vs. &explanvar using &db ======";
-	proc &type data=&db;
+	proc &type data=&db
 		%if (&type eq logistic) %then %do;
-			class d_sex d_sleep_darkroom d_wake_withlight;
+			descending
+		%end;
+		;	
+		%if (&type eq logistic) %then %do;
+			class d_sex /* d_sleep_darkroom d_wake_withlight */ ;
 			%if (&explanvar eq sunrise) %then %do;
 				 /* units sunrise_local_win_solst = 1; */
 			%end;
@@ -3653,14 +3694,16 @@ Multiply odds ratio (percent change) of people in western timezone_side X percen
 			%end;
 		%end;
 		model &dependent 
+/*
 			%if (&type eq logistic) %then %do;
 				(event='1')
 			%end;
+*/	
 			%if (&explanvar eq sunrise) %then %do; 
-				=  photoperiod  sunrise_local_win_solst
+				=  photoperiod dtz2 /* sunrise_local_win_solst */
 			%end;
 			%else %do;
-				= Y dist_from_timezone_boundary 
+				= Y dtz2 /* dist_from_timezone_boundary */
 			%end;
 			
 			d_age d_sex  
@@ -3670,7 +3713,7 @@ Multiply odds ratio (percent change) of people in western timezone_side X percen
 			/* temperature at winter solstice */
 			
 			%if (&type eq logistic) %then %do;
-				%if (&explanvar ne sunrise) %then Y*dist_from_timezone_boundary 
+				%if (&explanvar ne sunrise) %then dtz2*photoperiod /* Y*dist_from_timezone_boundary */
 			%end;
 			%else %do;
 				%if (&explanvar ne sunrise) %then %do;
@@ -3688,7 +3731,7 @@ Multiply odds ratio (percent change) of people in western timezone_side X percen
 				season_x_BMI_x_dist_tzb	
 				*/		
 		%end;
-			/ selection=stepwise slentry=0.3 slstay=0.35 /* details */
+			/ selection=stepwise slentry=0.3 slstay=0.35 /* details */ 
 			%if (&type eq logistic) %then lackfit rsquare stb clodds=wald;
 				;
 	run;
@@ -3708,6 +3751,8 @@ Multiply odds ratio (percent change) of people in western timezone_side X percen
 %SetInitParams;
 
 /*
+%LoadSupportTables;
+%JoinAutomeqWithGeocoding;
 %ProcessAutoMeqData;
 %MakeDataSubsets;
 %RunAllRegressions;
@@ -4913,4 +4958,21 @@ NOTE: All effects have been entered into the model.
                         photoperiod                1.0000        0.807        0.677        0.962
                         sunrise_local_win_so       1.0000        1.341        1.050        1.712
 
+*/
+
+/* 4/3/06 - Cross-validation check of Dan's work
+
+proc logistic data=cet7.automeq_keepers descending;
+	class d_sex;
+	model seas_mdd = photoperiod dtz2 dtz2*photoperiod d_age d_sex /
+			selection=stepwise slentry=0.3 slstay=0.35 lackfit rsquare stb clodds=both details;
+run;
+
+proc logistic data=cet7.automeq_keepers descending;
+	class d_sex;
+	model seas_mdd = photoperiod dist_from_timezone_boundary photoperiod*dist_from_timezone_boundary d_age d_sex /
+			selection=stepwise slentry=0.3 slstay=0.35 lackfit rsquare stb clodds=both details;
+run;
+	
+	
 */

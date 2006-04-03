@@ -1,6 +1,7 @@
 # Perl function to extract results from CET analysis files
 # perl extract_results.pl < SLTBR-2005-analysis-sunrise-20051118-withoutAlaska.log > test.txt
 # perl extract_results.pl < SLTBR-2005-analysis-sunrise-20051202-withoutAlaska.log > test.txt
+# perl extract_results.pl < SLTBR-2006-new-dtz.log > test2.txt
 
 
 use strict;
@@ -9,6 +10,7 @@ my $results;
 my ($regtype, $dependent, $comparator, $source);
 my ($independent, $pval, $odds, $hosmer);
 my ($locphrase, $oldlocphrase);
+my ($r2) = (' ');
 
 sub main {
 	print "regtype	dependent	comparator	source	resulttype	independent	value\n";
@@ -28,6 +30,10 @@ sub main {
 				# output results
 				$oldlocphrase = $locphrase;
 			}
+		}
+		
+		if (/R-Square\s*(.*?)\s*Max-rescaled R-Square\s(.*?)\s*$/) {
+			$r2 = $2;
 		}
 		
 		if (/Summary of Stepwise Selection.*$/) {
@@ -95,6 +101,10 @@ sub main {
 				$hosmer = $3;
 				unless ($hosmer eq ' ') {
 					print "$regtype\t$dependent\t$comparator\t$source\tHosmer\tHosmer\t$hosmer\n";
+				}
+				unless ($r2 eq ' ') {
+					print "$regtype\t$dependent\t$comparator\t$source\tR-Squared\tR-Squared\t$r2\n";
+					$r2 = ' ';
 				}
 			}
 		}
