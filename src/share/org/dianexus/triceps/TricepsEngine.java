@@ -618,8 +618,9 @@ if (DEBUG) Logger.writeln("##Exception @ Servlet.getSortedNames()" + t.getMessag
 					else {
 						message = title + "<br>(from " + file.getName() + ")";
 					}
-					
-					Vector v = AnswerChoice.subdivideMessage(message, Node.MAX_TEXT_LEN_FOR_COMBO);
+					int max_text_len = Integer.parseInt(triceps.getSchedule().getReserved(Schedule.MAX_TEXT_LEN_FOR_COMBO));
+
+					Vector v = AnswerChoice.subdivideMessage(message, max_text_len);
 					for (int i=0;i<v.size();++i) {
 						sb.append("	<option value='" + target + "'>");
 						if (i > 0) {

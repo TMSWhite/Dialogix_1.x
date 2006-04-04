@@ -14,6 +14,8 @@ import java.util.Hashtable;
 import java.util.Date;
 import java.util.GregorianCalendar;
 import java.util.Calendar;
+import java.util.StringTokenizer;
+import java.util.NoSuchElementException;
 import java.io.File;
 import java.sql.*;
 //import org.dianexus.triceps.modules.data.*;
@@ -120,6 +122,8 @@ import java.sql.*;
 	private static final int SAVE_DATA = 89;
 	private static final int EXEC = 90;
 	private static final int SET_STATUS_COMPLETED = 91;
+	private static final int SHOW_TABLE_OF_ANSWERS = 92;
+	
         
 	private static final Object FUNCTION_ARRAY[][] = {
 		{ "desc",				ONE,		new Integer(DESC) },
@@ -214,6 +218,7 @@ import java.sql.*;
 		{ "saveData",			ONE,		new Integer(SAVE_DATA) },
 		{ "exec",				ONE,		new Integer(EXEC) },
 		{ "setStatusCompleted",		ZERO,		new Integer(SET_STATUS_COMPLETED) },
+		{ "showTableOfAnswers",				UNLIMITED,	new Integer(SHOW_TABLE_OF_ANSWERS) },
 	};
 
 	private static final Hashtable FUNCTIONS = new Hashtable();
@@ -1436,6 +1441,121 @@ if (DEBUG) Logger.writeln("##SecurityException @ Evidence.fileExists()" + e.getM
 					/* allow specification of a file as completed, even if it is mid-stream */
 					/* HUGE hack - requires refernce to LoginServlet! */
 					return new Datum(triceps,triceps.setStatusCompleted());
+				}
+				case SHOW_TABLE_OF_ANSWERS: {
+					/*	4/4/2006
+						Ideally, would like to let users set row format and iterate over that for each requested variable, 
+						so for now, just do minimal needed
+						
+						How about use keywords with '|' separating values:
+						
+						Name
+						Question
+						Answer
+						Value
+						
+					*/
+					StringBuffer sb = new StringBuffer("<table width='100%' border='1'>");
+					Vector v = new Vector();
+					for (int i=0;i<params.size();++i) {
+						datum = getParam(params.elementAt(i));
+						if (datum.exists()) {
+							v.addElement(datum);
+						}
+					}
+					
+					datum = (Datum) v.elementAt(0);
+					String optionlist = datum.stringVal().trim();
+					StringTokenizer ans = new StringTokenizer(optionlist,"|",true);	// return '|' tokens too
+					String token = "";
+					Vector options = new Vector();
+					
+					while(ans.hasMoreTokens()) {
+						String s = null;
+						try {
+							s = ans.nextToken();
+							if (s == null || s.trim().length() == 0)
+								continue;
+							s = s.trim();
+							
+							if ("Name".equals(s) || "Question".equals(s) || "Answer".equals(s) || "Value".equals(s)) {
+								options.addElement(s);	// so have list of options
+							}
+						}
+						catch (NoSuchElementException e) {
+if (DEBUG) Logger.writeln("##NoSuchElementException @ Evidence.ShowTableofAnswers()" + e.getMessage());
+						}						
+					}
+					
+					/* generate list of headers */
+					sb.append("<tr>");
+					for (int i=0;i<options.size();++i) {
+						String option= (String) options.elementAt(i);
+						sb.append("<th>");
+						sb.append(option);
+						sb.append("</th>");
+					}
+					sb.append("</tr>");
+					
+					/* Now show output for each selected option */
+					
+					for (int i=1;i<v.size();++i) {
+						datum = (Datum) v.elementAt(i);
+						String nodeName = datum.getName();
+						Node node = null;
+						if (nodeName == null || ((node = getNode(nodeName)) == null)) {
+							setError(triceps.get("unknown_node") + nodeName, line, column,null);
+							return Datum.getInstance(triceps,Datum.INVALID);
+						}
+						
+						/* Show values in appropriate columns */
+						sb.append("<tr>");
+						for (int k=0;k<options.size();++k) {
+							String option= (String) options.elementAt(k);
+							
+							sb.append("<td>");
+							
+							if ("Name".equals(option)) {
+								sb.append(node.getExternalName());
+							}
+							else if ("Question".equals(option)) {
+								String question = node.getQuestionAsAsked();
+								if ("".equals(question)) {
+									sb.append("&nbsp;");
+								}
+								else {
+									sb.append(question);
+								}
+							}
+							else if ("Answer".equals(option)) {
+								Vector choices = node.getAnswerChoices();
+								String answer = "&nbsp;";
+								if (datum.isSpecial()) {
+									answer = datum.toString();
+								}
+								else {
+									String s = datum.stringVal();
+									for (int j=0;j<choices.size();++j) {
+										AnswerChoice ac = (AnswerChoice) choices.elementAt(j);
+										ac.parse(triceps);	// in case language has changed
+										if (ac.getValue().equals(s)) {	// what will parsing answerchoice do to stored datum value?
+											answer = ac.getMessage();
+										}
+									}
+								}
+								sb.append(answer);								
+							}
+							else if ("Value".equals(option)) {
+								sb.append(triceps.toString(node,true));
+							}
+							
+							sb.append("</td>");
+						}
+						sb.append("</tr>");
+					}
+					sb.append("</table>");
+
+					return new Datum(triceps, sb.toString(),Datum.STRING);
 				}
 			}
 		}

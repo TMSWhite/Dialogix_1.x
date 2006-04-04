@@ -63,7 +63,6 @@ import java.text.DecimalFormat;
 	/*public*/ static final String ACTION_TYPE_NAMES[] = {"*unknown*","question", "expression", "group_open", "group_close", "brace_open", "brace_close", "call_schedule"};
 	/*public*/ static final String ACTION_TYPES[] = {"?","q","e","[","]", "{", "}", "call" };
 
-	/*public*/ static final int MAX_TEXT_LEN_FOR_COMBO = 60;
 	private static final int MAX_ITEMS_IN_LIST = 20;
 
 	private static final String INTRA_OPTION_LINE_BREAK = "<br>";
@@ -620,7 +619,9 @@ else setParseError("syntax error");
 					nothingSelected = false;
 				}
 				
-				v = AnswerChoice.subdivideMessage(messageStr,MAX_TEXT_LEN_FOR_COMBO);
+				int max_text_len = Integer.parseInt(triceps.getSchedule().getReserved(Schedule.MAX_TEXT_LEN_FOR_COMBO));
+				
+				v = AnswerChoice.subdivideMessage(messageStr,max_text_len);
 				
 				for (int i=0;i<v.size();++i) {
 					choices.append(prefix);
@@ -901,7 +902,9 @@ if (XML) {
 				if (answerType == COMBO || answerType == LIST) {
 					key = (autogen) ? Integer.toString(count) : ac.getValue();
 				}
-				sb.append(ac.toXML(selected, MAX_TEXT_LEN_FOR_COMBO, key));
+				int max_text_len = Integer.parseInt(triceps.getSchedule().getReserved(Schedule.MAX_TEXT_LEN_FOR_COMBO));
+				
+				sb.append(ac.toXML(selected, max_text_len, key));
 			}
 			StringBuffer acs = sb;
 			sb = new StringBuffer();
