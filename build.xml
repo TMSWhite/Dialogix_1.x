@@ -1111,6 +1111,51 @@
 		<delete dir="${catalina.home}/webapps/${dialogix.package_name}" quiet="true"/>
 	</target>
 	
+	
+	<target name="cvsupdate" depends="" description="update source from cvs">
+		<cvspass cvsroot="istcgxl@localhost:/other/projects" password="mmrx0202"/>
+		<cvs cvsroot="/other/projects" 
+				command="update -d  -r Development Dialogix" />
+		
+	</target>
+	<!-- ==================== Run All Tests ================================== -->
+
+	<!-- Run All Tests test suites -->
+	
+	<target name="runtests" depends="compile" description="run junit tests after build">
+		<junit>
+			<batchtest>
+			
+			</batchtest>
+		
+		</junit>
+	</target>
+	<!-- ==================== Run Junit Tests ================================== -->
+
+	<!-- Run junit test suites -->
+	
+	<target name="runjunit" depends="compile" description="run junit tests after build">
+		<junit>
+			<batchtest>
+			
+			</batchtest>
+		
+		</junit>
+	</target>
+	<!-- ==================== Build Report ================================== -->
+
+	<!-- Generate report from junit test results -->
+	
+	<target name="buildreport" depends="runtests">
+	
+	</target>
+	<!-- ==================== Nightly Build ================================== -->
+
+	<!-- compile test and report on entire build in cvs -->
+	<target name="nightly_build">
+		
+	
+	</target>
 	<!--
 	<target name="war_all">
 		<ant target="war" inheritAll="false"><property name="build.license_file" value="license/BYS.license"/></ant>
