@@ -1454,7 +1454,15 @@ if (DEBUG) Logger.writeln("##SecurityException @ Evidence.fileExists()" + e.getM
 						Answer
 						Value
 						
+						Syntax:
+							showTableOfAnswers("column list", "title list", variables);
+						
 					*/
+					if (params.size() < 3) {
+						setError(triceps.get("function") + name + triceps.get("expects") + " >=3 " + triceps.get("parameters"), line, column,params.size());
+						return Datum.getInstance(triceps,Datum.INVALID);
+					}
+					
 					StringBuffer sb = new StringBuffer("<table width='100%' border='1'>");
 					Vector v = new Vector();
 					for (int i=0;i<params.size();++i) {
@@ -1466,7 +1474,7 @@ if (DEBUG) Logger.writeln("##SecurityException @ Evidence.fileExists()" + e.getM
 					
 					datum = (Datum) v.elementAt(0);
 					String optionlist = datum.stringVal().trim();
-					StringTokenizer ans = new StringTokenizer(optionlist,"|",true);	// return '|' tokens too
+					StringTokenizer ans = new StringTokenizer(optionlist,"|",false);	// don't return the '|' tokens too
 					String token = "";
 					Vector options = new Vector();
 					
@@ -1487,25 +1495,57 @@ if (DEBUG) Logger.writeln("##NoSuchElementException @ Evidence.ShowTableofAnswer
 						}						
 					}
 					
+					/* 4/10/06 - syntax now lets user specify column titles - however, does not ensure that they are proper matches for those listed
+						in optionlist */
+					datum = (Datum) v.elementAt(1);
+					String headerlist = datum.stringVal().trim();
+					ans = new StringTokenizer(headerlist,"|",false);
+					token = "";
+					Vector headers = new Vector();
+					
+					while(ans.hasMoreTokens()) {
+						String s = null;
+						try {
+							s = ans.nextToken();
+							if (s == null || s.trim().length() == 0)
+								continue;
+							s = s.trim();
+							headers.addElement(s);
+						}
+						catch (NoSuchElementException e) {
+if (DEBUG) Logger.writeln("##NoSuchElementException @ Evidence.ShowTableofAnswers()" + e.getMessage());
+						}						
+					}
+					
+					if (options.size() != headers.size()) {
+						setError(triceps.get("function") + "showTableOfAnswers(column_variables,column_headers,rows,...) must have same number of columns for variable names and header messages", line, column,params.size());
+					}						
+					
 					/* generate list of headers */
 					sb.append("<tr>");
-					for (int i=0;i<options.size();++i) {
-						String option= (String) options.elementAt(i);
+					for (int i=0;i<headers.size();++i) {
+						String header= (String) headers.elementAt(i);
 						sb.append("<th>");
-						sb.append(option);
+						sb.append(header);
 						sb.append("</th>");
 					}
 					sb.append("</tr>");
 					
 					/* Now show output for each selected option */
 					
-					for (int i=1;i<v.size();++i) {
+					for (int i=2;i<v.size();++i) {
 						datum = (Datum) v.elementAt(i);
+						/* Get the node */
 						String nodeName = datum.getName();
 						Node node = null;
 						if (nodeName == null || ((node = getNode(nodeName)) == null)) {
 							setError(triceps.get("unknown_node") + nodeName, line, column,null);
 							return Datum.getInstance(triceps,Datum.INVALID);
+						}
+						/* Get result for the node */
+						datum = getDatum(node);
+						if (datum == null || datum.isType(Datum.UNASKED) || datum.isType(Datum.NA)) {
+							continue;	/* skip this row */
 						}
 						
 						/* Show values in appropriate columns */
@@ -1528,20 +1568,27 @@ if (DEBUG) Logger.writeln("##NoSuchElementException @ Evidence.ShowTableofAnswer
 								}
 							}
 							else if ("Answer".equals(option)) {
-								Vector choices = node.getAnswerChoices();
+								int num_choices = node.numAnswerChoices();
 								String answer = "&nbsp;";
-								if (datum.isSpecial()) {
-									answer = datum.toString();
-								}
-								else {
-									String s = datum.stringVal();
-									for (int j=0;j<choices.size();++j) {
-										AnswerChoice ac = (AnswerChoice) choices.elementAt(j);
-										ac.parse(triceps);	// in case language has changed
-										if (ac.getValue().equals(s)) {	// what will parsing answerchoice do to stored datum value?
-											answer = ac.getMessage();
+								if (num_choices > 0) {
+									/* Then select text value from the list of choices */
+									Vector choices = node.getAnswerChoices();
+									if (datum.isSpecial()) {
+										answer = datum.toString();
+									}
+									else {
+										String s = datum.stringVal();
+										for (int j=0;j<choices.size();++j) {
+											AnswerChoice ac = (AnswerChoice) choices.elementAt(j);
+											ac.parse(triceps);	// in case language has changed
+											if (ac.getValue().equals(s)) {	// what will parsing answerchoice do to stored datum value?
+												answer = ac.getMessage();
+											}
 										}
 									}
+								}
+								else {
+									answer = triceps.toString(node,true);
 								}
 								sb.append(answer);								
 							}
