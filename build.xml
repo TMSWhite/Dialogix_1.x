@@ -73,7 +73,7 @@
   
   <!-- Static properties - Do not change these -->
   <property name="dialogix.version_major" value="2.9"/>
-  <property name="dialogix.version_minor" value="9.3.4"/>
+  <property name="dialogix.version_minor" value="9.3.5"/>
   <property name="tomcat.home" value="/${zip.basedir}"/>
   <property name="dialogix.dir" value="${tomcat.home}/webapps/"/>
   <property name="win98.desktop" value="Windows/Desktop"/>
