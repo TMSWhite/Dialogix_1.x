@@ -106,6 +106,15 @@ options pagesize=50 linesize=120;
 	
 %mend SetInitParams;
 
+%macro StartAnODSReport(htmlfile);
+	ods listing close;	
+	ods html file=&htmlfile stylesheet;
+%mend StartAnODSReport;
+
+%macro FinishAnODSReport;
+	ods html close;
+	ods listing;
+%mend FinishAnODSReport;
 
 %macro LoadRawData;
 
@@ -1847,17 +1856,56 @@ run;
 
 /* IRB Report *
 
-data automeq; set cet7.automeq;
+data automeq; set cet7.automeq_zip;
+	length eth_white eth_black eth_hispanic eth_asian eth_indian eth_other $ 35;
+	length ethnicity $ 70;
+	if (d_age < 21) then age_cat = 'Child'; else age_cat = 'Adult ';
+	if (d_eth_wh = 1 and d_eth_his ^= 1) then eth_white = 'White not of Hispanic Origin ';
+	if (d_eth_bl = 1 and d_eth_his ^= 1) then eth_black = 'Black not of Hispanic Origin ';
+	if (d_eth_his = 1) then eth_hispanic = 'Hispanic ';
+	if (d_eth_as = 1 or d_eth_hw = 1) then eth_asian = 'Asian or Pacific Islander ';
+	if (d_eth_ai = 1) then eth_indian = 'American Indian or Alaskan Native ';
+	if (eth_white = '' and eth_black = '' and eth_hispanic = '' and eth_asian = '' and eth_indian = '') then eth_other = 'Other or Unknown';
+
+	ethnicity = compbl(eth_white || eth_black || eth_hispanic || eth_asian || eth_indian || eth_other);
+	if (d_eth_wh > 33333 or d_eth_bl > 33333 or d_eth_his > 33333 or d_eth_as > 33333 or d_eth_ai > 33333) then ethnicity = '';
+	
+	ethnicity = trim(left(ethnicity));
+	format irb_ethnicity ethf.;
+
+	irb_ethnicity = put(ethnicity,$fulethf.);	
 run;
 
 proc sort data=automeq;
 	by age_cat;
 run;
 
-%StartAnODSReport("&cet7a_lib.irbreport.htm");
+%StartAnODSReport("C:\data\cet_200511\analysis\irbreport2006.htm");
+
+proc sql;
+	select count(UniqueID) as NumUsers_zip from cet7.automeq_zip;
+	select count(UniqueID) as NumUsers from cet7.automeq;
+	select count(UniqueID) as NumUsers from cet7.automeq_keepers;
+quit;
 
 proc freq data=automeq;
+	title 'Sex and Enthnicity Distribution';
+	title2 '... of People Who Started Survey';
+	tables d_sex * irb_ethnicity;
+run;
+
+proc freq data=automeq;
+	title 'Sex and Enthnicity Distribution';
+	title2 '... of People Who Started Survey';
+
 	by age_cat;
+
+	tables d_sex * irb_ethnicity;
+run;
+
+proc freq data=cet7.automeq_keepers;
+	title 'Sex and Enthnicity Distribution';
+	title2 '... of People Whose Data Were Kept';
 
 	tables d_sex * irb_ethnicity;
 run;
