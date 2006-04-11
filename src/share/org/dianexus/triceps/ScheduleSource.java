@@ -106,7 +106,7 @@ if (DEBUG) Logger.writeln("##ScheduleSource(" + src + ") is not accessible, or h
 		BufferedReader br = null;
 		InputStreamReader isr = null;
 		try {
-			br = new BufferedReader( new InputStreamReader(new FileInputStream(new File(sourceInfo.getSource())),"UTF-16"));
+			br = new BufferedReader( new InputStreamReader(new FileInputStream(new File(sourceInfo.getSource())),"UTF-8"));
 			String fileLine = null;
 			while ((fileLine = br.readLine()) != null) {
 				if ("".equals(fileLine.trim())) {
