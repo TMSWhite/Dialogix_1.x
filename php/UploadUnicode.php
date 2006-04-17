@@ -24,7 +24,8 @@ if (isset($_FILES['userfile']['size']) && $_FILES['userfile']['size'] > 0) {
     print "Please upload a unicode text file conforming to the Dialogix Structure";
   }
   else {
-    $uploadDir = '/usr/local/dialogix/webapps/OMH-Test/WEB-INF/schedules/';
+    //$uploadDir = '/usr/local/dialogix7777/webapps/Demos/WEB-INF/schedules/';
+    $uploadDir ='/home/istcgxl/';
     $instrument = $matches[1] . ".txt";
     $uploadFile = $uploadDir . $instrument;   
       

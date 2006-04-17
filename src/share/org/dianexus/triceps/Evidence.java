@@ -336,20 +336,18 @@ import org.dianexus.triceps.modules.data.*;
 	private static final int DBID = 1; // set for mysql for now
 
 	DialogixDAOFactory ddf;
-	
+
 	SessionDataDAO sdao;
 
 	RawDataDAO rddao;
-	
+
 	PageHitEventsDAO phedao;
-	
+
 	PageHitsDAO phdao;
-	
+
 	InstrumentSessionDAO isdao;
-	
+
 	UserSessionDAO usdao;
-	
-	
 
 	// ##GFL End Code added by Gary Lyons 2-24-06 to add direct db access
 
@@ -363,8 +361,8 @@ import org.dianexus.triceps.modules.data.*;
 	/* public */void createReserved() {
 		values = new Vector();
 		numReserved = Schedule.RESERVED_WORDS.length; // these are always
-														// added at the
-														// beginning
+		// added at the
+		// beginning
 		Schedule schedule = triceps.getSchedule();
 		// if (DEBUG) Logger.writeln("##Evidence.createReserved()");
 
@@ -384,8 +382,8 @@ import org.dianexus.triceps.modules.data.*;
 
 	/* public */void initReserved() {
 		numReserved = Schedule.RESERVED_WORDS.length; // these are always
-														// added at the
-														// beginning
+		// added at the
+		// beginning
 		Schedule schedule = triceps.getSchedule();
 		if (schedule == null) {
 			if (DEBUG)
@@ -428,31 +426,28 @@ import org.dianexus.triceps.modules.data.*;
 		// Get DAO Objects through factories
 
 		ddf = DialogixDAOFactory.getDAOFactory(DBID);
-		// to update instrument session instance table
+		
+		// TODO to update instrument session instance table
 		sdao = ddf.getSessionDataDAO();
-		
-		// TODO pass this in somehow
-		String tableName = "parkinsonsratingscale_v__n16_710bd9e9812c0cf0474607370f1af88a";
-		// add some parameters
-		// sdao.setInstanceName("Instrument Instance");
-		// sdao.setInstrumentName("Hard Coded Test Instrument");
-		java.sql.Timestamp ts = new  java.sql.Timestamp(System.currentTimeMillis());
+		String tableName = getTableName();
+		// TODO add some parameters
+		// TODO sdao.setInstanceName("Instrument Instance");
+		// TODO sdao.setInstrumentName("Hard Coded Test Instrument");
+		java.sql.Timestamp ts = new java.sql.Timestamp(System
+				.currentTimeMillis());
 		sdao.setStartTime(ts);
-		// create a new session row in the db
 		sdao.setSessionData(tableName);
-		
-		// create a new instrument session row in the db
+
+		// TODO create a new instrument session row in the db
 		isdao = ddf.getInstrumentSessionDAO();
 		Timestamp now = new Timestamp(System.currentTimeMillis());
+		isdao.setFirstGroup(triceps.getCurrentStep());
 		isdao.setStartTime(now);
 		isdao.setEndTime(now);
-		
-		//create a new user session row in the db
+
+		// TODO create a new user session row in the db
 		usdao = ddf.getUserSessionDAO();
 
-		
-		
-		
 		// ##GFL End added Code by Gary Lyons
 
 		/* then assign the user-defined words */
@@ -464,9 +459,9 @@ import org.dianexus.triceps.modules.data.*;
 			if (init == null || init.length() == 0) {
 				if (i < startingStep && node.getAnswerType() == Node.NOTHING) {
 					datum = new Datum(triceps, "", Datum.STRING); // so that
-																	// not
-																	// marked as
-																	// UNASKED
+					// not
+					// marked as
+					// UNASKED
 				} else {
 					datum = Datum.getInstance(triceps, Datum.UNASKED);
 				}
@@ -490,6 +485,12 @@ import org.dianexus.triceps.modules.data.*;
 			addAlias(node, node.getLocalName(), j);
 			aliases.put(node, j);
 		}
+	}
+
+	private String getTableName() {
+		
+		return triceps.getFilename();
+	
 	}
 
 	/* public */void reset() {
@@ -723,47 +724,46 @@ import org.dianexus.triceps.modules.data.*;
 				// update instance table with current values
 				sdao.updateSessionData(q.getLocalName(), InputEncoder
 						.encode(ans));
-				// insert a row into the raw data table
 
+				// insert a row into the raw data table
 				rddao = ddf.getRawDataDAO();
 				rddao.clearRawDataStructure();
 				rddao.setAnswer(InputEncoder.encode(ans));
-				// rddao.setAnswer("test answer");
 				rddao.setAnswerType(q.getAnswerType());
-				// rddao.setAnswerType(0);
 				rddao.setComment(comment);
-				// TODO where is display num ??
-				rddao.setDisplayNum(0);
-				// TODO where is group num ??
-				rddao.setGroupNum(0);
+				rddao.setDisplayNum(new Integer(triceps.getDisplayCount()).intValue());
+				rddao.setGroupNum(triceps.getCurrentStep());
 				// TODO where is instance name
-				rddao.setInstanceName("");				
+				rddao.setInstanceName("");
 				rddao.setInstrumentName(triceps.getFilename());
 				rddao.setLangNum(q.getAnswerLanguageNum());
 				rddao.setQuestionAsAsked(q.getQuestionAsAsked());
-				// ugly but it works 
+				// ugly but it works
 				Date d1 = q.getTimeStamp();
 				Timestamp ts1 = new Timestamp(d1.getTime());
 				rddao.setTimeStamp(ts1);
 				rddao.setVarName(q.getLocalName());
-				//TODO where is var num ??
 				rddao.setVarNum(q.getSourceLine());
-				//TODO where and what is this ??
 				rddao.setWhenAsMS(q.getTimeStamp().getTime());
 				rddao.setRawData();
-				//TODO update page hits table
+				// TODO update page hits table
 				phdao = ddf.getPageHitsDAO();
-				
-				
-				//TODO update page hits events table
+
+				// TODO update page hits events table
 				phedao = ddf.getPageHitEventsDAO();
-				
-				//TODO update instrument session table
+
+				// TODO update instrument session table
 				// need to create row in init
-				//InstrumentSessionDAO isdao;
-				
-				
-				
+				Timestamp now = new Timestamp(System.currentTimeMillis());
+				isdao.setEndTime(now);
+				// TODO set last group (current group)
+				isdao.setLastGroup(0);
+				// TODO set last action (current action)
+				isdao.setLastAction("");
+				// TODO set last access (this access)
+				isdao.setLastAccess("");
+				// TODO set status message
+				isdao.setStatusMessage("");
 				
 
 			}
@@ -972,12 +972,12 @@ import org.dianexus.triceps.modules.data.*;
 				if (params.size() == 1) {
 					/* newDate(int weekdaynum) */
 					GregorianCalendar gc = new GregorianCalendar(); // should
-																	// happen
-																	// infrequently
-																	// (not a
-																	// garbage
-																	// collection
-																	// problem?)
+					// happen
+					// infrequently
+					// (not a
+					// garbage
+					// collection
+					// problem?)
 					gc.set(Calendar.DAY_OF_WEEK, Calendar.SUNDAY);
 					gc.add(Calendar.DAY_OF_WEEK, ((int) (getParam(params
 							.elementAt(0)).doubleVal()) - 1));
@@ -1113,9 +1113,9 @@ import org.dianexus.triceps.modules.data.*;
 									.elementAt(i);
 							ac.parse(triceps); // in case language has changed
 							if (ac.getValue().equals(s)) { // what will parsing
-															// answerchoice do
-															// to stored datum
-															// value?
+								// answerchoice do
+								// to stored datum
+								// value?
 								return new Datum(triceps, ac.getMessage(),
 										Datum.STRING);
 							}
