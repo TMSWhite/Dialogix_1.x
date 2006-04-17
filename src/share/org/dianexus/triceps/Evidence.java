@@ -685,7 +685,7 @@ if (DEPLOYABLE) {
 	}
 
 
-	/*public*/ Datum function(String name, Vector params, int line, int column) {
+	/* public */Datum function(String name, Vector params, int line, int column) {
 		/* passed a vector of Datum values */
 		try {
 			Integer func = (Integer) FUNCTIONS.get(name);
@@ -693,15 +693,20 @@ if (DEPLOYABLE) {
 
 			if (func == null || ((funcNum = func.intValue()) < 0)) {
 				/* then not found - could consider calling JavaBean! */
-				setError(triceps.get("unsupported_function") + name, line, column,null);
-				return Datum.getInstance(triceps,Datum.INVALID);
+				setError(triceps.get("unsupported_function") + name, line,
+						column, null);
+				return Datum.getInstance(triceps, Datum.INVALID);
 			}
 
-			Integer	numParams = (Integer) FUNCTION_ARRAY[funcNum][FUNCTION_NUM_PARAMS];
+			Integer numParams = (Integer) FUNCTION_ARRAY[funcNum][FUNCTION_NUM_PARAMS];
 
-			if (!(UNLIMITED.equals(numParams) || params.size() == numParams.intValue())){
-				setError(triceps.get("function") + name + triceps.get("expects") + " " + numParams + " " + triceps.get("parameters"), line, column,params.size());
-				return Datum.getInstance(triceps,Datum.INVALID);
+			if (!(UNLIMITED.equals(numParams) || params.size() == numParams
+					.intValue())) {
+				setError(triceps.get("function") + name
+						+ triceps.get("expects") + " " + numParams + " "
+						+ triceps.get("parameters"), line, column, params
+						.size());
+				return Datum.getInstance(triceps, Datum.INVALID);
 			}
 
 			Datum datum = null;
@@ -710,908 +715,776 @@ if (DEPLOYABLE) {
 				datum = getParam(params.elementAt(0));
 			}
 
-
-			switch(funcNum) {
-				case DESC:
-				{
-					String nodeName = datum.getName();
-					Node node = null;
-					if (nodeName == null || ((node = getNode(nodeName)) == null)) {
-						setError(triceps.get("unknown_node") + nodeName, line, column,nodeName);
-						return Datum.getInstance(triceps,Datum.INVALID);
-					}
-					return new Datum(triceps, 
-						triceps.getParser().parseJSP(triceps,node.getReadback(triceps.getLanguage())),
-						Datum.STRING);
+			switch (funcNum) {
+			case DESC: {
+				String nodeName = datum.getName();
+				Node node = null;
+				if (nodeName == null || ((node = getNode(nodeName)) == null)) {
+					setError(triceps.get("unknown_node") + nodeName, line,
+							column, nodeName);
+					return Datum.getInstance(triceps, Datum.INVALID);
 				}
-				case ISINVALID:
-					return new Datum(triceps, datum.isType(Datum.INVALID));
-				case ISASKED:
-					return new Datum(triceps, !(datum.isType(Datum.NA) || datum.isType(Datum.UNASKED) || datum.isType(Datum.INVALID)));
-				case ISNA:
-					return new Datum(triceps, datum.isType(Datum.NA));
-				case ISREFUSED:
-					return new Datum(triceps, datum.isType(Datum.REFUSED));
-				case ISUNKNOWN:
-					return new Datum(triceps, datum.isType(Datum.UNKNOWN));
-				case ISNOTUNDERSTOOD:
-					return new Datum(triceps, datum.isType(Datum.NOT_UNDERSTOOD));
-				case ISDATE:
-					return new Datum(triceps, datum.isType(Datum.DATE));
-				case ISANSWERED:
-					return new Datum(triceps, datum.exists());
-				case GETDATE:
-					return new Datum(triceps, datum.dateVal(),Datum.DATE);
-				case GETYEAR:
-					return new Datum(triceps, datum.dateVal(),Datum.YEAR);
-				case GETMONTH:
-					return new Datum(triceps, datum.dateVal(),Datum.MONTH);
-				case GETMONTHNUM:
-					return new Datum(triceps, datum.dateVal(),Datum.MONTH_NUM);
-				case GETDAY:
-					return new Datum(triceps, datum.dateVal(),Datum.DAY);
-				case GETWEEKDAY:
-					return new Datum(triceps, datum.dateVal(),Datum.WEEKDAY);
-				case GETTIME:
-					return new Datum(triceps, datum.dateVal(),Datum.TIME);
-				case GETHOUR:
-					return new Datum(triceps, datum.dateVal(),Datum.HOUR);
-				case GETMINUTE:
-					return new Datum(triceps, datum.dateVal(),Datum.MINUTE);
-				case GETSECOND:
-					return new Datum(triceps, datum.dateVal(),Datum.SECOND);
-				case NOW:
-					return new Datum(triceps, new Date(System.currentTimeMillis()),Datum.DATE);
-				case STARTTIME:
-					return new Datum(triceps, startTime,Datum.TIME);
-				case COUNT:	// unlimited number of parameters
-				{
-					long count=0;
-					for (int i=0;i<params.size();++i) {
-						datum = getParam(params.elementAt(i));
-						if (datum.booleanVal()) {
-							++count;
+				return new Datum(triceps, triceps.getParser().parseJSP(triceps,
+						node.getReadback(triceps.getLanguage())), Datum.STRING);
+			}
+			case ISINVALID:
+				return new Datum(triceps, datum.isType(Datum.INVALID));
+			case ISASKED:
+				return new Datum(triceps, !(datum.isType(Datum.NA)
+						|| datum.isType(Datum.UNASKED) || datum
+						.isType(Datum.INVALID)));
+			case ISNA:
+				return new Datum(triceps, datum.isType(Datum.NA));
+			case ISREFUSED:
+				return new Datum(triceps, datum.isType(Datum.REFUSED));
+			case ISUNKNOWN:
+				return new Datum(triceps, datum.isType(Datum.UNKNOWN));
+			case ISNOTUNDERSTOOD:
+				return new Datum(triceps, datum.isType(Datum.NOT_UNDERSTOOD));
+			case ISDATE:
+				return new Datum(triceps, datum.isType(Datum.DATE));
+			case ISANSWERED:
+				return new Datum(triceps, datum.exists());
+			case GETDATE:
+				return new Datum(triceps, datum.dateVal(), Datum.DATE);
+			case GETYEAR:
+				return new Datum(triceps, datum.dateVal(), Datum.YEAR);
+			case GETMONTH:
+				return new Datum(triceps, datum.dateVal(), Datum.MONTH);
+			case GETMONTHNUM:
+				return new Datum(triceps, datum.dateVal(), Datum.MONTH_NUM);
+			case GETDAY:
+				return new Datum(triceps, datum.dateVal(), Datum.DAY);
+			case GETWEEKDAY:
+				return new Datum(triceps, datum.dateVal(), Datum.WEEKDAY);
+			case GETTIME:
+				return new Datum(triceps, datum.dateVal(), Datum.TIME);
+			case GETHOUR:
+				return new Datum(triceps, datum.dateVal(), Datum.HOUR);
+			case GETMINUTE:
+				return new Datum(triceps, datum.dateVal(), Datum.MINUTE);
+			case GETSECOND:
+				return new Datum(triceps, datum.dateVal(), Datum.SECOND);
+			case NOW:
+				return new Datum(triceps, new Date(System.currentTimeMillis()),
+						Datum.DATE);
+			case STARTTIME:
+				return new Datum(triceps, startTime, Datum.TIME);
+			case COUNT: // unlimited number of parameters
+			{
+				long count = 0;
+				for (int i = 0; i < params.size(); ++i) {
+					datum = getParam(params.elementAt(i));
+					if (datum.booleanVal()) {
+						++count;
+					}
+				}
+				return new Datum(triceps, count);
+			}
+			case ANDLIST:
+			case ORLIST: // unlimited number of parameters
+			{
+				StringBuffer sb = new StringBuffer();
+				Vector v = new Vector();
+				for (int i = 0; i < params.size(); ++i) {
+					datum = getParam(params.elementAt(i));
+					if (datum.exists()) {
+						v.addElement(datum);
+					}
+				}
+				for (int i = 0; i < v.size(); ++i) {
+					datum = (Datum) v.elementAt(i);
+					if (sb.length() > 0) {
+						if ((v.size() > 2)) {
+							sb.append(", ");
+						} else {
+							sb.append(" ");
 						}
 					}
-					return new Datum(triceps, count);
+					if ((i == (v.size() - 1)) && (v.size() > 1)) {
+						if (funcNum == ANDLIST) {
+							sb.append(triceps.get("and") + " ");
+						} else if (funcNum == ORLIST) {
+							sb.append(triceps.get("or") + " ");
+						}
+					}
+					sb.append(datum.stringVal());
 				}
-				case ANDLIST:
-				case ORLIST:	// unlimited number of parameters
-				{
+				return new Datum(triceps, sb.toString(), Datum.STRING);
+			}
+			case NEWDATE:
+				if (params.size() == 1) {
+					/* newDate(int weekdaynum) */
+					GregorianCalendar gc = new GregorianCalendar(); // should
+					// happen
+					// infrequently
+					// (not a
+					// garbage
+					// collection
+					// problem?)
+					gc.set(Calendar.DAY_OF_WEEK, Calendar.SUNDAY);
+					gc.add(Calendar.DAY_OF_WEEK, ((int) (getParam(params
+							.elementAt(0)).doubleVal()) - 1));
+					return new Datum(triceps, gc.getTime(), Datum.WEEKDAY);
+				}
+				if (params.size() == 2) {
+					/* newDate(String image, String mask) */
+					return new Datum(triceps, getParam(params.elementAt(0))
+							.stringVal(), Datum.DATE, getParam(
+							params.elementAt(1)).stringVal());
+				} else if (params.size() == 3) {
+					/* newDate(int y, int m, int d) */
 					StringBuffer sb = new StringBuffer();
-					Vector v = new Vector();
-					for (int i=0;i<params.size();++i) {
-						datum = getParam(params.elementAt(i));
-						if (datum.exists()) {
-							v.addElement(datum);
-						}
-					}
-					for (int i=0;i<v.size();++i) {
-						datum = (Datum) v.elementAt(i);
-						if (sb.length() > 0) {
-							if ((v.size() > 2)) {
-								sb.append(", ");
-							}
-							else {
-								sb.append(" ");
-							}
-						}
-						if ((i == (v.size() - 1)) && (v.size() > 1)) {
-							if (funcNum == ANDLIST) {
-								sb.append(triceps.get("and") + " ");
-							}
-							else if (funcNum == ORLIST) {
-								sb.append(triceps.get("or") + " ");
-							}
-						}
-						sb.append(datum.stringVal());
-					}
-					return new Datum(triceps, sb.toString(),Datum.STRING);
+					sb.append(getParam(params.elementAt(0)).stringVal() + "/");
+					sb.append(getParam(params.elementAt(1)).stringVal() + "/");
+					sb.append(getParam(params.elementAt(2)).stringVal());
+					return new Datum(triceps, sb.toString(), Datum.DATE,
+							"yy/mm/dd");
 				}
-				case NEWDATE:
-					if (params.size() == 1) {
-						/* newDate(int weekdaynum) */
-						GregorianCalendar gc = new GregorianCalendar();	// should happen infrequently (not a garbage collection problem?)
-						gc.set(Calendar.DAY_OF_WEEK,Calendar.SUNDAY);
-						gc.add(Calendar.DAY_OF_WEEK,((int) (getParam(params.elementAt(0)).doubleVal()) - 1));
-						return new Datum(triceps, gc.getTime(),Datum.WEEKDAY);
-					}
-					if (params.size() == 2) {
-						/* newDate(String image, String mask) */
-						return new Datum(triceps, getParam(params.elementAt(0)).stringVal(), Datum.DATE, getParam(params.elementAt(1)).stringVal());
-					}
-					else if (params.size() == 3) {
-						/* newDate(int y, int m, int d) */
-						StringBuffer sb = new StringBuffer();
-						sb.append(getParam(params.elementAt(0)).stringVal() + "/");
-						sb.append(getParam(params.elementAt(1)).stringVal() + "/");
-						sb.append(getParam(params.elementAt(2)).stringVal());
-						return new Datum(triceps, sb.toString(), Datum.DATE, "yy/mm/dd");
-					}
-					break;
-				case NEWTIME:
-					if (params.size() == 2) {
-						/* newTime(String image, String mask) */
-						return new Datum(triceps, getParam(params.elementAt(0)).stringVal(), Datum.TIME, getParam(params.elementAt(1)).stringVal());
-					}
-					else if (params.size() == 3) {
-						/* newTime(int hh, int mm, int ss) */
-						StringBuffer sb = new StringBuffer();
-						sb.append(getParam(params.elementAt(0)).stringVal() + ":");
-						sb.append(getParam(params.elementAt(1)).stringVal() + ":");
-						sb.append(getParam(params.elementAt(2)).stringVal());
-						return new Datum(triceps, sb.toString(), Datum.TIME, "hh:mm:ss");
-					}
-					break;
-				case MIN:
-					if (params.size() == 0) {
-						return Datum.getInstance(triceps,Datum.INVALID);
-					}
-					else {
-						Datum minVal = null;
+				break;
+			case NEWTIME:
+				if (params.size() == 2) {
+					/* newTime(String image, String mask) */
+					return new Datum(triceps, getParam(params.elementAt(0))
+							.stringVal(), Datum.TIME, getParam(
+							params.elementAt(1)).stringVal());
+				} else if (params.size() == 3) {
+					/* newTime(int hh, int mm, int ss) */
+					StringBuffer sb = new StringBuffer();
+					sb.append(getParam(params.elementAt(0)).stringVal() + ":");
+					sb.append(getParam(params.elementAt(1)).stringVal() + ":");
+					sb.append(getParam(params.elementAt(2)).stringVal());
+					return new Datum(triceps, sb.toString(), Datum.TIME,
+							"hh:mm:ss");
+				}
+				break;
+			case MIN:
+				if (params.size() == 0) {
+					return Datum.getInstance(triceps, Datum.INVALID);
+				} else {
+					Datum minVal = null;
 
-						for (int i=0;i<params.size();++i) {
-							Datum a = getParam(params.elementAt(i));
+					for (int i = 0; i < params.size(); ++i) {
+						Datum a = getParam(params.elementAt(i));
 
-							if (i == 0) {
+						if (i == 0) {
+							minVal = a;
+						} else {
+							if (DatumMath.lt(a, minVal).booleanVal()) {
 								minVal = a;
 							}
-							else {
-								if (DatumMath.lt(a,minVal).booleanVal()) {
-									minVal = a;
-								}
-							}
 						}
-						return new Datum(minVal);
 					}
-				case MAX:
-					if (params.size() == 0) {
-						return Datum.getInstance(triceps,Datum.INVALID);
-					}
-					else {
-						Datum maxVal = null;
+					return new Datum(minVal);
+				}
+			case MAX:
+				if (params.size() == 0) {
+					return Datum.getInstance(triceps, Datum.INVALID);
+				} else {
+					Datum maxVal = null;
 
-						for (int i=0;i<params.size();++i) {
-							Datum a = getParam(params.elementAt(i));
+					for (int i = 0; i < params.size(); ++i) {
+						Datum a = getParam(params.elementAt(i));
 
-							if (i == 0) {
+						if (i == 0) {
+							maxVal = a;
+						} else {
+							if (DatumMath.gt(a, maxVal).booleanVal()) {
 								maxVal = a;
 							}
-							else {
-								if (DatumMath.gt(a,maxVal).booleanVal()) {
-									maxVal = a;
-								}
-							}
 						}
-						return new Datum(maxVal);
 					}
-				case GETDAYNUM:
-					return new Datum(triceps, datum.dateVal(),Datum.DAY_NUM);
-				case HASCOMMENT:
-				{
-					String nodeName = datum.getName();
-					Node node = null;
-					if (nodeName == null || ((node = getNode(nodeName)) == null)) {
-						setError(triceps.get("unknown_node") + nodeName, line, column,null);
-						return new Datum(triceps,false);
-					}
-					String comment = node.getComment();
-					return new Datum(triceps, (comment != null && comment.trim().length() > 0) ? true : false);
+					return new Datum(maxVal);
 				}
-				case GETCOMMENT:
-				{
-					String nodeName = datum.getName();
-					Node node = null;
-					if (nodeName == null || ((node = getNode(nodeName)) == null)) {
-						setError(triceps.get("unknown_node") + nodeName, line, column,null);
-						return Datum.getInstance(triceps,Datum.INVALID);
-					}
-					return new Datum(triceps, node.getComment(), Datum.STRING);
+			case GETDAYNUM:
+				return new Datum(triceps, datum.dateVal(), Datum.DAY_NUM);
+			case HASCOMMENT: {
+				String nodeName = datum.getName();
+				Node node = null;
+				if (nodeName == null || ((node = getNode(nodeName)) == null)) {
+					setError(triceps.get("unknown_node") + nodeName, line,
+							column, null);
+					return new Datum(triceps, false);
 				}
-				case GETTYPE:
-					return new Datum(triceps, datum.getTypeName(), Datum.STRING);
-				case ISSPECIAL:
-					return new Datum(triceps, datum.isSpecial());
-				case NUMANSOPTIONS:
-				{
-					String nodeName = datum.getName();
-					Node node = null;
-					if (nodeName == null || ((node = getNode(nodeName)) == null)) {
-						setError(triceps.get("unknown_node") + nodeName, line, column,null);
-						return Datum.getInstance(triceps,Datum.INVALID);
-					}
-					Vector choices = node.getAnswerChoices();
-					return new Datum(triceps, choices.size());
+				String comment = node.getComment();
+				return new Datum(triceps, (comment != null && comment.trim()
+						.length() > 0) ? true : false);
+			}
+			case GETCOMMENT: {
+				String nodeName = datum.getName();
+				Node node = null;
+				if (nodeName == null || ((node = getNode(nodeName)) == null)) {
+					setError(triceps.get("unknown_node") + nodeName, line,
+							column, null);
+					return Datum.getInstance(triceps, Datum.INVALID);
 				}
-				case GETANSOPTION:
-				{
-					if (params.size() < 1 || params.size() > 2)
-						break;
+				return new Datum(triceps, node.getComment(), Datum.STRING);
+			}
+			case GETTYPE:
+				return new Datum(triceps, datum.getTypeName(), Datum.STRING);
+			case ISSPECIAL:
+				return new Datum(triceps, datum.isSpecial());
+			case NUMANSOPTIONS: {
+				String nodeName = datum.getName();
+				Node node = null;
+				if (nodeName == null || ((node = getNode(nodeName)) == null)) {
+					setError(triceps.get("unknown_node") + nodeName, line,
+							column, null);
+					return Datum.getInstance(triceps, Datum.INVALID);
+				}
+				Vector choices = node.getAnswerChoices();
+				return new Datum(triceps, choices.size());
+			}
+			case GETANSOPTION: {
+				if (params.size() < 1 || params.size() > 2)
+					break;
 
-					String nodeName = datum.getName();
-					Node node = null;
-					if (nodeName == null || ((node = getNode(nodeName)) == null)) {
-						setError(triceps.get("unknown_node") + nodeName, line, column,null);
-						return Datum.getInstance(triceps,Datum.INVALID);
-					}
-					Vector choices = node.getAnswerChoices();
-					if (params.size() == 1) {
-						if (datum.isSpecial()) {
-							return new Datum(datum);
-						}
-						else {
-							String s = datum.stringVal();
-							for (int i=0;i<choices.size();++i) {
-								AnswerChoice ac = (AnswerChoice) choices.elementAt(i);
-								ac.parse(triceps);	// in case language has changed
-								if (ac.getValue().equals(s)) {	// what will parsing answerchoice do to stored datum value?
-									return new Datum(triceps, ac.getMessage(), Datum.STRING);
-								}
-							}
-							return Datum.getInstance(triceps,Datum.INVALID);
-						}
-					}
-					else { // if (params.size() == 2) {
-						datum = getParam(params.elementAt(1));
-						if (!datum.isNumeric()) {
-							setError(functionError(funcNum,Datum.NUMBER,2),datum);
-							return Datum.getInstance(triceps,Datum.INVALID);
-						}
-						int index = (int) datum.doubleVal();
-						if (index < 0) {
-							setError(triceps.get("index_too_low"),index);
-							return Datum.getInstance(triceps,Datum.INVALID);
-						}
-						else if (index >= choices.size()) {
-							setError(triceps.get("index_too_high"),index);
-							return Datum.getInstance(triceps,Datum.INVALID);
-						}
-						else {
-							AnswerChoice ac = (AnswerChoice) choices.elementAt(index);
-							ac.parse(triceps);
-							return new Datum(triceps,ac.getMessage(), Datum.STRING);
-						}
-					}
+				String nodeName = datum.getName();
+				Node node = null;
+				if (nodeName == null || ((node = getNode(nodeName)) == null)) {
+					setError(triceps.get("unknown_node") + nodeName, line,
+							column, null);
+					return Datum.getInstance(triceps, Datum.INVALID);
 				}
-				case CHARAT:
-				{
-					String src = datum.stringVal();
+				Vector choices = node.getAnswerChoices();
+				if (params.size() == 1) {
+					if (datum.isSpecial()) {
+						return new Datum(datum);
+					} else {
+						String s = datum.stringVal();
+						for (int i = 0; i < choices.size(); ++i) {
+							AnswerChoice ac = (AnswerChoice) choices
+									.elementAt(i);
+							ac.parse(triceps); // in case language has changed
+							if (ac.getValue().equals(s)) { // what will parsing
+								// answerchoice do
+								// to stored datum
+								// value?
+								return new Datum(triceps, ac.getMessage(),
+										Datum.STRING);
+							}
+						}
+						return Datum.getInstance(triceps, Datum.INVALID);
+					}
+				} else { // if (params.size() == 2) {
 					datum = getParam(params.elementAt(1));
 					if (!datum.isNumeric()) {
-						setError(functionError(funcNum,Datum.NUMBER,2),datum);
-						return Datum.getInstance(triceps,Datum.INVALID);
+						setError(functionError(funcNum, Datum.NUMBER, 2), datum);
+						return Datum.getInstance(triceps, Datum.INVALID);
 					}
 					int index = (int) datum.doubleVal();
 					if (index < 0) {
-						setError(triceps.get("index_too_low"),index);
-						return Datum.getInstance(triceps,Datum.INVALID);
+						setError(triceps.get("index_too_low"), index);
+						return Datum.getInstance(triceps, Datum.INVALID);
+					} else if (index >= choices.size()) {
+						setError(triceps.get("index_too_high"), index);
+						return Datum.getInstance(triceps, Datum.INVALID);
+					} else {
+						AnswerChoice ac = (AnswerChoice) choices
+								.elementAt(index);
+						ac.parse(triceps);
+						return new Datum(triceps, ac.getMessage(), Datum.STRING);
 					}
-					else if (index >= src.length()) {
-						setError(triceps.get("index_too_high"),index);
-						return Datum.getInstance(triceps,Datum.INVALID);
-					}
-					else {
-						return new Datum(triceps,String.valueOf(src.charAt(index)), Datum.STRING);
-					}
-				}
-				case COMPARETO:
-					return new Datum(triceps,datum.stringVal().compareTo(getParam(params.elementAt(1)).stringVal()));
-				case COMPARETOIGNORECASE:  {
-					String src = datum.stringVal().toLowerCase();
-					String dst = getParam(params.elementAt(1)).stringVal().toLowerCase();
-					return new Datum(triceps,src.compareTo(dst));
-				}
-				case ENDSWITH:
-					return new Datum(triceps,datum.stringVal().endsWith(getParam(params.elementAt(1)).stringVal()));
-				case INDEXOF:
-				{
-					if (params.size() < 2 || params.size() > 3)
-						break;
-
-					String str1 = getParam(params.elementAt(0)).stringVal();
-					String str2 = getParam(params.elementAt(1)).stringVal();
-
-					if (params.size() == 2) {
-						return new Datum(triceps, str1.indexOf(str2));
-					}
-					else if (params.size() == 3) {
-						Datum datum2 = getParam(params.elementAt(2));
-						if (!datum2.isNumeric()) {
-							setError(functionError(funcNum,Datum.NUMBER,3),datum2);
-							return Datum.getInstance(triceps,Datum.INVALID);
-						}
-						int index = (int) datum2.doubleVal();
-						if (index < 0) {
-							setError(triceps.get("index_too_low"),index);
-							return Datum.getInstance(triceps,Datum.INVALID);
-						}
-						else if (index >= str1.length()) {
-							setError(triceps.get("index_too_high"),index);
-							return Datum.getInstance(triceps,Datum.INVALID);
-						}
-						else {
-							return new Datum(triceps, str1.indexOf(str2,index));
-						}
-					}
-					else {
-						break;
-					}
-				}
-				case LASTINDEXOF:
-				{
-					if (params.size() < 2 || params.size() > 3)
-						break;
-
-					String str1 = getParam(params.elementAt(0)).stringVal();
-					String str2 = getParam(params.elementAt(1)).stringVal();
-
-					if (params.size() == 2) {
-						return new Datum(triceps, str1.lastIndexOf(str2));
-					}
-					else if (params.size() == 3) {
-						Datum datum2 = getParam(params.elementAt(2));
-						if (!datum2.isNumeric()) {
-							setError(functionError(funcNum,Datum.NUMBER,3),datum2);
-							return Datum.getInstance(triceps,Datum.INVALID);
-						}
-						int index = (int) datum2.doubleVal();
-						if (index < 0) {
-							setError(triceps.get("index_too_low"),index);
-							return Datum.getInstance(triceps,Datum.INVALID);
-						}
-						else if (index >= str1.length()) {
-							setError(triceps.get("index_too_high"),index);
-							return Datum.getInstance(triceps,Datum.INVALID);
-						}
-						else {
-							return new Datum(triceps, str1.lastIndexOf(str2,index));
-						}
-					}
-					else {
-						break;
-					}
-				}
-				case LENGTH:
-					return new Datum(triceps,datum.stringVal().length());
-				case STARTSWITH:
-				{
-					if (params.size() < 2 || params.size() > 3)
-						break;
-
-					String str1 = getParam(params.elementAt(0)).stringVal();
-					String str2 = getParam(params.elementAt(1)).stringVal();
-
-					if (params.size() == 2) {
-						return new Datum(triceps, str1.startsWith(str2));
-					}
-					else if (params.size() == 3) {
-						Datum datum2 = getParam(params.elementAt(2));
-						if (!datum2.isNumeric()) {
-							setError(functionError(funcNum,Datum.NUMBER,3),datum2);
-							return Datum.getInstance(triceps,Datum.INVALID);
-						}
-						int index = (int) datum2.doubleVal();
-						if (index < 0) {
-							setError(triceps.get("index_too_low"),index);
-							return Datum.getInstance(triceps,Datum.INVALID);
-						}
-						else if (index >= str1.length()) {
-							setError(triceps.get("index_too_high"),index);
-							return Datum.getInstance(triceps,Datum.INVALID);
-						}
-						else {
-							return new Datum(triceps, str1.startsWith(str2,index));
-						}
-					}
-					else {
-						break;
-					}
-				}
-				case SUBSTRING:
-				{
-					if (params.size() < 2 || params.size() > 3)
-						break;
-
-					String str1 = getParam(params.elementAt(0)).stringVal();
-					Datum start = getParam(params.elementAt(1));
-					Datum end = null;
-					int from, to;
-
-					if (params.size() == 3) {
-						end = getParam(params.elementAt(2));
-					}
-
-					if (!start.isNumeric()) {
-						setError(functionError(funcNum,Datum.NUMBER,2),start);
-						return Datum.getInstance(triceps,Datum.INVALID);
-					}
-					else {
-						from = (int) start.doubleVal();
-						if (from < 0) {
-							setError(triceps.get("index_too_low"),from);
-							return Datum.getInstance(triceps,Datum.INVALID);
-						}
-						else if (from >= str1.length()) {
-							setError(triceps.get("index_too_high"),from);
-							return Datum.getInstance(triceps,Datum.INVALID);
-						}
-
-					}
-
-					if (end != null) {
-						if (!end.isNumeric()) {
-							setError(functionError(funcNum,Datum.NUMBER,3),end);
-							return Datum.getInstance(triceps,Datum.INVALID);
-						}
-						else {
-							to = (int) end.doubleVal();
-							if (to < from) {
-								setError(triceps.get("index_too_low"),to);
-								return Datum.getInstance(triceps,Datum.INVALID);
-							}
-							else if (to >= str1.length()) {
-								setError(triceps.get("index_too_high"),to);
-								return Datum.getInstance(triceps,Datum.INVALID);
-							}
-							else {
-								return new Datum(triceps, str1.substring(from,to), Datum.STRING);
-							}
-						}
-					}
-					else {
-						return new Datum(triceps, str1.substring(from), Datum.STRING);
-					}
-				}
-				case TOLOWERCASE:
-					return new Datum(triceps,datum.stringVal().toLowerCase(), Datum.STRING);
-				case TOUPPERCASE:
-					return new Datum(triceps,datum.stringVal().toUpperCase(), Datum.STRING);
-				case TRIM:
-					return new Datum(triceps,datum.stringVal().trim(), Datum.STRING);
-				case ISNUMBER:
-					return new Datum(triceps,datum.isNumeric());
-				case FILEEXISTS:
-				{
-					/* FIXME Needs to be modified to check for not only the actual filenames in the completed dir,
-					but also the pending filenames as indicated by the temp files in the working dir */
-					
-					String fext = datum.stringVal();
-					if (fext == null)
-						return new Datum(triceps,false);
-					fext = fext.trim();
-					if (fext.length() == 0)
-						return new Datum(triceps,false);;
-
-					/* now check whether this name is available in both working and completed dirs */
-					File file;
-					Schedule sched = triceps.getSchedule();
-					String fname;
-					
-					/** Working dir - read schedules and get their FILENAMEs **/
-					ScheduleList interviews = new ScheduleList(triceps, sched.getReserved(Schedule.WORKING_DIR), true);
-					Schedule sc = null;
-					Vector schedules = interviews.getSchedules();
-					for (int i=0;i<schedules.size();++i) {
-						sc = (Schedule) schedules.elementAt(i);
-						if (sc.getReserved(Schedule.FILENAME).equals(fext)) {
-							if (sc.getReserved(Schedule.LOADED_FROM).equals(triceps.dataLogger.getFilename())) {
-								continue;	// since examining the current file
-							}
-							else {
-								return new Datum(triceps,true);
-							}
-						}
-					}
-					
-					/** For Completed dir - check actual filenames **/
-					try {
-						fname = sched.getReserved(Schedule.COMPLETED_DIR) + fext + ".jar";
-//if (DEBUG) Logger.writeln("##exists(" + fname + ")");
-						file = new File(fname);
-						if (file.exists())
-							return new Datum(triceps,true);
-					}
-					catch (SecurityException e) {
-if (DEBUG) Logger.writeln("##SecurityException @ Evidence.fileExists()" + e.getMessage());
-						return Datum.getInstance(triceps,Datum.INVALID);
-					}
-					return new Datum(triceps,false);
-				}
-				case ABS:
-					return new Datum(triceps, Math.abs(datum.doubleVal()));
-				case ACOS:
-					return new Datum(triceps, Math.acos(datum.doubleVal()));
-				case ASIN:
-					return new Datum(triceps, Math.asin(datum.doubleVal()));
-				case ATAN:
-					return new Datum(triceps, Math.atan(datum.doubleVal()));
-				case ATAN2:
-					return new Datum(triceps, Math.atan2(datum.doubleVal(),getParam(params.elementAt(1)).doubleVal()));				
-				case CEIL:
-					return new Datum(triceps, Math.ceil(datum.doubleVal()));				
-				case COS:
-					return new Datum(triceps, Math.cos(datum.doubleVal()));				
-				case EXP:
-					return new Datum(triceps, Math.exp(datum.doubleVal()));				
-				case FLOOR:
-					return new Datum(triceps, Math.floor(datum.doubleVal()));				
-				case LOG:
-					return new Datum(triceps, Math.log(datum.doubleVal()));				
-				case POW:
-					return new Datum(triceps, Math.pow(datum.doubleVal(),getParam(params.elementAt(1)).doubleVal()));				
-				case RANDOM:
-					return new Datum(triceps, Math.random());
-				case ROUND:
-					return new Datum(triceps, Math.round(datum.doubleVal()));				
-				case SIN:
-					return new Datum(triceps, Math.sin(datum.doubleVal()));				
-				case SQRT:
-					return new Datum(triceps, Math.sqrt(datum.doubleVal()));				
-				case TAN:
-					return new Datum(triceps, Math.tan(datum.doubleVal()));				
-				case TODEGREES:
-//					return new Datum(triceps, Math.toDegrees(datum.doubleVal()));				
-					return new Datum(triceps, Double.NaN);			
-				case TORADIANS:
-//					return new Datum(triceps, Math.toRadians(datum.doubleVal()));				
-					return new Datum(triceps, Double.NaN);			
-				case PI:
-					return new Datum(triceps, Math.PI);			
-				case E:	
-					return new Datum(triceps, Math.E);		
-				case FORMAT_NUMBER:
-					return new Datum(triceps, triceps.formatNumber(new Double(datum.doubleVal()), getParam(params.elementAt(1)).stringVal()), Datum.STRING);
-				case PARSE_NUMBER:
-					return new Datum(triceps, triceps.parseNumber(datum.stringVal(), getParam(params.elementAt(1)).stringVal()).doubleValue()); 
-				case FORMAT_DATE:
-					return new Datum(triceps, triceps.formatDate(datum.dateVal(), getParam(params.elementAt(1)).stringVal()), Datum.STRING);
-				case PARSE_DATE:
-					return new Datum(triceps, triceps.parseDate(datum.stringVal(), getParam(params.elementAt(1)).stringVal()), Datum.DATE, getParam(params.elementAt(1)).stringVal());
-				case GET_CONCEPT:
-				{
-					String nodeName = datum.getName();
-					Node node = null;
-					if (nodeName == null || ((node = getNode(nodeName)) == null)) {
-						setError(triceps.get("unknown_node") + nodeName, line, column,null);
-						return Datum.getInstance(triceps,Datum.INVALID);
-					}
-					return new Datum(triceps, node.getConcept(), Datum.STRING);
-				}				
-				case GET_LOCAL_NAME:
-				{
-					String nodeName = datum.getName();
-					Node node = null;
-					if (nodeName == null || ((node = getNode(nodeName)) == null)) {
-						setError(triceps.get("unknown_node") + nodeName, line, column,null);
-						return Datum.getInstance(triceps,Datum.INVALID);
-					}
-					return new Datum(triceps, node.getLocalName(), Datum.STRING);
-				}								
-				case GET_EXTERNAL_NAME:
-				{
-					String nodeName = datum.getName();
-					Node node = null;
-					if (nodeName == null || ((node = getNode(nodeName)) == null)) {
-						setError(triceps.get("unknown_node") + nodeName, line, column,null);
-						return Datum.getInstance(triceps,Datum.INVALID);
-					}
-					return new Datum(triceps, node.getExternalName(), Datum.STRING);
-				}							
-				case GET_DEPENDENCIES:
-				{
-					String nodeName = datum.getName();
-					Node node = null;
-					if (nodeName == null || ((node = getNode(nodeName)) == null)) {
-						setError(triceps.get("unknown_node") + nodeName, line, column,null);
-						return Datum.getInstance(triceps,Datum.INVALID);
-					}
-					return new Datum(triceps, node.getDependencies(), Datum.STRING);
-				}							
-				case GET_ACTION_TEXT:		
-				{
-					String nodeName = datum.getName();
-					Node node = null;
-					if (nodeName == null || ((node = getNode(nodeName)) == null)) {
-						setError(triceps.get("unknown_node") + nodeName, line, column,null);
-						return Datum.getInstance(triceps,Datum.INVALID);
-					}
-					return new Datum(triceps, node.getQuestionOrEval(), Datum.STRING);
-				}
-				case JUMP_TO:
-				{
-					String nodeName = datum.getName();
-					Node node = null;
-					if (nodeName == null || ((node = getNode(nodeName)) == null)) {
-						setError(triceps.get("unknown_node") + nodeName, line, column,null);
-						return Datum.getInstance(triceps,Datum.INVALID);
-					}
-					triceps.gotoNode(node);
-					return new Datum(triceps, "", Datum.STRING);
-				}		
-				case GOTO_FIRST:
-					triceps.gotoFirst();
-					return new Datum(triceps, "", Datum.STRING);
-				case JUMP_TO_FIRST_UNASKED:
-					triceps.jumpToFirstUnasked();
-					return new Datum(triceps, "", Datum.STRING);
-				case GOTO_PREVIOUS:
-					triceps.gotoPrevious();
-					return new Datum(triceps, "", Datum.STRING);
-				case ERASE_DATA:
-					triceps.resetEvidence();
-					return new Datum(triceps, "", Datum.STRING);
-				case GOTO_NEXT:
-					triceps.gotoNext();
-					return new Datum(triceps, "", Datum.STRING);
-				case MEAN:
-					if (params.size() == 0) {
-						return Datum.getInstance(triceps,Datum.INVALID);
-					}
-					else {
-						int count = 0;
-						double sum = 0;
-						double mean = 0;
-
-						for (int i=0;i<params.size();++i) {
-							Datum a = getParam(params.elementAt(i));
-							++count;
-							sum += a.doubleVal();
-						}
-						mean = sum / count;
-						return new Datum(triceps, mean);
-					}				
-				case STDDEV:
-					if (params.size() == 0) {
-						return Datum.getInstance(triceps,Datum.INVALID);
-					}
-					else {
-						int count = 0;
-						double sum = 0;
-						double mean = 0;
-						double sumsqdiff = 0;
-						double std = 0;
-						
-						for (int i=0;i<params.size();++i) {
-							Datum a = getParam(params.elementAt(i));
-							++count;
-							sum += a.doubleVal();
-						}
-						mean = sum / count;
-						
-						for (int i=0;i<params.size();++i) {
-							Datum a = getParam(params.elementAt(i));
-							double diff = (a.doubleVal() - mean);
-							sumsqdiff += (diff * diff);
-						}
-						std = Math.sqrt(sumsqdiff / (count - 1));
-						return new Datum(triceps, std);
-					}		
-				case SUSPEND_TO_FLOPPY: {
-					/* revise this so can jump to next available question, if appropriate */
-					if (params.size() == 1) {
-						/* then set the starting step in the file to be saved (but not in the master file) */
-						String nodeName = datum.getName();
-						Node n = getNode(nodeName);
-						if (n == null) {
-							setError(triceps.get("unknown_node") + nodeName,null);
-						}
-						else {
-							int result = getStep(n);				
-							StringBuffer sb = new StringBuffer("RESERVED\t");
-							sb.append(Schedule.RESERVED_WORDS[Schedule.STARTING_STEP]).append("\t");
-							sb.append(result).append("\t").append(System.currentTimeMillis()).append("\t\t\t");
-							triceps.dataLogger.println(sb.toString());
-						}
-					}
-					String savedFile = triceps.suspendToFloppy();
-					return new Datum(triceps, (savedFile == null) ? "null" : savedFile, Datum.STRING);
-				}
-				case REGEX_MATCH: {
-					/** syntax:  regexMatch(text,pattern) */
-					InputValidator iv = InputValidator.getInstance(getParam(params.elementAt(1)).stringVal());
-					if (!iv.isValid()) {
-						setError(iv.getErrors(),null);
-						return Datum.getInstance(triceps,Datum.INVALID);
-					}
-					if (iv.isMatch(getParam(params.elementAt(0)).stringVal())) {
-						return new Datum(triceps,true);
-					}
-					else {
-						return new Datum(triceps,false);
-					}
-				}
-				case CREATE_TEMP_FILE: {
-					String temp = EvidenceIO.createTempFile();
-					if (temp == null) {
-						return Datum.getInstance(triceps,Datum.INVALID);
-					}
-					else {
-						return new Datum(triceps,temp,Datum.STRING);
-					}
-				}
-				case SAVE_DATA: {
-					String file = getParam(params.elementAt(0)).stringVal();
-					boolean ok = EvidenceIO.saveAll(triceps.getSchedule(),file);
-					return new Datum(triceps,ok);
-				}
-				case EXEC: {
-					return new Datum(triceps,EvidenceIO.exec(datum.stringVal()));
-				}
-				case SET_STATUS_COMPLETED: {
-					/* allow specification of a file as completed, even if it is mid-stream */
-					/* HUGE hack - requires refernce to LoginServlet! */
-					return new Datum(triceps,triceps.setStatusCompleted());
-				}
-				case SHOW_TABLE_OF_ANSWERS: {
-					/*	4/4/2006
-						Ideally, would like to let users set row format and iterate over that for each requested variable, 
-						so for now, just do minimal needed
-						
-						How about use keywords with '|' separating values:
-						
-						Name
-						Question
-						Answer
-						Value
-						
-						Syntax:
-							showTableOfAnswers("column list", "title list", variables);
-						
-					*/
-					if (params.size() < 3) {
-						setError(triceps.get("function") + name + triceps.get("expects") + " >=3 " + triceps.get("parameters"), line, column,params.size());
-						return Datum.getInstance(triceps,Datum.INVALID);
-					}
-					
-					StringBuffer sb = new StringBuffer("<table width='100%' border='1'>");
-					Vector v = new Vector();
-					for (int i=0;i<params.size();++i) {
-						datum = getParam(params.elementAt(i));
-						if (datum.exists()) {
-							v.addElement(datum);
-						}
-					}
-					
-					datum = (Datum) v.elementAt(0);
-					String optionlist = datum.stringVal().trim();
-					StringTokenizer ans = new StringTokenizer(optionlist,"|",false);	// don't return the '|' tokens too
-					String token = "";
-					Vector options = new Vector();
-					
-					while(ans.hasMoreTokens()) {
-						String s = null;
-						try {
-							s = ans.nextToken();
-							if (s == null || s.trim().length() == 0)
-								continue;
-							s = s.trim();
-							
-							if ("Name".equals(s) || "Question".equals(s) || "Answer".equals(s) || "Value".equals(s)) {
-								options.addElement(s);	// so have list of options
-							}
-						}
-						catch (NoSuchElementException e) {
-if (DEBUG) Logger.writeln("##NoSuchElementException @ Evidence.ShowTableofAnswers()" + e.getMessage());
-						}						
-					}
-					
-					/* 4/10/06 - syntax now lets user specify column titles - however, does not ensure that they are proper matches for those listed
-						in optionlist */
-					datum = (Datum) v.elementAt(1);
-					String headerlist = datum.stringVal().trim();
-					ans = new StringTokenizer(headerlist,"|",false);
-					token = "";
-					Vector headers = new Vector();
-					
-					while(ans.hasMoreTokens()) {
-						String s = null;
-						try {
-							s = ans.nextToken();
-							if (s == null || s.trim().length() == 0)
-								continue;
-							s = s.trim();
-							headers.addElement(s);
-						}
-						catch (NoSuchElementException e) {
-if (DEBUG) Logger.writeln("##NoSuchElementException @ Evidence.ShowTableofAnswers()" + e.getMessage());
-						}						
-					}
-					
-					if (options.size() != headers.size()) {
-						setError(triceps.get("function") + "showTableOfAnswers(column_variables,column_headers,rows,...) must have same number of columns for variable names and header messages", line, column,params.size());
-					}						
-					
-					/* generate list of headers */
-					sb.append("<tr>");
-					for (int i=0;i<headers.size();++i) {
-						String header= (String) headers.elementAt(i);
-						sb.append("<th>");
-						sb.append(header);
-						sb.append("</th>");
-					}
-					sb.append("</tr>");
-					
-					/* Now show output for each selected option */
-					
-					for (int i=2;i<v.size();++i) {
-						datum = (Datum) v.elementAt(i);
-						/* Get the node */
-						String nodeName = datum.getName();
-						Node node = null;
-						if (nodeName == null || ((node = getNode(nodeName)) == null)) {
-							setError(triceps.get("unknown_node") + nodeName, line, column,null);
-							return Datum.getInstance(triceps,Datum.INVALID);
-						}
-						/* Get result for the node */
-						datum = getDatum(node);
-						if (datum == null || datum.isType(Datum.UNASKED) || datum.isType(Datum.NA)) {
-							continue;	/* skip this row */
-						}
-						
-						/* Show values in appropriate columns */
-						sb.append("<tr>");
-						for (int k=0;k<options.size();++k) {
-							String option= (String) options.elementAt(k);
-							
-							sb.append("<td>");
-							
-							if ("Name".equals(option)) {
-								sb.append(node.getExternalName());
-							}
-							else if ("Question".equals(option)) {
-								String question = node.getQuestionAsAsked();
-								if ("".equals(question)) {
-									sb.append("&nbsp;");
-								}
-								else {
-									sb.append(question);
-								}
-							}
-							else if ("Answer".equals(option)) {
-								int num_choices = node.numAnswerChoices();
-								String answer = "&nbsp;";
-								if (num_choices > 0) {
-									/* Then select text value from the list of choices */
-									Vector choices = node.getAnswerChoices();
-									if (datum.isSpecial()) {
-										answer = datum.toString();
-									}
-									else {
-										String s = datum.stringVal();
-										for (int j=0;j<choices.size();++j) {
-											AnswerChoice ac = (AnswerChoice) choices.elementAt(j);
-											ac.parse(triceps);	// in case language has changed
-											if (ac.getValue().equals(s)) {	// what will parsing answerchoice do to stored datum value?
-												answer = ac.getMessage();
-											}
-										}
-									}
-								}
-								else {
-									answer = triceps.toString(node,true);
-								}
-								sb.append(answer);								
-							}
-							else if ("Value".equals(option)) {
-								sb.append(triceps.toString(node,true));
-							}
-							
-							sb.append("</td>");
-						}
-						sb.append("</tr>");
-					}
-					sb.append("</table>");
-
-					return new Datum(triceps, sb.toString(),Datum.STRING);
 				}
 			}
-		}
-		catch (Exception t) {
-if (DEBUG) Logger.writeln("##Exception @ Evidence.function()" + t.getMessage());
+			case CHARAT: {
+				String src = datum.stringVal();
+				datum = getParam(params.elementAt(1));
+				if (!datum.isNumeric()) {
+					setError(functionError(funcNum, Datum.NUMBER, 2), datum);
+					return Datum.getInstance(triceps, Datum.INVALID);
+				}
+				int index = (int) datum.doubleVal();
+				if (index < 0) {
+					setError(triceps.get("index_too_low"), index);
+					return Datum.getInstance(triceps, Datum.INVALID);
+				} else if (index >= src.length()) {
+					setError(triceps.get("index_too_high"), index);
+					return Datum.getInstance(triceps, Datum.INVALID);
+				} else {
+					return new Datum(triceps,
+							String.valueOf(src.charAt(index)), Datum.STRING);
+				}
+			}
+			case COMPARETO:
+				return new Datum(triceps, datum.stringVal().compareTo(
+						getParam(params.elementAt(1)).stringVal()));
+			case COMPARETOIGNORECASE: {
+				String src = datum.stringVal().toLowerCase();
+				String dst = getParam(params.elementAt(1)).stringVal()
+						.toLowerCase();
+				return new Datum(triceps, src.compareTo(dst));
+			}
+			case ENDSWITH:
+				return new Datum(triceps, datum.stringVal().endsWith(
+						getParam(params.elementAt(1)).stringVal()));
+			case INDEXOF: {
+				if (params.size() < 2 || params.size() > 3)
+					break;
+
+				String str1 = getParam(params.elementAt(0)).stringVal();
+				String str2 = getParam(params.elementAt(1)).stringVal();
+
+				if (params.size() == 2) {
+					return new Datum(triceps, str1.indexOf(str2));
+				} else if (params.size() == 3) {
+					Datum datum2 = getParam(params.elementAt(2));
+					if (!datum2.isNumeric()) {
+						setError(functionError(funcNum, Datum.NUMBER, 3),
+								datum2);
+						return Datum.getInstance(triceps, Datum.INVALID);
+					}
+					int index = (int) datum2.doubleVal();
+					if (index < 0) {
+						setError(triceps.get("index_too_low"), index);
+						return Datum.getInstance(triceps, Datum.INVALID);
+					} else if (index >= str1.length()) {
+						setError(triceps.get("index_too_high"), index);
+						return Datum.getInstance(triceps, Datum.INVALID);
+					} else {
+						return new Datum(triceps, str1.indexOf(str2, index));
+					}
+				} else {
+					break;
+				}
+			}
+			case LASTINDEXOF: {
+				if (params.size() < 2 || params.size() > 3)
+					break;
+
+				String str1 = getParam(params.elementAt(0)).stringVal();
+				String str2 = getParam(params.elementAt(1)).stringVal();
+
+				if (params.size() == 2) {
+					return new Datum(triceps, str1.lastIndexOf(str2));
+				} else if (params.size() == 3) {
+					Datum datum2 = getParam(params.elementAt(2));
+					if (!datum2.isNumeric()) {
+						setError(functionError(funcNum, Datum.NUMBER, 3),
+								datum2);
+						return Datum.getInstance(triceps, Datum.INVALID);
+					}
+					int index = (int) datum2.doubleVal();
+					if (index < 0) {
+						setError(triceps.get("index_too_low"), index);
+						return Datum.getInstance(triceps, Datum.INVALID);
+					} else if (index >= str1.length()) {
+						setError(triceps.get("index_too_high"), index);
+						return Datum.getInstance(triceps, Datum.INVALID);
+					} else {
+						return new Datum(triceps, str1.lastIndexOf(str2, index));
+					}
+				} else {
+					break;
+				}
+			}
+			case LENGTH:
+				return new Datum(triceps, datum.stringVal().length());
+			case STARTSWITH: {
+				if (params.size() < 2 || params.size() > 3)
+					break;
+
+				String str1 = getParam(params.elementAt(0)).stringVal();
+				String str2 = getParam(params.elementAt(1)).stringVal();
+
+				if (params.size() == 2) {
+					return new Datum(triceps, str1.startsWith(str2));
+				} else if (params.size() == 3) {
+					Datum datum2 = getParam(params.elementAt(2));
+					if (!datum2.isNumeric()) {
+						setError(functionError(funcNum, Datum.NUMBER, 3),
+								datum2);
+						return Datum.getInstance(triceps, Datum.INVALID);
+					}
+					int index = (int) datum2.doubleVal();
+					if (index < 0) {
+						setError(triceps.get("index_too_low"), index);
+						return Datum.getInstance(triceps, Datum.INVALID);
+					} else if (index >= str1.length()) {
+						setError(triceps.get("index_too_high"), index);
+						return Datum.getInstance(triceps, Datum.INVALID);
+					} else {
+						return new Datum(triceps, str1.startsWith(str2, index));
+					}
+				} else {
+					break;
+				}
+			}
+			case SUBSTRING: {
+				if (params.size() < 2 || params.size() > 3)
+					break;
+
+				String str1 = getParam(params.elementAt(0)).stringVal();
+				Datum start = getParam(params.elementAt(1));
+				Datum end = null;
+				int from, to;
+
+				if (params.size() == 3) {
+					end = getParam(params.elementAt(2));
+				}
+
+				if (!start.isNumeric()) {
+					setError(functionError(funcNum, Datum.NUMBER, 2), start);
+					return Datum.getInstance(triceps, Datum.INVALID);
+				} else {
+					from = (int) start.doubleVal();
+					if (from < 0) {
+						setError(triceps.get("index_too_low"), from);
+						return Datum.getInstance(triceps, Datum.INVALID);
+					} else if (from >= str1.length()) {
+						setError(triceps.get("index_too_high"), from);
+						return Datum.getInstance(triceps, Datum.INVALID);
+					}
+
+				}
+
+				if (end != null) {
+					if (!end.isNumeric()) {
+						setError(functionError(funcNum, Datum.NUMBER, 3), end);
+						return Datum.getInstance(triceps, Datum.INVALID);
+					} else {
+						to = (int) end.doubleVal();
+						if (to < from) {
+							setError(triceps.get("index_too_low"), to);
+							return Datum.getInstance(triceps, Datum.INVALID);
+						} else if (to >= str1.length()) {
+							setError(triceps.get("index_too_high"), to);
+							return Datum.getInstance(triceps, Datum.INVALID);
+						} else {
+							return new Datum(triceps, str1.substring(from, to),
+									Datum.STRING);
+						}
+					}
+				} else {
+					return new Datum(triceps, str1.substring(from),
+							Datum.STRING);
+				}
+			}
+			case TOLOWERCASE:
+				return new Datum(triceps, datum.stringVal().toLowerCase(),
+						Datum.STRING);
+			case TOUPPERCASE:
+				return new Datum(triceps, datum.stringVal().toUpperCase(),
+						Datum.STRING);
+			case TRIM:
+				return new Datum(triceps, datum.stringVal().trim(),
+						Datum.STRING);
+			case ISNUMBER:
+				return new Datum(triceps, datum.isNumeric());
+			case FILEEXISTS: {
+				/*
+				 * FIXME Needs to be modified to check for not only the actual
+				 * filenames in the completed dir, but also the pending
+				 * filenames as indicated by the temp files in the working dir
+				 */
+
+				String fext = datum.stringVal();
+				if (fext == null)
+					return new Datum(triceps, false);
+				fext = fext.trim();
+				if (fext.length() == 0)
+					return new Datum(triceps, false);
+				;
+
+				/*
+				 * now check whether this name is available in both working and
+				 * completed dirs
+				 */
+				File file;
+				Schedule sched = triceps.getSchedule();
+				String fname;
+
+				/** Working dir - read schedules and get their FILENAMEs * */
+				ScheduleList interviews = new ScheduleList(triceps, sched
+						.getReserved(Schedule.WORKING_DIR), true);
+				Schedule sc = null;
+				Vector schedules = interviews.getSchedules();
+				for (int i = 0; i < schedules.size(); ++i) {
+					sc = (Schedule) schedules.elementAt(i);
+					if (sc.getReserved(Schedule.FILENAME).equals(fext)) {
+						if (sc.getReserved(Schedule.LOADED_FROM).equals(
+								triceps.dataLogger.getFilename())) {
+							continue; // since examining the current file
+						} else {
+							return new Datum(triceps, true);
+						}
+					}
+				}
+
+				/** For Completed dir - check actual filenames * */
+				try {
+					fname = sched.getReserved(Schedule.COMPLETED_DIR) + fext
+							+ ".jar";
+					// if (DEBUG) Logger.writeln("##exists(" + fname + ")");
+					file = new File(fname);
+					if (file.exists())
+						return new Datum(triceps, true);
+				} catch (SecurityException e) {
+					if (DEBUG)
+						Logger
+								.writeln("##SecurityException @ Evidence.fileExists()"
+										+ e.getMessage());
+					return Datum.getInstance(triceps, Datum.INVALID);
+				}
+				return new Datum(triceps, false);
+			}
+			case ABS:
+				return new Datum(triceps, Math.abs(datum.doubleVal()));
+			case ACOS:
+				return new Datum(triceps, Math.acos(datum.doubleVal()));
+			case ASIN:
+				return new Datum(triceps, Math.asin(datum.doubleVal()));
+			case ATAN:
+				return new Datum(triceps, Math.atan(datum.doubleVal()));
+			case ATAN2:
+				return new Datum(triceps, Math.atan2(datum.doubleVal(),
+						getParam(params.elementAt(1)).doubleVal()));
+			case CEIL:
+				return new Datum(triceps, Math.ceil(datum.doubleVal()));
+			case COS:
+				return new Datum(triceps, Math.cos(datum.doubleVal()));
+			case EXP:
+				return new Datum(triceps, Math.exp(datum.doubleVal()));
+			case FLOOR:
+				return new Datum(triceps, Math.floor(datum.doubleVal()));
+			case LOG:
+				return new Datum(triceps, Math.log(datum.doubleVal()));
+			case POW:
+				return new Datum(triceps, Math.pow(datum.doubleVal(), getParam(
+						params.elementAt(1)).doubleVal()));
+			case RANDOM:
+				return new Datum(triceps, Math.random());
+			case ROUND:
+				return new Datum(triceps, Math.round(datum.doubleVal()));
+			case SIN:
+				return new Datum(triceps, Math.sin(datum.doubleVal()));
+			case SQRT:
+				return new Datum(triceps, Math.sqrt(datum.doubleVal()));
+			case TAN:
+				return new Datum(triceps, Math.tan(datum.doubleVal()));
+			case TODEGREES:
+				// return new Datum(triceps, Math.toDegrees(datum.doubleVal()));
+				return new Datum(triceps, Double.NaN);
+			case TORADIANS:
+				// return new Datum(triceps, Math.toRadians(datum.doubleVal()));
+				return new Datum(triceps, Double.NaN);
+			case PI:
+				return new Datum(triceps, Math.PI);
+			case E:
+				return new Datum(triceps, Math.E);
+			case FORMAT_NUMBER:
+				return new Datum(triceps, triceps.formatNumber(new Double(datum
+						.doubleVal()), getParam(params.elementAt(1))
+						.stringVal()), Datum.STRING);
+			case PARSE_NUMBER:
+				return new Datum(triceps, triceps.parseNumber(
+						datum.stringVal(),
+						getParam(params.elementAt(1)).stringVal())
+						.doubleValue());
+			case FORMAT_DATE:
+				return new Datum(triceps, triceps.formatDate(datum.dateVal(),
+						getParam(params.elementAt(1)).stringVal()),
+						Datum.STRING);
+			case PARSE_DATE:
+				return new Datum(triceps, triceps.parseDate(datum.stringVal(),
+						getParam(params.elementAt(1)).stringVal()), Datum.DATE,
+						getParam(params.elementAt(1)).stringVal());
+			case GET_CONCEPT: {
+				String nodeName = datum.getName();
+				Node node = null;
+				if (nodeName == null || ((node = getNode(nodeName)) == null)) {
+					setError(triceps.get("unknown_node") + nodeName, line,
+							column, null);
+					return Datum.getInstance(triceps, Datum.INVALID);
+				}
+				return new Datum(triceps, node.getConcept(), Datum.STRING);
+			}
+			case GET_LOCAL_NAME: {
+				String nodeName = datum.getName();
+				Node node = null;
+				if (nodeName == null || ((node = getNode(nodeName)) == null)) {
+					setError(triceps.get("unknown_node") + nodeName, line,
+							column, null);
+					return Datum.getInstance(triceps, Datum.INVALID);
+				}
+				return new Datum(triceps, node.getLocalName(), Datum.STRING);
+			}
+			case GET_EXTERNAL_NAME: {
+				String nodeName = datum.getName();
+				Node node = null;
+				if (nodeName == null || ((node = getNode(nodeName)) == null)) {
+					setError(triceps.get("unknown_node") + nodeName, line,
+							column, null);
+					return Datum.getInstance(triceps, Datum.INVALID);
+				}
+				return new Datum(triceps, node.getExternalName(), Datum.STRING);
+			}
+			case GET_DEPENDENCIES: {
+				String nodeName = datum.getName();
+				Node node = null;
+				if (nodeName == null || ((node = getNode(nodeName)) == null)) {
+					setError(triceps.get("unknown_node") + nodeName, line,
+							column, null);
+					return Datum.getInstance(triceps, Datum.INVALID);
+				}
+				return new Datum(triceps, node.getDependencies(), Datum.STRING);
+			}
+			case GET_ACTION_TEXT: {
+				String nodeName = datum.getName();
+				Node node = null;
+				if (nodeName == null || ((node = getNode(nodeName)) == null)) {
+					setError(triceps.get("unknown_node") + nodeName, line,
+							column, null);
+					return Datum.getInstance(triceps, Datum.INVALID);
+				}
+				return new Datum(triceps, node.getQuestionOrEval(),
+						Datum.STRING);
+			}
+			case JUMP_TO: {
+				String nodeName = datum.getName();
+				Node node = null;
+				if (nodeName == null || ((node = getNode(nodeName)) == null)) {
+					setError(triceps.get("unknown_node") + nodeName, line,
+							column, null);
+					return Datum.getInstance(triceps, Datum.INVALID);
+				}
+				triceps.gotoNode(node);
+				return new Datum(triceps, "", Datum.STRING);
+			}
+			case GOTO_FIRST:
+				triceps.gotoFirst();
+				return new Datum(triceps, "", Datum.STRING);
+			case JUMP_TO_FIRST_UNASKED:
+				triceps.jumpToFirstUnasked();
+				return new Datum(triceps, "", Datum.STRING);
+			case GOTO_PREVIOUS:
+				triceps.gotoPrevious();
+				return new Datum(triceps, "", Datum.STRING);
+			case ERASE_DATA:
+				triceps.resetEvidence();
+				return new Datum(triceps, "", Datum.STRING);
+			case GOTO_NEXT:
+				triceps.gotoNext();
+				return new Datum(triceps, "", Datum.STRING);
+			case MEAN:
+				if (params.size() == 0) {
+					return Datum.getInstance(triceps, Datum.INVALID);
+				} else {
+					int count = 0;
+					double sum = 0;
+					double mean = 0;
+
+					for (int i = 0; i < params.size(); ++i) {
+						Datum a = getParam(params.elementAt(i));
+						++count;
+						sum += a.doubleVal();
+					}
+					mean = sum / count;
+					return new Datum(triceps, mean);
+				}
+			case STDDEV:
+				if (params.size() == 0) {
+					return Datum.getInstance(triceps, Datum.INVALID);
+				} else {
+					int count = 0;
+					double sum = 0;
+					double mean = 0;
+					double sumsqdiff = 0;
+					double std = 0;
+
+					for (int i = 0; i < params.size(); ++i) {
+						Datum a = getParam(params.elementAt(i));
+						++count;
+						sum += a.doubleVal();
+					}
+					mean = sum / count;
+
+					for (int i = 0; i < params.size(); ++i) {
+						Datum a = getParam(params.elementAt(i));
+						double diff = (a.doubleVal() - mean);
+						sumsqdiff += (diff * diff);
+					}
+					std = Math.sqrt(sumsqdiff / (count - 1));
+					return new Datum(triceps, std);
+				}
+			case SUSPEND_TO_FLOPPY: {
+				/*
+				 * revise this so can jump to next available question, if
+				 * appropriate
+				 */
+				if (params.size() == 1) {
+					/*
+					 * then set the starting step in the file to be saved (but
+					 * not in the master file)
+					 */
+					String nodeName = datum.getName();
+					Node n = getNode(nodeName);
+					if (n == null) {
+						setError(triceps.get("unknown_node") + nodeName, null);
+					} else {
+						int result = getStep(n);
+						StringBuffer sb = new StringBuffer("RESERVED\t");
+						sb
+								.append(
+										Schedule.RESERVED_WORDS[Schedule.STARTING_STEP])
+								.append("\t");
+						sb.append(result).append("\t").append(
+								System.currentTimeMillis()).append("\t\t\t");
+						triceps.dataLogger.println(sb.toString());
+					}
+				}
+				String savedFile = triceps.suspendToFloppy();
+				return new Datum(triceps, (savedFile == null) ? "null"
+						: savedFile, Datum.STRING);
+			}
+			case REGEX_MATCH: {
+				/** syntax: regexMatch(text,pattern) */
+				InputValidator iv = InputValidator.getInstance(getParam(
+						params.elementAt(1)).stringVal());
+				if (!iv.isValid()) {
+					setError(iv.getErrors(), null);
+					return Datum.getInstance(triceps, Datum.INVALID);
+				}
+				if (iv.isMatch(getParam(params.elementAt(0)).stringVal())) {
+					return new Datum(triceps, true);
+				} else {
+					return new Datum(triceps, false);
+				}
+			}
+			case CREATE_TEMP_FILE: {
+				String temp = EvidenceIO.createTempFile();
+				if (temp == null) {
+					return Datum.getInstance(triceps, Datum.INVALID);
+				} else {
+					return new Datum(triceps, temp, Datum.STRING);
+				}
+			}
+			case SAVE_DATA: {
+				String file = getParam(params.elementAt(0)).stringVal();
+				boolean ok = EvidenceIO.saveAll(triceps.getSchedule(), file);
+				return new Datum(triceps, ok);
+			}
+			case EXEC: {
+				return new Datum(triceps, EvidenceIO.exec(datum.stringVal()));
+			}
+			case SET_STATUS_COMPLETED: {
+				/*
+				 * allow specification of a file as completed, even if it is
+				 * mid-stream
+				 */
+				/* HUGE hack - requires refernce to LoginServlet! */
+				return new Datum(triceps, triceps.setStatusCompleted());
+			}
+			}
+		} catch (Exception t) {
+			if (DEBUG)
+				Logger.writeln("##Exception @ Evidence.function()"
+						+ t.getMessage());
 			Logger.printStackTrace(t);
 		}
-		setError("unexpected error running function " + name, line, column, null);
-		return Datum.getInstance(triceps,Datum.INVALID);
+		setError("unexpected error running function " + name, line, column,
+				null);
+		return Datum.getInstance(triceps, Datum.INVALID);
 	}
 
 	private void setError(String s, int line, int column, int val) { setError(s,line,column,new Integer(val)); }
