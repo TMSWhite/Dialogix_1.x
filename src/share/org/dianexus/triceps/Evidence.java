@@ -1,7 +1,21 @@
 /* ******************************************************** 
+<<<<<<< Evidence.java
+** Copyright (c) 2000-2001, Thomas Maxwell White, all rights reserved. 
+<<<<<<< Evidence.java
+<<<<<<< Evidence.java
+** $Header$
+=======
+** $Header$
+>>>>>>> 1.69
+=======
+** $Header$
+>>>>>>> 1.68
+******************************************************** */ 
+=======
  ** Copyright (c) 2000-2001, Thomas Maxwell White, all rights reserved. 
  ** $Header$
  ******************************************************** */
+>>>>>>> 1.68.2.2
 
 package org.dianexus.triceps;
 
@@ -15,8 +29,11 @@ import java.util.Date;
 import java.util.GregorianCalendar;
 import java.util.Calendar;
 import java.io.File;
+<<<<<<< Evidence.java
+=======
 import java.sql.*;
 import org.dianexus.triceps.modules.data.*;
+>>>>>>> 1.68.2.2
 
 /* public */class Evidence implements VersionIF {
 	private static final int FUNCTION_INDEX = 2;
@@ -217,7 +234,21 @@ import org.dianexus.triceps.modules.data.*;
 	private static final int EXEC = 90;
 
 	private static final int SET_STATUS_COMPLETED = 91;
+<<<<<<< Evidence.java
+<<<<<<< Evidence.java
+<<<<<<< Evidence.java
 
+	
+=======
+	private static final int SHOW_TABLE_OF_ANSWERS = 92;
+	
+=======
+>>>>>>> 1.68
+        
+>>>>>>> 1.69
+=======
+
+>>>>>>> 1.68.2.2
 	private static final Object FUNCTION_ARRAY[][] = {
 			{ "desc", ONE, new Integer(DESC) },
 			{ "isAsked", ONE, new Integer(ISASKED) },
@@ -327,6 +358,13 @@ import org.dianexus.triceps.modules.data.*;
 	private Date startTime = new Date(System.currentTimeMillis());
 
 	private Logger errorLogger = new Logger();
+<<<<<<< Evidence.java
+	Triceps triceps = null;	// need package-level access in Qss
+	
+	/*public*/ static final Evidence NULL = new Evidence(null);
+	
+=======
+>>>>>>> 1.68.2.2
 
 	Triceps triceps = null; // need package-level access in Qss
 
@@ -355,7 +393,10 @@ import org.dianexus.triceps.modules.data.*;
 
 	/* public */Evidence(Triceps tri) {
 		triceps = (tri == null) ? Triceps.NULL : tri;
+<<<<<<< Evidence.java
+=======
 
+>>>>>>> 1.68.2.2
 	}
 
 	/* public */void createReserved() {
@@ -421,11 +462,14 @@ import org.dianexus.triceps.modules.data.*;
 				.getReserved(Schedule.STARTING_STEP));
 		String timeStamp = null;
 		String startTime = schedule.getReserved(Schedule.START_TIME);
+<<<<<<< Evidence.java
+=======
 
 		// ##GFL Code added by Gary Lyons 2-24-06 to add direct db access
 		// Get DAO Objects through factories
 
 		ddf = DialogixDAOFactory.getDAOFactory(DBID);
+>>>>>>> 1.68.2.2
 		
 		// TODO to update instrument session instance table
 		sdao = ddf.getSessionDataDAO();
@@ -692,6 +736,31 @@ import org.dianexus.triceps.modules.data.*;
 	}
 
 	private void writeNode(Node q, Datum d) {
+<<<<<<< Evidence.java
+if (DEPLOYABLE) {		
+		String ans=null;
+		String comment=null;
+		StringBuffer sb = new StringBuffer("\t");
+		
+		if (d == null) { ans = ""; }
+		else { ans = d.stringVal(true); }
+		comment = q.getComment();
+		if (comment == null) comment = "";
+		
+		sb.append(q.getLocalName());
+		sb.append("\t");
+		sb.append(q.getAnswerLanguagenum());
+		sb.append("\t");
+		sb.append(q.getTimeStampStr());
+		sb.append("\t");
+		sb.append(q.getQuestionAsAsked());
+		sb.append("\t");
+		sb.append(InputEncoder.encode(ans));	
+		sb.append("\t");
+		sb.append(InputEncoder.encode(comment));
+		triceps.dataLogger.println(sb.toString());
+}		
+=======
 		if (DEPLOYABLE) {
 			String ans = null;
 			String comment = null;
@@ -769,6 +838,7 @@ import org.dianexus.triceps.modules.data.*;
 			}
 		}
 
+>>>>>>> 1.68.2.2
 	}
 
 	/*
@@ -1366,6 +1436,162 @@ import org.dianexus.triceps.modules.data.*;
 						}
 					}
 				}
+<<<<<<< Evidence.java
+				case TOLOWERCASE:
+					return new Datum(triceps,datum.stringVal().toLowerCase(), Datum.STRING);
+				case TOUPPERCASE:
+					return new Datum(triceps,datum.stringVal().toUpperCase(), Datum.STRING);
+				case TRIM:
+					return new Datum(triceps,datum.stringVal().trim(), Datum.STRING);
+				case ISNUMBER:
+					return new Datum(triceps,datum.isNumeric());
+				case FILEEXISTS:
+				{
+					/* FIXME Needs to be modified to check for not only the actual filenames in the completed dir,
+					but also the pending filenames as indicated by the temp files in the working dir */
+					
+					String fext = datum.stringVal();
+					if (fext == null)
+						return new Datum(triceps,false);
+					fext = fext.trim();
+					if (fext.length() == 0)
+						return new Datum(triceps,false);;
+
+					/* now check whether this name is available in both working and completed dirs */
+					File file;
+					Schedule sched = triceps.getSchedule();
+					String fname;
+					
+					/** Working dir - read schedules and get their FILENAMEs **/
+					ScheduleList interviews = new ScheduleList(triceps, sched.getReserved(Schedule.WORKING_DIR), true);
+					Schedule sc = null;
+					Vector schedules = interviews.getSchedules();
+					for (int i=0;i<schedules.size();++i) {
+						sc = (Schedule) schedules.elementAt(i);
+						if (sc.getReserved(Schedule.FILENAME).equals(fext)) {
+							if (sc.getReserved(Schedule.LOADED_FROM).equals(triceps.dataLogger.getFilename())) {
+								continue;	// since examining the current file
+							}
+							else {
+								return new Datum(triceps,true);
+							}
+						}
+					}
+					
+					/** For Completed dir - check actual filenames **/
+					try {
+						fname = sched.getReserved(Schedule.COMPLETED_DIR) + fext + ".jar";
+//if (DEBUG) Logger.writeln("##exists(" + fname + ")");
+						file = new File(fname);
+						if (file.exists())
+							return new Datum(triceps,true);
+					}
+					catch (SecurityException e) {
+if (DEBUG) Logger.writeln("##SecurityException @ Evidence.fileExists()" + e.getMessage());
+						return Datum.getInstance(triceps,Datum.INVALID);
+					}
+					return new Datum(triceps,false);
+				}
+				case ABS:
+					return new Datum(triceps, Math.abs(datum.doubleVal()));
+				case ACOS:
+					return new Datum(triceps, Math.acos(datum.doubleVal()));
+				case ASIN:
+					return new Datum(triceps, Math.asin(datum.doubleVal()));
+				case ATAN:
+					return new Datum(triceps, Math.atan(datum.doubleVal()));
+				case ATAN2:
+					return new Datum(triceps, Math.atan2(datum.doubleVal(),getParam(params.elementAt(1)).doubleVal()));				
+				case CEIL:
+					return new Datum(triceps, Math.ceil(datum.doubleVal()));				
+				case COS:
+					return new Datum(triceps, Math.cos(datum.doubleVal()));				
+				case EXP:
+					return new Datum(triceps, Math.exp(datum.doubleVal()));				
+				case FLOOR:
+					return new Datum(triceps, Math.floor(datum.doubleVal()));				
+				case LOG:
+					return new Datum(triceps, Math.log(datum.doubleVal()));				
+				case POW:
+					return new Datum(triceps, Math.pow(datum.doubleVal(),getParam(params.elementAt(1)).doubleVal()));				
+				case RANDOM:
+					return new Datum(triceps, Math.random());
+				case ROUND:
+					return new Datum(triceps, Math.round(datum.doubleVal()));				
+				case SIN:
+					return new Datum(triceps, Math.sin(datum.doubleVal()));				
+				case SQRT:
+					return new Datum(triceps, Math.sqrt(datum.doubleVal()));				
+				case TAN:
+					return new Datum(triceps, Math.tan(datum.doubleVal()));				
+				case TODEGREES:
+//					return new Datum(triceps, Math.toDegrees(datum.doubleVal()));				
+					return new Datum(triceps, Double.NaN);			
+				case TORADIANS:
+//					return new Datum(triceps, Math.toRadians(datum.doubleVal()));				
+					return new Datum(triceps, Double.NaN);			
+				case PI:
+					return new Datum(triceps, Math.PI);			
+				case E:	
+					return new Datum(triceps, Math.E);		
+				case FORMAT_NUMBER:
+					return new Datum(triceps, triceps.formatNumber(new Double(datum.doubleVal()), getParam(params.elementAt(1)).stringVal()), Datum.STRING);
+				case PARSE_NUMBER:
+					return new Datum(triceps, triceps.parsenumber(datum.stringVal(), getParam(params.elementAt(1)).stringVal()).doubleValue()); 
+				case FORMAT_DATE:
+					return new Datum(triceps, triceps.formatDate(datum.dateVal(), getParam(params.elementAt(1)).stringVal()), Datum.STRING);
+				case PARSE_DATE:
+					return new Datum(triceps, triceps.parseDate(datum.stringVal(), getParam(params.elementAt(1)).stringVal()), Datum.DATE, getParam(params.elementAt(1)).stringVal());
+				case GET_CONCEPT:
+				{
+					String nodeName = datum.getName();
+					Node node = null;
+					if (nodeName == null || ((node = getNode(nodeName)) == null)) {
+						setError(triceps.get("unknown_node") + nodeName, line, column,null);
+						return Datum.getInstance(triceps,Datum.INVALID);
+					}
+					return new Datum(triceps, node.getConcept(), Datum.STRING);
+				}				
+				case GET_LOCAL_NAME:
+				{
+					String nodeName = datum.getName();
+					Node node = null;
+					if (nodeName == null || ((node = getNode(nodeName)) == null)) {
+						setError(triceps.get("unknown_node") + nodeName, line, column,null);
+						return Datum.getInstance(triceps,Datum.INVALID);
+					}
+					return new Datum(triceps, node.getLocalName(), Datum.STRING);
+				}								
+				case GET_EXTERNAL_NAME:
+				{
+					String nodeName = datum.getName();
+					Node node = null;
+					if (nodeName == null || ((node = getNode(nodeName)) == null)) {
+						setError(triceps.get("unknown_node") + nodeName, line, column,null);
+						return Datum.getInstance(triceps,Datum.INVALID);
+					}
+					return new Datum(triceps, node.getExternalName(), Datum.STRING);
+				}							
+				case GET_DEPENDENCIES:
+				{
+					String nodeName = datum.getName();
+					Node node = null;
+					if (nodeName == null || ((node = getNode(nodeName)) == null)) {
+						setError(triceps.get("unknown_node") + nodeName, line, column,null);
+						return Datum.getInstance(triceps,Datum.INVALID);
+					}
+					return new Datum(triceps, node.getDependencies(), Datum.STRING);
+				}							
+				case GET_ACTION_TEXT:		
+				{
+					String nodeName = datum.getName();
+					Node node = null;
+					if (nodeName == null || ((node = getNode(nodeName)) == null)) {
+						setError(triceps.get("unknown_node") + nodeName, line, column,null);
+						return Datum.getInstance(triceps,Datum.INVALID);
+					}
+					return new Datum(triceps, node.getQuestionOrEval(), Datum.STRING);
+=======
 
 				/** For Completed dir - check actual filenames * */
 				try {
@@ -1462,6 +1688,7 @@ import org.dianexus.triceps.modules.data.*;
 					setError(triceps.get("unknown_node") + nodeName, line,
 							column, null);
 					return Datum.getInstance(triceps, Datum.INVALID);
+>>>>>>> 1.68.2.2
 				}
 				return new Datum(triceps, node.getLocalName(), Datum.STRING);
 			}
