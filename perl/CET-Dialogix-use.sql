@@ -390,3 +390,28 @@ create table test.CETstats_20051026 as
 	where date = "20051026"
 	group by instrument
 	order by instrument;	
+	
+	
+/* Also test use of AutoSIGH */
+drop table if exists test.AutoSIGHstatus;
+create table test.AutoSIGHstatus as
+select distinct 
+	instrumentName,
+	workingFile,
+	year(timestamp) as year, 
+	month(timestamp) as month, 
+	dayofmonth(timestamp) as day, 
+	dayofyear(timestamp) as dayofyear, 
+	max(currentStep) as lastStep,
+	max(displayCount) as numSteps
+from dialogix2994.pageHits
+where instrumentName like '%AutoSIGH-rev-04-10.jar'
+group by workingFile
+order by dayofyear;
+
+drop table if exists test.AutoSIGHcomments;
+create table test.AutoSIGHcomments as
+select distinct l.instrumentName, floor(l.timestamp / 1000000) as date, l.sessionID, r.value
+from dialogix2994.pageHits l, dialogix2994.pageHitDetails r
+where l.instrumentName like '%AutoSIGH-rev-04-10.jar' and r.pageHitID_FK = l.pageHitID and r.param like "Feedback_us" and r.value <> "Type comments here." and r.value <> ""
+order by instrumentName, date;
