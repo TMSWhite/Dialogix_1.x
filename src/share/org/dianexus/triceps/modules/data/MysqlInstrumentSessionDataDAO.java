@@ -3,7 +3,9 @@ package src.share.org.dianexus.triceps.modules.data;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
+import java.sql.ResultSetMetaData;
 import java.sql.Timestamp;
+import java.util.List;
 
 public class MysqlInstrumentSessionDataDAO implements InstrumentSessionDataDAO {
 	
@@ -20,6 +22,8 @@ public class MysqlInstrumentSessionDataDAO implements InstrumentSessionDataDAO {
 	private int sessionId;
 	private String statusMsg;
 	private String tableName;
+	private List dataColumns;
+	private List dataValues;
 	
 
 	
@@ -75,12 +79,80 @@ public class MysqlInstrumentSessionDataDAO implements InstrumentSessionDataDAO {
 		return true;
 	}
 	public boolean deleteInstrumentSessionDataDAO(String table, int id) {
-		// TODO Auto-generated method stub
-		return false;
+		// delete a row from the session data table
+		String query = "DELETE FROM "+table+" WHERE session_id = ?";
+		Connection con = DialogixMysqlDAOFactory.createConnection();
+		PreparedStatement ps = null;
+		
+		try {
+			ps = con.prepareStatement(query);
+			ps.clearParameters();
+			ps.setInt(1, id);
+			
+			ps.execute();
+			
+
+		} catch (Exception e) {
+
+			e.printStackTrace();
+			return false;
+
+		} finally {
+			try {
+				
+				if (ps != null) {
+					ps.close();
+				}
+				if (con != null) {
+					con.close();
+				}
+			} catch (Exception fe) {
+				fe.printStackTrace();
+			}
+		}
+		return true;
 	}
 	public boolean getInstrumentSessionDataDAO(String table, int id) {
-		// TODO Auto-generated method stub
-		return false;
+		// get a row from the session data table
+		String query = "SELECT * FROM "+table+" WHERE session_id = ?";
+		Connection con = DialogixMysqlDAOFactory.createConnection();
+		PreparedStatement ps = null;
+		ResultSet rs = null;
+		ResultSetMetaData rsm = null;
+		try {
+			ps = con.prepareStatement(query);
+			ps.clearParameters();
+			ps.setInt(1, id);
+			
+			rs = ps.executeQuery();
+			rsm = rs.getMetaData();
+			int numCols = rsm.getColumnCount();
+			if(rs.next()){
+				//TODO complete function
+			}
+			
+
+		} catch (Exception e) {
+
+			e.printStackTrace();
+			return false;
+
+		} finally {
+			try {
+				if(rs != null){
+					rs.close();
+				}
+				if (ps != null) {
+					ps.close();
+				}
+				if (con != null) {
+					con.close();
+				}
+			} catch (Exception fe) {
+				fe.printStackTrace();
+			}
+		}
+		return true;
 	}
 	public boolean updateInstrumentSessionDataDAO(String column, String value) {
 		// update a column value and latest status
