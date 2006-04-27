@@ -12,31 +12,40 @@ import org.dianexus.triceps.modules.data.RawDataDAO;
 
 public class PageHitBean {
 
-	private int pageHitId;
+	private int pageHitId=0;
 
-	private int instrumentSessionId;
+	private int instrumentSessionId=0;
 
 	private Timestamp timestamp;
 
-	private int accessCount;
+	private int accessCount=0;
 
-	private int groupNum;
+	private int groupNum=0;
 
-	private int displayNum;
+	private int displayNum=0;
 
-	private String lastAction;
+	private String lastAction="";
 
-	private String statusMsg;
+	private String statusMsg="";
 
-	private int totalDuration;
+	private int totalDuration=0;
 
-	private int serverDuration;
+	private int serverDuration=0;
 
-	private int loadDuration;
+	private int loadDuration=0;
 
-	private int networkDuration;
+	private int networkDuration=0;
 
-	private int pageVacillation;
+	private int pageVacillation=0;
+	
+	private int currentQuestionIndex=0;
+	
+	private int numQuestions = 0;
+	
+
+	private long receivedRequest;
+	private long sentResponse;
+	
 
 	private List eventTimingBeans = new ArrayList();
 	private List questionTimingBeans = new ArrayList();
@@ -49,6 +58,7 @@ public class PageHitBean {
 	}
 
 	public boolean parseSource(String src) {
+		
 		int displayCount = 0;
 		boolean rtn = false;
 		String line;
@@ -99,6 +109,7 @@ public class PageHitBean {
 		
 		for (int i = 0; i < eventTimingBeans.size(); i++) {
 			etb = (EventTimingBean) eventTimingBeans.get(i);
+	
 			//check to see if question is changed
 			if(!etb.getVarName().equals(currentVarName) && !etb.getVarName().equals("") && !etb.equals(null)){
 				//finished with previous question
@@ -121,32 +132,22 @@ public class PageHitBean {
 				// new bean
 				qtb = new QuestionTimingBean();
 				questionRef ++;
+				currentVarName = etb.getVarName();
 				
 			}
 
 			// calculate total duration
 			totalDuration = etb.getDuration();
-
-			if (etb.getEventType().equals("sent_request")) {
-				// total processing time by the server from time received
-				// one page to time sent the next
-				serverTime = etb.getDuration();
-				// server side timestamp of when sent HTML
-				serverSendTS = new Long(etb.getTimestamp().getTime()).intValue();
-			} else if (etb.getEventType().equals("load")) {
+			this.setLastAction(etb.getActionType());
+			if (etb.getEventType().equals("load")) {
 				// total page rendering time
 				// (from time received HTML to time it was displayed to user)
 				loadTime =  etb.getDuration();
 				// client side timestamp when received HTML
 				clientReceiveTS = new Long(etb.getTimestamp().getTime()).intValue();
-				// the timestamp of when loaded
-				loadTS = new Long(etb.getTimestamp().getTime()).intValue();
-			} else if (etb.getEventType().equals("received_response")) {
-				turnaroundTime = etb.getDuration();
-				serverReceiveTS = new Long(etb.getTimestamp().getTime()).intValue();
 
-			}
-			if (etb.getEventType().equals("submit")
+			} 
+			if (etb.getActionType().equals("submit")
 					&& etb.getEventType().equals("click")) {
 				displayTime = etb.getDuration();
 				clientSendTS = new Long(etb.getTimestamp().getTime()).intValue();
@@ -171,51 +172,28 @@ public class PageHitBean {
 			if(etb.getEventType().equals("mouseup")){
 				mouseup++;
 			}
-			//lastTS = new Long(etb.getTimestamp().getTime()).intValue();
+			lastTS = new Long(etb.getTimestamp().getTime()).intValue();
 		}
-		this.setServerDuration(serverTime);
-		this.setTotalDuration(turnaroundTime);
+		this.setServerDuration(new Long(sentResponse - receivedRequest).intValue());
+		this.setTotalDuration(displayTime);
 		this.setLoadDuration(loadTime);
-		this.setNetworkDuration(turnaroundTime - displayTime);
+		this.setNetworkDuration(displayTime - this.getServerDuration());
+		this.setPageVacillation(focus);
+		
 		
 		
 
-		
 
-		boolean rtn =  store();
-		if(rtn){
-			for(int i =0; i < eventTimingBeans.size() ;i++){
-				// grab a bean off the array
-				EventTimingBean evbean = (EventTimingBean)eventTimingBeans.get(i);
-				//set page hit id 
-				evbean.setPageHitId(this.pageHitId);
-				//write to the database
-				evbean.store();
-			}
-		}
-//		 reset all variables
-		serverTime = 0;
-		loadTime = 0;
-		networkTime = 0;
-		pageVacillation = 0;
-		responseLatency = 0;
-		responseDuration = 0;
-		serverSendTS = 0;
-		serverReceiveTS = 0;
-		clientReceiveTS = 0;
-		clientSendTS = 0;
-		displayTime = 0;
-		loadTS = 0;
-		lastTS = 0;
-		turnaroundTime = 0;
-		return rtn;
+
+		return true;
 	}
 
 	public boolean store() {
 		DialogixDAOFactory ddf = DialogixDAOFactory.getDAOFactory(DBID);
 		PageHitsDAO phdao = ddf.getPageHitsDAO();
 		//TODO find out where to get real value
-		this.setLastAction("lastAction");
+		
+		
 		this.setStatusMsg("OK");
 		phdao.setAccessCount(this.getAccessCount());
 		phdao.setDisplayNum(this.getDisplayNum());
@@ -231,9 +209,43 @@ public class PageHitBean {
 		phdao.setStatusMessage(this.getStatusMsg());
 		boolean res = phdao.setPageHit();
 		this.pageHitId = phdao.getPageHitId();
-
+		
+		// now that we have the pageHitId we can save the individual evenTimingBeans
+		for(int i =0; i < eventTimingBeans.size() ;i++){
+			// grab a bean off the array
+			EventTimingBean evbean = (EventTimingBean)eventTimingBeans.get(i);
+			//set page hit id 
+			evbean.setPageHitId(this.pageHitId);
+			//write to the database
+			evbean.store();
+		}
 
 		return res;
+	}
+	public void setNumQuestions(int num){
+		this.numQuestions=num;
+	}
+	public int getNumQuestions(){
+		return this.numQuestions;
+	}
+	public void setCurrentQuestionIndex(int index){
+		this.currentQuestionIndex = index;
+	}
+	public int getCurrentQuestonIndex(){
+		return this.currentQuestionIndex;
+	}
+	public void setReceivedRequest(){
+		
+		receivedRequest = System.currentTimeMillis();
+	}
+	public long getReceivedRequest(){
+		return this.receivedRequest;
+	}
+	public void setSentResponse(){
+		sentResponse = System.currentTimeMillis();
+	}
+	public long getSentResponse(){
+		return this.sentResponse;
 	}
 
 	public List getEventTimingBeans() {
@@ -246,6 +258,19 @@ public class PageHitBean {
 
 	public void setEventTimingBeans(List eventTimingBeans) {
 		this.eventTimingBeans = eventTimingBeans;
+	}
+	public  List getQuestionTimingBeans(){
+		return questionTimingBeans;
+	}
+	public QuestionTimingBean getQuestionTimingBean(int i){
+		if(this.questionTimingBeans.size()>0){
+		return (QuestionTimingBean) this.questionTimingBeans.get(i);
+		}else{
+			return null;
+		}
+	}
+	public void setQuestionTimingBeans(List questionTimingBeans){
+		this.questionTimingBeans = questionTimingBeans;
 	}
 
 	public int getAccessCount() {
