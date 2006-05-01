@@ -40,6 +40,10 @@ public abstract class  DialogixDAOFactory {
     public abstract SessionDataDAO getSessionDataDAO();
     public abstract RawDataDAO getRawDataDAO();
     public abstract UserSessionDAO getUserSessionDAO();
+    public abstract InstrumentDAO getInstrumentDAO();
+    public abstract InstrumentVersionDAO getInstrumentVersionDAO();
+    public abstract InstrumentSessionDataDAO getInstrumentSessionDataDAO();
+
     
     
     public static DialogixDAOFactory getDAOFactory( int factory_id){
