@@ -240,6 +240,8 @@ import org.dianexus.triceps.modules.data.*;
     private static final int DBID=1; //set for mysql for now
     InstrumentSessionDAO sdao;
     RawDataDAO rddao;
+    InstrumentSessionDataDAO isddao;
+    InstrumentVersionDAO ivdao;
     // ##GFL End Code added by Gary Lyons 2-24-06 to add direct db access
        
         
@@ -308,21 +310,37 @@ if (DEBUG) Logger.writeln("##Evidence.initReserved()-schedule=null");
         DialogixDAOFactory ddf = DialogixDAOFactory.getDAOFactory(DBID);
         // get the instance table name
         String title = schedule.getReserved(Schedule.TITLE);
+        System.out.println("Title found and is:"+title);
         InstrumentDAO idao = ddf.getInstrumentDAO();
         idao.getInstrument(title);
         int id = idao.getInstrumentId();
-        InstrumentVersionDAO ivdao = ddf.getInstrumentVersionDAO();
+        System.out.println("istrument id is"+id);
+        ivdao = ddf.getInstrumentVersionDAO();
         ivdao.getInstrumentVersion(id);
         String tableName = ivdao.getInstanceTableName();
+        System.out.println("table name is: "+tableName);
+        isddao = ddf.getInstrumentSessionDataDAO();
+        isddao.setFirstGroup(0);
+        isddao.setSessionStartTime(new Timestamp(System.currentTimeMillis()));
+        isddao.setSessionEndTime(new Timestamp(System.currentTimeMillis()));
+        isddao.setLastAccess("");
+        //need instance name here
+        isddao.setInstrumentName(title);
+        isddao.setInstanceName(tableName);
+        isddao.setLastAction("");
+        isddao.setLastGroup(0);
+        isddao.setStatusMsg("init");
+        isddao.setInstrumentSessionDataDAO(tableName);
+        
         
         // to update instrument session instance table
         //sdao = ddf.getInstrumentInstanceDAO();
         //sdao.set setInstanceName("Instrument Instance");
         //sdao.setInstrumentName("Hard Coded Test Instrument");
-        java.sql.Timestamp ts = new java.sql.Timestamp(System.currentTimeMillis());
-        sdao.setStartTime(ts);
+        //java.sql.Timestamp ts = new java.sql.Timestamp(System.currentTimeMillis());
+        //sdao.setStartTime(ts);
         //create a new session row in the db
-        sdao. newSession(tableName);
+        //sdao. newSession(tableName);
         // to update raw data table
         rddao = ddf.getRawDataDAO();
         // ##GFL End added Code by Gary Lyons   
@@ -582,21 +600,71 @@ if (DEPLOYABLE) {
                 // ##GFL Code added by Gary Lyons 2-24-06 to add direct db access
                 // to update instrument session instance table
 		if(SAVE_TO_DB && q != null && d !=null && triceps !=null){
-				
-                // update instance table with current values
-    	 		
+			    PageHitBean phb = triceps.getPageHitBean();
+                // update instrument session table with current values
+			   InstrumentSessionBean isb = triceps.getInstrumentSessionBean();
+			 
+             if(isb==null && phb!=null){
+             	System.out.println("Evidence: isb is null");
+             	isb = new InstrumentSessionBean();
+             	isb.setStart_time(new Timestamp(System.currentTimeMillis()));
+             	isb.setEnd_time(new Timestamp (System.currentTimeMillis()));
+             	//TODO need to find real version id here
+             	isb.setInstrumentVersionId(0);
+             	//TODO needt to get real user id here
+             	isb.setUserId(110);
+             	isb.setFirst_group(triceps.getCurrentStep());
+             	isb.setLast_group(triceps.getCurrentStep());
+             	
+             	isb.setLast_action(phb.getLastAction());
+             	
+             	//TODO need real last access here
+             	isb.setLast_access("");
+             	
+             	isb.setStatusMessage(phb.getStatusMsg());
+             	
+             	isb.store();
+             	triceps.setInstrumentSessionBean(isb);
+             	
+             }
+             else if(phb !=null){
+             	System.out.println("Evidence: isb is NOT null");
+             	isb.setEnd_time(new Timestamp (System.currentTimeMillis()));
+             	isb.setLast_group(triceps.getCurrentStep());
+             	
+                 	isb.setLast_action(phb.getLastAction());
+                 	
+             	//TODO need real last access here
+             	isb.setLast_access("");
+             	
+                 	isb.setStatusMessage(phb.getStatusMsg());
+                 	
+             	isb.update();
+             }
+             // update session data table
+             isddao.setLastAccess(triceps.getDisplayCount());
+             isddao.setLastGroup(triceps.getCurrentStep());
+             if(phb!=null){
+             isddao.setLastAction(phb.getLastAction());
+             isddao.setStatusMsg(phb.getStatusMsg());
+             }
+             isddao.updateInstrumentSessionDataDAO(q.getLocalName(),InputEncoder.encode(ans));
+             
                 //sdao.updateInstrumentSessionColumn(q.getLocalName(), InputEncoder.encode(ans));
                 rddao.clearRawDataStructure();
                 rddao.setAnswer(InputEncoder.encode(ans));
                 rddao.setAnswerType(q.getAnswerType());
                 rddao.setComment(comment);
+                if(isb != null){
+                rddao.setInstrumentSessionId(isb.getInstrumentSessionId());
+                }
                 if(triceps.getDisplayCount()!=null){
                 rddao.setDisplayNum(new Integer(triceps.getDisplayCount()).intValue());
                 }
                 rddao.setGroupNum(triceps.getCurrentStep());
-                rddao.setInstanceName(triceps.getFilename());  
+                rddao.setInstanceName(ivdao.getInstanceTableName());  
                 //TODO get reserved index id
-                rddao.setInstrumentName("");//triceps.getSchedule().getReserved(0);
+                rddao.setInstrumentName(triceps.getSchedule().getReserved(triceps.getSchedule().TITLE));
                 rddao.setLangNum(q.getAnswerLanguageNum());
                 rddao.setQuestionAsAsked(q.getQuestionAsAsked());
                 rddao.setTimeStamp(new Timestamp(q.getTimeStamp().getTime()));
@@ -604,7 +672,7 @@ if (DEPLOYABLE) {
                 rddao.setVarNum(triceps.getCurrentStep());
                 rddao.setWhenAsMS(q.getTimeStamp().getTime());
                 //get event data from triceps
-                PageHitBean phb = triceps.getPageHitBean();
+                
                 if( phb != null){
                 	int qi = phb.getCurrentQuestonIndex();
                 	QuestionTimingBean qtb = phb.getQuestionTimingBean(qi);
@@ -622,46 +690,7 @@ if (DEPLOYABLE) {
                 }
                 
                 rddao.setRawData();
-                InstrumentSessionBean isb = triceps.getInstrumentSessionBean();
-                if(isb==null && phb!=null){
-                	System.out.println("Evidence: isb is null");
-                	isb = new InstrumentSessionBean();
-                	isb.setStart_time(new Timestamp(System.currentTimeMillis()));
-                	isb.setEnd_time(new Timestamp (System.currentTimeMillis()));
-                	//TODO need to find real version id here
-                	isb.setInstrumentVersionId(0);
-                	//TODO needt to get real user id here
-                	isb.setUserId(0);
-                	isb.setFirst_group(triceps.getCurrentStep());
-                	isb.setLast_group(triceps.getCurrentStep());
-                	
-                	isb.setLast_action(phb.getLastAction());
-                	
-                	//TODO need real last access here
-                	isb.setLast_access("");
-                	
-                	isb.setStatusMessage(phb.getStatusMsg());
-                	
-                	isb.store();
-                	triceps.setInstrumentSessionBean(isb);
-                	
-                }
-                else if(phb !=null){
-                	System.out.println("Evidence: isb is NOT null");
-                	isb.setEnd_time(new Timestamp (System.currentTimeMillis()));
-                	isb.setLast_group(triceps.getCurrentStep());
-                	
-                    	isb.setLast_action(phb.getLastAction());
-                    	
-                	//TODO need real last access here
-                	isb.setLast_access("");
-                	
-                    	isb.setStatusMessage(phb.getStatusMsg());
-                    	
-                	isb.update();
-                }
-                
-                
+               
                 
                 
 
