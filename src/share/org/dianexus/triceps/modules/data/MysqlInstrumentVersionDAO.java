@@ -1,4 +1,4 @@
-package src.share.org.dianexus.triceps.modules.data;
+package org.dianexus.triceps.modules.data;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -17,7 +17,7 @@ public class MysqlInstrumentVersionDAO implements InstrumentVersionDAO{
 	private static final String SQL_INSTRUMENT_VERSION_UPDATE = "UPDATE instrument_version SET instrument_id = ? , "
 			+ " instance_table_name= ? , instrument_notes = ? , instrument_status = ? ";
 
-	private static final String SQL_INSTRUMENT_VERSION_GET = "SELECT * FROM instrument_version WHERE instrument_version_id = ?";
+	private static final String SQL_INSTRUMENT_VERSION_GET = "SELECT * FROM instrument_version WHERE instrument_id = ?";
 	
 	private String instrumentNotes;
 	private String instanceTableName;
@@ -70,7 +70,44 @@ public class MysqlInstrumentVersionDAO implements InstrumentVersionDAO{
 		return false;
 	}
 	public boolean getInstrumentVersion(int _id) {
-		// TODO Auto-generated method stub
+		Connection con = DialogixMysqlDAOFactory.createConnection();
+		PreparedStatement ps = null;
+		ResultSet rs = null;
+		try {
+			ps = con.prepareStatement(SQL_INSTRUMENT_VERSION_GET);
+			ps.clearParameters();
+			ps.setInt(1, _id);
+			rs = ps.executeQuery();
+			if(rs.next()){
+				this.setInstrumentVersionId(rs.getInt(1));
+				this.setInstrumentId(rs.getInt(2));
+				this.setInstanceTableName(rs.getString(3));
+				this.setInstrumentNotes(rs.getString(4));
+				this.setInstrumentStatus(rs.getInt(5));
+				
+			}
+			
+
+		} catch (Exception e) {
+
+			e.printStackTrace();
+			return false;
+
+		} finally {
+			try {
+				if(rs != null){
+					rs.close();
+				}
+				if (ps != null) {
+					ps.close();
+				}
+				if (con != null) {
+					con.close();
+				}
+			} catch (Exception fe) {
+				fe.printStackTrace();
+			}
+		}
 		return false;
 	}
 
@@ -142,7 +179,7 @@ public class MysqlInstrumentVersionDAO implements InstrumentVersionDAO{
 
 
 	public void setInstrumentVersionId(int id) {
-		/this.instrumentVersionId = id;
+		this.instrumentVersionId = id;
 		
 	}
 

@@ -1,4 +1,4 @@
-package src.share.org.dianexus.triceps.modules.data;
+package org.dianexus.triceps.modules.data;
 
 public interface InstrumentDAO {
 	boolean getInstrument(int _id);

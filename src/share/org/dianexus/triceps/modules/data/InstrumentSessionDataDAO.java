@@ -1,4 +1,4 @@
-package src.share.org.dianexus.triceps.modules.data;
+package org.dianexus.triceps.modules.data;
 
 import java.sql.Timestamp;
 
@@ -20,6 +20,8 @@ public interface InstrumentSessionDataDAO {
 	public int getInstrumentSessionDataId();
 	public void setInstrumentName(String name);
 	public String getInstrmentName();
+	public void setInstanceName(String name);
+	public String getInstanceName();
 	public void setSessionStartTime(Timestamp time);
 	public Timestamp getSessionStartTime();
 	public void setSessionEndTime(Timestamp time);
