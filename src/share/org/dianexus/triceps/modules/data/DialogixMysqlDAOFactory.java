@@ -153,6 +153,11 @@ public class DialogixMysqlDAOFactory extends DialogixDAOFactory {
 
 		return new MysqlInstrumentVersionDAO();
 	}
+
+	public InstrumentSessionDataDAO getInstrumentSessionDataDAO() {
+		
+		return new MysqlInstrumentSessionDataDAO();
+	}
 	
 
 }
