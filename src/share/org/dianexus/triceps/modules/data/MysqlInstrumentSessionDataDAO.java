@@ -1,4 +1,4 @@
-package src.share.org.dianexus.triceps.modules.data;
+package org.dianexus.triceps.modules.data;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -24,6 +24,7 @@ public class MysqlInstrumentSessionDataDAO implements InstrumentSessionDataDAO {
 	private String tableName;
 	private List dataColumns;
 	private List dataValues;
+	private String instanceName;
 	
 
 	
@@ -31,23 +32,23 @@ public class MysqlInstrumentSessionDataDAO implements InstrumentSessionDataDAO {
 	public boolean setInstrumentSessionDataDAO(String tablename) {
 		// store a skeletal record that can be updated as the session progresses
 		this.setTableName(tablename);
-		String query = "INSERT INTO "+tablename+" (session_id,instrument_session_id,instrument_name,start_time, "
-		+ "end_time, first_group,last_group,last_action,last_access,status_message) VALUES(null,?,?,?,?,?,?,?,?,?)";
+		String query = "INSERT INTO "+tablename+" (ID,InstanceName,StartTime, "
+		+ "end_time, first_group,last_group,last_action,last_access,status_message,InstrumentName) VALUES(null,?,?,?,?,?,?,?,?,?)";
 		Connection con = DialogixMysqlDAOFactory.createConnection();
 		PreparedStatement ps = null;
 		ResultSet rs = null;
 		try {
 			ps = con.prepareStatement(query);
 			ps.clearParameters();
-			ps.setInt(1, this.getInstrumentSessionDataId());
-			ps.setString(2, this.getInstrmentName());
-			ps.setTimestamp(3, this.getSessionStartTime());
-			ps.setTimestamp(4, this.getSessionEndTime());
-			ps.setInt(5, this.getFirstGroup());
-			ps.setInt(6, this.getLastGroup());
-			ps.setString(7, this.getLastAction());
-			ps.setString(8, this.getLastAccess());
-			ps.setString(9,this.getStatusMsg());
+			ps.setString(1, this.getInstanceName());
+			ps.setTimestamp(2, this.getSessionStartTime());
+			ps.setTimestamp(3, this.getSessionEndTime());
+			ps.setInt(4, this.getFirstGroup());
+			ps.setInt(5, this.getLastGroup());
+			ps.setString(6, this.getLastAction());
+			ps.setString(7, this.getLastAccess());
+			ps.setString(8,this.getStatusMsg());
+			ps.setString(9, this.getInstrmentName());
 			ps.execute();
 			// get the raw data id as last insert id 
 			ps = con.prepareStatement(SQL_GET_LAST_INSERT_ID);
@@ -157,7 +158,7 @@ public class MysqlInstrumentSessionDataDAO implements InstrumentSessionDataDAO {
 	public boolean updateInstrumentSessionDataDAO(String column, String value) {
 		// update a column value and latest status
 		String query ="UPDATE "+this.getTableName()+" SET "+column+" = ?,last_group = ?, last_action = ?, " +
-				" last_access = ?, status_message = ? WHERE session_id = ?";
+				" last_access = ?, status_message = ? WHERE ID = ?";
 		Connection con = DialogixMysqlDAOFactory.createConnection();
 		PreparedStatement ps = null;
 		ResultSet rs = null;
@@ -169,6 +170,7 @@ public class MysqlInstrumentSessionDataDAO implements InstrumentSessionDataDAO {
 			ps.setString(3, this.getLastAction());
 			ps.setString(4, this.getLastAccess());
 			ps.setString(5, this.getStatusMsg());
+			ps.setInt(6,this.getInstrumentSessionDataId());
 			ps.execute();
 			
 
@@ -303,6 +305,14 @@ public class MysqlInstrumentSessionDataDAO implements InstrumentSessionDataDAO {
 	}
 	public void setTableName(String table) {
 		this.tableName = table;
+	}
+	public String getInstanceName() {
+		// TODO Auto-generated method stub
+		return this.instanceName;
+	}
+	public void setInstanceName(String name) {
+		this.instanceName = name;
+		
 	}
 
 	
