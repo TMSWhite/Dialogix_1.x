@@ -1,498 +1,350 @@
 /* ******************************************************** 
-<<<<<<< Evidence.java
 ** Copyright (c) 2000-2001, Thomas Maxwell White, all rights reserved. 
-<<<<<<< Evidence.java
-<<<<<<< Evidence.java
 ** $Header$
-=======
-** $Header$
->>>>>>> 1.69
-=======
-** $Header$
->>>>>>> 1.68
 ******************************************************** */ 
-=======
- ** Copyright (c) 2000-2001, Thomas Maxwell White, all rights reserved. 
- ** $Header$
- ******************************************************** */
->>>>>>> 1.68.2.2
 
 package org.dianexus.triceps;
 
-/* import java.lang.*; */
-/* import java.util.*; */
-/* import java.io.*; */
-/* import java.net.*; */
+/*import java.lang.*;*/
+/*import java.util.*;*/
+/*import java.io.*;*/
+/*import java.net.*;*/
 import java.util.Vector;
 import java.util.Hashtable;
 import java.util.Date;
 import java.util.GregorianCalendar;
 import java.util.Calendar;
+import java.util.StringTokenizer;
+import java.util.NoSuchElementException;
 import java.io.File;
-<<<<<<< Evidence.java
-=======
 import java.sql.*;
 import org.dianexus.triceps.modules.data.*;
->>>>>>> 1.68.2.2
 
-/* public */class Evidence implements VersionIF {
+/*public*/ class Evidence implements VersionIF  {
 	private static final int FUNCTION_INDEX = 2;
-
 	private static final int FUNCTION_NUM_PARAMS = 1;
-
 	private static final int FUNCTION_NAME = 0;
-
 	private static final Integer ZERO = new Integer(0);
-
 	private static final Integer ONE = new Integer(1);
-
 	private static final Integer TWO = new Integer(2);
-
 	private static final Integer UNLIMITED = new Integer(-1);
 
 	/* Function declarations */
 	private static final int DESC = 0;
-
 	private static final int ISASKED = 1;
-
 	private static final int ISNA = 2;
-
 	private static final int ISREFUSED = 3;
-
 	private static final int ISUNKNOWN = 4;
-
 	private static final int ISNOTUNDERSTOOD = 5;
-
 	private static final int ISDATE = 6;
-
 	private static final int ISANSWERED = 7;
-
 	private static final int GETDATE = 8;
-
 	private static final int GETYEAR = 9;
-
 	private static final int GETMONTH = 10;
-
 	private static final int GETMONTHNUM = 11;
-
 	private static final int GETDAY = 12;
-
 	private static final int GETWEEKDAY = 13;
-
 	private static final int GETTIME = 14;
-
 	private static final int GETHOUR = 15;
-
 	private static final int GETMINUTE = 16;
-
 	private static final int GETSECOND = 17;
-
 	private static final int NOW = 18;
-
 	private static final int STARTTIME = 19;
-
 	private static final int COUNT = 20;
-
 	private static final int ANDLIST = 21;
-
 	private static final int ORLIST = 22;
-
 	private static final int NEWDATE = 23;
-
 	private static final int NEWTIME = 24;
-
 	private static final int ISINVALID = 25;
-
 	private static final int MIN = 26;
-
 	private static final int MAX = 27;
-
 	private static final int GETDAYNUM = 28;
-
 	private static final int HASCOMMENT = 29;
-
 	private static final int GETCOMMENT = 30;
-
 	private static final int GETTYPE = 31;
-
 	private static final int ISSPECIAL = 32;
-
 	private static final int NUMANSOPTIONS = 33;
-
 	private static final int GETANSOPTION = 34;
-
 	private static final int CHARAT = 35;
-
 	private static final int COMPARETO = 36;
-
 	private static final int COMPARETOIGNORECASE = 37;
-
 	private static final int ENDSWITH = 38;
-
 	private static final int INDEXOF = 39;
-
 	private static final int LASTINDEXOF = 40;
-
 	private static final int LENGTH = 41;
-
 	private static final int STARTSWITH = 42;
-
 	private static final int SUBSTRING = 43;
-
 	private static final int TOLOWERCASE = 44;
-
 	private static final int TOUPPERCASE = 45;
-
 	private static final int TRIM = 46;
-
 	private static final int ISNUMBER = 47;
-
 	private static final int FILEEXISTS = 48;
-
 	private static final int ABS = 49;
-
 	private static final int ACOS = 50;
-
 	private static final int ASIN = 51;
-
 	private static final int ATAN = 52;
-
 	private static final int ATAN2 = 53;
-
 	private static final int CEIL = 54;
-
 	private static final int COS = 55;
-
 	private static final int EXP = 56;
-
 	private static final int FLOOR = 57;
-
 	private static final int LOG = 58;
-
 	private static final int POW = 59;
-
 	private static final int RANDOM = 60;
-
 	private static final int ROUND = 61;
-
 	private static final int SIN = 62;
-
 	private static final int SQRT = 63;
-
 	private static final int TAN = 64;
-
 	private static final int TODEGREES = 65;
-
 	private static final int TORADIANS = 66;
-
 	private static final int PI = 67;
-
-	private static final int E = 68;
-
+	private static final int E = 68;	
 	private static final int FORMAT_NUMBER = 69;
-
 	private static final int PARSE_NUMBER = 70;
-
-	private static final int FORMAT_DATE = 71;
-
+	private static final int FORMAT_DATE = 71;			
 	private static final int PARSE_DATE = 72;
-
 	private static final int GET_CONCEPT = 73;
-
 	private static final int GET_LOCAL_NAME = 74;
-
 	private static final int GET_EXTERNAL_NAME = 75;
-
 	private static final int GET_DEPENDENCIES = 76;
-
 	private static final int GET_ACTION_TEXT = 77;
-
 	private static final int JUMP_TO = 78;
-
 	private static final int GOTO_FIRST = 79;
-
 	private static final int JUMP_TO_FIRST_UNASKED = 80;
-
 	private static final int GOTO_PREVIOUS = 81;
-
 	private static final int ERASE_DATA = 82;
-
 	private static final int GOTO_NEXT = 83;
-
 	private static final int MEAN = 84;
-
 	private static final int STDDEV = 85;
-
 	private static final int SUSPEND_TO_FLOPPY = 86;
-
 	private static final int REGEX_MATCH = 87;
-
 	private static final int CREATE_TEMP_FILE = 88;
-
 	private static final int SAVE_DATA = 89;
-
 	private static final int EXEC = 90;
-
 	private static final int SET_STATUS_COMPLETED = 91;
-<<<<<<< Evidence.java
-<<<<<<< Evidence.java
-<<<<<<< Evidence.java
-
-	
-=======
 	private static final int SHOW_TABLE_OF_ANSWERS = 92;
 	
-=======
->>>>>>> 1.68
         
->>>>>>> 1.69
-=======
-
->>>>>>> 1.68.2.2
 	private static final Object FUNCTION_ARRAY[][] = {
-			{ "desc", ONE, new Integer(DESC) },
-			{ "isAsked", ONE, new Integer(ISASKED) },
-			{ "isNA", ONE, new Integer(ISNA) },
-			{ "isRefused", ONE, new Integer(ISREFUSED) },
-			{ "isUnknown", ONE, new Integer(ISUNKNOWN) },
-			{ "isNotUnderstood", ONE, new Integer(ISNOTUNDERSTOOD) },
-			{ "isDate", ONE, new Integer(ISDATE) },
-			{ "isAnswered", ONE, new Integer(ISANSWERED) },
-			{ "toDate", ONE, new Integer(GETDATE) },
-			{ "toYear", ONE, new Integer(GETYEAR) },
-			{ "toMonth", ONE, new Integer(GETMONTH) },
-			{ "toMonthNum", ONE, new Integer(GETMONTHNUM) },
-			{ "toDay", ONE, new Integer(GETDAY) },
-			{ "toWeekday", ONE, new Integer(GETWEEKDAY) },
-			{ "toTime", ONE, new Integer(GETTIME) },
-			{ "toHour", ONE, new Integer(GETHOUR) },
-			{ "toMinute", ONE, new Integer(GETMINUTE) },
-			{ "toSecond", ONE, new Integer(GETSECOND) },
-			{ "getNow", ZERO, new Integer(NOW) },
-			{ "getStartTime", ZERO, new Integer(STARTTIME) },
-			{ "count", UNLIMITED, new Integer(COUNT) },
-			{ "list", UNLIMITED, new Integer(ANDLIST) },
-			{ "orlist", UNLIMITED, new Integer(ORLIST) },
-			{ "newDate", UNLIMITED, new Integer(NEWDATE) },
-			{ "newTime", UNLIMITED, new Integer(NEWTIME) },
-			{ "isInvalid", ONE, new Integer(ISINVALID) },
-			{ "min", UNLIMITED, new Integer(MIN) },
-			{ "max", UNLIMITED, new Integer(MAX) },
-			{ "toDayNum", ONE, new Integer(GETDAYNUM) },
-			{ "hasComment", ONE, new Integer(HASCOMMENT) },
-			{ "getComment", ONE, new Integer(GETCOMMENT) },
-			{ "getType", ONE, new Integer(GETTYPE) },
-			{ "isSpecial", ONE, new Integer(ISSPECIAL) },
-			{ "numAnsOptions", ONE, new Integer(NUMANSOPTIONS) },
-			{ "getAnsOption", UNLIMITED, new Integer(GETANSOPTION) },
-			{ "charAt", TWO, new Integer(CHARAT) },
-			{ "compareTo", TWO, new Integer(COMPARETO) },
-			{ "compareToIgnoreCase", TWO, new Integer(COMPARETOIGNORECASE) },
-			{ "endsWith", TWO, new Integer(ENDSWITH) },
-			{ "indexOf", UNLIMITED, new Integer(INDEXOF) },
-			{ "lastIndexOf", UNLIMITED, new Integer(LASTINDEXOF) },
-			{ "length", ONE, new Integer(LENGTH) },
-			{ "startsWith", UNLIMITED, new Integer(STARTSWITH) },
-			{ "substring", UNLIMITED, new Integer(SUBSTRING) },
-			{ "toLowerCase", ONE, new Integer(TOLOWERCASE) },
-			{ "toUpperCase", ONE, new Integer(TOUPPERCASE) },
-			{ "trim", ONE, new Integer(TRIM) },
-			{ "isNumber", ONE, new Integer(ISNUMBER) },
-			{ "fileExists", ONE, new Integer(FILEEXISTS) },
-			{ "abs", ONE, new Integer(ABS) },
-			{ "acos", ONE, new Integer(ACOS) },
-			{ "asin", ONE, new Integer(ASIN) },
-			{ "atan", ONE, new Integer(ATAN) },
-			{ "atan2", TWO, new Integer(ATAN2) },
-			{ "ceil", ONE, new Integer(CEIL) },
-			{ "cos", ONE, new Integer(COS) }, { "exp", ONE, new Integer(EXP) },
-			{ "floor", ONE, new Integer(FLOOR) },
-			{ "log", ONE, new Integer(LOG) }, { "pow", TWO, new Integer(POW) },
-			{ "random", ZERO, new Integer(RANDOM) },
-			{ "round", ONE, new Integer(ROUND) },
-			{ "sin", ONE, new Integer(SIN) },
-			{ "sqrt", ONE, new Integer(SQRT) },
-			{ "tan", ONE, new Integer(TAN) },
-			{ "todegrees", ONE, new Integer(TODEGREES) },
-			{ "toradians", ONE, new Integer(TORADIANS) },
-			{ "pi", ZERO, new Integer(PI) }, { "e", ZERO, new Integer(E) },
-			{ "formatNumber", TWO, new Integer(FORMAT_NUMBER) },
-			{ "parsenumber", TWO, new Integer(PARSE_NUMBER) },
-			{ "formatDate", TWO, new Integer(FORMAT_DATE) },
-			{ "parseDate", TWO, new Integer(PARSE_DATE) },
-			{ "getConcept", ONE, new Integer(GET_CONCEPT) },
-			{ "getLocalName", ONE, new Integer(GET_LOCAL_NAME) },
-			{ "getExternalName", ONE, new Integer(GET_EXTERNAL_NAME) },
-			{ "getDependencies", ONE, new Integer(GET_DEPENDENCIES) },
-			{ "getActionText", ONE, new Integer(GET_ACTION_TEXT) },
-			{ "jumpTo", ONE, new Integer(JUMP_TO) },
-			{ "gotoFirst", ZERO, new Integer(GOTO_FIRST) },
-			{ "jumpToFirstUnasked", ZERO, new Integer(JUMP_TO_FIRST_UNASKED) },
-			{ "gotoPrevious", ZERO, new Integer(GOTO_PREVIOUS) },
-			{ "eraseData", ZERO, new Integer(ERASE_DATA) },
-			{ "gotoNext", ZERO, new Integer(GOTO_NEXT) },
-			{ "mean", UNLIMITED, new Integer(MEAN) },
-			{ "stddev", UNLIMITED, new Integer(STDDEV) },
-			{ "suspendToFloppy", UNLIMITED, new Integer(SUSPEND_TO_FLOPPY) },
-			{ "regexMatch", TWO, new Integer(REGEX_MATCH) },
-			{ "createTempFile", ZERO, new Integer(CREATE_TEMP_FILE) },
-			{ "saveData", ONE, new Integer(SAVE_DATA) },
-			{ "exec", ONE, new Integer(EXEC) },
-			{ "setStatusCompleted", ZERO, new Integer(SET_STATUS_COMPLETED) }, };
+		{ "desc",				ONE,		new Integer(DESC) },
+		{ "isAsked",			ONE,		new Integer(ISASKED) },
+		{ "isNA",				ONE,		new Integer(ISNA) },
+		{ "isRefused",			ONE,		new Integer(ISREFUSED) },
+		{ "isUnknown",			ONE,		new Integer(ISUNKNOWN) },
+		{ "isNotUnderstood",	ONE,		new Integer(ISNOTUNDERSTOOD) },
+		{ "isDate",				ONE,		new Integer(ISDATE) },
+		{ "isAnswered",			ONE,		new Integer(ISANSWERED) },
+		{ "toDate",				ONE,		new Integer(GETDATE) },
+		{ "toYear",				ONE,		new Integer(GETYEAR) },
+		{ "toMonth",			ONE,		new Integer(GETMONTH) },
+		{ "toMonthNum",			ONE,		new Integer(GETMONTHNUM) },
+		{ "toDay",				ONE,		new Integer(GETDAY) },
+		{ "toWeekday",			ONE,		new Integer(GETWEEKDAY) },
+		{ "toTime",				ONE,		new Integer(GETTIME) },
+		{ "toHour",				ONE,		new Integer(GETHOUR) },
+		{ "toMinute",			ONE,		new Integer(GETMINUTE) },
+		{ "toSecond",			ONE,		new Integer(GETSECOND) },
+		{ "getNow",				ZERO,		new Integer(NOW) },
+		{ "getStartTime",		ZERO,		new Integer(STARTTIME) },
+		{ "count",				UNLIMITED,	new Integer(COUNT) },
+		{ "list",				UNLIMITED,	new Integer(ANDLIST) },
+		{ "orlist",				UNLIMITED,	new Integer(ORLIST) },
+		{ "newDate",			UNLIMITED,	new Integer(NEWDATE) },
+		{ "newTime",			UNLIMITED,	new Integer(NEWTIME) },
+		{ "isInvalid",			ONE,		new Integer(ISINVALID) },
+		{ "min",				UNLIMITED,	new Integer(MIN) },
+		{ "max",				UNLIMITED,	new Integer(MAX) },
+		{ "toDayNum",			ONE,		new Integer(GETDAYNUM) },
+		{ "hasComment",			ONE,		new Integer(HASCOMMENT) },
+		{ "getComment",			ONE,		new Integer(GETCOMMENT) },
+		{ "getType",			ONE,		new Integer(GETTYPE) },
+		{ "isSpecial",			ONE,		new Integer(ISSPECIAL) },
+		{ "numAnsOptions",		ONE,		new Integer(NUMANSOPTIONS) },
+		{ "getAnsOption",		UNLIMITED,	new Integer(GETANSOPTION) },
+		{ "charAt",				TWO,		new Integer(CHARAT) },
+		{ "compareTo",			TWO,		new Integer(COMPARETO) },
+		{ "compareToIgnoreCase",	TWO,	new Integer(COMPARETOIGNORECASE) },
+		{ "endsWith",			TWO,		new Integer(ENDSWITH) },
+		{ "indexOf",			UNLIMITED,	new Integer(INDEXOF) },
+		{ "lastIndexOf",		UNLIMITED,	new Integer(LASTINDEXOF) },
+		{ "length",				ONE,		new Integer(LENGTH) },
+		{ "startsWith",			UNLIMITED,	new Integer(STARTSWITH) },
+		{ "substring",			UNLIMITED,	new Integer(SUBSTRING) },
+		{ "toLowerCase",		ONE,		new Integer(TOLOWERCASE) },
+		{ "toUpperCase",		ONE,		new Integer(TOUPPERCASE) },
+		{ "trim",				ONE,		new Integer(TRIM) },
+		{ "isNumber",			ONE,		new Integer(ISNUMBER) },
+		{ "fileExists",			ONE,		new Integer(FILEEXISTS) },
+		{ "abs",				ONE,		new Integer(ABS) },
+		{ "acos",				ONE,		new Integer(ACOS) },
+		{ "asin",				ONE,		new Integer(ASIN) },
+		{ "atan",				ONE,		new Integer(ATAN) },
+		{ "atan2",				TWO,		new Integer(ATAN2) },
+		{ "ceil",				ONE,		new Integer(CEIL) },
+		{ "cos",				ONE,		new Integer(COS) },
+		{ "exp",				ONE,		new Integer(EXP) },
+		{ "floor",				ONE,		new Integer(FLOOR) },
+		{ "log",				ONE,		new Integer(LOG) },
+		{ "pow",				TWO,		new Integer(POW) },
+		{ "random",				ZERO,		new Integer(RANDOM) },
+		{ "round",				ONE,		new Integer(ROUND) },
+		{ "sin",				ONE,		new Integer(SIN) },
+		{ "sqrt",				ONE,		new Integer(SQRT) },
+		{ "tan",				ONE,		new Integer(TAN) },
+		{ "todegrees",			ONE,		new Integer(TODEGREES) },
+		{ "toradians",			ONE,		new Integer(TORADIANS) },
+		{ "pi",					ZERO,		new Integer(PI) },
+		{ "e",					ZERO,		new Integer(E) },
+		{ "formatNumber",		TWO,		new Integer(FORMAT_NUMBER) },
+		{ "parsenumber",		TWO,		new Integer(PARSE_NUMBER) },
+		{ "formatDate",			TWO,		new Integer(FORMAT_DATE) },
+		{ "parseDate",			TWO,		new Integer(PARSE_DATE) },
+		{ "getConcept",			ONE,		new Integer(GET_CONCEPT) },
+		{ "getLocalName",		ONE,		new Integer(GET_LOCAL_NAME) },
+		{ "getExternalName",	ONE,		new Integer(GET_EXTERNAL_NAME) },
+		{ "getDependencies",	ONE,		new Integer(GET_DEPENDENCIES) },
+		{ "getActionText",		ONE,		new Integer(GET_ACTION_TEXT) },
+		{ "jumpTo",				ONE,		new Integer(JUMP_TO) },
+		{ "gotoFirst",			ZERO,		new Integer(GOTO_FIRST) },
+		{ "jumpToFirstUnasked",	ZERO,		new Integer(JUMP_TO_FIRST_UNASKED) },
+		{ "gotoPrevious",		ZERO,		new Integer(GOTO_PREVIOUS) },
+		{ "eraseData",			ZERO,		new Integer(ERASE_DATA) },	
+		{ "gotoNext",			ZERO,		new Integer(GOTO_NEXT) },	
+		{ "mean",				UNLIMITED,	new Integer(MEAN) },
+		{ "stddev",				UNLIMITED,	new Integer(STDDEV) },
+		{ "suspendToFloppy",	UNLIMITED,		new Integer(SUSPEND_TO_FLOPPY) },
+		{ "regexMatch",			TWO,		new Integer(REGEX_MATCH) },
+		{ "createTempFile",		ZERO,		new Integer(CREATE_TEMP_FILE) },
+		{ "saveData",			ONE,		new Integer(SAVE_DATA) },
+		{ "exec",				ONE,		new Integer(EXEC) },
+		{ "setStatusCompleted",		ZERO,		new Integer(SET_STATUS_COMPLETED) },
+		{ "showTableOfAnswers",				UNLIMITED,	new Integer(SHOW_TABLE_OF_ANSWERS) },
+	};
 
 	private static final Hashtable FUNCTIONS = new Hashtable();
 
 	static {
-		for (int i = 0; i < FUNCTION_ARRAY.length; ++i) {
-			FUNCTIONS.put(FUNCTION_ARRAY[i][FUNCTION_NAME],
-					FUNCTION_ARRAY[i][FUNCTION_INDEX]);
+		for (int i=0;i<FUNCTION_ARRAY.length;++i) {
+			FUNCTIONS.put(FUNCTION_ARRAY[i][FUNCTION_NAME], FUNCTION_ARRAY[i][FUNCTION_INDEX]);
 		}
 	}
 
 	private Hashtable aliases = new Hashtable();
-
 	private Vector values = null;
-
-	private int numReserved = 0;
-
+	private int	numReserved = 0;
 	private Date startTime = new Date(System.currentTimeMillis());
-
 	private Logger errorLogger = new Logger();
-<<<<<<< Evidence.java
 	Triceps triceps = null;	// need package-level access in Qss
+    // ##GFL Code added by Gary Lyons 2-24-06 to add direct db access
+	private boolean SAVE_TO_DB = true;
+    private static final int DBID=1; //set for mysql for now
+    InstrumentSessionDAO sdao;
+    RawDataDAO rddao;
+    InstrumentSessionDataDAO isddao;
+    InstrumentVersionDAO ivdao;
+    // ##GFL End Code added by Gary Lyons 2-24-06 to add direct db access
+       
+        
 	
 	/*public*/ static final Evidence NULL = new Evidence(null);
 	
-=======
->>>>>>> 1.68.2.2
 
-	Triceps triceps = null; // need package-level access in Qss
-
-	// ##GFL Code added by Gary Lyons 2-24-06 to add direct db access
-	private boolean SAVE_TO_DB = true;
-
-	private static final int DBID = 1; // set for mysql for now
-
-	DialogixDAOFactory ddf;
-
-	SessionDataDAO sdao;
-
-	RawDataDAO rddao;
-
-	PageHitEventsDAO phedao;
-
-	PageHitsDAO phdao;
-
-	InstrumentSessionDAO isdao;
-
-	UserSessionDAO usdao;
-
-	// ##GFL End Code added by Gary Lyons 2-24-06 to add direct db access
-
-	/* public */static final Evidence NULL = new Evidence(null);
-
-	/* public */Evidence(Triceps tri) {
+	/*public*/ Evidence(Triceps tri) {
 		triceps = (tri == null) ? Triceps.NULL : tri;
-<<<<<<< Evidence.java
-=======
-
->>>>>>> 1.68.2.2
+               
+                
 	}
-
-	/* public */void createReserved() {
+	
+	/*public*/ void createReserved() {
 		values = new Vector();
-		numReserved = Schedule.RESERVED_WORDS.length; // these are always
-		// added at the
-		// beginning
+		numReserved = Schedule.RESERVED_WORDS.length;	// these are always added at the beginning
 		Schedule schedule = triceps.getSchedule();
-		// if (DEBUG) Logger.writeln("##Evidence.createReserved()");
+//if (DEBUG) Logger.writeln("##Evidence.createReserved()");
 
-		Value value = null;
-		int idx = 0;
-
-		for (idx = 0; idx < numReserved; ++idx) {
-			value = new Value(Schedule.RESERVED_WORDS[idx], Datum.getInstance(
-					triceps, Datum.UNKNOWN), idx, schedule);
+		Value value=null;
+		int idx=0;
+		
+		for (idx=0;idx<numReserved;++idx) {
+			value = new Value(Schedule.RESERVED_WORDS[idx],Datum.getInstance(triceps,Datum.UNKNOWN),idx,schedule);
 			values.addElement(value);
 			aliases.put(Schedule.RESERVED_WORDS[idx], new Integer(idx));
-			// if (DEBUG) Logger.writeln("##Evidence.createReserved(" +
-			// Schedule.RESERVED_WORDS[idx] + "," + schedule.getReserved(idx) +
-			// ")");
+//if (DEBUG) Logger.writeln("##Evidence.createReserved(" + Schedule.RESERVED_WORDS[idx] + "," + schedule.getReserved(idx) + ")");
 		}
 	}
-
-	/* public */void initReserved() {
-		numReserved = Schedule.RESERVED_WORDS.length; // these are always
-		// added at the
-		// beginning
+	
+	/*public*/ void initReserved() {
+		numReserved = Schedule.RESERVED_WORDS.length;	// these are always added at the beginning
 		Schedule schedule = triceps.getSchedule();
 		if (schedule == null) {
-			if (DEBUG)
-				Logger.writeln("##Evidence.initReserved()-schedule=null");
+if (DEBUG) Logger.writeln("##Evidence.initReserved()-schedule=null");			
 			schedule = Schedule.NULL;
 		}
 
-		Value value = null;
-		int idx = 0;
-
-		for (idx = 0; idx < numReserved; ++idx) {
+		Value value=null;
+		int idx=0;
+		
+		for (idx=0;idx<numReserved;++idx) {
 			value = (Value) values.elementAt(idx);
-			value.setDatum(new Datum(triceps, schedule.getReserved(idx),
-					Datum.STRING), null);
-			// if (DEBUG) Logger.writeln("##Evidence.initReserved(" +
-			// Schedule.RESERVED_WORDS[idx] + "," + schedule.getReserved(idx) +
-			// "," + ((Value) values.elementAt(idx)).isReserved() + "," +
-			// ((Value) values.elementAt(idx)).getDatum().stringVal() + "," +
-			// getNodeIndex(Schedule.RESERVED_WORDS[idx]) + "," +
-			// getValue(Schedule.RESERVED_WORDS[idx]).getDatum().stringVal() +
-			// ")");
-		}
+			value.setDatum(new Datum(triceps, schedule.getReserved(idx),Datum.STRING),null);
+//if (DEBUG) Logger.writeln("##Evidence.initReserved(" + Schedule.RESERVED_WORDS[idx] + "," + schedule.getReserved(idx) + "," + ((Value) values.elementAt(idx)).isReserved() + "," + ((Value) values.elementAt(idx)).getDatum().stringVal() + "," + getNodeIndex(Schedule.RESERVED_WORDS[idx]) + "," + getValue(Schedule.RESERVED_WORDS[idx]).getDatum().stringVal() + ")");
+		}	
 	}
-
-	/* public */void init() {
-		Node node = null;
-		Value value = null;
-		String init = null;
+	
+	/*public*/ void init() {
+		Node node=null;
+		Value value=null;
+		String init=null;
 		Datum datum = null;
-		int idx = numReserved;
+		int idx=numReserved;
 
 		Schedule schedule = triceps.getSchedule();
 		int size = schedule.size();
-		int startingStep = Integer.parseInt(schedule
-				.getReserved(Schedule.STARTING_STEP));
+		int startingStep = Integer.parseInt(schedule.getReserved(Schedule.STARTING_STEP));
 		String timeStamp = null;
 		String startTime = schedule.getReserved(Schedule.START_TIME);
-<<<<<<< Evidence.java
-=======
-
-		// ##GFL Code added by Gary Lyons 2-24-06 to add direct db access
-		// Get DAO Objects through factories
-
-		ddf = DialogixDAOFactory.getDAOFactory(DBID);
->>>>>>> 1.68.2.2
+                
+                
+        // ##GFL Code added by Gary Lyons 2-24-06 to add direct db access
+        // Get DAO Objects through factories
 		
-		// TODO to update instrument session instance table
-		sdao = ddf.getSessionDataDAO();
-		String tableName = getTableName();
-		// TODO add some parameters
-		// TODO sdao.setInstanceName("Instrument Instance");
-		// TODO sdao.setInstrumentName("Hard Coded Test Instrument");
-		java.sql.Timestamp ts = new java.sql.Timestamp(System
-				.currentTimeMillis());
-		sdao.setStartTime(ts);
-		sdao.setSessionData(tableName);
-
-		// TODO create a new instrument session row in the db
-		isdao = ddf.getInstrumentSessionDAO();
-		Timestamp now = new Timestamp(System.currentTimeMillis());
-		isdao.setFirstGroup(triceps.getCurrentStep());
-		isdao.setStartTime(now);
-		isdao.setEndTime(now);
-
-		// TODO create a new user session row in the db
-		usdao = ddf.getUserSessionDAO();
-
-		// ##GFL End added Code by Gary Lyons
+        DialogixDAOFactory ddf = DialogixDAOFactory.getDAOFactory(DBID);
+        // get the instance table name
+        String title = schedule.getReserved(Schedule.TITLE);
+        System.out.println("Title found and is:"+title);
+        InstrumentDAO idao = ddf.getInstrumentDAO();
+        idao.getInstrument(title);
+        int id = idao.getInstrumentId();
+        System.out.println("istrument id is"+id);
+        ivdao = ddf.getInstrumentVersionDAO();
+        ivdao.getInstrumentVersion(id);
+        String tableName = ivdao.getInstanceTableName();
+        System.out.println("table name is: "+tableName);
+        isddao = ddf.getInstrumentSessionDataDAO();
+        isddao.setFirstGroup(0);
+        isddao.setSessionStartTime(new Timestamp(System.currentTimeMillis()));
+        isddao.setSessionEndTime(new Timestamp(System.currentTimeMillis()));
+        isddao.setLastAccess("");
+        //need instance name here
+        isddao.setInstrumentName(title);
+        isddao.setInstanceName(tableName);
+        isddao.setLastAction("");
+        isddao.setLastGroup(0);
+        isddao.setStatusMsg("init");
+        isddao.setInstrumentSessionDataDAO(tableName);
+        
+        
+        // to update instrument session instance table
+        //sdao = ddf.getInstrumentInstanceDAO();
+        //sdao.set setInstanceName("Instrument Instance");
+        //sdao.setInstrumentName("Hard Coded Test Instrument");
+        //java.sql.Timestamp ts = new java.sql.Timestamp(System.currentTimeMillis());
+        //sdao.setStartTime(ts);
+        //create a new session row in the db
+        //sdao. newSession(tableName);
+        // to update raw data table
+        rddao = ddf.getRawDataDAO();
+        // ##GFL End added Code by Gary Lyons   
+		
 
 		/* then assign the user-defined words */
 		for (int i = 0; i < size; ++i, ++idx) {
@@ -502,19 +354,17 @@ import org.dianexus.triceps.modules.data.*;
 			init = node.getAnswerGiven();
 			if (init == null || init.length() == 0) {
 				if (i < startingStep && node.getAnswerType() == Node.NOTHING) {
-					datum = new Datum(triceps, "", Datum.STRING); // so that
-					// not
-					// marked as
-					// UNASKED
-				} else {
-					datum = Datum.getInstance(triceps, Datum.UNASKED);
+					datum = new Datum(triceps,"",Datum.STRING);	// so that not marked as UNASKED
 				}
-			} else {
-				datum = Datum.parseSpecialType(triceps, init);
+				else {
+					datum = Datum.getInstance(triceps,Datum.UNASKED);
+				}
+			}
+			else {
+				datum = Datum.parseSpecialType(triceps,init);
 				if (datum == null) {
 					/* then not special, so use the init value */
-					datum = new Datum(triceps, init, node.getDatumType(), node
-							.getMask());
+					datum = new Datum(triceps, init, node.getDatumType(), node.getMask());
 				}
 			}
 			timeStamp = node.getAnswerTimeStampStr();
@@ -526,61 +376,51 @@ import org.dianexus.triceps.modules.data.*;
 
 			Integer j = new Integer(idx);
 
-			addAlias(node, node.getLocalName(), j);
-			aliases.put(node, j);
+			addAlias(node,node.getLocalName(),j);
+			aliases.put(node,j);
 		}
 	}
-
-	private String getTableName() {
-		
-		return triceps.getFilename();
 	
-	}
-
-	/* public */void reset() {
-		Node node = null;
-		Value value = null;
+	/*public*/ void reset() {
+		Node node=null;
+		Value value=null;
 
 		Schedule schedule = triceps.getSchedule();
 		int size = schedule.size();
 
 		for (int i = 0; i < size; ++i) {
 			node = schedule.getNode(i);
-			set(node, Datum.getInstance(triceps, Datum.UNASKED));
+			set(node,Datum.getInstance(triceps,Datum.UNASKED));
 		}
 	}
 
 	private void addAlias(Node n, String alias, Integer index) {
 		if (alias == null || alias.equals(""))
-			return; // ignore invalid aliases
+			return;	// ignore invalid aliases
 
-		Object o = aliases.put(alias, index);
+		Object o = aliases.put(alias,index);
 		if (o != null) {
 			int pastIndex = ((Integer) o).intValue();
 
 			if (pastIndex != index.intValue()) {
-				/*
-				 * Allow a single node to try to set the same alias for itself
-				 * multiple times. However, each node must have non-overlapping
-				 * aliases with other nodes
-				 */
-				aliases.put(alias, o); // restore overwritten alias?
+				/* Allow a single node to try to set the same alias for itself multiple times.
+				However, each node must have non-overlapping aliases with other nodes */
+				aliases.put(alias,o);	// restore overwritten alias?
 				Node prevNode = ((Value) values.elementAt(pastIndex)).getNode();
 				if (prevNode == null)
 					return;
-				n.setParseError(triceps.get("alias_previously_used_on_line")
-						+ prevNode.getSourceLine() + ": " + alias);
+				n.setParseError(triceps.get("alias_previously_used_on_line") + prevNode.getSourceLine() + ": " + alias);
 			}
 		}
 	}
 
-	/* public */boolean containsKey(Object val) {
+	/*public*/ boolean containsKey(Object val) {
 		if (val == null)
 			return false;
 		return aliases.containsKey(val);
 	}
 
-	/* public */Datum getDatum(Object val) {
+	/*public*/ Datum getDatum(Object val) {
 		int i = getNodeIndex(val);
 		if (i == -1) {
 			return null;
@@ -588,16 +428,16 @@ import org.dianexus.triceps.modules.data.*;
 		return ((Value) values.elementAt(i)).getDatum();
 	}
 
-	/* public */Node getNode(Object val) {
+	/*public*/ Node getNode(Object val) {
 		int i = getNodeIndex(val);
 		if (i == -1) {
-			setError(triceps.get("node_not_found"), val);
+			setError(triceps.get("node_not_found"),val);
 			return null;
 		}
 		return ((Value) values.elementAt(i)).getNode();
 	}
 
-	/* public */int getStep(Object n) {
+	/*public*/ int getStep(Object n) {
 		if (n == null)
 			return -1;
 		int step = getNodeIndex(n);
@@ -610,7 +450,7 @@ import org.dianexus.triceps.modules.data.*;
 	private int getNodeIndex(Object n) {
 		if (n == null)
 			return -1;
-		Object o = aliases.get(n); // String, or Node
+		Object o = aliases.get(n);	// String, or Node
 		if (o != null && o instanceof Integer)
 			return ((Integer) o).intValue();
 
@@ -625,118 +465,116 @@ import org.dianexus.triceps.modules.data.*;
 
 		return -1;
 	}
-
-	/* public */Value getValue(Object n) {
+	
+	/*public*/ Value getValue(Object n) {
 		int idx = getNodeIndex(n);
 		if (idx == -1) {
 			return null;
 		}
 		return (Value) values.elementAt(idx);
 	}
+	
 
-	/* public */void set(Node node, Datum val, String time, boolean record) {
+	/*public*/ void set(Node node, Datum val, String time, boolean record) {
 		if (node == null) {
-			setError(triceps.get("null_node"), null);
+			setError(triceps.get("null_node"),null);
 			return;
 		}
 		if (val == null) {
-			setError(triceps.get("null_datum"), null);
+			setError(triceps.get("null_datum"),null);
 			return;
 		}
 		int i;
 
 		i = getNodeIndex(node);
 		if (i == -1) {
-			setError(triceps.get("node_does_not_exist"), node.getLocalName());
+			setError(triceps.get("node_does_not_exist"),node.getLocalName());
 			return;
 		}
 
 		Value value = (Value) values.elementAt(i);
-		value.setDatum(val, time);
-
+		value.setDatum(val,time);
+		
 		if (!record)
 			return;
-
-		if (DEPLOYABLE) {
-			if (value.isReserved()) {
-				triceps.getSchedule().writeReserved(value.getReservedNum());
-			} else {
-				writeNode(node, val);
-			}
+			
+if (DEPLOYABLE) {			
+		if (value.isReserved()) {
+			triceps.getSchedule().writeReserved(value.getReservedNum());
 		}
+		else {
+			writeNode(node,val);
+		}
+}		
 	}
 
-	/* public */void set(Node node, Datum val) {
-		set(node, val, null, true);
+	/*public*/ void set(Node node, Datum val) {
+		set(node,val,null,true);
 	}
 
-	/* public */void set(String name, Datum val) {
+	/*public*/ void set(String name, Datum val) {
 		if (name == null) {
-			setError(triceps.get("null_node"), null);
+			setError(triceps.get("null_node"),null);
 			return;
 		}
 		if (val == null) {
-			setError(triceps.get("null_datum"), null);
+			setError(triceps.get("null_datum"),null);
 			return;
 		}
 
 		int i = getNodeIndex(name);
 		Value value = null;
 		if (i == -1) {
-			i = size(); // append to end
-			value = new Value(name, val);
+			i = size();	// append to end
+			value = new Value(name,val);
 			values.addElement(value);
 			aliases.put(name, new Integer(i));
 
-			String errmsg = triceps.get("new_variable_will_be_transient")
-					+ name;
-			setError(errmsg, null);
-		} else {
+			String errmsg = triceps.get("new_variable_will_be_transient") + name;
+			setError(errmsg,null);
+		}
+		else {
 			/* variables don't change their names after being created */
 			value = (Value) values.elementAt(i);
-			value.setDatum(val, null);
+			value.setDatum(val,null);
 		}
-
-		if (DEPLOYABLE) {
-			if (value.isReserved()) {
-				// triceps.getSchedule().writeReserved(value.getReservedNum());
-				// // duplicate - not needed
-			} else {
-				Node node = getNode(name);
-				if (node != null) {
-					writeNode(node, val);
-				} else {
-					Logger.writeln("%% transient val " + name + "="
-							+ val.stringVal());
-					writeValue(name, val);
-				}
+		
+if (DEPLOYABLE) {			
+		if (value.isReserved()) {
+//			triceps.getSchedule().writeReserved(value.getReservedNum());	// duplicate - not needed
+		}
+		else {
+			Node node = getNode(name);
+			if (node != null) {
+				writeNode(node, val);
 			}
+			else {
+				Logger.writeln("%% transient val " + name + "=" + val.stringVal());
+				writeValue(name,val);
+			}			
 		}
-	}
+}			
+}
 
 	private void writeValue(String name, Datum d) {
-		if (DEPLOYABLE) {
-			String ans = null;
-			StringBuffer sb = new StringBuffer("\t");
-
-			if (d == null) {
-				ans = "";
-			} else {
-				ans = d.stringVal(true);
-			}
-
-			sb.append(name);
-			sb.append("\t\t"); // do I know the current language number?
-			sb.append(System.currentTimeMillis());
-			sb.append("\t\t");
-			sb.append(InputEncoder.encode(ans));
-			sb.append("\t");
-			triceps.dataLogger.println(sb.toString());
-		}
+if (DEPLOYABLE) {		
+		String ans=null;
+		StringBuffer sb = new StringBuffer("\t");
+		
+		if (d == null) { ans = ""; }
+		else { ans = d.stringVal(true); }
+		
+		sb.append(name);
+		sb.append("\t\t");	// do I know the current language number?
+		sb.append(System.currentTimeMillis());
+		sb.append("\t\t");
+		sb.append(InputEncoder.encode(ans));	
+		sb.append("\t");
+		triceps.dataLogger.println(sb.toString());
+}		
 	}
-
+	
 	private void writeNode(Node q, Datum d) {
-<<<<<<< Evidence.java
 if (DEPLOYABLE) {		
 		String ans=null;
 		String comment=null;
@@ -749,7 +587,7 @@ if (DEPLOYABLE) {
 		
 		sb.append(q.getLocalName());
 		sb.append("\t");
-		sb.append(q.getAnswerLanguagenum());
+		sb.append(q.getAnswerLanguageNum());
 		sb.append("\t");
 		sb.append(q.getTimeStampStr());
 		sb.append("\t");
@@ -759,134 +597,158 @@ if (DEPLOYABLE) {
 		sb.append("\t");
 		sb.append(InputEncoder.encode(comment));
 		triceps.dataLogger.println(sb.toString());
+                // ##GFL Code added by Gary Lyons 2-24-06 to add direct db access
+                // to update instrument session instance table
+		if(SAVE_TO_DB && q != null && d !=null && triceps !=null){
+			    PageHitBean phb = triceps.getPageHitBean();
+                // update instrument session table with current values
+			   InstrumentSessionBean isb = triceps.getInstrumentSessionBean();
+			 
+             if(isb==null && phb!=null){
+             	System.out.println("Evidence: isb is null");
+             	isb = new InstrumentSessionBean();
+             	isb.setStart_time(new Timestamp(System.currentTimeMillis()));
+             	isb.setEnd_time(new Timestamp (System.currentTimeMillis()));
+             	//TODO need to find real version id here
+             	isb.setInstrumentVersionId(0);
+             	//TODO needt to get real user id here
+             	isb.setUserId(110);
+             	isb.setFirst_group(triceps.getCurrentStep());
+             	isb.setLast_group(triceps.getCurrentStep());
+             	
+             	isb.setLast_action(phb.getLastAction());
+             	
+             	//TODO need real last access here
+             	isb.setLast_access("");
+             	
+             	isb.setStatusMessage(phb.getStatusMsg());
+             	
+             	isb.store();
+             	triceps.setInstrumentSessionBean(isb);
+             	
+             }
+             else if(phb !=null){
+             	System.out.println("Evidence: isb is NOT null");
+             	isb.setEnd_time(new Timestamp (System.currentTimeMillis()));
+             	isb.setLast_group(triceps.getCurrentStep());
+             	
+                 	isb.setLast_action(phb.getLastAction());
+                 	
+             	//TODO need real last access here
+             	isb.setLast_access("");
+             	
+                 	isb.setStatusMessage(phb.getStatusMsg());
+                 	
+             	isb.update();
+             }
+             // update session data table
+             isddao.setLastAccess(triceps.getDisplayCount());
+             isddao.setLastGroup(triceps.getCurrentStep());
+             if(phb!=null){
+             isddao.setLastAction(phb.getLastAction());
+             isddao.setStatusMsg(phb.getStatusMsg());
+             }
+             isddao.updateInstrumentSessionDataDAO(q.getLocalName(),InputEncoder.encode(ans));
+             
+                //sdao.updateInstrumentSessionColumn(q.getLocalName(), InputEncoder.encode(ans));
+                rddao.clearRawDataStructure();
+                rddao.setAnswer(InputEncoder.encode(ans));
+                rddao.setAnswerType(q.getAnswerType());
+                rddao.setComment(comment);
+                if(isb != null){
+                rddao.setInstrumentSessionId(isb.getInstrumentSessionId());
+                }
+                if(triceps.getDisplayCount()!=null){
+                rddao.setDisplayNum(new Integer(triceps.getDisplayCount()).intValue());
+                }
+                rddao.setGroupNum(triceps.getCurrentStep());
+                rddao.setInstanceName(ivdao.getInstanceTableName());  
+                //TODO get reserved index id
+                rddao.setInstrumentName(triceps.getSchedule().getReserved(triceps.getSchedule().TITLE));
+                rddao.setLangNum(q.getAnswerLanguageNum());
+                rddao.setQuestionAsAsked(q.getQuestionAsAsked());
+                rddao.setTimeStamp(new Timestamp(q.getTimeStamp().getTime()));
+                rddao.setVarName(q.getLocalName());
+                rddao.setVarNum(triceps.getCurrentStep());
+                rddao.setWhenAsMS(q.getTimeStamp().getTime());
+                //get event data from triceps
+                
+                if( phb != null){
+                	int qi = phb.getCurrentQuestonIndex();
+                	QuestionTimingBean qtb = phb.getQuestionTimingBean(qi);
+                	if(qtb !=null){
+	                rddao.setResponseDuration(qtb.getBlur());
+	                rddao.setResponseLatency(triceps.getPageHitBean().getNetworkDuration());
+	                rddao.setItemVacillation(qtb.getChange());
+	                qi++;
+	                phb.setCurrentQuestionIndex(qi);
+	                phb.setAccessCount(new Integer(triceps.getDisplayCount()).intValue());
+	                phb.setGroupNum(triceps.getCurrentStep());
+	                phb.setDisplayNum(new Integer(triceps.getDisplayCount()).intValue());
+	                triceps.setPageHitBean(phb);
+                	}
+                }
+                
+                rddao.setRawData();
+               
+                
+                
+
+                }  
+}
+              
+                
+	}
+	
+/*
+	void writeReserved(int id) {	// package level access
+if (DEPLOYABLE) {	
+		StringBuffer sb = new StringBuffer("\t");
+		
+		sb.append(Schedule.RESERVED_WORDS[id]);
+		sb.append("\t0\t\t\t");
+		sb.append(schedule.getReserved(id));
+		sb.append("\t");
+		triceps.dataLogger.println(sb.toString());
 }		
-=======
-		if (DEPLOYABLE) {
-			String ans = null;
-			String comment = null;
-			StringBuffer sb = new StringBuffer("\t");
-
-			if (d == null) {
-				ans = "";
-			} else {
-				ans = d.stringVal(true);
-			}
-			comment = q.getComment();
-			if (comment == null)
-				comment = "";
-
-			sb.append(q.getLocalName());
-			sb.append("\t");
-			sb.append(q.getAnswerLanguageNum());
-			sb.append("\t");
-			sb.append(q.getTimeStampStr());
-			sb.append("\t");
-			sb.append(q.getQuestionAsAsked());
-			sb.append("\t");
-			sb.append(InputEncoder.encode(ans));
-			sb.append("\t");
-			sb.append(InputEncoder.encode(comment));
-			triceps.dataLogger.println(sb.toString());
-			// ##GFL Code added by Gary Lyons 2-24-06 to add direct db access
-			// to update instrument session instance table
-			if (SAVE_TO_DB) {
-				// update instance table with current values
-				sdao.updateSessionData(q.getLocalName(), InputEncoder
-						.encode(ans));
-
-				// insert a row into the raw data table
-				rddao = ddf.getRawDataDAO();
-				rddao.clearRawDataStructure();
-				rddao.setAnswer(InputEncoder.encode(ans));
-				rddao.setAnswerType(q.getAnswerType());
-				rddao.setComment(comment);
-				rddao.setDisplayNum(new Integer(triceps.getDisplayCount()).intValue());
-				rddao.setGroupNum(triceps.getCurrentStep());
-				// TODO where is instance name
-				rddao.setInstanceName("");
-				rddao.setInstrumentName(triceps.getFilename());
-				rddao.setLangNum(q.getAnswerLanguageNum());
-				rddao.setQuestionAsAsked(q.getQuestionAsAsked());
-				// ugly but it works
-				Date d1 = q.getTimeStamp();
-				Timestamp ts1 = new Timestamp(d1.getTime());
-				rddao.setTimeStamp(ts1);
-				rddao.setVarName(q.getLocalName());
-				rddao.setVarNum(q.getSourceLine());
-				rddao.setWhenAsMS(q.getTimeStamp().getTime());
-				rddao.setRawData();
-				// TODO update page hits table
-				phdao = ddf.getPageHitsDAO();
-
-				// TODO update page hits events table
-				phedao = ddf.getPageHitEventsDAO();
-
-				// TODO update instrument session table
-				// need to create row in init
-				Timestamp now = new Timestamp(System.currentTimeMillis());
-				isdao.setEndTime(now);
-				// TODO set last group (current group)
-				isdao.setLastGroup(0);
-				// TODO set last action (current action)
-				isdao.setLastAction("");
-				// TODO set last access (this access)
-				isdao.setLastAccess("");
-				// TODO set status message
-				isdao.setStatusMessage("");
-				
-
-			}
+	}
+*/
+	
+	/*public*/ void writeDatafileHeaders() {
+if (DEPLOYABLE) {		
+		Schedule schedule = triceps.getSchedule();
+		
+		schedule.setReserved(Schedule.TRICEPS_FILE_TYPE,Schedule.TRICEPS_DATA_FILE);
+		schedule.writeReserved(Schedule.TRICEPS_FILE_TYPE);
+		schedule.writeReserved(Schedule.START_TIME);
+		schedule.writeReserved(Schedule.FILENAME);
+		schedule.writeReserved(Schedule.SCHEDULE_SOURCE);
+		schedule.writeReserved(Schedule.TRICEPS_VERSION_MAJOR);
+		schedule.writeReserved(Schedule.TRICEPS_VERSION_MINOR);
+		schedule.writeReserved(Schedule.SCHED_VERSION_MAJOR);
+		schedule.writeReserved(Schedule.SCHED_VERSION_MINOR);
+		schedule.writeReserved(Schedule.SCHED_AUTHORS);
+		schedule.writeReserved(Schedule.STARTING_STEP);
+		schedule.writeReserved(Schedule.TITLE);
+		schedule.writeReserved(Schedule.TITLE_FOR_PICKLIST_WHEN_IN_PROGRESS);
+}		
+	}
+	
+	/*public*/ void writeStartingValues() {
+if (DEPLOYABLE) {		
+		Node node = null;
+		Datum datum = null;
+		Schedule schedule = triceps.getSchedule();
+		
+		for (int i=0;i<schedule.size();++i) {
+			node = schedule.getNode(i);
+			datum = triceps.getDatum(node);
+			writeNode(node,datum);
 		}
-
->>>>>>> 1.68.2.2
+}		
 	}
 
-	/*
-	 * void writeReserved(int id) { // package level access if (DEPLOYABLE) {
-	 * StringBuffer sb = new StringBuffer("\t");
-	 * 
-	 * sb.append(Schedule.RESERVED_WORDS[id]); sb.append("\t0\t\t\t");
-	 * sb.append(schedule.getReserved(id)); sb.append("\t");
-	 * triceps.dataLogger.println(sb.toString()); } }
-	 */
-
-	/* public */void writeDatafileHeaders() {
-		if (DEPLOYABLE) {
-			Schedule schedule = triceps.getSchedule();
-
-			schedule.setReserved(Schedule.TRICEPS_FILE_TYPE,
-					Schedule.TRICEPS_DATA_FILE);
-			schedule.writeReserved(Schedule.TRICEPS_FILE_TYPE);
-			schedule.writeReserved(Schedule.START_TIME);
-			schedule.writeReserved(Schedule.FILENAME);
-			schedule.writeReserved(Schedule.SCHEDULE_SOURCE);
-			schedule.writeReserved(Schedule.TRICEPS_VERSION_MAJOR);
-			schedule.writeReserved(Schedule.TRICEPS_VERSION_MINOR);
-			schedule.writeReserved(Schedule.SCHED_VERSION_MAJOR);
-			schedule.writeReserved(Schedule.SCHED_VERSION_MINOR);
-			schedule.writeReserved(Schedule.SCHED_AUTHORS);
-			schedule.writeReserved(Schedule.STARTING_STEP);
-			schedule.writeReserved(Schedule.TITLE);
-			schedule
-					.writeReserved(Schedule.TITLE_FOR_PICKLIST_WHEN_IN_PROGRESS);
-		}
-	}
-
-	/* public */void writeStartingValues() {
-		if (DEPLOYABLE) {
-			Node node = null;
-			Datum datum = null;
-			Schedule schedule = triceps.getSchedule();
-
-			for (int i = 0; i < schedule.size(); ++i) {
-				node = schedule.getNode(i);
-				datum = triceps.getDatum(node);
-				writeNode(node, datum);
-			}
-		}
-	}
-
-	/* public */int size() {
+	/*public*/ int size() {
 		return values.size();
 	}
 
@@ -898,18 +760,17 @@ if (DEPLOYABLE) {
 			return d.stringVal();
 	}
 
-	/* public */Date getStartTime() {
-		return startTime;
-	}
+	/*public*/ Date getStartTime() { return startTime; }
 
 	private Datum getParam(Object o) {
 		if (o == null)
-			return Datum.getInstance(triceps, Datum.INVALID);
+			return Datum.getInstance(triceps,Datum.INVALID);
 		else if (o instanceof String)
 			return getDatum(o);
 		else
 			return (Datum) o;
 	}
+
 
 	/* public */Datum function(String name, Vector params, int line, int column) {
 		/* passed a vector of Datum values */
@@ -1436,162 +1297,6 @@ if (DEPLOYABLE) {
 						}
 					}
 				}
-<<<<<<< Evidence.java
-				case TOLOWERCASE:
-					return new Datum(triceps,datum.stringVal().toLowerCase(), Datum.STRING);
-				case TOUPPERCASE:
-					return new Datum(triceps,datum.stringVal().toUpperCase(), Datum.STRING);
-				case TRIM:
-					return new Datum(triceps,datum.stringVal().trim(), Datum.STRING);
-				case ISNUMBER:
-					return new Datum(triceps,datum.isNumeric());
-				case FILEEXISTS:
-				{
-					/* FIXME Needs to be modified to check for not only the actual filenames in the completed dir,
-					but also the pending filenames as indicated by the temp files in the working dir */
-					
-					String fext = datum.stringVal();
-					if (fext == null)
-						return new Datum(triceps,false);
-					fext = fext.trim();
-					if (fext.length() == 0)
-						return new Datum(triceps,false);;
-
-					/* now check whether this name is available in both working and completed dirs */
-					File file;
-					Schedule sched = triceps.getSchedule();
-					String fname;
-					
-					/** Working dir - read schedules and get their FILENAMEs **/
-					ScheduleList interviews = new ScheduleList(triceps, sched.getReserved(Schedule.WORKING_DIR), true);
-					Schedule sc = null;
-					Vector schedules = interviews.getSchedules();
-					for (int i=0;i<schedules.size();++i) {
-						sc = (Schedule) schedules.elementAt(i);
-						if (sc.getReserved(Schedule.FILENAME).equals(fext)) {
-							if (sc.getReserved(Schedule.LOADED_FROM).equals(triceps.dataLogger.getFilename())) {
-								continue;	// since examining the current file
-							}
-							else {
-								return new Datum(triceps,true);
-							}
-						}
-					}
-					
-					/** For Completed dir - check actual filenames **/
-					try {
-						fname = sched.getReserved(Schedule.COMPLETED_DIR) + fext + ".jar";
-//if (DEBUG) Logger.writeln("##exists(" + fname + ")");
-						file = new File(fname);
-						if (file.exists())
-							return new Datum(triceps,true);
-					}
-					catch (SecurityException e) {
-if (DEBUG) Logger.writeln("##SecurityException @ Evidence.fileExists()" + e.getMessage());
-						return Datum.getInstance(triceps,Datum.INVALID);
-					}
-					return new Datum(triceps,false);
-				}
-				case ABS:
-					return new Datum(triceps, Math.abs(datum.doubleVal()));
-				case ACOS:
-					return new Datum(triceps, Math.acos(datum.doubleVal()));
-				case ASIN:
-					return new Datum(triceps, Math.asin(datum.doubleVal()));
-				case ATAN:
-					return new Datum(triceps, Math.atan(datum.doubleVal()));
-				case ATAN2:
-					return new Datum(triceps, Math.atan2(datum.doubleVal(),getParam(params.elementAt(1)).doubleVal()));				
-				case CEIL:
-					return new Datum(triceps, Math.ceil(datum.doubleVal()));				
-				case COS:
-					return new Datum(triceps, Math.cos(datum.doubleVal()));				
-				case EXP:
-					return new Datum(triceps, Math.exp(datum.doubleVal()));				
-				case FLOOR:
-					return new Datum(triceps, Math.floor(datum.doubleVal()));				
-				case LOG:
-					return new Datum(triceps, Math.log(datum.doubleVal()));				
-				case POW:
-					return new Datum(triceps, Math.pow(datum.doubleVal(),getParam(params.elementAt(1)).doubleVal()));				
-				case RANDOM:
-					return new Datum(triceps, Math.random());
-				case ROUND:
-					return new Datum(triceps, Math.round(datum.doubleVal()));				
-				case SIN:
-					return new Datum(triceps, Math.sin(datum.doubleVal()));				
-				case SQRT:
-					return new Datum(triceps, Math.sqrt(datum.doubleVal()));				
-				case TAN:
-					return new Datum(triceps, Math.tan(datum.doubleVal()));				
-				case TODEGREES:
-//					return new Datum(triceps, Math.toDegrees(datum.doubleVal()));				
-					return new Datum(triceps, Double.NaN);			
-				case TORADIANS:
-//					return new Datum(triceps, Math.toRadians(datum.doubleVal()));				
-					return new Datum(triceps, Double.NaN);			
-				case PI:
-					return new Datum(triceps, Math.PI);			
-				case E:	
-					return new Datum(triceps, Math.E);		
-				case FORMAT_NUMBER:
-					return new Datum(triceps, triceps.formatNumber(new Double(datum.doubleVal()), getParam(params.elementAt(1)).stringVal()), Datum.STRING);
-				case PARSE_NUMBER:
-					return new Datum(triceps, triceps.parsenumber(datum.stringVal(), getParam(params.elementAt(1)).stringVal()).doubleValue()); 
-				case FORMAT_DATE:
-					return new Datum(triceps, triceps.formatDate(datum.dateVal(), getParam(params.elementAt(1)).stringVal()), Datum.STRING);
-				case PARSE_DATE:
-					return new Datum(triceps, triceps.parseDate(datum.stringVal(), getParam(params.elementAt(1)).stringVal()), Datum.DATE, getParam(params.elementAt(1)).stringVal());
-				case GET_CONCEPT:
-				{
-					String nodeName = datum.getName();
-					Node node = null;
-					if (nodeName == null || ((node = getNode(nodeName)) == null)) {
-						setError(triceps.get("unknown_node") + nodeName, line, column,null);
-						return Datum.getInstance(triceps,Datum.INVALID);
-					}
-					return new Datum(triceps, node.getConcept(), Datum.STRING);
-				}				
-				case GET_LOCAL_NAME:
-				{
-					String nodeName = datum.getName();
-					Node node = null;
-					if (nodeName == null || ((node = getNode(nodeName)) == null)) {
-						setError(triceps.get("unknown_node") + nodeName, line, column,null);
-						return Datum.getInstance(triceps,Datum.INVALID);
-					}
-					return new Datum(triceps, node.getLocalName(), Datum.STRING);
-				}								
-				case GET_EXTERNAL_NAME:
-				{
-					String nodeName = datum.getName();
-					Node node = null;
-					if (nodeName == null || ((node = getNode(nodeName)) == null)) {
-						setError(triceps.get("unknown_node") + nodeName, line, column,null);
-						return Datum.getInstance(triceps,Datum.INVALID);
-					}
-					return new Datum(triceps, node.getExternalName(), Datum.STRING);
-				}							
-				case GET_DEPENDENCIES:
-				{
-					String nodeName = datum.getName();
-					Node node = null;
-					if (nodeName == null || ((node = getNode(nodeName)) == null)) {
-						setError(triceps.get("unknown_node") + nodeName, line, column,null);
-						return Datum.getInstance(triceps,Datum.INVALID);
-					}
-					return new Datum(triceps, node.getDependencies(), Datum.STRING);
-				}							
-				case GET_ACTION_TEXT:		
-				{
-					String nodeName = datum.getName();
-					Node node = null;
-					if (nodeName == null || ((node = getNode(nodeName)) == null)) {
-						setError(triceps.get("unknown_node") + nodeName, line, column,null);
-						return Datum.getInstance(triceps,Datum.INVALID);
-					}
-					return new Datum(triceps, node.getQuestionOrEval(), Datum.STRING);
-=======
 
 				/** For Completed dir - check actual filenames * */
 				try {
@@ -1688,7 +1393,6 @@ if (DEBUG) Logger.writeln("##SecurityException @ Evidence.fileExists()" + e.getM
 					setError(triceps.get("unknown_node") + nodeName, line,
 							column, null);
 					return Datum.getInstance(triceps, Datum.INVALID);
->>>>>>> 1.68.2.2
 				}
 				return new Datum(triceps, node.getLocalName(), Datum.STRING);
 			}
@@ -1870,56 +1574,39 @@ if (DEBUG) Logger.writeln("##SecurityException @ Evidence.fileExists()" + e.getM
 		return Datum.getInstance(triceps, Datum.INVALID);
 	}
 
-	private void setError(String s, int line, int column, int val) {
-		setError(s, line, column, new Integer(val));
-	}
-
-	private void setError(String s, int val) {
-		setError(s, new Integer(val));
-	}
+	private void setError(String s, int line, int column, int val) { setError(s,line,column,new Integer(val)); }
+	private void setError(String s, int val) { setError(s,new Integer(val)); }
 
 	private void setError(String s, int line, int column, Object val) {
 		String msg = null;
 		if (val != null) {
-			msg = s
-					+ ": "
-					+ triceps.get("got")
-					+ ((val instanceof Datum) ? ((Datum) val).stringVal() : val
-							.toString());
-		} else {
+			msg = s + ": " + triceps.get("got") + ((val instanceof Datum) ? ((Datum) val).stringVal() : val.toString());
+		}
+		else {
 			msg = s;
 		}
-		errorLogger.print(msg, line, column);
+		errorLogger.print(msg,line,column);
 		Logger.writeln("##" + msg);
 	}
-
 	private void setError(String s, Object val) {
 		String msg = null;
 		if (val != null) {
-			msg = s
-					+ ": "
-					+ triceps.get("got")
-					+ ((val instanceof Datum) ? ((Datum) val).stringVal() : val
-							.toString());
-		} else {
+			msg = s + ": " + triceps.get("got") + ((val instanceof Datum) ? ((Datum) val).stringVal() : val.toString());
+		}
+		else {
 			msg = s;
 		}
 		errorLogger.println(msg);
 		Logger.writeln("##" + msg);
 	}
-
-	/* public */boolean hasErrors() {
-		return (errorLogger.size() > 0);
-	}
-
-	/* public */String getErrors() {
-		return errorLogger.toString();
-	}
+	/*public*/ boolean hasErrors() { return (errorLogger.size() > 0); }
+	/*public*/ String getErrors() { return errorLogger.toString(); }
 
 	private String functionError(int funcNum, int datumType, int index) {
-		return FUNCTION_ARRAY[funcNum][FUNCTION_NAME] + " "
-				+ triceps.get("expects") + " "
-				+ Datum.getTypeName(triceps, datumType) + " "
-				+ triceps.get("at_index") + " " + index;
+		return FUNCTION_ARRAY[funcNum][FUNCTION_NAME] + " " +
+			triceps.get("expects") + " " +
+			Datum.getTypeName(triceps,datumType) + " " +
+			triceps.get("at_index") + " " +
+			index;
 	}
 }
