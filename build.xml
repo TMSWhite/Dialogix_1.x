@@ -220,6 +220,7 @@
     <delete dir="${build.home}"/>
     <delete dir="${deploy.home}"/>
     <delete dir="${tomcat.home}"/>
+    <delete dir="/Dialogix"/>
   </target>
 
 
@@ -559,6 +560,53 @@
     	</fileset>
     </copy>
     
+    <mkdir dir="/Dialogix/${LICENSE.STUDY_ALIAS}/perl"/>
+    
+    <copy  todir="/Dialogix/${LICENSE.STUDY_ALIAS}/perl" filtering="true">
+	    <fileset dir="/${cvs.basedir}/perl">
+	    	<include name="dat2sas.pl" />
+	    	<include name="evt2sas.pl" />
+	    	<include name="sched2sas.pl" />
+	    	<include name="unjar.pl" />
+	    	<include name="validate_inst.pl" />
+	    	<include name="helptrans2.pl" />
+	    	<include name="webalize4.pl" />
+	    	<include name="checkDataFileVersion.pl" />
+	    	<include name="inst2xml.pl" />
+	    	<include name="showlogic.pl" />
+	    	<include name="Dialogix/Utils.pm" />
+	    	<include name="process_files.bat" />
+	    	<include name="_study.conf" />
+	    	<include name="README.txt" />
+	    	<include name="diff.exe" />
+	    	<include name="tidy.exe" />
+	    	
+	    </fileset>
+       <filterset begintoken="@@" endtoken="@@">
+         <filter token="LICENSE.STUDY_ALIAS" value="${LICENSE.STUDY_ALIAS}"/>
+         <filter token="LICENSE.STUDY_NAME" value="${LICENSE.STUDY_NAME}"/>
+         <filter token="LICENSE.STUDY_ICON" value="${LICENSE.STUDY_ICON}"/>
+         <filter token="LICENSE.PRINCIPAL_INVESTIGATOR" value="${LICENSE.PRINCIPAL_INVESTIGATOR}"/>
+         <filter token="LICENSE.PACKAGE_DIR" value="${LICENSE.PACKAGE_DIR}"/>
+       </filterset>
+    </copy>	
+    
+    <!--
+    <copy todir="${tomcat.home}/bin">
+    	<fileset dir=".">
+    		<include name="jikes.exe" if="using.win98" />
+    		<include name="jikes.exe" if="using.win2000" />
+    	</fileset>
+    </copy>
+    -->
+    
+    <!-- Copy the custom keystores to the proper location -->
+    <copy todir="${tomcat.home}">
+    	<fileset dir="./keystores">
+    		<include name="*.keystore"/>
+    	</fileset>
+    </copy>
+    
     <copy  todir="${tomcat.home}" filtering="true">
 	    <fileset dir="src">
 	    	<include name="dialogix.bat" />
@@ -586,23 +634,7 @@
          <filter token="HTTPS.PORT" value="${https.port}"/>	
 		   <filter token="TOMCAT.HOME" value="${tomcat.home}"/>
        </filterset>
-    </copy>	
-    
-    <!--
-    <copy todir="${tomcat.home}/bin">
-    	<fileset dir=".">
-    		<include name="jikes.exe" if="using.win98" />
-    		<include name="jikes.exe" if="using.win2000" />
-    	</fileset>
-    </copy>
-    -->
-    
-    <!-- Copy the custom keystores to the proper location -->
-    <copy todir="${tomcat.home}">
-    	<fileset dir="./keystores">
-    		<include name="*.keystore"/>
-    	</fileset>
-    </copy>
+    </copy>	    
  
   </target>
 
@@ -802,7 +834,8 @@
 		<include name="${zip.basedir}/webapps/ROOT/**"/>
 		<include name="${zip.basedir}/webapps/images/**"/>                         																																																																																																																								
 		<include name="${win98.desktop}/Dialogix/**" if="using.win98"/>    																																																																																																																								
-		<include name="${win2000.desktop}/Dialogix/**" if="using.win2000"/>																																																																																																																																										
+		<include name="${win2000.desktop}/Dialogix/**" if="using.win2000"/>										
+		<include name="/Dialogix/${LICENSE.PACKAGE_DIR}/perl/**"/>																																																																																																																																		
     </zip>
  </target>
   

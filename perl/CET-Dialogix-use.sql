@@ -415,3 +415,20 @@ select distinct l.instrumentName, floor(l.timestamp / 1000000) as date, l.sessio
 from dialogix2994.pageHits l, dialogix2994.pageHitDetails r
 where l.instrumentName like '%AutoSIGH-rev-04-10.jar' and r.pageHitID_FK = l.pageHitID and r.param like "Feedback_us" and r.value <> "Type comments here." and r.value <> ""
 order by instrumentName, date;
+
+/* Check status of Wave6 and 7 */
+drop table if exists test.CICstatus;
+create table test.CICstatus as
+select distinct 
+	instrumentName,
+	workingFile,
+	year(timestamp) as year, 
+	month(timestamp) as month, 
+	dayofmonth(timestamp) as day, 
+	dayofyear(timestamp) as dayofyear, 
+	max(currentStep) as lastStep,
+	max(displayCount) as numSteps
+from dialogix2994.pageHits
+where instrumentName like '%ave%'
+group by instrumentName, workingFile
+order by instrumentName, year DESC, dayofyear DESC;
