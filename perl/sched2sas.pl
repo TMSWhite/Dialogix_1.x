@@ -316,7 +316,7 @@ sub transform_schedule {
 		# first unjar the instrument and create new .txt filename for the instrument
 		$basename = $1;
 		
-		&doit("$Prefs->{JAR}  xvf $file");
+		&doit("$Prefs->{JAR}  xvf \"$file\"");
 		
 		#will create header and body components
 		open (NEWINST, ">$basename.txt") or die "unable to write to $basename.txt";
