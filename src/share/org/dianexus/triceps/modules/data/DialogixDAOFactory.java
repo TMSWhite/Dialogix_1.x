@@ -43,10 +43,10 @@ public abstract class  DialogixDAOFactory {
     public abstract InstrumentDAO getInstrumentDAO();
     public abstract InstrumentVersionDAO getInstrumentVersionDAO();
     public abstract InstrumentSessionDataDAO getInstrumentSessionDataDAO();
-    
-    
-    public static DialogixDAOFactory getDAOFactory( int factory_id){
-        
+    public abstract InstanceDataTable getInstanceDataTable();
+    public abstract MappingDAO getMappingDAO();
+    public abstract MappingItemDAO getMappingItemDAO();
+    public static DialogixDAOFactory getDAOFactory( int factory_id){    
         switch(factory_id){
             
             case MYSQL:
