@@ -55,7 +55,7 @@ public class MysqlRawDataDAO implements RawDataDAO {
 	private int nullFlavor;
 
 	// sql queries
-	private static final String SQL_RAW_DATA_NEW = "INSERT INTO RawData SET InstrumentName = ?,"
+	private static final String SQL_RAW_DATA_NEW = "INSERT INTO rawdata SET InstrumentName = ?,"
 			+ "InstanceName = ?, VarName = ?, VarNum = ?,"
 			+ "GroupNum = ?, DisplayNum = ?, LangNum = ?,"
 			+ "WhenAsMS = ?, TimeStamp = ?, AnswerType = ? ,"
@@ -63,7 +63,7 @@ public class MysqlRawDataDAO implements RawDataDAO {
 			+ "instrument_session_id = ?, itemVacillation = ? ,"
 			+ "responseLatency = ? , responseDuration = ? , nullFlavor = ?";
 
-	private static final String SQL_RAW_DATA_UPDATE = "UPDATE RawData SET InstrumentName = ?,"
+	private static final String SQL_RAW_DATA_UPDATE = "UPDATE rawdata SET InstrumentName = ?,"
 			+ "InstanceName = ?, VarName = ?, VarNum = ?,"
 			+ "GroupNum = ?, DisplayNum = ?, LangNum = ?,"
 			+ "WhenAsMS = ?, TimeStamp = ?, AnswerType = ? ,"

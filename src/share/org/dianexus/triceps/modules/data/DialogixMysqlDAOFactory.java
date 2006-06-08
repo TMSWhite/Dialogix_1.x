@@ -158,6 +158,19 @@ public class DialogixMysqlDAOFactory extends DialogixDAOFactory {
 		
 		return new MysqlInstrumentSessionDataDAO();
 	}
+
+	public InstanceDataTable getInstanceDataTable() {
+		// TODO Auto-generated method stub
+		return  new  MysqlInstanceDataTable();
+	}
+
+	public MappingDAO getMappingDAO() {
+		return new MysqlMappingDAO();
+	}
+
+	public MappingItemDAO getMappingItemDAO() {
+		return new MysqlMappingItemDAO();
+	}
 	
 
 }

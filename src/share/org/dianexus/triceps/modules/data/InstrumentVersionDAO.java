@@ -1,8 +1,6 @@
 package org.dianexus.triceps.modules.data;
 
-public interface InstrumentVersionDAO {
-	
-	package org.dianexus.triceps.modules.data;
+
 
 	public interface InstrumentVersionDAO {
 		
@@ -27,4 +25,4 @@ public interface InstrumentVersionDAO {
 	}
 
 
-}
+

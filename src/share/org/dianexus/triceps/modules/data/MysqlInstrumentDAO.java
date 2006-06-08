@@ -9,14 +9,13 @@ public class MysqlInstrumentDAO implements InstrumentDAO{
 	
 	private static final String SQL_GET_LAST_INSERT_ID = "SELECT LAST_INSERT_ID()";
 
-	private static final String SQL_INSTRUMENT_VERSION_NEW = "INSERT INTO instrument_version SET instrument_id = ? , "
-			+ " instance_table_name= ? , instrument_notes = ? , instrument_status = ? ";
+	private static final String SQL_INSTRUMENT_VERSION_NEW = "INSERT INTO instrument SET  instrument_name= ? ,instrument_description = ? ";
 
 
 	private static final String SQL_INSTRUMENT_VERSION_DELETE = "DELETE FROM instrument_version WHERE instrument_version_id = ?";
 
 	private static final String SQL_INSTRUMENT_VERSION_UPDATE = "UPDATE instrument_version SET instrument_id = ? , "
-			+ " instance_table_name= ? , instrument_notes = ? , instrument_status = ? ";
+			+ " instance_table_name= ? , instrument_description = ? ";
 
 	private static final String SQL_INSTRUMENT_ID_GET = "SELECT * FROM instrument WHERE instrument_id = ?";
 	private static final String SQL_INSTRUMENT_NAME_GET = "SELECT * FROM instrument WHERE  instrument_name = ?";
@@ -24,6 +23,7 @@ public class MysqlInstrumentDAO implements InstrumentDAO{
 	private String instrumentDescription;
 	private int instrumentId;
 	private String instrumentName;
+	private int lastInsertId;
 	
 	
 	public boolean deleteInstrument(int _id) {
@@ -124,8 +124,43 @@ public class MysqlInstrumentDAO implements InstrumentDAO{
 		return true;
 	}
 	public boolean setInstrument() {
-		// TODO Auto-generated method stub
-		return false;
+		Connection con = DialogixMysqlDAOFactory.createConnection();
+		PreparedStatement ps = null;
+		ResultSet rs = null;
+		ResultSetMetaData rsm = null;
+		try {
+			ps = con.prepareStatement(SQL_INSTRUMENT_VERSION_NEW);
+			ps.clearParameters();
+			ps.setString(1, this.getInstrumentName());
+			ps.setString(2,this.getInstrumentDescription());
+			
+			ps.execute();
+			ps = con.prepareStatement(SQL_GET_LAST_INSERT_ID);
+			rs = ps.executeQuery();
+			if (rs.next()) {
+				setInstrumentLastInsertId(rs.getInt(1));
+			}
+		} catch (Exception e) {
+
+			e.printStackTrace();
+			return false;
+
+		} finally {
+			try {
+				if(rs != null){
+					rs.close();
+				}
+				if (ps != null) {
+					ps.close();
+				}
+				if (con != null) {
+					con.close();
+				}
+			} catch (Exception fe) {
+				fe.printStackTrace();
+			}
+		}
+		return true;
 	}
 
 	public String getInstrumentDescription() {
@@ -139,8 +174,13 @@ public class MysqlInstrumentDAO implements InstrumentDAO{
 	}
 
 	public int getInstrumentLastInsertId() {
-		// TODO Auto-generated method stub
-		return 0;
+		
+		return this.lastInsertId;
+	}
+	public void setInstrumentLastInsertId(int last) {
+
+		this.lastInsertId = last;
+		
 	}
 
 	public String getInstrumentName() {
