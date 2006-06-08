@@ -6,7 +6,7 @@ import java.util.Vector;
 import java.sql.Date;
 
 import org.dianexus.triceps.modules.data.*;
-
+  
 
 
 public class EventTimingBean {

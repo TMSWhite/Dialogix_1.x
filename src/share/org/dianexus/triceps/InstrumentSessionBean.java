@@ -9,7 +9,7 @@ public class InstrumentSessionBean {
 	int instrumentSessionId;
 	Timestamp start_time;
 	Timestamp end_time;
-	int instrumentVersionId;
+	int instrumentVersionId; 
 	int userId;
 	int first_group=0;
 	int last_group;
@@ -18,8 +18,7 @@ public class InstrumentSessionBean {
 	String statusMessage;
 	//TODO make declarative
 	private int DBID=1;
-	
-	
+        
 	boolean store(){
 		DialogixDAOFactory ddf = DialogixDAOFactory.getDAOFactory(DBID);
 		InstrumentSessionDAO isdao = ddf.getInstrumentSessionDAO();

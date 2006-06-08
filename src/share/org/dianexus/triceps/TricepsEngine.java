@@ -87,7 +87,7 @@ public class TricepsEngine implements VersionIF {
 	private boolean isloaded = false;
 	private int colpad=2;
 	private boolean isActive = true;	// default is active -- only becomes inactive when times out, or reaches "finished" state
-
+	private PageHitBean phb;
 	public TricepsEngine(ServletConfig config) {
 		init(config);
 		isloaded = getNewTricepsInstance(null,null);
@@ -130,6 +130,9 @@ public class TricepsEngine implements VersionIF {
 
 	public void doPost(HttpServletRequest req, HttpServletResponse res, PrintWriter out, String hiddenLoginToken, String restoreFile)  {
 		try {
+			// try to get an accurate time of when page processing begins
+			long timeNow = System.currentTimeMillis();
+			
 			this.req = req;
 			this.res = res;
 			this.hiddenLoginToken = hiddenLoginToken;
@@ -151,17 +154,59 @@ public class TricepsEngine implements VersionIF {
 			else {
 if (DEPLOYABLE) {
 				triceps.processEventTimings(req.getParameter("EVENT_TIMINGS"));
+				// new database code to store page hit info in db
+				// added by GLyons on 4-24-06
+				if(triceps.getPageHitBean()==null){
+					System.out.println("doPost:PHB is null");
+					phb = new PageHitBean();
+					phb.setReceivedRequest();
+					//triceps.setPageHitBean(phb);
+				}else{
+					System.out.println("doPost:PHB is NOT null");
+					phb = triceps.getPageHitBean();
+					phb.setReceivedRequest();
+					
+					
+				}
 				triceps.receivedResponseFromUser();
+				
+				if(req.getParameter("EVENT_TIMINGS")!= null){
+				phb.parseSource(req.getParameter("EVENT_TIMINGS"));
+				System.out.println("doPost: PHB parsed source");
+				
+				phb.processEvents();
+				System.out.println("doPost: events processed ready to store");
+				
+				System.out.println("doPost: serverTime is "+phb.getServerDuration());
+				
+				}
 }			
 			}
-
+			// end code addition
 			setGlobalVariables();
 
 			processPreFormDirectives();
 			processHidden();
-
+			
+			phb.setSentResponse();
+			triceps.setPageHitBean(phb);
 			form = new XmlString(triceps, createForm(hiddenLoginToken));
-
+			phb = triceps.getPageHitBean();
+			
+			if(triceps.getPageHitBean()!=null){
+				try{	
+					
+					phb.store();
+					
+					triceps.setPageHitBean(phb);
+				}catch (Exception e){
+					e.printStackTrace();
+				}
+				
+			}
+			
+			//phb.clear();
+			
 			out.println(header());	// must be processed AFTER createForm, otherwise setFocus() doesn't work
 			new XmlString(triceps, getCustomHeader(),out);
 
@@ -189,6 +234,7 @@ if (DEBUG) Logger.writeln("##" + errs);
 			}
 			
 			triceps.sentRequestToUser();	// XXX when should this be set? before, during, or near end of writing to out buffer?
+			
 			
 if (DEBUG && XML) cocoonXML();			
 
@@ -618,8 +664,9 @@ if (DEBUG) Logger.writeln("##Exception @ Servlet.getSortedNames()" + t.getMessag
 					else {
 						message = title + "<br>(from " + file.getName() + ")";
 					}
-					
-					Vector v = AnswerChoice.subdivideMessage(message, Node.MAX_TEXT_LEN_FOR_COMBO);
+					int max_text_len = Integer.parseInt(triceps.getSchedule().getReserved(Schedule.MAX_TEXT_LEN_FOR_COMBO));
+
+					Vector v = AnswerChoice.subdivideMessage(message, max_text_len);
 					for (int i=0;i<v.size();++i) {
 						sb.append("	<option value='" + target + "'>");
 						if (i > 0) {

@@ -55,6 +55,8 @@ import java.util.zip.ZipEntry;
 	private Schedule nodes = null;
 	private Evidence evidence = null;
 	private Parser parser = null;
+	private PageHitBean pageHitBean;
+	private InstrumentSessionBean instSessBean = null;
 //	private LoginRecord loginRecord = null;
 //	private LoginTricepsServlet loginTricepsServlet = null;
 
@@ -881,7 +883,9 @@ if (DEPLOYABLE) {
 		}
 		
 		eventLogger.flush();	// so that committed to disk
-}		
+}	
+	
+
 	}
 
 	private void initDisplayCount() {
@@ -1589,6 +1593,21 @@ if (DEBUG) {
 	void shutdown() {
 		/* graceful shutdown */
 		closeDataLogger();
+	}
+	//	 ## Code added by Gary Lyons 4-17-2006
+	// to implement database storage of page hit and event data
+	public PageHitBean getPageHitBean(){
+		return this.pageHitBean;
+	}
+	public void setPageHitBean(PageHitBean pageHitBean){
+		this.pageHitBean = pageHitBean;
+		
+	}
+	public InstrumentSessionBean getInstrumentSessionBean(){
+		return this.instSessBean;
+	}
+	public void setInstrumentSessionBean(InstrumentSessionBean isb){
+		this.instSessBean = isb;
 	}
 }
 

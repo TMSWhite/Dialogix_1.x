@@ -86,6 +86,8 @@ import java.io.FileReader;
 	/*public*/ static final int DISALLOW_COMMENTS = 60;
 	/*public*/ static final int CONNECTION_TYPE = 61;
 	/*public*/ static final int REDIRECT_ON_FINISH_DELAY = 62;
+	/*public*/ static final int MAX_TEXT_LEN_FOR_COMBO = 63;
+	
 	
 	private static final String DEFAULT_LANGUAGE = "en_US";
 	/*public*/ static final String TRICEPS_DATA_FILE = "DATA";
@@ -156,6 +158,7 @@ import java.io.FileReader;
 		"__DISALLOW_COMMENTS__",
 		"__CONNECTION_TYPE__",
 		"__REDIRECT_ON_FINISH_DELAY__",
+		"__MAX_TEXT_LEN_FOR_COMBO__",
 	};
 
 	private Date startTime = null;
@@ -268,6 +271,7 @@ import java.io.FileReader;
 		setReserved(DISALLOW_COMMENTS,"false");
 		setReserved(CONNECTION_TYPE,"HTTP");
 		setReserved(REDIRECT_ON_FINISH_DELAY,"3");
+		setReserved(MAX_TEXT_LEN_FOR_COMBO,"60");
 	}
 		
 	/*public*/ boolean init(boolean log) {
@@ -797,6 +801,7 @@ if (DEPLOYABLE) {
 			case WRAP_ADMIN_ICONS: s = Boolean.valueOf(value.trim()).toString(); break;
 			case DISALLOW_COMMENTS: s = Boolean.valueOf(value.trim()).toString(); break;
 			case CONNECTION_TYPE: if (expert) s = value.trim(); break;
+			case MAX_TEXT_LEN_FOR_COMBO: s = value; break;
 			default: return false;
 		}
 		
