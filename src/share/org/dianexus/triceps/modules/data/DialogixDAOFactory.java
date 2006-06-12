@@ -43,7 +43,8 @@ public abstract class  DialogixDAOFactory {
     public abstract InstrumentDAO getInstrumentDAO();
     public abstract InstrumentVersionDAO getInstrumentVersionDAO();
     public abstract InstrumentSessionDataDAO getInstrumentSessionDataDAO();
-
+    public abstract MappingDAO getMappingDAO();
+    public abstract MappingItemDAO  getMappingItemDAO();
     
     
     public static DialogixDAOFactory getDAOFactory( int factory_id){
