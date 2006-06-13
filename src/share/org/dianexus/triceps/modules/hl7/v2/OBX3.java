@@ -10,6 +10,8 @@ public class OBX3 {
 	private String alternateMessage;
 	private String alternateCodingSystem;
 	
+	private char CR = 13;
+	
 	public String getAlternateCodingSystem() {
 		return alternateCodingSystem;
 	}
@@ -72,6 +74,7 @@ public class OBX3 {
 			sb.append(this.alternateMessage+"^");
 			sb.append(this.alternateCodingSystem+"|");
 		}
+		sb.append(CR);
 		return sb.toString();
 	}
 }

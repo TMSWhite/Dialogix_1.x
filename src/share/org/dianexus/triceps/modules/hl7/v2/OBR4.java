@@ -11,6 +11,8 @@ public class OBR4 {
 	private String alternateMessage;
 	private String alternateCodingSystem;
 	
+	private char CR = 13;
+	
 	public String getAlternateCodingSystem() {
 		return alternateCodingSystem;
 	}
@@ -61,12 +63,20 @@ public class OBR4 {
 	}
 	public String toString(){
 		StringBuffer sb = new StringBuffer();
-		sb.append("|");
+		sb.append("OBR|4|CE|");
+
 		sb.append(this.getValue()+"^");
 		sb.append(this.getMessage()+"^");
 		sb.append(this.getCodingSystem());
-		sb.append(this.alternateCodingSystem+"|");
-
+		if(this.alternateValue.equals("")){
+			sb.append("|");
+		}
+		else{
+			sb.append("^"+this.alternateValue+"^");
+			sb.append(this.alternateMessage+"^");
+			sb.append(this.alternateCodingSystem+"|");
+		}
+		sb.append(CR);
 		return sb.toString();
 	}
 

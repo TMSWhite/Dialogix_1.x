@@ -1,6 +1,11 @@
 package org.dianexus.triceps.modules.hl7.v2;
 
 public class PID {
+	
+	private char VT = 11;
+	private char FS = 28;
+	private char CR = 13;
+	
 	private String setId="";
 	private String extPatientId="";
 	private String intPatientId="";
@@ -28,6 +33,7 @@ public class PID {
 	private String birthOrder="";
 	private String citizenship="";
 	private String vetMilStatus="";
+	private String fieldSeparator="";
 	
 	public String getAltPatientId() {
 		return altPatientId;
@@ -191,11 +197,213 @@ public class PID {
 	public void setWorkPhone(String workPhone) {
 		this.workPhone = workPhone;
 	}
+	public String getFieldSeparator() {
+		return fieldSeparator;
+	}
+	public void setFieldSeparator(String fieldSeparator) {
+		this.fieldSeparator = fieldSeparator;
+	}
 	
 	public String toString(){
-		return "";
+		StringBuffer message = new StringBuffer();
+		StringBuffer temp_message = new StringBuffer();
+		
+		message.append("PID"+fieldSeparator);
+		
+		
+		if (!setId.equals("")) {
+			message.append(temp_message.toString()+setId+fieldSeparator);
+			temp_message = new StringBuffer();
+
+		}else{
+			temp_message.append(fieldSeparator);
+		}
+		if (!extPatientId.equals("")) {
+			message.append(temp_message.toString()+extPatientId+fieldSeparator);
+			temp_message = new StringBuffer();
+
+		}else{
+			temp_message.append(fieldSeparator);
+		}
+		if (!intPatientId.equals("")) {
+			message.append(temp_message.toString()+intPatientId+fieldSeparator);
+			temp_message = new StringBuffer();
+
+		}else{
+			temp_message.append(fieldSeparator);
+		}
+		if (!altPatientId.equals("")) {
+			message.append(temp_message.toString()+altPatientId+fieldSeparator);
+			temp_message = new StringBuffer();
+
+		}else{
+			temp_message.append(fieldSeparator);
+		}
+		if (!patientName.equals("")) {
+			message.append(temp_message.toString()+patientName+fieldSeparator);
+			temp_message = new StringBuffer();
+
+		}else{
+			temp_message.append(fieldSeparator);
+		}
+		if (!mothersMaidenName.equals("")) {
+			message.append(temp_message.toString()+mothersMaidenName+fieldSeparator); 
+			temp_message = new StringBuffer();
+
+		}else{
+			temp_message.append(fieldSeparator);
+		}
+		if (!dateOfBirth.equals("")) {
+			message.append(temp_message.toString()+dateOfBirth+fieldSeparator);  
+			temp_message = new StringBuffer();
+
+		}else{
+			temp_message.append(fieldSeparator);
+		}
+		if (!sex.equals("")) {
+			message.append(temp_message.toString()+sex+fieldSeparator); 
+			temp_message = new StringBuffer();
+
+		}else{
+			temp_message.append(fieldSeparator);
+		}
+		if (!patientAlias.equals("")) {
+			message.append(temp_message.toString()+patientAlias+fieldSeparator); 
+			temp_message = new StringBuffer();
+
+		}else{
+			temp_message.append(fieldSeparator);
+		}
+		if (!race.equals("")) {
+			message.append(temp_message.toString()+race+fieldSeparator);
+			temp_message = new StringBuffer();
+
+		}else{
+			temp_message.append(fieldSeparator);
+		}
+		if (!patientAddress.equals("")) {
+			message.append(temp_message.toString()+patientAddress+fieldSeparator);
+			temp_message = new StringBuffer();
+
+		}else{
+			temp_message.append(fieldSeparator);
+		}
+		if (!countryCode.equals("")) {
+			message.append(temp_message.toString()+countryCode+fieldSeparator);
+			temp_message = new StringBuffer();
+
+		}else{
+			temp_message.append(fieldSeparator);
+		}
+		if (!homePhone.equals("")) {
+			message.append(temp_message.toString()+homePhone+fieldSeparator);
+			temp_message = new StringBuffer();
+
+		}else{
+			temp_message.append(fieldSeparator);
+		}
+		if (!workPhone.equals("")) {
+			message.append(temp_message.toString()+workPhone+fieldSeparator);
+			temp_message = new StringBuffer();
+
+		}else{
+			temp_message.append(fieldSeparator);
+		}
+		if (!language.equals("")) {
+			message.append(temp_message.toString()+language+fieldSeparator);
+			temp_message = new StringBuffer();
+
+		}else{
+			temp_message.append(fieldSeparator);
+		}
+		if (!maritalStatus.equals("")) {
+			message.append(temp_message.toString()+maritalStatus+fieldSeparator);
+			temp_message = new StringBuffer();
+
+		}else{
+			temp_message.append(fieldSeparator);
+		}
+		if (!religion.equals("")) {
+			message.append(temp_message.toString()+religion+fieldSeparator);
+			temp_message = new StringBuffer();
+
+		}else{
+			temp_message.append(fieldSeparator);
+		}
+		if (!patientAccountNum.equals("")) {
+			message.append(temp_message.toString()+patientAccountNum+fieldSeparator);
+			temp_message = new StringBuffer();
+
+		}else{
+			temp_message.append(fieldSeparator);
+		}
+		if (!ssn.equals("")) {
+			message.append(temp_message.toString()+ssn+fieldSeparator);
+			temp_message = new StringBuffer();
+
+		}else{
+			temp_message.append(fieldSeparator);
+		}
+		if (!driversLicNum.equals("")) {
+			message.append(temp_message.toString()+driversLicNum+fieldSeparator);
+			temp_message = new StringBuffer();
+
+		}else{
+			temp_message.append(fieldSeparator);
+		}
+		if (!mothersIdentifier.equals("")) {
+			message.append(temp_message.toString()+mothersIdentifier+fieldSeparator);
+			temp_message = new StringBuffer();
+
+		}else{
+			temp_message.append(fieldSeparator);
+		}
+		if (!ethnicGroup.equals("")) {
+			message.append(temp_message.toString()+ethnicGroup+fieldSeparator);
+			temp_message = new StringBuffer();
+
+		}else{
+			temp_message.append(fieldSeparator);
+		}
+		if (!birthPlace.equals("")) {
+			message.append(temp_message.toString()+birthPlace+fieldSeparator);
+			temp_message = new StringBuffer();
+
+		}else{
+			temp_message.append(fieldSeparator);
+		}
+		if (!multiBirthInd.equals("")) {
+			message.append(temp_message.toString()+multiBirthInd+fieldSeparator);
+			temp_message = new StringBuffer();
+
+		}else{
+			temp_message.append(fieldSeparator);
+		}
+		if (!birthOrder.equals("")) {
+			message.append(temp_message.toString()+birthOrder+fieldSeparator);
+			temp_message = new StringBuffer();
+
+		}else{
+			temp_message.append(fieldSeparator);
+		}
+		if (!citizenship.equals("")) {
+			message.append(temp_message.toString()+citizenship+fieldSeparator);
+			temp_message = new StringBuffer();
+
+		}else{
+			temp_message.append(fieldSeparator);
+		}
+		if (!vetMilStatus.equals("")) {
+			message.append(temp_message.toString()+vetMilStatus+fieldSeparator);
+			temp_message = new StringBuffer();
+
+		}
+		message.append(CR);
+
+		return message.toString();
 		
 	}
+	
 	
 
 }
