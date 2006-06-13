@@ -10,6 +10,7 @@ public interface MappingItemDAO {
 	public boolean updateMappingItem(int id);
 	public boolean deleteMappingItem(int id);
 	public ArrayList  getItemsIndex(int id);
+	public ArrayList getTableItemsIndex(int id, String table_name);
 	
 	
 	
@@ -27,6 +28,8 @@ public interface MappingItemDAO {
 	public String getDestinationColumnName();
 	public void setDescription(String description);
 	public String getDescription();
+	public void setTableName(String tableName);
+	public String getTableName();
 	public void setItemsIndex(int[] items);
 	public int[] getItemsIndex();
 

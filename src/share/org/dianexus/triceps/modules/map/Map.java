@@ -9,11 +9,12 @@ import org.dianexus.triceps.modules.data.MappingItemDAO;
 
 public class Map {
 	
-	MappingDAO mdao;
-	ArrayList mapItems;
-	ArrayList mapItemIds;
-	String mapName;
-	int mapId;
+	private MappingDAO mdao;
+	private ArrayList mapItems;
+	private ArrayList mapItemIds;
+	private String mapName;
+	private String tableName;
+	private int mapId;
 	
 	
 	public Map(){
@@ -28,6 +29,12 @@ public class Map {
 	}
 	public ArrayList getMapItems(){
 		return this.mapItems;
+	}
+	public void setTableName(String table_name){
+		this.tableName = table_name;
+	}
+	public String getTableName(){
+		return this.tableName;
 	}
 	public MappingDAO getMappingDAO(){
 		return this.mdao;
@@ -45,7 +52,7 @@ public class Map {
 		if(mdao.loadMapping(this.getMapName())){
 			// get index of map items
 			MappingItemDAO mad = daof.getMappingItemDAO();
-			mapItemIds = mad.getItemsIndex(mdao.getId());
+			mapItemIds = mad.getTableItemsIndex(mdao.getId(),this.getTableName());
 			Iterator it = mapItemIds.listIterator();
 			while(it.hasNext()){
 				Integer id = (Integer)it.next();

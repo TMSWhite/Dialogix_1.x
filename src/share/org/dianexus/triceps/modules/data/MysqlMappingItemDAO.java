@@ -13,17 +13,19 @@ public class MysqlMappingItemDAO implements MappingItemDAO,Serializable{
 	private static final String SQL_GET_LAST_INSERT_ID = "SELECT LAST_INSERT_ID()";
 
 	private static final String SQL_MAPPING_ITEM_NEW = "INSERT INTO mapping_items SET id=null, mapping_def_id= ? ,source_col = ?, source_col_name = ?," +
-			"dest_col = ?, dest_col_name = ?, description = ? ";
+			"dest_col = ?, dest_col_name = ?, table_name =?, description = ? ";
 
 
 	private static final String SQL_MAPPING_ITEM_DELETE = "DELETE FROM mapping_items WHERE WHERE id = ?";
 
 	private static final String SQL_MAPPING_ITEM_UPDATE = "UPDATE mapping_items SET mapping_def_id= ? ,source_col = ?, source_col_name = ?," +
-			"dest_col = ?, dest_col_name = ?, description = ? WHERE id = ?";
+			"dest_col = ?, dest_col_name = ?, table_name=?, description = ? WHERE id = ?";
 
 	private static final String SQL_MAPPING_ITEM_GET = "SELECT * FROM mapping_items WHERE id = ?";
 	
 	private static final String SQL_MAPPING_GET_INDEX = "SELECT id  FROM mapping_items WHERE mapping_def_id = ?";
+	
+	private static final String SQL_MAPPING_GET_TABLE_INDEX="SELECT id FROM mapping_items WHERE mapping_def_id = ? AND table_name =? ";
 
 	
 	
@@ -245,6 +247,47 @@ public class MysqlMappingItemDAO implements MappingItemDAO,Serializable{
 		return itemList;
 	}
 
+	public ArrayList getTableItemsIndex(int id, String table_name) {
+		Connection con = DialogixMysqlDAOFactory.createConnection();
+		PreparedStatement ps = null;
+		ResultSet rs = null;
+		
+		ArrayList itemList = new ArrayList();
+		try {
+			ps = con.prepareStatement(SQL_MAPPING_GET_TABLE_INDEX);
+			ps.clearParameters();
+
+			ps.setInt(1, id);
+			ps.setString(2,table_name);
+			rs = ps.executeQuery();
+			while (rs.next()) {
+				
+				itemList.add(new Integer(rs.getInt(1)));
+				
+				
+
+			}
+
+		} catch (Exception e) {
+			e.printStackTrace();
+			return null;
+		} finally {
+			try {
+
+				if (ps != null) {
+					ps.close();
+				}
+				if (con != null) {
+					con.close();
+				}
+			} catch (Exception ee) {
+				ee.printStackTrace();
+			}
+
+		}
+
+		return itemList;
+	}
 	public String getDescription() {
 		return this.description;
 	}
@@ -315,6 +358,15 @@ public class MysqlMappingItemDAO implements MappingItemDAO,Serializable{
 		// TODO Auto-generated method stub
 		
 	}
+	public String getTableName() {
+		// TODO Auto-generated method stub
+		return null;
+	}
+	public void setTableName(String tableName) {
+		// TODO Auto-generated method stub
+		
+	}
+
 	
 
 	

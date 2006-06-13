@@ -13,7 +13,8 @@ import jxl.write.WritableWorkbook;
 
 public class MappingBean {
 
-	private Map map;
+	private Map contentsMap;
+	private Map translationsMap;
 	private String mapName;
 	private Workbook wb;
 	private Sheet ws;
@@ -34,9 +35,13 @@ public class MappingBean {
 	public void setMapName(String mapName){
 		this.mapName = mapName;
 	}
-	public boolean loadMap(){
-		this.map = new Map();
-		return this.map.loadMap();
+	public boolean loadContentsMap(){
+		this.contentsMap = new Map();
+		return this.contentsMap.loadMap();
+	}
+	public boolean loadTranslationsMap(){
+		this.translationsMap = new Map();
+		return this.translationsMap.loadMap();
 	}
 	public boolean loadWorkBook(Workbook wb, String sheetName){
 		this.wb = wb;
@@ -46,8 +51,8 @@ public class MappingBean {
 		this.ws = ws;
 		return false;
 	}
-	public void loadMapTable(){
-		ArrayList items = map.getMapItems();
+	public void loadContentsMapTable(){
+		ArrayList items = contentsMap.getMapItems();
 		for(int i =0; i < items.size();i++){
 		MappingItemDAO mapItem = (MappingItemDAO)items.get(i);
 		int sColNum = mapItem.getSourceColumn();

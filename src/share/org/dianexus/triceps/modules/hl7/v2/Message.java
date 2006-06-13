@@ -18,7 +18,7 @@ public class Message {
 		StringBuffer sb = new StringBuffer();
 		Iterator it = this.elements.iterator();
 		while(it.hasNext()){
-			sb.append(it.next());
+			sb.append(it.next().toString());
 		}
 		return sb.toString();
 	}
