@@ -410,6 +410,13 @@ public class MysqlInstrumentTranslationsDAO implements InstrumentTranslationsDAO
 		this.varNum = _varNum;
 		
 	}
+	public String getAnswerMD5() {
+		return this.answerMD5;
+	}
+	public void setAnswerMD5(String _answerMD5) {
+		this.answerMD5 = _answerMD5;
+		
+	}
 
 	
 

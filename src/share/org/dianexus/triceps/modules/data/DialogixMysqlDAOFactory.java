@@ -171,6 +171,18 @@ public class DialogixMysqlDAOFactory extends DialogixDAOFactory {
 	public MappingItemDAO getMappingItemDAO() {
 		return new MysqlMappingItemDAO();
 	}
+
+	public HL7OBX3DBO getHL7OBX3DBO() {
+		return new MysqlHL7OBX3DBO();
+	}
+
+	public HL7OBX5DBO getHL7OBX5DBO() {
+		return new MysqlHL7OBX5DBO();
+	}
+
+	public UserDAO getUserDAO() {
+		return new MysqlUserDAO();
+	}
 	
 
 }

@@ -14,7 +14,7 @@ import java.sql.ResultSet;
 
 public class  MysqlInstrumentContentsDAO implements InstrumentContentsDAO {
 	
-	public static final String SQL_GET_LAST_INSERT_ID = "SELECT LAST_INSERT_ID FROM instrumentcontents";
+	public static final String SQL_GET_LAST_INSERT_ID = "SELECT LAST_INSERT_ID()";
 
 	 public static final String SQL_GET_INSTRUMENT_CONTENTS = "SELECT * FROM instrumentcontents WHERE ID = ?";
 	 public static final String SQL_GET_INSTRUMENT_CONTENTS_VARNAME = "SELECT * FROM instrumentcontents WHERE VarName = ?";
@@ -155,37 +155,36 @@ public class  MysqlInstrumentContentsDAO implements InstrumentContentsDAO {
 			if (rs.next()) {
 				this.setInstrumentName(rs.getString(2));
 				this.setInstrumentVarNum(rs.getInt(3));
-				this.setInstrumentC8Name(rs.getString(4));
-				this.setDisplayName(rs.getString(5));
-				this.setGroupNum(rs.getInt(6));
-				this.setConcept(rs.getString(7));
-				this.setRelevance(rs.getString(8));
-				//TODO better way of doing this?
-				char[] action = rs.getString(9).toCharArray();
-				this.setActionType(action[0]);
-				this.setValidation(rs.getString(10));
-				this.setReturnType(rs.getString(11));
-				this.setMinValue(rs.getString(12));
-				this.setMaxValue(rs.getString(13));
-				this.setOtherValues(rs.getString(14));
-				this.setInputMask(rs.getString(15));
-				this.setFormatMask(rs.getString(16));
-				this.setDisplayType(rs.getString(17));
-				this.setIsRequired(rs.getInt(18));
-				this.setIsMessage(rs.getInt(19));
-				this.setLevel(rs.getString(20));
-				this.setSPSSFormat(rs.getString(21));
-				this.setSASFormat(rs.getString(22));
+				this.setInstrumentVarName(rs.getString(4));
+				this.setInstrumentC8Name(rs.getString(5));
+				this.setDisplayName(rs.getString(6));
+				this.setGroupNum(rs.getInt(7));
+				this.setConcept(rs.getString(8));
+				this.setRelevance(rs.getString(9));
+				this.setActionType(rs.getString(10).charAt(0));
+				this.setValidation(rs.getString(11));
+				this.setReturnType(rs.getString(12));
+				this.setMinValue(rs.getString(13));
+				this.setMaxValue(rs.getString(14));
+				this.setOtherValues(rs.getString(15));
+				this.setInputMask(rs.getString(16));
+				this.setFormatMask(rs.getString(17));
+				this.setDisplayType(rs.getString(18));
+				this.setIsRequired(rs.getInt(19));
+				this.setIsMessage(rs.getInt(20));
+				this.setLevel(rs.getString(21));
+				this.setSPSSFormat(rs.getString(22));
 				this.setSASFormat(rs.getString(23));
-				this.setAnswersNumeric(rs.getInt(24));
-				this.setDefaultAnswer(rs.getString(25));
-				this.setDefaultComment(rs.getString(26));
-				this.setLOINCProperty(rs.getString(27));
-				this.setLOINCTimeAspect(rs.getString(28));
-				this.setLOINCSystem(rs.getString(29));
-				this.setLOINCScale(rs.getString(30));
-				this.setLOINCMethod(rs.getString(31));
-				this.setLOINCNum(rs.getString(32));
+				this.setSASFormat(rs.getString(24));
+				this.setAnswersNumeric(rs.getInt(25));
+				this.setDefaultAnswer(rs.getString(26));
+				this.setDefaultComment(rs.getString(27));
+				this.setLOINCProperty(rs.getString(28));
+				this.setLOINCTimeAspect(rs.getString(29));
+				this.setLOINCSystem(rs.getString(30));
+				this.setLOINCScale(rs.getString(31));
+				this.setLOINCMethod(rs.getString(32));
+				this.setLOINCNum(rs.getString(33));
 				ret = true;
 				
 				
@@ -224,7 +223,7 @@ public class  MysqlInstrumentContentsDAO implements InstrumentContentsDAO {
 		ResultSet rs = null;
 		boolean ret = false;
 		try {
-			ps = con.prepareStatement(SQL_GET_INSTRUMENT_CONTENTS_VARNAME);
+			ps = con.prepareStatement(SQL_INSERT_INSTRUMENT_CONTENTS);
 			ps.clearParameters();
 
 			ps.setString(1,this.getInstrumentName());

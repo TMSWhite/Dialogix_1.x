@@ -1,6 +1,7 @@
 package org.dianexus.triceps.modules.data;
 
 import java.sql.Timestamp;
+import java.util.ArrayList;
 
 public interface InstrumentSessionDataDAO {
 	
@@ -38,5 +39,7 @@ public interface InstrumentSessionDataDAO {
 	public String getStatusMsg();
 	public void setTableName(String table);
 	public String getTableName();
+	public ArrayList getDataArray();
+	public ArrayList getColumnArray(); 
 
 }

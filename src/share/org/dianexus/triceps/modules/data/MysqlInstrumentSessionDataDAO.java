@@ -5,6 +5,7 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.ResultSetMetaData;
 import java.sql.Timestamp;
+import java.util.ArrayList;
 import java.util.List;
 
 public class MysqlInstrumentSessionDataDAO implements InstrumentSessionDataDAO {
@@ -22,8 +23,8 @@ public class MysqlInstrumentSessionDataDAO implements InstrumentSessionDataDAO {
 	private int sessionId;
 	private String statusMsg;
 	private String tableName;
-	private List dataColumns;
-	private List dataValues;
+	private ArrayList dataColumns = new ArrayList();
+	private ArrayList dataValues =  new ArrayList();
 	private String instanceName;
 	
 
@@ -115,7 +116,9 @@ public class MysqlInstrumentSessionDataDAO implements InstrumentSessionDataDAO {
 	}
 	public boolean getInstrumentSessionDataDAO(String table, int id) {
 		// get a row from the session data table
-		String query = "SELECT * FROM "+table+" WHERE session_id = ?";
+		
+		boolean rtn = false;
+		String query = "SELECT * FROM "+table+" WHERE ID = ?";
 		Connection con = DialogixMysqlDAOFactory.createConnection();
 		PreparedStatement ps = null;
 		ResultSet rs = null;
@@ -125,11 +128,20 @@ public class MysqlInstrumentSessionDataDAO implements InstrumentSessionDataDAO {
 			ps.clearParameters();
 			ps.setInt(1, id);
 			
+			
 			rs = ps.executeQuery();
 			rsm = rs.getMetaData();
 			int numCols = rsm.getColumnCount();
+			
 			if(rs.next()){
 				//TODO complete function
+				for(int i=1;i<numCols;i++){
+					
+					dataValues.add(rs.getString(i));
+					dataColumns.add(rsm.getColumnLabel(i));
+					
+				}
+				rtn=true;
 			}
 			
 
@@ -153,7 +165,7 @@ public class MysqlInstrumentSessionDataDAO implements InstrumentSessionDataDAO {
 				fe.printStackTrace();
 			}
 		}
-		return true;
+		return rtn;
 	}
 	public boolean updateInstrumentSessionDataDAO(String column, String value) {
 		// update a column value and latest status
@@ -313,6 +325,13 @@ public class MysqlInstrumentSessionDataDAO implements InstrumentSessionDataDAO {
 	public void setInstanceName(String name) {
 		this.instanceName = name;
 		
+	}
+	public ArrayList getColumnArray() {
+		return this.dataColumns;
+	}
+	public ArrayList getDataArray() {
+		
+		return this.dataValues;
 	}
 
 	

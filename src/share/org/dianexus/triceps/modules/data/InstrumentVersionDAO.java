@@ -4,8 +4,9 @@ package org.dianexus.triceps.modules.data;
 
 	public interface InstrumentVersionDAO {
 		
-		boolean getInstrumentVersion(int _id);
-	    boolean getInstrumentVersion(String _name);
+	
+	    boolean getInstrumentVersion( int _id, int major, int minor);
+	    
 	    boolean setInstrumentVersion();
 	    boolean updateInstrumentversion(String _column, String value);
 	    boolean deleteInstrumentVersion(int _id);
@@ -21,6 +22,10 @@ package org.dianexus.triceps.modules.data;
 	    String getInstrumentNotes();
 	    void setInstrumentStatus(int status);
 	    int getInstrumentStatus();
+	    void setInstrumentVersionMajor(int version);
+	    int getInstrumentVersionMajor();
+	    void setInstrumentVersionMinor(int version);
+	    int getInstrumentVersionMinor();
 
 	}
 

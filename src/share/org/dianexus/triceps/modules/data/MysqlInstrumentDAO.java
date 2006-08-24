@@ -85,6 +85,7 @@ public class MysqlInstrumentDAO implements InstrumentDAO{
 		PreparedStatement ps = null;
 		ResultSet rs = null;
 		ResultSetMetaData rsm = null;
+		boolean rtn = false;
 		try {
 			ps = con.prepareStatement(SQL_INSTRUMENT_NAME_GET);
 			ps.clearParameters();
@@ -97,14 +98,14 @@ public class MysqlInstrumentDAO implements InstrumentDAO{
 				this.instrumentId =  rs.getInt(1);
 				this.instrumentName = _name;
 				this.instrumentDescription = rs.getString(3);
-				
+				rtn=true;
 			}
 			
 
 		} catch (Exception e) {
 
 			e.printStackTrace();
-			return false;
+			rtn=  false;
 
 		} finally {
 			try {
@@ -121,7 +122,7 @@ public class MysqlInstrumentDAO implements InstrumentDAO{
 				fe.printStackTrace();
 			}
 		}
-		return true;
+		return rtn;
 	}
 	public boolean setInstrument() {
 		Connection con = DialogixMysqlDAOFactory.createConnection();

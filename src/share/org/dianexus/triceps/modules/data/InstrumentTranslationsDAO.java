@@ -52,5 +52,6 @@ package org.dianexus.triceps.modules.data;
      int getAnswerLen();
      void setQuestionMD5(String _questionMD5);
      public String getQuestionMD5();
-     
+     void setAnswerMD5(String _answerMD5);
+     public String getAnswerMD5();
  }
