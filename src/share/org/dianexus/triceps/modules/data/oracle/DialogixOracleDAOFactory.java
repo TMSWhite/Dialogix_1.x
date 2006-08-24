@@ -5,6 +5,8 @@ import java.sql.Connection;
 import oracle.jdbc.pool.OracleDataSource;
 
 import org.dianexus.triceps.modules.data.DialogixDAOFactory;
+import org.dianexus.triceps.modules.data.HL7OBX3DBO;
+import org.dianexus.triceps.modules.data.HL7OBX5DBO;
 import org.dianexus.triceps.modules.data.InstanceDataTable;
 import org.dianexus.triceps.modules.data.InstrumentContentsDAO;
 import org.dianexus.triceps.modules.data.InstrumentDAO;
@@ -20,6 +22,7 @@ import org.dianexus.triceps.modules.data.PageHitEventsDAO;
 import org.dianexus.triceps.modules.data.PageHitsDAO;
 import org.dianexus.triceps.modules.data.RawDataDAO;
 import org.dianexus.triceps.modules.data.SessionDataDAO;
+import org.dianexus.triceps.modules.data.UserDAO;
 import org.dianexus.triceps.modules.data.UserSessionDAO;
 
 public class DialogixOracleDAOFactory extends DialogixDAOFactory {
@@ -27,6 +30,7 @@ public class DialogixOracleDAOFactory extends DialogixDAOFactory {
 	
 	
 
+	
 	public static Connection createConnection() {
 		Connection conn = null;
 		try{
@@ -118,6 +122,18 @@ public class DialogixOracleDAOFactory extends DialogixDAOFactory {
 		return null;
 	}
 	public MappingItemDAO getMappingItemDAO() {
+		// TODO Auto-generated method stub
+		return null;
+	}
+	public UserDAO getUserDAO() {
+		// TODO Auto-generated method stub
+		return null;
+	}
+	public HL7OBX3DBO getHL7OBX3DBO() {
+		// TODO Auto-generated method stub
+		return null;
+	}
+	public HL7OBX5DBO getHL7OBX5DBO() {
 		// TODO Auto-generated method stub
 		return null;
 	}

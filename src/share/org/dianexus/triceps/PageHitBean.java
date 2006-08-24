@@ -83,6 +83,7 @@ public class PageHitBean {
 			eventTimingBeans.add(i, etb);
 			i++;
 			// at least one line processed so return true
+			System.out.println("PageHitBean.parseSource() :: var line is "+line+" var i is "+i);
 			rtn = true;
 
 		}
@@ -322,6 +323,7 @@ public class PageHitBean {
 		return questionTimingBeans;
 	}
 	public QuestionTimingBean getQuestionTimingBean(int i){
+		// TODO we need more error checking here. When instruments are mal formed we throw index out of bounds errors on this line
 		if(this.questionTimingBeans.size()>0){
 		return (QuestionTimingBean) this.questionTimingBeans.get(i);
 		}else{

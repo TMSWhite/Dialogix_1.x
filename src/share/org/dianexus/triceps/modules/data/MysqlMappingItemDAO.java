@@ -36,6 +36,7 @@ public class MysqlMappingItemDAO implements MappingItemDAO,Serializable{
 	private int sourceColumn=0;
 	private String destinationColumnName="";
 	private String sourceColumnName="";
+	private String tableName="";
 
 
 	public boolean deleteMappingItem(int id) {
@@ -83,12 +84,13 @@ public class MysqlMappingItemDAO implements MappingItemDAO,Serializable{
 			rs = ps.executeQuery();
 			if (rs.next()) {
 				rtn = true;
-				this.setMappingId(rs.getInt(1));
-				this.setSourceColumn(rs.getInt(2));
-				this.setSourceColumnName(rs.getString(3));
-				this.setDestinationColumn(rs.getInt(4));
-				this.setDestinationColumnName(rs.getString(5));
-				this.setDescription(rs.getString(6));
+				this.setMappingId(rs.getInt(2));
+				this.setSourceColumn(rs.getInt(3));
+				this.setSourceColumnName(rs.getString(4));
+				this.setDestinationColumn(rs.getInt(5));
+				this.setDestinationColumnName(rs.getString(6));
+				this.setTableName(rs.getString(7));
+				this.setDescription(rs.getString(8));
 				
 
 			}
@@ -128,8 +130,9 @@ public class MysqlMappingItemDAO implements MappingItemDAO,Serializable{
 			ps.setString(3,this.getSourceColumnName());
 			ps.setInt(4,this.getDestinationColumn());
 			ps.setString(5,this.getDestinationColumnName());
-			ps.setString(6,this.getDescription());
-			ps.setInt(7,id);
+			ps.setString(6,this.getTableName());
+			ps.setString(7,this.getDescription());
+			ps.setInt(8,id);
 			ps.executeUpdate();
 			rtn = true;
 			
@@ -172,7 +175,8 @@ public class MysqlMappingItemDAO implements MappingItemDAO,Serializable{
 			ps.setString(3,this.getSourceColumnName());
 			ps.setInt(4,this.getDestinationColumn());
 			ps.setString(5,this.getDestinationColumnName());
-			ps.setString(6,this.getDescription());
+			ps.setString(6,this.getTableName());
+			ps.setString(7,this.getDescription());
 			ps.executeUpdate();
 			ps = con.prepareStatement(SQL_GET_LAST_INSERT_ID);
 			rs = ps.executeQuery();
@@ -251,7 +255,7 @@ public class MysqlMappingItemDAO implements MappingItemDAO,Serializable{
 		Connection con = DialogixMysqlDAOFactory.createConnection();
 		PreparedStatement ps = null;
 		ResultSet rs = null;
-		
+		System.out.println("MappingItemDao.getTableItemsIndex: id  is"+id+" table name is "+table_name);
 		ArrayList itemList = new ArrayList();
 		try {
 			ps = con.prepareStatement(SQL_MAPPING_GET_TABLE_INDEX);
@@ -260,9 +264,12 @@ public class MysqlMappingItemDAO implements MappingItemDAO,Serializable{
 			ps.setInt(1, id);
 			ps.setString(2,table_name);
 			rs = ps.executeQuery();
+			int i = 0;
 			while (rs.next()) {
 				
-				itemList.add(new Integer(rs.getInt(1)));
+				itemList.add(i,new Integer(rs.getInt(1)));
+				System.out.println("MappingItemDao.getTableItemsIndex: in while - value is:"+rs.getInt(1));
+				i++;
 				
 				
 
@@ -285,7 +292,10 @@ public class MysqlMappingItemDAO implements MappingItemDAO,Serializable{
 			}
 
 		}
-
+		// check itemList contents
+		for(int i=0;i<itemList.size();i++){
+			System.out.println("Contents of itemList before return are: item"+i+" is "+itemList.get(i));
+		}
 		return itemList;
 	}
 	public String getDescription() {
@@ -359,11 +369,10 @@ public class MysqlMappingItemDAO implements MappingItemDAO,Serializable{
 		
 	}
 	public String getTableName() {
-		// TODO Auto-generated method stub
-		return null;
+		return this.tableName;
 	}
 	public void setTableName(String tableName) {
-		// TODO Auto-generated method stub
+		this.tableName= tableName;
 		
 	}
 

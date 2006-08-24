@@ -10,7 +10,7 @@ import org.dianexus.triceps.modules.data.MappingItemDAO;
 public class Map {
 	
 	private MappingDAO mdao;
-	private ArrayList mapItems;
+	private ArrayList mapItems = new ArrayList();
 	private ArrayList mapItemIds;
 	private String mapName;
 	private String tableName;
@@ -48,16 +48,31 @@ public class Map {
 		
 		DialogixDAOFactory daof = DialogixDAOFactory.getDAOFactory(1);
 		mdao = daof.getMappingDAO();
+		System.out.println("got mdao");
 		mdao.setMapName(this.getMapName());
+		System.out.println("set map name to "+this.getMapName());
 		if(mdao.loadMapping(this.getMapName())){
 			// get index of map items
+			System.out.println("in loop");
 			MappingItemDAO mad = daof.getMappingItemDAO();
+			System.out.println("got mad");
 			mapItemIds = mad.getTableItemsIndex(mdao.getId(),this.getTableName());
+			System.out.println("got ids");
 			Iterator it = mapItemIds.listIterator();
+			System.out.println("map size is:"+mapItemIds.size());
+			int i =0;
 			while(it.hasNext()){
+				MappingItemDAO mad2 = daof.getMappingItemDAO();
+				System.out.println("in while");
 				Integer id = (Integer)it.next();
-				mad.readMappingItem(id.intValue());
-				mapItems.add(mad);
+				System.out.println("in while: id is"+id.intValue());
+				if(mad2.readMappingItem(id.intValue())){
+					System.out.println("in while mad data is: source col "+mad2.getSourceColumn()+" dest col is "+mad2.getDestinationColumn());
+					mapItems.add(i,mad2);
+					i++;
+				
+				}
+				
 			}
 			rtn = true;
 		}

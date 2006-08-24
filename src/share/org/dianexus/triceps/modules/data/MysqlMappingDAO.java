@@ -29,13 +29,14 @@ public class MysqlMappingDAO implements MappingDAO{
 		ResultSet rs = null;
 		boolean rtn = false;
 		try {
-			ps = con.prepareStatement(SQL_MAPPING_LOAD);
+			ps = con.prepareStatement(SQL_MAPPING_NAME_LOAD);
 			ps.clearParameters();
 
 			ps.setString(1, name);
 			rs = ps.executeQuery();
 			if (rs.next()) {
 				rtn = true;
+				this.setId(rs.getInt(1));
 				this.setMapName(rs.getString(2));
 				this.setMapDescription(rs.getString(3));
 				this.setMap(rs.getString(4));

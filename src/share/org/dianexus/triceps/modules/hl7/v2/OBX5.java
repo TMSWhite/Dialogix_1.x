@@ -63,7 +63,7 @@ public class OBX5 {
 	public String toString(){
 		StringBuffer sb = new StringBuffer();
 		sb.append("OBX|5|CE|");
-		sb.append(this.getValue()+"^");
+		sb.append(this.getValue()+"|");
 		sb.append(this.getMessage()+"^");
 		sb.append(this.getCodingSystem());
 		if(this.alternateValue.equals("")){

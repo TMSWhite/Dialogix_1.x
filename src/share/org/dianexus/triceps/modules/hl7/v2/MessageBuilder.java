@@ -21,7 +21,7 @@ public class MessageBuilder {
 		daof = DialogixDAOFactory.getDAOFactory(DBID);
 		//get DAO's for version, session and session data
 		InstrumentVersionDAO iv = daof.getInstrumentVersionDAO();
-		iv.getInstrumentVersion(instrumentVersionId);
+		iv.getInstrumentVersion(instrumentVersionId,0,0);
 		tableName=iv.getInstanceTableName();
 		InstrumentSessionDAO is = daof.getInstrumentSessionDAO();
 		is.getInstrumentSession(instrumentSessionId);

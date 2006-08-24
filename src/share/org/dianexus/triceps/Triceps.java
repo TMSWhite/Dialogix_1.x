@@ -36,6 +36,8 @@ import java.io.FileInputStream;
 import java.util.zip.ZipFile;
 import java.util.zip.ZipEntry;
 
+import org.dianexus.triceps.modules.data.UserDAO;
+
 /*public*/ class Triceps implements VersionIF {
 	private static final String DATAFILE_PREFIX = "tri";
 	private static final String DATAFILE_SUFFIX = ".dat";
@@ -57,6 +59,7 @@ import java.util.zip.ZipEntry;
 	private Parser parser = null;
 	private PageHitBean pageHitBean;
 	private InstrumentSessionBean instSessBean = null;
+	private UserDAO userDAO = null;
 //	private LoginRecord loginRecord = null;
 //	private LoginTricepsServlet loginTricepsServlet = null;
 
@@ -1608,6 +1611,12 @@ if (DEBUG) {
 	}
 	public void setInstrumentSessionBean(InstrumentSessionBean isb){
 		this.instSessBean = isb;
+	}
+	public void setUserDAO(UserDAO userDAO){
+		this.userDAO = userDAO;
+	}
+	public UserDAO getUserDAO(){
+		return this.userDAO;
 	}
 }
 
