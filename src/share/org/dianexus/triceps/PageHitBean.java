@@ -294,9 +294,9 @@ public class PageHitBean {
 	public int getCurrentQuestonIndex(){
 		return this.currentQuestionIndex;
 	}
-	public void setReceivedRequest(){
+	public void setReceivedRequest(long _receivedRequest){
 		
-		receivedRequest = System.currentTimeMillis();
+		receivedRequest = _receivedRequest;
 	}
 	public long getReceivedRequest(){
 		return this.receivedRequest;
