@@ -12,6 +12,8 @@ import org.dianexus.triceps.modules.data.RawDataDAO;
 
 public class PageHitBean {
 	
+	
+	// variables for software state machine
 	private static final int LATENCY_EMPTY = 0;
 	private static final int LATENCY_START= 1;
 	private static final int LATENCY_FINISH = 2;
@@ -19,6 +21,7 @@ public class PageHitBean {
 	private static final int DURATION_START = 1;
 	private static final int DURATION_FINISH = 2;
 	
+	// init variables
 	private int latencyState = LATENCY_EMPTY;
 	private int durationState = DURATION_EMPTY;
 
@@ -54,6 +57,7 @@ public class PageHitBean {
 	
 
 	private long receivedRequest;
+	private long lastRecievedRequest;
 	private long sentResponse;
 	
 
@@ -67,7 +71,16 @@ public class PageHitBean {
 
 	}
 
+	/**
+	 * Takes parameter src which contains the event timing data from the 
+	 * http request parameter EVENT_TIMINGS and creates an event timing bean for each
+	 * event. Event timing beans are stored in the ArrayList eventTimingBeans
+	 * 
+	 * @param src
+	 * @return
+	 */
 	public boolean parseSource(String src) {
+		
 		
 		int displayCount = 0;
 		boolean rtn = false;
@@ -91,6 +104,15 @@ public class PageHitBean {
 		return rtn;
 	}
 
+	/**
+	 * processEvents loops through the array of eventTimingBeans and generates timing values
+	 * for each item, stored in a rawDataDAO bean. Page level timing is stored in pageHitBean 
+	 * with individual event data stored in PageHitEventsBeans. Data is also provided for the
+	 * InsturmentSessionDAO and the InstrumentSessionDataDAO. State is maintained by getting 
+	 * and setting the  PageHitBean to and from the current Triceps object. 
+	 * TODO add docs about interaction with Evidence and TricepsEngine
+	 * @return
+	 */
 	public boolean processEvents() {
 
 		int serverTime = 0;
@@ -117,7 +139,13 @@ public class PageHitBean {
 		QuestionTimingBean qtb= new QuestionTimingBean();
 		String currentVarName="";
 		int questionRef = 0;
-		
+		/*
+		 * For each eventTimingBean in the arrayList eventTimingBeans pass the event through
+		 * the state machine to identify the event type and process the data accordingly, storing 
+		 * in the questionTimingBean.
+		 * When the question changes, re-initialize the question timing bean and continue.
+		 * 
+		 */
 		for (int i = 0; i < eventTimingBeans.size(); i++) {
 			etb = (EventTimingBean) eventTimingBeans.get(i);
 	
@@ -153,9 +181,12 @@ public class PageHitBean {
 				
 			}
 
-			// calculate total duration
+			// This will accumulate and allways be the duration time of the current event
+			// resulting in the last duration value for the total duration.
+			
 			totalDuration = etb.getDuration();
 			this.setLastAction(etb.getActionType());
+			// test for the load event (1 per page)
 			if (etb.getEventType().equals("load")) {
 				
 				// total page rendering time
@@ -232,7 +263,7 @@ public class PageHitBean {
 		}
 		this.setServerDuration(new Long(sentResponse - receivedRequest).intValue());
 		System.out.println("server duration is"+this.getServerDuration());
-		this.setTotalDuration(new Long(System.currentTimeMillis() - this.timestamp.getTime()).intValue() );
+		this.setTotalDuration(new Long(this.receivedRequest - this.lastRecievedRequest).intValue() );
 		System.out.println("total duration is "+this.getTotalDuration());
 		timestamp = new Timestamp (System.currentTimeMillis());
 		this.setLoadDuration(loadTime);
@@ -295,7 +326,7 @@ public class PageHitBean {
 		return this.currentQuestionIndex;
 	}
 	public void setReceivedRequest(long _receivedRequest){
-		
+		lastRecievedRequest = receivedRequest;
 		receivedRequest = _receivedRequest;
 	}
 	public long getReceivedRequest(){
