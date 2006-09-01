@@ -48,6 +48,10 @@ public abstract class  DialogixDAOFactory {
     public abstract HL7OBX3DBO getHL7OBX3DBO();
     public abstract HL7OBX5DBO getHL7OBX5DBO();
     public abstract UserDAO getUserDAO();
+    public abstract UserPermissionDAO getUserPermissionDAO();
+    public abstract SandBoxDAO getSandBoxDAO();
+    public abstract SandBoxItemDAO getSandBoxItemDAO();
+    public abstract SandBoxUserDAO getSandBoxUserDAO();
     
     
     public static DialogixDAOFactory getDAOFactory( int factory_id){
