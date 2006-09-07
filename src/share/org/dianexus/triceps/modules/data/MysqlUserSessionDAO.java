@@ -7,6 +7,7 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.Timestamp;
+import java.util.ArrayList;
 
 /**
  * This CLASS provides DAO support for the user_session table. It implements
@@ -28,6 +29,8 @@ public class MysqlUserSessionDAO implements UserSessionDAO {
 	private int instrumentSessionId;
 	
 	private int userSessionId;
+	
+	
 	
 	
 	private static final String SQL_GET_LAST_INSERT_ID = "SELECT LAST_INSERT_ID()";

@@ -6,11 +6,11 @@ package org.dianexus.triceps.modules.data;
 		
 	
 	    boolean getInstrumentVersion( int _id, int major, int minor);
-	    
 	    boolean setInstrumentVersion();
 	    boolean updateInstrumentversion(String _column, String value);
 	    boolean deleteInstrumentVersion(int _id);
 	    int getInstrumentVersionLastInsertId();
+	    public boolean InstrumentMajorVersionExists(int _id, int major );
 	    
 	    void setInstrumentVersionId(int id);
 	    int getInstrumentVersionId();

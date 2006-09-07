@@ -21,6 +21,7 @@ public class MysqlInstrumentVersionDAO implements InstrumentVersionDAO {
 			+ " instance_table_name= ? , major_version = ?, minor_version = ?, instrument_notes = ? , instrument_status = ? ";
 
 	private static final String SQL_INSTRUMENT_VERSION_GET = "SELECT * FROM instrument_version WHERE instrument_id = ? AND major_version = ? AND minor_version =?";
+	private static final String SQL_INSTRUMENT_VERSION_MAJOR_EXISTS = "SELECT * FROM instrument_version WHERE instrument_id = ? AND major_version = ? ";
 
 	private String instrumentNotes;
 
@@ -96,6 +97,7 @@ public class MysqlInstrumentVersionDAO implements InstrumentVersionDAO {
 	 *      int, int)
 	 */
 	public boolean getInstrumentVersion(int _id, int major, int minor) {
+		boolean rtn = false;
 		Connection con = DialogixMysqlDAOFactory.createConnection();
 		PreparedStatement ps = null;
 		ResultSet rs = null;
@@ -114,13 +116,14 @@ public class MysqlInstrumentVersionDAO implements InstrumentVersionDAO {
 				this.setInstrumentVersionMinor(rs.getInt(5));
 				this.setInstrumentNotes(rs.getString(6));
 				this.setInstrumentStatus(rs.getInt(7));
+				rtn = true;
 
 			}
 
 		} catch (Exception e) {
 
 			e.printStackTrace();
-			return false;
+			rtn=false;
 
 		} finally {
 			try {
@@ -137,8 +140,49 @@ public class MysqlInstrumentVersionDAO implements InstrumentVersionDAO {
 				fe.printStackTrace();
 			}
 		}
-		return false;
+		return rtn;
 	}
+	public boolean InstrumentMajorVersionExists(int _id, int major ) {
+		boolean rtn = false;
+		Connection con = DialogixMysqlDAOFactory.createConnection();
+		PreparedStatement ps = null;
+		ResultSet rs = null;
+		try {
+			ps = con.prepareStatement(SQL_INSTRUMENT_VERSION_MAJOR_EXISTS);
+			ps.clearParameters();
+			ps.setInt(1, _id);
+			ps.setInt(2, major);
+			
+			rs = ps.executeQuery();
+			if (rs.next()) {
+				this.setInstanceTableName(rs.getString(3));
+				rtn = true;
+
+			}
+
+		} catch (Exception e) {
+
+			e.printStackTrace();
+			rtn=false;
+
+		} finally {
+			try {
+				if (rs != null) {
+					rs.close();
+				}
+				if (ps != null) {
+					ps.close();
+				}
+				if (con != null) {
+					con.close();
+				}
+			} catch (Exception fe) {
+				fe.printStackTrace();
+			}
+		}
+		return rtn;
+	}
+	
 
 	/*
 	 * (non-Javadoc)
