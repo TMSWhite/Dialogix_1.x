@@ -20,7 +20,9 @@ public class Map {
 	public Map(){
 		
 	}
-	
+	public int getMapId(){
+		return this.mapId;
+	}
 	public void setMapName(String name){
 		this.mapName = name;
 	}
@@ -51,7 +53,8 @@ public class Map {
 		System.out.println("got mdao");
 		mdao.setMapName(this.getMapName());
 		System.out.println("set map name to "+this.getMapName());
-		if(mdao.loadMapping(this.getMapName())){
+		//TODO check this corrections
+		if(mdao.loadMapping(this.getMapId())){
 			// get index of map items
 			System.out.println("in loop");
 			MappingItemDAO mad = daof.getMappingItemDAO();

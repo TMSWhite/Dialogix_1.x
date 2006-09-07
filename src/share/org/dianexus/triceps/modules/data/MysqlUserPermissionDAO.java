@@ -5,20 +5,22 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.util.ArrayList;
 
+import org.dianexus.triceps.UserPermission;
+
 public class MysqlUserPermissionDAO implements UserPermissionDAO{
-	private ArrayList userPermissions = null;
+	private ArrayList userPermissions;
 	private String comment = "";
 	private int instrumentId;
 	private int permissionId;
 	private String role ="";
 	private int userId;
 	
-	private static final String 	SQL_GET_USER_PERMISSIONS ="SELECT role FROM user_permissions WHERE user_id = ? AND instrument_id =0";
-	private static final String 	SQL_GET_USER_PERMISSIONS_INSTRUMENT ="SELECT role FROM user_permissions WHERE user_id = ? AND instrument_id = ?";
-	private static final String		SQL_GET_USER_PERMISSION="SELECT * FROM user_permissions WHERE id = ?";
-	private static final String 	SQL_SET_USER_PERMISSION="INSERT INTO user_permissions SET user_id = ? , instrument_id = ?, role = ?, comment = ?";
-	private static final String 	SQL_UPDATE_USER_PERMISSION = "UPDATE user_permissions SET user_id = ? , instrument_id = ?, role = ?, comment = ?";
-	private static final String 	SQL_DELETE_USER_PERMISSION = "DELETE FROM user_permissions WHERE id = ?";
+	private static final String 	SQL_GET_USER_PERMISSIONS ="SELECT * FROM user_permission WHERE user_id = ? AND instrument_id =0";
+	private static final String 	SQL_GET_USER_PERMISSIONS_INSTRUMENT ="SELECT * FROM user_permission WHERE user_id = ? AND instrument_id = ?";
+	private static final String		SQL_GET_USER_PERMISSION="SELECT * FROM user_permission WHERE user_id = ?";
+	private static final String 	SQL_SET_USER_PERMISSION="INSERT INTO user_permission SET user_id = ? , instrument_id = ?, role = ?, comment = ?";
+	private static final String 	SQL_UPDATE_USER_PERMISSION = "UPDATE user_permission SET user_id = ? , instrument_id = ?, role = ?, comment = ?";
+	private static final String 	SQL_DELETE_USER_PERMISSION = "DELETE FROM user_permission WHERE id = ?";
 	
 	
 	
@@ -76,15 +78,22 @@ public class MysqlUserPermissionDAO implements UserPermissionDAO{
 		PreparedStatement ps = null;
 		ResultSet rs = null;
 		boolean ret = false;
+		ArrayList permissions = new ArrayList();
 		try {
-			ps = con.prepareStatement(SQL_GET_USER_PERMISSIONS);
+			ps = con.prepareStatement(SQL_GET_USER_PERMISSION);
 			ps.clearParameters();
 
 			ps.setInt(1, user_id);
 			rs = ps.executeQuery();
-			userPermissions.clear();
+		
 			while (rs.next()) {
-				userPermissions.add(rs.getString(1));
+				UserPermission userPermission = new UserPermission();
+				userPermission.setPermissionId(rs.getInt(1));
+				userPermission.setUserId(rs.getInt(2));
+				userPermission.setInstrumentId(rs.getInt(3));
+				userPermission.setRole(rs.getString(4));
+				userPermission.setComment(rs.getString(5));
+				permissions.add(userPermission);
 				
 				
 				
@@ -113,7 +122,7 @@ public class MysqlUserPermissionDAO implements UserPermissionDAO{
 		}
 
 		
-        return userPermissions;
+        return permissions;
 	}
 	public ArrayList getUserPermissions(int user_id, int instrument_id) {
 		Connection con = DialogixMysqlDAOFactory.createConnection();
@@ -129,7 +138,13 @@ public class MysqlUserPermissionDAO implements UserPermissionDAO{
 			rs = ps.executeQuery();
 			userPermissions.clear();
 			while (rs.next()) {
-				userPermissions.add(rs.getString(1));
+				UserPermission userPermission = new UserPermission();
+				userPermission.setPermissionId(rs.getInt(1));
+				userPermission.setUserId(rs.getInt(2));
+				userPermission.setInstrumentId(rs.getInt(3));
+				userPermission.setRole(rs.getString(4));
+				userPermission.setComment(rs.getString(5));
+				userPermissions.add(userPermission);
 				
 				
 				

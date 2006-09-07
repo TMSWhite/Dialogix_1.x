@@ -6,10 +6,11 @@ public interface SandBoxUserDAO {
 	
 	public boolean getSandUserSandboxes(int user_id);
 	public boolean getSandBoxUsers(int sandbox_id);
+	public boolean getSandBoxUsers(int sandbox_id, int role_id);
 	public boolean setSandBoxUser();
 	public boolean updateSandBoxUser();
 	public boolean deleteSandBoxUser();
-	
+	 
 	public void setSandBoxId(int sandbox_id);
 	public int getSandBoxId();
 	public void setSandBoxUserId(int user_id);
@@ -19,5 +20,6 @@ public interface SandBoxUserDAO {
 	public void setId(int id);
 	public int getId();
 	public ArrayList getSandboxes();
+	public ArrayList getSandBoxUsers();
 
 }

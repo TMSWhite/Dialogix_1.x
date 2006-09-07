@@ -21,8 +21,12 @@ import org.dianexus.triceps.modules.data.MappingItemDAO;
 import org.dianexus.triceps.modules.data.PageHitEventsDAO;
 import org.dianexus.triceps.modules.data.PageHitsDAO;
 import org.dianexus.triceps.modules.data.RawDataDAO;
+import org.dianexus.triceps.modules.data.SandBoxDAO;
+import org.dianexus.triceps.modules.data.SandBoxItemDAO;
+import org.dianexus.triceps.modules.data.SandBoxUserDAO;
 import org.dianexus.triceps.modules.data.SessionDataDAO;
 import org.dianexus.triceps.modules.data.UserDAO;
+import org.dianexus.triceps.modules.data.UserPermissionDAO;
 import org.dianexus.triceps.modules.data.UserSessionDAO;
 
 public class DialogixOracleDAOFactory extends DialogixDAOFactory {
@@ -30,6 +34,8 @@ public class DialogixOracleDAOFactory extends DialogixDAOFactory {
 	
 	
 
+	
+	
 	
 	public static Connection createConnection() {
 		Connection conn = null;
@@ -134,6 +140,22 @@ public class DialogixOracleDAOFactory extends DialogixDAOFactory {
 		return null;
 	}
 	public HL7OBX5DBO getHL7OBX5DBO() {
+		// TODO Auto-generated method stub
+		return null;
+	}
+	public UserPermissionDAO getUserPermissionDAO() {
+		// TODO Auto-generated method stub
+		return null;
+	}
+	public SandBoxDAO getSandBoxDAO() {
+		// TODO Auto-generated method stub
+		return null;
+	}
+	public SandBoxItemDAO getSandBoxItemDAO() {
+		// TODO Auto-generated method stub
+		return null;
+	}
+	public SandBoxUserDAO getSandBoxUserDAO() {
 		// TODO Auto-generated method stub
 		return null;
 	}

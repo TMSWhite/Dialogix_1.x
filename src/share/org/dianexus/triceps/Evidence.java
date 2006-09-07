@@ -444,8 +444,10 @@ import org.dianexus.triceps.modules.data.*;
 		System.out.println("istrument id is" + instrumentId);
 		// get instrument major version from schedule
 		String major_version = schedule.getReserved(Schedule.SCHED_VERSION_MAJOR);
+		System.out.println("Major Instrument version found: " + major_version);
 		// get instrument minor versioncfrom schedule
 		String minor_version = schedule.getReserved(Schedule.SCHED_VERSION_MINOR);
+		System.out.println("Minor Instrument version found: " + minor_version);
 		// handle error if versions not found
 		if (major_version == null || minor_version == null) {
 			// throw an error here

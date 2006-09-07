@@ -32,6 +32,7 @@ public interface MappingItemDAO {
 	public String getTableName();
 	public void setItemsIndex(int[] items);
 	public int[] getItemsIndex();
+	
 
 
 }
