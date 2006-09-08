@@ -8,7 +8,7 @@ public interface HL7OBX5DBO {
 	boolean setHL7OBX5();
 	boolean deleteHL7OBX5(int id);
 	boolean updateHL7OBX5();
-	
+	 
 	void setId(int id);
 	int getId();
 	void setLoincNum(String num);
