@@ -19,8 +19,8 @@ public class MysqlInstrumentVersionDAO implements InstrumentVersionDAO {
 
 	private static final String SQL_INSTRUMENT_VERSION_UPDATE = "UPDATE instrument_version SET instrument_id = ? , "
 			+ " instance_table_name= ? , major_version = ?, minor_version = ?, instrument_notes = ? , instrument_status = ? ";
-
-	private static final String SQL_INSTRUMENT_VERSION_GET = "SELECT * FROM instrument_version WHERE instrument_id = ? AND major_version = ? AND minor_version =?";
+	private static final String SQL_INSTRUMENT_VERSION_GET_1 = "SELECT * FROM instrument_version WHERE instrument_version_id = ? ";
+	private static final String SQL_INSTRUMENT_VERSION_GET_2 = "SELECT * FROM instrument_version WHERE instrument_id = ? AND major_version = ? AND minor_version =?";
 	private static final String SQL_INSTRUMENT_VERSION_MAJOR_EXISTS = "SELECT * FROM instrument_version WHERE instrument_id = ? AND major_version = ? ";
 
 	private String instrumentNotes;
@@ -96,13 +96,57 @@ public class MysqlInstrumentVersionDAO implements InstrumentVersionDAO {
 	 * @see org.dianexus.triceps.modules.data.InstrumentVersionDAO#getInstrumentVersion(int,
 	 *      int, int)
 	 */
+	public boolean getInstrumentVersion(int _id ) {
+		boolean rtn = false;
+		Connection con = DialogixMysqlDAOFactory.createConnection();
+		PreparedStatement ps = null;
+		ResultSet rs = null;
+		try {
+			ps = con.prepareStatement(SQL_INSTRUMENT_VERSION_GET_1);
+			ps.clearParameters();
+			ps.setInt(1, _id);
+			rs = ps.executeQuery();
+			if (rs.next()) {
+				this.setInstrumentVersionId(rs.getInt(1));
+				this.setInstrumentId(rs.getInt(2));
+				this.setInstanceTableName(rs.getString(3));
+				this.setInstrumentVersionMajor(rs.getInt(4));
+				this.setInstrumentVersionMinor(rs.getInt(5));
+				this.setInstrumentNotes(rs.getString(6));
+				this.setInstrumentStatus(rs.getInt(7));
+				rtn = true;
+
+			}
+
+		} catch (Exception e) {
+
+			e.printStackTrace();
+			rtn=false;
+
+		} finally {
+			try {
+				if (rs != null) {
+					rs.close();
+				}
+				if (ps != null) {
+					ps.close();
+				}
+				if (con != null) {
+					con.close();
+				}
+			} catch (Exception fe) {
+				fe.printStackTrace();
+			}
+		}
+		return rtn;
+	}
 	public boolean getInstrumentVersion(int _id, int major, int minor) {
 		boolean rtn = false;
 		Connection con = DialogixMysqlDAOFactory.createConnection();
 		PreparedStatement ps = null;
 		ResultSet rs = null;
 		try {
-			ps = con.prepareStatement(SQL_INSTRUMENT_VERSION_GET);
+			ps = con.prepareStatement(SQL_INSTRUMENT_VERSION_GET_2);
 			ps.clearParameters();
 			ps.setInt(1, _id);
 			ps.setInt(2, major);
