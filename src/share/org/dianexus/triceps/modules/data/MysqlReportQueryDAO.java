@@ -25,14 +25,14 @@ public class MysqlReportQueryDAO implements ReportQueryDAO {
 		ResultSet rs = null;
 		boolean rtn = false;
 		try {
-			ps = con.prepareStatement(SQL_GET_REPORT_QUERY);
+			ps = con.prepareStatement(SQL_SET_REPORT_QUERY);
 			ps.clearParameters();
 
 			ps.setInt(1, user_id);
 			ps.setInt(2, instrument_version_id);
 			ps.setTimestamp(3, ts);
 			ps.setString(4, queryString);
-			rs = ps.executeQuery();
+			ps.executeUpdate();
 			
 			ps = con.prepareStatement(SQL_GET_LAST_INSERT_ID);
 			rs = ps.executeQuery();

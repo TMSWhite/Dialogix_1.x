@@ -301,7 +301,7 @@ public class MysqlUserDAO implements UserDAO {
 		
 	}
 
-	
+	  
 
 	public void setUserName(String userName) {
 		this.userName = userName;
