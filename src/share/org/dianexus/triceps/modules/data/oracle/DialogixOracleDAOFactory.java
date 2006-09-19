@@ -21,6 +21,7 @@ import org.dianexus.triceps.modules.data.MappingItemDAO;
 import org.dianexus.triceps.modules.data.PageHitEventsDAO;
 import org.dianexus.triceps.modules.data.PageHitsDAO;
 import org.dianexus.triceps.modules.data.RawDataDAO;
+import org.dianexus.triceps.modules.data.ReportQueryDAO;
 import org.dianexus.triceps.modules.data.SandBoxDAO;
 import org.dianexus.triceps.modules.data.SandBoxItemDAO;
 import org.dianexus.triceps.modules.data.SandBoxUserDAO;
@@ -159,4 +160,9 @@ public class DialogixOracleDAOFactory extends DialogixDAOFactory {
 		// TODO Auto-generated method stub
 		return null;
 	}
+	public ReportQueryDAO getReportQueryDAO() {
+		// TODO Auto-generated method stub
+		return null;
+	}
+	
 }
