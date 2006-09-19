@@ -12,8 +12,6 @@ import java.sql.Timestamp;
  * @author ISTCGXL
  *
  */
-//TODO-Shveta  
-
 public interface UserSessionDAO {
 	public boolean setUserSession();
 	/**
