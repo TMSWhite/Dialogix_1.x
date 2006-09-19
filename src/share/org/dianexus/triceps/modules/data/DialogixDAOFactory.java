@@ -52,10 +52,13 @@ public abstract class  DialogixDAOFactory {
     public abstract SandBoxDAO getSandBoxDAO();
     public abstract SandBoxItemDAO getSandBoxItemDAO();
     public abstract SandBoxUserDAO getSandBoxUserDAO();
+    public abstract ReportQueryDAO getReportQueryDAO();
+
     
     
     public static DialogixDAOFactory getDAOFactory( int factory_id){
         
+
         switch(factory_id){
             
             case MYSQL:

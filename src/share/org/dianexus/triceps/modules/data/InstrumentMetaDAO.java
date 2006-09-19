@@ -16,7 +16,8 @@ import java.sql.*;
      boolean updateInstrumentMeta(String column, String value);
      boolean deleteInstrumentMeta(int id);
      int getInstrumentMetaLastInsertId();
-     
+     void setInstrumentVersionId(int id);
+     public int getInstrumentVersionId();
      void setInstrumentName(String name);
      public String getInstrumentName();
      void setTitle(String title);
@@ -37,7 +38,7 @@ import java.sql.*;
      void setNumLanguages(int numLanguages);
      int getNumLanguages();
      void setNumInstructions(int numInstructions);
-     int getNuInstructions();
+     int getNumInstructions();
      void setNumEquations(int numEquations);
      int getNumEquations();
      void setNumQuestions(int numQuestions);

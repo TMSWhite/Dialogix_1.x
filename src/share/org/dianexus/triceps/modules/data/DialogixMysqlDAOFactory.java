@@ -20,6 +20,8 @@ import java.sql.*;
 public class DialogixMysqlDAOFactory extends DialogixDAOFactory {
 	// TODO Add generic exception logging
 
+	
+
 	// get the driver for jdbc.mysql
 	public static final String DRIVER = Messages
 			.getString("DialogixMysqlDAOFactory.DRIVER"); //$NON-NLS-1$
@@ -159,6 +161,45 @@ public class DialogixMysqlDAOFactory extends DialogixDAOFactory {
 		return new MysqlInstrumentSessionDataDAO();
 	}
 
-	
+	public InstanceDataTable getInstanceDataTable() {
+		// TODO Auto-generated method stub
+		return  new  MysqlInstanceDataTable();
+	}
+
+	public MappingDAO getMappingDAO() {
+		return new MysqlMappingDAO();
+	}
+
+	public MappingItemDAO getMappingItemDAO() {
+		return new MysqlMappingItemDAO();
+	}
+
+	public HL7OBX3DBO getHL7OBX3DBO() {
+		return new MysqlHL7OBX3DBO();
+	}
+
+	public HL7OBX5DBO getHL7OBX5DBO() {
+		return new MysqlHL7OBX5DBO();
+	}
+
+	public UserDAO getUserDAO() {
+		return new MysqlUserDAO();
+	}
+	public UserPermissionDAO getUserPermissionDAO() {
+		
+		return new MysqlUserPermissionDAO();
+	}
+
+	public SandBoxDAO getSandBoxDAO() {
+		return new MysqlSandBoxDAO();
+	}
+
+	public SandBoxItemDAO getSandBoxItemDAO() {
+		return new MysqlSandBoxItemDAO();
+	}
+
+	public SandBoxUserDAO getSandBoxUserDAO() {
+		return new MysqlSandBoxUserDAO();
+	}
 
 }

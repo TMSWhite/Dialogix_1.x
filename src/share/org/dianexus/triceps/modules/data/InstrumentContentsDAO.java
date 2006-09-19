@@ -9,6 +9,10 @@ package org.dianexus.triceps.modules.data;
  
  public interface InstrumentContentsDAO {
      
+	 
+	 
+	
+	
      boolean getInstrumentContents(int id);
      boolean getInstrumentContents(String name);
      boolean setInstrumentContents();
