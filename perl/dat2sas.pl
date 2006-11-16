@@ -65,32 +65,36 @@ sub main {
 	
 	&load_instrument($instrument);
 	
-	&makeAllMySqlLoadCommands;
-	
-	if (-e "DialogixRawData.mysql_data") {
-		open (GENERIC, ">>DialogixRawData.mysql_data") or die "Unable to append to DialogixRawData.mysql_data";
+	if ($Prefs->{OUTPUT_TO_MYSQL} eq 1) {
+		&makeAllMySqlLoadCommands;
+		
+		if (-e "DialogixRawData.mysql_data") {
+			open (GENERIC, ">>DialogixRawData.mysql_data") or die "Unable to append to DialogixRawData.mysql_data";
+		}
+		else {
+			open (GENERIC, ">DialogixRawData.mysql_data") or die "Unable to write to DialogixRawData.mysql_data";
+	#		print GENERIC "InstrumentName\tInstanceName\tVarName\tVarNum\tGroupNum\tDisplayNum\tLangNum\tWhenAsMS\tTimeStamp\tAnswerType\tAnswer\tQuestionAsAsked\tComment\n";
+			&CreateTablesForDialogixRawData;
+		}
+		
+		if (-e "DialogixSpecificTables.sql") {
+			open (SPECIFIC_ALLTABLES, ">>DialogixSpecificTables.sql") or die "Unable to append to DialogixSpecificTables.sql";
+		}
+		else {
+			open (SPECIFIC_ALLTABLES, ">DialogixSpecificTables.sql") or die "Unable to write to DialogixSpecificTables.sql";
+		}
+		
+		open (SPECIFIC_DATA,">${instrument_name}.specific.mysql_data") or die "unable to write to ${instrument_name}.specific.mysql_data";
 	}
-	else {
-		open (GENERIC, ">DialogixRawData.mysql_data") or die "Unable to write to DialogixRawData.mysql_data";
-#		print GENERIC "InstrumentName\tInstanceName\tVarName\tVarNum\tGroupNum\tDisplayNum\tLangNum\tWhenAsMS\tTimeStamp\tAnswerType\tAnswer\tQuestionAsAsked\tComment\n";
-		&CreateTablesForDialogixRawData;
-	}
-	
-	if (-e "DialogixSpecificTables.sql") {
-		open (SPECIFIC_ALLTABLES, ">>DialogixSpecificTables.sql") or die "Unable to append to DialogixSpecificTables.sql";
-	}
-	else {
-		open (SPECIFIC_ALLTABLES, ">DialogixSpecificTables.sql") or die "Unable to write to DialogixSpecificTables.sql";
-	}
-	
-	open (SPECIFIC_DATA,">${instrument_name}.specific.mysql_data") or die "unable to write to ${instrument_name}.specific.mysql_data";
 	
 	&process_files(\@dat_file_globs);
 	&processPath;
 	
-	close (GENERIC);
-	close (SPECIFIC_DATA);
-	close (SPECIFIC_ALLTABLES)
+	if ($Prefs->{OUTPUT_TO_MYSQL} eq 1) {
+		close (GENERIC);
+		close (SPECIFIC_DATA);
+		close (SPECIFIC_ALLTABLES)
+	}
 }
 
 sub makeAllMySqlLoadCommands {
@@ -343,12 +347,14 @@ foreach(@gargs) {
 				
 				$stopTime = $vals[3];	# ending time of the this event - used to determine duration of next event
 				
-				# Print out this log to a file
-				print GENERIC "NULL\t$instrument_name\t$filebase\t$internalName\t$sched_nodes{$vals[1]}{'firstStep'}\t" .
-					"$sched_nodes{$vals[1]}{'group'}\t" .
-					"$currentDispCnt\t$vals[2]\t$vals[3]\t" . 
-					&makeTimestamp($vals[3]) . 
-					"\t$missingType\t$ans\t$vals[4]\t$vals[6]\n";
+				if ($Prefs->{OUTPUT_TO_MYSQL} eq 1) {
+					# Print out this log to a file
+					print GENERIC "NULL\t$instrument_name\t$filebase\t$internalName\t$sched_nodes{$vals[1]}{'firstStep'}\t" .
+						"$sched_nodes{$vals[1]}{'group'}\t" .
+						"$currentDispCnt\t$vals[2]\t$vals[3]\t" . 
+						&makeTimestamp($vals[3]) . 
+						"\t$missingType\t$ans\t$vals[4]\t$vals[6]\n";
+					}
 			}
 		}
 		# if last line in the file is DISPLAY_COUNT, then this was unfinished, and last line indicates which question was viewed but not answered.
@@ -416,37 +422,39 @@ foreach(@gargs) {
 			}
 		}
 		
-		#create table definition for Mysql
-		if (!(-e "${instrument_name}.specific.sql")) {
-			open (SPECIFIC, ">${instrument_name}.specific.sql");
-			my $tablename = $instrument_name;
-			$tablename =~ s/\W/_/g;
-			
-			print SPECIFIC "/*DROP TABLE IF EXISTS ${tablename};*/\n";
-			print SPECIFIC qq|
-				CREATE TABLE Dialogix.${tablename} (
-				ID bigint NOT NULL auto_increment,
-				PRIMARY KEY (ID),
-				InstrumentName varchar(200) NOT NULL,
-				InstanceName varchar(200) NOT NULL,
-				StartTime timestamp(14) NOT NULL
-				|;
-			foreach my $arg (sort { $a->{'count'} <=> $b->{'count'} } values(%data)) {
-				my %datum = %{ $arg };
-				next unless defined(%datum);
-				print SPECIFIC ",\n$datum{'internalName'} text";
+		if ($Prefs->{OUTPUT_TO_MYSQL} eq 1) {
+			#create table definition for Mysql
+			if (!(-e "${instrument_name}.specific.sql")) {
+				open (SPECIFIC, ">${instrument_name}.specific.sql");
+				my $tablename = $instrument_name;
+				$tablename =~ s/\W/_/g;
+				
+				print SPECIFIC "/*DROP TABLE IF EXISTS ${tablename};*/\n";
+				print SPECIFIC qq|
+					CREATE TABLE Dialogix.${tablename} (
+					ID bigint NOT NULL auto_increment,
+					PRIMARY KEY (ID),
+					InstrumentName varchar(200) NOT NULL,
+					InstanceName varchar(200) NOT NULL,
+					StartTime timestamp(14) NOT NULL
+					|;
+				foreach my $arg (sort { $a->{'count'} <=> $b->{'count'} } values(%data)) {
+					my %datum = %{ $arg };
+					next unless defined(%datum);
+					print SPECIFIC ",\n$datum{'internalName'} text";
+				}
+				print SPECIFIC "\n) TYPE=MyISAM;\n";
+	
+				close (SPECIFIC);
+				
+				open (SPECIFIC, "<${instrument_name}.specific.sql") or die "Unable to read from ${instrument_name}.specific.sql";
+				my @lines = (<SPECIFIC>);
+				foreach my $line (@lines) {
+					print SPECIFIC_ALLTABLES $line;
+				}
+				close (SPECIFIC);
+				
 			}
-			print SPECIFIC "\n) TYPE=MyISAM;\n";
-
-			close (SPECIFIC);
-			
-			open (SPECIFIC, "<${instrument_name}.specific.sql") or die "Unable to read from ${instrument_name}.specific.sql";
-			my @lines = (<SPECIFIC>);
-			foreach my $line (@lines) {
-				print SPECIFIC_ALLTABLES $line;
-			}
-			close (SPECIFIC);
-			
 		}
 		
 		#print huid at beginning of row for each module file
@@ -472,14 +480,16 @@ foreach(@gargs) {
 			}
 		}
 		
-		#Also print the complete data to the spefic file
-		print SPECIFIC_DATA "NULL\t$instrument_name\t$filebase\t" . &makeTimestamp($firstStartTime);
-		foreach my $key (sort { $a->{'count'} <=> $b->{'count'} } values(%data)) {
-			my %datum = %{ $key };		
-			next unless defined(%datum);
-			print SPECIFIC_DATA "\t", $datum{'answerGiven'};				
+		if ($Prefs->{OUTPUT_TO_MYSQL} eq 1) {
+			#Also print the complete data to the spefic file
+			print SPECIFIC_DATA "NULL\t$instrument_name\t$filebase\t" . &makeTimestamp($firstStartTime);
+			foreach my $key (sort { $a->{'count'} <=> $b->{'count'} } values(%data)) {
+				my %datum = %{ $key };		
+				next unless defined(%datum);
+				print SPECIFIC_DATA "\t", $datum{'answerGiven'};				
+			}
+			print SPECIFIC_DATA "\n";
 		}
-		print SPECIFIC_DATA "\n";
 		
 		#close all output files, add newline and close
 		foreach my $key (sort(keys(%outs))) {

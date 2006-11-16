@@ -149,7 +149,7 @@ sub whichInstrument($) {
 			}
 		}
 		else {
-			if ($type eq 'DATA') {
+			if ($type =~ /DATA/i) {
 				# this is a variable declaration
 				if ($vals[0] !~ /^COMMENT|RESERVED/i and $vals[1] !~ /^\s*$/) {
 #					$varhash->{$vals[1]} = $numvars;
@@ -157,7 +157,7 @@ sub whichInstrument($) {
 					$varlist .= "$vals[1]";
 				}
 			}
-			elsif ($type eq 'SCHEDULE') {
+			elsif ($type =~ /SCHEDULE/i) {
 				if ($vals[0] !~ /^COMMENT/i and $vals[1] !~ /^\s*$/) {
 #					$varhash->{$vals[1]} = $numvars;
 					++$numvars;
@@ -258,6 +258,9 @@ sub readDialogixPrefs($$) {
 		MAKE_SPSS_VARIABLE_LABELS => 1,
 		MAKE_SPSS_FREQS => 1,
 		MAKE_SAS_FORMATS => 1,
+		
+		# MYSQL Specific
+		OUTPUT_TO_MYSQL => 0,
 	};
 	
 	my $Prefs = &readPrefs($Defaults,$conf_file);
