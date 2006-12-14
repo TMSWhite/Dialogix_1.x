@@ -5,8 +5,8 @@ options compress=NO;
 
 %global helpers cet3_lib cet4_lib cet5_lib cet7old_lib cet7_06_lib;
 
+/*
 %let helpers = C:\data\cet-irb5\analysis\AutoMEQ-SA-v3.0-(AutoMEQ-SA-irb);
-
 %let cet3_lib = C:\data\cet7\analysis\AutoMEQ-SA-v3.0-(AutoMEQ-SA-irb);
 %let cet4_lib = C:\data\cet7\analysis\AutoMEQ-SA-v4.0-(AutoMEQ-SA-irb);
 %let cet5_lib = C:\data\cet7\analysis\AutoMEQ-SA-v5.0-(AutoMEQ-SA-irb);
@@ -14,16 +14,25 @@ options compress=NO;
 
 %let cet7_06_lib = C:\data\cet_200506\analysis;
 %let cet7_11_lib = C:\data\cet_200511\analysis;
+*/
+
+%let cet8_lib = c:\data\cet8\analysis;
+%let helpers = c:\data\cet8\analysis;
 
 
-libname helpers "&helpers";
+libname helpers "&cet8_lib";
 
+/*
 libname cet3 "&cet3_lib";
 libname cet4 "&cet4_lib";
 libname cet5 "&cet5_lib";
 libname cet7old "&cet7old_lib";
 libname cet7_06 "&cet7_06_lib";
 libname cet7 "&cet7_11_lib";
+*/
+
+libname cet7 "&cet8_lib";
+
 
 proc format;
 	value phasef   
@@ -122,15 +131,28 @@ options pagesize=50 linesize=120;
 
 /* %include "&cet5_lib\automeq_formats.sas"; */
 
+/*
 %include "\cvs2\Dialogix\cet_analysis\LoadAutomeq7-200511data.sas";
 
 data cet7.automeq7; set automeq7;
 run;
+*/
 
+/*
 data cet7.automeq_all; set cet7old.automeq3 cet7old.automeq4 cet7old.automeq5all cet7.automeq7;
 	format zip_gis $ 5.;
 	zip_gis = put(d_zip,z5.);
 run;
+*/
+
+data cet7.automeq_all; set automeq3 automeq4 automeq5 automeq7; 
+	format zip_gis $ 5.;
+	zip_gis = put(d_zip,z5.);
+run;
+
+proc sql;
+	drop table automeq3, automeq4, automeq5, automeq7;
+quit;
 
 /* 6/27:  Not needed -- 21763 records either way
 proc sql;
@@ -170,7 +192,7 @@ data cet7.zips; set zips;
 run;
 
 PROC IMPORT OUT=cet7.musa_zip_25dg
-            DATAFILE= "C:\data\cet-2005-04\zip_centroids_2p5dg.xls"
+            DATAFILE= "&helpers\zip_centroids_2p5dg.xls"
             DBMS=EXCEL2000 REPLACE;
      GETNAMES=YES;
 RUN;
@@ -189,6 +211,7 @@ proc sql;
 quit;
 
 /* 6/27: which is best match for zips from our data (e.g. how much is lost?) */
+/*
 proc sql;
 	create table test as
 	select a.zip_gis, count(zip) as NumMatches
@@ -202,8 +225,9 @@ quit;
 proc freq data=test;
 	tables NumMatches;
 run;
+*/
 /* 149 non-matches to Musa data */
-
+/*
 proc sql;
 	create table test as
 	select a.zip_gis, count(zipcode) as NumMatches
@@ -217,11 +241,12 @@ quit;
 proc freq data=test;
 	tables NumMatches;
 run;
+*/
 /* 26 non-matches on purchased data */
 
 /* Also merge in 1 degree units? */
 PROC IMPORT OUT=cet7.musa_zip_1and5dg 
-            DATAFILE= "C:\data\cet-2005-04\analysis-0526\zip_centroids_div_coop_5dg_1dg_cnty_dem99.xls"
+            DATAFILE= "&helpers\zip_centroids_div_coop_5dg_1dg_cnty_dem99.xls"
             DBMS=EXCEL2000 REPLACE;
      GETNAMES=YES;
 RUN;
@@ -327,6 +352,8 @@ proc sql;
 	order by a.zipcode;
 quit;
 
+%JoinSunriseTimeWithZip;
+
 proc sql;
 	create table cet7.zip_gis as
 	select a.*, b.sunrise_local_win_solst, b.sunrise_local_sum_solst, b.Sunrise_WSvsSS
@@ -357,11 +384,17 @@ proc sql;
 	order by a.zipcode;
 quit;
 
+/* cleanup */
+proc sql;
+	drop table dist_from_boundary, dist_from_boundary2, dist_from_boundary3, dist_from_boundary4, dist_from_boundary_gmt, rnd_zip, states, sunrisetimes, zips, zip_with_sunrise;
+quit;
+
 %mend LoadSupportTables;
 
 %macro JoinAutomeqWithGeocoding;
 /* N.B. This may lose considerable data if people aren't filling in their zip codes! */
 /* This used to join on the state name, in which case we approximated the latitude */
+/* Also, this is the slowest step - taking about 10-15 minutes */
 proc sql;
 	create table cet7.automeq_zip as
 	select distinct l.*, r.*
@@ -379,15 +412,175 @@ data nozip; set cet7.automeq_zip;
 	if (zipcode ne '') then ziptype2 = 'real'; else ziptype2 = 'invalid';
 run;
 
+%mend JoinAutomeqWithGeocoding;
+
+%macro DescriptiveStatistics;
+
 proc freq data=nozip;
 	tables _state_name * ziptype;
 	tables _state_name * ziptype2;
 run;
+/* 6/5/2005:  */
 /* 7259 "real?" values, 374 invalid, 24 missing */
 /* 6941 "real" values, 716 invalid (9.35%) - using Musa's zip criteria */
 /* Note, 6789 subjects "joined" the study - so how are there more real values than participants? */
+/* 11/16/06
+	9605 real values, 1006 invalid - seems odd so few additional participants
+	9234 joined
+	6987 complete
+	9539 okzip
+	5900 keep
+	9539 US
+*/
+	
+proc freq data=cet7.automeq;
+	table complete
+	table d_study;
+	table joined;
+	table country;
+	table okzip;
+	table keep;
+	table useForSADvsMDDanalysis;
+run;	
+/* 11/16/06
+	Full data:
+	21059 complete
+	13602 d_study
+	12898 joined
+	10627 US
+	1109 Canada
+	9606 okzip
+	
+	5930 keep
+	4434 useforSADvsMDDanalysis
+*/
 
-%mend JoinAutomeqWithGeocoding;
+proc freq data=cet7.automeq;
+	tables d_age	/* 21 < 14; 1 > 100, 21693 missing, leaving 13438 */
+		meqstd			/* 21059 < 1.7, leaving 21059 */
+		lat_good		/* 24438 missing, leaving 10715 */
+		workdays		/* 343 < 0, leaving 12898 */
+		wakenwk			/* leaves 12495 */
+		sleepnwk		/* leaves 12359 */
+		sduravg			/* leaves 11308 */
+		smidavg			/* leaves 11308 */
+		meq					/* leaves 21144 */
+		d_sex				/* leaves 13410 */
+		eye_type		/* leaves 13412 */
+		abnlslep		/* leaves 21139 */
+		longslep		/* leaves 35112 */
+		joined			/* leaves 12898 */
+		complete		/* leaves 21059 */
+		d_who				/* leaves 24657 */
+		okzip				/* leaves 9606 */
+		d_los				/* leaves 13227 */
+		workdays		/* leaves 10775 before looking at sdurwk */
+		sdurwrk			/* leaves 10088 after removing < 4 and > 12 */
+		sdurnwk			/* leaves 11698 after removing < 4 and > 12 */
+	;
+run;	/* This takes 50 seconds*/
+
+proc sql;		/* This takes about 20 minutes */
+	/*	21715			*/		select count(*) from cet7.automeq where (d_age > 100 or d_age < 14);
+	/*	86			*/		select count(*) from cet7.automeq where (meqstd > 1.7);
+	/*	24438			*/		select count(*) from cet7.automeq where (lat_good = .);
+	/*	22255			*/		select count(*) from cet7.automeq where (workdays < 0);
+	/*	22976			*/		select count(*) from cet7.automeq where (wakenwk = . or sleepnwk = .);
+	/*	819			*/		select count(*) from cet7.automeq where (workdays > 0 and (wakewrk = . or sleepwrk = .));
+	/*	23845			*/		select count(*) from cet7.automeq where (sduravg = . or smidavg = .);
+	/*	14009			*/		select count(*) from cet7.automeq where (meq = . or meq > 100);
+	/*	11			*/		select count(*) from cet7.automeq where (d_sex = -1 or d_sex > 2);
+	/*	21741			*/		select count(*) from cet7.automeq where (eye_type = .);
+	/*	836			*/		select count(*) from cet7.automeq where (abnlslep = 1);
+	/*	41			*/		select count(*) from cet7.automeq where (longslep = 1);
+	/*	22255			*/		select count(*) from cet7.automeq where (joined ^= 1);
+	/*	14094			*/		select count(*) from cet7.automeq where (complete ^= 1);
+	/*	10496			*/		select count(*) from cet7.automeq where (d_who ^= 1);
+	/*	25547			*/		select count(*) from cet7.automeq where (okzip = 0);
+	/*	21926			*/		select count(*) from cet7.automeq where (d_los ^= 1);
+	/*	1030			*/		select count(*) from cet7.automeq where (workdays > 0 and (sdurwrk < 4 or sdurwrk > 12));
+	/*	23427			*/		select count(*) from cet7.automeq where (sdurnwk < 4 or sdurnwk > 12);
+	/*	23417			*/		select count(*) from cet7.automeq where (not (country = 'United States' or country = 'Canada'));
+quit;
+
+/* 11/17/06 - Need to look incrementally at what is killing the keep variable */
+data automeq0; set cet7.automeq;
+	if (d_age > 100 or d_age < 14) then k1 = 1;
+	if (meqstd > 1.7) or k1 = 1 then k2 = 1;
+	if (lat_good = .) or k2 = 1 then k3 = 1;
+	if (workdays < 0) or k3 = 1 then k4 = 1;
+	if (wakenwk = . or sleepnwk = .) or k4 = 1 then k5 = 1;
+	if (workdays > 0 and (wakewrk = . or sleepwrk = .)) or k5 = 1 then k6 = 1;
+	if (sduravg = . or smidavg = .) or k6=1 then k7 = 1;
+	if (meq = . or meq > 100) or k7=1 then k8=1;
+	if (d_sex = -1 or d_sex > 2) or k8=1 then k9=1;
+	if (eye_type = .) or k9=1 then k10=1;
+	if (abnlslep = 1) or k10=1 then k11=1;
+	if (longslep = 1) or k11=1 then k12=1;
+	if (joined ^= 1) or k12=1 then k13=1;
+	if (complete ^= 1) or k13=1 then k14=1;
+	if (d_who ^= 1) or k14=1 then k15=1;
+	if (okzip = 0) or k15=1 then k16=1;
+	if (d_los ^= 1) or k16=1 then k17=1;
+	if (workdays > 0 and (sdurwrk < 4 or sdurwrk > 12)) or k17=1 then k18=1;
+	if (sdurnwk < 4 or sdurnwk > 12) or k18=1 then k19=1;
+	if (not (country = 'United States' or country = 'Canada')) or k19=1 then k20=1;
+run;
+
+proc sql;
+	create table stats as
+		select distinct
+			sum(k1) as k1,
+			sum(k2) as k2,
+			sum(k3) as k3,
+			sum(k4) as k4,
+			sum(k5) as k5,
+			sum(k6) as k6,
+			sum(k7) as k7,
+			sum(k8) as k8,
+			sum(k9) as k9,
+			sum(k10) as k10,
+			sum(k11) as k11,
+			sum(k12) as k12,
+			sum(k13) as k13,
+			sum(k14) as k14,
+			sum(k15) as k15,
+			sum(k16) as k16,
+			sum(k17) as k17,
+			sum(k18) as k18,
+			sum(k19) as k19,
+			sum(k20) as k20
+		from automeq0;
+quit;
+
+data cet7.stats2; set stats;
+	format name $50.;
+	keep left name cumval val;
+	left = 35153-k1;	name= "(d_age > 100 or d_age < 14)";                     	cumval=k1; val=k1; output;
+	left = 35153-k2;	name= "(meqstd > 1.7)";                                  	cumval=k2; val=k2-k1; output;
+	left = 35153-k3;	name= "(lat_good = .)";                                  	cumval=k3; val=k3-k2; output;
+	left = 35153-k4;	name= "(workdays < 0)";                                  	cumval=k4; val=k4-k3; output;
+	left = 35153-k5;	name= "(wakenwk = . or sleepnwk = .)";                   	cumval=k5; val=k5-k4; output;
+	left = 35153-k6;	name= "(workdays > 0 and (wakewrk = . or sleepwrk = .))";	cumval=k6; val=k6-k5; output;
+	left = 35153-k7;	name= "(sduravg = . or smidavg = .)";                    	cumval=k7; val=k7-k6; output;
+	left = 35153-k8;	name= "(meq = . or meq > 100)";                          	cumval=k8; val=k8-k7; output;
+	left = 35153-k9;	name= "(d_sex = -1 or d_sex > 2)";                       	cumval=k9; val=k9-k8; output;
+	left = 35153-k10;	name= "(eye_type = .)";                                  	cumval=k10; val=k10-k9; output;
+	left = 35153-k11;	name= "(abnlslep = 1)";                                  	cumval=k11; val=k11-k10; output;
+	left = 35153-k12;	name= "(longslep = 1)";                                  	cumval=k12; val=k12-k11; output;
+	left = 35153-k13;	name= "(joined ^= 1)";                                   	cumval=k13; val=k13-k12; output;
+	left = 35153-k14;	name= "(complete ^= 1)";                                 	cumval=k14; val=k14-k13; output;
+	left = 35153-k15;	name= "(d_who ^= 1)";                                    	cumval=k15; val=k15-k14; output;
+	left = 35153-k16;	name= "(okzip = 0)";                                     	cumval=k16; val=k16-k15; output;
+	left = 35153-k17;	name= "(d_los ^= 1)";                                    	cumval=k17; val=k17-k16; output;
+	left = 35153-k18;	name= "(workdays > 0 and (sdurwrk < 4 or sdurwrk > 12))";	cumval=k18; val=k18-k17; output;
+	left = 35153-k19;	name= "(sdurnwk < 4 or sdurnwk > 12)";                   	cumval=k19; val=k19-k18; output;
+	left = 35153-k20;	name= "(not (country = 'United States' or country = 'Canada'))";	cumval=k20; val=k20-k19; output;
+run;
+
+/* much loss from lat_good, meq, abnlslp, okzip - can any of these be reclaimed? */
+
+%mend DescriptiveStatistics;
 
 %macro ProcessAutoMeqData;
 data cet7.automeq; set cet7.automeq_zip;
@@ -460,8 +653,11 @@ data cet7.automeq; set cet7.automeq_zip;
 	else if (startdat >= mdy(10,31,2004) and startdat < mdy(4,3,2005)) then wasDST = 0;
 	else if (startdat >= mdy(4,3,2005) and startdat < mdy(10,30,2005)) then wasDST = 1;
 	else if (startdat >= mdy(10,30,2005) and startdat < mdy(4,2,2006)) then wasDST = 0;
-	else if (startdat >= mdy(4,2,2006)) then wasDST = 1;
-	
+	else if (startdat >= mdy(4,2,2006) and startdat < mdy(10,29,2006)) then wasDST = 1;
+	else if (startdat >= mdy(10,29,2006) and startdat < mdy(3,11,2007)) then wasDST = 0;	
+	else if (startdat >= mdy(3,11,2007) and startdat < mdy(11,4,2007)) then wasDST = 1;
+	else wasDST = 0;
+
 	format zip_gis $ 5.;
 	zip_gis = put(d_zip,z5.);
 		
@@ -921,7 +1117,8 @@ data cet7.automeq; set cet7.automeq_zip;
 	Y_2dg = round(Y,2);
 	if (Y_2dg > 48) then Y_2dg = 50;		
 	
-	if (Y_2dg <= 26) then delete;	/* Do I really want to delete these? */
+	/* if (Y_2dg <= 26) then delete;	 */
+	/* Do I really want to delete these? */
 
 	Y_4dg = round(Y,4);
 	if (Y_4dg > 48) then Y_4dg = 52;	
@@ -1880,7 +2077,7 @@ proc sort data=automeq;
 	by age_cat;
 run;
 
-%StartAnODSReport("C:\data\cet_200511\analysis\irbreport2006.htm");
+%StartAnODSReport("&cet8_lib\irbreport2006.htm");
 
 proc sql;
 	select count(UniqueID) as NumUsers_zip from cet7.automeq_zip;
@@ -2188,7 +2385,7 @@ proc sql;
 quit;
 
 PROC EXPORT DATA= WORK.SAD_DATA_AT_1DG 
-            OUTFILE= "C:\data\cet-2005-04\analysis-0526\sad_data_at_1dg.xls" 
+            OUTFILE= "&cet8_lib\analysis-0526\sad_data_at_1dg.xls" 
             DBMS=EXCEL2000 REPLACE;
 RUN;
 
@@ -2230,7 +2427,7 @@ proc sql;
 quit;
 
 PROC EXPORT DATA= WORK.SAD_DATA_AT_5DG 
-            OUTFILE= "C:\data\cet-2005-04\analysis-0526\sad_data_at_5dg.xls" 
+            OUTFILE= "&cet8_lib\sad_data_at_5dg.xls" 
             DBMS=EXCEL2000 REPLACE;
 RUN;
 
@@ -2288,7 +2485,7 @@ proc sql;
 quit;
 
 PROC EXPORT DATA= WORK.sad_data_at_2_5dg 
-            OUTFILE= "C:\data\cet-2005-04\analysis-0526\sad_data_at_2_5dg.xls" 
+            OUTFILE= "&cet8_lib\sad_data_at_2_5dg.xls" 
             DBMS=EXCEL2000 REPLACE;
 RUN;
 
@@ -2327,7 +2524,7 @@ proc sql;
 quit;
 
 PROC EXPORT DATA= WORK.SAD_DATA_AT_TIER
-            OUTFILE= "C:\data\cet-2005-04\analysis-0526\sad_data_at_tier.xls" 
+            OUTFILE= "&cet8_lib\sad_data_at_tier.xls" 
             DBMS=EXCEL2000 REPLACE;
 RUN;
 %mend TimezoneAnalyses_3;
@@ -2426,7 +2623,7 @@ proc sql;
 quit;
 
 PROC EXPORT DATA= WORK.sad_data_for_Anova
-            OUTFILE= "C:\data\cet-2005-04\analysis-0526\sad_data_for_Anova.xls" 
+            OUTFILE= "&cet8_lib\sad_data_for_Anova.xls" 
             DBMS=EXCEL2000 REPLACE;
 RUN;
 %mend TimezoneAnalyes_5;	/* extract subset -- not needed? */
@@ -3799,9 +3996,12 @@ Multiply odds ratio (percent change) of people in western timezone_side X percen
 %SetInitParams;
 
 /*
+%LoadRawData;
+%ImportPoint1SunriseTimes;
 %LoadSupportTables;
-%JoinAutomeqWithGeocoding;
+%JoinAutomeqWithGeocoding;	
 %ProcessAutoMeqData;
+%DescriptiveStatistics;
 %MakeDataSubsets;
 %RunAllRegressions;
 %CreateTimezoneBins;
