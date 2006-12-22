@@ -480,29 +480,6 @@ proc freq data=cet7.automeq;
 	;
 run;	/* This takes 50 seconds*/
 
-proc sql;		/* This takes about 20 minutes */
-	/*	21715			*/		select count(*) from cet7.automeq where (d_age > 100 or d_age < 14);
-	/*	86			*/		select count(*) from cet7.automeq where (meqstd > 1.7);
-	/*	24438			*/		select count(*) from cet7.automeq where (lat_good = .);
-	/*	22255			*/		select count(*) from cet7.automeq where (workdays < 0);
-	/*	22976			*/		select count(*) from cet7.automeq where (wakenwk = . or sleepnwk = .);
-	/*	819			*/		select count(*) from cet7.automeq where (workdays > 0 and (wakewrk = . or sleepwrk = .));
-	/*	23845			*/		select count(*) from cet7.automeq where (sduravg = . or smidavg = .);
-	/*	14009			*/		select count(*) from cet7.automeq where (meq = . or meq > 100);
-	/*	11			*/		select count(*) from cet7.automeq where (d_sex = -1 or d_sex > 2);
-	/*	21741			*/		select count(*) from cet7.automeq where (eye_type = .);
-	/*	836			*/		select count(*) from cet7.automeq where (abnlslep = 1);
-	/*	41			*/		select count(*) from cet7.automeq where (longslep = 1);
-	/*	22255			*/		select count(*) from cet7.automeq where (joined ^= 1);
-	/*	14094			*/		select count(*) from cet7.automeq where (complete ^= 1);
-	/*	10496			*/		select count(*) from cet7.automeq where (d_who ^= 1);
-	/*	25547			*/		select count(*) from cet7.automeq where (okzip = 0);
-	/*	21926			*/		select count(*) from cet7.automeq where (d_los ^= 1);
-	/*	1030			*/		select count(*) from cet7.automeq where (workdays > 0 and (sdurwrk < 4 or sdurwrk > 12));
-	/*	23427			*/		select count(*) from cet7.automeq where (sdurnwk < 4 or sdurnwk > 12);
-	/*	23417			*/		select count(*) from cet7.automeq where (not (country = 'United States' or country = 'Canada'));
-quit;
-
 /* 11/17/06 - Need to look incrementally at what is killing the keep variable */
 data automeq0; set cet7.automeq;
 	if (d_age > 100 or d_age < 14) then k1 = 1;
@@ -3385,7 +3362,7 @@ Multiply odds ratio (percent change) of people in western timezone_side X percen
 	data cet7.automeq_keepers; set cet7.automeq;
 		where keep=1;
 		/* create constants needed for regression, which can't seem to model them itself */
-		dtz2 = dist_from_easternmost_tz_edge;
+/*		dtz2 = dist_from_easternmost_tz_edge; */
 		Y_x_dist_from_tzb = Y*dtz2;	/* dist_from_timezone_boundary */
 		BMI_x_dist_from_tzb = d_BMI*dist_from_timezone_boundary;
 		age_x_dist_from_tzb = d_age*dist_from_timezone_boundary;
@@ -5224,3 +5201,319 @@ run;
 	
 	
 */
+/* 12/14/06 - Output from ProcessAutoMEQData *
+                                                     The SAS System                08:22 Thursday, December 14, 2006   3
+
+                                                   The FREQ Procedure
+
+                              useForSADvs                             Cumulative    Cumulative
+                              MDDanalysis    Frequency     Percent     Frequency      Percent
+                         ƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒ
+                                        1        4434      100.00          4434       100.00
+
+                                               Frequency Missing = 30719
+
+
+                                                                Cumulative    Cumulative
+                               keep    Frequency     Percent     Frequency      Percent
+                               ƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒ
+                                  0       29223       83.13         29223        83.13
+                                  1        5930       16.87         35153       100.00
+
+
+                                                                 Cumulative    Cumulative
+                               d_sex    Frequency     Percent     Frequency      Percent
+                              ƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒ
+                              sex?            11        0.08            11         0.08
+                              male          3721       27.73          3732        27.81
+                              female        9689       72.19         13421       100.00
+
+                                               Frequency Missing = 21732
+
+
+                                                                  Cumulative    Cumulative
+                             eye_type    Frequency     Percent     Frequency      Percent
+                             ƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒ
+                               light         4529       33.77          4529        33.77
+                               medium        4555       33.96          9084        67.73
+                               dark          4328       32.27         13412       100.00
+
+                                               Frequency Missing = 21741
+
+
+                                                                  Cumulative    Cumulative
+                             abnlslep    Frequency     Percent     Frequency      Percent
+                             ƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒ
+                                    0       21139       96.20         21139        96.20
+                                    1         836        3.80         21975       100.00
+
+                                               Frequency Missing = 13178
+
+
+
+                                                     The SAS System                08:22 Thursday, December 14, 2006   4
+
+                                                   The FREQ Procedure
+
+                                                                  Cumulative    Cumulative
+                             longslep    Frequency     Percent     Frequency      Percent
+                             ƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒ
+                                    0       35112       99.88         35112        99.88
+                                    1          41        0.12         35153       100.00
+
+
+                                                                 Cumulative    Cumulative
+                              joined    Frequency     Percent     Frequency      Percent
+                              ƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒ
+                                   0       22255       63.31         22255        63.31
+                                   1       12898       36.69         35153       100.00
+
+
+                                                                  Cumulative    Cumulative
+                             complete    Frequency     Percent     Frequency      Percent
+                             ƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒ
+                                    0       14094       40.09         14094        40.09
+                                    1       21059       59.91         35153       100.00
+
+
+                                                                 Cumulative    Cumulative
+                               d_who    Frequency     Percent     Frequency      Percent
+                               ƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒ
+                                   1       24657       85.86         24657        85.86
+                                   2        2110        7.35         26767        93.21
+                                   3        1593        5.55         28360        98.76
+                                   4         357        1.24         28717       100.00
+
+                                                Frequency Missing = 6436
+
+
+                                                                 Cumulative    Cumulative
+                               okzip    Frequency     Percent     Frequency      Percent
+                               ƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒ
+                                   0       25547       72.67         25547        72.67
+                                   1        9606       27.33         35153       100.00
+
+
+
+                                                     The SAS System                08:22 Thursday, December 14, 2006   5
+
+                                                   The FREQ Procedure
+
+                                                                   Cumulative    Cumulative
+                                 d_los    Frequency     Percent     Frequency      Percent
+                            ƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒ
+                            los?                20        0.15            20         0.15
+                            < 2 weeks           66        0.50            86         0.65
+                            >= 2 weeks       13227       99.35         13313       100.00
+
+                                               Frequency Missing = 21840
+
+
+                             timezone_                             Cumulative    Cumulative
+                             band         Frequency     Percent     Frequency      Percent
+                             ƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒ
+                             east-CST         1645        4.68          1645         4.68
+                             east-EST         2067        5.88          3712        10.56
+                             other           28843       82.05         32555        92.61
+                             west-EST          779        2.22         33334        94.83
+                             west-PST         1819        5.17         35153       100.00
+
+
+                             timezone_                             Cumulative    Cumulative
+                             side         Frequency     Percent     Frequency      Percent
+                             ƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒ
+                             east             3712       58.83          3712        58.83
+                             west             2598       41.17          6310       100.00
+
+                                               Frequency Missing = 28843
+*/
+/* 12/14 *
+5469  %MakeDataSubsets;
+
+NOTE: Missing values were generated as a result of performing an operation on missing values.
+      Each place is given by: (Number of times) at (Line):(Column).
+      1011 at 1:151   1011 at 2:90    1011 at 2:177   1011 at 2:218   1011 at 3:42
+NOTE: There were 5930 observations read from the data set CET7.AUTOMEQ.
+      WHERE keep=1;
+NOTE: The data set CET7.AUTOMEQ_KEEPERS has 5876 observations and 623 variables.
+NOTE: DATA statement used:
+      real time           1:23.98
+      cpu time            1.63 seconds
+
+
+
+NOTE: There were 3987 observations read from the data set CET7.AUTOMEQ_KEEPERS.
+      WHERE Y>=39;
+NOTE: The data set CET7.AUTOMEQ_GT_39 has 3987 observations and 623 variables.
+NOTE: DATA statement used:
+      real time           5.17 seconds
+      cpu time            0.42 seconds
+
+
+
+NOTE: There were 2688 observations read from the data set CET7.AUTOMEQ_GT_39.
+      WHERE season=1;
+NOTE: The data set CET7.AUTOMEQ_GT_39_WINTER has 2688 observations and 623 variables.
+NOTE: DATA statement used:
+      real time           0.28 seconds
+      cpu time            0.28 seconds
+
+
+
+NOTE: There were 3899 observations read from the data set CET7.AUTOMEQ_KEEPERS.
+      WHERE season=1;
+NOTE: The data set CET7.AUTOMEQ_WINTER has 3899 observations and 623 variables.
+NOTE: DATA statement used:
+      real time           8.61 seconds
+      cpu time            0.39 seconds
+
+
+NOTE: Table WORK.MUSA_SEAS_MDD_EQN created, with 3818 rows and 8 columns.
+
+NOTE: PROCEDURE SQL used:
+      real time           1.08 seconds
+      cpu time            0.18 seconds
+
+
+
+*/
+
+
+/* 12/15/06 Notes *
+
+[ ] Re-run cet_keepers of dtz2 vs. photoperiod regression to get regression equation - only those 2 variables
+[ ] do sanity check of me vs fl - me should have higher seas_mdd rate.
+[ ] Try to add last month - MSN input
+[ ] Sanity check of whether data look good - realistic # of new cases?  % complete?
+[ ] What other changes needed to be made to instrument?
+ - add month of birth
+ - Check Bscore filtering of SANS f/u questions.
+*/
+
+/* Output from Descriptive Statistics on 12/19/06 *
+                                                     The SAS System                 20:18 Tuesday, December 19, 2006   3
+
+                                                   The FREQ Procedure
+
+                              useForSADvs                             Cumulative    Cumulative
+                              MDDanalysis    Frequency     Percent     Frequency      Percent
+                         ƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒ
+                                        1        5532      100.00          5532       100.00
+
+                                               Frequency Missing = 45910
+
+
+                                                                Cumulative    Cumulative
+                               keep    Frequency     Percent     Frequency      Percent
+                               ƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒ
+                                  0       44108       85.74         44108        85.74
+                                  1        7334       14.26         51442       100.00
+
+
+                                                                 Cumulative    Cumulative
+                               d_sex    Frequency     Percent     Frequency      Percent
+                              ƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒ
+                              sex?            17        0.09            17         0.09
+                              male          5213       26.52          5230        26.60
+                              female       14429       73.40         19659       100.00
+
+                                               Frequency Missing = 31783
+
+
+                                                                  Cumulative    Cumulative
+                             eye_type    Frequency     Percent     Frequency      Percent
+                             ƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒ
+                               light         6627       33.74          6627        33.74
+                               medium        6535       33.27         13162        67.01
+                               dark          6480       32.99         19642       100.00
+
+                                               Frequency Missing = 31800
+
+
+                                                                  Cumulative    Cumulative
+                             abnlslep    Frequency     Percent     Frequency      Percent
+                             ƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒ
+                                    0       27888       96.20         27888        96.20
+                                    1        1101        3.80         28989       100.00
+
+                                               Frequency Missing = 22453
+
+
+
+                                                     The SAS System                 20:18 Tuesday, December 19, 2006   4
+
+                                                   The FREQ Procedure
+
+                                                                  Cumulative    Cumulative
+                             longslep    Frequency     Percent     Frequency      Percent
+                             ƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒ
+                                    0       51379       99.88         51379        99.88
+                                    1          63        0.12         51442       100.00
+
+
+                                                                 Cumulative    Cumulative
+                              joined    Frequency     Percent     Frequency      Percent
+                              ƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒ
+                                   0       32686       63.54         32686        63.54
+                                   1       18756       36.46         51442       100.00
+
+
+                                                                  Cumulative    Cumulative
+                             complete    Frequency     Percent     Frequency      Percent
+                             ƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒ
+                                    0       24657       47.93         24657        47.93
+                                    1       26785       52.07         51442       100.00
+
+
+                                                                 Cumulative    Cumulative
+                               d_who    Frequency     Percent     Frequency      Percent
+                               ƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒ
+                                   1       36773       88.34         36773        88.34
+                                   2        2375        5.71         39148        94.04
+                                   3        1952        4.69         41100        98.73
+                                   4         528        1.27         41628       100.00
+
+                                                Frequency Missing = 9814
+
+
+                                                                 Cumulative    Cumulative
+                               okzip    Frequency     Percent     Frequency      Percent
+                               ƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒ
+                                   0       37028       71.98         37028        71.98
+                                   1       14414       28.02         51442       100.00
+
+
+
+                                                     The SAS System                 20:18 Tuesday, December 19, 2006   5
+
+                                                   The FREQ Procedure
+
+                                                                   Cumulative    Cumulative
+                                 d_los    Frequency     Percent     Frequency      Percent
+                            ƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒ
+                            los?                24        0.12            24         0.12
+                            < 2 weeks           90        0.47           114         0.59
+                            >= 2 weeks       19239       99.41         19353       100.00
+
+                                               Frequency Missing = 32089
+
+
+                             timezone_                             Cumulative    Cumulative
+                             band         Frequency     Percent     Frequency      Percent
+                             ƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒ
+                             east-CST         2305        4.48          2305         4.48
+                             east-EST         2851        5.54          5156        10.02
+                             other           42745       83.09         47901        93.12
+                             west-EST         1139        2.21         49040        95.33
+                             west-PST         2402        4.67         51442       100.00
+
+
+                             timezone_                             Cumulative    Cumulative
+                             side         Frequency     Percent     Frequency      Percent
+                             ƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒ
+                             east             5156       59.28          5156        59.28
+                             west             3541       40.72          8697       100.00
+
+                                               Frequency Missing = 42745
+                                               
+*/                                               
