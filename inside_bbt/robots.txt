@@ -1,2 +1,0 @@
-User-agent: *
-Disallow: conn_dialogix.php
