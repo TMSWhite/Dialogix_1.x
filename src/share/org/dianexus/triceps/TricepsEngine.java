@@ -140,18 +140,6 @@ public class TricepsEngine implements VersionIF {
 			XmlString form = null;
 			firstFocus = null; // reset it each time
 			
-			if(triceps.getPageHitBean()==null){
-				System.out.println("doPost:PHB is null");
-				phb = new PageHitBean();
-				phb.setReceivedRequest(timeNow);
-				//triceps.setPageHitBean(phb);
-			}else{
-				System.out.println("doPost:PHB is NOT null");
-				phb = triceps.getPageHitBean();
-				phb.setReceivedRequest(timeNow);
-				
-				
-			}
 			directive = req.getParameter("DIRECTIVE");	// XXX: directive must be set before calling processHidden
 			
 			if (directive != null && directive.trim().length() == 0) {
@@ -168,15 +156,29 @@ if (DEPLOYABLE) {
 				triceps.processEventTimings(req.getParameter("EVENT_TIMINGS"));
 				// new database code to store page hit info in db
 				// added by GLyons on 4-24-06
-				
+				if(triceps.getPageHitBean()==null){
+					System.out.println("doPost:PHB is null");
+					phb = new PageHitBean();
+					phb.setReceivedRequest(System.currentTimeMillis());
+					triceps.setPageHitBean(phb);
+				}else{
+					System.out.println("doPost:PHB is NOT null");
+					phb = triceps.getPageHitBean();
+					phb.setReceivedRequest(System.currentTimeMillis());
+					
+					
+				}
 				triceps.receivedResponseFromUser();
-				phb.processEvents();
-				phb.store();
+				
 				if(req.getParameter("EVENT_TIMINGS")!= null){
 				phb.parseSource(req.getParameter("EVENT_TIMINGS"));
 				System.out.println("doPost: PHB parsed source");
+				phb.setSentResponse();
+				phb.processEvents();
+				System.out.println("doPost: events processed ready to store");
 				
-				
+				System.out.println("doPost: serverTime is "+phb.getServerDuration());
+				phb.store();
 				}
 }			
 			}
@@ -186,11 +188,10 @@ if (DEPLOYABLE) {
 			processPreFormDirectives();
 			processHidden();
 			
-			phb.setSentResponse();
+			
 			triceps.setPageHitBean(phb);
 			form = new XmlString(triceps, createForm(hiddenLoginToken));
-			phb = triceps.getPageHitBean();
-	
+			phb = new PageHitBean();
 			out.println(header());	// must be processed AFTER createForm, otherwise setFocus() doesn't work
 			new XmlString(triceps, getCustomHeader(),out);
 

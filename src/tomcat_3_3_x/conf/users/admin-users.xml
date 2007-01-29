@@ -1,3 +1,0 @@
-<tomcat-users>
-  <user name="admin" password="aka##triceps" roles="tomcat_admin,tomcat,role1" />
-</tomcat-users>
