@@ -159,12 +159,12 @@ if (DEPLOYABLE) {
 				if(triceps.getPageHitBean()==null){
 					System.out.println("doPost:PHB is null");
 					phb = new PageHitBean();
-					phb.setReceivedRequest();
+					phb.setReceivedRequest(System.currentTimeMillis());
 					triceps.setPageHitBean(phb);
 				}else{
 					System.out.println("doPost:PHB is NOT null");
 					phb = triceps.getPageHitBean();
-					phb.setReceivedRequest();
+					phb.setReceivedRequest(System.currentTimeMillis());
 					
 					
 				}
