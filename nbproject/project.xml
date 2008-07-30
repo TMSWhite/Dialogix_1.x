@@ -1,0 +1,108 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://www.netbeans.org/ns/project/1">
+    <type>org.netbeans.modules.ant.freeform</type>
+    <configuration>
+        <general-data xmlns="http://www.netbeans.org/ns/freeform-project/1">
+            <name>Dialogix2_9932</name>
+        </general-data>
+        <general-data xmlns="http://www.netbeans.org/ns/freeform-project/2">
+            <!-- Do not use Project Properties customizer when editing this file manually. -->
+            <name>Dialogix2_9932</name>
+            <properties/>
+            <folders>
+                <source-folder>
+                    <label>src\jdk12</label>
+                    <type>java</type>
+                    <location>src/jdk12</location>
+                    <encoding>UTF-8</encoding>
+                </source-folder>
+                <source-folder>
+                    <label>src\share</label>
+                    <type>java</type>
+                    <location>src/share</location>
+                    <encoding>UTF-8</encoding>
+                </source-folder>
+                <source-folder>
+                    <label>Dialogix2_9932</label>
+                    <location>.</location>
+                    <encoding>UTF-8</encoding>
+                </source-folder>
+                <source-folder>
+                    <label>Dialogix</label>
+                    <type>doc_root</type>
+                    <location>.</location>
+                </source-folder>
+                <source-folder>
+                    <label>Dialogix</label>
+                    <type>web_inf</type>
+                    <location>.</location>
+                </source-folder>
+            </folders>
+            <ide-actions>
+                <action name="build">
+                    <target>compile</target>
+                </action>
+                <action name="clean">
+                    <target>clean</target>
+                </action>
+                <action name="javadoc">
+                    <target>javadoc</target>
+                </action>
+                <action name="redeploy">
+                    <target>deploy</target>
+                </action>
+                <action name="rebuild">
+                    <target>clean</target>
+                    <target>compile</target>
+                </action>
+            </ide-actions>
+            <view>
+                <items>
+                    <source-folder style="tree">
+                        <label>Web Pages</label>
+                        <location>.</location>
+                    </source-folder>
+                    <source-folder style="tree">
+                        <label>WEB-INF Content</label>
+                        <location>.</location>
+                    </source-folder>
+                    <source-folder style="packages">
+                        <label>src\jdk12</label>
+                        <location>src/jdk12</location>
+                    </source-folder>
+                    <source-folder style="packages">
+                        <label>src\share</label>
+                        <location>src/share</location>
+                    </source-folder>
+                    <source-file>
+                        <location>build.xml</location>
+                    </source-file>
+                </items>
+                <context-menu>
+                    <ide-action name="build"/>
+                    <ide-action name="rebuild"/>
+                    <ide-action name="clean"/>
+                    <ide-action name="javadoc"/>
+                    <ide-action name="redeploy"/>
+                </context-menu>
+            </view>
+        </general-data>
+        <java-data xmlns="http://www.netbeans.org/ns/freeform-project-java/1">
+            <compilation-unit>
+                <package-root>src/jdk12</package-root>
+                <package-root>src/share</package-root>
+                <classpath mode="compile">src/share-lib/jakarta-oro.jar;src/ssl-lib/jcert.jar;src/ssl-lib/jnet.jar;src/ssl-lib/jsse.jar;src/tomcat_4_0_x/common/lib/servlet.jar;src/tomcat_4_0_x/common/lib/mysql-connector-java-3.0.5-gamma-bin.jar</classpath>
+                <source-level>1.4</source-level>
+            </compilation-unit>
+        </java-data>
+        <web-data xmlns="http://www.netbeans.org/ns/freeform-project-web/2">
+            <web-module>
+                <doc-root>.</doc-root>
+                <classpath>src/share-lib/jakarta-oro.jar;src/ssl-lib/jcert.jar;src/ssl-lib/jnet.jar;src/ssl-lib/jsse.jar;src/tomcat_4_0_x/common/lib/mysql-connector-java-3.0.5-gamma-bin.jar;src/tomcat_4_0_x/common/lib/servlet.jar</classpath>
+                <context-path/>
+                <j2ee-spec-level>1.4</j2ee-spec-level>
+                <web-inf>.</web-inf>
+            </web-module>
+        </web-data>
+    </configuration>
+</project>

@@ -1,0 +1,12 @@
+LICENSE.PACKAGE_DIR=CDCBBS
+LICENSE.STUDY_ALIAS=CDCBBS
+LICENSE.STUDY_NAME=Building Blocks Study
+LICENSE.STUDY_ICON=
+LICENSE.PRINCIPAL_INVESTIGATOR=Miriam Ehrensaft, Ph.D.
+LICENSE.GRANT_NAME=
+LICENSE.GRANT_TITLE=
+
+# This support personel information is hard-wired -- might want to make this more flexible
+SUPPORT.PHONE=
+SUPPORT.PERSON=
+SUPPORT.EMAIL=doctoreh@mac.com
