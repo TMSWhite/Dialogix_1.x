@@ -1,0 +1,960 @@
+RESERVED	__TRICEPS_FILE_TYPE__	SCHEDULE
+RESERVED	__TITLE__	CDC parent interview
+RESERVED	__HEADER_MSG__	CDC parent interview
+RESERVED	__PASSWORD_FOR_ADMIN_MODE__	bypass
+RESERVED	__SHOW_QUESTION_REF__	TRUE
+RESERVED	__AUTOGEN_OPTION_NUM__	TRUE
+RESERVED	__DEVELOPER_MODE__	false
+RESERVED	__DEBUG_MODE__	TRUE
+RESERVED	__SCHED_AUTHORS__	"Kathy Gordon for Miriam Ehrensaft, Ph.D."
+RESERVED	__SCHED_VERSION_MAJOR__	14
+RESERVED	__SCHED_VERSION_MINOR__	0
+RESERVED	__SHOW_ADMIN_ICONS__	TRUE
+RESERVED	__SUSPEND_TO_FLOPPY__	FALSE
+RESERVED	__REFUSED_ICON_OFF__	PreferNotToAnswer-Unchecked.gif
+RESERVED	__REFUSED_ICON_ON__	PreferNotToAnswer-Checked.gif
+RESERVED	__UNKNOWN_ICON_OFF__	IDontKnow-Unchecked.gif
+RESERVED	__UNKNOWN_ICON_ON__	IDontKnow-Checked.gif					
+RESERVED	__DONT_UNDERSTAND_ICON_OFF__	IDoNotUnderstand-Unchecked.gif					
+RESERVED	__DONT_UNDERSTAND_ICON_ON__	IDoNotUnderstand-Checked.gif					
+RESERVED	__ALLOW_COMMENTS__	FALSE					
+RESERVED	__SHOW_SAVE_TO_FLOPPY_IN_ADMIN_MODE__	FALSE					
+RESERVED	__ALWAYS_SHOW_ADMIN_ICONS__	TRUE					
+RESERVED	__DISALLOW_COMMENTS__	TRUE					
+	Interviewer	Interviewer	1	[		Interviewer name	text
+	Date	Date	1	q		Date of interview	date
+	Intvtarget	Intvtarget	1	]		Person to be interviewed  	list|1|Target (study child)|2|Parent (or substitute parent)|3|Sibling
+	Confirm	Confirm	Intvtarget==1||Intvtarget==3	q		This is the interview intended for a parent or parent substitute and you indicated this person is a target child or sibling. Please reconcile this discrepancy.	nothing
+	ndINSTRUCT	ndINSTRUCT	1	[		"Before you schedule an interview, you should have an information sheet. You will use some of this information to fill in the next several items. This information is necessary for the program to run properly. For example, we may ask for information about several siblings. The information you enter now will allow the interview to use the first name of the person about whom you are enquiring at the moment, thus avoiding any confusion about whom you are referring to. "	nothing
+	Family	Family	1	q;number;1;99999		Family ID	double
+	Person	Person	1	q;number;1;99		Person 2 digit ID number (parent or substitute being interviewed) Please enter 77 for all parents or substitutes.	double
+	parrel	parrel	1	]		Relationship of respondent to study child	list|1|mother|2|father|3|step-mother|4|step-father|5|grandmother|6|grandfather|7|other (explain below)
+	_uniqueid_	_uniqueid_	1	e		Family + Person/100	nothing
+	makeFilenameEqual_uniqueid_	makeFilenameEqual_uniqueid_	1	e		__FILENAME__ = _uniqueid_	nothing
+	makeTitleEqual_uniqueid_	makeTitleEqual_uniqueid_	1	e		__TITLE_FOR_PICKLIST_WHEN_IN_PROGRESS__ = _uniqueid_	nothing
+	parrela	parrela	parrel==7	[		Relationship of parent to child	text
+	SEX	SEX	1	]		Respondent sex	list|0|Female|1|Male
+	SCNAME	SCNAME	1	[		Study child's first name	text
+	SCSEX	SCSEX	1	]		Is this child male or female?	list|0|Female|1|Male
+	SIBLINGNO	SIBLINGNO	1	q;number;0;4		Enter number of siblings of the study child about whom we will enquire 	double
+	SIB1NAME	SIB1NAME	SIBLINGNO>0	q		Enter first name of sibling 1	text
+	SIB1SEX	SIB1SEX	SIBLINGNO>0	[		Enter sex of `SIB1NAME`	list|0|Female|1|Male
+	SIB1ID	SIB1ID	SIBLINGNO>0	];number;1;99		Enter 2 digit ID of `SIB1NAME`	double
+	SIB2NAME	SIB2NAME	SIBLINGNO>1	q		Enter first name of sibling 2	text
+	SIB2SEX	SIB2SEX	SIBLINGNO>1	[		Enter sex of `SIB2NAME`	list|0|Female|1|Male
+	SIB2ID	SIB2ID	SIBLINGNO>1	];number;1;99		Enter 2 digit ID of `SIB2NAME`	double
+	SIB3NAME	SIB3NAME	SIBLINGNO>2	q		Enter first name of sibling 3	text
+	SIB3SEX	SIB3SEX	SIBLINGNO>2	[		Enter sex of `SIB3NAME`	list|0|Female|1|Male
+	SIB3ID	SIB3ID	SIBLINGNO>2	];number;1;99		Enter 2 digit ID of `SIB3NAME`	double
+	SIB4NAME	SIB4NAME	SIBLINGNO>3	q		Enter first name of sibling 4	text
+	SIB4SEX	SIB4SEX	SIBLINGNO>3	[		Enter sex of `SIB4NAME`	list|0|Female|1|Male
+	SIB4ID	SIB4ID	SIBLINGNO>3	];number;1;99		Enter 2 digit ID of `SIB4NAME`	double
+	START	START	1	q		You have entered all the information needed to start the interview.	nothing
+Demogrphics	nddirect1	nddirect1	1	[		"Directions for Interviewer: To begin the interview, you will ask to speak to the subject, and say you are calling from the Building Blocks Study. You will introduce yourself to the subject, saying:"	nothing
+Demogrphics	nddirect2	nddirect2	1	q		"""Hi, my name is ______________, and I am calling to do the interview for the Building Blocks Study that we scheduled for (respondent) to do today. Is that you?  Good. Before we start, I want to check in about a few things. Do you remember that you were sent a letter explaining about this interview, and what it would be like? The letter explained that the interview will take around an hour to an hour and a half, and we will be asking you questions about `SCNAME`’s friendships, violence by young people, your relationships with your family, and about your mood and behavior."""	nothing
+Demogrphics	nddirect3	nddirect3	1	q		"Before we begin, I want to give you a chance to ask any questions you might have about the interview. Do you have any questions before we get started? (IF YES, ANSWER ALL QUESTIONS TO THE BEST OF YOUR ABILITY; IF NO, CONTINUE…)."	nothing
+	nddirect4	nddirect4	1	q		"One thing I want to be clear about is that our talk is confidential. That means that I won't be telling anyone else what you say, not your children, family, or anyone else at all unless you give me information that someone is at risk of being seriously harmed. """	nothing
+	nddirect5	nddirect5	1	q		Do you have the response cards we mailed to you?	nothing
+	nddirect6	nddirect6	1	]		"Are you in a place where you can talk privately? IF NOT, can you find a private area right now?"	nothing
+	AGE	AGE	1	[		How old are you?	double
+	DOB	DOB	1	q		Date of birth	date
+	GRADE 	GRADE 	1	]		What was the last grade you completed in school? (DO NOT READ OPTIONS; CODE BASED ON RESPONSE.)	"list|0|complete some high school, |1| graduate high school, |3| complete some college, community college or vocational college, |4| graduate college, |5|complete some graduate school (like a Masters degree), or |6| graduate from a graduate program?"
+	ND7	ND7	1	[		"When you answer these next questions, I want you to think about `SCNAME` who participated in the Building Blocks Study back in the 1990’s."	nothing
+	SCAGE	SCAGE	1	q		How old is `SCNAME` now?	double
+	SCDOB	SCDOB	1	q		What is `SCSEX==0?'her':'his'` date of birth?	date
+	SCRACE	SCRACE	1	]		"What is `SCNAME`’s ethnicity, would you say …"	list|1|White-not latino |2| African American |3| Asian |4| Latino-white |5| Latino-nonwhite |6| Mixed (white/African-American) |7| Mixed (white-Asian) or |8| Mixed other |9| Other (INTERVIEWER SHOULD NOT READ Other OPTION CHOICE. USE ONLY IF ABSOLUTELY NECESSARY.)
+	SCRACE2	SCRACE2	SCRACE==9	q		Please specify ethnicity	text
+	ndSCHOOL	ndSCHOOL	1	[		"What is `SCNAME`’s current grade (or in summer, the grade last completed):"	nothing
+	SCHOOL	SCHOOL	1	q		"For grades 1-12, code = number of grade"	double
+	ndSCHOOL2	ndSCHOOL2	1	q		13 = Nursery/preschool	nothing
+	ndSCHOOL3	ndSCHOOL3	1	q		14 = Kindergarden	nothing
+	ndSCHOOL4	ndSCHOOL4	1	q		15 = Ungraded school	nothing
+	ndSCHOOL5	ndSCHOOL5	1	q		16 = College	nothing
+	ndSCHOOL6	ndSCHOOL6	1	q		17 = Dropped out	nothing
+	ndSCHOOL7	ndSCHOOL7	1	q		18 = Not in school (child under 6)	nothing
+	ndSCHOOL8	ndSCHOOL8	1	q		19 = Not in school (graduated)	nothing
+	ndSCHOOL9	ndSCHOOL9	1	q		20 = Home school	nothing
+	ndSCHOOL10	ndSCHOOL10	1	]		99= Don’t know	nothing
+	SCHOOL2	SCHOOL2	SCHOOL<17	q		Is `SCSEX==0?'her':'his'` school a ... 	list|1|regular public school|2| regular private school|3|trade/vocational school|4| a special school for children with emotional or behavioral difficulties |5|a special school for handicapped children |6| a special school for mentally retarded children |7| charter school
+	SCHOOL3	SCHOOL3	SCHOOL2<4	q		Does `SCSEX==0?'she':'he'`  attend resource or remedial classes?	list|1| = Yes |0| = no
+	HOME	HOME	1	q		Which of these situations best describes `SCNAME`’s living circumstances:	list|1| Parental home (at least 1 parent) |2| Relatives (other than parents) |3| With child’s boyfriend/girlfriend or spouse (includes cohabitation or commonlaw arrangement) |4| with unrelated adults |5| foster home |6| Group home |7| Institution |8| Other (specify below)
+	HOMEtxt	HOMEtxt	HOME==8	q		Other home situation	text
+	HOME2	HOME2	1	[		"How long has `SCSEX==0?'she':'he'`  been in this current living situation ( ENTER IN MONTHS; IF GIVEN IN YEARS, MULTIPLY BY 12: 777 = whole life, always)"	double
+	GUARD	GUARD	1	]		Who is `SCNAME`’s guardian? 	list|1| mother |2| mother and father |3| father |4| none (emancipated minor) |5| other (specifiy below)
+	GUARD2	GUARD2	GUARD==5	q		Specify guardianship	text
+	FOSTER	FOSTER	1	q		Has `SCNAME` ever been in formal foster care?	list|0| no |1| yes |9| Don't know
+Demogrphics	FOSTERa	FOSTERa	FOSTER==1	[		total number of foster placements	double
+	FOSTERb	FOSTERb	FOSTER==1	q		What was `SCSEX==0?'her':'his'` age at first placement (in years; code 01 for 1 year or younger)	double
+	FOSTERc	FOSTERc	FOSTER==1	]		total number of years in foster care; code 01 for 1 year or less	double
+	FOSTER2	FOSTER2	1	q		Has `SCNAME` ever been in informal foster care?	list|0| no |1| yes |9| Don't know
+	FOSTER2a	FOSTER2a	FOSTER2==1	[		total number of informal foster placements	double
+	FOSTER2b	FOSTER2b	FOSTER2==1	q		What was `SCSEX==0?'her':'his'` age at first placement (in years; code 01 for 1 year or younger)	double
+	FOSTER2c	FOSTER2c	FOSTER2==1	]		total number of years in informal foster care; code 01 for 1 year or less	double
+	ndMARSTATa	ndMARSTATa	1	[		I want to ask you some questions about your marital status.. 	nothing
+	MARSTAT1	MARSTAT1	1	q		Are you married or living with someone like in a marriage?	list|0| no |1| yes 
+	MARSTAT2	MARSTAT2	parrel<5&&MARSTAT1==1	]		Are you married to or living with `SCNAME`’s natural or legally adoptive `SEX==0?'father':'mother'?	list|0| no |1| yes 
+	MARSTAT3	MARSTAT3	MARSTAT1==0	q		"Are you single, divorce or widowed?"	list|1|single |2| divorced |3| = widowed
+	ndMARSTATb	ndMARSTATb	(parrel<2 || parrel>2) && MARSTAT2==0	q		"Now thinking about `SCNAME`’s natural or legally adoptive father, please answer these questions:"	nothing
+	MARSTAT7	MARSTAT7	(parrel<2 || parrel>2) && MARSTAT2==0	q		Is the father married or living with someone like they were married?	list|0| no |1| yes |9| Don't know
+	MARSTAT8	MARSTAT8	parrel>2	q		Is he married to or living with `SCNAME`’s natural or legally adoptive mother?	list|0| no |1| yes |9| Don't know
+	MARSTAT8a	MARSTAT8a	MARSTAT7==0	q		"Is he single, divorce or widowed?"	list|1|single |2| divorced |3| = widowed
+WORK	ndMARSTATc	ndMARSTATc	(parrel==2 && MARSTAT2==0) || parrel > 2	[		"Now thinking about `SCNAME`’s natural or legally adoptive mother, please answer these questions:"	nothing
+	MARSTAT7b	MARSTAT7b	(parrel == 2 && MARSTAT2==1)	]		Is the mother married or living with someone like they were married?	list|0| no |1| yes |9| Don't know
+	MARSTAT8b	MARSTAT8b	MARSTAT7b==1	q		Is she married to or living with `SCNAME`’s natural or legally adoptive father?	list|0| no |1| yes |9| Don't know
+	MARSTAT9b	MARSTAT9b	MARSTAT7b==0	q		"Is she single, divorce or widowed?"	list|1|single |2| divorced |3| = widowed
+	MARSTAT11	MARSTAT11	(parrel<3 && MARSTAT2==0)	q		Were you and `SCNAME`'s `SEX==0?'father':'mother'` ever married or live together as if you were married?	list|0| no |1| yes 
+	MARSTAT10	MARSTAT10	parrel>2	q		Were `SCNAME`’s natural or legally adoptive mother and father ever married or live together as if they were married?	list|0| no |1| yes |9| Don't know
+	MARSTAT11a	MARSTAT11a	MARSTAT11==1	q		How long were you and `SCNAME`'s `SEX==0?'father':'mother'` married or live together? (CODE NUMBER OF YEARS.)	double
+	MARSTAT13	MARSTAT13	MARSTAT10==1	q		How long were the natural or legally adoptive parents married to each other?(Code Number of years; 88 = N/A; 99 = D/K)	double
+	MARSTAT14	MARSTAT14	parrel>1	q		What was the last grade of school that `SCNAME`'s mother completed?	double
+	MARSTAT14a	MARSTAT14a	parrel<2 && parrel>2	q		What was the last grade of school that `SCNAME`'s father completed?	double
+	Jail1	Jail1	1	q		Have you ever been in jail or prison?	list|0| no |1| yes |9| Don't know
+	Jail2	Jail2	Jail1==1	[		What year were you last in prison in jail?	text
+	Jail3	Jail3	Jail1==1	]		What was the longest period of time you were in jail or prison? (ENTER NUMBER OF YEARS.)	double
+	Jail4	Jail4	MARSTAT1==1 && MARSTAT2==0	q		Has your current boyfriend or husband ever been in jail or prison?	list|0| no |1| yes |9| Don't know
+	Jail5	Jail5	Jail4==1	[		What year was he last in prison in jail?	text
+	Jail6	Jail6	Jail4==1	]		What was the longest period of time he was in jail or prison? (ENTER NUMBER OF YEARS.)	double
+	Jail7	Jail7	SEX==0 && (MARSTAT1==0||MARSTAT2==0)	q		Has `SCNAME`'s natural or legal adoptive father ever been in jail or prison?	list|0| no |1| yes |9| Don't know
+	Jail8	Jail8	Jail7==1	[		What year was `SCNAME`'s father last in prison in jail?	text
+	Jail9	Jail9	Jail7==1	]		What was the longest period of time `SCNAME`'s father was in jail or prison? (ENTER NUMBER OF YEARS.)	double
+	Jail10	Jail10	SEX==1 && (MARSTAT1==0||MARSTAT2==0)	q		Has `SCNAME`'s natural or legal adoptive mother ever been in jail or prison?	list|0| no |1| yes |9| Don't know
+	Jail11	Jail11	Jail10==1	[		What year was `SCNAME`'s mother last in prison in jail?	text
+	Jail12	Jail12	Jail10==1	]		What was the longest period of time `SCNAME`'s mother was in jail or prison? (ENTER NUMBER OF YEARS.)	double
+	ndWORK	ndWORK	1	[		I’d like to ask you some questions about your occupation:	nothing
+	WORK1	WORK1	1	]		What is your current employment status? [DO NOT READ ANSWER CHOICES; CODE FROM ANSWER ASKING ADDITIONAL QUESTIONS AS NEEDED.]	radio|1|employed full time for pay |2|employed part time for pay |3| a homemaker |4|a full time student |5|on a leave of absence for medical reasons and planning to return |6|unemployed less than 6 months but plan to return |7|unemployed less than 6 months and don’t expect to work again |8|unemployed 6 or more months but plan to work |9|unemployed 6 or more months but don’t expect to work |10| laid off |11| retired |12| incarcerated
+	WORK1a	WORK1a	WORK1<3	q		Please describe your current occupation	text
+	WORK2	WORK2	MARSTAT2==1	q		What is the current employment status of `SCNAME`'s `SEX==0?'father':'mother'`? [DO NOT READ ANSWER CHOICES; CODE FROM ANSWER ASKING ADDITIONAL QUESTIONS AS NEEDED.]	radio|1|employed full time for pay |2|employed part time for pay |3| a homemaker |4|a full time student |5|on a leave of absence for medical reasons and planning to return |6|unemployed less than 6 months but plan to return |7|unemployed less than 6 months and don’t expect to work again |8|unemployed 6 or more months but plan to work |9|unemployed 6 or more months but don’t expect to work |10| laid off |11| retired |12| incarcerated
+	WORK2a	WORK2a	WORK2<3	q		Please describe `SEX==0?'his':'her'` current occupation	text
+	WORK3	WORK3	SEX==0 && MARSTAT2==0	q		What is the employment status of your current husband or boyfriend? [DO NOT READ ANSWER CHOICES; CODE FROM ANSWER ASKING ADDITIONAL QUESTIONS AS NEEDED.]	radio|1|employed full time for pay |2|employed part time for pay |3| a homemaker |4|a full time student |5|on a leave of absence for medical reasons and planning to return |6|unemployed less than 6 months but plan to return |7|unemployed less than 6 months and don’t expect to work again |8|unemployed 6 or more months but plan to work |9|unemployed 6 or more months but don’t expect to work |10| laid off |11| retired |12| incarcerated
+	WORK3a	WORK3a	WORK3<3	q		Please describe his current occupation	text
+	WORK4	WORK4	SEX==1 && MARSTAT2==0	q		What is the current employment status of your wife or girlfriend? [DO NOT READ ANSWER CHOICES; CODE FROM ANSWER ASKING ADDITIONAL QUESTIONS AS NEEDED.]	radio|1|employed full time for pay |2|employed part time for pay |3| a homemaker |4|a full time student |5|on a leave of absence for medical reasons and planning to return |6|unemployed less than 6 months but plan to return |7|unemployed less than 6 months and don’t expect to work again |8|unemployed 6 or more months but plan to work |9|unemployed 6 or more months but don’t expect to work |10| laid off |11| retired |12| incarcerated
+PSS FA	WORK4a	WORK4a	WORK4<3	q		Please describe her current occupation	text
+PSS FA	PUBASSIST1	PUBASSIST1	1	[		Are you currently on public assistance? 	list|1|Yes|0|No
+PSS FA	PUBASSIST2	PUBASSIST2	parrel<3 	q		Is `SCNAME`’s `SEX==0?'father':'mother'` currently on public assistance? 	list|1|Yes|0|No
+PSS FA	PUBASSIST3	PUBASSIST3	SEX==1 && MARSTAT2==0	q		Is your wife or girlfriend currently on public assistance? 	list|1|Yes|0|No
+PSS FA	PUBASSIST4	PUBASSIST4	SEX==0 && MARSTAT2==0	]		Is your husband or boyfriend currently on public assistance? 	list|1|Yes|0|No
+PSS FA	income	income	1	q		"Last year what is the household gross income, including all sources of income and public assistance, social security,etc.? [DONOT READ ANSWERS; CODE FROM RESPONSE.]"	"list|1|Under $5,000|2|$5,000 to $9,999|3|$10,000 to $14,999|4|$15,000 to $24,999|5|$25,000 to $39,999|6|$40,000 to $59,999|7|$60,000 or more|99|Don't know"
+PSS FA	ndpssfaintro	ndpssfaintro	1	[		The statements which follow refer to feelings and experiences which occur to most people at one time or another in their relationships with their families.  For each statement please answer Yes or No.  	nothing
+PSS FA	PSSFA1	PSSFA1	1	q		My family gives me the moral support I need.	list|1|yes|0|no|9999|don't know
+PSS FA	PSSFA2	PSSFA2	1	q		I get good ideas about how to do things or  make things from my family.	list|1|yes|0|no|9999|don't know
+PSS FA	PSSFA3	PSSFA3	1	q		Most other people are closer to their family than I am.	list|1|yes|0|no|9999|don't know
+PSS FA	PSSFA4	PSSFA4	1	]		"When I confide in the members of my family who are closest to me, I get the idea that it makes them uncomfortable."	list|1|yes|0|no|9999|don't know
+PSS FA	PSSFA5	PSSFA5	1	[		My family enjoys hearing about what I think.	list|1|yes|0|no|9999|don't know
+PSS FA	PSSFA6	PSSFA6	1	q		Members of my family share many of my interests.	list|1|yes|0|no|9999|don't know
+PSS FA	PSSFA7	PSSFA7	1	q		Certain members of my family come to me when they have problems or need advice.	list|1|yes|0|no|9999|don't know
+PSS FA	PSSFA8	PSSFA8	1	]		I rely on my family for emotional support.	list|1|yes|0|no|9999|don't know
+PSS FA	PSSFA9	PSSFA9	1	[		"There is a member of my family I could go to if I were just feeling down, without feeling funny about it later."	list|1|yes|0|no|9999|don't know
+PSS FA	PSSFA10	PSSFA10	1	q		My family and I are very open about what we think about things.	list|1|yes|0|no|9999|don't know
+PSS FA	PSSFA11	PSSFA11	1	q		My family is sensitive to my personal needs.	list|1|yes|0|no|9999|don't know
+PSS FA	PSSFA12	PSSFA12	1	]		Members of my family come to me for emotional support.	list|1|yes|0|no|9999|don't know
+PSS FA	PSSFA13	PSSFA13	1	[		Members of my family are good at helping me solve problems.	list|1|yes|0|no|9999|don't know
+	PSSFA14	PSSFA14	1	q		I have a deep sharing relationship with a number of members of my family.	list|1|yes|0|no|9999|don't know
+	PSSFA15	PSSFA15	1	q		Members of my family get good ideas about how to do things or make things from me.	list|1|yes|0|no|9999|don't know
+BSI	PSSFA16	PSSFA16	1	]		"When I confide in members of my family, it makes me feel uncomfortable."	list|1|yes|0|no|9999|don't know
+BSI	PSSFA17	PSSFA17	1	[		"Members of my family seek me out for companionship (e.g., they want my company)."	list|1|yes|0|no|9999|don't know
+BSI	PSSFA18	PSSFA18	1	q		I think that my family feels that I am good at helping them solve problems.	list|1|yes|0|no|9999|don't know
+BSI	PSSFA19	PSSFA19	1	q		I don’t have a relationship with a member of my family that is as close as other people’s relationships with family members.	list|1|yes|0|no|9999|don't know
+BSI	PSSFA20	PSSFA20	1	]		I wish my family were very much different.	list|1|yes|0|no|9999|don't know
+BSI	ndBSIintro	ndBSIintro	1	[		"The next questions list problems people sometimes have. Please get out the yellow response card. For each one, tell me how much that problem has distressed or bothered you during the past 7 days including today."	nothing
+BSI	BSI1	BSI1	1	q		"In the past 7 days, how much were you distressed by faintness or dizziness?"	list|0|not at all |1|a little bit |2| moderately |3|quite a bit |4|extremely
+BSI	BSI2	BSI2	1	q		How much were you distressed by feeling no interest in things?	list|0|not at all |1|a little bit |2| moderately |3|quite a bit |4|extremely
+BSI	BSI3	BSI3	1	q		"In the past 7 days, how much were you distressed by nervousness or shakiness inside?"	list|0|not at all |1|a little bit |2| moderately |3|quite a bit |4|extremely
+BSI	BSI4	BSI4	1	]		How much were you distressed by pains in heart or chest?	list|0|not at all |1|a little bit |2| moderately |3|quite a bit |4|extremely
+BSI	BSI5	BSI5	1	[		"In the past 7 days, how much were you distressed by feeling lonely?"	list|0|not at all |1|a little bit |2| moderately |3|quite a bit |4|extremely
+BSI	BSI6	BSI6	1	q		How much were you distressed by feeling tense or keyed up?	list|0|not at all |1|a little bit |2| moderately |3|quite a bit |4|extremely
+BSI	BSI7	BSI7	1	q		"In the past 7 days, how much were you distressed by nausea or upset stomach?"	list|0|not at all |1|a little bit |2| moderately |3|quite a bit |4|extremely
+BSI	BSI8	BSI8	1	]		How much were you distressed by feeling blue?	list|0|not at all |1|a little bit |2| moderately |3|quite a bit |4|extremely
+BSI	BSI9	BSI9	1	[		"In the past 7 days, how much were you distressed or suddenly scared for no reason?"	list|0|not at all |1|a little bit |2| moderately |3|quite a bit |4|extremely
+BSI	BSI10	BSI10	1	q		How much were you distressed by trouble getting your breath?	list|0|not at all |1|a little bit |2| moderately |3|quite a bit |4|extremely
+BSI	BSI11	BSI11	1	q		"In the past 7 days, how much were you distressed by feelings of worthlessness?"	list|0|not at all |1|a little bit |2| moderately |3|quite a bit |4|extremely
+	BSI12	BSI12	1	]		How much were you distressed by spells of terror or panic?	list|0|not at all |1|a little bit |2| moderately |3|quite a bit |4|extremely
+	BSI13	BSI13	1	[		"In the past 7 days, how much were you distressed by numbness or tingling in parts of your body?"	list|0|not at all |1|a little bit |2| moderately |3|quite a bit |4|extremely
+	BSI14	BSI14	1	q		How much were you distressed by feeling hopeless about the future?	list|0|not at all |1|a little bit |2| moderately |3|quite a bit |4|extremely
+	BSI15	BSI15	1	q		How much were you distressed by feeling so restless you couldn’t sit still?	list|0|not at all |1|a little bit |2| moderately |3|quite a bit |4|extremely
+	BSI16	BSI16	1	]		How much were you distressed by feeling weak in parts of your body?	list|0|not at all |1|a little bit |2| moderately |3|quite a bit |4|extremely
+	BSI17	BSI17	1	[		"In the past 7 days, how much were you distressed by thoughts of ending your life?"	list|0|not at all |1|a little bit |2| moderately |3|quite a bit |4|extremely
+	BSI18	BSI18	1	]		How much were you distressed by feeling fearful?	list|0|not at all |1|a little bit |2| moderately |3|quite a bit |4|extremely
+	ndASintro	ndASintro	1	q		"We're finished using the yellow response card. For the next few questions about yourself, please answer yes or no. If you are not sure, you can answer maybe."	nothing
+	Antisoc1s	Antisoc1s	1	[		"In the past five years have you done things that are against the law -- even if you weren't caught-- like stealing, using or selling drugs, writing bad checks, or having sex for money?"	list|2|yes|1|maybe|0|no
+	Antisoc2s	Antisoc2s	1	q		Do you often find that you have to lie to get what you want?	list|2|yes|1|maybe|0|no
+	Antisoc3s	Antisoc3s	1	]		Do you often do things on the spur of the moment without thinking about how it will affect you or other people?	list|2|yes|1|maybe|0|no
+	Antisoc4s	Antisoc4s	1	[		"In the past five years, have you been in more than one serious physical fight?"	list|2|yes|1|maybe|0|no
+	Antisoc5s	Antisoc5s	1	q		Do you ever drive a car when you are drunk or high?	list|2|yes|1|maybe|0|no
+	Antisoc6s	Antisoc6s	1	]		"In the past five years, have you had unprotected sex with someone you didn't know well more than once?"	list|2|yes|1|maybe|0|no
+	Antisoc7s	Antisoc7s	1	[		"In the past five years, have you walked off a job without notice or stopped going to work without letting your employer know?"	list|2|yes|1|maybe|0|no
+	Antisoc8s	Antisoc8s	1	q		Do you borrow money from friends or acquaintances without paying them back?	list|2|yes|1|maybe|0|no
+	Antisoc9s	Antisoc9s	1	]		Are you less likely to feel guilty than other people about illegal or disapproved things that you do?	list|2|yes|1|maybe|0|no
+	Antisoc10s	Antisoc10s	1	[		"In the last five years, have you used an alias or pretended you were someone else for your own advantage or to get out of trouble?"	list|2|yes|1|maybe|0|no
+	Antisoc11s	Antisoc11s	1	q		"Do you sometimes ""con"" people or trick them into doing things for you?"	list|2|yes|1|maybe|0|no
+	Antisoc12s	Antisoc12s	1	]		"In the past five years, have you failed to make child support payments or to give money to someone else who depended on you?"	list|2|yes|1|maybe|0|no
+	Sii90	Sii90	1	[		Have you often become frantic when you thought that someone you really cared about was going to leave you?	list|2|yes|1|maybe|0|no
+	Sii91	Sii91	1	q		Do your relationships with people you really care about have lots of extreme ups and downs?	list|2|yes|1|maybe|0|no
+	Sii92	Sii92	1	Q		Have you all of a sudden changed your sense of who you are and where you are headed?	list|2|yes|1|maybe|0|no
+	Sii93	Sii93	1	Q		Does your sense of who you are often change dramatically?	list|2|yes|1|maybe|0|no
+	Sii94	Sii94	1	]		Are you so different with different people or in different situations that you sometimes don't know who you really are?	list|2|yes|1|maybe|0|no
+	Sii95	Sii95	1	[		"Have there been lots of sudden changes in your goals, career plans, religious beliefs, and so on?"	list|2|yes|1|maybe|0|no
+	Sii96	Sii96	1	q		Have you often done things impulsively?	list|2|yes|1|maybe|0|no
+	Sii97	Sii97	1	q		Have you tried to hurt or kill yourself or threatened to do so?	list|2|yes|1|maybe|0|no
+	Sii98	Sii98	1	q		"Have you ever cut, burned, or scratched yourself on purpose?"	list|2|yes|1|maybe|0|no
+	Sii99	Sii99	1	]		Do you have a lot of sudden mood changes?	list|2|yes|1|maybe|0|no
+	Sii100	Sii100	1	[		Do you often feel empty inside? 	list|2|yes|1|maybe|0|no
+	Sii101	Sii101	1	q		Do you often have temper outbursts or get so angry that you lose   control?	list|2|yes|1|maybe|0|no
+	Sii102	Sii102	1	q		Do you hit people or throw things when you get angry?	list|2|yes|1|maybe|0|no
+	Sii103	Sii103	1	q		Do even little things get you very angry?	list|2|yes|1|maybe|0|no
+	Sii104	Sii104	1	]		"When you are under a lot of stress, do you get suspicious of other people or feel especially spaced out?"	list|2|yes|1|maybe|0|no
+	Ndrelintro	Ndrelintro	1	[		Now I am going to ask you about your recent relationships with `SEX==0?'men':'women'`.	nothing
+	MOMROM1	MOMROM1	MARSTAT1==0	]		Have you ever had a `SEX==0?'boyfriend or husband':'girlfriend or wife'` since 1997? 	list|0|No|1|Yes
+	ndMOMROM2	ndMOMROM2	MOMROM1==1 || MARSTAT1==1	[		How many `SEX==0?'boyfriends or husbands':'girlfriends or wives'` have you had since 1997? (RECORD BELOW.)	nothing
+	MOMROM2a	MOMROM2a	MOMROM1==1 || MARSTAT1==1	q		boy/girl friends	double
+	MOMROM2b	MOMROM2b	MOMROM1==1 || MARSTAT1==1	]		husbands/ wives	double
+	MOMROM3	MOMROM3	MOMROM1==1 || MARSTAT1==1	[		How many times have you been married since 1997?	double
+	MOMROM4	MOMROM4	MOMROM1==1 || MARSTAT1==1	]		How long was the longest relationship you had with a `SEX==0? 'boyfriend or husband':'girlfriend or wife'` since 1997? (CODE IN YEARS.)	list|1| 2 weeks to 1 month|2|1 to 3 months|3| 3 to 6 months|4|6 months to 1 year |5|1 to 3 years |6|3 to 5 years|7|more than 5 years
+	MOMROM5	MOMROM5	1	q		How would you describe your involvement in a romantic relationship now?	"list|0| not in a relationship, |1| in a casual (dating) relationship, |2| in a steady relationship, |3| engaged, |4| married"
+	MOMROM6A 	MOMROM6A 	MOMROM5>0	q		Does your `SEX==0?'boyfriend or husband':'girlfriend or wife'` live with you now?	list|0|No|1|Yes
+	MOMROM6B	MOMROM6B	MOMROM5==0 & (MOMROM2a>0 || MOMROM2b>0)	q		How long ago did you break up with your last `SEX==0?'boyfriend or husband':'girlfriend or wife'`? 	list|1|less than 1 week|2|  1 to 2 weeks|3| 2 weeks to 1 month|4|1 to 3 months|5| 3 to 6 months|6|6 months to 1 year|7|more than 1 year
+	MOMROM7	MOMROM7	MOMROM2a>0 || MOMROM2b>0	q		Can you tell me the first name or initials of `MOMROM5==0?'that last':'your'` `SEX==0?'boyfriend or husband':'girlfriend or wife'`?  It will help to keep track of whom we are talking about for the next few questions.	text
+	MOMROM8  	MOMROM8  	MOMROM5==1&&MOMROM1==1	q		How long `MOMROM5==0?'did you go out ':'have you been going out or together'` with `MOMROM7`'?	list|1| 2 weeks to 1 month|2|1 to 3 months|3| 3 to 6 months|4|6 months to 1 year|5|more than 1 year
+	MOMROM9	MOMROM9	MOMROM1==1	[		How do you know `SEX==0? 'him':'her'`? (INTERVIEWER CODES USING SCALE.)	"list|1|school |2|work |3|through family |4|friend of friend or neighbor |5|organized extra-curricular activity (e.g. class, church,) |6|unstructured setting (e.g. street, party, mall)|7|internet |8|other"
+	MOMROM10	MOMROM10	MOMROM1==1	q		How well `MOMROM5==0?'did':'do'` you know `SEX==0?'him':'her'`?	list|0|not at all |1|a little |2|somewhat |3|quite a bit|4|a lot
+	MOMROM11 	MOMROM11 	MOMROM1==1 && MOMROM5==0 && (MOMROM2a>0 | MOMROM2b>0)	]		`MOMROM5==0?'Did':'Does'` `SEX==0?'he':'she'` live with you? 	list|0|No|1|Yes 
+	MOMROM11B 	MOMROM11B 	MOMROM6A==0||MOMROM11==0	q		How many days each week `MOMROM5==0?'did':'do'` you see each other? (ON AVERAGE)	double
+	MOMROM12  	MOMROM12  	MOMROM2a>0 || MOMROM2b>0	[		How close `MOMROM5==0? 'were you when you were going out together':'are you'`? Would you say …	list|1|not close at all |2|somewhat close|3|pretty close|4|very close
+	MOMROM13	MOMROM13	MOMROM2a>0 || MOMROM2b>0	]		"`MOMROM5==0?'Did':'Do'` you and `MOMROM7` see other people or have other boyfriends or girlfriends too, or `MOMROM5==0?'did':'do'` you only see each other?"	list|0|See Others |1|Exclusive
+	mnMMPAR	mnMMPAR	MOMROM2a>0 || MOMROM2b>0	[		Now I want to ask you some things about `MOMROM7`.	nothing
+	MOMPARDEM1	MOMPARDEM1	MOMROM2a>0 || MOMROM2b>0	q		How old is `MOMROM7` now?	double
+	MOMPARDEM2	MOMPARDEM2	MOMROM2a>0 || MOMROM2b>0	q		`MOMROM5==0?'When':'Since'` you were together with `MOMROM7` was `SEX==0?'he':'she'` ever unemployed for 3 months or longer?	list|0|No|1|Yes
+	MOMPARDEM3	MOMPARDEM3	MOMROM2a>0 || MOMROM2b>0	]		About how much money `MOMROM5>0?'does':'did'` `MOMROM7` make per year `MOMROM5>0?'':'when you were together'`? 	double
+	MOMPARDEM4	MOMPARDEM4	MOMROM2a>0 || MOMROM2b>0	[		What kind of work did `SEX==0?'he':'she'` do to make a living?	text
+	MOMPARDEM5	MOMPARDEM5	MOMROM2a>0 || MOMROM2b>0	q		How many children `MOMROM5==0?'did':'does'` `SEX==0?'he':'she'` have `MOMROM5==0?'when you were together':''` (including any children you have together)?	double
+	MOMPARDEM6	MOMPARDEM6	MOMROM2a>0 || MOMROM2b>0	q		What is the highest level of education that `MOMROM7` completed? Did `SEX==0?'he':'she'` …	"list|0|complete some high school, |1| graduate high school, |3| complete some college, community college or vocational college, |4| graduate college, |5|complete some graduate school (like a Masters degree), or |6| graduate from a graduate program?"
+	MOMPARDEM7	MOMPARDEM7	MOMROM2a>0 || MOMROM2b>0	]		Were you together or going out when `SCNAME` was enrolled in the Building Blocks Program?	list|0|No|1|Yes
+	MOMPARDEM8	MOMPARDEM8	MOMROM2a>0 || MOMROM2b>0	[		Did `SEX==0?'he':'she'` live with you during any of the time when `SCNAME` was enrolled in the Building Blocks Program?	list|0|No|1|Yes
+	MOMPARDEM9	MOMPARDEM9	MOMROM2a>0 || MOMROM2b>0	q		"Has `SEX==0?'he':'she'` been arrested, in jail, or convicted of a crime, other than drunk driving?"	list|0|No|1|Yes|2|DON'T KNOW
+	MOMPARDEM10	MOMPARDEM10	MOMROM2a>0 || MOMROM2b>0	]		"Has `MOMROM7` been seen by a psychiatrist, psychologist, counselor or other mental health professional?"	list|0|No|1|Yes|2|DON'T KNOW
+	mnMMPAR2	mnMMPAR2	MOMROM2a>0 || MOMROM2b>0	[		I would like to ask you a few more questions about `MOMROM7`. Please get out the green response card for the following questions.	nothing
+	MOMPARCHA1	MOMPARCHA1	MOMROM2a>0 || MOMROM2b>0	q		"How much `MOMROM5==0?'did':'does'` `MOMROM7` lie, cheat, steal or behave dishonestly with others?     "	list|0|not at all |1|a little |2|somewhat |3|quite a bit|4|a lot
+	MOMPARCHA2	MOMPARCHA2	MOMROM2a>0 || MOMROM2b>0	q		How much `MOMROM5==0?'did':'does'`  `MOMROM7` skip school or work or gotten expelled or fired?	list|0|not at all |1|a little |2|somewhat |3|quite a bit|4|a lot
+	MOMPARCHA3	MOMPARCHA3	MOMROM2a>0 || MOMROM2b>0	]		How much `MOMROM5==0?'did':'does'` `MOMROM7` do things that are against the law or could get him/her in trouble with the police if they caught him/her?	list|0|not at all |1|a little |2|somewhat |3|quite a bit|4|a lot
+	MOMPARCHA4	MOMPARCHA4	MOMROM2a>0 || MOMROM2b>0	[		How much `MOMROM5==0?'did':'does'`  `MOMROM7` hit someone on purpose to hurt them?	list|0|not at all |1|a little |2|somewhat |3|quite a bit|4|a lot
+	MOMPARCHA5	MOMPARCHA5	MOMROM2a>0 || MOMROM2b>0	q		"How much `MOMROM5==0?'did':'does'`  `MOMROM7` get depressed, like not talking, seeming down, losing or gaining weight, having trouble sleeping, or losing hope for the future?"	list|0|not at all |1|a little |2|somewhat |3|quite a bit|4|a lot
+	MOMPARCHA6	MOMPARCHA6	MOMROM2a>0 || MOMROM2b>0	q		How much `MOMROM5==0?'did':'does'`  `MOMROM7` have mental or emotional problems?	list|0|not at all |1|a little |2|somewhat |3|quite a bit|4|a lot
+	MOMPARCHA7	MOMPARCHA7	MOMROM2a>0 || MOMROM2b>0	]		How much `MOMROM5==0?'did':'does'`  `MOMROM7` have a drinking or drug problem or `MOMROM5==0?'did':'do'`  people think he `MOMROM5==0?'had':'has'`  one?	list|0|not at all |1|a little |2|somewhat |3|quite a bit|4|a lot
+	MOMPARCHA8	MOMPARCHA8	MOMROM2a>0 || MOMROM2b>0	[		How much `MOMROM5==0?'did':'does'`  `MOMROM7` tend to get angry or moody easily or have trouble with relationships?	list|0|not at all |1|a little |2|somewhat |3|quite a bit|4|a lot
+	MOMRELQUAL1	MOMRELQUAL1	MOMROM2a>0 || MOMROM2b>0	q		How much `MOMROM5==0?'did':'does'`  `MOMROM7` do something nice for you or show you affection?	list|0|not at all |1|a little |2|somewhat |3|quite a bit|4|a lot
+	MOMRELQUAL2 	MOMRELQUAL2 	MOMROM2a>0 || MOMROM2b>0	q		"Overall, how happy `MOMROM5==0?'did':'do'`  you feel about your relationship?"	list|0|not at all |1|a little |2|somewhat |3|quite a bit|4|a lot
+	MOMRELQUAL3	MOMRELQUAL3	MOMROM2a>0 || MOMROM2b>0	]		How close `MOMROM5==0?'did':'do'`  you feel to `SEX==0?'him':'her'`?	list|0|not at all |1|a little |2|somewhat |3|quite a bit|4|a lot
+	MOMRELQUAL4	MOMRELQUAL4	MOMROM2a>0 || MOMROM2b>0	[		"How often `MOMROM5==0?'did':'do'`  you and `SEX==0?'he':'she'` argue with each other, would you say:"	list|0|not at all |1|a little |2|somewhat |3|quite a bit|4|a lot
+	MOMRELQUAL5	MOMRELQUAL5	MOMROM2a>0 || MOMROM2b>0	q		How much disagreement `MOMROM5==0?'did':'do'`  you have about the amount of time you spend together?	list|0|not at all |1|a little |2|somewhat |3|quite a bit|4|a lot
+	MOMRELQUAL6	MOMRELQUAL6	MOMROM2a>0 || MOMROM2b>0	q		How much disagreement `MOMROM5==0?'did':'do'`  you have about friends and your social life?	list|0|not at all |1|a little |2|somewhat |3|quite a bit|4|a lot
+	MOMRELQUAL7	MOMRELQUAL7	MOMROM2a>0 || MOMROM2b>0	]		How much disagreement `MOMROM5==0?'did':'do'`  you have about money?	list|0|not at all |1|a little |2|somewhat |3|quite a bit|4|a lot
+	MOMRELQUAL8	MOMRELQUAL8	MOMROM2a>0 || MOMROM2b>0	[		How much disagreement `MOMROM5==0?'did':'do'`  you have about your children?	list|0|not at all |1|a little |2|somewhat |3|quite a bit|4|a lot
+	MOMRELQUAL9	MOMRELQUAL9	MOMROM2a>0 || MOMROM2b>0	q		How much disagreement `MOMROM5==0?'did':'do'`  you have about trust and honesty?	list|0|not at all |1|a little |2|somewhat |3|quite a bit|4|a lot
+	MOMRELQUAL10	MOMRELQUAL10	MOMROM2a>0 || MOMROM2b>0	]		How much disagreement `MOMROM5==0?'did':'do'`  you have about one of you being jealous?	list|0|not at all |1|a little |2|somewhat |3|quite a bit|4|a lot
+	nd443	nd443	MOMROM2a>0 || MOMROM2b>0	[		We're finished using the green response card for now. The next questions ask about your partner's behavior in the past 5 years.	nothing
+	Antisoc1p	Antisoc1p	MOMROM2a>0 || MOMROM2b>0	q		"In the past five years has `MOMROM7` done things that are against the law -- even if not caught-- like stealing, using or selling drugs, writing bad checks, or having sex for money?"	list|2|yes|1|maybe|0|no
+	Antisoc2p	Antisoc2p	MOMROM2a>0 || MOMROM2b>0	q		Does `MOMROM7` often lie to get what `SEX==0?'he':'she'` wants?	list|2|yes|1|maybe|0|no
+	Antisoc3p	Antisoc3p	MOMROM2a>0 || MOMROM2b>0	]		Does `MOMROM7` often do things on the spur of the moment without thinking about how it will affect `SEX==0?'himself':'herself'` or other people?	list|2|yes|1|maybe|0|no
+	Antisoc4p	Antisoc4p	MOMROM2a>0 || MOMROM2b>0	[		"In the past five years, has `MOMROM7` been in more than one serious physical fight?"	list|2|yes|1|maybe|0|no
+	Antisoc5p	Antisoc5p	MOMROM2a>0 || MOMROM2b>0	q		Does  `MOMROM7` ever drive a car when are drunk or high?	list|2|yes|1|maybe|0|no
+	Antisoc6p	Antisoc6p	MOMROM2a>0 || MOMROM2b>0	]		"In the past five years, has `MOMROM7` had unprotected sex with someone `SEX==0?'he':'she'` didn't know well more than once?"	list|2|yes|1|maybe|0|no
+	Antisoc7p	Antisoc7p	MOMROM2a>0 || MOMROM2b>0	[		"In the past five years, has `MOMROM7` walked off a job without notice or stopped going to work without letting the employer know?"	list|2|yes|1|maybe|0|no
+	Antisoc8p	Antisoc8p	MOMROM2a>0 || MOMROM2b>0	q		Does `MOMROM7` borrow money from friends or acquaintances without paying them back?	list|2|yes|1|maybe|0|no
+	Antisoc9p	Antisoc9p	MOMROM2a>0 || MOMROM2b>0	]		Do you think `MOMROM7` is less likely to feel guilty than other people about illegal or disapproved things that `SEX==0?'he':'she'` does?	list|2|yes|1|maybe|0|no
+	Antisoc10p	Antisoc10p	MOMROM2a>0 || MOMROM2b>0	[		"In the last five years, has `MOMROM7` used an alias or pretended `SEX==0?'he':'she'` was someone else for their own advantage or to get out of trouble?"	list|2|yes|1|maybe|0|no
+	Antisoc11p	Antisoc11p	MOMROM2a>0 || MOMROM2b>0	q		"Does `MOMROM7` sometimes ""con"" people or trick them into doing things for `SEX==0?'him':'her'`?"	list|2|yes|1|maybe|0|no
+	Antisoc12p	Antisoc12p	MOMROM2a>0 || MOMROM2b>0	]		"In the past five years, has `MOMROM7` failed to make child support payments or to give money to someone else who depended on `SEX==0?'him':'her'`?"	list|2|yes|1|maybe|0|no
+	ndPSSFRintro	ndPSSFRintro	1	[		"The statements which follow refer to feelings and experiences which occur to most people at one time or another in their relationships with friends.  For each statement there are three possible answers:  Yes, No, Don’t Know.  Please tell me which describes your experience with your friends."	nothing
+	PSSFR1	PSSFR1	1	q		My friends give me the moral support I need.	list|1|yes|0|no|9999|don't know
+	PSSFR2	PSSFR2	1	q		Most other people are closer to their friends than I am.	list|1|yes|0|no|9999|don't know
+	PSSFR3	PSSFR3	1	]		My friends enjoy hearing about what I think.	list|1|yes|0|no|9999|don't know
+	PSSFR4	PSSFR4	1	[		Certain friends come to me when they have problems or need advice.	list|1|yes|0|no|9999|don't know
+	PSSFR5	PSSFR5	1	q		I rely on my friends for emotional support.	list|1|yes|0|no|9999|don't know
+	PSSFR6	PSSFR6	1	q		"If I felt that one or more of my friends were upset with me, I’d just keep it to myself."	list|1|yes|0|no|9999|don't know
+	PSSFR7	PSSFR7	1	]		I feel that I am on the fringe in my circle of friends.	list|1|yes|0|no|9999|don't know
+	PSSFR8	PSSFR8	1	[		"There is a friend I could go to if I were just feeling down, without feeling funny about it later."	list|1|yes|0|no|9999|don't know
+	PSSFR9	PSSFR9	1	q		My friends and I are very open about what we think about things.	list|1|yes|0|no|9999|don't know
+	PSSFR10	PSSFR10	1	q		My friends are sensitive to my personal needs.	list|1|yes|0|no|9999|don't know
+	PSSFR11	PSSFR11	1	]		My friends come to me for emotional support.	list|1|yes|0|no|9999|don't know
+	PSSFR12	PSSFR12	1	[		My friends are good at helping me solve problems.	list|1|yes|0|no|9999|don't know
+	PSSFR13	PSSFR13	1	q		I have a deep sharing relationship with a number of friends.	list|1|yes|0|no|9999|don't know
+	PSSFR14	PSSFR14	1	q		My friends get good ideas about how to do things or make things from me.	list|1|yes|0|no|9999|don't know
+	PSSFR15	PSSFR15	1	]		"When I confide in friends, it makes me feel uncomfortable."	list|1|yes|0|no|9999|don't know
+	PSSFR16	PSSFR16	1	[		"My friends seek me out for companionship (e.g., they want my company)"	list|1|yes|0|no|9999|don't know
+	PSSFR17	PSSFR17	1	q		I think that my friends feel that I am good at helping them solve problems.	list|1|yes|0|no|9999|don't know
+	PSSFR18	PSSFR18	1	q		I don’t have a relationship with a friend that is as intimate as other people’s relationships with friends.	list|1|yes|0|no|9999|don't know
+	PSSFR19	PSSFR19	1	]		I have recently gotten a good idea about how to do something from a friend.	list|1|yes|0|no|9999|don't know
+	PSSFR20	PSSFR20	1	[		I wish my friends were much different.	list|1|yes|0|no|9999|don't know
+	PSSFR21	PSSFR21	1	]		I do not have any friends.	list|1|yes|0|no|9999|don't know
+	ndCTSintro	ndCTSintro	MOMROM2a>0 || MOMROM2b>0	[		"For the next section we will use the responses on the orange card. No matter how well a couple gets along, there are times when they disagree, get annoyed with the other person, want different things from each other, or just have spats or fights because they are in a bad mood, are tired or for some other reason.  Couples also have many different ways of trying to settle their differences. This is a list of things that might happen when you have differences.  Please mark how many times you did each of these things in the past year, and how many times your partner did them in the past year.  Let me know if they happened sometime, but more than a year ago. "	nothing
+	CTS1	CTS1	MOMROM2a>0 || MOMROM2b>0	q		I showed my partner I cared even though we disagreed           	"list|1| Once in the past year|2| Twice in the past year|3| 3-5 times in the past year|4| 6-10 times in the past year|5| 11-20 times in the past year|6| More than 20 times in the past year|7| Not in the past year, but it did happen before|8| This has never happened"
+	CTS2	CTS2	MOMROM2a>0 || MOMROM2b>0	]		My partner showed care for me even though we disagreed      	"list|1| Once in the past year|2| Twice in the past year|3| 3-5 times in the past year|4| 6-10 times in the past year|5| 11-20 times in the past year|6| More than 20 times in the past year|7| Not in the past year, but it did happen before|8| This has never happened"
+	CTS3	CTS3	MOMROM2a>0 || MOMROM2b>0	[		I explained my side of a disagreement to my partner           	"list|1| Once in the past year|2| Twice in the past year|3| 3-5 times in the past year|4| 6-10 times in the past year|5| 11-20 times in the past year|6| More than 20 times in the past year|7| Not in the past year, but it did happen before|8| This has never happened"
+	CTS4	CTS4	MOMROM2a>0 || MOMROM2b>0	]		My partner explained his or her side of a disagreement to me	"list|1| Once in the past year|2| Twice in the past year|3| 3-5 times in the past year|4| 6-10 times in the past year|5| 11-20 times in the past year|6| More than 20 times in the past year|7| Not in the past year, but it did happen before|8| This has never happened"
+	CTS5	CTS5	MOMROM2a>0 || MOMROM2b>0	[		I insulted or swore at my partner	"list|1| Once in the past year|2| Twice in the past year|3| 3-5 times in the past year|4| 6-10 times in the past year|5| 11-20 times in the past year|6| More than 20 times in the past year|7| Not in the past year, but it did happen before|8| This has never happened"
+	CTS6	CTS6	MOMROM2a>0 || MOMROM2b>0	]		My partner did this to me                                         	"list|1| Once in the past year|2| Twice in the past year|3| 3-5 times in the past year|4| 6-10 times in the past year|5| 11-20 times in the past year|6| More than 20 times in the past year|7| Not in the past year, but it did happen before|8| This has never happened"
+	CTS7	CTS7	MOMROM2a>0 || MOMROM2b>0	[		I threw something at my partner that could hurt                        	"list|1| Once in the past year|2| Twice in the past year|3| 3-5 times in the past year|4| 6-10 times in the past year|5| 11-20 times in the past year|6| More than 20 times in the past year|7| Not in the past year, but it did happen before|8| This has never happened"
+	CTS8	CTS8	MOMROM2a>0 || MOMROM2b>0	]		My partner did this to me                                                            	"list|1| Once in the past year|2| Twice in the past year|3| 3-5 times in the past year|4| 6-10 times in the past year|5| 11-20 times in the past year|6| More than 20 times in the past year|7| Not in the past year, but it did happen before|8| This has never happened"
+	CTS9	CTS9	MOMROM2a>0 || MOMROM2b>0	[		I twisted my partner’s arm or hair                                              	"list|1| Once in the past year|2| Twice in the past year|3| 3-5 times in the past year|4| 6-10 times in the past year|5| 11-20 times in the past year|6| More than 20 times in the past year|7| Not in the past year, but it did happen before|8| This has never happened"
+	CTS10	CTS10	MOMROM2a>0 || MOMROM2b>0	]		My partner did this to me                                                      	"list|1| Once in the past year|2| Twice in the past year|3| 3-5 times in the past year|4| 6-10 times in the past year|5| 11-20 times in the past year|6| More than 20 times in the past year|7| Not in the past year, but it did happen before|8| This has never happened"
+	CTS11	CTS11	MOMROM2a>0 || MOMROM2b>0	[		"I had a sprain, bruise, or small cut because of a fight with my partner"	"list|1| Once in the past year|2| Twice in the past year|3| 3-5 times in the past year|4| 6-10 times in the past year|5| 11-20 times in the past year|6| More than 20 times in the past year|7| Not in the past year, but it did happen before|8| This has never happened"
+	CTS12	CTS12	MOMROM2a>0 || MOMROM2b>0	q		"My partner had a sprain, bruise, or small cut because of a fight with me"	"list|1| Once in the past year|2| Twice in the past year|3| 3-5 times in the past year|4| 6-10 times in the past year|5| 11-20 times in the past year|6| More than 20 times in the past year|7| Not in the past year, but it did happen before|8| This has never happened"
+	CTS13	CTS13	MOMROM2a>0 || MOMROM2b>0	q		 I showed respect for my partner’s feelings about an issue       	"list|1| Once in the past year|2| Twice in the past year|3| 3-5 times in the past year|4| 6-10 times in the past year|5| 11-20 times in the past year|6| More than 20 times in the past year|7| Not in the past year, but it did happen before|8| This has never happened"
+	CTS14	CTS14	MOMROM2a>0 || MOMROM2b>0	]		My partner showed respect for my feelings about an issue      	"list|1| Once in the past year|2| Twice in the past year|3| 3-5 times in the past year|4| 6-10 times in the past year|5| 11-20 times in the past year|6| More than 20 times in the past year|7| Not in the past year, but it did happen before|8| This has never happened"
+	CTS15	CTS15	MOMROM2a>0 || MOMROM2b>0	[		I made my partner have sex without a condom                         	"list|1| Once in the past year|2| Twice in the past year|3| 3-5 times in the past year|4| 6-10 times in the past year|5| 11-20 times in the past year|6| More than 20 times in the past year|7| Not in the past year, but it did happen before|8| This has never happened"
+	CTS16	CTS16	MOMROM2a>0 || MOMROM2b>0	q		My partner did this to me                                                          	"list|1| Once in the past year|2| Twice in the past year|3| 3-5 times in the past year|4| 6-10 times in the past year|5| 11-20 times in the past year|6| More than 20 times in the past year|7| Not in the past year, but it did happen before|8| This has never happened"
+	CTS17	CTS17	MOMROM2a>0 || MOMROM2b>0	q		I pushed or shoved my partner                                                 	"list|1| Once in the past year|2| Twice in the past year|3| 3-5 times in the past year|4| 6-10 times in the past year|5| 11-20 times in the past year|6| More than 20 times in the past year|7| Not in the past year, but it did happen before|8| This has never happened"
+	CTS18	CTS18	MOMROM2a>0 || MOMROM2b>0	]		My partner did this to me                                                         	"list|1| Once in the past year|2| Twice in the past year|3| 3-5 times in the past year|4| 6-10 times in the past year|5| 11-20 times in the past year|6| More than 20 times in the past year|7| Not in the past year, but it did happen before|8| This has never happened"
+	CTS19	CTS19	MOMROM2a>0 || MOMROM2b>0	[		"I used force (like hitting, holding down, or using a weapon) to make my partner have oral or anal sex"	"list|1| Once in the past year|2| Twice in the past year|3| 3-5 times in the past year|4| 6-10 times in the past year|5| 11-20 times in the past year|6| More than 20 times in the past year|7| Not in the past year, but it did happen before|8| This has never happened"
+	CTS20	CTS20	MOMROM2a>0 || MOMROM2b>0	q		My partner did this to me	"list|1| Once in the past year|2| Twice in the past year|3| 3-5 times in the past year|4| 6-10 times in the past year|5| 11-20 times in the past year|6| More than 20 times in the past year|7| Not in the past year, but it did happen before|8| This has never happened"
+	CTS21	CTS21	MOMROM2a>0 || MOMROM2b>0	q		I used a knife or gun on my partner                                      	"list|1| Once in the past year|2| Twice in the past year|3| 3-5 times in the past year|4| 6-10 times in the past year|5| 11-20 times in the past year|6| More than 20 times in the past year|7| Not in the past year, but it did happen before|8| This has never happened"
+	CTS22	CTS22	MOMROM2a>0 || MOMROM2b>0	]		My partner did this to me             	"list|1| Once in the past year|2| Twice in the past year|3| 3-5 times in the past year|4| 6-10 times in the past year|5| 11-20 times in the past year|6| More than 20 times in the past year|7| Not in the past year, but it did happen before|8| This has never happened"
+	CTS23	CTS23	MOMROM2a>0 || MOMROM2b>0	[		I passed out from being hit on the head by my partner in a fight	"list|1| Once in the past year|2| Twice in the past year|3| 3-5 times in the past year|4| 6-10 times in the past year|5| 11-20 times in the past year|6| More than 20 times in the past year|7| Not in the past year, but it did happen before|8| This has never happened"
+	CTS24	CTS24	MOMROM2a>0 || MOMROM2b>0	q		My partner passed out from a hit on the head in a fight with me 	"list|1| Once in the past year|2| Twice in the past year|3| 3-5 times in the past year|4| 6-10 times in the past year|5| 11-20 times in the past year|6| More than 20 times in the past year|7| Not in the past year, but it did happen before|8| This has never happened"
+	CTS25	CTS25	MOMROM2a>0 || MOMROM2b>0	q		I called my partner fat or ugly                                                     	"list|1| Once in the past year|2| Twice in the past year|3| 3-5 times in the past year|4| 6-10 times in the past year|5| 11-20 times in the past year|6| More than 20 times in the past year|7| Not in the past year, but it did happen before|8| This has never happened"
+	CTS26	CTS26	MOMROM2a>0 || MOMROM2b>0	]		My partner called me fat or ugly                                              	"list|1| Once in the past year|2| Twice in the past year|3| 3-5 times in the past year|4| 6-10 times in the past year|5| 11-20 times in the past year|6| More than 20 times in the past year|7| Not in the past year, but it did happen before|8| This has never happened"
+	CTS27	CTS27	MOMROM2a>0 || MOMROM2b>0	[		I punched or hit my partner with something that could hurt       	"list|1| Once in the past year|2| Twice in the past year|3| 3-5 times in the past year|4| 6-10 times in the past year|5| 11-20 times in the past year|6| More than 20 times in the past year|7| Not in the past year, but it did happen before|8| This has never happened"
+	CTS28	CTS28	MOMROM2a>0 || MOMROM2b>0	q		My partner did this to me                                             	"list|1| Once in the past year|2| Twice in the past year|3| 3-5 times in the past year|4| 6-10 times in the past year|5| 11-20 times in the past year|6| More than 20 times in the past year|7| Not in the past year, but it did happen before|8| This has never happened"
+	CTS29	CTS29	MOMROM2a>0 || MOMROM2b>0	q		I destroyed something belonging to my partner                         	"list|1| Once in the past year|2| Twice in the past year|3| 3-5 times in the past year|4| 6-10 times in the past year|5| 11-20 times in the past year|6| More than 20 times in the past year|7| Not in the past year, but it did happen before|8| This has never happened"
+	CTS30	CTS30	MOMROM2a>0 || MOMROM2b>0	]		My partner did this to me                                                            	"list|1| Once in the past year|2| Twice in the past year|3| 3-5 times in the past year|4| 6-10 times in the past year|5| 11-20 times in the past year|6| More than 20 times in the past year|7| Not in the past year, but it did happen before|8| This has never happened"
+	CTS31	CTS31	MOMROM2a>0 || MOMROM2b>0	[		I went to a doctor (M.D.) because of a fight with my partner   	"list|1| Once in the past year|2| Twice in the past year|3| 3-5 times in the past year|4| 6-10 times in the past year|5| 11-20 times in the past year|6| More than 20 times in the past year|7| Not in the past year, but it did happen before|8| This has never happened"
+	CTS32	CTS32	MOMROM2a>0 || MOMROM2b>0	q		My partner went to a doctor (M.D.) because of a fight with me       	"list|1| Once in the past year|2| Twice in the past year|3| 3-5 times in the past year|4| 6-10 times in the past year|5| 11-20 times in the past year|6| More than 20 times in the past year|7| Not in the past year, but it did happen before|8| This has never happened"
+	CTS33	CTS33	MOMROM2a>0 || MOMROM2b>0	q		I choked my partner                                                                    	"list|1| Once in the past year|2| Twice in the past year|3| 3-5 times in the past year|4| 6-10 times in the past year|5| 11-20 times in the past year|6| More than 20 times in the past year|7| Not in the past year, but it did happen before|8| This has never happened"
+	CTS34	CTS34	MOMROM2a>0 || MOMROM2b>0	]		My partner did this to me	"list|1| Once in the past year|2| Twice in the past year|3| 3-5 times in the past year|4| 6-10 times in the past year|5| 11-20 times in the past year|6| More than 20 times in the past year|7| Not in the past year, but it did happen before|8| This has never happened"
+	CTS35	CTS35	MOMROM2a>0 || MOMROM2b>0	[		I shouted or yelled at my partner                                               	"list|1| Once in the past year|2| Twice in the past year|3| 3-5 times in the past year|4| 6-10 times in the past year|5| 11-20 times in the past year|6| More than 20 times in the past year|7| Not in the past year, but it did happen before|8| This has never happened"
+	CTS36	CTS36	MOMROM2a>0 || MOMROM2b>0	q		My partner did this to me                                                           	"list|1| Once in the past year|2| Twice in the past year|3| 3-5 times in the past year|4| 6-10 times in the past year|5| 11-20 times in the past year|6| More than 20 times in the past year|7| Not in the past year, but it did happen before|8| This has never happened"
+	CTS37	CTS37	MOMROM2a>0 || MOMROM2b>0	q		I slammed my partner against a wall                                         	"list|1| Once in the past year|2| Twice in the past year|3| 3-5 times in the past year|4| 6-10 times in the past year|5| 11-20 times in the past year|6| More than 20 times in the past year|7| Not in the past year, but it did happen before|8| This has never happened"
+	CTS38	CTS38	MOMROM2a>0 || MOMROM2b>0	]		My partner did this to me                                                            	"list|1| Once in the past year|2| Twice in the past year|3| 3-5 times in the past year|4| 6-10 times in the past year|5| 11-20 times in the past year|6| More than 20 times in the past year|7| Not in the past year, but it did happen before|8| This has never happened"
+	CTS39	CTS39	MOMROM2a>0 || MOMROM2b>0	[		I said I was sure we could work out a problem                        	"list|1| Once in the past year|2| Twice in the past year|3| 3-5 times in the past year|4| 6-10 times in the past year|5| 11-20 times in the past year|6| More than 20 times in the past year|7| Not in the past year, but it did happen before|8| This has never happened"
+	CTS40	CTS40	MOMROM2a>0 || MOMROM2b>0	q		My partner was sure we could work it out                      	"list|1| Once in the past year|2| Twice in the past year|3| 3-5 times in the past year|4| 6-10 times in the past year|5| 11-20 times in the past year|6| More than 20 times in the past year|7| Not in the past year, but it did happen before|8| This has never happened"
+	CTS41	CTS41	MOMROM2a>0 || MOMROM2b>0	q		"I needed to see a doctor (M.D.) because of a fight with my partner, but I didn’t                                             "	"list|1| Once in the past year|2| Twice in the past year|3| 3-5 times in the past year|4| 6-10 times in the past year|5| 11-20 times in the past year|6| More than 20 times in the past year|7| Not in the past year, but it did happen before|8| This has never happened"
+	CTS42	CTS42	MOMROM2a>0 || MOMROM2b>0	]		"My partner needed to see a doctor (M.D.) because of a fight with me, but he didn’t                                                               "	"list|1| Once in the past year|2| Twice in the past year|3| 3-5 times in the past year|4| 6-10 times in the past year|5| 11-20 times in the past year|6| More than 20 times in the past year|7| Not in the past year, but it did happen before|8| This has never happened"
+	CTS43	CTS43	MOMROM2a>0 || MOMROM2b>0	[		I beat up my partner                                                               	"list|1| Once in the past year|2| Twice in the past year|3| 3-5 times in the past year|4| 6-10 times in the past year|5| 11-20 times in the past year|6| More than 20 times in the past year|7| Not in the past year, but it did happen before|8| This has never happened"
+	CTS44	CTS44	MOMROM2a>0 || MOMROM2b>0	q		My partner did this to me                      	"list|1| Once in the past year|2| Twice in the past year|3| 3-5 times in the past year|4| 6-10 times in the past year|5| 11-20 times in the past year|6| More than 20 times in the past year|7| Not in the past year, but it did happen before|8| This has never happened"
+	CTS45	CTS45	MOMROM2a>0 || MOMROM2b>0	q		 I grabbed my partner                                                              	"list|1| Once in the past year|2| Twice in the past year|3| 3-5 times in the past year|4| 6-10 times in the past year|5| 11-20 times in the past year|6| More than 20 times in the past year|7| Not in the past year, but it did happen before|8| This has never happened"
+	CTS46	CTS46	MOMROM2a>0 || MOMROM2b>0	]		My partner did this to me                                                    	"list|1| Once in the past year|2| Twice in the past year|3| 3-5 times in the past year|4| 6-10 times in the past year|5| 11-20 times in the past year|6| More than 20 times in the past year|7| Not in the past year, but it did happen before|8| This has never happened"
+	CTS47	CTS47	MOMROM2a>0 || MOMROM2b>0	[		"I used force (like hitting, holding down, or using a weapon) to make my partner have sex with me"	"list|1| Once in the past year|2| Twice in the past year|3| 3-5 times in the past year|4| 6-10 times in the past year|5| 11-20 times in the past year|6| More than 20 times in the past year|7| Not in the past year, but it did happen before|8| This has never happened"
+	CTS48	CTS48	MOMROM2a>0 || MOMROM2b>0	q		My partner did this to me                                                      	"list|1| Once in the past year|2| Twice in the past year|3| 3-5 times in the past year|4| 6-10 times in the past year|5| 11-20 times in the past year|6| More than 20 times in the past year|7| Not in the past year, but it did happen before|8| This has never happened"
+	CTS49	CTS49	MOMROM2a>0 || MOMROM2b>0	q		I stomped out of the room or house or yard during a disagreement	"list|1| Once in the past year|2| Twice in the past year|3| 3-5 times in the past year|4| 6-10 times in the past year|5| 11-20 times in the past year|6| More than 20 times in the past year|7| Not in the past year, but it did happen before|8| This has never happened"
+	CTS50	CTS50	MOMROM2a>0 || MOMROM2b>0	]		My partner did this to me                              	"list|1| Once in the past year|2| Twice in the past year|3| 3-5 times in the past year|4| 6-10 times in the past year|5| 11-20 times in the past year|6| More than 20 times in the past year|7| Not in the past year, but it did happen before|8| This has never happened"
+	CTS51	CTS51	MOMROM2a>0 || MOMROM2b>0	[		I insisted on sex when my partner did not want to (but did not use physical force)	"list|1| Once in the past year|2| Twice in the past year|3| 3-5 times in the past year|4| 6-10 times in the past year|5| 11-20 times in the past year|6| More than 20 times in the past year|7| Not in the past year, but it did happen before|8| This has never happened"
+	CTS52	CTS52	MOMROM2a>0 || MOMROM2b>0	q		My partner did this to me	"list|1| Once in the past year|2| Twice in the past year|3| 3-5 times in the past year|4| 6-10 times in the past year|5| 11-20 times in the past year|6| More than 20 times in the past year|7| Not in the past year, but it did happen before|8| This has never happened"
+	CTS53	CTS53	MOMROM2a>0 || MOMROM2b>0	q		I slapped my partner                                                            	"list|1| Once in the past year|2| Twice in the past year|3| 3-5 times in the past year|4| 6-10 times in the past year|5| 11-20 times in the past year|6| More than 20 times in the past year|7| Not in the past year, but it did happen before|8| This has never happened"
+	CTS54	CTS54	MOMROM2a>0 || MOMROM2b>0	]		My partner did this to me                                                       	"list|1| Once in the past year|2| Twice in the past year|3| 3-5 times in the past year|4| 6-10 times in the past year|5| 11-20 times in the past year|6| More than 20 times in the past year|7| Not in the past year, but it did happen before|8| This has never happened"
+	CTS55	CTS55	MOMROM2a>0 || MOMROM2b>0	[		I had a broken bone from a fight with my partner                       	"list|1| Once in the past year|2| Twice in the past year|3| 3-5 times in the past year|4| 6-10 times in the past year|5| 11-20 times in the past year|6| More than 20 times in the past year|7| Not in the past year, but it did happen before|8| This has never happened"
+	CTS56	CTS56	MOMROM2a>0 || MOMROM2b>0	q		My partner had a broken bone from a fight with me                  	"list|1| Once in the past year|2| Twice in the past year|3| 3-5 times in the past year|4| 6-10 times in the past year|5| 11-20 times in the past year|6| More than 20 times in the past year|7| Not in the past year, but it did happen before|8| This has never happened"
+	CTS57	CTS57	MOMROM2a>0 || MOMROM2b>0	q		I used threats to make my partner have oral or anal sex      	"list|1| Once in the past year|2| Twice in the past year|3| 3-5 times in the past year|4| 6-10 times in the past year|5| 11-20 times in the past year|6| More than 20 times in the past year|7| Not in the past year, but it did happen before|8| This has never happened"
+	CTS58	CTS58	MOMROM2a>0 || MOMROM2b>0	]		My partner did this to me                                                	"list|1| Once in the past year|2| Twice in the past year|3| 3-5 times in the past year|4| 6-10 times in the past year|5| 11-20 times in the past year|6| More than 20 times in the past year|7| Not in the past year, but it did happen before|8| This has never happened"
+	CTS59	CTS59	MOMROM2a>0 || MOMROM2b>0	[		I suggested a compromise to a disagreement                 	"list|1| Once in the past year|2| Twice in the past year|3| 3-5 times in the past year|4| 6-10 times in the past year|5| 11-20 times in the past year|6| More than 20 times in the past year|7| Not in the past year, but it did happen before|8| This has never happened"
+	CTS60	CTS60	MOMROM2a>0 || MOMROM2b>0	q		My partner suggested a compromise                                    	"list|1| Once in the past year|2| Twice in the past year|3| 3-5 times in the past year|4| 6-10 times in the past year|5| 11-20 times in the past year|6| More than 20 times in the past year|7| Not in the past year, but it did happen before|8| This has never happened"
+	CTS61	CTS61	MOMROM2a>0 || MOMROM2b>0	q		I burned or scalded my partner on purpose                     	"list|1| Once in the past year|2| Twice in the past year|3| 3-5 times in the past year|4| 6-10 times in the past year|5| 11-20 times in the past year|6| More than 20 times in the past year|7| Not in the past year, but it did happen before|8| This has never happened"
+	CTS62	CTS62	MOMROM2a>0 || MOMROM2b>0	]		My partner did this to me                                                         	"list|1| Once in the past year|2| Twice in the past year|3| 3-5 times in the past year|4| 6-10 times in the past year|5| 11-20 times in the past year|6| More than 20 times in the past year|7| Not in the past year, but it did happen before|8| This has never happened"
+	CTS63	CTS63	MOMROM2a>0 || MOMROM2b>0	[		I insisted my partner have oral or anal sex (but did not use physical force)                                           	"list|1| Once in the past year|2| Twice in the past year|3| 3-5 times in the past year|4| 6-10 times in the past year|5| 11-20 times in the past year|6| More than 20 times in the past year|7| Not in the past year, but it did happen before|8| This has never happened"
+	CTS64	CTS64	MOMROM2a>0 || MOMROM2b>0	q		My partner did this to me                                                   	"list|1| Once in the past year|2| Twice in the past year|3| 3-5 times in the past year|4| 6-10 times in the past year|5| 11-20 times in the past year|6| More than 20 times in the past year|7| Not in the past year, but it did happen before|8| This has never happened"
+	CTS65	CTS65	MOMROM2a>0 || MOMROM2b>0	q		I accused my partner of being a lousy lover                            	"list|1| Once in the past year|2| Twice in the past year|3| 3-5 times in the past year|4| 6-10 times in the past year|5| 11-20 times in the past year|6| More than 20 times in the past year|7| Not in the past year, but it did happen before|8| This has never happened"
+	CTS66	CTS66	MOMROM2a>0 || MOMROM2b>0	]		My partner accused me of this                                          	"list|1| Once in the past year|2| Twice in the past year|3| 3-5 times in the past year|4| 6-10 times in the past year|5| 11-20 times in the past year|6| More than 20 times in the past year|7| Not in the past year, but it did happen before|8| This has never happened"
+	CTS67	CTS67	MOMROM2a>0 || MOMROM2b>0	[		I did something to spite my partner                                           	"list|1| Once in the past year|2| Twice in the past year|3| 3-5 times in the past year|4| 6-10 times in the past year|5| 11-20 times in the past year|6| More than 20 times in the past year|7| Not in the past year, but it did happen before|8| This has never happened"
+	CTS68	CTS68	MOMROM2a>0 || MOMROM2b>0	q		My partner did this to me                                                  	"list|1| Once in the past year|2| Twice in the past year|3| 3-5 times in the past year|4| 6-10 times in the past year|5| 11-20 times in the past year|6| More than 20 times in the past year|7| Not in the past year, but it did happen before|8| This has never happened"
+	CTS69	CTS69	MOMROM2a>0 || MOMROM2b>0	q		I threatened to hit or throw something at my partner       	"list|1| Once in the past year|2| Twice in the past year|3| 3-5 times in the past year|4| 6-10 times in the past year|5| 11-20 times in the past year|6| More than 20 times in the past year|7| Not in the past year, but it did happen before|8| This has never happened"
+	CTS70	CTS70	MOMROM2a>0 || MOMROM2b>0	]		My partner did this to me	"list|1| Once in the past year|2| Twice in the past year|3| 3-5 times in the past year|4| 6-10 times in the past year|5| 11-20 times in the past year|6| More than 20 times in the past year|7| Not in the past year, but it did happen before|8| This has never happened"
+	CTS71	CTS71	MOMROM2a>0 || MOMROM2b>0	[		I felt physical pain that still hurt the next day because of a fight with my partner                        	"list|1| Once in the past year|2| Twice in the past year|3| 3-5 times in the past year|4| 6-10 times in the past year|5| 11-20 times in the past year|6| More than 20 times in the past year|7| Not in the past year, but it did happen before|8| This has never happened"
+	CTS72	CTS72	MOMROM2a>0 || MOMROM2b>0	q		My partner still felt physical pain the next day because of a fight we had	"list|1| Once in the past year|2| Twice in the past year|3| 3-5 times in the past year|4| 6-10 times in the past year|5| 11-20 times in the past year|6| More than 20 times in the past year|7| Not in the past year, but it did happen before|8| This has never happened"
+	nd554	nd554	MOMROM2a>0 || MOMROM2b>0	]		We have finished using the orange answer card. 	nothing
+	ndPSIintro	ndPSIintro	1	[		"Could you please get out the blue answer card now? For the following questions, tell me if you Strongly Agree, Agree. Not Sure, Disagree or Strongly Disagree"	nothing
+	PSI1	PSI1	1	q		I often have the feeling that I cannot handle things very well.	list|4|Strongly Agree|3|Agree|2|Not Sure|1|Disagree or |0|Strongly Disagree
+	PSI2	PSI2	1	q		I find myself giving up more of my life to meet my children’s needs than I ever expected.	list|4|Strongly Agree|3|Agree|2|Not Sure|1|Disagree or |0|Strongly Disagree
+	PSI3	PSI3	1	]		I feel trapped by my responsibilities as a parent.	list|4|Strongly Agree|3|Agree|2|Not Sure|1|Disagree or |0|Strongly Disagree
+	PSI4	PSI4	1	[		"Since having `SCNAME`, I feel that I am almost never able to be myself."	list|4|Strongly Agree|3|Agree|2|Not Sure|1|Disagree or |0|Strongly Disagree
+	PSI5	PSI5	1	q		"Since having a child, I feel that I am almost never able to do things that I like to do."	list|4|Strongly Agree|3|Agree|2|Not Sure|1|Disagree or |0|Strongly Disagree
+	PSI6	PSI6	1	q		I am unhappy with the last purchase of clothing that I made for myself.	list|4|Strongly Agree|3|Agree|2|Not Sure|1|Disagree or |0|Strongly Disagree
+	PSI7	PSI7	1	]		There are quite a few things that bother me about my life.	list|4|Strongly Agree|3|Agree|2|Not Sure|1|Disagree or |0|Strongly Disagree
+	PSI8	PSI8	1	[		Having a child has caused more problems than I expected in my relationship with my spouse (or male/female friend).	list|4|Strongly Agree|3|Agree|2|Not Sure|1|Disagree or |0|Strongly Disagree
+	PSI9	PSI9	1	q		I feel alone and without friends.	list|4|Strongly Agree|3|Agree|2|Not Sure|1|Disagree or |0|Strongly Disagree
+	PSI10	PSI10	1	q		"When I go to a party, I usually expect not to enjoy myself."	list|4|Strongly Agree|3|Agree|2|Not Sure|1|Disagree or |0|Strongly Disagree
+	PSI11	PSI11	1	]		I am not as interested in people as I used to be.	list|4|Strongly Agree|3|Agree|2|Not Sure|1|Disagree or |0|Strongly Disagree
+	PSI12	PSI12	1	[		I don’t enjoy things as I used to.	list|4|Strongly Agree|3|Agree|2|Not Sure|1|Disagree or |0|Strongly Disagree
+	PSI13	PSI13	1	q		My child rarely does things for me that make me feel good.	list|4|Strongly Agree|3|Agree|2|Not Sure|1|Disagree or |0|Strongly Disagree
+	PSI14	PSI14	1	q		Sometimes I feel my child doesn’t like me and doesn’t want to be close to me.	list|4|Strongly Agree|3|Agree|2|Not Sure|1|Disagree or |0|Strongly Disagree
+	PSI15	PSI15	1	]		My child smiles at me much less than I expected.	list|4|Strongly Agree|3|Agree|2|Not Sure|1|Disagree or |0|Strongly Disagree
+	PSI16	PSI16	1	[		"When I do things for my child, I get the feeling that my efforts are not appreciated very much."	list|4|Strongly Agree|3|Agree|2|Not Sure|1|Disagree or |0|Strongly Disagree
+	PSI17	PSI17	1	q		"When playing, my child doesn’t often giggle or laugh."	list|4|Strongly Agree|3|Agree|2|Not Sure|1|Disagree or |0|Strongly Disagree
+	PSI18	PSI18	1	q		My child doesn’t seem to learn as quickly as most children.	list|4|Strongly Agree|3|Agree|2|Not Sure|1|Disagree or |0|Strongly Disagree
+	PSI19	PSI19	1	]		My child doesn’t seem to smile as much as most children.	list|4|Strongly Agree|3|Agree|2|Not Sure|1|Disagree or |0|Strongly Disagree
+	PSI20	PSI20	1	[		My child is not able to do as much as I expected.	list|4|Strongly Agree|3|Agree|2|Not Sure|1|Disagree or |0|Strongly Disagree
+	PSI21	PSI21	1	q		It takes a long time and it is very hard for my child to get used to new things.	list|4|Strongly Agree|3|Agree|2|Not Sure|1|Disagree or |0|Strongly Disagree
+	PSI23	PSI23	1	q		I expected to have closer and warmer feelings for my child than I do and this bothers me.	list|4|Strongly Agree|3|Agree|2|Not Sure|1|Disagree or |0|Strongly Disagree
+	PSI24	PSI24	1	]		Sometimes my child does things that bother me just to be mean.	list|4|Strongly Agree|3|Agree|2|Not Sure|1|Disagree or |0|Strongly Disagree
+	PSI25	PSI25	1	[		My child seems to cry or fuss more often than most children.	list|4|Strongly Agree|3|Agree|2|Not Sure|1|Disagree or |0|Strongly Disagree
+	PSI26	PSI26	1	q		My child generally wakes up in a bad mood.	list|4|Strongly Agree|3|Agree|2|Not Sure|1|Disagree or |0|Strongly Disagree
+	PSI27	PSI27	1	q		I feel that my child is moody and easily upset.	list|4|Strongly Agree|3|Agree|2|Not Sure|1|Disagree or |0|Strongly Disagree
+	PSI28	PSI28	1	]		My child does a few things which bother me a great deal.	list|4|Strongly Agree|3|Agree|2|Not Sure|1|Disagree or |0|Strongly Disagree
+	PSI29	PSI29	1	[		My child reacts very strongly when something happens that my child doesn’t like.	list|4|Strongly Agree|3|Agree|2|Not Sure|1|Disagree or |0|Strongly Disagree
+	PSI30	PSI30	1	q		My child gets upset easily over the smallest thing.	list|4|Strongly Agree|3|Agree|2|Not Sure|1|Disagree or |0|Strongly Disagree
+	PSI31	PSI31	1	q		My child’s sleeping or eating schedule was much harder to establish than I expected.	list|4|Strongly Agree|3|Agree|2|Not Sure|1|Disagree or |0|Strongly Disagree
+	PSI34	PSI34	1	]		There are some things my child does that really bother me a lot.	list|4|Strongly Agree|3|Agree|2|Not Sure|1|Disagree or |0|Strongly Disagree
+	PSI35	PSI35	1	[		My child turned out to be more of a problem than I had expected.	list|4|Strongly Agree|3|Agree|2|Not Sure|1|Disagree or |0|Strongly Disagree
+	PSI36	PSI36	1	]		My child makes more demands on me than most children.	list|4|Strongly Agree|3|Agree|2|Not Sure|1|Disagree or |0|Strongly Disagree
+	PSI22	PSI22	1	[		"How well do you think you manage as a parent? Would you say you are Not very good at being a parent, A person who has some trouble being a parent, An average parent, A better than average parent or A very good parent."	list|0|Not very good at being a parent|1|A person who has some trouble being a parent|2|An average parent|3|A better than average parent|4|A very good parent.
+	PSI32	PSI32	1	q		How hard is it to get `SCNAME` to do something or stop doing something? Would you say it is ….	list|1| much harder than I expected|2|somewhat harder than I expected|3|about as hard as I expected|4|somewhat easier than I expected|5|much easier than I expected
+	PSI33	PSI33	1	]		"Think carefully and count the number of things which `SCNAME` does that bother you. For example dawdles, refuses to listen, overactive, cries, interrupts, fights, whines, etc."	double
+	nd577	nd577	1	[		You can put the blue answer card aside now and use the pink answer card.	nothing
+	ndPARSUP	ndPARSUP	1	q		"The following questions are about how you usually act with `SCNAME`. Please say whether each statement is False, Somewhat false,Somewhat true, or True."	nothing
+	PARSUP1p	PARSUP1p	1	q		I'm easy for `SCNAME` to talk to.	list|0|False|1|Somewhat false|2|Somewhat true|4|True
+	PARSUP2p	PARSUP2p	1	q		I prefer to let `SCNAME` make `SCSEX==0?'her':'his'` own choices and do what s/he wants to as much as possible.	list|0|False|1|Somewhat false|2|Somewhat true|4|True
+	PARSUP3p	PARSUP3p	1	q		I encourage `SCNAME` to tell me how s/he really feels about things.	list|0|False|1|Somewhat false|2|Somewhat true|4|True
+	PARSUP4p	PARSUP4p	1	q		I like to take `SCNAME` with me when I go out.	list|0|False|1|Somewhat false|2|Somewhat true|4|True
+	PARSUP5p	PARSUP5p	1	]		I often tell `SCNAME` that I love `SCSEX==0?'her':'him'`.	list|0|False|1|Somewhat false|2|Somewhat true|4|True
+	PARSUP6p	PARSUP6p	1	[		`SCNAME` is aware that I have strict standards for `SCSEX==0?'her':'his'` behavior.	list|0|False|1|Somewhat false|2|Somewhat true|4|True
+	PARSUP7p	PARSUP7p	1	q		I get very angry when `SCNAME` doesn't obey me.	list|0|False|1|Somewhat false|2|Somewhat true|4|True
+	PARSUP8p	PARSUP8p	1	q		I spend a lot of time caring for `SCNAME` when `SCSEX==0?'she':'he'` is sick.	list|0|False|1|Somewhat false|2|Somewhat true|4|True
+	PARSUP9p	PARSUP9p	1	q		I tell `SCNAME` that I will hit or spank him/her if `SCSEX==0?'she':'he'` does something I don't like.	list|0|False|1|Somewhat false|2|Somewhat true|4|True
+	PARSUP10p	PARSUP10p	1	q		I know `SCNAME`'s best friends and their parents.	list|0|False|1|Somewhat false|2|Somewhat true|4|True
+	PARSUP11p	PARSUP11p	1	]		I often read to `SCNAME` or help `SCSEX==0?'her':'him'` with `SCSEX==0?'her':'his'` projects or homework.	list|0|False|1|Somewhat false|2|Somewhat true|4|True
+	PARSUP12p	PARSUP12p	1	[		I often tell `SCNAME` that I expect `SCSEX==0?'her':'him'` to be good and to always do the best `SCSEX==0?'she':'he'` can.	list|0|False|1|Somewhat false|2|Somewhat true|4|True
+	PARSUP13p	PARSUP13p	1	q		`SCNAME` often sits with me when I am watching TV.	list|0|False|1|Somewhat false|2|Somewhat true|4|True
+	PARSUP14p	PARSUP14p	1	q		I try to make `SCNAME` understand that `SCSEX==0?'she':'he'` should obey me because I am `SCSEX==0?'her':'his'` mother.	list|0|False|1|Somewhat false|2|Somewhat true|4|True
+	PARSUP15p	PARSUP15p	1	q		I always know where `SCNAME` is and who `SCSEX==0?'she':'he'` is spending time with.	list|0|False|1|Somewhat false|2|Somewhat true|4|True
+	PARSUP16p	PARSUP16p	1	q		I often have problems getting `SCNAME` to obey my instructions or do what I say.	list|0|False|1|Somewhat false|2|Somewhat true|4|True
+	PARSUP17p	PARSUP17p	1	]		I hug or kiss `SCNAME` often.	list|0|False|1|Somewhat false|2|Somewhat true|4|True
+	PARSUP18p	PARSUP18p	1	[		I make it very clear that I expect `SCNAME` to be kind and polite to other people.	list|0|False|1|Somewhat false|2|Somewhat true|4|True
+	PARSUP19p	PARSUP19p	1	q		I often criticize and correct `SCNAME`.	list|0|False|1|Somewhat false|2|Somewhat true|4|True
+	PARSUP20p	PARSUP20p	1	q		I give `SCNAME` a lot of praise and encouragement.	list|0|False|1|Somewhat false|2|Somewhat true|4|True
+	PARSUP21p	PARSUP21p	1	q		`SCNAME` and I sometimes get into bad arguments that I just let `SCSEX==0?'her':'him'` win.	list|0|False|1|Somewhat false|2|Somewhat true|4|True
+	PARSUP22p	PARSUP22p	1	q		I do things with `SCNAME` that we both enjoy almost every day.	list|0|False|1|Somewhat false|2|Somewhat true|4|True
+	PARSUP23p	PARSUP23p	1	]		I tend to push `SCNAME` to be as independent as possible.	list|0|False|1|Somewhat false|2|Somewhat true|4|True
+	PARSUP24p	PARSUP24p	1	[		I have had times when I lost control and feared that I might hurt `SCNAME`.	list|0|False|1|Somewhat false|2|Somewhat true|4|True
+	PARSUP25p	PARSUP25p	1	q		I watch children's TV shows with `SCNAME`.	list|0|False|1|Somewhat false|2|Somewhat true|4|True
+	PARSUP26p	PARSUP26p	1	]		`SCNAME` sometimes sees me fighting physically with someone else in the household.	list|0|False|1|Somewhat false|2|Somewhat true|4|True
+	ndNYPRSintro	ndNYPRSintro	1	[		"Please get out the  green answer card again. Please rate `SCNAME`'s current behavior. Consider how `SCNAME` has been for the past four weeks. For each item indicate whether the term describes `SCNAME`'s behavior not at all, just a little, pretty much or very much."	nothing
+	NYPRS1 	NYPRS1 	1	q		"Defiant (disobedient, refuses to follow rules or instructions)"	list|0|not at all |1|just a little|2| pretty much |3|very much 
+	NYPRS2	NYPRS2	1	q		Angry	list|0|not at all |1|just a little|2| pretty much |3|very much 
+	NYPRS3	NYPRS3	1	]		"Argue, quarrel with adults"	list|0|not at all |1|just a little|2| pretty much |3|very much 
+	NYPRS4 	NYPRS4 	1	[		"Act ""smart"" (impudent or sassy) (disrespectful, mouthy, rude)"	list|0|not at all |1|just a little|2| pretty much |3|very much 
+	NYPRS5 	NYPRS5 	1	q		"Spiteful, vindictive (tries to take revenge on people when angry at them)"	list|0|not at all |1|just a little|2| pretty much |3|very much 
+	NYPRS6 	NYPRS6 	1	q		Loses temper	list|0|not at all |1|just a little|2| pretty much |3|very much 
+	NYPRS7 	NYPRS7 	1	]		"Disobedient, difficult to control"	list|0|not at all |1|just a little|2| pretty much |3|very much 
+	NYPRS8 	NYPRS8 	1	[		"Tries to dominate others; bullies, threatens"	list|0|not at all |1|just a little|2| pretty much |3|very much 
+	NYPRS9 	NYPRS9 	1	q		Easily annoyed by others	list|0|not at all |1|just a little|2| pretty much |3|very much 
+	NYPRS10 	NYPRS10 	1	q		Blames others; denies own mistakes	list|0|not at all |1|just a little|2| pretty much |3|very much 
+	NYPRS11 	NYPRS11 	1	]		Deliberately annoys others	list|0|not at all |1|just a little|2| pretty much |3|very much 
+	NYPRS12 	NYPRS12 	1	[		Lies	list|0|not at all |1|just a little|2| pretty much |3|very much 
+	NYPRS13 	NYPRS13 	1	q		Breaks rules at home	list|0|not at all |1|just a little|2| pretty much |3|very much 
+	NYPRS14 	NYPRS14 	1	q		Destroys or defaces property	list|0|not at all |1|just a little|2| pretty much |3|very much 
+	NYPRS15 	NYPRS15 	1	]		"Acts violently to others children or adults (hits, pushes, etc.)"	list|0|not at all |1|just a little|2| pretty much |3|very much 
+	NYPRS16 	NYPRS16 	1	[		Starts physical fights	list|0|not at all |1|just a little|2| pretty much |3|very much 
+	NYPRS17 	NYPRS17 	1	q		Gets involved in physical fights with peers	list|0|not at all |1|just a little|2| pretty much |3|very much 
+	NYPRS18 	NYPRS18 	1	q		Physically cruel	list|0|not at all |1|just a little|2| pretty much |3|very much 
+	NYPRS19 	NYPRS19 	1	]		Assaults others	list|0|not at all |1|just a little|2| pretty much |3|very much 
+	NYPRS20 	NYPRS20 	1	[		Carries a knife or other weapon	list|0|not at all |1|just a little|2| pretty much |3|very much 
+	NYPRS21 	NYPRS21 	1	q		"Has used a knife, or other weapon, in a fight"	list|0|not at all |1|just a little|2| pretty much |3|very much 
+	NYPRS22 	NYPRS22 	1	q		Has mugged someone	list|0|not at all |1|just a little|2| pretty much |3|very much 
+	NYPRS23 	NYPRS23 	1	]		Sexual misbehavior (not masturbation)	list|0|not at all |1|just a little|2| pretty much |3|very much 
+	NYPRS24 	NYPRS24 	1	[		Steals on the sly	list|0|not at all |1|just a little|2| pretty much |3|very much 
+	NYPRS25 	NYPRS25 	1	q		Shakes down others for money or other belongings	list|0|not at all |1|just a little|2| pretty much |3|very much 
+	NYPRS26 	NYPRS26 	1	q		Late to school or class	list|0|not at all |1|just a little|2| pretty much |3|very much 
+	NYPRS27 	NYPRS27 	1	]		Truant	list|0|not at all |1|just a little|2| pretty much |3|very much 
+	NYPRS28 	NYPRS28 	1	[		Has run away from home during the day	list|0|not at all |1|just a little|2| pretty much |3|very much 
+	NYPRS29 	NYPRS29 	1	q		Has run away from home overnight	list|0|not at all |1|just a little|2| pretty much |3|very much 
+	NYPRS30 	NYPRS30 	1	q		Steals from parents or siblings when they are not around	list|0|not at all |1|just a little|2| pretty much |3|very much 
+	NYPRS31 	NYPRS31 	1	]		Sets fires	list|0|not at all |1|just a little|2| pretty much |3|very much 
+	NYPRS32 	NYPRS32 	1	[		Cheats at games	list|0|not at all |1|just a little|2| pretty much |3|very much 
+	NYPRS33 	NYPRS33 	1	q		Deliberately hurt animals	list|0|not at all |1|just a little|2| pretty much |3|very much 
+	NYPRS34 	NYPRS34 	1	q		"Uses obscene language (swearing, cursing)"	list|0|not at all |1|just a little|2| pretty much |3|very much 
+	NYPRS35 	NYPRS35 	1	]		"Has broken into buildings, houses or cars"	list|0|not at all |1|just a little|2| pretty much |3|very much 
+	NYPRS36 	NYPRS36 	1	[		"Has had bad companions, ones who get in trouble"	list|0|not at all |1|just a little|2| pretty much |3|very much 
+	NYPRS37 	NYPRS37 	1	q		Involved with police	list|0|not at all |1|just a little|2| pretty much |3|very much 
+	NYPRS38 	NYPRS38 	1	q		Uses alcohol	list|0|not at all |1|just a little|2| pretty much |3|very much 
+	NYPRS39 	NYPRS39 	1	]		Uses drugs	list|0|not at all |1|just a little|2| pretty much |3|very much 
+	NYPRS40 	NYPRS40 	1	[		"Has school, peer, or family problems due to drugs or alcohol"	list|0|not at all |1|just a little|2| pretty much |3|very much 
+	NYPRS41 	NYPRS41 	1	q		Others like to play with him/her	list|0|not at all |1|just a little|2| pretty much |3|very much 
+	NYPRS42 	NYPRS42 	1	q		Peers seek his/her company	list|0|not at all |1|just a little|2| pretty much |3|very much 
+	NYPRS43 	NYPRS43 	1	]		Is liked by his peers	list|0|not at all |1|just a little|2| pretty much |3|very much 
+	NYPRS44 	NYPRS44 	1	[		Helpful to others	list|0|not at all |1|just a little|2| pretty much |3|very much 
+	NYPRS45 	NYPRS45 	1	q		Has at least one good friend	list|0|not at all |1|just a little|2| pretty much |3|very much 
+	NYPRS46 	NYPRS46 	1	q		Is considerate with friends/companions	list|0|not at all |1|just a little|2| pretty much |3|very much 
+	NYPRS47 	NYPRS47 	1	]		Shows remorse when he or she does something wrong	list|0|not at all |1|just a little|2| pretty much |3|very much 
+	MPRI	MPRI	1	[		How many close friends does this child or adolescent have? 	double
+	ndMPRIintro	ndMPRIintro	1	q		For the next questions please describes how `SCNAME` relates to their peers. You can continue using the green card for this.	nothing
+	MPRI1	MPRI1	1	q		How much does `SCNAME` worry about how `SCSEX==0?'she':'he'` looks when `SCSEX==0?'she':'he'` is with `SCSEX==0?'her':'his'` friends?	list|0|not at all |1|a little |2|somewhat |3|quite a bit|4|a lot
+	MPRI2	MPRI2	1	]		How much does `SCSEX==0?'she':'he'` make `SCSEX==0?'her':'his'` friends laugh?	list|0|not at all |1|a little |2|somewhat |3|quite a bit|4|a lot
+	MPRI3	MPRI3	1	[		How much does `SCNAME` lose her/his temper when `SCSEX==0?'she':'he'` is with `SCSEX==0?'her':'his'` friends?	list|0|not at all |1|a little |2|somewhat |3|quite a bit|4|a lot
+	MPRI4	MPRI4	1	q		How much does `SCSEX==0?'she':'he'` depend on `SCSEX==0?'her':'his'` friends?	list|0|not at all |1|a little |2|somewhat |3|quite a bit|4|a lot
+	MPRI5	MPRI5	1	q		How much does `SCSEX==0?'she':'he'` trust `SCSEX==0?'her':'his'` friends?	list|0|not at all |1|a little |2|somewhat |3|quite a bit|4|a lot
+	MPRI6	MPRI6	1	]		How popular is `SCNAME` with `SCSEX==0?'her':'his'` friends or other people `SCSEX==0?'her':'his'` age?	list|0|not at all |1|a little |2|somewhat |3|quite a bit|4|a lot
+	MPRI7	MPRI7	1	[		How shy is `SCNAME` when `SCSEX==0?'she':'he'` is with `SCSEX==0?'her':'his'` friends?	list|0|not at all |1|a little |2|somewhat |3|quite a bit|4|a lot
+	MPRI8	MPRI8	1	q		How much does `SCSEX==0?'she':'he'` respect `SCSEX==0?'her':'his'` friends?	list|0|not at all |1|a little |2|somewhat |3|quite a bit|4|a lot
+	MPRI9	MPRI9	1	q		How much is `SCNAME` physically aggressive is `SCSEX==0?'she':'he'` with `SCSEX==0?'her':'his'` friends?	list|0|not at all |1|a little |2|somewhat |3|quite a bit|4|a lot
+	MPRI10	MPRI10	1	]		"How much does `SCSEX==0?'she':'he'` argue with, curse at, or insult `SCSEX==0?'her':'his'` friends?"	list|0|not at all |1|a little |2|somewhat |3|quite a bit|4|a lot
+	MPRI11	MPRI11	1	[		How likely is `SCNAME` to do something `SCSEX==0?'she':'he'` wouldn’t usually do if `SCSEX==0?'she':'he'` were dared by `SCSEX==0?'her':'his'` friends?	list|0|not at all |1|a little |2|somewhat |3|quite a bit|4|a lot
+	MPRI12	MPRI12	1	q		How close does `SCSEX==0?'she':'he'` feel to `SCSEX==0?'her':'his'` friends?	list|0|not at all |1|a little |2|somewhat |3|quite a bit|4|a lot
+	MPRI13	MPRI13	1	]		"How much does `SCNAME` and `SCSEX==0?'her':'his'` friends talk about personal things, like thoughts and feelings?"	list|0|not at all |1|a little |2|somewhat |3|quite a bit|4|a lot
+	ndPeerdev	ndPeerdev	1	[		Now you can get out the lavender answer card. Following are some descriptions of behavior sometimes shown by adolescents. Please think about the way `SCNAME` has been behaving in the past 12 months. Please say how much each statement applies to `SCSEX==0?'her':'him'` .	nothing
+	Peerdev1	Peerdev1	1	q		Steals in company of others	list|0|Doesn’t apply|1|Somewhat applies|2|Certainly applies
+	Peerdev2	Peerdev2	1	q		Belongs to a gang	list|0|Doesn’t apply|1|Somewhat applies|2|Certainly applies
+	Peerdev3	Peerdev3	1	]		Loyal to delinquent friends	list|0|Doesn’t apply|1|Somewhat applies|2|Certainly applies
+	Peerdev4	Peerdev4	1	[		"Truants from school, usually in company of others"	list|0|Doesn’t apply|1|Somewhat applies|2|Certainly applies
+Datingmon	Peerdev5	Peerdev5	1	q		"Has ""bad companions"""	list|0|Doesn’t apply|1|Somewhat applies|2|Certainly applies
+	Peerdev6	Peerdev6	1	q		Uses drugs in company of others	list|0|Doesn’t apply|1|Somewhat applies|2|Certainly applies
+Datingmon	Peerdev7	Peerdev7	1	]		Is part of a group that rejects school activities	list|0|Doesn’t apply|1|Somewhat applies|2|Certainly applies
+Datingmon	Peerdev8	Peerdev8	1	[		Drinks alcohol in company of others	list|0|Doesn’t apply|1|Somewhat applies|2|Certainly applies
+Datingmon	Peerdev9	Peerdev9	1	q		Admires/associates with rougher peers	list|0|Doesn’t apply|1|Somewhat applies|2|Certainly applies
+Datingmon	Peerdev10	Peerdev10	1	]		Admires people who operate outside the law	list|0|Doesn’t apply|1|Somewhat applies|2|Certainly applies
+Datingmon	ndDatmintro	ndDatmintro	1	[		We're finished with the lavender card. Next I'm going to ask you some questions about `SCNAME`'s romantic relationships.	nothing
+	interest	interest	1	]		Does`SCNAME` have a `SCSEX==0?'boyfriend':'girlfriend'` or someone they are interested in?	list|1|yes|0|no|9999|don't know
+	Datmon1	Datmon1	interest>0	[		How much do you know about `SCNAME` having a boyfriend/girlfriend or someone they are interested in?	list|0|not at all |1|a little |2|somewhat |3|quite a bit|4|a lot
+	Datmon2	Datmon2	interest==0	q		How often do you know where `SCNAME` is when `SCSEX==0?'she':'he'` is with a `SCSEX==0?'boyfriend':'girlfriend'` or someone `SCSEX==0?'she':'he'` is interested in?	list|0|never |1|a little of the time |2|sometimes |3|quite a bit of the time |4|a lot of the time
+	Datmon3	Datmon3	interest==0	]		"When `SCNAME` is out with a `SCSEX==0?'boyfriend':'girlfriend'` or someone `SCSEX==0?'she':'he'` is interested in, how often do you know what they are doing?"	list|0|never |1|a little of the time |2|sometimes |3|quite a bit of the time |4|a lot of the time
+	Datmon4	Datmon4	interest==0	[		How well do you know the `SCSEX==0?'boys':'girls'` `SCSEX==0?'she':'he'` goes out with or are interested in?	list|0|not at all |1|a little |2|somewhat |3|quite a bit|4|a lot
+	Datmon5	Datmon5	interest==0	q		"When `SCNAME` is out with a `SCSEX==0?'boyfriend':'girlfriend'` or someone `SCSEX==0?'she':'he'` is interested in, how often do you know what time `SCSEX==0?'she':'he'` will be home?"	list|0|never |1|a little of the time |2|sometimes |3|quite a bit of the time |4|a lot of the time
+	Datmon6	Datmon6	interest==0	]		"When `SCNAME` is out with a `SCSEX==0?'boyfriend':'girlfriend'` if  `SCSEX==0?'she':'he'` did not come home by the time that `SCSEX==0?'she':'he'` was supposed to be in, how often would you know?"	list|0|never |1|a little of the time |2|sometimes |3|quite a bit of the time |4|a lot of the time
+	ndSIB1	ndSIB1	SIBLINGNO>0	[		"Thanks, that's all the questions about `SCNAME`. Now I am going to ask some of those same questions about `SIB1NAME`."	nothing
+	ndSIB1a	ndSIB1a	SIBLINGNO>0	]		How old is `SIB1NAME`? 	double
+	nd578	nd578	1	[		Now we will use the pink answer card again.	nothing
+s1	s1ndPARSUP	s1ndPARSUP	SIBLINGNO>0	q		"The following questions are about how you usually act with `SIB1NAME`. Please say whether each statement is False, Somewhat false,Somewhat true, or True."	nothing
+s1	s1PARSUP1p	s1PARSUP1p	SIBLINGNO>0	q		I'm easy for `SIB1NAME` to talk to.	list|0|False|1|Somewhat false|2|Somewhat true|4|True
+s1	s1PARSUP2p	s1PARSUP2p	SIBLINGNO>0	q		I prefer to let `SIB1NAME` make `SCSEX==0?'her':'his'` own choices and do what s/he wants to as much as possible.	list|0|False|1|Somewhat false|2|Somewhat true|4|True
+s1	s1PARSUP3p	s1PARSUP3p	SIBLINGNO>0	q		I encourage `SIB1NAME` to tell me how s/he really feels about things.	list|0|False|1|Somewhat false|2|Somewhat true|4|True
+s1	s1PARSUP4p	s1PARSUP4p	SIBLINGNO>0	q		I like to take `SIB1NAME` with me when I go out.	list|0|False|1|Somewhat false|2|Somewhat true|4|True
+s1	s1PARSUP5p	s1PARSUP5p	SIBLINGNO>0	]		I often tell `SIB1NAME` that I love `SCSEX==0?'her':'him'`.	list|0|False|1|Somewhat false|2|Somewhat true|4|True
+s1	s1PARSUP6p	s1PARSUP6p	SIBLINGNO>0	[		`SIB1NAME` is aware that I have strict standards for `SCSEX==0?'her':'his'` behavior.	list|0|False|1|Somewhat false|2|Somewhat true|4|True
+s1	s1PARSUP7p	s1PARSUP7p	SIBLINGNO>0	q		I get very angry when `SIB1NAME` doesn't obey me.	list|0|False|1|Somewhat false|2|Somewhat true|4|True
+s1	s1PARSUP8p	s1PARSUP8p	SIBLINGNO>0	q		I spend a lot of time caring for `SIB1NAME` when `SCSEX==0?'she':'he'` is sick.	list|0|False|1|Somewhat false|2|Somewhat true|4|True
+s1	s1PARSUP9p	s1PARSUP9p	SIBLINGNO>0	q		I tell `SIB1NAME` that I will hit or spank him/her if `SCSEX==0?'she':'he'` does something I don't like.	list|0|False|1|Somewhat false|2|Somewhat true|4|True
+s1	s1PARSUP10p	s1PARSUP10p	SIBLINGNO>0	q		I know `SIB1NAME`'s best friends and their parents.	list|0|False|1|Somewhat false|2|Somewhat true|4|True
+s1	s1PARSUP11p	s1PARSUP11p	SIBLINGNO>0	]		I often read to `SIB1NAME` or help `SCSEX==0?'her':'him'` with `SCSEX==0?'her':'his'` projects or homework.	list|0|False|1|Somewhat false|2|Somewhat true|4|True
+s1	s1PARSUP12p	s1PARSUP12p	SIBLINGNO>0	[		I often tell `SIB1NAME` that I expect `SCSEX==0?'her':'him'` to be good and to always do the best `SCSEX==0?'she':'he'` can.	list|0|False|1|Somewhat false|2|Somewhat true|4|True
+s1	s1PARSUP13p	s1PARSUP13p	SIBLINGNO>0	q		`SIB1NAME` often sits with me when I am watching TV.	list|0|False|1|Somewhat false|2|Somewhat true|4|True
+s1	s1PARSUP14p	s1PARSUP14p	SIBLINGNO>0	q		I try to make `SIB1NAME` understand that `SCSEX==0?'she':'he'` should obey me because I am `SCSEX==0?'her':'his'` mother.	list|0|False|1|Somewhat false|2|Somewhat true|4|True
+s1	s1PARSUP15p	s1PARSUP15p	SIBLINGNO>0	q		I always know where `SIB1NAME` is and who `SCSEX==0?'she':'he'` is spending time with.	list|0|False|1|Somewhat false|2|Somewhat true|4|True
+s1	s1PARSUP16p	s1PARSUP16p	SIBLINGNO>0	q		I often have problems getting `SIB1NAME` to obey my instructions or do what I say.	list|0|False|1|Somewhat false|2|Somewhat true|4|True
+s1	s1PARSUP17p	s1PARSUP17p	SIBLINGNO>0	]		I hug or kiss `SIB1NAME` often.	list|0|False|1|Somewhat false|2|Somewhat true|4|True
+s1	s1PARSUP18p	s1PARSUP18p	SIBLINGNO>0	[		I make it very clear that I expect `SIB1NAME` to be kind and polite to other people.	list|0|False|1|Somewhat false|2|Somewhat true|4|True
+s1	s1PARSUP19p	s1PARSUP19p	SIBLINGNO>0	q		I often criticize and correct `SIB1NAME`.	list|0|False|1|Somewhat false|2|Somewhat true|4|True
+s1	s1PARSUP20p	s1PARSUP20p	SIBLINGNO>0	q		I give `SIB1NAME` a lot of praise and encouragement.	list|0|False|1|Somewhat false|2|Somewhat true|4|True
+s1	s1PARSUP21p	s1PARSUP21p	SIBLINGNO>0	q		`SIB1NAME` and I sometimes get into bad arguments that I just let `SCSEX==0?'her':'him'`win.	list|0|False|1|Somewhat false|2|Somewhat true|4|True
+s1	s1PARSUP22p	s1PARSUP22p	SIBLINGNO>0	q		I do things with `SIB1NAME` that we both enjoy almost every day.	list|0|False|1|Somewhat false|2|Somewhat true|4|True
+s1	s1PARSUP23p	s1PARSUP23p	SIBLINGNO>0	]		I tend to push `SIB1NAME` to be as independent as possible.	list|0|False|1|Somewhat false|2|Somewhat true|4|True
+s1	s1PARSUP24p	s1PARSUP24p	SIBLINGNO>0	[		I have had times when I lost control and feared that I might hurt `SIB1NAME`.	list|0|False|1|Somewhat false|2|Somewhat true|4|True
+s1	s1PARSUP25p	s1PARSUP25p	SIBLINGNO>0	q		I watch children's TV shows with `SIB1NAME`.	list|0|False|1|Somewhat false|2|Somewhat true|4|True
+s1	s1PARSUP26p	s1PARSUP26p	SIBLINGNO>0	]		`SIB1NAME` sometimes sees me fighting physically with someone else in the household.	list|0|False|1|Somewhat false|2|Somewhat true|4|True
+s1	s1ndNYPintro	s1ndNYPintro	SIBLINGNO>0	[		"Please get out the  green answer card again. Please rate `SIB1NAME`'s current behavior. Consider how `SIB1NAME` has been for the past four weeks. For each item indicate whether the term describes `SIB1NAME`'s behavior not at all, just a little, pretty much or very much."	nothing
+s1	s1NYP1 	s1NYP1 	SIBLINGNO>0	q		"Defiant (disobedient, refuses to follow rules or instructions)"	list|0|not at all |1|just a little|2| pretty much |3|very much 
+s1	s1NYP2	s1NYP2	SIBLINGNO>0	q		Angry	list|0|not at all |1|just a little|2| pretty much |3|very much 
+s1	s1NYP3	s1NYP3	SIBLINGNO>0	]		"Argue, quarrel with adults"	list|0|not at all |1|just a little|2| pretty much |3|very much 
+s1	s1NYP4 	s1NYP4 	SIBLINGNO>0	[		"Act ""smart"" (impudent or sassy) (disrespectful, mouthy, rude)"	list|0|not at all |1|just a little|2| pretty much |3|very much 
+s1	s1NYP5 	s1NYP5 	SIBLINGNO>0	q		"Spiteful, vindictive (tries to take revenge on people when angry at them)"	list|0|not at all |1|just a little|2| pretty much |3|very much 
+s1	s1NYP6 	s1NYP6 	SIBLINGNO>0	q		Loses temper	list|0|not at all |1|just a little|2| pretty much |3|very much 
+s1	s1NYP7 	s1NYP7 	SIBLINGNO>0	]		"Disobedient, difficult to control"	list|0|not at all |1|just a little|2| pretty much |3|very much 
+s1	s1NYP8 	s1NYP8 	SIBLINGNO>0	[		"Tries to dominate others; bullies, threatens"	list|0|not at all |1|just a little|2| pretty much |3|very much 
+s1	s1NYP9 	s1NYP9 	SIBLINGNO>0	q		Easily annoyed by others	list|0|not at all |1|just a little|2| pretty much |3|very much 
+s1	s1NYP10 	s1NYP10 	SIBLINGNO>0	q		Blames others; denies own mistakes	list|0|not at all |1|just a little|2| pretty much |3|very much 
+s1	s1NYP11 	s1NYP11 	SIBLINGNO>0	]		Deliberately annoys others	list|0|not at all |1|just a little|2| pretty much |3|very much 
+s1	s1NYP12 	s1NYP12 	SIBLINGNO>0	[		Lies	list|0|not at all |1|just a little|2| pretty much |3|very much 
+s1	s1NYP13 	s1NYP13 	SIBLINGNO>0	q		Breaks rules at home	list|0|not at all |1|just a little|2| pretty much |3|very much 
+s1	s1NYP14 	s1NYP14 	SIBLINGNO>0	q		Destroys or defaces property	list|0|not at all |1|just a little|2| pretty much |3|very much 
+s1	s1NYP15 	s1NYP15 	SIBLINGNO>0	]		"Acts violently to others children or adults (hits, pushes, etc.)"	list|0|not at all |1|just a little|2| pretty much |3|very much 
+s1	s1NYP16 	s1NYP16 	SIBLINGNO>0	[		Starts physical fights	list|0|not at all |1|just a little|2| pretty much |3|very much 
+s1	s1NYP17 	s1NYP17 	SIBLINGNO>0	q		Gets involved in physical fights with peers	list|0|not at all |1|just a little|2| pretty much |3|very much 
+s1	s1NYP18 	s1NYP18 	SIBLINGNO>0	q		Physically cruel	list|0|not at all |1|just a little|2| pretty much |3|very much 
+s1	s1NYP19 	s1NYP19 	SIBLINGNO>0	]		Assaults others	list|0|not at all |1|just a little|2| pretty much |3|very much 
+s1	s1NYP20 	s1NYP20 	SIBLINGNO>0	[		Carries a knife or other weapon	list|0|not at all |1|just a little|2| pretty much |3|very much 
+s1	s1NYP21 	s1NYP21 	SIBLINGNO>0	q		"Has used a knife, or other weapon, in a fight"	list|0|not at all |1|just a little|2| pretty much |3|very much 
+s1	s1NYP22 	s1NYP22 	SIBLINGNO>0	q		Has mugged someone	list|0|not at all |1|just a little|2| pretty much |3|very much 
+s1	s1NYP23 	s1NYP23 	SIBLINGNO>0	]		Sexual misbehavior (not masturbation)	list|0|not at all |1|just a little|2| pretty much |3|very much 
+s1	s1NYP24 	s1NYP24 	SIBLINGNO>0	[		Steals on the sly	list|0|not at all |1|just a little|2| pretty much |3|very much 
+s1	s1NYP25 	s1NYP25 	SIBLINGNO>0	q		Shakes down others for money or other belongings	list|0|not at all |1|just a little|2| pretty much |3|very much 
+s1	s1NYP26 	s1NYP26 	SIBLINGNO>0	q		Late to school or class	list|0|not at all |1|just a little|2| pretty much |3|very much 
+s1	s1NYP27 	s1NYP27 	SIBLINGNO>0	]		Truant	list|0|not at all |1|just a little|2| pretty much |3|very much 
+s1	s1NYP28 	s1NYP28 	SIBLINGNO>0	[		Has run away from home during the day	list|0|not at all |1|just a little|2| pretty much |3|very much 
+s1	s1NYP29 	s1NYP29 	SIBLINGNO>0	q		Has run away from home overnight	list|0|not at all |1|just a little|2| pretty much |3|very much 
+s1	s1NYP30 	s1NYP30 	SIBLINGNO>0	q		Steals from parents or siblings when they are not around	list|0|not at all |1|just a little|2| pretty much |3|very much 
+s1	s1NYP31 	s1NYP31 	SIBLINGNO>0	]		Sets fires	list|0|not at all |1|just a little|2| pretty much |3|very much 
+s1	s1NYP32 	s1NYP32 	SIBLINGNO>0	[		Cheats at games	list|0|not at all |1|just a little|2| pretty much |3|very much 
+s1	s1NYP33 	s1NYP33 	SIBLINGNO>0	q		Deliberately hurt animals	list|0|not at all |1|just a little|2| pretty much |3|very much 
+s1	s1NYP34 	s1NYP34 	SIBLINGNO>0	q		"Uses obscene language (swearing, cursing)"	list|0|not at all |1|just a little|2| pretty much |3|very much 
+s1	s1NYP35 	s1NYP35 	SIBLINGNO>0	]		"Has broken into buildings, houses or cars"	list|0|not at all |1|just a little|2| pretty much |3|very much 
+s1	s1NYP36 	s1NYP36 	SIBLINGNO>0	[		"Has had bad companions, ones who get in trouble"	list|0|not at all |1|just a little|2| pretty much |3|very much 
+s1	s1NYP37 	s1NYP37 	SIBLINGNO>0	q		Involved with police	list|0|not at all |1|just a little|2| pretty much |3|very much 
+s1	s1NYP38 	s1NYP38 	SIBLINGNO>0	q		Uses alcohol	list|0|not at all |1|just a little|2| pretty much |3|very much 
+s1	s1NYP39 	s1NYP39 	SIBLINGNO>0	]		Uses drugs	list|0|not at all |1|just a little|2| pretty much |3|very much 
+s1	s1NYP40 	s1NYP40 	SIBLINGNO>0	[		"Has school, peer, or family problems due to drugs or alcohol"	list|0|not at all |1|just a little|2| pretty much |3|very much 
+s1	s1NYP41 	s1NYP41 	SIBLINGNO>0	q		Others like to play with him/her	list|0|not at all |1|just a little|2| pretty much |3|very much 
+s1	s1NYP42 	s1NYP42 	SIBLINGNO>0	q		Peers seek his/her company	list|0|not at all |1|just a little|2| pretty much |3|very much 
+s1	s1NYP43 	s1NYP43 	SIBLINGNO>0	]		Is liked by his peers	list|0|not at all |1|just a little|2| pretty much |3|very much 
+s1	s1NYP44 	s1NYP44 	SIBLINGNO>0	[		Helpful to others	list|0|not at all |1|just a little|2| pretty much |3|very much 
+s1	s1NYP45 	s1NYP45 	SIBLINGNO>0	q		Has at least one good friend	list|0|not at all |1|just a little|2| pretty much |3|very much 
+s1	s1NYP46 	s1NYP46 	SIBLINGNO>0	q		Is considerate with friends/companions	list|0|not at all |1|just a little|2| pretty much |3|very much 
+s1	s1NYP47 	s1NYP47 	SIBLINGNO>0	]		Shows remorse when he or she does something wrong	list|0|not at all |1|just a little|2| pretty much |3|very much 
+s1	s1MPRI	s1MPRI	SIBLINGNO>0	[		How many close friends does this child or adolescent have? 	double
+s1	s1ndMPRIintro	s1ndMPRIintro	SIBLINGNO>0	q		For the next questions please describes how `SIB1NAME` relates to their peers. You can continue using the green card for this.	nothing
+s1	s1MPRI1	s1MPRI1	SIBLINGNO>0	q		How much does `SIB1NAME` worry about how `SCSEX==0?'she':'he'` looks when `SCSEX==0?'she':'he'` is with `SCSEX==0?'her':'his'` friends?	list|0|not at all |1|a little |2|somewhat |3|quite a bit|4|a lot
+s1	s1MPRI2	s1MPRI2	SIBLINGNO>0	]		How much does `SCSEX==0?'she':'he'` make `SCSEX==0?'her':'his'` friends laugh?	list|0|not at all |1|a little |2|somewhat |3|quite a bit|4|a lot
+s1	s1MPRI3	s1MPRI3	SIBLINGNO>0	[		How much does `SIB1NAME` lose her/his temper when `SCSEX==0?'she':'he'` is with `SCSEX==0?'her':'his'` friends?	list|0|not at all |1|a little |2|somewhat |3|quite a bit|4|a lot
+s1	s1MPRI4	s1MPRI4	SIBLINGNO>0	q		How much does `SCSEX==0?'she':'he'` depend on `SCSEX==0?'her':'his'` friends?	list|0|not at all |1|a little |2|somewhat |3|quite a bit|4|a lot
+s1	s1MPRI5	s1MPRI5	SIBLINGNO>0	q		How much does `SCSEX==0?'she':'he'` trust `SCSEX==0?'her':'his'` friends?	list|0|not at all |1|a little |2|somewhat |3|quite a bit|4|a lot
+s1	s1MPRI6	s1MPRI6	SIBLINGNO>0	]		How popular is `SIB1NAME` with `SCSEX==0?'her':'his'` friends or other people `SCSEX==0?'her':'his'` age?	list|0|not at all |1|a little |2|somewhat |3|quite a bit|4|a lot
+s1	s1MPRI7	s1MPRI7	SIBLINGNO>0	[		How shy is `SIB1NAME` when `SCSEX==0?'she':'he'` is with `SCSEX==0?'her':'his'` friends?	list|0|not at all |1|a little |2|somewhat |3|quite a bit|4|a lot
+s1	s1MPRI8	s1MPRI8	SIBLINGNO>0	q		How much does `SCSEX==0?'she':'he'` respect `SCSEX==0?'her':'his'` friends?	list|0|not at all |1|a little |2|somewhat |3|quite a bit|4|a lot
+s1	s1MPRI9	s1MPRI9	SIBLINGNO>0	q		How much is `SIB1NAME` physically aggressive is `SCSEX==0?'she':'he'` with `SCSEX==0?'her':'his'` friends?	list|0|not at all |1|a little |2|somewhat |3|quite a bit|4|a lot
+s1	s1MPRI10	s1MPRI10	SIBLINGNO>0	]		"How much does `SCSEX==0?'she':'he'` argue with, curse at, or insult `SCSEX==0?'her':'his'` friends?"	list|0|not at all |1|a little |2|somewhat |3|quite a bit|4|a lot
+s1	s1MPRI11	s1MPRI11	SIBLINGNO>0	[		How likely is `SIB1NAME` to do something `SCSEX==0?'she':'he'` wouldn’t usually do if `SCSEX==0?'she':'he'` were dared by `SCSEX==0?'her':'his'` friends?	list|0|not at all |1|a little |2|somewhat |3|quite a bit|4|a lot
+s1	s1MPRI12	s1MPRI12	SIBLINGNO>0	q		How close does `SCSEX==0?'she':'he'` feel to `SCSEX==0?'her':'his'` friends?	list|0|not at all |1|a little |2|somewhat |3|quite a bit|4|a lot
+s1	s1MPRI13	s1MPRI13	SIBLINGNO>0	]		"How much does `SIB1NAME` and `SCSEX==0?'her':'his'` friends talk about personal things, like thoughts and feelings?"	list|0|not at all |1|a little |2|somewhat |3|quite a bit|4|a lot
+s1	s1ndPeerdev	s1ndPeerdev	SIBLINGNO>0	[		Now you can get out the lavender answer card. Following are some descriptions of behavior sometimes shown by adolescents. Please think about the way `SIB1NAME` has been behaving in the past 12 months. Please say how much each statement applies to `SCSEX==0?'her':'him'` .	nothing
+s1	s1Peerdev1	s1Peerdev1	SIBLINGNO>0	q		Steals in company of others	list|0|Doesn’t apply|1|Somewhat applies|2|Certainly applies
+s1	s1Peerdev2	s1Peerdev2	SIBLINGNO>0	q		Belongs to a gang	list|0|Doesn’t apply|1|Somewhat applies|2|Certainly applies
+s1	s1Peerdev3	s1Peerdev3	SIBLINGNO>0	]		Loyal to delinquent friends	list|0|Doesn’t apply|1|Somewhat applies|2|Certainly applies
+s1	s1Peerdev4	s1Peerdev4	SIBLINGNO>0	[		"Truants from school, usually in company of others"	list|0|Doesn’t apply|1|Somewhat applies|2|Certainly applies
+s1	s1Peerdev5	s1Peerdev5	SIBLINGNO>0	q		"Has ""bad companions"""	list|0|Doesn’t apply|1|Somewhat applies|2|Certainly applies
+s1	s1Peerdev6	s1Peerdev6	SIBLINGNO>0	q		Uses drugs in company of others	list|0|Doesn’t apply|1|Somewhat applies|2|Certainly applies
+s1	s1Peerdev7	s1Peerdev7	SIBLINGNO>0	]		Is part of a group that rejects school activities	list|0|Doesn’t apply|1|Somewhat applies|2|Certainly applies
+s1	s1Peerdev8	s1Peerdev8	SIBLINGNO>0	[		Drinks alcohol in company of others	list|0|Doesn’t apply|1|Somewhat applies|2|Certainly applies
+s1	s1Peerdev9	s1Peerdev9	SIBLINGNO>0	q		Admires/associates with rougher peers	list|0|Doesn’t apply|1|Somewhat applies|2|Certainly applies
+s1	s1Peerdev10	s1Peerdev10	SIBLINGNO>0	]		Admires people who operate outside the law	list|0|Doesn’t apply|1|Somewhat applies|2|Certainly applies
+s1	s1ndDatmintro	s1ndDatmintro	SIBLINGNO>0	[		We're finished with the lavender card. Next I'm going to ask you some questions about `SIB1NAME`'s romantic relationships.	nothing
+s1	s1interest	s1interest	SIBLINGNO>0	]		Does`SIB1NAME` have a `SCSEX==0?'boyfriend':'girlfriend'` or someone they are interested in?	list|1|yes|0|no|9999|don't know
+s1	s1Datmon1	s1Datmon1	interest>0 && SIBLINGNO>0	[		How much do you know about `SIB1NAME` having a boyfriend/girlfriend or someone they are interested in?	list|0|not at all |1|a little |2|somewhat |3|quite a bit|4|a lot
+s1	s1Datmon2	s1Datmon2	interest>0 && SIBLINGNO>0	q		How often do you know where `SIB1NAME` is when `SCSEX==0?'she':'he'` is with a `SCSEX==0?'boyfriend':'girlfriend'` or someone `SCSEX==0?'she':'he'` is interested in?	list|0|never |1|a little of the time |2|sometimes |3|quite a bit of the time |4|a lot of the time
+s1	s1Datmon3	s1Datmon3	interest>0	]		"When `SIB1NAME` is out with a `SCSEX==0?'boyfriend':'girlfriend'` or someone `SCSEX==0?'she':'he'` is interested in, how often do you know what they are doing?"	list|0|never |1|a little of the time |2|sometimes |3|quite a bit of the time |4|a lot of the time
+s1	s1Datmon4	s1Datmon4	interest>0	[		How well do you know the `SCSEX==0?'boys':'girls'` `SCSEX==0?'she':'he'` goes out with or are interested in?	list|0|not at all |1|a little |2|somewhat |3|quite a bit|4|a lot
+s1	s1Datmon5	s1Datmon5	interest>0	q		"When `SIB1NAME` is out with a `SCSEX==0?'boyfriend':'girlfriend'` or someone `SCSEX==0?'she':'he'` is interested in, how often do you know what time `SCSEX==0?'she':'he'` will be home?"	list|0|never |1|a little of the time |2|sometimes |3|quite a bit of the time |4|a lot of the time
+s1	s1Datmon6	s1Datmon6	interest>0	]		"When `SIB1NAME` is out with a `SCSEX==0?'boyfriend':'girlfriend'` if  `SCSEX==0?'she':'he'` did not come home by the time that `SCSEX==0?'she':'he'` was supposed to be in, how often would you know?"	list|0|never |1|a little of the time |2|sometimes |3|quite a bit of the time |4|a lot of the time
+s2	ndSIB2	ndSIB2	1	[		"Thanks, that's all the questions about `SIB1NAME`. Now I am going to ask some of those same questions about `SIB2NAME`."	nothing
+s2	ndSIB2a	ndSIB2a	SIBLINGNO>1	]		How old is `SIB2NAME`? 	double
+	nd579	nd579	1	[		Now we will use the pink answer card again.	nothing
+s2	s2ndPARSUP	s2ndPARSUP	SIBLINGNO>1	q		"The following questions are about how you usually act with `SIB2NAME`. Please say whether each statement is False, Somewhat false,Somewhat true, or True."	nothing
+s2	s2PARSUP1p	s2PARSUP1p	SIBLINGNO>1	q		I'm easy for `SIB2NAME` to talk to.	list|0|False|1|Somewhat false|2|Somewhat true|4|True
+s2	s2PARSUP2p	s2PARSUP2p	SIBLINGNO>1	q		I prefer to let `SIB2NAME` make `SIB2SEX==0?'her':'his'` own choices and do what s/he wants to as much as possible.	list|0|False|1|Somewhat false|2|Somewhat true|4|True
+s2	s2PARSUP3p	s2PARSUP3p	SIBLINGNO>1	q		I encourage `SIB2NAME` to tell me how s/he really feels about things.	list|0|False|1|Somewhat false|2|Somewhat true|4|True
+s2	s2PARSUP4p	s2PARSUP4p	SIBLINGNO>1	q		I like to take `SIB2NAME` with me when I go out.	list|0|False|1|Somewhat false|2|Somewhat true|4|True
+s2	s2PARSUP5p	s2PARSUP5p	SIBLINGNO>1	]		I often tell `SIB2NAME` that I love `SIB2SEX==0?'her':'him'`.	list|0|False|1|Somewhat false|2|Somewhat true|4|True
+s2	s2PARSUP6p	s2PARSUP6p	SIBLINGNO>1	[		`SIB2NAME` is aware that I have strict standards for `SIB2SEX==0?'her':'his'` behavior.	list|0|False|1|Somewhat false|2|Somewhat true|4|True
+s2	s2PARSUP7p	s2PARSUP7p	SIBLINGNO>1	q		I get very angry when `SIB2NAME` doesn't obey me.	list|0|False|1|Somewhat false|2|Somewhat true|4|True
+s2	s2PARSUP8p	s2PARSUP8p	SIBLINGNO>1	q		I spend a lot of time caring for `SIB2NAME` when `SIB2SEX==0?'she':'he'` is sick.	list|0|False|1|Somewhat false|2|Somewhat true|4|True
+s2	s2PARSUP9p	s2PARSUP9p	SIBLINGNO>1	q		I tell `SIB2NAME` that I will hit or spank him/her if `SIB2SEX==0?'she':'he'` does something I don't like.	list|0|False|1|Somewhat false|2|Somewhat true|4|True
+s2	s2PARSUP10p	s2PARSUP10p	SIBLINGNO>1	q		I know `SIB2NAME`'s best friends and their parents.	list|0|False|1|Somewhat false|2|Somewhat true|4|True
+s2	s2PARSUP11p	s2PARSUP11p	SIBLINGNO>1	]		I often read to `SIB2NAME` or help `SIB2SEX==0?'her':'him'` with `SIB2SEX==0?'her':'his'` projects or homework.	list|0|False|1|Somewhat false|2|Somewhat true|4|True
+s2	s2PARSUP12p	s2PARSUP12p	SIBLINGNO>1	[		I often tell `SIB2NAME` that I expect `SIB2SEX==0?'her':'him'` to be good and to always do the best `SIB2SEX==0?'she':'he'` can.	list|0|False|1|Somewhat false|2|Somewhat true|4|True
+s2	s2PARSUP13p	s2PARSUP13p	SIBLINGNO>1	q		`SIB2NAME` often sits with me when I am watching TV.	list|0|False|1|Somewhat false|2|Somewhat true|4|True
+s2	s2PARSUP14p	s2PARSUP14p	SIBLINGNO>1	q		I try to make `SIB2NAME` understand that `SIB2SEX==0?'she':'he'` should obey me because I am `SIB2SEX==0?'her':'his'` mother.	list|0|False|1|Somewhat false|2|Somewhat true|4|True
+s2	s2PARSUP15p	s2PARSUP15p	SIBLINGNO>1	q		I always know where `SIB2NAME` is and who `SIB2SEX==0?'she':'he'` is spending time with.	list|0|False|1|Somewhat false|2|Somewhat true|4|True
+s2	s2PARSUP16p	s2PARSUP16p	SIBLINGNO>1	q		I often have problems getting `SIB2NAME` to obey my instructions or do what I say.	list|0|False|1|Somewhat false|2|Somewhat true|4|True
+s2	s2PARSUP17p	s2PARSUP17p	SIBLINGNO>1	]		I hug or kiss `SIB2NAME` often.	list|0|False|1|Somewhat false|2|Somewhat true|4|True
+s2	s2PARSUP18p	s2PARSUP18p	SIBLINGNO>1	[		I make it very clear that I expect `SIB2NAME` to be kind and polite to other people.	list|0|False|1|Somewhat false|2|Somewhat true|4|True
+s2	s2PARSUP19p	s2PARSUP19p	SIBLINGNO>1	q		I often criticize and correct `SIB2NAME`.	list|0|False|1|Somewhat false|2|Somewhat true|4|True
+s2	s2PARSUP20p	s2PARSUP20p	SIBLINGNO>1	q		I give `SIB2NAME` a lot of praise and encouragement.	list|0|False|1|Somewhat false|2|Somewhat true|4|True
+s2	s2PARSUP21p	s2PARSUP21p	SIBLINGNO>1	q		`SIB2NAME` and I sometimes get into bad arguments that I just let `SIB2SEX==0?'her':'him'`win.	list|0|False|1|Somewhat false|2|Somewhat true|4|True
+s2	s2PARSUP22p	s2PARSUP22p	SIBLINGNO>1	q		I do things with `SIB2NAME` that we both enjoy almost every day.	list|0|False|1|Somewhat false|2|Somewhat true|4|True
+s2	s2PARSUP23p	s2PARSUP23p	SIBLINGNO>1	]		I tend to push `SIB2NAME` to be as independent as possible.	list|0|False|1|Somewhat false|2|Somewhat true|4|True
+s2	s2PARSUP24p	s2PARSUP24p	SIBLINGNO>1	[		I have had times when I lost control and feared that I might hurt `SIB2NAME`.	list|0|False|1|Somewhat false|2|Somewhat true|4|True
+s2	s2PARSUP25p	s2PARSUP25p	SIBLINGNO>1	q		I watch children's TV shows with `SIB2NAME`.	list|0|False|1|Somewhat false|2|Somewhat true|4|True
+s2	s2PARSUP26p	s2PARSUP26p	SIBLINGNO>1	]		`SIB2NAME` sometimes sees me fighting physically with someone else in the household.	list|0|False|1|Somewhat false|2|Somewhat true|4|True
+s2	s2ndNYPintro	s2ndNYPintro	SIBLINGNO>1	[		"Please get out the  green answer card again. Please rate `SIB2NAME`'s current behavior. Consider how `SIB2NAME` has been for the past four weeks. For each item indicate whether the term describes `SIB2NAME`'s behavior not at all, just a little, pretty much or very much."	nothing
+s2	s2NYP1	s2NYP1	SIBLINGNO>1	q		"Defiant (disobedient, refuses to follow rules or instructions)"	list|0|not at all |1|just a little|2| pretty much |3|very much 
+s2	s2NYP2	s2NYP2	SIBLINGNO>1	q		Angry	list|0|not at all |1|just a little|2| pretty much |3|very much 
+s2	s2NYP3	s2NYP3	SIBLINGNO>1	]		"Argue, quarrel with adults"	list|0|not at all |1|just a little|2| pretty much |3|very much 
+s2	s2NYP4 	s2NYP4 	SIBLINGNO>1	[		"Act ""smart"" (impudent or sassy) (disrespectful, mouthy, rude)"	list|0|not at all |1|just a little|2| pretty much |3|very much 
+s2	s2NYP5 	s2NYP5 	SIBLINGNO>1	q		"Spiteful, vindictive (tries to take revenge on people when angry at them)"	list|0|not at all |1|just a little|2| pretty much |3|very much 
+s2	s2NYP6 	s2NYP6 	SIBLINGNO>1	q		Loses temper	list|0|not at all |1|just a little|2| pretty much |3|very much 
+s2	s2NYP7 	s2NYP7 	SIBLINGNO>1	]		"Disobedient, difficult to control"	list|0|not at all |1|just a little|2| pretty much |3|very much 
+s2	s2NYP8 	s2NYP8 	SIBLINGNO>1	[		"Tries to dominate others; bullies, threatens"	list|0|not at all |1|just a little|2| pretty much |3|very much 
+s2	s2NYP9 	s2NYP9 	SIBLINGNO>1	q		Easily annoyed by others	list|0|not at all |1|just a little|2| pretty much |3|very much 
+s2	s2NYP10 	s2NYP10 	SIBLINGNO>1	q		Blames others; denies own mistakes	list|0|not at all |1|just a little|2| pretty much |3|very much 
+s2	s2NYP11 	s2NYP11 	SIBLINGNO>1	]		Deliberately annoys others	list|0|not at all |1|just a little|2| pretty much |3|very much 
+s2	s2NYP12 	s2NYP12 	SIBLINGNO>1	[		Lies	list|0|not at all |1|just a little|2| pretty much |3|very much 
+s2	s2NYP13 	s2NYP13 	SIBLINGNO>1	q		Breaks rules at home	list|0|not at all |1|just a little|2| pretty much |3|very much 
+s2	s2NYP14 	s2NYP14 	SIBLINGNO>1	q		Destroys or defaces property	list|0|not at all |1|just a little|2| pretty much |3|very much 
+s2	s2NYP15 	s2NYP15 	SIBLINGNO>1	]		"Acts violently to others children or adults (hits, pushes, etc.)"	list|0|not at all |1|just a little|2| pretty much |3|very much 
+s2	s2NYP16 	s2NYP16 	SIBLINGNO>1	[		Starts physical fights	list|0|not at all |1|just a little|2| pretty much |3|very much 
+s2	s2NYP17 	s2NYP17 	SIBLINGNO>1	q		Gets involved in physical fights with peers	list|0|not at all |1|just a little|2| pretty much |3|very much 
+s2	s2NYP18 	s2NYP18 	SIBLINGNO>1	q		Physically cruel	list|0|not at all |1|just a little|2| pretty much |3|very much 
+s2	s2NYP19 	s2NYP19 	SIBLINGNO>1	]		Assaults others	list|0|not at all |1|just a little|2| pretty much |3|very much 
+s2	s2NYP20 	s2NYP20 	SIBLINGNO>1	[		Carries a knife or other weapon	list|0|not at all |1|just a little|2| pretty much |3|very much 
+s2	s2NYP21 	s2NYP21 	SIBLINGNO>1	q		"Has used a knife, or other weapon, in a fight"	list|0|not at all |1|just a little|2| pretty much |3|very much 
+s2	s2NYP22 	s2NYP22 	SIBLINGNO>1	q		Has mugged someone	list|0|not at all |1|just a little|2| pretty much |3|very much 
+s2	s2NYP23 	s2NYP23 	SIBLINGNO>1	]		Sexual misbehavior (not masturbation)	list|0|not at all |1|just a little|2| pretty much |3|very much 
+s2	s2NYP24 	s2NYP24 	SIBLINGNO>1	[		Steals on the sly	list|0|not at all |1|just a little|2| pretty much |3|very much 
+s2	s2NYP25 	s2NYP25 	SIBLINGNO>1	q		Shakes down others for money or other belongings	list|0|not at all |1|just a little|2| pretty much |3|very much 
+s2	s2NYP26 	s2NYP26 	SIBLINGNO>1	q		Late to school or class	list|0|not at all |1|just a little|2| pretty much |3|very much 
+s2	s2NYP27 	s2NYP27 	SIBLINGNO>1	]		Truant	list|0|not at all |1|just a little|2| pretty much |3|very much 
+s2	s2NYP28 	s2NYP28 	SIBLINGNO>1	[		Has run away from home during the day	list|0|not at all |1|just a little|2| pretty much |3|very much 
+s2	s2NYP29 	s2NYP29 	SIBLINGNO>1	q		Has run away from home overnight	list|0|not at all |1|just a little|2| pretty much |3|very much 
+s2	s2NYP30 	s2NYP30 	SIBLINGNO>1	q		Steals from parents or siblings when they are not around	list|0|not at all |1|just a little|2| pretty much |3|very much 
+s2	s2NYP31 	s2NYP31 	SIBLINGNO>1	]		Sets fires	list|0|not at all |1|just a little|2| pretty much |3|very much 
+s2	s2NYP32 	s2NYP32 	SIBLINGNO>1	[		Cheats at games	list|0|not at all |1|just a little|2| pretty much |3|very much 
+s2	s2NYP33 	s2NYP33 	SIBLINGNO>1	q		Deliberately hurt animals	list|0|not at all |1|just a little|2| pretty much |3|very much 
+s2	s2NYP34 	s2NYP34 	SIBLINGNO>1	q		"Uses obscene language (swearing, cursing)"	list|0|not at all |1|just a little|2| pretty much |3|very much 
+s2	s2NYP35 	s2NYP35 	SIBLINGNO>1	]		"Has broken into buildings, houses or cars"	list|0|not at all |1|just a little|2| pretty much |3|very much 
+s2	s2NYP36 	s2NYP36 	SIBLINGNO>1	[		"Has had bad companions, ones who get in trouble"	list|0|not at all |1|just a little|2| pretty much |3|very much 
+s2	s2NYP37 	s2NYP37 	SIBLINGNO>1	q		Involved with police	list|0|not at all |1|just a little|2| pretty much |3|very much 
+s2	s2NYP38 	s2NYP38 	SIBLINGNO>1	q		Uses alcohol	list|0|not at all |1|just a little|2| pretty much |3|very much 
+s2	s2NYP39 	s2NYP39 	SIBLINGNO>1	]		Uses drugs	list|0|not at all |1|just a little|2| pretty much |3|very much 
+s2	s2NYP40 	s2NYP40 	SIBLINGNO>1	[		"Has school, peer, or family problems due to drugs or alcohol"	list|0|not at all |1|just a little|2| pretty much |3|very much 
+s2	s2NYP41 	s2NYP41 	SIBLINGNO>1	q		Others like to play with him/her	list|0|not at all |1|just a little|2| pretty much |3|very much 
+s2	s2NYP42 	s2NYP42 	SIBLINGNO>1	q		Peers seek his/her company	list|0|not at all |1|just a little|2| pretty much |3|very much 
+s2	s2NYP43 	s2NYP43 	SIBLINGNO>1	]		Is liked by his peers	list|0|not at all |1|just a little|2| pretty much |3|very much 
+s2	s2NYP44 	s2NYP44 	SIBLINGNO>1	[		Helpful to others	list|0|not at all |1|just a little|2| pretty much |3|very much 
+s2	s2NYP45 	s2NYP45 	SIBLINGNO>1	q		Has at least one good friend	list|0|not at all |1|just a little|2| pretty much |3|very much 
+s2	s2NYP46 	s2NYP46 	SIBLINGNO>1	q		Is considerate with friends/companions	list|0|not at all |1|just a little|2| pretty much |3|very much 
+s2	s2NYP47 	s2NYP47 	SIBLINGNO>1	]		Shows remorse when he or she does something wrong	list|0|not at all |1|just a little|2| pretty much |3|very much 
+s2	s2MPRI	s2MPRI	SIBLINGNO>1	[		How many close friends does this child or adolescent have? 	double
+s2	s2ndMPRIintro	s2ndMPRIintro	SIBLINGNO>1	q		For the next questions please describes how `SIB2NAME` relates to their peers. You can continue using the green card for this.	nothing
+s2	s2MPRI1	s2MPRI1	SIBLINGNO>1	q		How much does `SIB2NAME` worry about how `SIB2SEX==0?'she':'he'` looks when `SIB2SEX==0?'she':'he'` is with `SIB2SEX==0?'her':'his'` friends?	list|0|not at all |1|a little |2|somewhat |3|quite a bit|4|a lot
+s2	s2MPRI2	s2MPRI2	SIBLINGNO>1	]		How much does `SIB2SEX==0?'she':'he'` make `SIB2SEX==0?'her':'his'` friends laugh?	list|0|not at all |1|a little |2|somewhat |3|quite a bit|4|a lot
+s2	s2MPRI3	s2MPRI3	SIBLINGNO>1	[		How much does `SIB2NAME` lose her/his temper when `SIB2SEX==0?'she':'he'` is with `SIB2SEX==0?'her':'his'` friends?	list|0|not at all |1|a little |2|somewhat |3|quite a bit|4|a lot
+s2	s2MPRI4	s2MPRI4	SIBLINGNO>1	q		How much does `SIB2SEX==0?'she':'he'` depend on `SIB2SEX==0?'her':'his'` friends?	list|0|not at all |1|a little |2|somewhat |3|quite a bit|4|a lot
+s2	s2MPRI5	s2MPRI5	SIBLINGNO>1	q		How much does `SIB2SEX==0?'she':'he'` trust `SIB2SEX==0?'her':'his'` friends?	list|0|not at all |1|a little |2|somewhat |3|quite a bit|4|a lot
+s2	s2MPRI6	s2MPRI6	SIBLINGNO>1	]		How popular is `SIB2NAME` with `SIB2SEX==0?'her':'his'` friends or other people `SIB2SEX==0?'her':'his'` age?	list|0|not at all |1|a little |2|somewhat |3|quite a bit|4|a lot
+s2	s2MPRI7	s2MPRI7	SIBLINGNO>1	[		How shy is `SIB2NAME` when `SIB2SEX==0?'she':'he'` is with `SIB2SEX==0?'her':'his'` friends?	list|0|not at all |1|a little |2|somewhat |3|quite a bit|4|a lot
+s2	s2MPRI8	s2MPRI8	SIBLINGNO>1	q		How much does `SIB2SEX==0?'she':'he'` respect `SIB2SEX==0?'her':'his'` friends?	list|0|not at all |1|a little |2|somewhat |3|quite a bit|4|a lot
+s2	s2MPRI9	s2MPRI9	SIBLINGNO>1	q		How much is `SIB2NAME` physically aggressive is `SIB2SEX==0?'she':'he'` with `SIB2SEX==0?'her':'his'` friends?	list|0|not at all |1|a little |2|somewhat |3|quite a bit|4|a lot
+s2	s2MPRI10	s2MPRI10	SIBLINGNO>1	]		"How much does `SIB2SEX==0?'she':'he'` argue with, curse at, or insult `SIB2SEX==0?'her':'his'` friends?"	list|0|not at all |1|a little |2|somewhat |3|quite a bit|4|a lot
+s2	s2MPRI11	s2MPRI11	SIBLINGNO>1	[		How likely is `SIB2NAME` to do something `SIB2SEX==0?'she':'he'` wouldn’t usually do if `SIB2SEX==0?'she':'he'` were dared by `SIB2SEX==0?'her':'his'` friends?	list|0|not at all |1|a little |2|somewhat |3|quite a bit|4|a lot
+s2	s2MPRI12	s2MPRI12	SIBLINGNO>1	q		How close does `SIB2SEX==0?'she':'he'` feel to `SIB2SEX==0?'her':'his'` friends?	list|0|not at all |1|a little |2|somewhat |3|quite a bit|4|a lot
+s2	s2MPRI13	s2MPRI13	SIBLINGNO>1	]		"How much does `SIB2NAME` and `SIB2SEX==0?'her':'his'` friends talk about personal things, like thoughts and feelings?"	list|0|not at all |1|a little |2|somewhat |3|quite a bit|4|a lot
+s2	s2ndPeerdev	s2ndPeerdev	SIBLINGNO>1	[		Now you can get out the lavender answer card. Following are some descriptions of behavior sometimes shown by adolescents. Please think about the way `SIB2NAME` has been behaving in the past 12 months. Please say how much each statement applies to `SIB2SEX==0?'her':'him'` .	nothing
+s2	s2Peerdev1	s2Peerdev1	SIBLINGNO>1	q		Steals in company of others	list|0|Doesn’t apply|1|Somewhat applies|2|Certainly applies
+s2	s2Peerdev2	s2Peerdev2	SIBLINGNO>1	q		Belongs to a gang	list|0|Doesn’t apply|1|Somewhat applies|2|Certainly applies
+s2	s2Peerdev3	s2Peerdev3	SIBLINGNO>1	]		Loyal to delinquent friends	list|0|Doesn’t apply|1|Somewhat applies|2|Certainly applies
+s2	s2Peerdev4	s2Peerdev4	SIBLINGNO>1	[		"Truants from school, usually in company of others"	list|0|Doesn’t apply|1|Somewhat applies|2|Certainly applies
+s2	s2Peerdev5	s2Peerdev5	SIBLINGNO>1	q		"Has ""bad companions"""	list|0|Doesn’t apply|1|Somewhat applies|2|Certainly applies
+s2	s2Peerdev6	s2Peerdev6	SIBLINGNO>1	q		Uses drugs in company of others	list|0|Doesn’t apply|1|Somewhat applies|2|Certainly applies
+s2	s2Peerdev7	s2Peerdev7	SIBLINGNO>1	]		Is part of a group that rejects school activities	list|0|Doesn’t apply|1|Somewhat applies|2|Certainly applies
+s2	s2Peerdev8	s2Peerdev8	SIBLINGNO>1	[		Drinks alcohol in company of others	list|0|Doesn’t apply|1|Somewhat applies|2|Certainly applies
+s2	s2Peerdev9	s2Peerdev9	SIBLINGNO>1	q		Admires/associates with rougher peers	list|0|Doesn’t apply|1|Somewhat applies|2|Certainly applies
+s2	s2Peerdev10	s2Peerdev10	SIBLINGNO>1	]		Admires people who operate outside the law	list|0|Doesn’t apply|1|Somewhat applies|2|Certainly applies
+s2	s2ndDatmintro	s2ndDatmintro	SIBLINGNO>1	[		We're finished with the lavender card. Next I'm going to ask you some questions about `SIB2NAME`'s romantic relationships.	nothing
+s2	s2interest	s2interest	SIBLINGNO>1	]		Does`SIB2NAME` have a `SIB2SEX==0?'boyfriend':'girlfriend'` or someone they are interested in?	list|1|yes|0|no|9999|don't know
+s2	s2Datmon1	s2Datmon1	interest>0 && SIBLINGNO>1	[		How much do you know about `SIB2NAME` having a boyfriend/girlfriend or someone they are interested in?	list|0|not at all |1|a little |2|somewhat |3|quite a bit|4|a lot
+s2	s2Datmon2	s2Datmon2	interest>0 && SIBLINGNO>1	q		How often do you know where `SIB2NAME` is when `SIB2SEX==0?'she':'he'` is with a `SIB2SEX==0?'boyfriend':'girlfriend'` or someone `SIB2SEX==0?'she':'he'` is interested in?	list|0|never |1|a little of the time |2|sometimes |3|quite a bit of the time |4|a lot of the time
+s2	s2Datmon3	s2Datmon3	interest>0	]		"When `SIB2NAME` is out with a `SIB2SEX==0?'boyfriend':'girlfriend'` or someone `SIB2SEX==0?'she':'he'` is interested in, how often do you know what they are doing?"	list|0|never |1|a little of the time |2|sometimes |3|quite a bit of the time |4|a lot of the time
+s2	s2Datmon4	s2Datmon4	interest>0	[		How well do you know the `SIB2SEX==0?'boys':'girls'` `SIB2SEX==0?'she':'he'` goes out with or are interested in?	list|0|not at all |1|a little |2|somewhat |3|quite a bit|4|a lot
+s2	s2Datmon5	s2Datmon5	interest>0	q		"When `SIB2NAME` is out with a `SIB2SEX==0?'boyfriend':'girlfriend'` or someone `SIB2SEX==0?'she':'he'` is interested in, how often do you know what time `SIB2SEX==0?'she':'he'` will be home?"	list|0|never |1|a little of the time |2|sometimes |3|quite a bit of the time |4|a lot of the time
+s2	s2Datmon6	s2Datmon6	interest>0	]		"When `SIB2NAME` is out with a `SIB2SEX==0?'boyfriend':'girlfriend'` if  `SIB2SEX==0?'she':'he'` did not come home by the time that `SIB2SEX==0?'she':'he'` was supposed to be in, how often would you know?"	list|0|never |1|a little of the time |2|sometimes |3|quite a bit of the time |4|a lot of the time
+s3	ndSIB3	ndSIB3	1	[		"Thanks, that's all the questions about `SIB2NAME`. Now I am going to ask some of those same questions about `SIB3NAME`."	nothing
+s3	ndSIB3a	ndSIB3a	SIBLINGNO>2	]		How old is `SIB3NAME`? 	double
+	nd580	nd580	1	[		Now we will use the pink answer card again.	nothing
+s3	s3ndPS	s3ndPS	SIBLINGNO>2	q		"The following questions are about how you usually act with `SIB3NAME`. Please say whether each statement is False, Somewhat false,Somewhat true, or True."	nothing
+s3	s3PS1p	s3PS1p	SIBLINGNO>2	q		I'm easy for `SIB3NAME` to talk to.	list|0|False|1|Somewhat false|2|Somewhat true|4|True
+s3	s3PS2p	s3PS2p	SIBLINGNO>2	q		I prefer to let `SIB3NAME` make `SIB3SEX==0?'her':'his'` own choices and do what s/he wants to as much as possible.	list|0|False|1|Somewhat false|2|Somewhat true|4|True
+s3	s3PS3p	s3PS3p	SIBLINGNO>2	q		I encourage `SIB3NAME` to tell me how s/he really feels about things.	list|0|False|1|Somewhat false|2|Somewhat true|4|True
+s3	s3PS4p	s3PS4p	SIBLINGNO>2	q		I like to take `SIB3NAME` with me when I go out.	list|0|False|1|Somewhat false|2|Somewhat true|4|True
+s3	s3PS5p	s3PS5p	SIBLINGNO>2	]		I often tell `SIB3NAME` that I love `SIB3SEX==0?'her':'him'`.	list|0|False|1|Somewhat false|2|Somewhat true|4|True
+s3	s3PS6p	s3PS6p	SIBLINGNO>2	[		`SIB3NAME` is aware that I have strict standards for `SIB3SEX==0?'her':'his'` behavior.	list|0|False|1|Somewhat false|2|Somewhat true|4|True
+s3	s3PS7p	s3PS7p	SIBLINGNO>2	q		I get very angry when `SIB3NAME` doesn't obey me.	list|0|False|1|Somewhat false|2|Somewhat true|4|True
+s3	s3PS8p	s3PS8p	SIBLINGNO>2	q		I spend a lot of time caring for `SIB3NAME` when `SIB3SEX==0?'she':'he'` is sick.	list|0|False|1|Somewhat false|2|Somewhat true|4|True
+s3	s3PS9p	s3PS9p	SIBLINGNO>2	q		I tell `SIB3NAME` that I will hit or spank him/her if `SIB3SEX==0?'she':'he'` does something I don't like.	list|0|False|1|Somewhat false|2|Somewhat true|4|True
+s3	s3PS10p	s3PS10p	SIBLINGNO>2	q		I know `SIB3NAME`'s best friends and their parents.	list|0|False|1|Somewhat false|2|Somewhat true|4|True
+s3	s3PS11p	s3PS11p	SIBLINGNO>2	]		I often read to `SIB3NAME` or help `SIB3SEX==0?'her':'him'` with `SIB3SEX==0?'her':'his'` projects or homework.	list|0|False|1|Somewhat false|2|Somewhat true|4|True
+s3	s3PS12p	s3PS12p	SIBLINGNO>2	[		I often tell `SIB3NAME` that I expect `SIB3SEX==0?'her':'him'` to be good and to always do the best `SIB3SEX==0?'she':'he'` can.	list|0|False|1|Somewhat false|2|Somewhat true|4|True
+s3	s3PS13p	s3PS13p	SIBLINGNO>2	q		`SIB3NAME` often sits with me when I am watching TV.	list|0|False|1|Somewhat false|2|Somewhat true|4|True
+s3	s3PS14p	s3PS14p	SIBLINGNO>2	q		I try to make `SIB3NAME` understand that `SIB3SEX==0?'she':'he'` should obey me because I am `SIB3SEX==0?'her':'his'` mother.	list|0|False|1|Somewhat false|2|Somewhat true|4|True
+s3	s3PS15p	s3PS15p	SIBLINGNO>2	q		I always know where `SIB3NAME` is and who `SIB3SEX==0?'she':'he'` is spending time with.	list|0|False|1|Somewhat false|2|Somewhat true|4|True
+s3	s3PS16p	s3PS16p	SIBLINGNO>2	q		I often have problems getting `SIB3NAME` to obey my instructions or do what I say.	list|0|False|1|Somewhat false|2|Somewhat true|4|True
+s3	s3PS17p	s3PS17p	SIBLINGNO>2	]		I hug or kiss `SIB3NAME` often.	list|0|False|1|Somewhat false|2|Somewhat true|4|True
+s3	s3PS18p	s3PS18p	SIBLINGNO>2	[		I make it very clear that I expect `SIB3NAME` to be kind and polite to other people.	list|0|False|1|Somewhat false|2|Somewhat true|4|True
+s3	s3PS19p	s3PS19p	SIBLINGNO>2	q		I often criticize and correct `SIB3NAME`.	list|0|False|1|Somewhat false|2|Somewhat true|4|True
+s3	s3PS20p	s3PS20p	SIBLINGNO>2	q		I give `SIB3NAME` a lot of praise and encouragement.	list|0|False|1|Somewhat false|2|Somewhat true|4|True
+s3	s3PS21p	s3PS21p	SIBLINGNO>2	q		`SIB3NAME` and I sometimes get into bad arguments that I just let `SIB3SEX==0?'her':'him'`win.	list|0|False|1|Somewhat false|2|Somewhat true|4|True
+s3	s3PS22p	s3PS22p	SIBLINGNO>2	q		I do things with `SIB3NAME` that we both enjoy almost every day.	list|0|False|1|Somewhat false|2|Somewhat true|4|True
+s3	s3PS23p	s3PS23p	SIBLINGNO>2	]		I tend to push `SIB3NAME` to be as independent as possible.	list|0|False|1|Somewhat false|2|Somewhat true|4|True
+s3	s3PS24p	s3PS24p	SIBLINGNO>2	[		I have had times when I lost control and feared that I might hurt `SIB3NAME`.	list|0|False|1|Somewhat false|2|Somewhat true|4|True
+s3	s3PS25p	s3PS25p	SIBLINGNO>2	q		I watch children's TV shows with `SIB3NAME`.	list|0|False|1|Somewhat false|2|Somewhat true|4|True
+s3	s3PS26p	s3PS26p	SIBLINGNO>2	]		`SIB3NAME` sometimes sees me fighting physically with someone else in the household.	list|0|False|1|Somewhat false|2|Somewhat true|4|True
+s3	s3ndNYPintro	s3ndNYPintro	SIBLINGNO>2	[		"Please get out the  green answer card again. Please rate `SIB3NAME`'s current behavior. Consider how `SIB3NAME` has been for the past four weeks. For each item indicate whether the term describes `SIB3NAME`'s behavior not at all, just a little, pretty much or very much."	nothing
+s3	s3NYP1	s3NYP1	SIBLINGNO>2	q		"Defiant (disobedient, refuses to follow rules or instructions)"	list|0|not at all |1|just a little|2| pretty much |3|very much 
+s3	s3NYP2	s3NYP2	SIBLINGNO>2	q		Angry	list|0|not at all |1|just a little|2| pretty much |3|very much 
+s3	s3NYP3	s3NYP3	SIBLINGNO>2	]		"Argue, quarrel with adults"	list|0|not at all |1|just a little|2| pretty much |3|very much 
+s3	s3NYP4 	s3NYP4 	SIBLINGNO>2	[		"Act ""smart"" (impudent or sassy) (disrespectful, mouthy, rude)"	list|0|not at all |1|just a little|2| pretty much |3|very much 
+s3	s3NYP5 	s3NYP5 	SIBLINGNO>2	q		"Spiteful, vindictive (tries to take revenge on people when angry at them)"	list|0|not at all |1|just a little|2| pretty much |3|very much 
+s3	s3NYP6 	s3NYP6 	SIBLINGNO>2	q		Loses temper	list|0|not at all |1|just a little|2| pretty much |3|very much 
+s3	s3NYP7 	s3NYP7 	SIBLINGNO>2	]		"Disobedient, difficult to control"	list|0|not at all |1|just a little|2| pretty much |3|very much 
+s3	s3NYP8 	s3NYP8 	SIBLINGNO>2	[		"Tries to dominate others; bullies, threatens"	list|0|not at all |1|just a little|2| pretty much |3|very much 
+s3	s3NYP9 	s3NYP9 	SIBLINGNO>2	q		Easily annoyed by others	list|0|not at all |1|just a little|2| pretty much |3|very much 
+s3	s3NYP10 	s3NYP10 	SIBLINGNO>2	q		Blames others; denies own mistakes	list|0|not at all |1|just a little|2| pretty much |3|very much 
+s3	s3NYP11 	s3NYP11 	SIBLINGNO>2	]		Deliberately annoys others	list|0|not at all |1|just a little|2| pretty much |3|very much 
+s3	s3NYP12 	s3NYP12 	SIBLINGNO>2	[		Lies	list|0|not at all |1|just a little|2| pretty much |3|very much 
+s3	s3NYP13 	s3NYP13 	SIBLINGNO>2	q		Breaks rules at home	list|0|not at all |1|just a little|2| pretty much |3|very much 
+s3	s3NYP14 	s3NYP14 	SIBLINGNO>2	q		Destroys or defaces property	list|0|not at all |1|just a little|2| pretty much |3|very much 
+s3	s3NYP15 	s3NYP15 	SIBLINGNO>2	]		"Acts violently to others children or adults (hits, pushes, etc.)"	list|0|not at all |1|just a little|2| pretty much |3|very much 
+s3	s3NYP16 	s3NYP16 	SIBLINGNO>2	[		Starts physical fights	list|0|not at all |1|just a little|2| pretty much |3|very much 
+s3	s3NYP17 	s3NYP17 	SIBLINGNO>2	q		Gets involved in physical fights with peers	list|0|not at all |1|just a little|2| pretty much |3|very much 
+s3	s3NYP18 	s3NYP18 	SIBLINGNO>2	q		Physically cruel	list|0|not at all |1|just a little|2| pretty much |3|very much 
+s3	s3NYP19 	s3NYP19 	SIBLINGNO>2	]		Assaults others	list|0|not at all |1|just a little|2| pretty much |3|very much 
+s3	s3NYP20 	s3NYP20 	SIBLINGNO>2	[		Carries a knife or other weapon	list|0|not at all |1|just a little|2| pretty much |3|very much 
+s3	s3NYP21 	s3NYP21 	SIBLINGNO>2	q		"Has used a knife, or other weapon, in a fight"	list|0|not at all |1|just a little|2| pretty much |3|very much 
+s3	s3NYP22 	s3NYP22 	SIBLINGNO>2	q		Has mugged someone	list|0|not at all |1|just a little|2| pretty much |3|very much 
+s3	s3NYP23 	s3NYP23 	SIBLINGNO>2	]		Sexual misbehavior (not masturbation)	list|0|not at all |1|just a little|2| pretty much |3|very much 
+s3	s3NYP24 	s3NYP24 	SIBLINGNO>2	[		Steals on the sly	list|0|not at all |1|just a little|2| pretty much |3|very much 
+s3	s3NYP25 	s3NYP25 	SIBLINGNO>2	q		Shakes down others for money or other belongings	list|0|not at all |1|just a little|2| pretty much |3|very much 
+s3	s3NYP26 	s3NYP26 	SIBLINGNO>2	q		Late to school or class	list|0|not at all |1|just a little|2| pretty much |3|very much 
+s3	s3NYP27 	s3NYP27 	SIBLINGNO>2	]		Truant	list|0|not at all |1|just a little|2| pretty much |3|very much 
+s3	s3NYP28 	s3NYP28 	SIBLINGNO>2	[		Has run away from home during the day	list|0|not at all |1|just a little|2| pretty much |3|very much 
+s3	s3NYP29 	s3NYP29 	SIBLINGNO>2	q		Has run away from home overnight	list|0|not at all |1|just a little|2| pretty much |3|very much 
+s3	s3NYP30 	s3NYP30 	SIBLINGNO>2	q		Steals from parents or siblings when they are not around	list|0|not at all |1|just a little|2| pretty much |3|very much 
+s3	s3NYP31 	s3NYP31 	SIBLINGNO>2	]		Sets fires	list|0|not at all |1|just a little|2| pretty much |3|very much 
+s3	s3NYP32 	s3NYP32 	SIBLINGNO>2	[		Cheats at games	list|0|not at all |1|just a little|2| pretty much |3|very much 
+s3	s3NYP33 	s3NYP33 	SIBLINGNO>2	q		Deliberately hurt animals	list|0|not at all |1|just a little|2| pretty much |3|very much 
+s3	s3NYP34 	s3NYP34 	SIBLINGNO>2	q		"Uses obscene language (swearing, cursing)"	list|0|not at all |1|just a little|2| pretty much |3|very much 
+s3	s3NYP35 	s3NYP35 	SIBLINGNO>2	]		"Has broken into buildings, houses or cars"	list|0|not at all |1|just a little|2| pretty much |3|very much 
+s3	s3NYP36 	s3NYP36 	SIBLINGNO>2	[		"Has had bad companions, ones who get in trouble"	list|0|not at all |1|just a little|2| pretty much |3|very much 
+s3	s3NYP37 	s3NYP37 	SIBLINGNO>2	q		Involved with police	list|0|not at all |1|just a little|2| pretty much |3|very much 
+s3	s3NYP38 	s3NYP38 	SIBLINGNO>2	q		Uses alcohol	list|0|not at all |1|just a little|2| pretty much |3|very much 
+s3	s3NYP39 	s3NYP39 	SIBLINGNO>2	]		Uses drugs	list|0|not at all |1|just a little|2| pretty much |3|very much 
+s3	s3NYP40 	s3NYP40 	SIBLINGNO>2	[		"Has school, peer, or family problems due to drugs or alcohol"	list|0|not at all |1|just a little|2| pretty much |3|very much 
+s3	s3NYP41 	s3NYP41 	SIBLINGNO>2	q		Others like to play with him/her	list|0|not at all |1|just a little|2| pretty much |3|very much 
+s3	s3NYP42 	s3NYP42 	SIBLINGNO>2	q		Peers seek his/her company	list|0|not at all |1|just a little|2| pretty much |3|very much 
+s3	s3NYP43 	s3NYP43 	SIBLINGNO>2	]		Is liked by his peers	list|0|not at all |1|just a little|2| pretty much |3|very much 
+s3	s3NYP44 	s3NYP44 	SIBLINGNO>2	[		Helpful to others	list|0|not at all |1|just a little|2| pretty much |3|very much 
+s3	s3NYP45 	s3NYP45 	SIBLINGNO>2	q		Has at least one good friend	list|0|not at all |1|just a little|2| pretty much |3|very much 
+s3	s3NYP46 	s3NYP46 	SIBLINGNO>2	q		Is considerate with friends/companions	list|0|not at all |1|just a little|2| pretty much |3|very much 
+s3	s3NYP47 	s3NYP47 	SIBLINGNO>2	]		Shows remorse when he or she does something wrong	list|0|not at all |1|just a little|2| pretty much |3|very much 
+s3	s3MPRI	s3MPRI	SIBLINGNO>2	[		How many close friends does this child or adolescent have? 	double
+s3	s3ndMPRIintro	s3ndMPRIintro	SIBLINGNO>2	q		For the next questions please describes how `SIB3NAME` relates to their peers. You can continue using the green card for this.	nothing
+s3	s3MPRI1	s3MPRI1	SIBLINGNO>2	q		How much does `SIB3NAME` worry about how `SIB3SEX==0?'she':'he'` looks when `SIB3SEX==0?'she':'he'` is with `SIB3SEX==0?'her':'his'` friends?	list|0|not at all |1|a little |2|somewhat |3|quite a bit|4|a lot
+s3	s3MPRI2	s3MPRI2	SIBLINGNO>2	]		How much does `SIB3SEX==0?'she':'he'` make `SIB3SEX==0?'her':'his'` friends laugh?	list|0|not at all |1|a little |2|somewhat |3|quite a bit|4|a lot
+s3	s3MPRI3	s3MPRI3	SIBLINGNO>2	[		How much does `SIB3NAME` lose her/his temper when `SIB3SEX==0?'she':'he'` is with `SIB3SEX==0?'her':'his'` friends?	list|0|not at all |1|a little |2|somewhat |3|quite a bit|4|a lot
+s3	s3MPRI4	s3MPRI4	SIBLINGNO>2	q		How much does `SIB3SEX==0?'she':'he'` depend on `SIB3SEX==0?'her':'his'` friends?	list|0|not at all |1|a little |2|somewhat |3|quite a bit|4|a lot
+s3	s3MPRI5	s3MPRI5	SIBLINGNO>2	q		How much does `SIB3SEX==0?'she':'he'` trust `SIB3SEX==0?'her':'his'` friends?	list|0|not at all |1|a little |2|somewhat |3|quite a bit|4|a lot
+s3	s3MPRI6	s3MPRI6	SIBLINGNO>2	]		How popular is `SIB3NAME` with `SIB3SEX==0?'her':'his'` friends or other people `SIB3SEX==0?'her':'his'` age?	list|0|not at all |1|a little |2|somewhat |3|quite a bit|4|a lot
+s3	s3MPRI7	s3MPRI7	SIBLINGNO>2	[		How shy is `SIB3NAME` when `SIB3SEX==0?'she':'he'` is with `SIB3SEX==0?'her':'his'` friends?	list|0|not at all |1|a little |2|somewhat |3|quite a bit|4|a lot
+s3	s3MPRI8	s3MPRI8	SIBLINGNO>2	q		How much does `SIB3SEX==0?'she':'he'` respect `SIB3SEX==0?'her':'his'` friends?	list|0|not at all |1|a little |2|somewhat |3|quite a bit|4|a lot
+s3	s3MPRI9	s3MPRI9	SIBLINGNO>2	q		How much is `SIB3NAME` physically aggressive is `SIB3SEX==0?'she':'he'` with `SIB3SEX==0?'her':'his'` friends?	list|0|not at all |1|a little |2|somewhat |3|quite a bit|4|a lot
+s3	s3MPRI10	s3MPRI10	SIBLINGNO>2	]		"How much does `SIB3SEX==0?'she':'he'` argue with, curse at, or insult `SIB3SEX==0?'her':'his'` friends?"	list|0|not at all |1|a little |2|somewhat |3|quite a bit|4|a lot
+s3	s3MPRI11	s3MPRI11	SIBLINGNO>2	[		How likely is `SIB3NAME` to do something `SIB3SEX==0?'she':'he'` wouldn’t usually do if `SIB3SEX==0?'she':'he'` were dared by `SIB3SEX==0?'her':'his'` friends?	list|0|not at all |1|a little |2|somewhat |3|quite a bit|4|a lot
+s3	s3MPRI12	s3MPRI12	SIBLINGNO>2	q		How close does `SIB3SEX==0?'she':'he'` feel to `SIB3SEX==0?'her':'his'` friends?	list|0|not at all |1|a little |2|somewhat |3|quite a bit|4|a lot
+s3	s3MPRI13	s3MPRI13	SIBLINGNO>2	]		"How much does `SIB3NAME` and `SIB3SEX==0?'her':'his'` friends talk about personal things, like thoughts and feelings?"	list|0|not at all |1|a little |2|somewhat |3|quite a bit|4|a lot
+s3	s3ndPeerdev	s3ndPeerdev	SIBLINGNO>2	[		Now you can get out the lavender answer card. Following are some descriptions of behavior sometimes shown by adolescents. Please think about the way `SIB3NAME` has been behaving in the past 12 months. Please say how much each statement applies to `SIB3SEX==0?'her':'him'` .	nothing
+s3	s3Peerdev1	s3Peerdev1	SIBLINGNO>2	q		Steals in company of others	list|0|Doesn’t apply|1|Somewhat applies|2|Certainly applies
+s3	s3Peerdev2	s3Peerdev2	SIBLINGNO>2	q		Belongs to a gang	list|0|Doesn’t apply|1|Somewhat applies|2|Certainly applies
+s3	s3Peerdev3	s3Peerdev3	SIBLINGNO>2	]		Loyal to delinquent friends	list|0|Doesn’t apply|1|Somewhat applies|2|Certainly applies
+s3	s3Peerdev4	s3Peerdev4	SIBLINGNO>2	[		"Truants from school, usually in company of others"	list|0|Doesn’t apply|1|Somewhat applies|2|Certainly applies
+s3	s3Peerdev5	s3Peerdev5	SIBLINGNO>2	q		"Has ""bad companions"""	list|0|Doesn’t apply|1|Somewhat applies|2|Certainly applies
+s3	s3Peerdev6	s3Peerdev6	SIBLINGNO>2	q		Uses drugs in company of others	list|0|Doesn’t apply|1|Somewhat applies|2|Certainly applies
+s3	s3Peerdev7	s3Peerdev7	SIBLINGNO>2	]		Is part of a group that rejects school activities	list|0|Doesn’t apply|1|Somewhat applies|2|Certainly applies
+s3	s3Peerdev8	s3Peerdev8	SIBLINGNO>2	[		Drinks alcohol in company of others	list|0|Doesn’t apply|1|Somewhat applies|2|Certainly applies
+s3	s3Peerdev9	s3Peerdev9	SIBLINGNO>2	q		Admires/associates with rougher peers	list|0|Doesn’t apply|1|Somewhat applies|2|Certainly applies
+s3	s3Peerdev10	s3Peerdev10	SIBLINGNO>2	]		Admires people who operate outside the law	list|0|Doesn’t apply|1|Somewhat applies|2|Certainly applies
+s3	s3ndDatmintro	s3ndDatmintro	SIBLINGNO>2	[		We're finished with the lavender card. Next I'm going to ask you some questions about `SIB3NAME`'s romantic relationships.	nothing
+s3	s3interest	s3interest	SIBLINGNO>2	]		Does`SIB3NAME` have a `SIB3SEX==0?'boyfriend':'girlfriend'` or someone they are interested in?	list|1|yes|0|no|9999|don't know
+s3	s3Datmon1	s3Datmon1	interest>0 && SIBLINGNO>2	[		How much do you know about `SIB3NAME` having a boyfriend/girlfriend or someone they are interested in?	list|0|not at all |1|a little |2|somewhat |3|quite a bit|4|a lot
+s3	s3Datmon2	s3Datmon2	interest>0 && SIBLINGNO>2	q		How often do you know where `SIB3NAME` is when `SIB3SEX==0?'she':'he'` is with a `SIB3SEX==0?'boyfriend':'girlfriend'` or someone `SIB3SEX==0?'she':'he'` is interested in?	list|0|never |1|a little of the time |2|sometimes |3|quite a bit of the time |4|a lot of the time
+s3	s3Datmon3	s3Datmon3	interest>0	]		"When `SIB3NAME` is out with a `SIB3SEX==0?'boyfriend':'girlfriend'` or someone `SIB3SEX==0?'she':'he'` is interested in, how often do you know what they are doing?"	list|0|never |1|a little of the time |2|sometimes |3|quite a bit of the time |4|a lot of the time
+s3	s3Datmon4	s3Datmon4	interest>0	[		How well do you know the `SIB3SEX==0?'boys':'girls'` `SIB3SEX==0?'she':'he'` goes out with or are interested in?	list|0|not at all |1|a little |2|somewhat |3|quite a bit|4|a lot
+s3	s3Datmon5	s3Datmon5	interest>0	q		"When `SIB3NAME` is out with a `SIB3SEX==0?'boyfriend':'girlfriend'` or someone `SIB3SEX==0?'she':'he'` is interested in, how often do you know what time `SIB3SEX==0?'she':'he'` will be home?"	list|0|never |1|a little of the time |2|sometimes |3|quite a bit of the time |4|a lot of the time
+s3	s3Datmon6	s3Datmon6	interest>0	]		"When `SIB3NAME` is out with a `SIB3SEX==0?'boyfriend':'girlfriend'` if  `SIB3SEX==0?'she':'he'` did not come home by the time that `SIB3SEX==0?'she':'he'` was supposed to be in, how often would you know?"	list|0|never |1|a little of the time |2|sometimes |3|quite a bit of the time |4|a lot of the time
+s4	ndSIB4	ndSIB4	SIBLINGNO>3	[		"Thanks, that's all the questions about `SIB3NAME`. Now I am going to ask some of those same questions about `SIB4NAME`."	nothing
+s4	ndSIB4a	ndSIB4a	SIBLINGNO>3	]		How old is `SIB4NAME`? 	double
+	nd581	nd581	1	[		Now we will use the pink answer card again.	nothing
+s4	s4ndPS	s4ndPS	SIBLINGNO>3	q		"The following questions are about how you usually act with `SIB4NAME`. Please say whether each statement is False, Somewhat false,Somewhat true, or True."	nothing
+s4	s4PS1p	s4PS1p	SIBLINGNO>3	q		I'm easy for `SIB4NAME` to talk to.	list|0|False|1|Somewhat false|2|Somewhat true|4|True
+s4	s4PS2p	s4PS2p	SIBLINGNO>3	q		I prefer to let `SIB4NAME` make `SIB4SEX==0?'her':'his'` own choices and do what s/he wants to as much as possible.	list|0|False|1|Somewhat false|2|Somewhat true|4|True
+s4	s4PS3p	s4PS3p	SIBLINGNO>3	q		I encourage `SIB4NAME` to tell me how s/he really feels about things.	list|0|False|1|Somewhat false|2|Somewhat true|4|True
+s4	s4PS4p	s4PS4p	SIBLINGNO>3	q		I like to take `SIB4NAME` with me when I go out.	list|0|False|1|Somewhat false|2|Somewhat true|4|True
+s4	s4PS5p	s4PS5p	SIBLINGNO>3	]		I often tell `SIB4NAME` that I love `SIB4SEX==0?'her':'him'`.	list|0|False|1|Somewhat false|2|Somewhat true|4|True
+s4	s4PS6p	s4PS6p	SIBLINGNO>3	[		`SIB4NAME` is aware that I have strict standards for `SIB4SEX==0?'her':'his'` behavior.	list|0|False|1|Somewhat false|2|Somewhat true|4|True
+s4	s4PS7p	s4PS7p	SIBLINGNO>3	q		I get very angry when `SIB4NAME` doesn't obey me.	list|0|False|1|Somewhat false|2|Somewhat true|4|True
+s4	s4PS8p	s4PS8p	SIBLINGNO>3	q		I spend a lot of time caring for `SIB4NAME` when `SIB4SEX==0?'she':'he'` is sick.	list|0|False|1|Somewhat false|2|Somewhat true|4|True
+s4	s4PS9p	s4PS9p	SIBLINGNO>3	q		I tell `SIB4NAME` that I will hit or spank him/her if `SIB4SEX==0?'she':'he'` does something I don't like.	list|0|False|1|Somewhat false|2|Somewhat true|4|True
+s4	s4PS10p	s4PS10p	SIBLINGNO>3	q		I know `SIB4NAME`'s best friends and their parents.	list|0|False|1|Somewhat false|2|Somewhat true|4|True
+s4	s4PS11p	s4PS11p	SIBLINGNO>3	]		I often read to `SIB4NAME` or help `SIB4SEX==0?'her':'him'` with `SIB4SEX==0?'her':'his'` projects or homework.	list|0|False|1|Somewhat false|2|Somewhat true|4|True
+s4	s4PS12p	s4PS12p	SIBLINGNO>3	[		I often tell `SIB4NAME` that I expect `SIB4SEX==0?'her':'him'` to be good and to always do the best `SIB4SEX==0?'she':'he'` can.	list|0|False|1|Somewhat false|2|Somewhat true|4|True
+s4	s4PS13p	s4PS13p	SIBLINGNO>3	q		`SIB4NAME` often sits with me when I am watching TV.	list|0|False|1|Somewhat false|2|Somewhat true|4|True
+s4	s4PS14p	s4PS14p	SIBLINGNO>3	q		I try to make `SIB4NAME` understand that `SIB4SEX==0?'she':'he'` should obey me because I am `SIB4SEX==0?'her':'his'` mother.	list|0|False|1|Somewhat false|2|Somewhat true|4|True
+s4	s4PS15p	s4PS15p	SIBLINGNO>3	q		I always know where `SIB4NAME` is and who `SIB4SEX==0?'she':'he'` is spending time with.	list|0|False|1|Somewhat false|2|Somewhat true|4|True
+s4	s4PS16p	s4PS16p	SIBLINGNO>3	q		I often have problems getting `SIB4NAME` to obey my instructions or do what I say.	list|0|False|1|Somewhat false|2|Somewhat true|4|True
+s4	s4PS17p	s4PS17p	SIBLINGNO>3	]		I hug or kiss `SIB4NAME` often.	list|0|False|1|Somewhat false|2|Somewhat true|4|True
+s4	s4PS18p	s4PS18p	SIBLINGNO>3	[		I make it very clear that I expect `SIB4NAME` to be kind and polite to other people.	list|0|False|1|Somewhat false|2|Somewhat true|4|True
+s4	s4PS19p	s4PS19p	SIBLINGNO>3	q		I often criticize and correct `SIB4NAME`.	list|0|False|1|Somewhat false|2|Somewhat true|4|True
+s4	s4PS20p	s4PS20p	SIBLINGNO>3	q		I give `SIB4NAME` a lot of praise and encouragement.	list|0|False|1|Somewhat false|2|Somewhat true|4|True
+s4	s4PS21p	s4PS21p	SIBLINGNO>3	q		`SIB4NAME` and I sometimes get into bad arguments that I just let `SIB4SEX==0?'her':'him'`win.	list|0|False|1|Somewhat false|2|Somewhat true|4|True
+s4	s4PS22p	s4PS22p	SIBLINGNO>3	q		I do things with `SIB4NAME` that we both enjoy almost every day.	list|0|False|1|Somewhat false|2|Somewhat true|4|True
+s4	s4PS23p	s4PS23p	SIBLINGNO>3	]		I tend to push `SIB4NAME` to be as independent as possible.	list|0|False|1|Somewhat false|2|Somewhat true|4|True
+s4	s4PS24p	s4PS24p	SIBLINGNO>3	[		I have had times when I lost control and feared that I might hurt `SIB4NAME`.	list|0|False|1|Somewhat false|2|Somewhat true|4|True
+s4	s4PS25p	s4PS25p	SIBLINGNO>3	q		I watch children's TV shows with `SIB4NAME`.	list|0|False|1|Somewhat false|2|Somewhat true|4|True
+s4	s4PS26p	s4PS26p	SIBLINGNO>3	]		`SIB4NAME` sometimes sees me fighting physically with someone else in the household.	list|0|False|1|Somewhat false|2|Somewhat true|4|True
+s4	s4ndNYPintro	s4ndNYPintro	SIBLINGNO>3	[		"Please get out the  green answer card again. Please rate `SIB4NAME`'s current behavior. Consider how `SIB4NAME` has been for the past four weeks. For each item indicate whether the term describes `SIB4NAME`'s behavior not at all, just a little, pretty much or very much."	nothing
+s4	s4NYP1	s4NYP1	SIBLINGNO>3	q		"Defiant (disobedient, refuses to follow rules or instructions)"	list|0|not at all |1|just a little|2| pretty much |3|very much 
+s4	s4NYP2	s4NYP2	SIBLINGNO>3	q		Angry	list|0|not at all |1|just a little|2| pretty much |3|very much 
+s4	s4NYP3	s4NYP3	SIBLINGNO>3	]		"Argue, quarrel with adults"	list|0|not at all |1|just a little|2| pretty much |3|very much 
+s4	s4NYP4 	s4NYP4 	SIBLINGNO>3	[		"Act ""smart"" (impudent or sassy) (disrespectful, mouthy, rude)"	list|0|not at all |1|just a little|2| pretty much |3|very much 
+s4	s4NYP5 	s4NYP5 	SIBLINGNO>3	q		"Spiteful, vindictive (tries to take revenge on people when angry at them)"	list|0|not at all |1|just a little|2| pretty much |3|very much 
+s4	s4NYP6 	s4NYP6 	SIBLINGNO>3	q		Loses temper	list|0|not at all |1|just a little|2| pretty much |3|very much 
+s4	s4NYP7 	s4NYP7 	SIBLINGNO>3	]		"Disobedient, difficult to control"	list|0|not at all |1|just a little|2| pretty much |3|very much 
+s4	s4NYP8 	s4NYP8 	SIBLINGNO>3	[		"Tries to dominate others; bullies, threatens"	list|0|not at all |1|just a little|2| pretty much |3|very much 
+s4	s4NYP9 	s4NYP9 	SIBLINGNO>3	q		Easily annoyed by others	list|0|not at all |1|just a little|2| pretty much |3|very much 
+s4	s4NYP10 	s4NYP10 	SIBLINGNO>3	q		Blames others; denies own mistakes	list|0|not at all |1|just a little|2| pretty much |3|very much 
+s4	s4NYP11 	s4NYP11 	SIBLINGNO>3	]		Deliberately annoys others	list|0|not at all |1|just a little|2| pretty much |3|very much 
+s4	s4NYP12 	s4NYP12 	SIBLINGNO>3	[		Lies	list|0|not at all |1|just a little|2| pretty much |3|very much 
+s4	s4NYP13 	s4NYP13 	SIBLINGNO>3	q		Breaks rules at home	list|0|not at all |1|just a little|2| pretty much |3|very much 
+s4	s4NYP14 	s4NYP14 	SIBLINGNO>3	q		Destroys or defaces property	list|0|not at all |1|just a little|2| pretty much |3|very much 
+s4	s4NYP15 	s4NYP15 	SIBLINGNO>3	]		"Acts violently to others children or adults (hits, pushes, etc.)"	list|0|not at all |1|just a little|2| pretty much |3|very much 
+s4	s4NYP16 	s4NYP16 	SIBLINGNO>3	[		Starts physical fights	list|0|not at all |1|just a little|2| pretty much |3|very much 
+s4	s4NYP17 	s4NYP17 	SIBLINGNO>3	q		Gets involved in physical fights with peers	list|0|not at all |1|just a little|2| pretty much |3|very much 
+s4	s4NYP18 	s4NYP18 	SIBLINGNO>3	q		Physically cruel	list|0|not at all |1|just a little|2| pretty much |3|very much 
+s4	s4NYP19 	s4NYP19 	SIBLINGNO>3	]		Assaults others	list|0|not at all |1|just a little|2| pretty much |3|very much 
+s4	s4NYP20 	s4NYP20 	SIBLINGNO>3	[		Carries a knife or other weapon	list|0|not at all |1|just a little|2| pretty much |3|very much 
+s4	s4NYP21 	s4NYP21 	SIBLINGNO>3	q		"Has used a knife, or other weapon, in a fight"	list|0|not at all |1|just a little|2| pretty much |3|very much 
+s4	s4NYP22 	s4NYP22 	SIBLINGNO>3	q		Has mugged someone	list|0|not at all |1|just a little|2| pretty much |3|very much 
+s4	s4NYP23 	s4NYP23 	SIBLINGNO>3	]		Sexual misbehavior (not masturbation)	list|0|not at all |1|just a little|2| pretty much |3|very much 
+s4	s4NYP24 	s4NYP24 	SIBLINGNO>3	[		Steals on the sly	list|0|not at all |1|just a little|2| pretty much |3|very much 
+s4	s4NYP25 	s4NYP25 	SIBLINGNO>3	q		Shakes down others for money or other belongings	list|0|not at all |1|just a little|2| pretty much |3|very much 
+s4	s4NYP26 	s4NYP26 	SIBLINGNO>3	q		Late to school or class	list|0|not at all |1|just a little|2| pretty much |3|very much 
+s4	s4NYP27 	s4NYP27 	SIBLINGNO>3	]		Truant	list|0|not at all |1|just a little|2| pretty much |3|very much 
+s4	s4NYP28 	s4NYP28 	SIBLINGNO>3	[		Has run away from home during the day	list|0|not at all |1|just a little|2| pretty much |3|very much 
+s4	s4NYP29 	s4NYP29 	SIBLINGNO>3	q		Has run away from home overnight	list|0|not at all |1|just a little|2| pretty much |3|very much 
+s4	s4NYP30 	s4NYP30 	SIBLINGNO>3	q		Steals from parents or siblings when they are not around	list|0|not at all |1|just a little|2| pretty much |3|very much 
+s4	s4NYP31 	s4NYP31 	SIBLINGNO>3	]		Sets fires	list|0|not at all |1|just a little|2| pretty much |3|very much 
+s4	s4NYP32 	s4NYP32 	SIBLINGNO>3	[		Cheats at games	list|0|not at all |1|just a little|2| pretty much |3|very much 
+s4	s4NYP33 	s4NYP33 	SIBLINGNO>3	q		Deliberately hurt animals	list|0|not at all |1|just a little|2| pretty much |3|very much 
+s4	s4NYP34 	s4NYP34 	SIBLINGNO>3	q		"Uses obscene language (swearing, cursing)"	list|0|not at all |1|just a little|2| pretty much |3|very much 
+s4	s4NYP35 	s4NYP35 	SIBLINGNO>3	]		"Has broken into buildings, houses or cars"	list|0|not at all |1|just a little|2| pretty much |3|very much 
+s4	s4NYP36 	s4NYP36 	SIBLINGNO>3	[		"Has had bad companions, ones who get in trouble"	list|0|not at all |1|just a little|2| pretty much |3|very much 
+s4	s4NYP37 	s4NYP37 	SIBLINGNO>3	q		Involved with police	list|0|not at all |1|just a little|2| pretty much |3|very much 
+s4	s4NYP38 	s4NYP38 	SIBLINGNO>3	q		Uses alcohol	list|0|not at all |1|just a little|2| pretty much |3|very much 
+s4	s4NYP39 	s4NYP39 	SIBLINGNO>3	]		Uses drugs	list|0|not at all |1|just a little|2| pretty much |3|very much 
+s4	s4NYP40 	s4NYP40 	SIBLINGNO>3	[		"Has school, peer, or family problems due to drugs or alcohol"	list|0|not at all |1|just a little|2| pretty much |3|very much 
+s4	s4NYP41 	s4NYP41 	SIBLINGNO>3	q		Others like to play with him/her	list|0|not at all |1|just a little|2| pretty much |3|very much 
+s4	s4NYP42 	s4NYP42 	SIBLINGNO>3	q		Peers seek his/her company	list|0|not at all |1|just a little|2| pretty much |3|very much 
+s4	s4NYP43 	s4NYP43 	SIBLINGNO>3	]		Is liked by his peers	list|0|not at all |1|just a little|2| pretty much |3|very much 
+s4	s4NYP44 	s4NYP44 	SIBLINGNO>3	[		Helpful to others	list|0|not at all |1|just a little|2| pretty much |3|very much 
+s4	s4NYP45 	s4NYP45 	SIBLINGNO>3	q		Has at least one good friend	list|0|not at all |1|just a little|2| pretty much |3|very much 
+s4	s4NYP46 	s4NYP46 	SIBLINGNO>3	q		Is considerate with friends/companions	list|0|not at all |1|just a little|2| pretty much |3|very much 
+s4	s4NYP47 	s4NYP47 	SIBLINGNO>3	]		Shows remorse when he or she does something wrong	list|0|not at all |1|just a little|2| pretty much |3|very much 
+s4	s4MPRI	s4MPRI	SIBLINGNO>3	[		How many close friends does this child or adolescent have? 	double
+s4	s4ndMPRIintro	s4ndMPRIintro	SIBLINGNO>3	q		For the next questions please describes how `SIB4NAME` relates to their peers. You can continue using the green card for this.	nothing
+s4	s4MPRI1	s4MPRI1	SIBLINGNO>3	q		How much does `SIB4NAME` worry about how `SIB4SEX==0?'she':'he'` looks when `SIB4SEX==0?'she':'he'` is with `SIB4SEX==0?'her':'his'` friends?	list|0|not at all |1|a little |2|somewhat |3|quite a bit|4|a lot
+s4	s4MPRI2	s4MPRI2	SIBLINGNO>3	]		How much does `SIB4SEX==0?'she':'he'` make `SIB4SEX==0?'her':'his'` friends laugh?	list|0|not at all |1|a little |2|somewhat |3|quite a bit|4|a lot
+s4	s4MPRI3	s4MPRI3	SIBLINGNO>3	[		How much does `SIB4NAME` lose her/his temper when `SIB4SEX==0?'she':'he'` is with `SIB4SEX==0?'her':'his'` friends?	list|0|not at all |1|a little |2|somewhat |3|quite a bit|4|a lot
+s4	s4MPRI4	s4MPRI4	SIBLINGNO>3	q		How much does `SIB4SEX==0?'she':'he'` depend on `SIB4SEX==0?'her':'his'` friends?	list|0|not at all |1|a little |2|somewhat |3|quite a bit|4|a lot
+s4	s4MPRI5	s4MPRI5	SIBLINGNO>3	q		How much does `SIB4SEX==0?'she':'he'` trust `SIB4SEX==0?'her':'his'` friends?	list|0|not at all |1|a little |2|somewhat |3|quite a bit|4|a lot
+s4	s4MPRI6	s4MPRI6	SIBLINGNO>3	]		How popular is `SIB4NAME` with `SIB4SEX==0?'her':'his'` friends or other people `SIB4SEX==0?'her':'his'` age?	list|0|not at all |1|a little |2|somewhat |3|quite a bit|4|a lot
+s4	s4MPRI7	s4MPRI7	SIBLINGNO>3	[		How shy is `SIB4NAME` when `SIB4SEX==0?'she':'he'` is with `SIB4SEX==0?'her':'his'` friends?	list|0|not at all |1|a little |2|somewhat |3|quite a bit|4|a lot
+s4	s4MPRI8	s4MPRI8	SIBLINGNO>3	q		How much does `SIB4SEX==0?'she':'he'` respect `SIB4SEX==0?'her':'his'` friends?	list|0|not at all |1|a little |2|somewhat |3|quite a bit|4|a lot
+s4	s4MPRI9	s4MPRI9	SIBLINGNO>3	q		How much is `SIB4NAME` physically aggressive is `SIB4SEX==0?'she':'he'` with `SIB4SEX==0?'her':'his'` friends?	list|0|not at all |1|a little |2|somewhat |3|quite a bit|4|a lot
+s4	s4MPRI10	s4MPRI10	SIBLINGNO>3	]		"How much does `SIB4SEX==0?'she':'he'` argue with, curse at, or insult `SIB4SEX==0?'her':'his'` friends?"	list|0|not at all |1|a little |2|somewhat |3|quite a bit|4|a lot
+s4	s4MPRI11	s4MPRI11	SIBLINGNO>3	[		How likely is `SIB4NAME` to do something `SIB4SEX==0?'she':'he'` wouldn’t usually do if `SIB4SEX==0?'she':'he'` were dared by `SIB4SEX==0?'her':'his'` friends?	list|0|not at all |1|a little |2|somewhat |3|quite a bit|4|a lot
+s4	s4MPRI12	s4MPRI12	SIBLINGNO>3	q		How close does `SIB4SEX==0?'she':'he'` feel to `SIB4SEX==0?'her':'his'` friends?	list|0|not at all |1|a little |2|somewhat |3|quite a bit|4|a lot
+s4	s4MPRI13	s4MPRI13	SIBLINGNO>3	]		"How much does `SIB4NAME` and `SIB4SEX==0?'her':'his'` friends talk about personal things, like thoughts and feelings?"	list|0|not at all |1|a little |2|somewhat |3|quite a bit|4|a lot
+s4	s4ndPeerdev	s4ndPeerdev	SIBLINGNO>3	[		Now you can get out the lavender answer card. Following are some descriptions of behavior sometimes shown by adolescents. Please think about the way `SIB4NAME` has been behaving in the past 12 months. Please say how much each statement applies to `SIB4SEX==0?'her':'him'` .	nothing
+s4	s4Peerdev1	s4Peerdev1	SIBLINGNO>3	q		Steals in company of others	list|0|Doesn’t apply|1|Somewhat applies|2|Certainly applies
+s4	s4Peerdev2	s4Peerdev2	SIBLINGNO>3	q		Belongs to a gang	list|0|Doesn’t apply|1|Somewhat applies|2|Certainly applies
+s4	s4Peerdev3	s4Peerdev3	SIBLINGNO>3	]		Loyal to delinquent friends	list|0|Doesn’t apply|1|Somewhat applies|2|Certainly applies
+s4	s4Peerdev4	s4Peerdev4	SIBLINGNO>3	[		"Truants from school, usually in company of others"	list|0|Doesn’t apply|1|Somewhat applies|2|Certainly applies
+s4	s4Peerdev5	s4Peerdev5	SIBLINGNO>3	q		"Has ""bad companions"""	list|0|Doesn’t apply|1|Somewhat applies|2|Certainly applies
+s4	s4Peerdev6	s4Peerdev6	SIBLINGNO>3	q		Uses drugs in company of others	list|0|Doesn’t apply|1|Somewhat applies|2|Certainly applies
+s4	s4Peerdev7	s4Peerdev7	SIBLINGNO>3	]		Is part of a group that rejects school activities	list|0|Doesn’t apply|1|Somewhat applies|2|Certainly applies
+s4	s4Peerdev8	s4Peerdev8	SIBLINGNO>3	[		Drinks alcohol in company of others	list|0|Doesn’t apply|1|Somewhat applies|2|Certainly applies
+s4	s4Peerdev9	s4Peerdev9	SIBLINGNO>3	q		Admires/associates with rougher peers	list|0|Doesn’t apply|1|Somewhat applies|2|Certainly applies
+s4	s4Peerdev10	s4Peerdev10	SIBLINGNO>3	]		Admires people who operate outside the law	list|0|Doesn’t apply|1|Somewhat applies|2|Certainly applies
+s4	s4ndDatmintro	s4ndDatmintro	SIBLINGNO>3	[		We're finished with the lavender card. Next I'm going to ask you some questions about `SIB4NAME`'s romantic relationships.	nothing
+s4	s4interest	s4interest	SIBLINGNO>3	]		Does`SIB4NAME` have a `SIB4SEX==0?'boyfriend':'girlfriend'` or someone they are interested in?	list|1|yes|0|no|9999|don't know
+s4	s4Datmon1	s4Datmon1	SIBLINGNO>3	[		How much do you know about `SIB4NAME` having a boyfriend/girlfriend or someone they are interested in?	list|0|not at all |1|a little |2|somewhat |3|quite a bit|4|a lot
+s4	s4Datmon2	s4Datmon2	SIBLINGNO>3	q		How often do you know where `SIB4NAME` is when `SIB4SEX==0?'she':'he'` is with a `SIB4SEX==0?'boyfriend':'girlfriend'` or someone `SIB4SEX==0?'she':'he'` is interested in?	list|0|never |1|a little of the time |2|sometimes |3|quite a bit of the time |4|a lot of the time
+s4	s4Datmon3	s4Datmon3	SIBLINGNO>3	]		"When `SIB4NAME` is out with a `SIB4SEX==0?'boyfriend':'girlfriend'` or someone `SIB4SEX==0?'she':'he'` is interested in, how often do you know what they are doing?"	list|0|never |1|a little of the time |2|sometimes |3|quite a bit of the time |4|a lot of the time
+s4	s4Datmon4	s4Datmon4	SIBLINGNO>3	[		How well do you know the `SIB4SEX==0?'boys':'girls'` `SIB4SEX==0?'she':'he'` goes out with or are interested in?	list|0|not at all |1|a little |2|somewhat |3|quite a bit|4|a lot
+s4	s4Datmon5	s4Datmon5	SIBLINGNO>3	q		"When `SIB4NAME` is out with a `SIB4SEX==0?'boyfriend':'girlfriend'` or someone `SIB4SEX==0?'she':'he'` is interested in, how often do you know what time `SIB4SEX==0?'she':'he'` will be home?"	list|0|never |1|a little of the time |2|sometimes |3|quite a bit of the time |4|a lot of the time
+s4	s4Datmon6	s4Datmon6	SIBLINGNO>3	]		"When `SIB4NAME` is out with a `SIB4SEX==0?'boyfriend':'girlfriend'` if  `SIB4SEX==0?'she':'he'` did not come home by the time that `SIB4SEX==0?'she':'he'` was supposed to be in, how often would you know?"	list|0|never |1|a little of the time |2|sometimes |3|quite a bit of the time |4|a lot of the time
+	END1	END1	1	[		That's the end of the interview. We'll be sending out a money order for $40 within a few days. Can I please check to make sure the address we have is correct?	nothing
+	contacts	contacts	1	Q		It’s so important that we are able to stay in touch with you we would like to ask you for 1 or 2 additional ways to contact you in case you move or your phone number changes in the future.  	nothing
+	contacts2	contacts2	1	q		"Can you give me the name, address and phone number 1 or 2 family members or friends we can contact if we have trouble reaching you in the future? (INTERVIEWER SHOULD FILL OUT THE Contacts Update SHEET.)"	nothing
+	END2	END2	1	]		That's it; we're done. I want to thank you so much for your cooperation. Do you have any questions for me before we finish?	nothing

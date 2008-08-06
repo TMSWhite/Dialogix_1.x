@@ -1,0 +1,802 @@
+RESERVED	__TRICEPS_FILE_TYPE__	SCHEDULE
+RESERVED	__TITLE__	CDC child interview
+RESERVED	__HEADER_MSG__	CDC child interview
+RESERVED	__PASSWORD_FOR_ADMIN_MODE__	bypass
+RESERVED	__SHOW_QUESTION_REF__	TRUE
+RESERVED	__AUTOGEN_OPTION_NUM__	TRUE
+RESERVED	__DEVELOPER_MODE__	false
+RESERVED	__DEBUG_MODE__	TRUE
+RESERVED	__SCHED_AUTHORS__	"Kathy Gordon for Miriam Ehrensaft, Ph.D."
+RESERVED	__SCHED_VERSION_MAJOR__	14
+RESERVED	__SCHED_VERSION_MINOR__	0
+RESERVED	__SHOW_ADMIN_ICONS__	TRUE
+RESERVED	__SUSPEND_TO_FLOPPY__	FALSE
+RESERVED	__REFUSED_ICON_OFF__	PreferNotToAnswer-Unchecked.gif
+RESERVED	__REFUSED_ICON_ON__	PreferNotToAnswer-Checked.gif
+RESERVED	__UNKNOWN_ICON_OFF__	IDontKnow-Unchecked.gif
+RESERVED	__UNKNOWN_ICON_ON__	IDontKnow-Checked.gif					
+RESERVED	__DONT_UNDERSTAND_ICON_OFF__	IDoNotUnderstand-Unchecked.gif					
+RESERVED	__DONT_UNDERSTAND_ICON_ON__	IDoNotUnderstand-Checked.gif	
+RESERVED	__ALLOW_COMMENTS__	FALSE					
+RESERVED	__SHOW_SAVE_TO_FLOPPY_IN_ADMIN_MODE__	FALSE					
+RESERVED	__ALWAYS_SHOW_ADMIN_ICONS__	TRUE					
+RESERVED	__DISALLOW_COMMENTS__	TRUE					
+Intro	Interviewer	Interviewer	1	[		Interviewer Name	text
+	Date	Date	1	q		Date of interview	date
+	Intvtarget	Intvtarget	1	]		Person Interviewed	list|1|Target (study child)|2|Parent (or substitute parent)|3|Sibling
+	Confirm	Confirm	Intvtarget==2	q		This is the interview intended for a child or their non-custodial sibling and you indicated this person is a parent or caretaker. Please reconcile this discrepancy.	nothing
+	Family	Family	1	[;number;10000;99999		Family ID	double
+Intro	PersonSC	PersonSC	1	];number;1;99		Person 2 digit ID number. Please enter 88 for all target(study) children.Siblings have 2 digit ID listed on interview information sheet	double
+	_uniqueid_	_uniqueid_	1	e		Family + PersonSC/100	nothing
+	makeFilenameEqual_uniqueid_	makeFilenameEqual_uniqueid_	1	e		__FILENAME__ = _uniqueid_	nothing
+	makeTitleEqual_uniqueid_	makeTitleEqual_uniqueid_	1	e		__TITLE_FOR_PICKLIST_WHEN_IN_PROGRESS__ = _uniqueid_	nothing
+Intro	Intro1	Intro1	1	[		"Directions for Interviewer: To begin the interview, you will ask to speak to the subject, and say you are calling from the Building Blocks Study. You will introduce yourself to the subject, saying:"	nothing
+Intro	Intro2	Intro2	1	q		"""Hi, my name is ______________, and I am calling to do the interview for the Building Blocks Study that we scheduled for (respondent) to do today. Is that you?  Good. Before we start, I want to check in about a few things. Do you remember that you and your mom were sent a letter explaining about this interview, and what it would be like? The letter explained that the interview will take around an hour to an hour and a half, and we will be asking you questions about friendships, violence by young people, what you think your friends say about that, and about your mood and behavior."""	nothing
+Intro	Intro3	Intro3	1	q		"Your parents have sent us a form saying it’s okay for you to do this interview. But before we begin, I want to give you a chance to ask any questions you might have about the interview. Do you have any questions before we get started? (IF YES, ANSWER ALL QUESTIONS TO THE BEST OF YOUR ABILITY; IF NO, CONTINUE…)."	nothing
+Intro	Intro4	Intro4	1	q		"One thing I want to be clear about is that our talk is confidential. That means that I won't be telling anyone else what you say, not your parents, teachers, or anyone else at all unless you give me information that someone is at risk of being seriously harmed. """	nothing
+Intro	Intro5	Intro5	1	q		Do you have the response cards we mailed to you?	nothing
+Intro	Intro6	Intro6	1	]		"Are you in a place where you can talk privately? IF NOT, can you find a private area right now?"	nothing
+Demogrphics	AGE	AGE	1	[		How old are you?	double
+Demogrphics	DOB	DOB	1	q		What is your date of birth	date
+Demogrphics	SEX	SEX	1	q		Are you male or female?	list|0|Female|1|Male
+Demogrphics	GRADE 	GRADE 	1	q		Whate grade are you in school (Enter zero if dropped out or graduated.)	double
+Demogrphics	GRADEA	GRADEA	GRADE==0	]		Last grade completed in school	double
+Demogrphics	LIVEWITH	LIVEWITH	1	[		Who do you live with? (Who lives in your household most of the time?) Interviewer codes from answer: DO NOT READ EACH CHOICE.	nothing
+Demogrphics	mom	mom	1	q		Mother	list|0|No|1|Yes
+Demogrphics	stmom	stmom	1	q		Step-mother	list|0|No|1|Yes
+Demogrphics	dad	dad	1	q		Father	list|0|No|1|Yes
+Demogrphics	stdad	stdad	1	q		Step-father	list|0|No|1|Yes
+Demogrphics	sibs	sibs	1	q		Sibling(s)	list|0|No|1|Yes
+Demogrphics	rmmate	rmmate	1	q		Friends/roommates	list|0|No|1|Yes
+Demogrphics	alone	alone	1	q		Lives alone	list|0|No|1|Yes
+Demogrphics	dorm	dorm	1	q		Lives at school	list|0|No|1|Yes
+Demogrphics	other	other	1	]		Other(s)	list|0|No|1|Yes
+Demogrphics	other2	other2	other==1	q		"""Describe others (subject's children, grandparent, spouse, etc.). List those who live in household most of time (and were not specified in specific y/n questions)."""	text
+Demogrphics	live2	live2	1	e		"count(mom==1, stmom==1, dad==1, stdad==1, sibs==1, rmmate==1, alone==1, dorm==1, other==1)"	nothing
+Demogrphics	live3	live3	live2==0	q		They must live with SOMEONE or live alone. Please go back and check your answers.	nothing
+Demogrphics	bestfr	bestfr	1	q		Do you have a best friend?	list|0|No|1|Yes
+Demogrphics	otherfr	otherfr	bestfr==0	q		"IF NO, Is there someone who is more of a friend than other people you know or hang out with? (NOT AN ADULT)"	list|0|No|1|Yes
+Demogrphics	frndsex	frndsex	bestfr==1	q		Is `bestfr==1?'your best friend':'that person'` a boy or a girl?  	list|0|Female|1|Male
+Demogrphics	frndage	frndage	1	[		How old is `bestfr==1?'your best friend':'that person'`? 	double
+Demogrphics	frndlong	frndlong	1	]		"How long have you been friends? (RECORD IN MONTHS. IF GIVEN IN YEARS, MULTIPLY BY 12.IF 'My whole life,"" MULTIPLY AGE BY 12.)"	double
+card1	card1	card1	1	q		Please get out the blue answer card. Now I would like to get an idea of what you do with `bestfr==1?'your best friend':'the person who is more of a friend than other people you know or hang out with'`.	nothing
+	frnd1	frnd1	1	[		Do you spend time at each other's house alone (no adults around)?	list|0|not at all |1|a little |2|somewhat |3|quite a bit|4|a lot
+	frnd2	frnd2	1	q		Do you spend time at each other's house with one or two others?	list|0|not at all |1|a little |2|somewhat |3|quite a bit|4|a lot
+	frnd3	frnd3	1	q		Do  you spend time together at school?	list|0|not at all |1|a little |2|somewhat |3|quite a bit|4|a lot
+	frnd4	frnd4	1	q		Do you spend time together in public spaces like a park or on the street? (DOES NOT INCLUDE SCHOOL.)	list|0|not at all |1|a little |2|somewhat |3|quite a bit|4|a lot
+	frnd5	frnd5	1	]		"Do you go to movies, school dances, eat out, or go shopping together?"""	list|0|not at all |1|a little |2|somewhat |3|quite a bit|4|a lot
+	frnd6	frnd6	1	[		"How much disagreement do you have (or, How much do you argue) about the amount of time you should spend together?"	list|0|not at all |1|a little |2|somewhat |3|quite a bit|4|a lot
+	frnd7	frnd7	1	q		"How much disagreement do you have (or, How much do you argue) about other friends and your social life?"	list|0|not at all |1|a little |2|somewhat |3|quite a bit|4|a lot
+	frnd8	frnd8	1	q		"How much disagreement do you have (or, How much do you argue) about your parents?"	list|0|not at all |1|a little |2|somewhat |3|quite a bit|4|a lot
+	frnd9	frnd9	1	q		"How much disagreement do you have (or, How much do you argue) about trust and honesty?"	list|0|not at all |1|a little |2|somewhat |3|quite a bit|4|a lot
+	frnd10	frnd10	1	q		"How much disagreement do you have (or, How much do you argue) about one of you being jealous of time you spend with other friends?"	list|0|not at all |1|a little |2|somewhat |3|quite a bit|4|a lot
+	frnd11	frnd11	1	]		"Overall, how happy do you feel about your relationship?"""	list|0|not at all |1|a little |2|somewhat |3|quite a bit|4|a lot
+	PEENET1	PEENET1	1	[		I want you to think about your friends.	nothing
+	PEENET2	PEENET2	1	q		About how many people are in your (main) group of friends? (NUMBER SHOULD NOT INCLUDE THEMSELVES.)	double
+	nd102	nd102	1	q		We'll go back to using the blue answer card again. 	double
+	FAFRINT2	FAFRINT2	1	q		How well does your family know your friends?	list|0|not at all |1|a little |2|somewhat |3|quite a bit|4|a lot
+	FAFRINT3	FAFRINT3	1	]		How much does your family like most of your friends?	list|0|not at all |1|a little |2|somewhat |3|quite a bit|4|a lot
+End intro	MPRIintro	MPRIintro	1	[		"For the next questions, we are interested in how you are with your friends. Please keep using the blue card to tell me how much each of these things describes how you are with your friends."	nothing
+	MPRI_C1	MPRI_C1	1	q		How much do you worry about how you look when you are with your friends?	list|0|not at all |1|a little |2|somewhat |3|quite a bit|4|a lot
+	MPRI_C2	MPRI_C2	1	q		How much do you make your friends laugh?	list|0|not at all |1|a little |2|somewhat |3|quite a bit|4|a lot
+	MPRI_C3	MPRI_C3	1	q		How much do you lose your temper when you are with your friends?	list|0|not at all |1|a little |2|somewhat |3|quite a bit|4|a lot
+	MPRI_C4	MPRI_C4	1	q		How much do you depend on your friends?	list|0|not at all |1|a little |2|somewhat |3|quite a bit|4|a lot
+	MPRI_C5	MPRI_C5	1	q		How much do you trust your friends?	list|0|not at all |1|a little |2|somewhat |3|quite a bit|4|a lot
+	MPRI_C6	MPRI_C6	1	]		How popular are you with your friends or other people your age?	list|0|not at all |1|a little |2|somewhat |3|quite a bit|4|a lot
+	MPRI_C7	MPRI_C7	1	[		How shy are you when you are with your friends?	list|0|not at all |1|a little |2|somewhat |3|quite a bit|4|a lot
+	MPRI_C8	MPRI_C8	1	q		How much do you respect your friends?	list|0|not at all |1|a little |2|somewhat |3|quite a bit|4|a lot
+	MPRI_C9	MPRI_C9	1	q		"How physically aggressive are you with friends, meaning how often do you physically fight with them?"	list|0|not at all |1|a little |2|somewhat |3|quite a bit|4|a lot
+	MPRI_C10	MPRI_C10	1	q		"How much do you argue with, curse at, or insult your friends? "	list|0|not at all |1|a little |2|somewhat |3|quite a bit|4|a lot
+	MPRI_C11	MPRI_C11	1	q		How likely are you to do something you wouldn’t usually do if you were dared by your friends? 	list|0|not at all |1|a little |2|somewhat |3|quite a bit|4|a lot
+	MPRI_C12	MPRI_C12	1	q		How close do you feel to your friends?	list|0|not at all |1|a little |2|somewhat |3|quite a bit|4|a lot
+	MPRI_C13	MPRI_C13	1	]		"How much do you and your friends talk about personal things, like thoughts and feelings?"	list|0|not at all |1|a little |2|somewhat |3|quite a bit|4|a lot
+	blueend1	blueend1	1	q		"For the next questions, you won't need to use any answer card."	nothing
+	PERODV1	PERODV1	PEENET2>0	q		"I want to ask you some questions about your friends now. In your main group of friends, how many are `(SEX==1)?'girls':'boys'`? Would you say …"	list|0|none|1|less than half|2|about half |3|more than half|4|all
+	PERODV2	PERODV2	PERODV1>0	q		"How old are the `(SEX==1)?'girls':'boys'` in your main group of friends, on average?"	double
+	PERODV4	PERODV4	PEENET2>0	q		Do most of your friends think it's a good idea to have a boyfriend or girlfriend?	list|0|no|1|yes
+	PERODV4a	PERODV4a	PEENET2>0	q		Do some of your friends have a boyfriend or girlfriend now?	list|0|no|1|yes
+	PERODV5A	PERODV5A	PEENET2>0 && PERODV4a==1	q		How do your friends spend time with their boyfriends or girlfriends? Would you say …	list|0|only in groups of friends |4|only as a couple|1|mostly in groups of friends|3|mostly as a couple|2|about half and half.
+	PEOROM1	PEOROM1	PEENET2>0	[		How long do your friends think boys and girls should know each other before they start going out casually (not exclusive)?  INTERVIEWER CODES RESPONSES. DO NOT READ ANSWER CHOICES.	list|1|less than one week|2|  1 to 2 weeks|3| 2 weeks to 1 month|4|1 to 3 months|5| 3 to 6 months|6|6 months to 1 year|7|more than 1 year|8|after they are engaged or married
+	PEOROM2	PEOROM2	PEENET2>0	q		How long do your friends think that boys and girls should wait before they kiss? INTERVIEWER CODES RESPONSES. DO NOT READ ANSWER CHOICES.	list|1|less than one week|2|  1 to 2 weeks|3| 2 weeks to 1 month|4|1 to 3 months|5| 3 to 6 months|6|6 months to 1 year|7|more than 1 year|8|after they are engaged or married
+	PEOROM3	PEOROM3	PEENET2>0	q		"How long do your friends think boys and girls should know each other before start going out alone, as a couple? INTERVIEWER CODES RESPONSES. DO NOT READ ANSWER CHOICES."	list|1|less than one week|2|  1 to 2 weeks|3| 2 weeks to 1 month|4|1 to 3 months|5| 3 to 6 months|6|6 months to 1 year|7|more than 1 year|8|after they are engaged or married
+	PEOROM4	PEOROM4	PEENET2>0	]		How long do your friends think boys and girls should know each other before they start doing anything sexual? INTERVIEWER CODES RESPONSES. DO NOT READ ANSWER CHOICES.	list|1|less than one week|2|  1 to 2 weeks|3| 2 weeks to 1 month|4|1 to 3 months|5| 3 to 6 months|6|6 months to 1 year|7|more than 1 year|8|after they are engaged or married
+	OPSXDV1	OPSXDV1	1	q		"Now I'm going to ask about your romantic interests. Are you interested in `SEX==1?'girls':'boys '`? It doesn't mean you ever had a `SEX==1?'girlfriend':'boyfriend '`, but are you interested?  "	list|0|No|1|Yes
+	OPSXDV51	OPSXDV51	1	q		"Kids get involved with girlfriends or boyfriends at different times. Some start earlier, and some later. Compared to other kids your age, are you more involved , less involved, or about the same as your friends?"	list|-1|less involved|0|the same|1|more involved
+	OPSXDV2	OPSXDV2	OPSXDV1==1	q		How old were you when you started to be interested in `SEX==1?'girls':'boys '`? 	double
+	OPSXDV1A	OPSXDV1A	OPSXDV1==0	q		Are you romantically interested in `SEX==1?'boys':'girls '`? 	list|0|No|1|Yes
+	OPSXDV2A	OPSXDV2A	OPSXDV1A==1	q		How old were you when you started to be interested in `SEX==1?'boys':'girls '` romantically? 	double
+	OPSXDV4	OPSXDV4	1	q		Have you ever had a `(SEX==1&&OPSXDV1==1)||(SEX==0&&OPSXDV1A==1)?'girlfriend':'boyfriend'` since you were 10? 	list|0|No|1|Yes
+	OPSXDV4B	OPSXDV4B	OPSXDV4==1	q		How long was the longest relationship you had with a `(SEX==1&&OPSXDV1==1)||(SEX==0&&OPSXDV1A==1)?'girlfriend':'boyfriend'`? 	list|1|less than 1 week|2|  1 to 2 weeks|3| 2 weeks to 1 month|4|1 to 3 months|5| 3 to 6 months|6|6 months to 1 year|7|more than 1 year
+	ndDATINVL	ndDATINVL	1	[		"I would like to ask you some questions about dating relationships.  Dating is spending time with someone of the opposite sex who you are romantically interested in and who is also romantically interested in you.  It can occur in a small group, or with just the two you. It doesn’t only mean you have a boyfriend or girlfriend."	nothing
+	DATINVL1	DATINVL1	1	]		Which describes your usual dating involvement? … (READ ALL CHOICES.)	list|0|you have never dated|1|you rarely date|2|have dated casually but not in an exclusive relationship|3|have been involved in an exclusive relationship with someone
+	DATINVL2	DATINVL2	DATINVL1>0	[		How many people have you dated in the past 12 months?	double
+	DATINVL3	DATINVL3	DATINVL1>0	]		"Which describes your level of dating involvement right now, would you say … (READ ALL CATEGORIES.)"	list|0|You are not dating now |1|You are dating or seeing one person casually|2|dating or seeing more than one person casually|3|mostly going out with one person and dating a few others|4|have an exclusive relationship with someone (you only see each other)
+	DATINVL4	DATINVL4	DATINVL3>0	[		"Would you call that person your `SEX==0?'boyfriend':'girlfriend'`? When I say `SEX==0?'boyfriend':'girlfriend'`, I mean someone you are physically attracted to, have had intimate contact with (like holding hands, kissing, etc.), you consider to be more than a friend, and you go out on dates with or hang out with."	list|0|no|1|yes
+	DATINVL5	DATINVL5	DATINVL3>0	q		How many `SEX==0?'boyfriends':'girlfriends'` have you had in the past 12 months?	double
+	DATINVL6	DATINVL6	DATINVL3>0 && DATINVL4==1	q		How many months have you been dating that person?	double
+	DATINVL7	DATINVL7	DATINVL3>0	q		How many hours do you usually spend with that person each week?	double
+	DATINVL8	DATINVL8	DATINVL3>0	q		Are you in love with that person ?	list|2|yes|1|Not sure|0|No
+	DATINVL9	DATINVL9	DATINVL3>0	]		Do you think you will get married to that person? Would you say …	list|0|Definitely not|1|Probably not|2|Maybe|3|Probably yes|4|Definitely yes
+	current	current	1	e		count(DATINVL4==1)	nothing
+	OPSXDV4C	OPSXDV4C	OPSXDV4==1&& current<1	q		Do you have a `(SEX==1&&OPSXDV1==1)||(SEX==0&&OPSXDV1A==1)?'girlfriend':'boyfriend'` now? 	list|0|No|1|Yes
+	DATINVL10	DATINVL10	OPSXDV4C==0 && current<1	q		"If you do not have a `SEX==0?'boyfriend':'girlfriend'` now, would you like to have one in the near future? Would you say …"	list|0|I don’t care much about `SEX==0?'boyfriends':'girlfriends'` right now|1|I'd like to have a `SEX==0?'boyfriend':'girlfriend'` but it’s not that important right now|2|I would really like to have a `SEX==0?'boyfriend':'girlfriend'` right now.
+	OPSXDV5	OPSXDV5	OPSXDV4==0	q		"In the last year, have you been interested in someone, a person you might like to go out with? "	list|0|No|1|Yes
+	OPSXDV6	OPSXDV6	OPSXDV4==1||OPSXDV4C==1||OPSXDV5==1	q		Can you tell me the first name of `OPSXDV4C==1||OPSXDV5==1||DATINVL4==1?'that person':'your last girlfriend/boyfriend'`?	text
+	OPSXDV4F	OPSXDV4F	OPSXDV4==1&&OPSXDV4C==0	q		How long ago did you break up with `OPSXDV6`?	list|1|less than 1 week|2|  1 to 2 weeks|3| 2 weeks to 1 month|4|1 to 3 months|5| 3 to 6 months|6|6 months to 1 year|7|more than 1 year
+	OPSXDV4D	OPSXDV4D	OPSXDV4==1&& current == 0	[		 `OPSXDV4C==0?'How long did you go out?': 'How long have you been going out?'`	list|1|less than 1 week|2|  1 to 2 weeks|3| 2 weeks to 1 month|4|1 to 3 months|5| 3 to 6 months|6|6 months to 1 year|7|more than 1 year
+	OPSXDV4E	OPSXDV4E	OPSXDV4==1 ||OPSXDV4C==1	]		"`OPSXDV4C==1?'Do':'Did'`  you or your `(SEX==1&&OPSXDV1==1)||(SEX==0&&OPSXDV1A==1)?'girlfriend':'boyfriend'` see other people or have other girlfriends or boyfriends too, or `OPSXDV4C==1?'do':'did'` you only see each other?"	list|0|See Others |1|Exclusive
+	OPSXDV7	OPSXDV7	OPSXDV4==1||OPSXDV4C==1	q		How old is `OPSXDV6` now?	double
+	OPSXDV8	OPSXDV8	OPSXDV4==1||OPSXDV4C==1	q		How do you know `OPSXDV6`? (INTERVIEWER CODES USING SCALE.)	"list|1|school |2|work |3|through family |4|friend of friend |5|organized extra-curricular activity (e.g. dance class, soccer team, church) |6|unstructured setting (e.g. street, party, mall)|7|internet |8|other               neighborhood? Summer camp?"
+	OPSXDV9	OPSXDV9	OPSXDV4==1||OPSXDV4C==1	[		How well `OPSXDV4C==0?'did':'do'` you know `OPSXDV6`? Would you say …	list|0|not at all |1|a little |2|somewhat |3|quite a bit|4|a lot
+	OPSXDV10	OPSXDV10	OPSXDV4==1||OPSXDV4C==1	q;number;1;7		How many days each week `OPSXDV4C==1?'do':'did'` you see each other? (ON AVERAGE)	double
+	OPSXDV11	OPSXDV11	OPSXDV4==1||OPSXDV4C==1	q		How many times `OPSXDV4C==1?'do':'did'` you talk on the phone each week? (ON AVERAGE)	double
+	OPSXDV12	OPSXDV12	OPSXDV4==1||OPSXDV5==1	]		`(OPSXDV4==1&&OPSXDV4C==0)?'How close were you when you were dating?':'How close are you?'`(READ FIRST 4 OPTIONS ONLY. THE FIFTH MIGHT BE USED FOR SOMEONE WHO HAS A CRUSH ON A RELATIVE STRANGER.) 	list|1|not close at all |2|somewhat close|3|pretty close|4|very close|0|NOT ACQUAINTED
+	ND24	ND24	OPSXDV4==1||OPSXDV4C==1	q		Please get out the blue answer card again.	nothing
+	ND25	ND25	OPSXDV4==1||OPSXDV4C==1	[		Now I would like to get an idea of what you `OPSXDV4C==0?'did':'do'` with your `(SEX==1&&OPSXDV1==1)||(SEX==0&&OPSXDV1A==1)?'girlfriend':'boyfriend'`.	nothing
+	OPSXDV13	OPSXDV13	OPSXDV4==1||OPSXDV4C==1	q		`OPSXDV4C==0?'Did':'Do'`  you spend time at each other's house alone (no adults around)?	list|0|not at all |1|a little |2|somewhat |3|quite a bit|4|a lot
+	OPSXDV14	OPSXDV14	OPSXDV4==1||OPSXDV4C==1	q		`OPSXDV4C==0?'Did':'Do'`  you spend time at each other's house with one or two others?	list|0|not at all |1|a little |2|somewhat |3|quite a bit|4|a lot
+	OPSXDV15	OPSXDV15	OPSXDV4==1||OPSXDV4C==1	]		`OPSXDV4C==0?'Did':'Do'`  you spend time together at school?	list|0|not at all |1|a little |2|somewhat |3|quite a bit|4|a lot
+	OPSXDV16	OPSXDV16	OPSXDV4==1||OPSXDV4C==1	[		`OPSXDV4C==0?'Did':'Do'`  you spend time together in public spaces like a park or on the street? (DOES NOT INCLUDE SCHOOL.)	list|0|not at all |1|a little |2|somewhat |3|quite a bit|4|a lot
+	OPSXDV17	OPSXDV17	OPSXDV4==1||OPSXDV4C==1	q		"`OPSXDV4C==0?'Did':'Do'`  you go to movies, school dances, eat out, or go shopping together?"	list|0|not at all |1|a little |2|somewhat |3|quite a bit|4|a lot
+	OPSXDV18	OPSXDV18	OPSXDV4==1||OPSXDV4C==1	q		`OPSXDV4C==0?'Did':'Do'`  you do sports or hobbies together?	list|0|not at all |1|a little |2|somewhat |3|quite a bit|4|a lot
+	OPSXDV19	OPSXDV19	OPSXDV4==1||OPSXDV4C==1	q		`OPSXDV4C==0?'Did':'Do'`  you skip school together?	list|0|not at all |1|a little |2|somewhat |3|quite a bit|4|a lot
+	OPSXDV20	OPSXDV20	OPSXDV4==1||OPSXDV4C==1	q		`OPSXDV4C==0?'Did':'Do'`  you go to parties together where there is no adult supervision or where there is drinking or drugs?	list|0|not at all |1|a little |2|somewhat |3|quite a bit|4|a lot
+	OPSXDV21	OPSXDV21	OPSXDV4==1||OPSXDV4C==1	]		`OPSXDV4C==0?'Did':'Do'` you do things together that could get you in trouble with parents or teachers if you were caught?	list|0|not at all |1|a little |2|somewhat |3|quite a bit|4|a lot
+	OPSXDV22	OPSXDV22	OPSXDV4==1||OPSXDV4C==1	[		`OPSXDV4C==0?'Did':'Do'` you argue with `(SEX==1&&OPSXDV1==1)||(SEX==0&&OPSXDV1A==1)?'her':'him'`?	list|0|not at all |1|a little |2|somewhat |3|quite a bit|4|a lot
+	OPSXDV23	OPSXDV23	OPSXDV4==1||OPSXDV4C==1	q		How much disagreement `OPSXDV4C==0?'did':'do'`  you have about the amount of time you spend together?	list|0|not at all |1|a little |2|somewhat |3|quite a bit|4|a lot
+	OPSXDV24	OPSXDV24	OPSXDV4==1||OPSXDV4C==1	q		How much disagreement `OPSXDV4C==0?'did':'do'`  you have about friends and your social life?	list|0|not at all |1|a little |2|somewhat |3|quite a bit|4|a lot
+	OPSXDV25	OPSXDV25	OPSXDV4==1||OPSXDV4C==1	]		How much disagreement `OPSXDV4C==0?'did':'do'`  you have about your parents	list|0|not at all |1|a little |2|somewhat |3|quite a bit|4|a lot
+	OPSXDV26	OPSXDV26	OPSXDV4==1||OPSXDV4C==1	[		How much disagreement `OPSXDV4C==0?'did':'do'`  you have about trust and honesty?	list|0|not at all |1|a little |2|somewhat |3|quite a bit|4|a lot
+	OPSXDV27	OPSXDV27	OPSXDV4==1||OPSXDV4C==1	q		How much disagreement `OPSXDV4C==0?'did':'do'`  you have about one of you being jealous?	list|0|not at all |1|a little |2|somewhat |3|quite a bit|4|a lot
+	OPSXDV28	OPSXDV28	OPSXDV4==1||OPSXDV4C==1	q		"Overall, how happy `OPSXDV4C==0?'did':'do'` you feel about your relationship?"	list|0|not at all |1|a little |2|somewhat |3|quite a bit|4|a lot
+	OPSXDV45	OPSXDV45	OPSXDV4==1||OPSXDV4C==1	q		"How much `OPSXDV4C==1?'does':'did'` `OPSXDV6` think it's okay for people your age to lie, disobey, or talk back to adults such as parents, teachers, or any other adult?"	list|0|not at all |1|a little |2|somewhat |3|quite a bit|4|a lot
+	OPSXDV46	OPSXDV46	OPSXDV4==1||OPSXDV4C==1	]		How much `OPSXDV4C==1?'does':'did'` `OPSXDV6` think it's okay for people your age to smoke cigarettes?	list|0|not at all |1|a little |2|somewhat |3|quite a bit|4|a lot
+	OPSXDV47	OPSXDV47	OPSXDV4==1||OPSXDV4C==1	[		How much `OPSXDV4C==1?'does':'did'` `OPSXDV6` think it's okay for people your age to drink alcohol (like beer or wine)?	list|0|not at all |1|a little |2|somewhat |3|quite a bit|4|a lot
+	OPSXDV48	OPSXDV48	OPSXDV4==1||OPSXDV4C==1	q		How much `OPSXDV4C==1?'does':'did'` `OPSXDV6` think it's okay for people your age to yell and argue to solve a conflict?	list|0|not at all |1|a little |2|somewhat |3|quite a bit|4|a lot
+	PARCHA1	PARCHA1	OPSXDV4==1||OPSXDV4C==1	]		"How much `OPSXDV4C==1?'does':'did'` `OPSXDV6`  lie, disobey, or talk back to adults like teachers or others?     "	list|0|not at all |1|a little |2|somewhat |3|quite a bit|4|a lot
+	PARCHA2	PARCHA2	OPSXDV4==1||OPSXDV4C==1	[		How much `OPSXDV4C==1?'does':'did'` `OPSXDV6` skip school or got expelled?	list|0|not at all |1|a little |2|somewhat |3|quite a bit|4|a lot
+	PARCHA3	PARCHA3	OPSXDV4==1||OPSXDV4C==1	q		How much `OPSXDV4C==1?'does':'did'` `OPSXDV6` do things that could get him/her in trouble with the police if they caught him/her?	list|0|not at all |1|a little |2|somewhat |3|quite a bit|4|a lot
+	PARCHA4	PARCHA4	OPSXDV4==1||OPSXDV4C==1	q		How much `OPSXDV4C==1?'has':'did'` `OPSXDV6` hit someone on purpose to hurt them?	list|0|not at all |1|a little |2|somewhat |3|quite a bit|4|a lot
+	PARCHA5	PARCHA5	OPSXDV4==1||OPSXDV4C==1	]		"How much `OPSXDV4C==1?'does':'did'` `OPSXDV6`  get depressed, like not talking, seeming down, losing or gaining weight, having trouble sleeping, or losing hope for the future?."	list|0|not at all |1|a little |2|somewhat |3|quite a bit|4|a lot
+	DATMON1	DATMON1	OPSXDV1==1	[		How often do you talk to your parent about your `(SEX==1)?'girl':'boy'`friend or the `(SEX==1)?'girls':'boys'` you are interested in?	list|0|not at all |1|a little |2|somewhat |3|quite a bit|4|a lot
+	DATMON2	DATMON2	OPSXDV1==1	q		How well does your parent know the `(SEX==1)?'girls':'boys'` you go out with or the `(SEX==1)?'girls':'boys'` you are interested in?	list|0|not at all |1|a little |2|somewhat |3|quite a bit|4|a lot
+	yellow5	yellow5	OPSXDV1==1	]		Please get out the yellow response card.	nothing
+	DATMON3	DATMON3	OPSXDV1==1	[		How often does your parent know where you are when you are with a `(SEX==1)?'girl':'boy'`friend or someone you are interested in?	list|1|Never|2|hardly ever|3|sometimes  |4|often |5| almost all the time   
+	DATMON4	DATMON4	OPSXDV1==1	q		"When you are out with your `(SEX==1)?'girl':'boy'`friend or someone you are interested in, how often does your parent know what you are doing?"	list|1|Never|2|hardly ever|3|sometimes  |4|often |5| almost all the time   
+	DATMON5	DATMON5	OPSXDV1==1	q		"When you are out with a `(SEX==1)?'girl':'boy'`friend or someone you are interested in, how often does your parent know what time you will be home?"	list|1|Never|2|hardly ever|3|sometimes  |4|often |5| almost all the time   
+	DATMON6	DATMON6	OPSXDV1==1	]		"If you were out with your `(SEX==1)?'girl':'boy'`friend or someone you are interested in and you did not come home by the time that you were supposed to be in, how often would your parent know?"	list|1|Never|2|hardly ever|3|sometimes  |4|often |5| almost all the time   
+	ndCADRIintro	ndCADRIintro	OPSXDV4==1||OPSXDV4C==1	[		"The next section is a little different, but you are going to continue to use the yellow response card. The following questions ask you about things that may have happened to you with your `(SEX==1&&OPSXDV1==1)||(SEX==0&&OPSXDV1A==1)?'girlfriend':'boyfriend'` while you were having an argument. Tell me your best guess about how often these things happened in the past year"	nothing
+	CADRI1	CADRI1	OPSXDV4==1||OPSXDV4C==1	q		You tried to turn `(SEX==1&&OPSXDV1==1)||(SEX==0&&OPSXDV1A==1)?'her':'his'` friends against `(SEX==1&&OPSXDV1==1)||(SEX==0&&OPSXDV1A==1)?'her':'him'`.	list|1|Never|2|hardly ever|3|sometimes  |4|often |5| almost all the time 
+	CADRI2	CADRI2	OPSXDV4==1||OPSXDV4C==1	q		`(SEX==1&&OPSXDV1==1)||(SEX==0&&OPSXDV1A==1)?'She':'He'` tried to turn your friends against you.	list|1|Never|2|hardly ever|3|sometimes  |4|often |5| almost all the time 
+	CADRI3	CADRI3	OPSXDV4==1||OPSXDV4C==1	q		"In the past year, how often did you do something to make `(SEX==1&&OPSXDV1==1)||(SEX==0&&OPSXDV1A==1)?'her':'him'` feel jealous"	list|1|Never|2|hardly ever|3|sometimes  |4|often |5| almost all the time 
+	CADRI4	CADRI4	OPSXDV4==1||OPSXDV4C==1	]		`(SEX==1&&OPSXDV1==1)||(SEX==0&&OPSXDV1A==1)?'She':'He'` did something to make you feel jealous	list|1|Never|2|hardly ever|3|sometimes  |4|often |5| almost all the time 
+	CADRI5	CADRI5	OPSXDV4==1||OPSXDV4C==1	[		You said things just to make `(SEX==1&&OPSXDV1==1)||(SEX==0&&OPSXDV1A==1)?'her':'him'` angry	list|1|Never|2|hardly ever|3|sometimes  |4|often |5| almost all the time 
+	CADRI6	CADRI6	OPSXDV4==1||OPSXDV4C==1	q		`(SEX==1&&OPSXDV1==1)||(SEX==0&&OPSXDV1A==1)?'She':'He'` said things just to make you angry	list|1|Never|2|hardly ever|3|sometimes  |4|often |5| almost all the time 
+	CADRI7	CADRI7	OPSXDV4==1||OPSXDV4C==1	q		"How often while you were arguing (in the past year), did this happen? You threw something at `(SEX==1&&OPSXDV1==1)||(SEX==0&&OPSXDV1A==1)?'her':'him'`."	list|1|Never|2|hardly ever|3|sometimes  |4|often |5| almost all the time 
+	CADRI8	CADRI8	OPSXDV4==1||OPSXDV4C==1	]		`(SEX==1&&OPSXDV1==1)||(SEX==0&&OPSXDV1A==1)?'She':'He'`  threw something at you.	list|1|Never|2|hardly ever|3|sometimes  |4|often |5| almost all the time 
+	CADRI9	CADRI9	OPSXDV4==1||OPSXDV4C==1	[		"In the past year, how often did you you speak to `(SEX==1&&OPSXDV1==1)||(SEX==0&&OPSXDV1A==1)?'her':'him'` in a mean tone of voice"	list|1|Never|2|hardly ever|3|sometimes  |4|often |5| almost all the time 
+	CADRI10	CADRI10	OPSXDV4==1||OPSXDV4C==1	q		`(SEX==1&&OPSXDV1==1)||(SEX==0&&OPSXDV1A==1)?'She':'He'` spoke to you in a mean tone of voice	list|1|Never|2|hardly ever|3|sometimes  |4|often |5| almost all the time 
+	CADRI11	CADRI11	OPSXDV4==1||OPSXDV4C==1	q		You insulted `(SEX==1&&OPSXDV1==1)||(SEX==0&&OPSXDV1A==1)?'her':'him'`.	list|1|Never|2|hardly ever|3|sometimes  |4|often |5| almost all the time 
+	CADRI12	CADRI12	OPSXDV4==1||OPSXDV4C==1	q		`(SEX==1&&OPSXDV1==1)||(SEX==0&&OPSXDV1A==1)?'She':'He'` insulted you.	list|1|Never|2|hardly ever|3|sometimes  |4|often |5| almost all the time 
+	CADRI13	CADRI13	OPSXDV4==1||OPSXDV4C==1	q		"In the past year, how often did you keep track of who `(SEX==1&&OPSXDV1==1)||(SEX==0&&OPSXDV1A==1)?'she':'he'` was with and where `(SEX==1&&OPSXDV1==1)||(SEX==0&&OPSXDV1A==1)?'she':'he'` was."	list|1|Never|2|hardly ever|3|sometimes  |4|often |5| almost all the time 
+	CADRI14	CADRI14	OPSXDV4==1||OPSXDV4C==1	]		`(SEX==1&&OPSXDV1==1)||(SEX==0&&OPSXDV1A==1)?'She':'He'` kept track of who you were with and where you were.	list|1|Never|2|hardly ever|3|sometimes  |4|often |5| almost all the time 
+	CADRI15	CADRI15	OPSXDV4==1||OPSXDV4C==1	[		"How often while you were arguing (in the past year), did this happen? You kicked, hit or punched `(SEX==1&&OPSXDV1==1)||(SEX==0&&OPSXDV1A==1)?'her':'him'`."	list|1|Never|2|hardly ever|3|sometimes  |4|often |5| almost all the time 
+	CADRI16	CADRI16	OPSXDV4==1||OPSXDV4C==1	q		"`(SEX==1&&OPSXDV1==1)||(SEX==0&&OPSXDV1A==1)?'She':'He'` kicked, hit or punched you."	list|1|Never|2|hardly ever|3|sometimes  |4|often |5| almost all the time 
+	CADRI17	CADRI17	OPSXDV4==1||OPSXDV4C==1	q		"In the past year, how often did you accuse `(SEX==1&&OPSXDV1==1)||(SEX==0&&OPSXDV1A==1)?'her':'him'` of flirting with someone else."	list|1|Never|2|hardly ever|3|sometimes  |4|often |5| almost all the time 
+	CADRI18	CADRI18	OPSXDV4==1||OPSXDV4C==1	]		`(SEX==1&&OPSXDV1==1)||(SEX==0&&OPSXDV1A==1)?'She':'He'` accused you of flirting with someone else.	list|1|Never|2|hardly ever|3|sometimes  |4|often |5| almost all the time 
+	CADRI19	CADRI19	OPSXDV4==1||OPSXDV4C==1	[		"How often while you were arguing (in the past year), did this happen? You slapped `(SEX==1&&OPSXDV1==1)||(SEX==0&&OPSXDV1A==1)?'her':'him'` or pulled `(SEX==1&&OPSXDV1==1)||(SEX==0&&OPSXDV1A==1)?'her':'his'` hair"	list|1|Never|2|hardly ever|3|sometimes  |4|often |5| almost all the time 
+	CADRI20	CADRI20	OPSXDV4==1||OPSXDV4C==1	q		`(SEX==1&&OPSXDV1==1)||(SEX==0&&OPSXDV1A==1)?'She':'He'` slapped you or pulled your hair	list|1|Never|2|hardly ever|3|sometimes  |4|often |5| almost all the time 
+	CADRI21	CADRI21	OPSXDV4==1||OPSXDV4C==1	q		You threatened to end the relationship	list|1|Never|2|hardly ever|3|sometimes  |4|often |5| almost all the time 
+	CADRI22	CADRI22	OPSXDV4==1||OPSXDV4C==1	q		`(SEX==1&&OPSXDV1==1)||(SEX==0&&OPSXDV1A==1)?'She':'He'` threatened to end the relationship	list|1|Never|2|hardly ever|3|sometimes  |4|often |5| almost all the time 
+	CADRI23	CADRI23	OPSXDV4==1||OPSXDV4C==1	q		"In the past year, how often did you push, shove or shake `(SEX==1&&OPSXDV1==1)||(SEX==0&&OPSXDV1A==1)?'her':'him'`."	list|1|Never|2|hardly ever|3|sometimes  |4|often |5| almost all the time 
+	CADRI24	CADRI24	OPSXDV4==1||OPSXDV4C==1	]		"`(SEX==1&&OPSXDV1==1)||(SEX==0&&OPSXDV1A==1)?'She':'He'` pushed, shoved or shook you"	list|1|Never|2|hardly ever|3|sometimes  |4|often |5| almost all the time 
+	yellowend2	yellowend2	OPSXDV4==1||OPSXDV4C==1	q		We won't need the yellow response card for the next section.	nothing
+	IPVcnt	IPVcnt	1	e		"count(CADRI15>1, CADRI16>1, CADRI19>1, CADRI20>1, CADRI23>1, CADRI24>1)"	nothing
+	IPVintro	IPVintro	AGE >= 18 && IPVcnt>0	[		"In the set of questions I just asked you, you described one or more incidents of aggression between you and a romantic partner. Please think about times when any of these things happened between you and your partner in the past year. I would like to ask you some details about what happened. I'm going to ask whether they happened to you, your boyfriend or both of you."	nothing
+	IPVintro2	IPVintro2	AGE >= 18 && IPVcnt>0	q		"In the past year, when you and your partner had disagreements or fights, did you or your partner ever…"	nothing
+	ndIPV1	ndIPV1	AGE >= 18 && IPVcnt>0	q		"Did you or your `(SEX==1)?'girl':'boy'`friend need medical care because you got injured when you fought? Even if you didn't get medical care, did you need it?"	nothing
+IPV	IPV1self	IPV1self	AGE >= 18 && IPVcnt>0	q		I did	list|1|yes|0|no
+	IPV1part	IPV1part	AGE >= 18 && IPVcnt>0	]		My partner did	list|1|yes|0|no
+	ndIPV2	ndIPV2	AGE >= 18 && IPVcnt>0	[		"Did you or your `(SEX==1)?'girl':'boy'`friend call the police, or have the police called on you by someone else because of aggression in your relationship?"	nothing
+	IPV2self	IPV2self	AGE >= 18 && IPVcnt>0	q		I did	list|1|yes|0|no
+	IPV2part	IPV2part	AGE >= 18 && IPVcnt>0	q		My partner did	list|1|yes|0|no
+	IPV2other	IPV2other	AGE >= 18 && IPVcnt>0	q		Someone else called the police	list|1|yes|0|no
+	ndIPV2a	ndIPV2a	AGE >= 18 && IPVcnt>0	q		Did you or your partner ever get arrested for aggression between the two of you?	nothing
+	IPV2aself	IPV2aself	AGE >= 18 && IPVcnt>0	q		I did	list|1|yes|0|no
+	IPV2apart	IPV2apart	AGE >= 18 && IPVcnt>0	]		My partner did	list|1|yes|0|no
+	ndIPV3	ndIPV3	AGE >= 18 && IPVcnt>0	[		Did you or your `(SEX==1)?'girl':'boy'`friend go to court or talk to a lawyer or a legal advocate about the aggression in your relationship?	nothing
+	IPV3self	IPV3self	AGE >= 18 && IPVcnt>0	q		I did	list|1|yes|0|no
+	IPV3part	IPV3part	AGE >= 18 && IPVcnt>0	q		My partner did	list|1|yes|0|no
+	ndIPV3a	ndIPV3a	AGE >= 18 && IPVcnt>0	q		Did you or your partner ever get an order of protection against each other?	nothing
+	IPV3aself	IPV3aself	AGE >= 18 && IPVcnt>0	q		I did	list|1|yes|0|no
+	IPV3apart	IPV3apart	AGE >= 18 && IPVcnt>0	]		My partner did	list|1|yes|0|no
+	ndIPV4	ndIPV4	AGE >= 18 && IPVcnt>0	[		Did you or your `(SEX==1)?'girl':'boy'`friend go to a shelter or refuge because of the aggression in your relationship?	nothing
+	IPV4self	IPV4self	AGE >= 18 && IPVcnt>0	q		I did	list|1|yes|0|no
+	IPV4part	IPV4part	AGE >= 18 && IPVcnt>0	q		My partner did	list|1|yes|0|no
+	ndIPV5	ndIPV5	AGE >= 18 && IPVcnt>0	q		Did you or your `(SEX==1)?'girl':'boy'`friend go to a counselor or therapist specifically about the aggression in your relationship?	nothing
+	IPV5self	IPV5self	AGE >= 18 && IPVcnt>0	q		I did	list|1|yes|0|no
+	IPV5part	IPV5part	AGE >= 18 && IPVcnt>0	]		My partner did	list|1|yes|0|no
+	IPV7	IPV7	AGE >= 18 && IPVcnt>0	[		"During the past year, when you and your partner had disagreements that involved physical aggression between you, how often was your partner using drugs or alcohol?"	list|1|Every time|2|Sometimes|3|Hardly ever|4|Never
+	IPV8	IPV8	AGE >= 18 && IPVcnt>0	]		"During the past year, when you and your partner had disagreements that involved physical aggression between you, how often were you using alcohol or drugs?"	list|1|Every time|2|Sometimes|3|Hardly ever|4|Never
+	JVCTintro	JVCTintro	1	[		Please get out the GREEN answer card. Would you say these things are OK for a girl to do to her boyfriend? 	nothing
+	JVCT1	JVCT1	1	q		Insulting or swearing at boyfriend 	list|1|OK in MANY situations |2|OK in SOME situations |3|OK in a FEW situations |4|OK only in EXTREME situations |5|Not OK NO MATTER WHAT 
+	JVCT2	JVCT2	1	q		Stomping out of the room or house 	list|1|OK in MANY situations |2|OK in SOME situations |3|OK in a FEW situations |4|OK only in EXTREME situations |5|Not OK NO MATTER WHAT 
+JVPT	JVCT3	JVCT3	1	q		Doing or saying something to spite him or get back at him.	list|1|OK in MANY situations |2|OK in SOME situations |3|OK in a FEW situations |4|OK only in EXTREME situations |5|Not OK NO MATTER WHAT 
+	JVCT4	JVCT4	1	q		Keeping him from seeing or talking to his family 	list|1|OK in MANY situations |2|OK in SOME situations |3|OK in a FEW situations |4|OK only in EXTREME situations |5|Not OK NO MATTER WHAT 
+	JVCT5	JVCT5	1	]		Turning his family and friends against him. 	list|1|OK in MANY situations |2|OK in SOME situations |3|OK in a FEW situations |4|OK only in EXTREME situations |5|Not OK NO MATTER WHAT 
+	JVCT6	JVCT6	1	[		"Keeping him from doing things to help himself. (Like going to school or the doctor, getting a job… )"	list|1|OK in MANY situations |2|OK in SOME situations |3|OK in a FEW situations |4|OK only in EXTREME situations |5|Not OK NO MATTER WHAT 
+	JVCT7	JVCT7	1	q		Interfering in his relationship with family members 	list|1|OK in MANY situations |2|OK in SOME situations |3|OK in a FEW situations |4|OK only in EXTREME situations |5|Not OK NO MATTER WHAT 
+	JVCT8	JVCT8	1	q		Being jealous and suspicious of his friends 	list|1|OK in MANY situations |2|OK in SOME situations |3|OK in a FEW situations |4|OK only in EXTREME situations |5|Not OK NO MATTER WHAT 
+	JVCT9	JVCT9	1	q		Being jealous of other girls. 	list|1|OK in MANY situations |2|OK in SOME situations |3|OK in a FEW situations |4|OK only in EXTREME situations |5|Not OK NO MATTER WHAT 
+	JVCT10	JVCT10	1	q		"Checking up on him, making him say where he was. "	list|1|OK in MANY situations |2|OK in SOME situations |3|OK in a FEW situations |4|OK only in EXTREME situations |5|Not OK NO MATTER WHAT 
+	JVCT11	JVCT11	1	]		Accusing him of seeing another girl. 	list|1|OK in MANY situations |2|OK in SOME situations |3|OK in a FEW situations |4|OK only in EXTREME situations |5|Not OK NO MATTER WHAT 
+	JVCTintro2	JVCTintro2	1	[		Now I am going to ask if those same things would be OK for a boy to do to his girlfriend? 	nothing
+	JVCT1a	JVCT1a	1	q		Insulting or swearing at girlfriend 	list|1|OK in MANY situations |2|OK in SOME situations |3|OK in a FEW situations |4|OK only in EXTREME situations |5|Not OK NO MATTER WHAT 
+	JVCT2a	JVCT2a	1	q		Stomping out of the room or house 	list|1|OK in MANY situations |2|OK in SOME situations |3|OK in a FEW situations |4|OK only in EXTREME situations |5|Not OK NO MATTER WHAT 
+	JVCT3a	JVCT3a	1	q		Doing or saying something to spite her. 	list|1|OK in MANY situations |2|OK in SOME situations |3|OK in a FEW situations |4|OK only in EXTREME situations |5|Not OK NO MATTER WHAT 
+	JVCT4a	JVCT4a	1	q		Keeping her from seeing or talking to her family 	list|1|OK in MANY situations |2|OK in SOME situations |3|OK in a FEW situations |4|OK only in EXTREME situations |5|Not OK NO MATTER WHAT 
+	JVCT5a	JVCT5a	1	]		Turning her family and friends against her. 	list|1|OK in MANY situations |2|OK in SOME situations |3|OK in a FEW situations |4|OK only in EXTREME situations |5|Not OK NO MATTER WHAT 
+	JVCT6a	JVCT6a	1	[		Keeping her from doing things to help herself.	list|1|OK in MANY situations |2|OK in SOME situations |3|OK in a FEW situations |4|OK only in EXTREME situations |5|Not OK NO MATTER WHAT 
+	JVCT7a	JVCT7a	1	q		Interfering in her relationship with family members 	list|1|OK in MANY situations |2|OK in SOME situations |3|OK in a FEW situations |4|OK only in EXTREME situations |5|Not OK NO MATTER WHAT 
+	JVCT8a	JVCT8a	1	q		Being jealous and suspicious of her friends 	list|1|OK in MANY situations |2|OK in SOME situations |3|OK in a FEW situations |4|OK only in EXTREME situations |5|Not OK NO MATTER WHAT 
+	JVCT9a	JVCT9a	1	q		Being jealous of other boys. 	list|1|OK in MANY situations |2|OK in SOME situations |3|OK in a FEW situations |4|OK only in EXTREME situations |5|Not OK NO MATTER WHAT 
+	JVCT10a	JVCT10a	1	q		"Checking up on her, making her say where she was. "	list|1|OK in MANY situations |2|OK in SOME situations |3|OK in a FEW situations |4|OK only in EXTREME situations |5|Not OK NO MATTER WHAT 
+	JVCT11a	JVCT11a	1	]		Accusing her of seeing another boy. 	list|1|OK in MANY situations |2|OK in SOME situations |3|OK in a FEW situations |4|OK only in EXTREME situations |5|Not OK NO MATTER WHAT 
+	Greenend	Greenend	1	[		We're finished using the GREEN answer card. 	nothing
+	ndvionintro	ndvionintro	1	q		Please getout the YELLOW colored answer card. How often do you think a <b>girl</b> might do these things when she is upset with her <b>boyfriend</b>?	nothing
+	VIONOR1	VIONOR1	1	q		Try to talk it out calmly with him.	list|1|Never|2|hardly ever|3|sometimes  |4|often |5| almost all the time 
+	VIONOR2	VIONOR2	1	q		Spread rumors about him   	list|1|Never|2|hardly ever|3|sometimes  |4|often |5| almost all the time 
+	VIONOR3	VIONOR3	1	q		Do something to make him feel jealous  	list|1|Never|2|hardly ever|3|sometimes  |4|often |5| almost all the time 
+	VIONOR4	VIONOR4	1	]		Destroy or threaten to destroy something that means something to him	list|1|Never|2|hardly ever|3|sometimes  |4|often |5| almost all the time 
+	ndvio2	ndvio2	1	[		How often do you think a <b>girl</b> might do these things when she is upset with her <b>boyfriend</b>?	nothing
+	VIONOR5	VIONOR5	1	q		Threaten to hurt him   	list|1|Never|2|hardly ever|3|sometimes  |4|often |5| almost all the time 
+	VIONOR6	VIONOR6	1	q		Offer a solution that would make both of them happy.	list|1|Never|2|hardly ever|3|sometimes  |4|often |5| almost all the time 
+	VIONOR7	VIONOR7	1	q		Keep track of who he was with and where he was  	list|1|Never|2|hardly ever|3|sometimes  |4|often |5| almost all the time 
+	VIONOR8	VIONOR8	1	]		Threaten to end the relationship  	list|1|Never|2|hardly ever|3|sometimes  |4|often |5| almost all the time 
+	VIONOR9	VIONOR9	1	[		"When a girl is upset with her boyfriend, how often do you think she might make fun of him in front of others  "	list|1|Never|2|hardly ever|3|sometimes  |4|often |5| almost all the time 
+	VIONOR10	VIONOR10	1	q		Say things just to make him angry  	list|1|Never|2|hardly ever|3|sometimes  |4|often |5| almost all the time 
+	VIONOR11	VIONOR11	1	q		Speak to him in a mean voice  	list|1|Never|2|hardly ever|3|sometimes  |4|often |5| almost all the time 
+	VIONOR12	VIONOR12	1	q		Accuse him of flirting with another girl   	list|1|Never|2|hardly ever|3|sometimes  |4|often |5| almost all the time 
+	VIONOR13	VIONOR13	1	]		Insult him	list|1|Never|2|hardly ever|3|sometimes  |4|often |5| almost all the time 
+	ndvio3	ndvio3	1	[		Now how often do you think a <b>boy</b> might do these things when he is upset with his <b>girlfriend</b>?	nothing
+	VIONOR14	VIONOR14	1	q		Try to talk it out calmly with her.	list|1|Never|2|hardly ever|3|sometimes  |4|often |5| almost all the time 
+	VIONOR15	VIONOR15	1	q		Spread rumors about her  	list|1|Never|2|hardly ever|3|sometimes  |4|often |5| almost all the time 
+	VIONOR16	VIONOR16	1	q		Do something to make her feel jealous  	list|1|Never|2|hardly ever|3|sometimes  |4|often |5| almost all the time 
+	VIONOR17	VIONOR17	1	]		Destroy or threaten to destroy something that means something to her? 	list|1|Never|2|hardly ever|3|sometimes  |4|often |5| almost all the time 
+	ndvio4	ndvio4	1	[		How often do you think a boy might do these things when he is upset with his girlfriend?	nothing
+	VIONOR18	VIONOR18	1	q		Threaten to hurt her  	list|1|Never|2|hardly ever|3|sometimes  |4|often |5| almost all the time 
+	VIONOR19	VIONOR19	1	q		Offer a solution that would make both of them happy.	list|1|Never|2|hardly ever|3|sometimes  |4|often |5| almost all the time 
+	VIONOR20	VIONOR20	1	q		Keep track of who she was with and where she was  	list|1|Never|2|hardly ever|3|sometimes  |4|often |5| almost all the time 
+	VIONOR21	VIONOR21	1	]		Threaten to end the relationship  	list|1|Never|2|hardly ever|3|sometimes  |4|often |5| almost all the time 
+	VIONOR22	VIONOR22	1	[		How often do you think a boy might do these things when he is upset with his girlfriend? Make fun of her in front of others  	list|1|Never|2|hardly ever|3|sometimes  |4|often |5| almost all the time 
+	VIONOR23	VIONOR23	1	q		Say things just to make her angry  	list|1|Never|2|hardly ever|3|sometimes  |4|often |5| almost all the time 
+	VIONOR24	VIONOR24	1	q		Speak to her in a mean voice 	list|1|Never|2|hardly ever|3|sometimes  |4|often |5| almost all the time 
+	VIONOR25	VIONOR25	1	q		Accuse her of flirting with another boy   	list|1|Never|2|hardly ever|3|sometimes  |4|often |5| almost all the time 
+	VIONOR26	VIONOR26	1	q		Insult her	list|1|Never|2|hardly ever|3|sometimes  |4|often |5| almost all the time 
+	Yellowend	Yellowend	1	]		We're finished using the Yellow answer card for now.	nothing
+	VIONOR27	VIONOR27	PEENET2>0	q		"Has any of your female friends hit, kicked, bit, choked, or beat up a boyfriend?"	list|0|No|1|Yes
+	VIONOR28	VIONOR28	1	q		"Out of 10 girls your age in this country, how many girls do you think would hit, kick, bite, choke, or beat up a boyfriend?"	double
+	VION24A	VION24A	PEENET2>0	q		"Has any of your female friends used a knife or gun, or threaten to use a knife or gun on a boyfriend?"	list|0|No|1|Yes
+	VION24B	VION24B	1	q		"Out of 10 girls your age in this country, how many girls do you think would push, slap, shove, or throw something at a boyfriend?"	double
+	VIONOR29	VIONOR29	PEENET2>0	q		"Has any of your female friends pushed, slapped, shoved, or thrown something at a boyfriend?"	list|0|No|1|Yes
+	VIONOR30	VIONOR30	1	q;number;0;10		"Out of 10 girls your age in this country, how many girls do you think would push, slap, shove, or throw something at a boyfriend?"	double
+	ndVionorb	ndVionorb	1	q		Now I am going to ask if a boy would do those things to a girlfriend.	nothing
+	VIONOR31	VIONOR31	PEENET2>0	q		"Has any of your male friends hit, kicked, bit, choked, or beat up a girlfriend?"	list|0|No|1|Yes
+	VIONOR32	VIONOR32	1	q;number;0;10		"Out of 10 boys your age in this country, how many boys do you think would hit, kick, bite, choke, beat up or try to beat up a girlfriend?"	double
+	VIONOR33	VIONOR33	PEENET2>0	q		"Has any of your male friends used a knife or gun, or threatened to use a knife or gun on a girlfriend?"	list|0|No|1|Yes
+	VIONOR34	VIONOR34	1	q;number;0;10		"Out of 10 boys your age in this country, how many boys do you think might use a knife or gun, or threaten to use a knife or gun on a girlfriend?"	double
+	VIONOR35	VIONOR35	PEENET2>0	q		"Has any of your male friends pushed, slapped, shoved, or thrown something at a girlfriend?"	list|0|No|1|Yes
+	VIONOR36	VIONOR36	1	q;number;0;10		"Out of 10 boys your age in this country, how many boys do you think would push, slap, shove, or throw something at a girlfriend?"	double
+	ND52		1	q		Please get out the white answer card and use that scale for the following questions.	nothing
+	ND53	ND53	OPSXDV4==1||OPSXDV4C==1	[		"What would happen if you hurt your `(SEX==1&&OPSXDV1==1)||(SEX==0&&OPSXDV1A==1)?'girlfriend':'boyfriend'`  physically (like if you caused him/her to get bruises, cuts or need to go to the doctor)?  How likely are the following responses on a scale from 1 to 10 (1 = definitely not to 10 definitely would happen). "	nothing
+	VIOSAN1	VIOSAN1	OPSXDV4==1||OPSXDV4C==1	q;number;1;10		How likely is it that `(SEX==1&&OPSXDV1==1)||(SEX==0&&OPSXDV1A==1)?'she':'he'`  would hit you.	double
+	VIOSAN2	VIOSAN2	OPSXDV4==1||OPSXDV4C==1	q;number;1;10		How likely is it that `(SEX==1&&OPSXDV1==1)||(SEX==0&&OPSXDV1A==1)?'she':'he'`  would hurt you physically	double
+	VIOSAN3	VIOSAN3	OPSXDV4==1||OPSXDV4C==1	q;number;1;10		How likely is it that `(SEX==1&&OPSXDV1==1)||(SEX==0&&OPSXDV1A==1)?'she':'he'`  would break up with you	double
+	VIOSAN4	VIOSAN4	OPSXDV4==1||OPSXDV4C==1	q;number;1;10		How likely is it that `(SEX==1&&OPSXDV1==1)||(SEX==0&&OPSXDV1A==1)?'she':'he'`  would tell your friends	double
+	VIOSAN5	VIOSAN5	OPSXDV4==1||OPSXDV4C==1	q;number;1;10		How likely is it that you would be less popular with people your own age.	double
+	VIOSAN6	VIOSAN6	OPSXDV4==1||OPSXDV4C==1	q;number;1;10		How likely is it that you'd get in trouble with your family	double
+	VIOSAN7	VIOSAN7	OPSXDV4==1||OPSXDV4C==1	q;number;1;10		How likely is it that he would call the police	double
+	VIOSAN8	VIOSAN8	(OPSXDV4==1||OPSXDV4C==1)&&GRADE>0	];number;1;10		How likely is it that you would be expelled from school	double
+	ND53a	ND53a	OPSXDV4==1||OPSXDV4C==1	[		"Now, what would happen if your `(SEX==1&&OPSXDV1==1)||(SEX==0&&OPSXDV1A==1)?'girlfriend':'boyfriend'`  physically hurt you (like caused your to get bruises, cuts or need to go to the doctor)?  How likely, on a scale from 1 to 10 (1 = definitely not to 10 definitely would happen) is it that:"	nothing
+	VIOSAN9	VIOSAN9	1	q;number;1;10		How likely is it that you would hit `(SEX==1&&OPSXDV1==1)||(SEX==0&&OPSXDV1A==1)?'her':'him'` .	double
+	VIOSAN10	VIOSAN10	1	q;number;1;10		How likely is it that you would hurt `(SEX==1&&OPSXDV1==1)||(SEX==0&&OPSXDV1A==1)?'her':'him'` physically. 	double
+	VIOSAN11	VIOSAN11	1	q;number;1;10		How likely is it that you would break up with `(SEX==1&&OPSXDV1==1)||(SEX==0&&OPSXDV1A==1)?'her':'him'`.	double
+	VIOSAN12	VIOSAN12	1	q;number;1;10		How likely is it that you would tell `(SEX==1&&OPSXDV1==1)||(SEX==0&&OPSXDV1A==1)?'her':'his'` friends	double
+	VIOSAN13	VIOSAN13	1	q;number;1;10		How likely is it that `(SEX==1&&OPSXDV1==1)||(SEX==0&&OPSXDV1A==1)?'she':'he'` would get in trouble with `(SEX==1&&OPSXDV1==1)||(SEX==0&&OPSXDV1A==1)?'her':'his'` family	double
+	VIOSAN14	VIOSAN14	1	q;number;1;10		How likely is it that `(SEX==1&&OPSXDV1==1)||(SEX==0&&OPSXDV1A==1)?'she':'he'` would be less popular with people `(SEX==1&&OPSXDV1==1)||(SEX==0&&OPSXDV1A==1)?'her':'his'` age.	double
+	VIOSAN15	VIOSAN15	1	q;number;1;10		How likely is it that you would tell the police.	double
+	VIOSAN16	VIOSAN16	1	q;number;1;10		How likely is it that `(SEX==1&&OPSXDV1==1)||(SEX==0&&OPSXDV1A==1)?'she':'he'` would be expelled from school.	double
+	Whiteend	Whiteend	1	]		We're done using the white answer card now.	nothing
+	ndSUBS1	ndSUBS1	1	[		These next questions are about your use of tobacco.	nothing
+	SUBS1	SUBS1	1	]		"Have you EVER tried cigarette smoking, even one or two puffs?"	list|1|yes|0|no
+	SUBS2	SUBS2	SUBS1==1	[		"During the PAST 30 DAYS, on how many days did you smoke cigarettes?"	list|1|0 days|2|1 or 2 days|3|3 to 5 days|4|6 to 9 days|5|10 to 19 days|6|20 to 29 days|7|All 30 days
+	SUBS3	SUBS3	SUBS2>1	q		"During the PAST 30 DAYS, on the days you smoked, how many cigarettes did you smoke per day?"	list|2|Less than 1 cigarette per day|3|1 cigarette per day|4|2 to 5 cigarettes per day|5|6 to 10 cigarettes per day|6|11 to 20 cigarettes per day|7|20 to 29 (1 to 1 1/2 packs)|8|30 to 40 (1 1/2 to 2 packs) |9|More than 40 (over 2 packs) 
+Substance use	SUBS4	SUBS4	SUBS1==1	]		"During the PAST 30 DAYS, on how many days did you smoke tobacco in a pipe, cigars, cigarillos or little cigars?"	list|1|0 days|2|1 or 2 days|3|3 to 5 days|4|6 to 9 days|5|10 to 19 days|6|20 to 29 days|7|All 30 days
+	ndSUBS5	ndSUBS5	1	[		"The next questions are about alcoholic beverages, including beer, wine, wine coolers, and liquor. Do not include wine that you might have had at church. For these questions, a ""drink"" means a glass of wine, a can of beer, a bottle or can of wine cooler, a shot glass of liquor, or a mixed drink."	nothing
+	SUBS5	SUBS5	1	q		How much alcohol have you EVER had in your life?	"list|1|None at all, not even a sip|2|1 or 2 sips, but not a whole drink|3|3 or more sips, but not a whole drink at one time|4|1 to 2 whole drinks|5|3 to 4 whole drinks|6|5 to 10 whole drinks|7|11 to 20 whole drinks|8|More than 20 whole drinks"
+	SUBS6	SUBS6	SUBS5>1	q		"During the PAST 30 DAYS, about how many days did you have 1 or more drinks of alcohol?"	list|1|0 days|2|1 or 2 days|3|3 to 5 days|4|6 to 9 days|5|10 to 19 days|6|20 to 29 days|7|All 30 days
+	SUBS7	SUBS7	SUBS6>1	]		About how much did you usually have when you drank in the PAST 30 DAYS.	list|1|:ess than 1 drink|2|1 drink|3|2 drinks|4|3 drinks|5|4 drinks|6|5 or more drinks
+	ndSUBS8	ndSUBS8	1	[		"The next questions are about your use of marijuana (weed, grass, pot, reefer)."	nothing
+	SUBS8	SUBS8	1	q		"Have you EVER tried smoking marijuana, even one or two puffs?"	list|1|yes|0|no
+	SUBS9	SUBS9	SUBS8==1	q		"During the PAST 30 DAYS, on how many days did you smoke marijuana?"	list|1|0 days|2|1 or 2 days|3|3 to 5 days|4|6 to 9 days|5|10 to 19 days|6|20 to 29 days|7|All 30 days
+	SUBS10	SUBS10	SUBS8==1	]		Have you smoked marijuana during the LAST YEAR?	list|1|yes|0|no
+	ndPARSUP	ndPARSUP	1	[		"These next questions ask about your relationship to your mother [OR OTHER CARETAKER]. Please use the lavender answer card and say whether each statement is False, Somewhat false,Somewhat true, or True."	nothing
+	PARSUP1c	PARSUP1c	1	q		My mother [OTHER CARETAKER] is easy for me to talk to.	list|0|False|1|Somewhat false|2|Somewhat true|4|True
+	PARSUP2c	PARSUP2c	1	q		My mother [OTHER CARETAKER] prefers to let me make my own choices and do what I want to as much as possible.	list|0|False|1|Somewhat false|2|Somewhat true|4|True
+	PARSUP3c	PARSUP3c	1	q		My mother [OTHER CARETAKER] encourages me to tell her how I really feel about things.	list|0|False|1|Somewhat false|2|Somewhat true|4|True
+	PARSUP4c	PARSUP4c	1	q		My mother [OTHER CARETAKER] likes to take me with her when she goes out.	list|0|False|1|Somewhat false|2|Somewhat true|4|True
+	PARSUP5c	PARSUP5c	1	]		My mother [OTHER CARETAKER]often tell me that she loves me.	list|0|False|1|Somewhat false|2|Somewhat true|4|True
+	PARSUP6c	PARSUP6c	1	[		I am aware that my mother [OTHER CARETAKER] has strict standards for my behavior.	list|0|False|1|Somewhat false|2|Somewhat true|4|True
+	PARSUP7c	PARSUP7c	1	q		My mother [OTHER CARETAKER] gets very angry when I don't obey her.	list|0|False|1|Somewhat false|2|Somewhat true|4|True
+	PARSUP8c	PARSUP8c	1	q		My mother [OTHER CARETAKER] spends a lot of time caring for me when I am sick.	list|0|False|1|Somewhat false|2|Somewhat true|4|True
+	PARSUP9c	PARSUP9c	1	q		My mother [OTHER CARETAKER] tells me that she will hit or spank me if I do something she doesn't like.	list|0|False|1|Somewhat false|2|Somewhat true|4|True
+	PARSUP10c	PARSUP10c	1	q		My mother [OTHER CARETAKER] knows my best friends and their parents.	list|0|False|1|Somewhat false|2|Somewhat true|4|True
+	PARSUP11c	PARSUP11c	1	]		My mother [OTHER CARETAKER] often reads to me or helps me with my projects or homework.	list|0|False|1|Somewhat false|2|Somewhat true|4|True
+	PARSUP12c	PARSUP12c	1	[		My mother [OTHER CARETAKER] often tells me that she expects me to be good and to always do the best I can.	list|0|False|1|Somewhat false|2|Somewhat true|4|True
+	PARSUP13c	PARSUP13c	1	q		I often sit with my mother [OTHER CARETAKER] when she is watching TV.	list|0|False|1|Somewhat false|2|Somewhat true|4|True
+	PARSUP14c	PARSUP14c	1	q		My mother [OTHER CARETAKER] tries to make me understand that I should obey her because she is my mother.	list|0|False|1|Somewhat false|2|Somewhat true|4|True
+	PARSUP15c	PARSUP15c	1	q		My mother [OTHER CARETAKER] always knows where I am and who I am spending time with.	list|0|False|1|Somewhat false|2|Somewhat true|4|True
+	PARSUP16c	PARSUP16c	1	q		My mother [OTHER CARETAKER] often has problems getting me to obey her instructions or do what she says.	list|0|False|1|Somewhat false|2|Somewhat true|4|True
+	PARSUP17c	PARSUP17c	1	]		My mother [OTHER CARETAKER] hugs or kisses me often.	list|0|False|1|Somewhat false|2|Somewhat true|4|True
+	PARSUP18c	PARSUP18c	1	[		My mother [OTHER CARETAKER] makes it very clear that she expects me to be kind and polite to other people.	list|0|False|1|Somewhat false|2|Somewhat true|4|True
+	PARSUP19c	PARSUP19c	1	q		My mother [OTHER CARETAKER] often criticizes and corrects me.	list|0|False|1|Somewhat false|2|Somewhat true|4|True
+	PARSUP20c	PARSUP20c	1	q		My mother [OTHER CARETAKER] gives me a lot of praise and encouragement.	list|0|False|1|Somewhat false|2|Somewhat true|4|True
+	PARSUP21c	PARSUP21c	1	q		My mother [OTHER CARETAKER] and I sometimes get into bad arguments that she just lets me win.	list|0|False|1|Somewhat false|2|Somewhat true|4|True
+	PARSUP22c	PARSUP22c	1	q		My mother [OTHER CARETAKER] does things with me that we both enjoy almost every day.	list|0|False|1|Somewhat false|2|Somewhat true|4|True
+	PARSUP23c	PARSUP23c	1	q		My mother [OTHER CARETAKER] tends to push me to be as independent as possible.	list|0|False|1|Somewhat false|2|Somewhat true|4|True
+	PARSUP24c	PARSUP24c	1	q		My mother [OTHER CARETAKER] has had times when she lost control and I thought she might hit me.	list|0|False|1|Somewhat false|2|Somewhat true|4|True
+	PARSUP25c	PARSUP25c	1	q		My mother [OTHER CARETAKER] watches children's TV shows with me.	list|0|False|1|Somewhat false|2|Somewhat true|4|True
+	PARSUP26c	PARSUP26c	1	q		I sometimes see my mother [OTHER CARETAKER] fighting physically with someone else in the household.	list|0|False|1|Somewhat false|2|Somewhat true|4|True
+	Lavend	Lavend	1	]		We're done using the lavender answer card now.	nothing
+	Pink	Pink	AGE<18	[		You will need the pink answer card for the next questions.	nothing
+	NYCRSintro	NYCRSintro	AGE<18	q		"Please rate your current behavior over the past four weeks. (GIVE SOME DATE, like, ""SINCE THE END OF JULY."")"	nothing
+	NYCRS1	NYCRS1	AGE<18	q		"Defiant (disobedient, refuses to follow rules or instructions)"	list|0|Not at all|1|Just a little|2|Pretty much|3|Very much
+	NYCRS2	NYCRS2	AGE<18	q		Angry	list|0|Not at all|1|Just a little|2|Pretty much|3|Very much
+	NYCRS3	NYCRS3	AGE<18	q		"Argue, quarrel with adults"	list|0|Not at all|1|Just a little|2|Pretty much|3|Very much
+	NYCRS4	NYCRS4	AGE<18	q		"Act ""smart"" (impudent or sassy) (disrespectful, mouthy, rude)"	list|0|Not at all|1|Just a little|2|Pretty much|3|Very much
+	NYCRS5	NYCRS5	AGE<18	]		"Spiteful, vindictive (tries to take revenge on people when angry at them)"	list|0|Not at all|1|Just a little|2|Pretty much|3|Very much
+	NYCRS6	NYCRS6	AGE<18	[		Lose temper	list|0|Not at all|1|Just a little|2|Pretty much|3|Very much
+	NYCRS7	NYCRS7	AGE<18	q		"Disobedient, difficult to control"	list|0|Not at all|1|Just a little|2|Pretty much|3|Very much
+	NYCRS8	NYCRS8	AGE<18	q		"Try to dominate others; bully, threaten"	list|0|Not at all|1|Just a little|2|Pretty much|3|Very much
+	NYCRS9	NYCRS9	AGE<18	q		Easily annoyed by others	list|0|Not at all|1|Just a little|2|Pretty much|3|Very much
+	NYCRS10	NYCRS10	AGE<18	q		Blame others; deny own mistakes	list|0|Not at all|1|Just a little|2|Pretty much|3|Very much
+	NYCRS11	NYCRS11	AGE<18	]		Deliberately annoy others	list|0|Not at all|1|Just a little|2|Pretty much|3|Very much
+	NYCRS12	NYCRS12	AGE<18	[		Lie	list|0|Not at all|1|Just a little|2|Pretty much|3|Very much
+	NYCRS13	NYCRS13	AGE<18	q		Break rules at home	list|0|Not at all|1|Just a little|2|Pretty much|3|Very much
+	NYCRS14	NYCRS14	AGE<18	q		Destroy or deface property	list|0|Not at all|1|Just a little|2|Pretty much|3|Very much
+	NYCRS15	NYCRS15	AGE<18	q		"Act violently to other children or adults (hit, push, etc.)"	list|0|Not at all|1|Just a little|2|Pretty much|3|Very much
+	NYCRS16	NYCRS16	AGE<18	q		Start physical fights	list|0|Not at all|1|Just a little|2|Pretty much|3|Very much
+	NYCRS17	NYCRS17	AGE<18	]		Get involved in physical fights with peers	list|0|Not at all|1|Just a little|2|Pretty much|3|Very much
+	NYCRS18	NYCRS18	AGE<18	[		Physically cruel	list|0|Not at all|1|Just a little|2|Pretty much|3|Very much
+	NYCRS19	NYCRS19	AGE<18	q		Assault others	list|0|Not at all|1|Just a little|2|Pretty much|3|Very much
+	NYCRS20	NYCRS20	AGE<18	q		Carry a knife or other weapon	list|0|Not at all|1|Just a little|2|Pretty much|3|Very much
+	NYCRS21	NYCRS21	AGE<18	q		"Used a knife, or other weapon, in a fight"	list|0|Not at all|1|Just a little|2|Pretty much|3|Very much
+	NYCRS22	NYCRS22	AGE<18	q		Mugged someone	list|0|Not at all|1|Just a little|2|Pretty much|3|Very much
+	NYCRS23	NYCRS23	AGE<18	]		Sexual misbehavior (not masturbation)	list|0|Not at all|1|Just a little|2|Pretty much|3|Very much
+	NYCRS24	NYCRS24	AGE<18	[		Steal on the sly	list|0|Not at all|1|Just a little|2|Pretty much|3|Very much
+	NYCRS25	NYCRS25	AGE<18	q		Shake down others for money or other belongings	list|0|Not at all|1|Just a little|2|Pretty much|3|Very much
+	NYCRS26	NYCRS26	AGE<18	q		Late to school or class	list|0|Not at all|1|Just a little|2|Pretty much|3|Very much
+	NYCRS27	NYCRS27	AGE<18	q		Truant (skip school or classes)	list|0|Not at all|1|Just a little|2|Pretty much|3|Very much
+	NYCRS28	NYCRS28	AGE<18	q		Run away from home during the day	list|0|Not at all|1|Just a little|2|Pretty much|3|Very much
+	NYCRS29	NYCRS29	AGE<18	]		Run away from home overnight	list|0|Not at all|1|Just a little|2|Pretty much|3|Very much
+	NYCRS30	NYCRS30	AGE<18	[		Steal from parents or siblings when they are not around	list|0|Not at all|1|Just a little|2|Pretty much|3|Very much
+	NYCRS31	NYCRS31	AGE<18	q		Set fires	list|0|Not at all|1|Just a little|2|Pretty much|3|Very much
+	NYCRS32	NYCRS32	AGE<18	q		Cheat at games	list|0|Not at all|1|Just a little|2|Pretty much|3|Very much
+	NYCRS33	NYCRS33	AGE<18	q		Deliberately hurt animals	list|0|Not at all|1|Just a little|2|Pretty much|3|Very much
+	NYCRS34	NYCRS34	AGE<18	q		"Used obscene language (swearing, cursing)"	list|0|Not at all|1|Just a little|2|Pretty much|3|Very much
+	NYCRS35	NYCRS35	AGE<18	]		"Broken into buildings, houses or cars"	list|0|Not at all|1|Just a little|2|Pretty much|3|Very much
+	NYCRS36	NYCRS36	AGE<18	[		"Had bad companions, ones who get in trouble"	list|0|Not at all|1|Just a little|2|Pretty much|3|Very much
+	NYCRS37	NYCRS37	AGE<18	q		Involved with police	list|0|Not at all|1|Just a little|2|Pretty much|3|Very much
+	NYCRS38	NYCRS38	AGE<18	q		Used alcohol	list|0|Not at all|1|Just a little|2|Pretty much|3|Very much
+	NYCRS39	NYCRS39	AGE<18	q		Used drugs	list|0|Not at all|1|Just a little|2|Pretty much|3|Very much
+	NYCRS40	NYCRS40	AGE<18	q		"Had school, peer, or family problems due to drugs or alcohol"	list|0|Not at all|1|Just a little|2|Pretty much|3|Very much
+	NYCRS41	NYCRS41	AGE<18	]		Others like to play or hang out with you	list|0|Not at all|1|Just a little|2|Pretty much|3|Very much
+	NYCRS42	NYCRS42	AGE<18	[		Peers seek your company	list|0|Not at all|1|Just a little|2|Pretty much|3|Very much
+	NYCRS43	NYCRS43	AGE<18	q		Are liked by your peers	list|0|Not at all|1|Just a little|2|Pretty much|3|Very much
+	NYCRS44	NYCRS44	AGE<18	q		Helpful to others	list|0|Not at all|1|Just a little|2|Pretty much|3|Very much
+	NYCRS45	NYCRS45	AGE<18	q		Have at least one good friend	list|0|Not at all|1|Just a little|2|Pretty much|3|Very much
+	NYCRS46	NYCRS46	AGE<18	q		Are considerate with friends/companions	list|0|Not at all|1|Just a little|2|Pretty much|3|Very much
+	NYCRS47	NYCRS47	AGE<18	]		Show remorse when you do something wrong	list|0|Not at all|1|Just a little|2|Pretty much|3|Very much
+	T_F1	T_F1	AGE>=12 && AGE < 18	[		"For the next section, please say whether the statements I read are true or false about you."	nothing
+	BASCa1	BASCa1	AGE>=12 && AGE < 18	q		I am good at making new friends.	list|1|True|2|False
+	BASCa2	BASCa2	AGE>=12 && AGE < 18	q		I can't seem to control what happens to me.	list|1|True|2|False
+	BASCa3	BASCa3	AGE>=12 && AGE < 18	q		I don't like thinking about school.	list|1|True|2|False
+	BASCa4	BASCa4	AGE>=12 && AGE < 18	q		I like who I am.	list|1|True|2|False
+	BASCa5	BASCa5	AGE>=12 && AGE < 18	q		I am afraid of a lot of things.	list|1|True|2|False
+	BASCa6	BASCa6	AGE>=12 && AGE < 18	]		I like to argue.	list|1|True|2|False
+	BASCa7	BASCa7	AGE>=12 && AGE < 18	[		I don't seem to do anything right.	list|1|True|2|False
+	BASCa8	BASCa8	AGE>=12 && AGE < 18	q		People act as if they don't hear me.	list|1|True|2|False
+	BASCa9	BASCa9	AGE>=12 && AGE < 18	q		I always go to bed on time.	list|1|True|2|False
+	BASCa10	BASCa10	AGE>=12 && AGE < 18	q		I am an important person in my family.	list|1|True|2|False
+	BASCa11	BASCa11	AGE>=12 && AGE < 18	q		Someone wants to hurt me.	list|1|True|2|False
+	BASCa12	BASCa12	AGE>=12 && AGE < 18	]		Teachers are good people.	list|1|True|2|False
+	BASCa13	BASCa13	AGE>=12 && AGE < 18	[		Stealing something from a store is exciting.	list|1|True|2|False
+	BASCa14	BASCa14	AGE>=12 && AGE < 18	q		I never quite reach my goal.	list|1|True|2|False
+	BASCa15	BASCa15	AGE>=12 && AGE < 18	q		I am a healthy person.	list|1|True|2|False
+	BASCa16	BASCa16	AGE>=12 && AGE < 18	q		I am a likable person.	list|1|True|2|False
+	BASCa17	BASCa17	AGE>=12 && AGE < 18	q		My parents expect too much from me.	list|1|True|2|False
+	BASCa18	BASCa18	AGE>=12 && AGE < 18	]		School is a waste of time.	list|1|True|2|False
+	BASCa19	BASCa19	AGE>=12 && AGE < 18	[		I worry about what other people think about me.	list|1|True|2|False
+	BASCa20	BASCa20	AGE>=12 && AGE < 18	q		I like it when my friends dare me to do something.	list|1|True|2|False
+	BASCa21	BASCa21	AGE>=12 && AGE < 18	q		No one understands me.	list|1|True|2|False
+	BASCa22	BASCa22	AGE>=12 && AGE < 18	q		"Sometimes I feel lonely, even when there are people with me."	list|1|True|2|False
+	BASCa23	BASCa23	AGE>=12 && AGE < 18	q		I like everyone I meet.	list|1|True|2|False
+	BASCa24	BASCa24	AGE>=12 && AGE < 18	]		I hear voices in my head.	list|1|True|2|False
+	BASCa25	BASCa25	AGE>=12 && AGE < 18	[		My teacher understands me.	list|1|True|2|False
+	BASCa26	BASCa26	AGE>=12 && AGE < 18	q		I have not seen a car in at least six months.	list|1|True|2|False
+	BASCa27	BASCa27	AGE>=12 && AGE < 18	q		"When I take tests, I can't think."	list|1|True|2|False
+	BASCa28	BASCa28	AGE>=12 && AGE < 18	q		I have fainting spells.	list|1|True|2|False
+	BASCa29	BASCa29	AGE>=12 && AGE < 18	q		Little things bother me a lot.	list|1|True|2|False
+	BASCa30	BASCa30	AGE>=12 && AGE < 18	]		I have been in the principal's office at least five times.	list|1|True|2|False
+	BASCa31	BASCa31	AGE>=12 && AGE < 18	[		I am good at making decisions.	list|1|True|2|False
+	BASCa32	BASCa32	AGE>=12 && AGE < 18	q		I need help to get along with others.	list|1|True|2|False
+	BASCa33	BASCa33	AGE>=12 && AGE < 18	q		My parents blame too many of their problems on me.	list|1|True|2|False
+	BASCa34	BASCa34	AGE>=12 && AGE < 18	q		I wish there were no report cards.	list|1|True|2|False
+	BASCa35	BASCa35	AGE>=12 && AGE < 18	q		My looks bother me.	list|1|True|2|False
+	BASCa36	BASCa36	AGE>=12 && AGE < 18	]		My feelings get hurt easily.	list|1|True|2|False
+	BASCa37	BASCa37	AGE>=12 && AGE < 18	[		I like to be scared.	list|1|True|2|False
+	BASCa38	BASCa38	AGE>=12 && AGE < 18	q		I just don't care anymore.	list|1|True|2|False
+	BASCa39	BASCa39	AGE>=12 && AGE < 18	q		Other people are against me.	list|1|True|2|False
+	BASCa40	BASCa40	AGE>=12 && AGE < 18	q		I always do homework on time.	list|1|True|2|False
+	BASCa41	BASCa41	AGE>=12 && AGE < 18	q		My mother and father help me if I ask them to.	list|1|True|2|False
+	BASCa42	BASCa42	AGE>=12 && AGE < 18	]		Sometimes I want to hurt myself.	list|1|True|2|False
+	BASCa43	BASCa43	AGE>=12 && AGE < 18	[		My teachers want too much.	list|1|True|2|False
+	BASCa44	BASCa44	AGE>=12 && AGE < 18	q		The local newpaper has a story about me almost every day.	list|1|True|2|False
+	BASCa45	BASCa45	AGE>=12 && AGE < 18	q		I don't like other people to know my grades.	list|1|True|2|False
+	BASCa46	BASCa46	AGE>=12 && AGE < 18	q		I am afraid I have cancer.	list|1|True|2|False
+	BASCa47	BASCa47	AGE>=12 && AGE < 18	q		Others have respect for me.	list|1|True|2|False
+	BASCa48	BASCa48	AGE>=12 && AGE < 18	]		My parents control my life.	list|1|True|2|False
+	BASCa49	BASCa49	AGE>=12 && AGE < 18	[		I hate school.	list|1|True|2|False
+	BASCa50	BASCa50	AGE>=12 && AGE < 18	q		I worry about little things.	list|1|True|2|False
+	BASCa51	BASCa51	AGE>=12 && AGE < 18	q		I like to play rough sports.	list|1|True|2|False
+	BASCa52	BASCa52	AGE>=12 && AGE < 18	q		I think I am dumb next to my friends.	list|1|True|2|False
+	BASCa53	BASCa53	AGE>=12 && AGE < 18	q		I am left out of things.	list|1|True|2|False
+	BASCa54	BASCa54	AGE>=12 && AGE < 18	]		I get mad at my parents sometimes.	list|1|True|2|False
+	BASCa55	BASCa55	AGE>=12 && AGE < 18	[		Sometimes I do things over and over and can't stop.	list|1|True|2|False
+	BASCa56	BASCa56	AGE>=12 && AGE < 18	q		My teacher is always telling me what to do.	list|1|True|2|False
+	BASCa57	BASCa57	AGE>=12 && AGE < 18	q		What I want never seems to matter.	list|1|True|2|False
+	BASCa58	BASCa58	AGE>=12 && AGE < 18	q		I usually fail.	list|1|True|2|False
+	BASCa59	BASCa59	AGE>=12 && AGE < 18	q		Other people are healthier than I am.	list|1|True|2|False
+	BASCa60	BASCa60	AGE>=12 && AGE < 18	]		I worry about what is going to happen.	list|1|True|2|False
+	BASCa61	BASCa61	AGE>=12 && AGE < 18	[		I see weird things.	list|1|True|2|False
+	BASCa62	BASCa62	AGE>=12 && AGE < 18	q		I am good at showing others how to do things.	list|1|True|2|False
+	BASCa63	BASCa63	AGE>=12 && AGE < 18	q		People think I am fun to be with.	list|1|True|2|False
+	BASCa64	BASCa64	AGE>=12 && AGE < 18	q		I can't cope with all my responsibilities at home.	list|1|True|2|False
+	BASCa65	BASCa65	AGE>=12 && AGE < 18	q		I don't care about school.	list|1|True|2|False
+	BASCa66	BASCa66	AGE>=12 && AGE < 18	]		I wish I were someone else.	list|1|True|2|False
+	BASCa67	BASCa67	AGE>=12 && AGE < 18	[		"I am afaid of being ""put down"" by a teacher."	list|1|True|2|False
+	BASCa68	BASCa68	AGE>=12 && AGE < 18	q		I would rather work for the FBI than be a teacher.	list|1|True|2|False
+	BASCa69	BASCa69	AGE>=12 && AGE < 18	q		I never have anything to do that is really fun.	list|1|True|2|False
+	BASCa70	BASCa70	AGE>=12 && AGE < 18	q		Sometimes I feel as if I am invisible.	list|1|True|2|False
+	BASCa71	BASCa71	AGE>=12 && AGE < 18	q		My social life is just perfect.	list|1|True|2|False
+	BASCa72	BASCa72	AGE>=12 && AGE < 18	]		My parents trust me.	list|1|True|2|False
+	BASCa73	BASCa73	AGE>=12 && AGE < 18	[		I itch on the inside.	list|1|True|2|False
+	BASCa74	BASCa74	AGE>=12 && AGE < 18	q		Most teachers are unfair.	list|1|True|2|False
+	BASCa75	BASCa75	AGE>=12 && AGE < 18	q		Superman is a real person.	list|1|True|2|False
+	BASCa76	BASCa76	AGE>=12 && AGE < 18	q		"I want to do better, but I can't."	list|1|True|2|False
+	BASCa77	BASCa77	AGE>=12 && AGE < 18	q		I often have headaches.	list|1|True|2|False
+	BASCa78	BASCa78	AGE>=12 && AGE < 18	]		I enjoy making new friends.	list|1|True|2|False
+	BASCa79	BASCa79	AGE>=12 && AGE < 18	[		I am blamed for a lot of things I don't do.	list|1|True|2|False
+	BASCa80	BASCa80	AGE>=12 && AGE < 18	q		My school feels good to me.	list|1|True|2|False
+	BASCa81	BASCa81	AGE>=12 && AGE < 18	q		I have trouble making up my mind.	list|1|True|2|False
+	BASCa82	BASCa82	AGE>=12 && AGE < 18	q		I love thunderstorms.	list|1|True|2|False
+	BASCa83	BASCa83	AGE>=12 && AGE < 18	q		Nothing goes my way.	list|1|True|2|False
+	BASCa84	BASCa84	AGE>=12 && AGE < 18	]		"I feel really ""stressed out."""	list|1|True|2|False
+	BASCa85	BASCa85	AGE>=12 && AGE < 18	[		I always think before I act.	list|1|True|2|False
+	BASCa86	BASCa86	AGE>=12 && AGE < 18	q		"When I am angry, I throw things."	list|1|True|2|False
+	BASCa87	BASCa87	AGE>=12 && AGE < 18	q		Most teachers are lazy.	list|1|True|2|False
+	BASCa88	BASCa88	AGE>=12 && AGE < 18	q		People say bad things to me.	list|1|True|2|False
+	BASCa89	BASCa89	AGE>=12 && AGE < 18	q		Tests are not fair to most people.	list|1|True|2|False
+	BASCa90	BASCa90	AGE>=12 && AGE < 18	]		Sometimes my ears hurt for no reason.	list|1|True|2|False
+	BASCa91	BASCa91	AGE>=12 && AGE < 18	[		My classmates don't like me.	list|1|True|2|False
+	BASCa92	BASCa92	AGE>=12 && AGE < 18	q		I go from happy to mad very fast.	list|1|True|2|False
+	BASCa93	BASCa93	AGE>=12 && AGE < 18	q		I am dependable.	list|1|True|2|False
+	BASCa94	BASCa94	AGE>=12 && AGE < 18	q		I feel close to others.	list|1|True|2|False
+	BASCa95	BASCa95	AGE>=12 && AGE < 18	q		"People get mad at me, even when I don't do anything wrong."	list|1|True|2|False
+	BASCa96	BASCa96	AGE>=12 && AGE < 18	]		I can hardly wait to quit school.	list|1|True|2|False
+	BASCa97	BASCa97	AGE>=12 && AGE < 18	[		I get upset about my looks.	list|1|True|2|False
+	BASCa98	BASCa98	AGE>=12 && AGE < 18	q		I worry a lot of the time.	list|1|True|2|False
+	BASCa99	BASCa99	AGE>=12 && AGE < 18	q		I like motorcycles.	list|1|True|2|False
+	BASCa100	BASCa100	AGE>=12 && AGE < 18	q		Nothing about me is right.	list|1|True|2|False
+	BASCa101	BASCa101	AGE>=12 && AGE < 18	q		I feel that others do not like the way I do things.	list|1|True|2|False
+	BASCa102	BASCa102	AGE>=12 && AGE < 18	]		I feel bad when people criticize me.	list|1|True|2|False
+	BASCa103	BASCa103	AGE>=12 && AGE < 18	[		My parents are often proud of me.	list|1|True|2|False
+	BASCa104	BASCa104	AGE>=12 && AGE < 18	q		My skin feels funny sometimes.	list|1|True|2|False
+	BASCa105	BASCa105	AGE>=12 && AGE < 18	q		Teachers mostly look for the bad things that you do.	list|1|True|2|False
+	BASCa106	BASCa106	AGE>=12 && AGE < 18	q		Nothing ever goes right for me.	list|1|True|2|False
+	BASCa107	BASCa107	AGE>=12 && AGE < 18	q		I am always disappointed with my grades.	list|1|True|2|False
+	BASCa108	BASCa108	AGE>=12 && AGE < 18	]		My stomach gets upset more than most people.	list|1|True|2|False
+	BASCa109	BASCa109	AGE>=12 && AGE < 18	[		I am liked by others.	list|1|True|2|False
+	BASCa110	BASCa110	AGE>=12 && AGE < 18	q		I can't stop myself from making mistakes.	list|1|True|2|False
+	BASCa111	BASCa111	AGE>=12 && AGE < 18	q		Finishing my work is important to me.	list|1|True|2|False
+	BASCa112	BASCa112	AGE>=12 && AGE < 18	q		I feel guilty about things.	list|1|True|2|False
+	BASCa113	BASCa113	AGE>=12 && AGE < 18	q		I like to ride in a car that is going fast.	list|1|True|2|False
+	BASCa114	BASCa114	AGE>=12 && AGE < 18	]		Nobody ever listens to me.	list|1|True|2|False
+	BASCa115	BASCa115	AGE>=12 && AGE < 18	[		I am lonely.	list|1|True|2|False
+	BASCa116	BASCa116	AGE>=12 && AGE < 18	q		I sometimes get mad.	list|1|True|2|False
+	BASCa117	BASCa117	AGE>=12 && AGE < 18	q		I cannot control by thoughts.	list|1|True|2|False
+	BASCa118	BASCa118	AGE>=12 && AGE < 18	q		I hide my work when the teacher walks by.	list|1|True|2|False
+	BASCa119	BASCa119	AGE>=12 && AGE < 18	q		My parents are always right.	list|1|True|2|False
+	BASCa120	BASCa120	AGE>=12 && AGE < 18	]		"When you fail at something, give up and go on to something else."	list|1|True|2|False
+	BASCa121	BASCa121	AGE>=12 && AGE < 18	[		Often I feel sick in my stomach.	list|1|True|2|False
+	BASCa122	BASCa122	AGE>=12 && AGE < 18	q		Other kids hate to be with me.	list|1|True|2|False
+	BASCa123	BASCa123	AGE>=12 && AGE < 18	q		"Sometimes, when alone, I hear my name."	list|1|True|2|False
+	BASCa124	BASCa124	AGE>=12 && AGE < 18	q		I like to make decisions on my own.	list|1|True|2|False
+	BASCa125	BASCa125	AGE>=12 && AGE < 18	q		People like me because I am easy to talk to.	list|1|True|2|False
+	BASCa126	BASCa126	AGE>=12 && AGE < 18	]		People expect too much from me.	list|1|True|2|False
+	BASCa127	BASCa127	AGE>=12 && AGE < 18	[		I get bored in school.	list|1|True|2|False
+	BASCa128	BASCa128	AGE>=12 && AGE < 18	q		I like the way I look.	list|1|True|2|False
+	BASCa129	BASCa129	AGE>=12 && AGE < 18	q		I often worry about something bad happening to me.	list|1|True|2|False
+	BASCa130	BASCa130	AGE>=12 && AGE < 18	q		I like loud music.	list|1|True|2|False
+	BASCa131	BASCa131	AGE>=12 && AGE < 18	q		Life is getting worse and worse.	list|1|True|2|False
+	BASCa132	BASCa132	AGE>=12 && AGE < 18	]		Other children are happier than I am.	list|1|True|2|False
+	BASCa133	BASCa133	AGE>=12 && AGE < 18	[		I tell the truth every single time.	list|1|True|2|False
+	BASCa134	BASCa134	AGE>=12 && AGE < 18	q		My parents listen to what I say.	list|1|True|2|False
+	BASCa135	BASCa135	AGE>=12 && AGE < 18	q		I have many accidents.	list|1|True|2|False
+	BASCa136	BASCa136	AGE>=12 && AGE < 18	q		My teacher cares about me.	list|1|True|2|False
+	BASCa137	BASCa137	AGE>=12 && AGE < 18	q		I take a plane trip from New York to Chicago at least twice a week.	list|1|True|2|False
+	BASCa138	BASCa138	AGE>=12 && AGE < 18	]		I do not like to be called on in class.	list|1|True|2|False
+	BASCa139	BASCa139	AGE>=12 && AGE < 18	[		Sore throats are a common problem of mine.	list|1|True|2|False
+	BASCa140	BASCa140	AGE>=12 && AGE < 18	q		I enjoy meeting others.	list|1|True|2|False
+	BASCa141	BASCa141	AGE>=12 && AGE < 18	q		I get blamed for things I can't help.	list|1|True|2|False
+	BASCa142	BASCa142	AGE>=12 && AGE < 18	q		I am nice looking.	list|1|True|2|False
+	BASCa143	BASCa143	AGE>=12 && AGE < 18	q		I am nervous.	list|1|True|2|False
+	BASCa144	BASCa144	AGE>=12 && AGE < 18	]		I like to take chances.	list|1|True|2|False
+	BASCa145	BASCa145	AGE>=12 && AGE < 18	[		Adults have a better life than I do.	list|1|True|2|False
+	BASCa146	BASCa146	AGE>=12 && AGE < 18	q		I feel out of place around people.	list|1|True|2|False
+	BASCa147	BASCa147	AGE>=12 && AGE < 18	q		I always do what my parents tell me.	list|1|True|2|False
+	BASCa148	BASCa148	AGE>=12 && AGE < 18	q		I like to make up strange stories.	list|1|True|2|False
+	BASCa149	BASCa149	AGE>=12 && AGE < 18	q		My mother and father like my friends.	list|1|True|2|False
+	BASCa150	BASCa150	AGE>=12 && AGE < 18	]		I am sometimes jealous.	list|1|True|2|False
+	BASCa151	BASCa151	AGE>=12 && AGE < 18	[		I am seldom happy with my efforts at school.	list|1|True|2|False
+	BASCa152	BASCa152	AGE>=12 && AGE < 18	q		I think I have heart trouble.	list|1|True|2|False
+	BASCa153	BASCa153	AGE>=12 && AGE < 18	q		Nobody likes me.	list|1|True|2|False
+	BASCa154	BASCa154	AGE>=12 && AGE < 18	q		Sometimes voices tell me to do bad things.	list|1|True|2|False
+	BASCa155	BASCa155	AGE>=12 && AGE < 18	q		When I am wrong I can change things to be right again.	list|1|True|2|False
+	BASCa156	BASCa156	AGE>=12 && AGE < 18	]		My friends are usually kind to me.	list|1|True|2|False
+	BASCa157	BASCa157	AGE>=12 && AGE < 18	[		Bad things just happen.	list|1|True|2|False
+	BASCa158	BASCa158	AGE>=12 && AGE < 18	q		School is boring.	list|1|True|2|False
+	BASCa159	BASCa159	AGE>=12 && AGE < 18	q		I wish I were different.	list|1|True|2|False
+	BASCa160	BASCa160	AGE>=12 && AGE < 18	q		I get nervous when things do not go the right way for me.	list|1|True|2|False
+	BASCa161	BASCa161	AGE>=12 && AGE < 18	q		I get into fights at school.	list|1|True|2|False
+	BASCa162	BASCa162	AGE>=12 && AGE < 18	]		I am good at only one or two things.	list|1|True|2|False
+	BASCa163	BASCa163	AGE>=12 && AGE < 18	[		Other people always find things wrong with me.	list|1|True|2|False
+	BASCa164	BASCa164	AGE>=12 && AGE < 18	q		I am the most popular person in town.	list|1|True|2|False
+	BASCa165	BASCa165	AGE>=12 && AGE < 18	q		I help make decisions at home.	list|1|True|2|False
+	BASCa166	BASCa166	AGE>=12 && AGE < 18	q		I often have bad dreams.	list|1|True|2|False
+	BASCa167	BASCa167	AGE>=12 && AGE < 18	q		My teacher is often proud of me.	list|1|True|2|False
+	BASCa168	BASCa168	AGE>=12 && AGE < 18	]		Television does not really exist.	list|1|True|2|False
+	BASCa169	BASCa169	AGE>=12 && AGE < 18	[		I quit easily.	list|1|True|2|False
+	BASCa170	BASCa170	AGE>=12 && AGE < 18	q		I have trouble swallowing my food.	list|1|True|2|False
+	BASCa171	BASCa171	AGE>=12 && AGE < 18	q		I am slow to make new friends.	list|1|True|2|False
+	BASCa172	BASCa172	AGE>=12 && AGE < 18	q		My parents are always telling me what to do.	list|1|True|2|False
+	BASCa173	BASCa173	AGE>=12 && AGE < 18	q		I have nice hair.	list|1|True|2|False
+	BASCa174	BASCa174	AGE>=12 && AGE < 18	]		I worry when I go to bed at night.	list|1|True|2|False
+	BASCa175	BASCa175	AGE>=12 && AGE < 18	[		I think it would be exciting to steal things.	list|1|True|2|False
+	BASCa176	BASCa176	AGE>=12 && AGE < 18	q		I always have bad luck.	list|1|True|2|False
+	BASCa177	BASCa177	AGE>=12 && AGE < 18	q		My friends have more fun that I do.	list|1|True|2|False
+	BASCa178	BASCa178	AGE>=12 && AGE < 18	q		I have some bad habits.	list|1|True|2|False
+	BASCa179	BASCa179	AGE>=12 && AGE < 18	q		I still have fits of temper.	list|1|True|2|False
+	BASCa180	BASCa180	AGE>=12 && AGE < 18	]		I like to be close to my parents.	list|1|True|2|False
+	BASCa181	BASCa181	AGE>=12 && AGE < 18	[		I have just returned from a nine-month trip on an ocean liner.	list|1|True|2|False
+	BASCa182	BASCa182	AGE>=12 && AGE < 18	q		I often get sick before tests.	list|1|True|2|False
+	BASCa183	BASCa183	AGE>=12 && AGE < 18	q		I am a dependable friend.	list|1|True|2|False
+	BASCa184	BASCa184	AGE>=12 && AGE < 18	q		Other children don't like to be with me.	list|1|True|2|False
+	BASCa185	BASCa185	AGE>=12 && AGE < 18	q		I cannot stop myself from doing bad things.	list|1|True|2|False
+	BASCa186	BASCa186	AGE>=12 && AGE < 18	]		I am somone you can rely on.	list|1|True|2|False
+	T_F2	T_F2	AGE<12	[		"For the next section, please say whether the statements I read are true or false about you."	nothing
+	BASCc1	BASCc1	AGE<12	q		I think I am very creative.	list|1|True|2|False
+	BASCc2	BASCc2	AGE<12	q		School has too many rules.	list|1|True|2|False
+	BASCc3	BASCc3	AGE<12	q		People expect too much from me.	list|1|True|2|False
+	BASCc4	BASCc4	AGE<12	q		I need help to get along with others.	list|1|True|2|False
+	BASCc5	BASCc5	AGE<12	q		I often have nightmares.	list|1|True|2|False
+	BASCc6	BASCc6	AGE<12	]		My parents are often proud of me.	list|1|True|2|False
+	BASCc7	BASCc7	AGE<12	[		I hear things that others cannot hear.	list|1|True|2|False
+	BASCc8	BASCc8	AGE<12	q		Life is getting worse and worse.	list|1|True|2|False
+	BASCc9	BASCc9	AGE<12	q		My teacher gets mad at me for nothing.	list|1|True|2|False
+	BASCc10	BASCc10	AGE<12	q		I quit easily.	list|1|True|2|False
+	BASCc11	BASCc11	AGE<12	q		I wish I were someone else.	list|1|True|2|False
+	BASCc12	BASCc12	AGE<12	]		Other people always find things wrong with me.	list|1|True|2|False
+	BASCc13	BASCc13	AGE<12	[		I am dependable.	list|1|True|2|False
+	BASCc14	BASCc14	AGE<12	q		"People get mad at me, even when I don't do anything wrong."	list|1|True|2|False
+	BASCc15	BASCc15	AGE<12	q		I hate school.	list|1|True|2|False
+	BASCc16	BASCc16	AGE<12	q		I worry a lot of the time.	list|1|True|2|False
+	BASCc17	BASCc17	AGE<12	q		I am always nice to teachers.	list|1|True|2|False
+	BASCc18	BASCc18	AGE<12	]		Sometimes voices tell me to do bad things.	list|1|True|2|False
+	BASCc19	BASCc19	AGE<12	[		Nothing ever goes right for me.	list|1|True|2|False
+	BASCc20	BASCc20	AGE<12	q		I am always disappointed with my grades.	list|1|True|2|False
+	BASCc21	BASCc21	AGE<12	q		Other children are happier than I am.	list|1|True|2|False
+	BASCc22	BASCc22	AGE<12	q		My parents have too much control over my life.	list|1|True|2|False
+	BASCc23	BASCc23	AGE<12	q		I have never been in a car.	list|1|True|2|False
+	BASCc24	BASCc24	AGE<12	]		I wish there were no report cards.	list|1|True|2|False
+	BASCc25	BASCc25	AGE<12	[		I see weird things.	list|1|True|2|False
+	BASCc26	BASCc26	AGE<12	q		Sometimes my teacher makes me feel stupid.	list|1|True|2|False
+	BASCc27	BASCc27	AGE<12	q		When I am wrong I can change things to be right again.	list|1|True|2|False
+	BASCc28	BASCc28	AGE<12	q		I don't care about school.	list|1|True|2|False
+	BASCc29	BASCc29	AGE<12	q		I can't stop myself from making mistakes.	list|1|True|2|False
+	BASCc30	BASCc30	AGE<12	]		My friends are usually kind to me.	list|1|True|2|False
+	BASCc31	BASCc31	AGE<12	[		I am afraid I might do something bad.	list|1|True|2|False
+	BASCc32	BASCc32	AGE<12	q		My parents think I am dumb.	list|1|True|2|False
+	BASCc33	BASCc33	AGE<12	q		I go from happy to mad very fast.	list|1|True|2|False
+	BASCc34	BASCc34	AGE<12	q		No one understands me.	list|1|True|2|False
+	BASCc35	BASCc35	AGE<12	q		"When I get a bad grade, it's usually because the teacher doesn't like me."	list|1|True|2|False
+	BASCc36	BASCc36	AGE<12	]		"When I take tests, I can't think."	list|1|True|2|False
+	BASCc37	BASCc37	AGE<12	[		I like who I am.	list|1|True|2|False
+	BASCc38	BASCc38	AGE<12	q		I wish I were invited to more parties.	list|1|True|2|False
+	BASCc39	BASCc39	AGE<12	q		I can usually solve a difficult problem by myself.	list|1|True|2|False
+	BASCc40	BASCc40	AGE<12	q		My parents control my life.	list|1|True|2|False
+	BASCc41	BASCc41	AGE<12	q		I don't like thinking about school.	list|1|True|2|False
+	BASCc42	BASCc42	AGE<12	]		I am bothered by thoughts about death.	list|1|True|2|False
+	BASCc43	BASCc43	AGE<12	[		My teacher cares about me.	list|1|True|2|False
+	BASCc44	BASCc44	AGE<12	q		I cannot stop myself from doing bad things.	list|1|True|2|False
+	BASCc45	BASCc45	AGE<12	q		Adults have a better life than I do.	list|1|True|2|False
+	BASCc46	BASCc46	AGE<12	q		I cover up my work when the teacher walks by.	list|1|True|2|False
+	BASCc47	BASCc47	AGE<12	q		People say bad things to me.	list|1|True|2|False
+	BASCc48	BASCc48	AGE<12	]		What I want never seems to matter.	list|1|True|2|False
+	BASCc49	BASCc49	AGE<12	[		My feelings get hurt easily.	list|1|True|2|False
+	BASCc50	BASCc50	AGE<12	q		I prefer to be alone most  of the time.	list|1|True|2|False
+	BASCc51	BASCc51	AGE<12	q		I hear voices in my head.	list|1|True|2|False
+	BASCc52	BASCc52	AGE<12	q		Teachers mostly look for the bad things that you do.	list|1|True|2|False
+	BASCc53	BASCc53	AGE<12	q		"If I have a problem, I can usually work it out."	list|1|True|2|False
+	BASCc54	BASCc54	AGE<12	]		School is boring.	list|1|True|2|False
+	BASCc55	BASCc55	AGE<12	[		I get blamed for things I can't help.	list|1|True|2|False
+	BASCc56	BASCc56	AGE<12	q		My classmates don't like me.	list|1|True|2|False
+	BASCc57	BASCc57	AGE<12	q		I often worry about something bad happening to me.	list|1|True|2|False
+	BASCc58	BASCc58	AGE<12	q		My mother and father help me if I ask them to.	list|1|True|2|False
+	BASCc59	BASCc59	AGE<12	q		I cannot control my thoughts.	list|1|True|2|False
+	BASCc60	BASCc60	AGE<12	]		I am always in trouble with someone.	list|1|True|2|False
+	BASCc61	BASCc61	AGE<12	[		Most teachers are unfair.	list|1|True|2|False
+	BASCc62	BASCc62	AGE<12	q		"I want to do better, but I can't."	list|1|True|2|False
+	BASCc63	BASCc63	AGE<12	q		I like the way I look.	list|1|True|2|False
+	BASCc64	BASCc64	AGE<12	q		People act as if they don't hear me.	list|1|True|2|False
+	BASCc65	BASCc65	AGE<12	q		My teacher doesn't have to help me very much.	list|1|True|2|False
+	BASCc66	BASCc66	AGE<12	]		My parents blame too many of their problems on me.	list|1|True|2|False
+	BASCc67	BASCc67	AGE<12	[		Superman is a real person.	list|1|True|2|False
+	BASCc68	BASCc68	AGE<12	q		I worry about what other people think about me.	list|1|True|2|False
+	BASCc69	BASCc69	AGE<12	q		My parents trust me.	list|1|True|2|False
+	BASCc70	BASCc70	AGE<12	q		"Sometimes, when alone, I hear my name."	list|1|True|2|False
+	BASCc71	BASCc71	AGE<12	q		I am good at only one or two things.	list|1|True|2|False
+	BASCc72	BASCc72	AGE<12	]		It is hard for me to keep my mind on schoolwork.	list|1|True|2|False
+	BASCc73	BASCc73	AGE<12	[		I feel out of place around people.	list|1|True|2|False
+	BASCc74	BASCc74	AGE<12	q		Bad things just happen.	list|1|True|2|False
+	BASCc75	BASCc75	AGE<12	q		Little things bother me a lot.	list|1|True|2|False
+	BASCc76	BASCc76	AGE<12	q		Nobody ever listens to me.	list|1|True|2|False
+	BASCc77	BASCc77	AGE<12	q		Other kids hate to be with me.	list|1|True|2|False
+	BASCc78	BASCc78	AGE<12	]		I am good at being myself.	list|1|True|2|False
+	BASCc79	BASCc79	AGE<12	[		My school feels good to me.	list|1|True|2|False
+	BASCc80	BASCc80	AGE<12	q		My parents often nag me about doing chores at home.	list|1|True|2|False
+	BASCc81	BASCc81	AGE<12	q		My classmates make fun of me.	list|1|True|2|False
+	BASCc82	BASCc82	AGE<12	q		I worry when I go to bed at night.	list|1|True|2|False
+	BASCc83	BASCc83	AGE<12	q		I like to show my report card to my mother and father.	list|1|True|2|False
+	BASCc84	BASCc84	AGE<12	]		I itch on the inside.	list|1|True|2|False
+	BASCc85	BASCc85	AGE<12	[		I think I am dumb next to my friends.	list|1|True|2|False
+	BASCc86	BASCc86	AGE<12	q		My teacher understands me.	list|1|True|2|False
+	BASCc87	BASCc87	AGE<12	q		I usually fail.	list|1|True|2|False
+	BASCc88	BASCc88	AGE<12	q		I wish I were different.	list|1|True|2|False
+	BASCc89	BASCc89	AGE<12	q		"Sometimes I feel lonely, even when there are people with me."	list|1|True|2|False
+	BASCc90	BASCc90	AGE<12	]		I am good at schoolwork.	list|1|True|2|False
+	BASCc91	BASCc91	AGE<12	[		I can't seem to control what happens to me.	list|1|True|2|False
+	BASCc92	BASCc92	AGE<12	q		I drink 50 glasses of milk every day.	list|1|True|2|False
+	BASCc93	BASCc93	AGE<12	q		I am nervous.	list|1|True|2|False
+	BASCc94	BASCc94	AGE<12	q		My parents like to help with my homework.	list|1|True|2|False
+	BASCc95	BASCc95	AGE<12	q		My skin feels funny sometimes.	list|1|True|2|False
+	BASCc96	BASCc96	AGE<12	]		I am always in trouble at home.	list|1|True|2|False
+	BASCc97	BASCc97	AGE<12	[		"Most of the time, you have to cheat to win."	list|1|True|2|False
+	BASCc98	BASCc98	AGE<12	q		"I want to be more independent, but it scares me."	list|1|True|2|False
+	BASCc99	BASCc99	AGE<12	q		I am blamed for a lot of things I don't do.	list|1|True|2|False
+	BASCc100	BASCc100	AGE<12	q		I worry about diappointing by parents.	list|1|True|2|False
+	BASCc101	BASCc101	AGE<12	q		I always have bad luck.	list|1|True|2|False
+	BASCc102	BASCc102	AGE<12	]		Others have respect for me.	list|1|True|2|False
+	BASCc103	BASCc103	AGE<12	[		I am a dependable friend.	list|1|True|2|False
+	BASCc104	BASCc104	AGE<12	q		I can hardly wait to quit school.	list|1|True|2|False
+	BASCc105	BASCc105	AGE<12	q		"It doesn't matter if I say I am sorry, people are still mad at me."	list|1|True|2|False
+	BASCc106	BASCc106	AGE<12	q		People think I am fun to be with.	list|1|True|2|False
+	BASCc107	BASCc107	AGE<12	q		I am bothered by not getting enough sleep.	list|1|True|2|False
+	BASCc108	BASCc108	AGE<12	]		I like to be close to my parents.	list|1|True|2|False
+	BASCc109	BASCc109	AGE<12	[		I have many accidents.	list|1|True|2|False
+	BASCc110	BASCc110	AGE<12	q		I used to be happier.	list|1|True|2|False
+	BASCc111	BASCc111	AGE<12	q		My teacher is always telling me what to do.	list|1|True|2|False
+	BASCc112	BASCc112	AGE<12	q		Tests are not fair to most people.	list|1|True|2|False
+	BASCc113	BASCc113	AGE<12	q		I have nice hair.	list|1|True|2|False
+	BASCc114	BASCc114	AGE<12	]		I am lonely.	list|1|True|2|False
+	BASCc115	BASCc115	AGE<12	[		I like to answer questions in class.	list|1|True|2|False
+	BASCc116	BASCc116	AGE<12	q		"Things go wrong for me, even when I try hard."	list|1|True|2|False
+	BASCc117	BASCc117	AGE<12	q		Nobody likes me.	list|1|True|2|False
+	BASCc118	BASCc118	AGE<12	q		I get nervous when things do not go the right way for me.	list|1|True|2|False
+	BASCc119	BASCc119	AGE<12	q		I have no teeth.	list|1|True|2|False
+	BASCc120	BASCc120	AGE<12	]		Sometimes I want to hurt myself.	list|1|True|2|False
+	BASCc121	BASCc121	AGE<12	[		I just don't care anymore.	list|1|True|2|False
+	BASCc122	BASCc122	AGE<12	q		I never have time to do all my schoolwork.	list|1|True|2|False
+	BASCc123	BASCc123	AGE<12	q		I am bothered by rumors about me or my friends.	list|1|True|2|False
+	BASCc124	BASCc124	AGE<12	q		My mother and father like my friends.	list|1|True|2|False
+	BASCc125	BASCc125	AGE<12	q		I worry about what is going to happen.	list|1|True|2|False
+	BASCc126	BASCc126	AGE<12	]		I have too many problems.	list|1|True|2|False
+	BASCc127	BASCc127	AGE<12	[		I am good at showing others how to do things.	list|1|True|2|False
+	BASCc128	BASCc128	AGE<12	q		I am good at making decisions.	list|1|True|2|False
+	BASCc129	BASCc129	AGE<12	q		I can't wait for school to be over.	list|1|True|2|False
+	BASCc130	BASCc130	AGE<12	q		My parents expect too much from me.	list|1|True|2|False
+	BASCc131	BASCc131	AGE<12	q		Other children don't like to be with me.	list|1|True|2|False
+	BASCc132	BASCc132	AGE<12	]		I feel guilty about things.	list|1|True|2|False
+	BASCc133	BASCc133	AGE<12	[		My parents don't think much of me.	list|1|True|2|False
+	BASCc134	BASCc134	AGE<12	q		I see things that others cannot see.	list|1|True|2|False
+	BASCc135	BASCc135	AGE<12	q		I prefer not to be noticed.	list|1|True|2|False
+	BASCc136	BASCc136	AGE<12	q		My teacher is often proud of me.	list|1|True|2|False
+	BASCc137	BASCc137	AGE<12	q		I give up easily.	list|1|True|2|False
+	BASCc138	BASCc138	AGE<12	]		I am nice looking.	list|1|True|2|False
+	BASCc139	BASCc139	AGE<12	[		I feel someone will tell me I do things the wrong way.	list|1|True|2|False
+	BASCc140	BASCc140	AGE<12	q		I always do homework on time.	list|1|True|2|False
+	BASCc141	BASCc141	AGE<12	q		My parents are always telling me what to do.	list|1|True|2|False
+	BASCc142	BASCc142	AGE<12	q		Other people make fun of me.	list|1|True|2|False
+	BASCc143	BASCc143	AGE<12	q		I am afraid of a lot of things.	list|1|True|2|False
+	BASCc144	BASCc144	AGE<12	q		I have never been to sleep.	list|1|True|2|False
+	BASCc145	BASCc145	AGE<12	]		Sometimes I can't stop what I am doing.	list|1|True|2|False
+	BASCc146	BASCc146	AGE<12	[		Nothing about me is right.	list|1|True|2|False
+	BASCc147	BASCc147	AGE<12	q		I often get sick before tests.	list|1|True|2|False
+	BASCc148	BASCc148	AGE<12	q		I am bothered by teasing from others.	list|1|True|2|False
+	BASCc149	BASCc149	AGE<12	q		My parents listen to what I say.	list|1|True|2|False
+	BASCc150	BASCc150	AGE<12	q		I worry over tests at school.	list|1|True|2|False
+	BASCc151	BASCc151	AGE<12	q		Nothing goes my way.	list|1|True|2|False
+	BASCc152	BASCc152	AGE<12	]		I smile and laugh a lot.	list|1|True|2|False
+	Yellow3	Yellow3	1	[		Please get out the yellow answer card again for this next section.	nothing
+	SEQ1	SEQ1	1	q		How often do you get left out of activities on purpose?	list|1|Never|2|hardly ever|3|sometimes  |4|often |5| almost all the time 
+	SEQ2	SEQ2	1	q		How often do you get pushed out of a group because someone is mad at you?	list|1|Never|2|hardly ever|3|sometimes  |4|often |5| almost all the time 
+	SEQ3	SEQ3	1	q		How often has a kid told lies about you so other kids won't like you anymore	list|1|Never|2|hardly ever|3|sometimes  |4|often |5| almost all the time 
+	SEQ4	SEQ4	1	q		How often does another kid say they won't like you unless you do what they want?	list|1|Never|2|hardly ever|3|sometimes  |4|often |5| almost all the time 
+	SEQ5	SEQ5	1	q		How often does another kid say mean things about you so others won't like you?	list|1|Never|2|hardly ever|3|sometimes  |4|often |5| almost all the time 
+	SEQ6	SEQ6	1	q		How often do you get hit by another kid at school?	list|1|Never|2|hardly ever|3|sometimes  |4|often |5| almost all the time 
+	SEQ7	SEQ7	1	]		How often do you get pushed or shoved by another kid at school? 	list|1|Never|2|hardly ever|3|sometimes  |4|often |5| almost all the time 
+	SEQ8	SEQ8	1	[		How often do you get kicked or have your hair pulled by another kid?	list|1|Never|2|hardly ever|3|sometimes  |4|often |5| almost all the time 
+	SEQ9	SEQ9	1	q		How often does another kid give you help when you need it?	list|1|Never|2|hardly ever|3|sometimes  |4|often |5| almost all the time 
+	SEQ10	SEQ10	1	q		How often does another kid cheer you up when you are sad or upset?	list|1|Never|2|hardly ever|3|sometimes  |4|often |5| almost all the time 
+	SEQ11	SEQ11	1	q		How often does another kid do something that makes you feel happy?	list|1|Never|2|hardly ever|3|sometimes  |4|often |5| almost all the time 
+	SEQ12	SEQ12	1	q		How often does another kid say something nice to you? 	list|1|Never|2|hardly ever|3|sometimes  |4|often |5| almost all the time 
+	SEQ13	SEQ13	1	]		How often does another kid let you know they care about you?	list|1|Never|2|hardly ever|3|sometimes  |4|often |5| almost all the time 
+BSI	ndBSIintro	ndBSIintro	AGE>=18	[		"The next questions list problems people sometimes have. Please get out the …. Response card. For each one, tell me how much that problem has distressed or bothered you during the past 7 days including today."	nothing
+BSI	BSI1	BSI1	AGE>=18	q		"In the past 7 days, how much were you distressed by faintness or dizziness?"	list|0|not at all |1|a little bit |2| moderately |3|quite a bit |4|extremely
+BSI	BSI2	BSI2	AGE>=18	q		How much were you distressed by feeling no interest in things?	list|0|not at all |1|a little bit |2| moderately |3|quite a bit |4|extremely
+BSI	BSI3	BSI3	AGE>=18	q		"In the past 7 days, how much were you distressed by nervousness or shakiness inside?"	list|0|not at all |1|a little bit |2| moderately |3|quite a bit |4|extremely
+BSI	BSI4	BSI4	AGE>=18	]		How much were you distressed by pains in heart or chest?	list|0|not at all |1|a little bit |2| moderately |3|quite a bit |4|extremely
+BSI	BSI5	BSI5	AGE>=18	[		"In the past 7 days, how much were you distressed by feeling lonely?"	list|0|not at all |1|a little bit |2| moderately |3|quite a bit |4|extremely
+BSI	BSI6	BSI6	AGE>=18	q		How much were you distressed by feeling tense or keyed up?	list|0|not at all |1|a little bit |2| moderately |3|quite a bit |4|extremely
+BSI	BSI7	BSI7	AGE>=18	q		"In the past 7 days, how much were you distressed by nausea or upset stomach?"	list|0|not at all |1|a little bit |2| moderately |3|quite a bit |4|extremely
+BSI	BSI8	BSI8	AGE>=18	]		How much were you distressed by feeling blue?	list|0|not at all |1|a little bit |2| moderately |3|quite a bit |4|extremely
+BSI	BSI9	BSI9	AGE>=18	[		"In the past 7 days, how much were you distressed or suddenly scared for no reason?"	list|0|not at all |1|a little bit |2| moderately |3|quite a bit |4|extremely
+BSI	BSI10	BSI10	AGE>=18	q		How much were you distressed by trouble getting your breath?	list|0|not at all |1|a little bit |2| moderately |3|quite a bit |4|extremely
+BSI	BSI11	BSI11	AGE>=18	q		"In the past 7 days, how much were you distressed by feelings of worthlessness?"	list|0|not at all |1|a little bit |2| moderately |3|quite a bit |4|extremely
+	BSI12	BSI12	AGE>=18	]		How much were you distressed by spells of terror or panic?	list|0|not at all |1|a little bit |2| moderately |3|quite a bit |4|extremely
+	BSI13	BSI13	AGE>=18	[		How much were you distressed by numbness or tingling in parts of your body?	list|0|not at all |1|a little bit |2| moderately |3|quite a bit |4|extremely
+	BSI14	BSI14	AGE>=18	q		How much were you distressed by feeling hopeless about the future?	list|0|not at all |1|a little bit |2| moderately |3|quite a bit |4|extremely
+	BSI15	BSI15	AGE>=18	q		How much were you distressed by feeling so restless you couldn’t sit still?	list|0|not at all |1|a little bit |2| moderately |3|quite a bit |4|extremely
+	BSI16	BSI16	AGE>=18	]		How much were you distressed by feeling weak in parts of your body?	list|0|not at all |1|a little bit |2| moderately |3|quite a bit |4|extremely
+	BSI17	BSI17	AGE>=18	[		How much were you distressed by thoughts of ending your life?	list|0|not at all |1|a little bit |2| moderately |3|quite a bit |4|extremely
+	BSI18	BSI18	AGE>=18	]		How much were you distressed by feeling fearful?	list|0|not at all |1|a little bit |2| moderately |3|quite a bit |4|extremely
+	ndASintro	ndASintro	AGE>=18	q		"For the next few questions about yourself, please answer yes or no. If not sure, you can answer maybe."	nothing
+	Antisoc1s	Antisoc1s	AGE>=18	[		"In the past five years have you done things that are against the law -- even if you weren't caught-- like stealing, using or selling drugs, writing bad checks, or having sex for money?"	list|2|yes|1|maybe|0|no
+	Antisoc2s	Antisoc2s	AGE>=18	q		Do you often find that you have to lie to get what you want?	list|2|yes|1|maybe|0|no
+	Antisoc3s	Antisoc3s	AGE>=18	]		Do you often do things on the spur of the moment without thinking about how it will affect you or other people?	list|2|yes|1|maybe|0|no
+	Antisoc4s	Antisoc4s	AGE>=18	[		"In the past five years, have you been in more than one serious physical fight?"	list|2|yes|1|maybe|0|no
+	Antisoc5s	Antisoc5s	AGE>=18	q		Do you ever drive a car when you are drunk or high?	list|2|yes|1|maybe|0|no
+	Antisoc6s	Antisoc6s	AGE>=18	]		"In the past five years, have you had unprotected sex with someone you didn't know well more than once?"	list|2|yes|1|maybe|0|no
+	Antisoc7s	Antisoc7s	AGE>=18	[		"In the past five years, have you walked off a job without notice or stopped going to work without letting your employer know?"	list|2|yes|1|maybe|0|no
+	Antisoc8s	Antisoc8s	AGE>=18	q		Do you borrow money from friends or acquaintances without paying them back?	list|2|yes|1|maybe|0|no
+	Antisoc9s	Antisoc9s	AGE>=18	]		Are you less likely to feel guilty than other people about illegal or disapproved things that you do?	list|2|yes|1|maybe|0|no
+	Antisoc10s	Antisoc10s	AGE>=18	[		"In the last five years, have you used an alias or pretended you were someone else for your own advantage or to get out of trouble?"	list|2|yes|1|maybe|0|no
+	Antisoc11s	Antisoc11s	AGE>=18	q		"Do you sometimes ""con"" people or trick them into doing things for you?"	list|2|yes|1|maybe|0|no
+	Antisoc12s	Antisoc12s	AGE>=18	]		"In the past five years, have you failed to make child support payments or to give money to someone else who depended on you?"	list|2|yes|1|maybe|0|no
+	Sii90	Sii90	AGE>=18	[		Have you often become frantic when you thought that someone you really cared about was going to leave you?	list|2|yes|1|maybe|0|no
+	Sii91	Sii91	AGE>=18	q		Do your relationships with people you really care about have lots of extreme ups and downs?	list|2|yes|1|maybe|0|no
+	Sii92	Sii92	AGE>=18	Q		Have you all of a sudden changed your sense of who you are and where you are headed?	list|2|yes|1|maybe|0|no
+	Sii93	Sii93	AGE>=18	Q		Does your sense of who you are often change dramatically?	list|2|yes|1|maybe|0|no
+	Sii94	Sii94	AGE>=18	]		Are you so different with different people or in different situations that you sometimes don't know who you really are?	list|2|yes|1|maybe|0|no
+	Sii95	Sii95	AGE>=18	[		"Have there been lots of sudden changes in your goals, career plans, religious beliefs, and so on?"	list|2|yes|1|maybe|0|no
+	Sii96	Sii96	AGE>=18	q		Have you often done things impulsively?	list|2|yes|1|maybe|0|no
+	Sii97	Sii97	AGE>=18	q		Have you tried to hurt or kill yourself or threatened to do so?	list|2|yes|1|maybe|0|no
+	Sii98	Sii98	AGE>=18	q		"Have you ever cut, burned, or scratched yourself on purpose?"	list|2|yes|1|maybe|0|no
+	Sii99	Sii99	AGE>=18	]		Do you have a lot of sudden mood changes?	list|2|yes|1|maybe|0|no
+	Sii100	Sii100	AGE>=18	[		Do you often feel empty inside? 	list|2|yes|1|maybe|0|no
+	Sii101	Sii101	AGE>=18	q		Do you often have temper outbursts or get so angry that you lose   control?	list|2|yes|1|maybe|0|no
+	Sii102	Sii102	AGE>=18	q		Do you hit people or throw things when you get angry?	list|2|yes|1|maybe|0|no
+	Sii103	Sii103	AGE>=18	q		Do even little things get you very angry?	list|2|yes|1|maybe|0|no
+	Sii104	Sii104	AGE>=18	]		"When you are under a lot of stress, do you get suspicious of other people or feel especially spaced out?"	list|2|yes|1|maybe|0|no
+	end		1	[		Thank you so much for answering all our questions. We have finished!	nothing
+	end2		1	]		"We will be sending your money order for $30 out in the next few days. Before we finish, do you have any questions?"	nothing
