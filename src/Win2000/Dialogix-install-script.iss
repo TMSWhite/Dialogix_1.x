@@ -5,7 +5,7 @@
 AppName=Dialogix
 AppVerName=Dialogix @@DIALOGIX.VERSION_MAJOR@@.@@DIALOGIX.VERSION_MINOR@@ for @@LICENSE.PRINCIPAL_INVESTIGATOR@@ for @@LICENSE.STUDY_ALIAS@@ Study
 AppPublisher=Thomas M. White, MD
-AppCopyright=Copyright © 2000-2002 Thomas M. White, MD
+AppCopyright=Copyright ï¿½ 2000-2008 Thomas M. White, MD
 AppPublisherURL=http://www.dianexus.org
 AppSupportURL=http://www.dianexus.org
 AppUpdatesURL=http://www.dianexus.org
@@ -13,7 +13,6 @@ DefaultDirName=@@DIALOGIX.HOME@@
 DisableDirPage=yes
 DefaultGroupName=Dialogix
 AllowNoIcons=yes
-AlwaysCreateUninstallIcon=yes
 LicenseFile=@@DIALOGIX.HOME@@\License.txt
 InfoAfterFile=@@DIALOGIX.HOME@@\README.txt
 ; uncomment the following line if you want your installation to run on NT 3.51 too.
@@ -27,7 +26,7 @@ Name: "quicklaunchicon"; Description: "Create a &Quick Launch icon"; GroupDescri
 Source: "@@DIALOGIX.HOME@@\*.*"; DestDir: "{app}"; CopyMode: alwaysoverwrite; Flags: recursesubdirs
 
 [INI]
-Filename: "{app}\dialogix.url"; Section: "InternetShortcut"; Key: "URL"; String: "http://www.dianexus.org"
+Filename: "{app}\dialogix.url"; Section: "InternetShortcut"; Key: "URL"; String: "http://www.dialogix.org:8888/Dialogix"
 
 [Icons]
 Name: "{group}\Dialogix"; Filename: "{app}\dialogix.bat"; WorkingDir: "{app}"; IconFilename: "{app}\dialogix.ico"
